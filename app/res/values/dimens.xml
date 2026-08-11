@@ -144,7 +144,6 @@
 
     <dimen name="connect_info_card_corner_radius">8dp</dimen>
     <dimen name="connect_info_card_elevation">0dp</dimen>
-    <dimen name="connect_info_card_min_height">130dp</dimen>
 
     <dimen name="connect_sync_card_badge_size">40dp</dimen>
     <dimen name="connect_sync_card_badge_icon_inset">9dp</dimen>
@@ -152,7 +151,7 @@
 
     <dimen name="semi_circle_progress_default_width">240dp</dimen>
     <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
-    <dimen name="semi_circle_progress_value_text_size">28sp</dimen>
+    <dimen name="semi_circle_progress_value_text_size">22sp</dimen>
     <dimen name="semi_circle_progress_description_text_size">16sp</dimen>
 
     <!-- Connect progress card -->
@@ -163,12 +162,14 @@
     <dimen name="connect_progress_card_bar_height">8dp</dimen>
     <dimen name="connect_progress_card_info_overlap">-20dp</dimen>
     <dimen name="connect_progress_card_info_padding_top">28dp</dimen>
+    <dimen name="connect_progress_card_info_icon_size">20dp</dimen>
 
     <!-- Connect/PersonalID shared tokens -->
     <!-- Text -->
     <dimen name="connect_text_caption">12sp</dimen>
     <dimen name="connect_text_body">14sp</dimen>
     <dimen name="connect_text_title">16sp</dimen>
+    <dimen name="connect_text_headline">22sp</dimen>
     <dimen name="connect_text_metric">24sp</dimen>
     <dimen name="connect_text_value">28sp</dimen>
     <!-- Spacing / padding -->
@@ -176,6 +177,9 @@
     <dimen name="connect_space_sm">8dp</dimen>
     <dimen name="connect_space_md">12dp</dimen>
     <dimen name="connect_space_lg">16dp</dimen>
+    <dimen name="connect_chip_icon_size">16dp</dimen>
+    <!-- Half of the gap between grid cards; the full 16dp gap is two of these. -->
+    <dimen name="connect_grid_gutter_half">8dp</dimen>
     <!-- Corner radii -->
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>

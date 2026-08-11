@@ -713,6 +713,40 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return lines.isEmpty() ? null : TextUtils.join("\n", lines);
     }
 
+    /**
+     * Whether no further work on this job can earn progress, so progress displays should render as
+     * disabled. For a multi-payment job this is only true once every payment unit is out of visits,
+     * either for good or for today; while any unit is still workable the limits are informational.
+     */
+    public boolean isFurtherWorkBlocked() {
+        if (isFinished() || getIsUserSuspended()) {
+            return true;
+        }
+
+        if (isMultiPayment()) {
+            return allPaymentUnitsAtLimit();
+        }
+
+        return getDeliveries().size() >= getMaxVisits()
+                || numberOfDeliveriesToday() >= getMaxDailyVisits();
+    }
+
+    private boolean allPaymentUnitsAtLimit() {
+        HashMap<String, Integer> total = getDeliveryCountsPerPaymentUnit(false);
+        HashMap<String, Integer> today = getDeliveryCountsPerPaymentUnit(true);
+
+        for (ConnectPaymentUnitRecord unit : getPaymentUnits()) {
+            String key = unit.getUnitUUID();
+            int totalCount = total.containsKey(key) ? total.get(key) : 0;
+            int todayCount = today.containsKey(key) ? today.get(key) : 0;
+            if (totalCount < unit.getMaxTotal() && todayCount < unit.getMaxDaily()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static ConnectJobRecord fromV21(ConnectJobRecordV21 oldRecord) {
         ConnectJobRecord newRecord = new ConnectJobRecord();
         newRecord.jobId = oldRecord.getJobId();

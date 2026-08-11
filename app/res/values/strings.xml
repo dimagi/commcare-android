@@ -738,6 +738,16 @@
     <string name="connect_delivery_continue_visits">Continue your visits</string>
     <string name="connect_delivery_continue_visits_subtitle">Submit delivery forms</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
+    <string name="connect_delivery_visit_progress_title">Visit Progress</string>
+    <string name="connect_delivery_total_visits_completed">total visits completed</string>
+    <string name="connect_delivery_daily_visits">Daily Visits</string>
+    <string name="connect_delivery_your_progress">Your Progress</string>
+    <string name="connect_delivery_total_earnings">Total earnings</string>
+    <string name="connect_delivery_amount_each">%1$s each</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">%1$d visit remaining today</item>
+        <item quantity="other">%1$d visits remaining today</item>
+    </plurals>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
     <string name="connect_visit_type_title">%s Visits</string>
 

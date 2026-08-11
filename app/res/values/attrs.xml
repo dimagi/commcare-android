@@ -163,6 +163,7 @@
         <attr name="subtitleText" format="string" />
         <attr name="icon" format="reference" />
         <attr name="navigable" format="boolean" />
+        <attr name="contentEnabled" />
     </declare-styleable>
 
     <declare-styleable name="ConnectInfoCard">
