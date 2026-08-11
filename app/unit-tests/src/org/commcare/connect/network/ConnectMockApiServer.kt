@@ -8,13 +8,16 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.connect.ConnectApiClient
+import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.repository.ConnectRepository
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
 /**
- * [MockWebServer] harness that points [ConnectApiClient] at a local mock server so Connect API
- * calls hit it. The PersonalID equivalent lives in `PersonalIdMockApiServer`; the two target
- * different Retrofit clients.
+ * [MockWebServer] harness that points the Connect API clients at a local mock server so Connect API
+ * calls hit it: both the callback-based [ConnectApiClient] and the coroutine-based
+ * [ConnectNetworkClient] that [ConnectRepository] talks through. The PersonalID equivalent lives in
+ * `PersonalIdMockApiServer`; the two target different Retrofit clients.
  *
  * Retrofit posts callbacks to the main looper as it does in production, and [drainHttp] runs them
  * deterministically.
@@ -44,11 +47,13 @@ class ConnectMockApiServer {
                 }.build()
         httpDispatcher = (retrofit.callFactory() as OkHttpClient).dispatcher
         setConnectApiService(retrofit.create(ApiService::class.java))
+        setConnectNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
     }
 
     fun shutdown() {
         dispatchCallbacks = false
         setConnectApiService(null)
+        setConnectNetworkClient(null)
         server.shutdown()
     }
 
@@ -86,5 +91,22 @@ class ConnectMockApiServer {
         val apiServiceField = ConnectApiClient::class.java.getDeclaredField("apiService")
         apiServiceField.isAccessible = true
         apiServiceField.set(null, apiService)
+    }
+
+    /**
+     * Swaps the [ConnectNetworkClient] singleton and drops the [ConnectRepository] one so the next
+     * caller rebuilds it against this client instead of the production base URL.
+     */
+    private fun setConnectNetworkClient(client: ConnectNetworkClient?) {
+        setStaticField(ConnectNetworkClient::class.java, "instance", client)
+        setStaticField(ConnectRepository::class.java, "instance", null)
+    }
+
+    private fun setStaticField(
+        owner: Class<*>,
+        name: String,
+        value: Any?,
+    ) {
+        owner.getDeclaredField(name).apply { isAccessible = true }.set(null, value)
     }
 }
