@@ -100,6 +100,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
 
     @Override
+    public boolean usesGenericApplicationTitle() {
+        return true;
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_FILE_LOCATION && resultCode == AppCompatActivity.RESULT_OK) {
             FileUtil.updateFileLocationFromIntent(this, intent, editFileLocation);
