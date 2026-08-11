@@ -258,6 +258,11 @@ public class InstallFromListActivity<T> extends CommCareActivity<T> implements H
         return false;
     }
 
+    @Override
+    public boolean usesGenericApplicationTitle() {
+        return true;
+    }
+
     private String getUsernameForAuth() {
         if (inMobileUserAuthMode) {
             String username = ((EditText)findViewById(R.id.edit_username)).getText().toString();

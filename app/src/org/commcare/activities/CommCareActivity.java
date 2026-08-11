@@ -515,6 +515,10 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
         return null;
     }
 
+    public boolean usesGenericApplicationTitle() {
+        return false;
+    }
+
     public static String getTopLevelTitleName(Context c) {
         try {
             return Localization.get("app.display.name");
