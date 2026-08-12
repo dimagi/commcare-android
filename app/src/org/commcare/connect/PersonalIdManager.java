@@ -138,9 +138,12 @@ public class PersonalIdManager {
                     TimeUnit.MILLISECONDS
             ).build();
 
+            // UPDATE rather than REPLACE: REPLACE cancels and re-enqueues, which makes the worker
+            // eligible to run immediately on every unlock. An in-flight run started that way can
+            // land after a subsequent sign-out and write to a deleted Connect DB.
             WorkManager.getInstance(CommCareApplication.instance()).enqueueUniquePeriodicWork(
                     CONNECT_HEARTBEAT_REQUEST_NAME,
-                    ExistingPeriodicWorkPolicy.REPLACE,
+                    ExistingPeriodicWorkPolicy.UPDATE,
                     heartbeatRequest
             );
         }
