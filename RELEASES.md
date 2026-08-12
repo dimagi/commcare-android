@@ -14,9 +14,6 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - On a device where PersonalID sign-up previously got stuck due to a Firebase OTP error, a pre-invited user will now receive the OTP via Twilio automatically and can complete the sign-up flow.
 - Confirm that entering an incorrect verification code still displays the "incorrect code" error and does not silently trigger a new OTP.
-- After signing out of PersonalID, the nav drawer should offer sign-in/register rather than a "Logged out of PersonalID" error asking you to configure the account again. Worth repeating a few times, and while push notifications are actively arriving, since the original failure depended on timing.
-- Confirm signing back in still works and that notifications and messaging behave normally afterward.
-- The periodic notification retrieval, Connect heartbeat, and release toggle workers no longer restart from scratch on every biometric unlock, so they keep their existing schedule instead of firing immediately. Confirm notifications, heartbeat, and release toggles still update on a fresh sign-in and continue working across unlocks.
 
 ## CommCare 2.63.4
 
