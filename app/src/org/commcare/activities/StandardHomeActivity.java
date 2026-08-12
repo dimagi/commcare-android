@@ -296,6 +296,8 @@ public class StandardHomeActivity
         showAlertDialog(dialog);
     }
 
+    // Unlike HomeScreenBaseActivity.userTriggeredLogout(), goes through Dispatch so this lands on
+    // the login screen even when Home was launched from Connect and nothing would read the result.
     private void returnToLogin() {
         if (isBlockedByActiveSync()) {
             return;
