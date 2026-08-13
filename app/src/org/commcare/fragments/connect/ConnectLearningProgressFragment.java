@@ -13,7 +13,7 @@ import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppLaunchController;
-import org.commcare.connect.ConnectDateUtils;
+import org.commcare.connect.ConnectJobClaimController;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.repository.ConnectRepository;
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
+import static org.commcare.fragments.extensions.FragmentExtensionsKt.hasLiveView;
 
 public class ConnectLearningProgressFragment extends ConnectJobFragment<FragmentConnectLearningProgressBinding>
         implements RefreshableFragment {
@@ -65,6 +66,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         setupRefreshButton();
         populateJobCard();
+        updateLearningUI();
         observeLearningProgress();
         return view;
     }
@@ -101,54 +103,71 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void updateLearningUI() {
-        boolean learningComplete =
-                job.getLearningPercentComplete(false) >= 100;
-        boolean attemptedAssessment = job.attemptedAssessment();
-        boolean passedAssessment = job.passedAssessment();
+        boolean learningComplete = job.getLearningPercentComplete(false) >= 100;
+        boolean showLearningComplete = learningComplete && job.passedAssessment();
 
-        updateProgressViews(
-                job.getLearningPercentComplete(true),
-                passedAssessment
-        );
-        updateCertificateView(learningComplete, passedAssessment);
-        updateButtons(learningComplete, passedAssessment);
-        updateLearningStatus(learningComplete, passedAssessment, attemptedAssessment);
-    }
-
-    private void updateProgressViews(int learningProgressPercent, boolean hideProgress) {
-        int visibility = hideProgress ? View.GONE : View.VISIBLE;
-        getBinding().connectLearningProgressBar.setVisibility(visibility);
-        getBinding().connectLearningProgressText.setVisibility(visibility);
-        getBinding().connectLearnProgressBarTextContainer.setVisibility(visibility);
-        getBinding().learningCard.setVisibility(visibility);
-
-        if (!hideProgress) {
-            getBinding().connectLearningProgressBar.setProgress(learningProgressPercent);
-            getBinding().connectLearningProgressText.setText(
-                    String.format(Locale.getDefault(), "%d%%", learningProgressPercent)
+        if (showLearningComplete) {
+            getBinding().progressContainer.setVisibility(View.GONE);
+            getBinding().learnCompleteView.setVisibility(View.VISIBLE);
+            getBinding().learnCompleteView.bind(
+                    job,
+                    getLatestCompletionDate(),
+                    ConnectUserDatabaseUtil.getUser(requireContext()).getName(),
+                    this::onDeliveryCtaClicked
             );
+        } else {
+            getBinding().progressContainer.setVisibility(View.VISIBLE);
+            getBinding().learnCompleteView.setVisibility(View.GONE);
+            updateProgressViews(job.getLearningPercentComplete(true));
+            updateButtons(learningComplete);
+            updateLearningStatus(learningComplete, job.attemptedAssessment());
         }
     }
 
-    private void updateCertificateView(boolean learningComplete, boolean passedAssessment) {
-        getBinding().connectLearningCertificateContainer.setVisibility(
-                learningComplete && passedAssessment ? View.VISIBLE : View.GONE
+    private void updateProgressViews(int learningProgressPercent) {
+        getBinding().connectLearningProgressBar.setProgress(learningProgressPercent);
+        getBinding().connectLearningProgressText.setText(
+                String.format(Locale.getDefault(), "%d%%", learningProgressPercent)
         );
+    }
 
-        if (learningComplete && passedAssessment) {
-            getBinding().connectLearnCertSubject.setText(job.getTitle());
-            getBinding().connectLearnCertPerson.setText(
-                    ConnectUserDatabaseUtil.getUser(requireContext()).getName()
-            );
+    private void onDeliveryCtaClicked(View view) {
+        getBinding().learnCompleteView.hideClaimFailure();
+        getBinding().learnCompleteView.setCtaEnabled(false);
 
-            Date latestDate = getLatestCompletionDate();
-            getBinding().connectLearnCertDate.setText(
-                    getString(
-                            R.string.connect_learn_completed,
-                            ConnectDateUtils.INSTANCE.formatDate(latestDate)
-                    )
-            );
-        }
+        new ConnectJobClaimController(requireContext()).claimIfNeededAndProceed(
+                job,
+                deliveryAppInstalled -> {
+                    if (!hasLiveView(this)) {
+                        return;
+                    }
+                    Navigation.findNavController(view).navigate(
+                            deliveryAppInstalled
+                                    ? navigateToDeliveryProgress()
+                                    : navigateToDeliveryDownload()
+                    );
+                },
+                message -> {
+                    if (!hasLiveView(this)) {
+                        return;
+                    }
+                    getBinding().learnCompleteView.setCtaEnabled(true);
+                    getBinding().learnCompleteView.showClaimFailure(message);
+                }
+        );
+    }
+
+    private NavDirections navigateToDeliveryProgress() {
+        return ConnectLearningProgressFragmentDirections
+                .actionConnectJobLearningProgressFragmentToConnectJobDeliveryProgressFragment();
+    }
+
+    private NavDirections navigateToDeliveryDownload() {
+        return ConnectLearningProgressFragmentDirections
+                .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
+                        getString(R.string.connect_downloading_delivery),
+                        false
+                );
     }
 
     private Date getLatestCompletionDate() {
@@ -172,14 +191,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         return latestDate != null ? latestDate : new Date();
     }
 
-    private void updateButtons(boolean learningComplete, boolean passedAssessment) {
+    private void updateButtons(boolean learningComplete) {
         getBinding().connectLearningReviewButton.setVisibility(View.GONE); // reserved for future logic
         getBinding().connectLearningButton.setVisibility(showAppLaunch ? View.VISIBLE : View.GONE);
 
         if (showAppLaunch) {
-            if (learningComplete && passedAssessment) {
-                configureJobDetailsButton();
-            } else if (!AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
+            if (!AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
                 // This case needs to come before any that would launch the learn app
                 configureDownloadButton();
             } else if (!learningComplete) {
@@ -188,20 +205,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                 configureGoToAssessmentButton();
             }
         }
-    }
-
-    private void configureJobDetailsButton() {
-        getBinding().connectLearningButton.setText(
-                getString(R.string.connect_learn_view_details)
-        );
-        getBinding().connectLearningButton.setOnClickListener(
-                v -> Navigation.findNavController(v).navigate(
-                        ConnectLearningProgressFragmentDirections
-                                .actionConnectJobLearningProgressFragmentToConnectJobDeliveryDetailsFragment(
-                                        true
-                                )
-                )
-        );
     }
 
     private void configureGoToAssessmentButton() {
@@ -229,39 +232,17 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         );
     }
 
-    private void updateLearningStatus(
-            boolean learningComplete,
-            boolean passedAssessment,
-            boolean attemptedAssessment
-    ) {
-        Pair<Integer, String> status = getLearningStatus(
-                learningComplete,
-                passedAssessment,
-                attemptedAssessment
-        );
+    private void updateLearningStatus(boolean learningComplete, boolean attemptedAssessment) {
+        Pair<Integer, String> status = getLearningStatus(learningComplete, attemptedAssessment);
         getBinding().connectLearnProgressTitle.setText(getString(status.first));
         getBinding().connectLearningStatusText.setText(status.second);
 
         getBinding().connectLearningEndedText.setVisibility(job.isFinished() ? View.VISIBLE : View.GONE);
     }
 
-    private Pair<Integer, String> getLearningStatus(
-            boolean learningComplete,
-            boolean passedAssessment,
-            boolean attemptedAssessment
-    ) {
+    private Pair<Integer, String> getLearningStatus(boolean learningComplete, boolean attemptedAssessment) {
         if (learningComplete) {
             if (attemptedAssessment) {
-                if (passedAssessment) {
-                    return new Pair<>(
-                            R.string.connect_learn_complete_title,
-                            getString(
-                                    R.string.connect_learn_finished, job.getAssessmentScore(),
-                                    job.getLearnAppInfo().getPassingScore()
-                            )
-                    );
-                }
-
                 return new Pair<>(
                         R.string.connect_learn_failed_title,
                         getString(

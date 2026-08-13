@@ -179,6 +179,7 @@
     <!-- Corner radii -->
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>
+    <dimen name="connect_radius_lg">16dp</dimen>
     <dimen name="connect_radius_pill">24dp</dimen>
     <!-- Strokes -->
     <dimen name="connect_stroke_hairline">1dp</dimen>

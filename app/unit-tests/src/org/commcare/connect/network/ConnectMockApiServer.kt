@@ -1,43 +1,63 @@
 package org.commcare.connect.network
 
+import android.os.Handler
+import android.os.Looper
+import okhttp3.Dispatcher
+import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
+import org.commcare.connect.network.connect.ConnectApiClient
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
 /**
- * Reusable [MockWebServer] harness that points [ConnectNetworkClient] at a local mock server, so the
- * Connect API calls — the request, the Retrofit plumbing, and the response parsers — all run for
- * real against enqueued responses.
+ * [MockWebServer] harness that points the Connect API clients at a local mock server so Connect API
+ * calls hit it. The PersonalID equivalent lives in `PersonalIdMockApiServer`; the two target
+ * different Retrofit clients.
  *
- * The client is a process-wide singleton, so [start] swaps its backing instance and [shutdown] must
- * restore it. Callers seat a Connect user with a valid token (see `ConnectTestUtils`) so the calls
- * don't detour to the PersonalId token endpoint, which this server doesn't serve.
+ * Both [ConnectApiClient] and [ConnectNetworkClient] are process-wide singletons, so [start] swaps
+ * their backing instances and [shutdown] must restore them. Callers seat a Connect user with a valid
+ * token (see `ConnectTestUtils`) so the calls don't detour to the PersonalId token endpoint, which
+ * this server doesn't serve.
  *
- * Progress calls run on `Dispatchers.IO` and post their result back to the main looper, hence
- * [awaitRequest] (a real background thread has to reach the server) followed by an idle of the main
- * looper.
+ * Retrofit posts callbacks to the main looper as it does in production, and [drainHttp] runs them
+ * deterministically. Calls that resume on a background dispatcher and only then post their result to
+ * the main looper need [awaitRequest] instead.
  */
 class ConnectMockApiServer {
     lateinit var server: MockWebServer
         private set
+    private lateinit var httpDispatcher: Dispatcher
+
+    @Volatile
+    private var dispatchCallbacks = true
+
+    val requestCount: Int get() = server.requestCount
 
     fun start() {
+        dispatchCallbacks = true
         server = MockWebServer()
         server.start()
-        setNetworkClient(
-            ConnectNetworkClient(
-                BaseApiClient
-                    .buildRetrofitClient(server.url("/").toString())
-                    .create(ConnectApiService::class.java),
-            ),
-        )
+
+        val retrofit =
+            BaseApiClient
+                .buildRetrofitClient(server.url("/").toString())
+                .newBuilder()
+                .callbackExecutor { runnable ->
+                    if (!dispatchCallbacks) return@callbackExecutor
+                    Handler(Looper.getMainLooper()).post(runnable)
+                }.build()
+        httpDispatcher = (retrofit.callFactory() as OkHttpClient).dispatcher
+        setConnectApiService(retrofit.create(ApiService::class.java))
+        setNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
     }
 
     fun shutdown() {
+        dispatchCallbacks = false
+        setConnectApiService(null)
         setNetworkClient(null)
         server.shutdown()
     }
@@ -50,13 +70,31 @@ class ConnectMockApiServer {
     fun enqueueError(code: Int) = server.enqueue(MockResponse().setResponseCode(code).setBody("{}"))
 
     /**
+     * Reads the next request with a bounded wait so a missing dispatch fails fast instead of
+     * hanging the suite.
+     */
+    fun takeRequestOrFail(timeoutSeconds: Long = 5): RecordedRequest =
+        server.takeRequest(timeoutSeconds, TimeUnit.SECONDS)
+            ?: throw AssertionError("Expected an HTTP request within ${timeoutSeconds}s but none arrived")
+
+    /**
+     * Waits for the next request to reach the mock server and its response callback to be posted to
+     * the main looper, then drains UI work so the callback runs before assertions. Returns the
+     * request so callers can assert on it.
+     */
+    fun drainHttp(): RecordedRequest {
+        val request = takeRequestOrFail()
+        awaitHttpCallbackPosted()
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        return request
+    }
+
+    /**
      * Waits for the next request to reach the server, then drains the main looper so the callback
      * the API call posts there has run before assertions.
      */
     fun awaitRequest(timeoutSeconds: Long = 10): RecordedRequest {
-        val request =
-            server.takeRequest(timeoutSeconds, TimeUnit.SECONDS)
-                ?: throw AssertionError("Expected a Connect API request within ${timeoutSeconds}s but none arrived")
+        val request = takeRequestOrFail(timeoutSeconds)
         idleUntilQuiet()
         return request
     }
@@ -70,9 +108,19 @@ class ConnectMockApiServer {
         }
     }
 
+    private fun awaitHttpCallbackPosted(timeoutMs: Long = 5000) {
+        val deadline = System.currentTimeMillis() + timeoutMs
+        while (httpDispatcher.runningCallsCount() > 0) {
+            if (System.currentTimeMillis() >= deadline) {
+                throw AssertionError("HTTP call did not complete within ${timeoutMs}ms")
+            }
+            Thread.sleep(10)
+        }
+    }
+
     /**
-     * The callback hops from an IO thread onto the main looper, so a single idle can run before the
-     * post lands. Idling repeatedly with a short pause covers that handoff.
+     * The callback hops from a background thread onto the main looper, so a single idle can run
+     * before the post lands. Idling repeatedly with a short pause covers that handoff.
      */
     private fun idleUntilQuiet() {
         repeat(HANDOFF_IDLE_ROUNDS) {
@@ -80,6 +128,12 @@ class ConnectMockApiServer {
             Thread.sleep(HANDOFF_PAUSE_MS)
         }
         ShadowLooper.idleMainLooper()
+    }
+
+    private fun setConnectApiService(apiService: ApiService?) {
+        val apiServiceField = ConnectApiClient::class.java.getDeclaredField("apiService")
+        apiServiceField.isAccessible = true
+        apiServiceField.set(null, apiService)
     }
 
     /** The companion's backing field is a static on [ConnectNetworkClient] itself, and is private. */
