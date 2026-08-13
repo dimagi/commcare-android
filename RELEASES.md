@@ -133,6 +133,8 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
+- Redesigned the delivery opportunity home into a tabbed layout (Dashboard, Payment, Visits) with a persistent bottom action bar to launch the delivery app.
+- [Auto Location Capture] We now save the location acquired with the best accuracy in a form session rather than the last one.
 - [Audio Recording Revamp] Refreshed the in-app audio recording UI across the capture, recording, playback, and delete screens
 - [Audio Recording Revamp] Recording now starts immediately when you tap the microphone and saves as soon as you stop, removing the previous intermediate tap-to-record and playback-confirm steps
 - [Audio Recording Revamp] The recording notification now has a Save button, and a Pause/Resume button for long recordings, so you can control the recording without returning to the form

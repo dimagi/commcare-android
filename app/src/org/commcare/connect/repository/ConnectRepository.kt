@@ -8,10 +8,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
@@ -93,6 +95,14 @@ class ConnectRepository
                 mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
             )
 
+        fun startLearning(jobUUID: String): Flow<DataState<Unit>> =
+            networkOnlyFlow { networkClient.startLearnApp(getConnectUser(), jobUUID) }
+
+        fun claimJob(jobUUID: String): Flow<DataState<Unit>> = networkOnlyFlow { networkClient.claimJob(getConnectUser(), jobUUID) }
+
+        fun confirmPayments(paymentConfirmations: List<ConnectPaymentConfirmationModel>): Flow<DataState<Unit>> =
+            networkOnlyFlow { networkClient.confirmPayments(getConnectUser(), paymentConfirmations) }
+
         /**
          * Emits Cached first,then Loading, then Success or Error after network call.
          * DB writes go in [onNetworkSuccess], re-read in [mapToEmit].
@@ -131,18 +141,23 @@ class ConnectRepository
                     .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
             }.flowOn(Dispatchers.IO)
 
-        private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
-            return networkClient.getConnectOpportunities(user)
-        }
+        private fun <T> networkOnlyFlow(networkCall: suspend () -> Result<T>): Flow<DataState<T>> =
+            flow {
+                emit(DataState.Loading)
+                networkCall()
+                    .onSuccess { emit(DataState.Success(it)) }
+                    .onFailure { emit(DataState.Error.from(it)) }
+            }.flowOn(Dispatchers.IO)
 
-        private suspend fun fetchLearningProgressFromNetwork(job: ConnectJobRecord): Result<LearningAppProgressResponseModel> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
-            return networkClient.getLearningProgress(user, job)
-        }
+        private fun getConnectUser(): ConnectUserRecord =
+            requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
 
-        private suspend fun fetchDeliveryProgressFromNetwork(job: ConnectJobRecord): Result<DeliveryAppProgressResponseModel> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
-            return networkClient.getDeliveryProgress(user, job)
-        }
+        private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> =
+            networkClient.getConnectOpportunities(getConnectUser())
+
+        private suspend fun fetchLearningProgressFromNetwork(job: ConnectJobRecord): Result<LearningAppProgressResponseModel> =
+            networkClient.getLearningProgress(getConnectUser(), job)
+
+        private suspend fun fetchDeliveryProgressFromNetwork(job: ConnectJobRecord): Result<DeliveryAppProgressResponseModel> =
+            networkClient.getDeliveryProgress(getConnectUser(), job)
     }

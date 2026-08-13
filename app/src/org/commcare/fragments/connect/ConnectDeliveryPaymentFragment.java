@@ -30,7 +30,8 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.DialogPaymentConfirmationBinding;
-import org.commcare.dalvik.databinding.FragmentConnectResultsSummaryListBinding;
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryPaymentBinding;
+import org.commcare.fragments.RefreshableTab;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,11 +39,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ConnectResultsSummaryListFragment extends ConnectJobFragment<FragmentConnectResultsSummaryListBinding> {
+public class ConnectDeliveryPaymentFragment extends ConnectJobFragment<FragmentConnectDeliveryPaymentBinding>
+        implements RefreshableTab {
     private ResultsAdapter adapter;
 
-    public static ConnectResultsSummaryListFragment newInstance() {
-        return new ConnectResultsSummaryListFragment();
+    public static ConnectDeliveryPaymentFragment newInstance() {
+        return new ConnectDeliveryPaymentFragment();
     }
 
     @Override
@@ -55,11 +57,6 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        getBinding().getRoot().requestLayout();
-    }
-
     public void updateView() {
         reloadActiveJob();
         updateSummaryView();
@@ -84,8 +81,8 @@ public class ConnectResultsSummaryListFragment extends ConnectJobFragment<Fragme
     }
 
     @Override
-    protected @NotNull FragmentConnectResultsSummaryListBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentConnectResultsSummaryListBinding.inflate(inflater, container, false);
+    protected @NotNull FragmentConnectDeliveryPaymentBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectDeliveryPaymentBinding.inflate(inflater, container, false);
     }
 
     private static class ResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {

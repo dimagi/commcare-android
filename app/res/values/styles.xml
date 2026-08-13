@@ -309,8 +309,14 @@
         <item name="descriptionTextColor">@color/connect_text_color</item>
     </style>
 
+    <style name="Widget.CommCare.ConnectProgressCard" parent="">
+        <item name="contentPrimaryColor">@color/connect_text_color</item>
+        <item name="contentAccentColor">@color/connect_dark_blue_color</item>
+        <item name="contentDisabledColor">@color/connect_grey</item>
+    </style>
+
     <style name="Widget.CommCare.ConnectSuccessFailureCard" parent="">
-        <item name="cardCornerRadius">@dimen/connect_info_card_corner_radius</item>
+        <item name="cardCornerRadius">@dimen/connect_radius_card</item>
         <item name="cardElevation">6dp</item>
         <item name="successBackgroundColor">@color/connect_light_green</item>
         <item name="successAccentColor">@color/connect_green</item>
@@ -323,6 +329,26 @@
         <item name="android:shadowDx">2</item>
         <item name="android:shadowDy">2</item>
         <item name="android:shadowRadius">4</item>
+    </style>
+
+    <style name="Widget.CommCare.ConnectSyncStatusCard" parent="Widget.MaterialComponents.CardView">
+        <item name="syncOkBadgeColor">@color/connect_light_green</item>
+        <item name="syncOkIconColor">@color/connect_green</item>
+        <item name="syncOkStrokeColor">@color/connect_light_grey</item>
+        <item name="syncWarningBadgeColor">@color/pale_buttery_cream</item>
+        <item name="syncWarningIconColor">@color/burnt_amber</item>
+        <item name="syncWarningStrokeColor">@color/burnt_amber</item>
+        <item name="syncOkIcon">@drawable/check_update</item>
+        <item name="syncWarningIcon">@drawable/ic_connect_directory_sync</item>
+    </style>
+
+    <style name="ConnectBottomSheetAnimation" parent="Animation.MaterialComponents.BottomSheetDialog">
+        <item name="android:windowEnterAnimation">@anim/connect_bottom_sheet_slide_in</item>
+        <item name="android:windowExitAnimation">@anim/connect_bottom_sheet_slide_out</item>
+    </style>
+
+    <style name="ConnectBottomSheetDialogTheme" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="android:windowAnimationStyle">@style/ConnectBottomSheetAnimation</item>
     </style>
 
 </resources>
