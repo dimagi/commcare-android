@@ -193,6 +193,7 @@ public class PersonalIdManager {
         ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
         PersonalIdUnlocker.INSTANCE.resetSession();
         PersonalIdUserPreferences.clear();
+        CommCareApplication.instance().closeUserSession();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
