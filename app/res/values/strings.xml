@@ -795,6 +795,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
+    <string name="nav_drawer_switch_app_dialog_title">Log out of this app?</string>
+    <string name="nav_drawer_switch_app_dialog_message">You\'ll be logged out of this app and returned to the login screen, where you can choose another app.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Continue</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Cancel</string>
 
     <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
     <string name="personalid_work_history_level_2_month_active">2 Months of\nActivity</string>

@@ -389,6 +389,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="nav_drawer_not_signed_in_to_personal_id">Ba ka shiga cikin Personal ID ba</string>
     <string name="nav_drawer_opportunities">Damar da ake da ita</string>
     <string name="nav_drawer_commcare_apps">Manhajojin CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">Fita daga wannan manhaja?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Za a fitar da kai daga wannan manhaja a kuma mayar da kai zuwa allon shiga, inda za ka iya zaɓar wata manhaja.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Ci gaba</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Soke</string>
     <string name="play_service_update_error">Don amfani da PersonalID, kuna buƙatar sabunta Ayyukan Google Play. Danna nan don zuwa Shagon Google Play don duba sabuntawa</string>
     <string name="nav_drawer_open">Buɗe aljihun tebur na kewayawa</string>
     <string name="nav_drawer_close">Rufe aljihun kewayawa</string>
