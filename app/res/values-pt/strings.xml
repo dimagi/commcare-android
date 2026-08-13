@@ -460,6 +460,7 @@
     <string name="connect_job_tile_daily_visits">Visitas diárias</string>
     <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
     <string name="personalid_incorrect_otp">Você digitou o código de 6 dígitos incorreto. Por favor, tente novamente.</string>
+    <string name="personalid_email_already_in_use">Este e-mail já está vinculado a outra conta. Por favor, use um endereço de e-mail diferente.</string>
     <string name="personalid_too_many_otp_attempts">Fez demasiadas tentativas de envio de OTP. Por favor, aguarde e tente novamente quando o botão de reenvio estiver visível.</string>
     <string name="personalid_otp_verification_failed_generic">Algo correu mal ao verificar o seu número de telefone. Por favor, tente novamente.</string>
     <string name="personalid_otp_verification_failed">Algo correu mal. Por favor, tente novamente.</string>
@@ -550,6 +551,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Você não está conectado ao PersonalID</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicativos CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">Sair deste aplicativo?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Você sairá deste aplicativo e voltará para a tela de login, onde poderá escolher outro aplicativo.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Continuar</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Cancelar</string>
     <string name="play_service_update_error">Para usar o PersonalID, você precisa atualizar o Google Play Services. Toque aqui para ir à Google Play Store para verificar se há atualizações.</string>
     <string name="nav_drawer_open">Abrir o menu de navegação</string>
     <string name="nav_drawer_close">Fechar o menu de navegação</string>
@@ -697,11 +702,12 @@
     <string name="connect_opportunity_footer_download_app">Baixar app</string>
     <string name="microimage_saving_failed">Não foi possível salvar a imagem. Tente novamente</string>
     <string name="face_capture_activity_title">Tirar foto do rosto</string>
-    <string name="face_capture_manual_instructions">Centralize um rosto dentro da oval e depois toque no botão branco para tirar a foto</string>
-    <string name="face_capture_auto_instructions">Centralize um rosto dentro da oval e fique parado para acionar o processo de captura automática</string>
+    <string name="face_capture_manual_instructions">Centralize um rosto dentro do contorno verde e depois toque no botão branco para tirar a foto</string>
+    <string name="face_capture_auto_instructions">Centralize um rosto dentro do contorno verde e fique parado, a foto será tirada automaticamente</string>
     <string name="face_capture_auto_mode">Captura automática</string>
     <string name="face_capture_manual_mode">Captura manual</string>
     <string name="face_capture_front_camera_unavailable">A câmera frontal não está disponível, a opção de trocar de câmera será desativada</string>
+    <string name="face_capture_retake_photo">Tirar foto novamente</string>
 
     <string name="recording_notification_save_action">Salvar</string>
     <string name="recording_notification_pause_action">Pausar</string>

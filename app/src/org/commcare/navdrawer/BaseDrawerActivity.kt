@@ -51,8 +51,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun shouldShowDrawer(): Boolean = false
 
-    protected open fun shouldHighlightSeatedApp(): Boolean = false
-
     fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
             setupDrawerController()
@@ -66,24 +64,22 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             BaseDrawerController(
                 this,
                 drawerRefs,
-                shouldHighlightSeatedApp(),
                 photoUpdater,
-            ) { navItemType: NavItemType, recordId: String? ->
-                handleDrawerItemClick(navItemType, recordId)
+            ) { navItemType: NavItemType ->
+                handleDrawerItemClick(navItemType)
             }
         drawerController!!.setupDrawer()
     }
 
-    protected open fun handleDrawerItemClick(
-        itemType: NavItemType,
-        recordId: String?,
-    ) {
+    protected open fun handleDrawerItemClick(itemType: NavItemType) {
         when (itemType) {
             NavItemType.OPPORTUNITIES -> {
                 navigateToConnectMenu()
             }
 
-            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
+            NavItemType.COMMCARE_APPS -> {
+                closeDrawer()
+            }
 
             NavItemType.PAYMENTS -> {}
 

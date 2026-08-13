@@ -57,6 +57,9 @@ public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<Fragmen
 
     @Override
     public void updateView() {
+        reloadActiveJob();
+
+
         int completed = job.getCompletedVisits();
         int total = job.getMaxVisits();
         int percent = total > 0 ? (100 * completed / total) : 100;

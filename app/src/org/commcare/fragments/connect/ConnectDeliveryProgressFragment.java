@@ -97,11 +97,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         observeDataState(
                 viewModel.getDeliveryProgress(),
                 cached -> {
-                    job = cached;
+                    setActiveJob(cached);
                     onDeliveryProgressUpdated();
                 },
                 success -> {
-                    job = success;
+                    setActiveJob(success);
                     onDeliveryProgressUpdated();
                 }
         );
@@ -366,9 +366,11 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
     private static class ViewStateAdapter extends FragmentStateAdapter {
         private final List<Fragment> fragments;
+        private final FragmentManager fragmentManager;
 
         public ViewStateAdapter(@NonNull FragmentManager fm, @NonNull Lifecycle lifecycle) {
             super(fm, lifecycle);
+            fragmentManager = fm;
             fragments = new ArrayList<>();
             fragments.add(ConnectDeliveryDashboardFragment.newInstance());
             fragments.add(ConnectDeliveryPaymentFragment.newInstance());
@@ -386,7 +388,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         public void refresh() {
-            for (Fragment fragment : fragments) {
+            for (Fragment fragment : fragmentManager.getFragments()) {
                 if (fragment instanceof ConnectDeliveryDashboardFragment deliveryFragment
                         && deliveryFragment.getView() != null) {
                     deliveryFragment.updateView();

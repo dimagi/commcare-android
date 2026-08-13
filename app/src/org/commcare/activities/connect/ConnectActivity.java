@@ -62,6 +62,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            String savedJobUuid = savedInstanceState.getString(OPPORTUNITY_UUID);
+            if (savedJobUuid != null) {
+                job = ConnectJobUtils.getCompositeJob(this, savedJobUuid);
+            }
+        }
+
         super.onCreate(savedInstanceState);
 
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
@@ -104,6 +111,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         getSupportActionBar().setTitle(getString(R.string.connect_title));
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (job != null) {
+            outState.putString(OPPORTUNITY_UUID, job.getJobUUID());
+        }
+    }
+
     private int getStartDestinationId(Bundle startArgs) {
         int startDestinationId = R.id.connect_jobs_list_fragment;
         if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
@@ -117,7 +132,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private void initStateFromExtras() {
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
         opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
-        if (!TextUtils.isEmpty(opportunityUuid)) {
+        if (job == null && !TextUtils.isEmpty(opportunityUuid)) {
             job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
         }
     }

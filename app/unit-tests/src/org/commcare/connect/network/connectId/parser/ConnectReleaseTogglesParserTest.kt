@@ -5,7 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import io.mockk.verify
 import org.commcare.CommCareTestApplication
+import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.network.connect.parser.ConnectReleaseTogglesParser
 import org.javarosa.core.model.utils.DateUtils
@@ -25,10 +27,12 @@ import java.io.ByteArrayInputStream
 class ConnectReleaseTogglesParserTest {
     private var context: Context = CommCareTestApplication.instance()
     private lateinit var parser: ConnectReleaseTogglesParser
+    private lateinit var savedPersonalIdStatus: PersonalIdManager.PersonalIdStatus
 
     @Before
     fun setUp() {
         parser = ConnectReleaseTogglesParser()
+        savedPersonalIdStatus = PersonalIdManager.getInstance().status
         mockkStatic(ConnectAppDatabaseUtil::class)
 
         // Mock the DB storage call so it doesn't try to access a real DB.
@@ -38,7 +42,28 @@ class ConnectReleaseTogglesParserTest {
     @After
     fun tearDown() {
         unmockkStatic(ConnectAppDatabaseUtil::class)
+        PersonalIdManager.getInstance().status = savedPersonalIdStatus
     }
+
+    private fun setSignedIn(signedIn: Boolean) {
+        PersonalIdManager.getInstance().status =
+            if (signedIn) {
+                PersonalIdManager.PersonalIdStatus.LoggedIn
+            } else {
+                PersonalIdManager.PersonalIdStatus.NotIntroduced
+            }
+    }
+
+    private fun singleToggleJson() =
+        """
+        {
+            "toggles": {
+                "feature_a": {
+                    "active": true
+                }
+            }
+        }
+        """.trimIndent()
 
     @Test
     fun testParseValidResponse() {
@@ -169,6 +194,29 @@ class ConnectReleaseTogglesParserTest {
 
         // Assert
         assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun testTogglesAreStoredWhileSignedIn() {
+        setSignedIn(true)
+        val inputStream = ByteArrayInputStream(singleToggleJson().toByteArray())
+
+        val result = parser.parse(200, inputStream, context)
+
+        assertEquals(1, result.size)
+        verify(exactly = 1) { ConnectAppDatabaseUtil.storeReleaseToggles(context, result) }
+    }
+
+    @Test
+    fun testTogglesAreNotStoredWhenSignedOut() {
+        setSignedIn(false)
+        val inputStream = ByteArrayInputStream(singleToggleJson().toByteArray())
+
+        val result = parser.parse(200, inputStream, context)
+
+        //  the response is still parsed and returned, it just isn't persisted
+        assertEquals(1, result.size)
+        verify(exactly = 0) { ConnectAppDatabaseUtil.storeReleaseToggles(any(), any()) }
     }
 
     @Test

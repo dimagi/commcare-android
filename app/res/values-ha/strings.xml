@@ -299,6 +299,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_tile_daily_visits">Ziyarar Kullum</string>
     <string name="connect_appbar_title_app_lock">Makullin Manhaja</string>
     <string name="personalid_incorrect_otp">Kun shigar da lambar sirri mai lambobi 6 ba daidai ba. Da fatan za a sake gwadawa.</string>
+    <string name="personalid_email_already_in_use">An riga an haɗa wannan imel ɗin da wani asusu. Da fatan za a yi amfani da wata adireshin imel.</string>
     <string name="personalid_too_many_otp_attempts">Kun yi ƙoƙarin aika OTP sau da yawa. Da fatan za a jira kuma a sake gwadawa lokacin da maballin sake aikawa ya bayyana.</string>
     <string name="personalid_otp_verification_failed_generic">Akwai matsala wajen tabbatar da lambar wayarku. Da fatan za a sake gwadawa.</string>
     <string name="personalid_otp_verification_failed">Akwai matsala. Da fatan za a sake gwadawa.</string>
@@ -382,6 +383,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="nav_drawer_not_signed_in_to_personal_id">Ba ka shiga cikin Personal ID ba</string>
     <string name="nav_drawer_opportunities">Damar da ake da ita</string>
     <string name="nav_drawer_commcare_apps">Manhajojin CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">Fita daga wannan manhaja?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Za a fitar da kai daga wannan manhaja a kuma mayar da kai zuwa allon shiga, inda za ka iya zaɓar wata manhaja.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Ci gaba</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Soke</string>
     <string name="play_service_update_error">Don amfani da PersonalID, kuna buƙatar sabunta Ayyukan Google Play. Danna nan don zuwa Shagon Google Play don duba sabuntawa</string>
     <string name="nav_drawer_open">Buɗe aljihun tebur na kewayawa</string>
     <string name="nav_drawer_close">Rufe aljihun kewayawa</string>
@@ -685,11 +690,12 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_opportunity_footer_download_app">Sauke manhaja</string>
     <string name="microimage_saving_failed">An kasa ajiye hoton. Da fatan za a sake gwadawa</string>
     <string name="face_capture_activity_title">Ɗaukar Hoton Fuska</string>
-    <string name="face_capture_manual_instructions">Sanya fuska a tsakiyar firam, sannan ka danna maballin fari don ɗaukar hoton</string>
-    <string name="face_capture_auto_instructions">Sanya fuska a tsakiyar firam, ka tsaya cak don kunna aikin ɗaukar hoto ta atomatik</string>
+    <string name="face_capture_manual_instructions">Sanya fuska a tsakiyar koren zane, sannan ka danna maballin fari don ɗaukar hoton</string>
+    <string name="face_capture_auto_instructions">Sanya fuska a tsakiyar koren zane ka kuma tsaya cak, za a ɗauki hoton ta atomatik</string>
     <string name="face_capture_auto_mode">Ɗaukar hoto ta atomatik</string>
     <string name="face_capture_manual_mode">Ɗaukar hoto da hannu</string>
     <string name="face_capture_front_camera_unavailable">Kyamarar gaba ba ta samuwa, za a kashe zaɓin canza kyamara</string>
+    <string name="face_capture_retake_photo">Sake ɗaukar hoto</string>
 
     <string name="recording_notification_save_action">Ajiye</string>
     <string name="recording_notification_pause_action">Dakata</string>

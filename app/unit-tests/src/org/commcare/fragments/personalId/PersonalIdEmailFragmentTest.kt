@@ -80,6 +80,22 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
     }
 
     @Test
+    fun `email with an incomplete top level domain keeps continue button disabled`() {
+        val emailInput = fragment.view?.findViewById<TextInputEditText>(R.id.email_text_value)
+        val continueButton = fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_continue_button)
+
+        activity.runOnUiThread {
+            emailInput?.setText("user@gmail.c")
+        }
+        ShadowLooper.idleMainLooper()
+
+        assertFalse(
+            "Continue button should remain disabled for a single-character top-level domain",
+            continueButton!!.isEnabled,
+        )
+    }
+
+    @Test
     fun `blank email keeps continue button disabled`() {
         val emailInput = fragment.view?.findViewById<TextInputEditText>(R.id.email_text_value)
         val continueButton = fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_continue_button)

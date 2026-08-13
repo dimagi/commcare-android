@@ -129,9 +129,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun onStart() {
         super.onStart()
-        if (shouldMonitorNetwork() &&
-            !ConnectivityStatus.isNetworkAvailable(requireContext())
-        ) {
+        if (shouldMonitorNetwork()) {
             registerNetworkCallback()
         }
     }

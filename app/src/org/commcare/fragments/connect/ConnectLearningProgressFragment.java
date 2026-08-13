@@ -92,11 +92,11 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         observeDataState(
                 viewModel.getLearningProgress(),
                 cached -> {
-                    job = cached;
+                    setActiveJob(cached);
                     updateLearningUI();
                 },
                 success -> {
-                    job = success;
+                    setActiveJob(success);
                     updateLearningUI();
                 }
         );

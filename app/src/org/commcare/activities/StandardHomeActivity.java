@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
-import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 
 import android.content.Intent;
@@ -29,6 +27,7 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
@@ -245,21 +244,11 @@ public class StandardHomeActivity
     }
 
     @Override
-    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType) {
         switch (itemType) {
             case COMMCARE_APPS -> {
-                if(recordId != null) {
-                    String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    if(!recordId.equals(currentSeatedId)) {
-                        //Navigate to LoginActivity for selected app
-                        CommCareApplication.instance().closeUserSession();
-                        Intent i = new Intent();
-                        i.putExtra(EXTRA_APP_ID, recordId);
-                        i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
-                        setResult(RESULT_OK, i);
-                        finish();
-                    }
-                }
+                closeDrawer();
+                promptToReturnToLogin();
             }
             case OPPORTUNITIES -> {
                 if(personalIdManagedLogin) {
@@ -286,6 +275,38 @@ public class StandardHomeActivity
                 }
             }
         }
+    }
+
+    private void promptToReturnToLogin() {
+        StandardAlertDialog dialog = new StandardAlertDialog(
+                getString(R.string.nav_drawer_switch_app_dialog_title),
+                getString(R.string.nav_drawer_switch_app_dialog_message)
+        );
+        dialog.setPositiveButton(
+                getString(R.string.nav_drawer_switch_app_dialog_confirm),
+                (d, which) -> {
+                    dismissAlertDialog();
+                    returnToLogin();
+                }
+        );
+        dialog.setNegativeButton(
+                getString(R.string.nav_drawer_switch_app_dialog_cancel),
+                (d, which) -> dismissAlertDialog()
+        );
+        showAlertDialog(dialog);
+    }
+
+    // Unlike HomeScreenBaseActivity.userTriggeredLogout(), goes through Dispatch so this lands on
+    // the login screen even when Home was launched from Connect and nothing would read the result.
+    private void returnToLogin() {
+        if (isBlockedByActiveSync()) {
+            return;
+        }
+        CommCareApplication.instance().closeUserSession();
+        Intent intent = new Intent(this, DispatchActivity.class);
+        intent.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -333,11 +354,6 @@ public class StandardHomeActivity
         if (!rootContainerReadyToShowDrawer)
             return false;   // wait for root content to get load through xml
         return shouldShowDrawerAfterCheck(true);
-    }
-
-    @Override
-    protected boolean shouldHighlightSeatedApp() {
-        return true;
     }
 
     @Override

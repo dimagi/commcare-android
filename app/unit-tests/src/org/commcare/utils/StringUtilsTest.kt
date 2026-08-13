@@ -40,4 +40,27 @@ class StringUtilsTest {
         assertFalse(StringUtils.isValidEmail("@no-local.com"))
         assertFalse(StringUtils.isValidEmail("spaces in@example.com"))
     }
+
+    @Test
+    fun `isValidEmail returns false for single character top level domain`() {
+        assertFalse(StringUtils.isValidEmail("user@gmail.c"))
+        assertFalse(StringUtils.isValidEmail("user@sub.example.x"))
+    }
+
+    @Test
+    fun `isValidEmail returns false when top level domain has a leading or trailing hyphen`() {
+        assertFalse(StringUtils.isValidEmail("user@example.co-"))
+        assertFalse(StringUtils.isValidEmail("user@example.-co"))
+    }
+
+    @Test
+    fun `isValidEmail returns true for two character top level domain`() {
+        assertTrue(StringUtils.isValidEmail("user@gmail.co"))
+        assertTrue(StringUtils.isValidEmail("user@g.co"))
+    }
+
+    @Test
+    fun `isValidEmail returns true for the longest top level domain in the IANA root`() {
+        assertTrue(StringUtils.isValidEmail("user@example.xn--vermgensberatung-pwb"))
+    }
 }
