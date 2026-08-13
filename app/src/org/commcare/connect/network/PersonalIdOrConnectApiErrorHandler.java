@@ -67,6 +67,8 @@ public class PersonalIdOrConnectApiErrorHandler {
                 return context.getString(R.string.personalid_network_response_parsing_error);
             case EMAIL_ALREADY_IN_USE_ERROR:
                 return context.getString(R.string.personalid_email_already_in_use);
+            case NO_CONNECT_DATABASE_ERROR:
+                return context.getString(R.string.personalid_no_connect_database_error);
             default:
                 if (t != null) {
                     Logger.exception("Unhandled throwable passed with API error code: " + errorCode, t);

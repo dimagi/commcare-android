@@ -593,6 +593,7 @@
     <string name="personalid_biometric_error_lockout_permanent">Muitas tentativas falhadas. Por favor, desbloqueie o seu dispositivo e tente novamente.</string>
     <string name="personalid_biometric_error_timeout">A operação biométrica expirou. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_cannot_configure">Não foi possível configurar a biometria no seu dispositivo. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
+    <string name="personalid_no_connect_database_error">Nenhuma conta PersonalID está presente, por favor volte a iniciar sessão na sua conta PersonalID e tente novamente.</string>
 
     <string name="connect_complete_by">A tarefa termina em %s</string>
     <string name="connect_expired_on">A tarefa terminou em %s</string>

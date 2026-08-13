@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 public class ConnectDatabaseUtils {
     // the value of the key should not be renamed due to backward compatibility
     private static final String SECRET_NAME = "secret";
-    public static void storeConnectDbPassphrase(@NotNull Context context, byte[] passphrase) {
+    private static void storeConnectDbPassphrase(@NotNull Context context, byte[] passphrase) {
         try {
             if (passphrase == null || passphrase.length == 0) {
                 throw new IllegalArgumentException("Passphrase must not be null or empty");

@@ -5,6 +5,7 @@ import android.os.Handler
 import okhttp3.ResponseBody
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
+import org.commcare.connect.database.ConnectDatabaseNotFoundException
 import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.NetworkUtils
 import org.commcare.connect.network.NetworkUtils.getErrorCodes
@@ -43,6 +44,8 @@ class BaseApi {
                                 Logger.exception("Error reading response stream", e)
                                 // Handle error when reading the stream
                                 callback.processFailure(response.code(), endPoint, "", e)
+                            } catch (_: ConnectDatabaseNotFoundException){
+                                callback.noConnectDatabaseError()
                             }
                         } else {
                             val stream =

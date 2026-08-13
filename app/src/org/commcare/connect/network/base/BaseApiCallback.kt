@@ -98,4 +98,11 @@ abstract class BaseApiCallback<T>(
             null,
         )
     }
+
+    override fun noConnectDatabaseError() {
+        baseApiHandler.stopLoadingAndInformError(
+            PersonalIdOrConnectApiErrorCodes.NO_CONNECT_DATABASE_ERROR,
+            null,
+        )
+    }
 }

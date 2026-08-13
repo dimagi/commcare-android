@@ -109,6 +109,10 @@ abstract class BaseApiHandler<T>(
         // The verified email is already tied to another active account.
         EMAIL_ALREADY_IN_USE_ERROR,
 
+        //  We were not able to find any existing database for the user locally
+        // Can typically happen if another process or user cleaned up their account from the phone.
+        NO_CONNECT_DATABASE_ERROR,
+
         ;
 
         fun shouldAllowRetry(): Boolean =
