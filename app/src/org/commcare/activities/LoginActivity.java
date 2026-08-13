@@ -98,6 +98,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private static final int MENU_FORGOT_PIN = Menu.FIRST + 3;
     private static final int MENU_APP_MANAGER = Menu.FIRST + 4;
     private static final int MENU_PERSONAL_ID_SIGN_IN = Menu.FIRST + 5;
+    private static final int MENU_PERSONAL_ID_FORGET = Menu.FIRST + 6;
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String KEY_LAST_APP = "id-last-seated-app";
     public static final String KEY_ENTERED_USER = "entered-username";
@@ -669,6 +670,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         menu.add(0, MENU_FORGOT_PIN, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         menu.add(0, MENU_PERSONAL_ID_SIGN_IN, 1, getString(R.string.personalid_signup));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 1, getString(R.string.personalid_profile_forget_account));
         return true;
     }
 
@@ -679,6 +681,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         menu.findItem(MENU_FORGOT_PIN).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         menu.findItem(MENU_PERSONAL_ID_SIGN_IN).setVisible(
                 !personalIdManager.isloggedIn() && personalIdManager.checkDeviceCompability());
+        menu.findItem(MENU_PERSONAL_ID_FORGET).setVisible(personalIdManager.isloggedIn());
         return true;
     }
 
@@ -713,6 +716,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             case MENU_PERSONAL_ID_SIGN_IN:
                 registerPersonalIdUser();
                 return true;
+            case MENU_PERSONAL_ID_FORGET:
+                personalIdManager.forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_LOGIN_PAGE);
+                uiController.setPasswordOrPin("");
+                setConnectAppState(Unmanaged);
+                uiController.refreshView();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -725,7 +734,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 MENU_ACQUIRE_PERMISSIONS, AnalyticsParamValue.LOGIN_MENU_ACQUIRE_PERMISSIONS,
                 MENU_FORGOT_PIN, AnalyticsParamValue.LOGIN_MENU_FORGOT_PIN,
                 MENU_APP_MANAGER, AnalyticsParamValue.LOGIN_MENU_APP_MANAGER,
-                MENU_PERSONAL_ID_SIGN_IN, AnalyticsParamValue.LOGIN_MENU_PERSONAL_ID_SIGN_IN
+                MENU_PERSONAL_ID_SIGN_IN, AnalyticsParamValue.LOGIN_MENU_PERSONAL_ID_SIGN_IN,
+                MENU_PERSONAL_ID_FORGET, AnalyticsParamValue.LOGIN_MENU_PERSONAL_ID_FORGET
         );
     }
 
