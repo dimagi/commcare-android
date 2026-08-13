@@ -85,7 +85,7 @@ public class PersonalIdManager {
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
-    private PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
+    private volatile PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
     private int failedPinAttempts = 0;
 
@@ -138,9 +138,12 @@ public class PersonalIdManager {
                     TimeUnit.MILLISECONDS
             ).build();
 
+            // UPDATE rather than REPLACE: REPLACE cancels and re-enqueues, which makes the worker
+            // eligible to run immediately on every unlock. An in-flight run started that way can
+            // land after a subsequent sign-out and write to a deleted Connect DB.
             WorkManager.getInstance(CommCareApplication.instance()).enqueueUniquePeriodicWork(
                     CONNECT_HEARTBEAT_REQUEST_NAME,
-                    ExistingPeriodicWorkPolicy.REPLACE,
+                    ExistingPeriodicWorkPolicy.UPDATE,
                     heartbeatRequest
             );
         }
@@ -176,11 +179,13 @@ public class PersonalIdManager {
         if (ConnectDatabaseHelper.dbExists()) {
             FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
         }
-        ConnectUserDatabaseUtil.forgetUser();
+
         personalIdSatus = PersonalIdStatus.NotIntroduced;
 
         // Cancel periodic push notification retrieval when user logs out
         NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
+
+        ConnectUserDatabaseUtil.forgetUser();
 
         // remove notification read / unread preferences
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());

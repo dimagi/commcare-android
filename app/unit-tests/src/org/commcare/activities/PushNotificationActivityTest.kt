@@ -406,10 +406,16 @@ class PushNotificationActivityTest {
 
     @Test
     fun `clicking a notification does not navigate when the user is not logged in`() {
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.Registering
         val record = buildRecord("a", action = ConnectConstants.CCC_DEST_PAYMENTS)
 
-        launchAndClickFirstNotification(record)
+        // Storing a retrieved notification requires a signed-in user, so load first and drop the
+        // login only for the click, which is the gating this test actually covers.
+        launchActivity()
+        completeLoad(listOf(record))
+        assertEquals(View.VISIBLE, recyclerView.visibility)
+        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.Registering
+
+        recyclerView.findViewHolderForAdapterPosition(0)!!.itemView.performClick()
 
         assertNull(shadowOf(activity).nextStartedActivity)
     }
