@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:background="@drawable/connect_view_info_card_border"
+    android:padding="@dimen/standard_spacer_double">
 
     <TextView
         android:id="@+id/info_card_value_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:includeFontPadding="false"
         android:textColor="@color/connect_dark_grey"
-        android:textSize="28sp"
-        android:textStyle="bold"
+        android:textSize="@dimen/connect_text_metric"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,8 +23,8 @@
         android:id="@+id/info_card_text_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="@dimen/standard_spacer_double"
+        android:layout_marginEnd="@dimen/connect_space_sm"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/info_card_arrow"
@@ -34,17 +35,18 @@
             android:id="@+id/info_card_title_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:includeFontPadding="false"
             android:textColor="@color/connect_text_color"
-            android:textSize="16sp"
+            android:textSize="@dimen/connect_text_title"
             tools:text="Maximum Visits" />
 
         <TextView
             android:id="@+id/info_card_subtitle_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/connect_space_xs"
             android:textColor="@color/connect_grey"
-            android:textSize="12sp"
+            android:textSize="@dimen/connect_text_caption"
             android:visibility="gone"
             tools:text="5 visits per day"
             tools:visibility="visible" />

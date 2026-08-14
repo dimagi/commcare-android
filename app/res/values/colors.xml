@@ -173,6 +173,7 @@
     <color name="personal_id_work_history_grey_pending">#F3F4F6</color>
     <color name="personal_id_work_history_yellow_pending">#C67E13</color>
     <color name="pale_buttery_cream">#FFF4CD</color>
+    <color name="orange">#FFA500</color>
     <color name="pn_item_grey_color">#E9E9E9</color>
     <color name="sapphire_blue">#3843CF</color>
     <color name="persian_indigo">#262a82</color>
@@ -187,6 +188,7 @@
     <color name="sterling_ash">#959595</color>
     <color name="burnt_amber">#C67E13</color>
     <color name="rich_amber_gold">#BF9A17</color>
+    <color name="black_50">#80000000</color>
     <color name="black_60">#99000000</color>
     <color name="black_80">#CC000000</color>
     <color name="cool_gray_400">#9CA3AF</color>

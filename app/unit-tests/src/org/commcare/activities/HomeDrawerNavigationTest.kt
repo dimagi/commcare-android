@@ -1,46 +1,37 @@
 package org.commcare.activities
 
-import android.app.Activity.RESULT_OK
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 /**
- * Characterization pins for the nav drawer's traditional destinations (app switching).
+ * Characterization pins for the nav drawer's traditional destination (app switching).
+ *
+ * QA-8628 removed the in-drawer app list, so `COMMCARE_APPS` no longer carries the id of a chosen
+ * app and no longer switches directly. It now raises a confirmation dialog and only returns to
+ * login once the user confirms, which is what these pin.
  *
  * The Connect/PersonalId destinations live in [HomeConnectDrawerNavigationTest].
  */
-class HomeDrawerNavigationTest : HomeScreenActivityTest() {
+class HomeDrawerNavigationTest : BaseHomeScreenActivityTest() {
     // ---- COMMCARE_APPS: app switching ----
 
     @Test
-    fun `commcare apps with different app id closes session and returns app switch result`() {
-        val home = buildHome()
-        home.handleDrawerItemClick(NavItemType.COMMCARE_APPS, "a-different-app-id")
+    fun `commcare apps raises the switch-app confirmation`() {
+        val home = buildVisibleHome()
+        home.handleDrawerItemClick(NavItemType.COMMCARE_APPS)
+        home.supportFragmentManager.executePendingTransactions()
 
-        val shadow = shadowOf(home)
-        assertTrue("Home should finish to hand off to LoginActivity", home.isFinishing)
-        assertEquals(RESULT_OK, shadow.resultCode)
-        val result = shadow.resultIntent
-        assertEquals("a-different-app-id", result.getStringExtra(LoginActivity.EXTRA_APP_ID))
-        assertFalse(result.getBooleanExtra(LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE, true))
+        assertNotNull("selecting apps should prompt before leaving home", home.currentAlertDialog)
     }
 
     @Test
-    fun `commcare apps with current app id is a no-op`() {
-        val home = buildHome()
-        home.handleDrawerItemClick(NavItemType.COMMCARE_APPS, seatedAppId())
+    fun `commcare apps does not leave home until the prompt is confirmed`() {
+        val home = buildVisibleHome()
+        home.handleDrawerItemClick(NavItemType.COMMCARE_APPS)
+        home.supportFragmentManager.executePendingTransactions()
 
-        assertFalse("Selecting the already-seated app should not finish home", home.isFinishing)
-    }
-
-    @Test
-    fun `commcare apps with null record id is a no-op`() {
-        val home = buildHome()
-        home.handleDrawerItemClick(NavItemType.COMMCARE_APPS, null)
-
-        assertFalse(home.isFinishing)
+        assertFalse("home should stay up while the prompt is unanswered", home.isFinishing)
     }
 }

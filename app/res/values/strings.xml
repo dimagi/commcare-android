@@ -284,7 +284,7 @@
     <string name="recovery_network_server_error">There was an error processing your request.</string>
     <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
     <string name="recovery_network_unknown">Something went wrong. Please try again.</string>
-    <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity, please contact an administrator.</string>
+    <string name="recovery_unable_to_claim_opportunity">Unable to claim the opportunity. Please try again or contact support.</string>
     <string name="notification_channel_errors_description">Notifications for error messages when something breaks say on installing a CommCare app or while syncing forms with server</string>
     <string name="recovery_app_manager" cc:translatable="true">Go to App Manager</string>
     <string name="recovery_retry" cc:translatable="true">Retry Recovery</string>
@@ -497,12 +497,8 @@
     <string name="connect_corrupt_job_text">Failed to load this opportunity</string>
 
 
-    <string name="connect_job_learn_details">Learn Details</string>
-    <string name="connect_job_you_will_learn">Complete the following learn modules and assessment to earn a certificate</string>
-    <string name="connect_job_no_learning_required">No learning required</string>
 
     <string name="connect_learn_progress_title">Learn Progress</string>
-    <string name="connect_learn_complete_title">Training Complete!</string>
     <string name="connect_learn_need_assessment_title">Training Pending</string>
     <string name="connect_learn_failed_title">Training Failed</string>
     <string name="connect_learn_complete_by">Complete Project by %s</string>
@@ -511,7 +507,6 @@
     <string name="connect_learn_title">Learning Progress</string>
     <string name="connect_learn_status">You have completed %d of %d lessons.\nFinish learning to earn your certificate.</string>
     <string name="connect_learn_not_started">You haven\'t completed any lessons.\nStart learning to earn your certificate.</string>
-    <string name="connect_learn_finished">You have earned a certificate for this job and are eligible to claim the job and begin delivering care.\nYour score: %d\nPassing score: %d</string>
     <string name="connect_fetch_learning_progress_error">Failed to fetch the learning progress</string>
     <string name="connect_sms_invite_opportunity_not_found">Opportunity not found</string>
 
@@ -520,10 +515,11 @@
     <string name="connect_learn_complete">Complete</string>
     <string name="connect_learn_certificate">Certificate</string>
 
-    <string name="connect_learn_completed">Completed on: %s</string>
+    <string name="connect_learn_completed">Completed on %s</string>
+    <string name="connect_learn_cert_score">Score: %s</string>
+    <string name="connect_learn_complete_footer_start_visits">Start Visits</string>
     <string name="connect_learn_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_learn_review">Review Learning</string>
-    <string name="connect_learn_view_details">View Opportunity Details</string>
     <string name="connect_learn_go_to_assessment">Go To Assessment</string>
     <string name="connect_learn_continue">Continue Learning</string>
     <string name="connect_delivery_earn_multi">Pay per visit:</string>
@@ -533,6 +529,7 @@
     <string name="connect_progress_title">Delivery Progress</string>
     <string name="connect_progress_status">You have completed %d of %d visits.</string>
     <string name="semi_circle_progress_value_format" cc:translatable="true">%1$d of %2$d</string>
+    <string name="connect_progress_count_format" cc:translatable="true">%1$d of %2$d</string>
 
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
@@ -689,28 +686,57 @@
     <string name="personalid_profile_edit_cancel">Cancel</string>
     <string name="personalid_profile_edit_save_success">Your profile has been updated successfully.</string>
 
-    <string name="connect_job_info_title">Opportunity Details</string>
     <string name="connect_job_info_delivery_detail">Delivery Details</string>
     <string name="connect_job_info_review_delivery">Review the delivery details</string>
-    <string name="connect_job_preview_start">Start</string>
-    <string name="connect_job_delivery_preview_subtitle">Once you have completed the learning assessment, you will transition to delivery</string>
     <string name="connect_job_info_visit">%d maximum Visits</string>
     <string name="connect_job_info_days">%d Days to complete</string>
     <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
     <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
     <string name="connect_job_info_delivery_hours">Delivery Hours</string>
     <string name="connect_job_info_view_more">View More</string>
-    <string name="connect_job_info_start_visit">Start Visit</string>
     <string name="connect_job_info_download_delivery">Download Delivery </string>
-    <string name="connect_job_info_download">Download</string>
     <string name="connect_job_info_view_opportunity">View Opportunity</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
     <string name="connect_job_info_view_review">Review</string>
     <string name="connect_job_info_view_proceed">Proceed</string>
 
+    <string name="connect_opportunity_badge_new">New Opportunity</string>
+    <string name="connect_opportunity_expiry_label">Expires on</string>
+    <string name="connect_opportunity_max_earnings_label">Maximum Earnings</string>
+    <string name="connect_opportunity_learn_section_title">Learn</string>
+    <string name="connect_opportunity_learn_section_subtitle">Complete training to begin visits</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Learn Module</item>
+        <item quantity="other">Learn Modules</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Estimated time: %d hour</item>
+        <item quantity="other">Estimated time: %d hours</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Delivery</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Complete visits and submit forms to receive payment</string>
+    <string name="connect_opportunity_max_visits_label">Total Visits</string>
+    <string name="connect_opportunity_visits_per_day">Up to %d per day</string>
+    <string name="connect_opportunity_days_to_complete_label">Days to complete</string>
+    <string name="connect_opportunity_max_earnings_card_label">Maximum earnings</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d payment unit</item>
+        <item quantity="other">%d payment units</item>
+    </plurals>
+    <string name="connect_opportunity_footer_start_learning">Start Learning</string>
+    <string name="connect_opportunity_footer_download_learn_app">Download Learn</string>
+    <string name="connect_opportunity_modules_footer_note">Complete the modules, pass the assessment, and earn your certificate</string>
+    <string name="connect_opportunity_footer_download_app">Download App</string>
+
     <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
+    <string name="connect_dashboard">Dashboard</string>
+    <string name="connect_visits">Visits</string>
+    <string name="connect_more">More</string>
+    <string name="connect_delivery_start">Start</string>
+    <string name="connect_delivery_continue_visits">Continue your visits</string>
+    <string name="connect_delivery_continue_visits_subtitle">Submit delivery forms</string>
     <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_click_to_sync_progress">Click to sync progress</string>
     <string name="connect_visit_type_title">%s Visits</string>
@@ -773,6 +799,7 @@
     <string name="camera_permission_msg" cc:translatable="true">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
     <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
+    <string name="personalid_email_already_in_use">This email is already linked to another account. Please use a different email address.</string>
     <string name="personalid_too_many_otp_attempts">You have made too many attempts to send OTP. Please wait and try again whenever the resend button is visible.</string>
     <string name="personalid_otp_verification_failed_generic">Something went wrong verifying your phone number. Please try again.</string>
     <string name="personalid_otp_verification_failed">Something went wrong. Please try again.</string>
@@ -794,6 +821,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">You are not signed in to PersonalID</string>
     <string name="nav_drawer_opportunities">Opportunities</string>
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
+    <string name="nav_drawer_switch_app_dialog_title">Log out of this app?</string>
+    <string name="nav_drawer_switch_app_dialog_message">You\'ll be logged out of this app and returned to the login screen, where you can choose another app.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Continue</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Cancel</string>
 
     <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
     <string name="personalid_work_history_level_2_month_active">2 Months of\nActivity</string>
@@ -852,11 +883,19 @@
 
     <string name="recording_in_progress" cc:translatable="true">RECORDING</string>
     <string name="recording_paused" cc:translatable="true">PAUSED</string>
+    <string name="recording_notification_save_action" cc:translatable="true">Save</string>
+    <string name="recording_notification_pause_action" cc:translatable="true">Pause</string>
+    <string name="recording_notification_resume_action" cc:translatable="true">Resume</string>
 
     <string name="clear_search_button_description">Clear query</string>
-    <string name="face_capture_manual_instructions" cc:translatable="true">Center a face inside the frame, then tap the white button to take the picture</string>
-    <string name="face_capture_auto_instructions" cc:translatable="true">Center a face inside the frame, hold still to trigger the auto-capture process</string>
+    <string name="face_capture_manual_instructions" cc:translatable="true">Center a face inside the green outline then tap the white button to take the picture</string>
+    <string name="face_capture_auto_instructions" cc:translatable="true">Center a face inside the green outline and hold still, the photo will capture automatically</string>
     <string name="face_capture_auto_mode" cc:translatable="true">Auto capture</string>
     <string name="face_capture_manual_mode" cc:translatable="true">Manual capture</string>
     <string name="face_capture_front_camera_unavailable" cc:translatable="true">Front-facing camera is not available, the option to switch cameras will be disabled</string>
+    <string name="face_capture_retake_photo" cc:translatable="true">Retake photo</string>
+  
+    <string name="permission_microphone_title" cc:translatable="true">Permission for Microphone</string>
+    <string name="permission_microphone_message" cc:translatable="true">In order to record an audio, CommCare needs permission to use your microphone.</string>
+    <string name="permission_microphone_denial_message" cc:translatable="true">CommCare doesn\'t have the permission to use your microphone. Please enable via Android\'s settings.</string>
 </resources>

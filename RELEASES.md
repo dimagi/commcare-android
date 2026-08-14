@@ -2,6 +2,19 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.63.5
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- During PersonalID sign-up, the OTP request will automatically fall back to Twilio if Firebase encounters an unrecoverable error—without requiring the user to tap 'Resend Code'.
+
+### QA Notes
+
+- On a device where PersonalID sign-up previously got stuck due to a Firebase OTP error, a pre-invited user will now receive the OTP via Twilio automatically and can complete the sign-up flow.
+- Confirm that entering an incorrect verification code still displays the "incorrect code" error and does not silently trigger a new OTP.
+
 ## CommCare 2.63.4
 
 ### Release Notes
@@ -122,8 +135,11 @@ These are published publicly on Playstore, Github Releases and CommCare Forums
 - [Delivery Progress Offline-First] The Connect Delivery Progress page now displays cached delivery data immediately on open, even with no network, and shows inline sync status (success / failure / offline) instead of a blocking loading dialog
 - [SMS Invite Links Open App] Clicking a Connect invite link in an SMS message opens the app and navigates to the opportunity
 - Launching an app from a Connect opportunity now opens it directly with a single loading dialog, instead of briefly flashing the login and app-setup screens
+- Redesigned the delivery opportunity home into a tabbed layout (Dashboard, Payment, Visits) with a persistent bottom action bar to launch the delivery app.
+- [Auto Location Capture] We now save the location acquired with the best accuracy in a form session rather than the last one.
 - [Audio Recording Revamp] Refreshed the in-app audio recording UI across the capture, recording, playback, and delete screens
 - [Audio Recording Revamp] Recording now starts immediately when you tap the microphone and saves as soon as you stop, removing the previous intermediate tap-to-record and playback-confirm steps
+- [Audio Recording Revamp] The recording notification now has a Save button, and a Pause/Resume button for long recordings, so you can control the recording without returning to the form
 - Image capture questions support a new `overlay-small` appearance that shows a rectangular framing guide in the camera preview, helping users consistently frame the subject (e.g. a MUAC arm + tape).
 - [Auto Location Capture] We now save the location acquired with the best accuracy in a form session rather than the last one.
 
@@ -263,6 +279,10 @@ we would like to communicate to QA as part of the release testing
   - **Playback panel:** After saving, verify the panel shows the recording's file name, total duration, a play button, and a seek bar. Play the audio and verify the play/pause toggle works and the current time updates.
   - **Delete (two-step):** Tap Delete and verify the confirmation prompt ("Delete this recording?") with "Yes, Delete" / "No, Go back". Confirm "No, Go back" keeps the recording and "Yes, Delete" clears it.
   - **Persistence:** Record and save, navigate forward and back to the question, and verify the saved recording still loads and plays. Submit the form and verify the audio attachment is present on HQ.
+  - **Notification – Save:** While recording, pull down the notification shade and verify the persistent recording notification shows a **Save** action. Tap it and verify the recording is finalized and saved, the dialog returns to the playback panel, and the notification is dismissed. Confirm the audio attachment is present on HQ after submitting.
+  - **Notification – Pause/Resume (long recordings only):** Verify the notification shows a **Pause** action alongside Save. Tap **Pause** and verify the recording pauses, the UI reflects the paused state, and the notification button changes to **Resume**. Tap **Resume** and verify recording continues and the button flips back to **Pause**.
+  - **Notification – cross-control consistency:** Pause from the notification, then resume using the in-dialog mic (and vice-versa); verify the notification label and dialog state stay in sync in both directions. Background/rotate the host activity, then use the notification Save/Pause/Resume and verify no crash.
+
 
   - Verify tapping payment-unit rows on the Connect delivery progress screen — including rapid double-taps and two-finger simultaneous taps — opens the deliveries list without crashing or double-navigating.
 - Verify backing out of a brand new Connect opportunity's intro screen right after tapping Start Learning (easiest with poor connectivity) does not crash once the request completes.

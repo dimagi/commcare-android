@@ -5,11 +5,11 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoHalfCardBinding
+import org.commcare.views.extensions.bindOptional
 
 /**
  * Reusable half-width Connect info card.
@@ -30,15 +30,15 @@ class ConnectInfoHalfCard
 
         var valueText: CharSequence?
             get() = binding.infoCardValueText.text
-            set(value) = bindOptionalText(binding.infoCardValueText, value)
+            set(value) = binding.infoCardValueText.bindOptional(value)
 
         var titleText: CharSequence?
             get() = binding.infoCardTitleText.text
-            set(value) = bindOptionalText(binding.infoCardTitleText, value)
+            set(value) = binding.infoCardTitleText.bindOptional(value)
 
         var subtitleText: CharSequence?
             get() = binding.infoCardSubtitleText.text
-            set(value) = bindOptionalText(binding.infoCardSubtitleText, value)
+            set(value) = binding.infoCardSubtitleText.bindOptional(value)
 
         var icon: Drawable? = null
             set(value) {
@@ -56,7 +56,7 @@ class ConnectInfoHalfCard
             }
 
         init {
-            radius = resources.getDimension(R.dimen.connect_info_card_corner_radius)
+            radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
             useCompatPadding = true
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
@@ -69,14 +69,6 @@ class ConnectInfoHalfCard
                 navigable = getBoolean(R.styleable.ConnectInfoHalfCard_navigable, false)
                 recycle()
             }
-        }
-
-        private fun bindOptionalText(
-            view: TextView,
-            value: CharSequence?,
-        ) {
-            view.text = value
-            view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
         }
 
         private fun selectableItemForeground() =

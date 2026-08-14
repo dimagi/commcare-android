@@ -98,7 +98,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     )
             }
 
-        verticalContainer.addView(mainView)
+        verticalContainer.addView(
+            mainView,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f,
+            ),
+        )
         rootFrame.addView(verticalContainer)
 
         // Inflate loading layout
@@ -122,9 +129,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     override fun onStart() {
         super.onStart()
-        if (shouldMonitorNetwork() &&
-            !ConnectivityStatus.isNetworkAvailable(requireContext())
-        ) {
+        if (shouldMonitorNetwork()) {
             registerNetworkCallback()
         }
     }

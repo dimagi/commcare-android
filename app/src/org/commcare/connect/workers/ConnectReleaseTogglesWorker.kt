@@ -80,9 +80,11 @@ class ConnectReleaseTogglesWorker(
                     ).setConstraints(getWorkConstraints())
                     .build()
 
+            // UPDATE keeps the existing schedule (so re-scheduling on unlock doesn't trigger an
+            // immediate run) while still picking up any changes to the request itself.
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 PERIODIC_FETCH_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 workRequest,
             )
         }

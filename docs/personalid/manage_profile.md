@@ -9,7 +9,7 @@ screen lets them change name, email, and photo.
 ## Structure
 
 * **`PersonalIdProfileActivity`** — single-activity host for the profile nav graph. Every
-  destination shows a back arrow (no top-level destinations).
+  destination shows a back arrow (no top-level destinations). Locked to portrait mode.
 * **`PersonalIdProfileFragment`** — read-only view plus the Forget PersonalID action.
 * **`PersonalIdProfileEditFragment`** / **`PersonalIdProfileEditViewModel`** — the edit form.
   Form state lives in a `SavedStateHandle` so typed values survive rotation, process death, and

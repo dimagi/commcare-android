@@ -1,82 +1,103 @@
 package org.commcare.activities
 
+import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.verify
-import org.commcare.connect.ConnectNavHelper
+import org.commcare.activities.connect.ConnectActivity
+import org.commcare.activities.connect.ConnectMessagingActivity
+import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
+import org.commcare.android.util.ActivityAssertions.assertStarted
+import org.commcare.android.util.ConnectTestUtils.signInToPersonalId
+import org.commcare.connect.PersonalIdManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
+import org.commcare.personalId.PersonalIdUnlocker
+import org.junit.Before
 import org.junit.Test
 
 /**
  * Characterization pins for the Connect/PersonalId nav-drawer destinations (opportunities,
  * messaging, work history), including the managed-login vs legacy-login unlock split.
  *
- * Not pinned: the `closeDrawer()` that each managed-login arm calls after navigating. These tests
- * never log a PersonalId user in, so `BaseDrawerActivity.drawerController` is null and `closeDrawer()`
- * is a no-op that logs — asserting it here would assert nothing. It needs a fixture that actually
- * seats the drawer (see `PersonalIdDrawerVisibilityTest` for what that costs).
- *
- * Also not pinned: what the legacy path's unlock listener does on success. The base stubs
- * `unlockAndGoTo*` to a no-op, so the callback body never runs.
+ * Navigation itself runs for real and is asserted on the activity each destination launches. The
+ * unlock the legacy arm goes through is the one thing stubbed: it drives the device's biometric
+ * hardware, which a Robolectric device doesn't have.
  *
  * The drawer's traditional destinations (app switching) live in [HomeDrawerNavigationTest].
  */
-class HomeConnectDrawerNavigationTest : HomeConnectTestBase() {
+class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
+    @Before
+    fun grantConnectAccessAndAllowUnlock() {
+        // goToConnectJobsList() refuses to navigate without Connect access on the signed-in user.
+        signInToPersonalId(hasConnectAccess = true)
+        mockkObject(PersonalIdUnlocker)
+        every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
+            thirdArg<PersonalIdManager.ConnectActivityCompleteListener>().connectActivityComplete(true)
+        }
+    }
+
     // ---- OPPORTUNITIES ----
 
     @Test
-    fun `opportunities managed login routes to connect jobs list`() {
+    fun `opportunities managed login goes straight to the jobs list`() {
         val home = buildHome(personalIdManagedLogin = true)
-        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES, null)
 
-        verify(exactly = 1) { ConnectNavHelper.goToConnectJobsList(home, false) }
-        verify(exactly = 0) { ConnectNavHelper.unlockAndGoToConnectJobsList(any(), any(), any()) }
+        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES)
+
+        assertStarted(home, ConnectActivity::class.java)
+        verify(exactly = 0) { PersonalIdUnlocker.unlock(any(), any(), any()) }
     }
 
     @Test
-    fun `opportunities legacy login routes through unlock`() {
+    fun `opportunities legacy login unlocks before the jobs list`() {
         val home = buildHome(personalIdManagedLogin = false)
-        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES, null)
 
-        verify(exactly = 1) { ConnectNavHelper.unlockAndGoToConnectJobsList(home, any(), any()) }
-        verify(exactly = 0) { ConnectNavHelper.goToConnectJobsList(any(), any()) }
+        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES)
+
+        verify(exactly = 1) { PersonalIdUnlocker.unlock(home, any(), any()) }
+        assertStarted(home, ConnectActivity::class.java)
     }
 
     // ---- MESSAGING ----
 
     @Test
-    fun `messaging managed login routes to messaging directly`() {
+    fun `messaging managed login goes straight to messaging`() {
         val home = buildHome(personalIdManagedLogin = true)
-        home.handleDrawerItemClick(NavItemType.MESSAGING, null)
 
-        verify(exactly = 1) { ConnectNavHelper.goToMessaging(home, null) }
-        verify(exactly = 0) { ConnectNavHelper.unlockAndGoToMessaging(any(), any(), any(), any()) }
+        home.handleDrawerItemClick(NavItemType.MESSAGING)
+
+        assertStarted(home, ConnectMessagingActivity::class.java)
+        verify(exactly = 0) { PersonalIdUnlocker.unlock(any(), any(), any()) }
     }
 
     @Test
-    fun `messaging legacy login routes through unlock`() {
+    fun `messaging legacy login unlocks before messaging`() {
         val home = buildHome(personalIdManagedLogin = false)
-        home.handleDrawerItemClick(NavItemType.MESSAGING, null)
 
-        verify(exactly = 1) { ConnectNavHelper.unlockAndGoToMessaging(home, any(), any(), any()) }
-        verify(exactly = 0) { ConnectNavHelper.goToMessaging(any(), any()) }
+        home.handleDrawerItemClick(NavItemType.MESSAGING)
+
+        verify(exactly = 1) { PersonalIdUnlocker.unlock(home, any(), any()) }
+        assertStarted(home, ConnectMessagingActivity::class.java)
     }
 
     // ---- WORK_HISTORY ----
 
     @Test
-    fun `work history managed login routes to work history directly`() {
+    fun `work history managed login goes straight to work history`() {
         val home = buildHome(personalIdManagedLogin = true)
-        home.handleDrawerItemClick(NavItemType.WORK_HISTORY, null)
 
-        verify(exactly = 1) { ConnectNavHelper.goToWorkHistory(home) }
-        verify(exactly = 0) { ConnectNavHelper.unlockAndGoToWorkHistory(any(), any(), any()) }
+        home.handleDrawerItemClick(NavItemType.WORK_HISTORY)
+
+        assertStarted(home, PersonalIdWorkHistoryActivity::class.java)
+        verify(exactly = 0) { PersonalIdUnlocker.unlock(any(), any(), any()) }
     }
 
     @Test
-    fun `work history legacy login routes through unlock`() {
+    fun `work history legacy login unlocks before work history`() {
         val home = buildHome(personalIdManagedLogin = false)
-        home.handleDrawerItemClick(NavItemType.WORK_HISTORY, null)
 
-        verify(exactly = 1) { ConnectNavHelper.unlockAndGoToWorkHistory(home, any(), any()) }
-        verify(exactly = 0) { ConnectNavHelper.goToWorkHistory(any()) }
+        home.handleDrawerItemClick(NavItemType.WORK_HISTORY)
+
+        verify(exactly = 1) { PersonalIdUnlocker.unlock(home, any(), any()) }
+        assertStarted(home, PersonalIdWorkHistoryActivity::class.java)
     }
 }

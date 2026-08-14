@@ -172,6 +172,20 @@
         <attr name="navigable" />
     </declare-styleable>
 
+    <declare-styleable name="ConnectSyncStatusCard">
+        <attr name="statusText" format="string" />
+        <attr name="statusSubtext" format="string" />
+        <attr name="warning" format="boolean" />
+        <attr name="syncOkBadgeColor" format="color" />
+        <attr name="syncOkIconColor" format="color" />
+        <attr name="syncOkStrokeColor" format="color" />
+        <attr name="syncWarningBadgeColor" format="color" />
+        <attr name="syncWarningIconColor" format="color" />
+        <attr name="syncWarningStrokeColor" format="color" />
+        <attr name="syncOkIcon" format="reference" />
+        <attr name="syncWarningIcon" format="reference" />
+    </declare-styleable>
+
     <declare-styleable name="ConnectSuccessFailureCard">
         <attr name="mode" format="enum">
             <enum name="success" value="0" />
@@ -192,6 +206,24 @@
         <attr name="buttonText" format="string" />
         <attr name="infoMessage" format="string" />
         <attr name="progress" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="ConnectProgressCard">
+        <attr name="titleText" />
+        <attr name="semiCircleVisible" format="boolean" />
+        <attr name="semiCircleCurrent" format="integer" />
+        <attr name="semiCircleMax" format="integer" />
+        <attr name="semiCircleDescription" format="string" />
+        <attr name="linearProgressLabel" format="string" />
+        <attr name="linearProgressCurrent" format="integer" />
+        <attr name="linearProgressMax" format="integer" />
+        <attr name="linearProgressCaption" format="string" />
+        <attr name="contentEnabled" format="boolean" />
+        <attr name="infoMessage" />
+        <attr name="infoCtaText" format="string" />
+        <attr name="contentPrimaryColor" format="color" />
+        <attr name="contentAccentColor" format="color" />
+        <attr name="contentDisabledColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="RectangleOverlayView">

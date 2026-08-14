@@ -10,7 +10,7 @@ import org.robolectric.shadows.ShadowLooper
  * `HomeActivityCoordinator` and persist through the host's `SavedStateRegistry` instead of
  * `HomeScreenBaseActivity.onSaveInstanceState`. These tests prove they still survive `recreate()`.
  */
-class HomeInstanceStateRecreationTest : HomeScreenActivityTest() {
+class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
     @Test
     fun `external launch sets was-external on the coordinator`() {
         val home =

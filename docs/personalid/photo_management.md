@@ -39,6 +39,9 @@ endpoint, stored locally, and reflected in the drawer header.
     (e.g. the drawer's warning icon).
   * Re-reads the `ConnectUserRecord` from the database at upload time rather than caching
     it, so it always reflects the currently signed-in user.
+  * Relies on the host activity letting the AndroidX activity-result registry see results;
+    `SessionAwareHelper` dispatches to the registry before falling back to CommCare's legacy
+    request-code handling, which is what makes the flow work on the app home screen.
 
 * **`BaseDrawerController`** (`navdrawer/BaseDrawerController.kt`)
   * Wires the drawer's user image tap to the updater's `initiatePhotoUpdate()`.

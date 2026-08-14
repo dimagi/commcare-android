@@ -108,6 +108,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Du er ikke logget inn med PersonalID</string>
     <string name="nav_drawer_opportunities">Muligheter</string>
     <string name="nav_drawer_commcare_apps">CommCare-apper</string>
+    <string name="nav_drawer_switch_app_dialog_title">Logge ut av denne appen?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Du blir logget ut av denne appen og sendt tilbake til påloggingsskjermen, der du kan velge en annen app.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Fortsett</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Avbryt</string>
     <string name="play_service_update_error">For å bruke PersonalID må du oppdatere Google Play-tjenester. Trykk her for å gå til Google Play-butikken for å søke etter oppdateringer.</string>
     <string name="nav_drawer_open">Åpne navigasjonsmenyen</string>
     <string name="nav_drawer_close">Lukk navigasjonsmenyen</string>
@@ -167,6 +171,7 @@
     <string name="connect_otp_verified">Suksess! Ditt telefonnummer er blitt bekreftet.</string>
     <string name="personalid_otp_verification_failed_generic">Noe gikk galt under bekreftelsen av ditt telefonnummer. Prøv igjen.</string>
     <string name="personalid_incorrect_otp">Du har tastet inn feil 6-sifret adgangskode. Prøv igjen.</string>
+    <string name="personalid_email_already_in_use">Denne e-postadressen er allerede knyttet til en annen konto. Bruk en annen e-postadresse.</string>
     <string name="connect_backup_code_mismatch">Reservekodene du taster inn, må stemme overens.</string>
     <string name="personalid_network_response_parsing_error">Feil ved lesing av data fra serveren. Kontakt kundestøtte.</string>
     <string name="personalid_email_appbar_title">E-post</string>
@@ -228,9 +233,12 @@
 
     <string name="connect_complete_by">Oppgave avsluttes %s</string>
     <string name="connect_expired_on">Oppgaven ble avsluttet %s</string>
-    <string name="connect_job_you_will_learn">Fullfør følgende læringsmoduler og vurdering for å tjene et sertifikat</string>
-    <string name="connect_job_preview_start">Start</string>
-    <string name="connect_job_delivery_preview_subtitle">Når du har fullført opplæringsvurderingen, vil du gå over til levering</string>
+    <string name="connect_dashboard">Dashbord</string>
+    <string name="connect_visits">Besøk</string>
+    <string name="connect_more">Mer</string>
+    <string name="connect_delivery_start">Start</string>
+    <string name="connect_delivery_continue_visits">Fortsett besøkene dine</string>
+    <string name="connect_delivery_continue_visits_subtitle">Send inn leveringsskjemaer</string>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>
@@ -312,12 +320,47 @@
     <string name="microimage_cropping_failed">Kunne ikke beskjære bildet, kontroller at målet er innenfor opptaksområdet</string>
     <string name="microimage_saving_failed">Kunne ikke lagre bildet. Prøv igjen</string>
     <string name="face_capture_activity_title">Ta bilde av ansikt</string>
-    <string name="face_capture_manual_instructions">Sentrer et ansikt i rammen, trykk deretter på den hvite knappen for å ta bildet</string>
-    <string name="face_capture_auto_instructions">Sentrer et ansikt i rammen, hold deg i ro for å utløse automatisk opptak</string>
+    <string name="face_capture_manual_instructions">Sentrer et ansikt innenfor det grønne omrisset, trykk deretter på den hvite knappen for å ta bildet</string>
+    <string name="face_capture_auto_instructions">Sentrer et ansikt innenfor det grønne omrisset og hold deg i ro, bildet tas automatisk</string>
     <string name="face_capture_auto_mode">Automatisk opptak</string>
     <string name="face_capture_manual_mode">Manuelt opptak</string>
     <string name="face_capture_front_camera_unavailable">Frontkameraet er ikke tilgjengelig, alternativet for å bytte kamera vil bli deaktivert</string>
+    <string name="face_capture_retake_photo">Ta bilde på nytt</string>
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
+    <string name="connect_progress_count_format">%1$d av %2$d</string>
 
+    <string name="connect_opportunity_badge_new">Ny mulighet</string>
+    <string name="connect_opportunity_expiry_label">Utløpsdato</string>
+    <string name="connect_opportunity_max_earnings_label">Maksimal inntjening</string>
+    <string name="connect_opportunity_learn_section_title">Læring</string>
+    <string name="connect_opportunity_learn_section_subtitle">Fullfør opplæringen for å starte besøk</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Læringsmodul</item>
+        <item quantity="other">Læringsmoduler</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Estimert tid: %d time</item>
+        <item quantity="other">Estimert tid: %d timer</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Levering</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Fullfør besøk og send inn skjemaer for å motta betaling</string>
+    <string name="connect_opportunity_max_visits_label">Totalt antall besøk</string>
+    <string name="connect_opportunity_visits_per_day">Opptil %d per dag</string>
+    <string name="connect_opportunity_days_to_complete_label">Dager for å fullføre</string>
+    <string name="connect_opportunity_max_earnings_card_label">Maksimal inntjening</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d betalingsenhet</item>
+        <item quantity="other">%d betalingsenheter</item>
+    </plurals>
+    <string name="connect_learn_completed">Fullført %s</string>
+    <string name="connect_learn_cert_score">Poengsum: %s</string>
+    <string name="connect_learn_complete_footer_start_visits">Start besøk</string>
+    <string name="connect_opportunity_footer_start_learning">Start læring</string>
+    <string name="connect_opportunity_footer_download_learn_app">Last ned Læring</string>
+    <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
+    <string name="connect_opportunity_footer_download_app">Last ned appen</string>
+    <string name="recording_notification_save_action">Lagre</string>
+    <string name="recording_notification_pause_action">Pause</string>
+    <string name="recording_notification_resume_action">Gjenoppta</string>
 </resources>

@@ -49,13 +49,9 @@ import java.util.Date
  * instrumentation involved. The spy (rather than a mock) keeps every method it doesn't stub on real
  * behaviour, which is what `checkDeviceCompability()` needs so the per-test `@Config(sdk = ...)`
  * actually decides the outcome.
- *
- * Runs in its own Robolectric sandbox via [ShadowPersonalIdTestSandbox] — see that class for why.
+
  */
-@Config(
-    application = CommCareTestApplication::class,
-    shadows = [ShadowPersonalIdTestSandbox::class],
-)
+@Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdDrawerVisibilityTest {
     private lateinit var spyManager: PersonalIdManager

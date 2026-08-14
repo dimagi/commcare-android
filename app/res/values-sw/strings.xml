@@ -180,7 +180,7 @@
     <string name="recovery_forms_send_error">Hitilafu wakati wa kutuma fomu</string>
     <string name="recovery_forms_state_unavailable">Fomu hazipatikani. Hakikisha hifadhi ya simu yako inapatikana</string>
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
-    <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa, tafadhali wasiliana na msimamizi.</string>
+    <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa. Tafadhali jaribu tena au wasiliana na usaidizi.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
     <string name="personalid_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
     <string name="personalid_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>
@@ -319,10 +319,7 @@
     <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
     <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
-    <string name="connect_job_you_will_learn">Kamilisha moduli zifuatazo za kujifunza na tathmini ili kupata cheti</string>
-    <string name="connect_job_no_learning_required">Hakuna kujifunza kunahitajika</string>
     <string name="connect_learn_progress_title">Jifunze Maendeleo</string>
-    <string name="connect_learn_complete_title">Mafunzo Yamekamilika!</string>
     <string name="connect_learn_need_assessment_title">Mafunzo Yanasubiri</string>
     <string name="connect_learn_failed_title">Mafunzo Yameshindwa</string>
     <string name="connect_learn_complete_by">Kamilisha Mradi kabla ya %s</string>
@@ -330,17 +327,17 @@
     <string name="connect_learn_title">Maendeleo ya Kujifunza</string>
     <string name="connect_learn_status">Umemaliza masomo %d kati ya %d.\nMaliza kujifunza ili ujishindie cheti chako.</string>
     <string name="connect_learn_not_started">Hujamaliza masomo yoyote.\nAnza kujifunza ili kupata cheti chako.</string>
-    <string name="connect_learn_finished">Umepata cheti cha kazi hii na unastahiki kudai kazi hiyo na kuanza kutoa huduma.\nAlama yako: %d\nAlama za kupita: %d</string>
     <string name="connect_fetch_learning_progress_error">Imeshindwa kuleta maendeleo ya kujifunza</string>
     <string name="connect_sms_invite_opportunity_not_found">Fursa haijapatikana</string>
     <string name="connect_learn_need_assessment">Kamilisha tathmini ili kumaliza mafunzo.</string>
     <string name="connect_learn_failed">Samahani, hukupata alama za kufaulu kwenye tathmini yako. Tafadhali jaribu tena.\nAlama yako: %d\nAlama ya kupita: %d</string>
     <string name="connect_learn_complete">Kamilisha</string>
     <string name="connect_learn_certificate">Cheti</string>
-    <string name="connect_learn_completed">Ilikamilika mnamo: %s</string>
+    <string name="connect_learn_completed">Ilikamilika mnamo %s</string>
+    <string name="connect_learn_cert_score">Alama: %s</string>
+    <string name="connect_learn_complete_footer_start_visits">Anza Ziara</string>
     <string name="connect_learn_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_learn_review">Kagua Mafunzo</string>
-    <string name="connect_learn_view_details">Tazama Maelezo ya Fursa</string>
     <string name="connect_learn_go_to_assessment">Nenda kwa Tathmini</string>
     <string name="connect_learn_continue">Endelea Kujifunza</string>
     <string name="connect_delivery_earn_multi">Lipa kwa kila ziara:</string>
@@ -349,6 +346,7 @@
     <string name="connect_progress_title">Maendeleo ya Utoaji</string>
     <string name="connect_progress_status">Umekamilisha ziara %d kati ya %d.</string>
     <string name="semi_circle_progress_value_format">%1$d kati ya %2$d</string>
+    <string name="connect_progress_count_format">%1$d kati ya %2$d</string>
     <string name="connect_progress_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_progress_warning_not_started">Kazi bado haijaanza. Hutapata maendeleo yoyote kwa kazi.</string>
     <string name="connect_progress_warning_max_reached_single">Umekamilisha idadi ya juu zaidi ya kutembelea. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
@@ -415,16 +413,13 @@
     <string name="personalid_profile_edit_save">Hifadhi</string>
     <string name="personalid_profile_edit_cancel">Ghairi</string>
     <string name="personalid_profile_edit_save_success">Wasifu wako umesasishwa kwa mafanikio.</string>
-    <string name="connect_job_info_title">Maelezo ya Fursa</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
     <string name="connect_job_info_visit">%d upeo wa Ziara</string>
     <string name="connect_job_info_days">Siku %d kukamilika</string>
     <string name="connect_job_info_max_visit">Upeo wa juu wa kutembelewa kwa siku %d</string>
     <string name="connect_job_info_visit_charge">Pata hadi %s kwa kutembelewa</string>
-    <string name="connect_job_info_start_visit">Anza Kutembelea</string>
     <string name="connect_job_info_download_delivery">Pakua Uwasilishaji</string>
-    <string name="connect_job_info_download">Pakua</string>
     <string name="connect_job_info_view_info">Angalia Taarifa</string>
     <string name="connect_job_info_view_resume">Endelea</string>
     <string name="connect_job_info_view_review">Revisar</string>
@@ -454,7 +449,6 @@
     <string name="connect_messaging_message_notification_message">Umepokea ujumbe mpya kutoka kwa %s, bonyeza hapa kutazama.</string>
     <string name="connect_messaging_channel_notification_title">Kituo Kipya</string>
     <string name="connect_messaging_channel_notification_message">Kituo kipya cha ujumbe kinapatikana kutoka kwa %s, bonyeza hapa ili kutazama</string>
-    <string name="connect_job_learn_details">Jifunze Maelezo</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Umefaulu tathmini na uko tayari kuwasilisha. Tazama hali ya kazi ili kuendelea.</string>
     <string name="connect_results_summary_all">Wote</string>
     <string name="connect_results_summary_pending">Inasubiri</string>
@@ -473,6 +467,7 @@
     <string name="connect_job_tile_daily_visits">Ziara za Kila Siku</string>
     <string name="connect_appbar_title_app_lock">Kufuli ya Programu</string>
     <string name="personalid_incorrect_otp">Umeweka nambari ya siri yenye tarakimu 6 isiyo sahihi. Tafadhali jaribu tena.</string>
+    <string name="personalid_email_already_in_use">Barua pepe hii imeunganishwa na akaunti nyingine. Tafadhali tumia anwani nyingine ya barua pepe.</string>
     <string name="personalid_too_many_otp_attempts">Umejaribu kutuma OTP mara nyingi sana. Tafadhali subiri na ujaribu tena kitufe cha kutuma tena kinapoonekana.</string>
     <string name="personalid_otp_verification_failed_generic">Kitu kilienda vibaya wakati wa kuthibitisha nambari yako ya simu. Tafadhali jaribu tena.</string>
     <string name="personalid_otp_verification_failed">Kitu kilienda vibaya. Tafadhali jaribu tena.</string>
@@ -555,6 +550,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Hujaingia kwenye PersonalID</string>
     <string name="nav_drawer_opportunities">Fursa</string>
     <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">Ondoka kwenye programu hii?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Utatolewa kwenye programu hii na kurudishwa kwenye skrini ya kuingia, ambapo unaweza kuchagua programu nyingine.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Endelea</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Ghairi</string>
     <string name="play_service_update_error">Ili kutumia PersonalID, unahitaji kusasisha Huduma za Google Play. Gusa hapa ili uende kwenye Duka la Google Play uangalie masasisho.</string>
     <string name="nav_drawer_open">Fungua drawer ya uabiri</string>
     <string name="nav_drawer_close">Funga drawer ya uabiri</string>
@@ -590,8 +589,12 @@
 
     <string name="connect_complete_by">Kazi inaisha tarehe %s</string>
     <string name="connect_expired_on">Kazi iliisha tarehe %s</string>
-    <string name="connect_job_preview_start">Anza</string>
-    <string name="connect_job_delivery_preview_subtitle">Ukishamaliza tathmini ya kujifunza, utahamia kwenye uwasilishaji</string>
+    <string name="connect_dashboard">Dashibodi</string>
+    <string name="connect_visits">Ziara</string>
+    <string name="connect_more">Zaidi</string>
+    <string name="connect_delivery_start">Anza</string>
+    <string name="connect_delivery_continue_visits">Endelea na ziara zako</string>
+    <string name="connect_delivery_continue_visits_subtitle">Wasilisha fomu za utoaji</string>
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_barcode_top">Karibu CommCare!</string>
     <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
@@ -668,11 +671,43 @@
     <string name="camera_permission_denied">Nenda kwenye mipangilio na uwashe ruhusa ya kamera ili kutumia kipengele hiki</string>
     <string name="microimage_face_detection_mode_failed">Hali ya kutambua uso imeshindwa, inabadilika kwenda hali ya mkono</string>
     <string name="microimage_cropping_failed">Imeshindwa kupunguza picha, hakikisha lengo liko ndani ya eneo la kupiga picha</string>
+    <string name="connect_opportunity_badge_new">Fursa mpya</string>
+    <string name="connect_opportunity_expiry_label">Tarehe ya mwisho</string>
+    <string name="connect_opportunity_max_earnings_label">Mapato ya juu</string>
+    <string name="connect_opportunity_learn_section_title">Kujifunza</string>
+    <string name="connect_opportunity_learn_section_subtitle">Maliza mafunzo ili kuanza ziara</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Moduli za kujifunza</item>
+        <item quantity="other">Moduli za kujifunza</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Muda unaokadiriwa: saa %d</item>
+        <item quantity="other">Muda unaokadiriwa: saa %d</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Utoaji</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Kamilisha ziara na uwasilishe fomu ili kupokea malipo</string>
+    <string name="connect_opportunity_max_visits_label">Jumla ya ziara</string>
+    <string name="connect_opportunity_visits_per_day">Hadi %d kwa siku</string>
+    <string name="connect_opportunity_days_to_complete_label">Siku za kukamilisha</string>
+    <string name="connect_opportunity_max_earnings_card_label">Mapato ya juu</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">Kipimo %d cha malipo</item>
+        <item quantity="other">Vipimo %d vya malipo</item>
+    </plurals>
+    <string name="connect_opportunity_footer_start_learning">Anza kujifunza</string>
+    <string name="connect_opportunity_footer_download_learn_app">Pakua Kujifunza</string>
+    <string name="connect_opportunity_modules_footer_note">Kamilisha moduli, ufaulu tathmini, na upate cheti chako</string>
+    <string name="connect_opportunity_footer_download_app">Pakua programu</string>
     <string name="microimage_saving_failed">Picha haikuweza kuhifadhiwa. Tafadhali jaribu tena</string>
     <string name="face_capture_activity_title">Piga picha ya uso</string>
-    <string name="face_capture_manual_instructions">Weka uso katikati ya fremu, kisha gusa kitufe cheupe kupiga picha</string>
-    <string name="face_capture_auto_instructions">Weka uso katikati ya fremu, kaa bila kutikisika ili kuanzisha mchakato wa kupiga picha kiotomatiki</string>
+    <string name="face_capture_manual_instructions">Weka uso katikati ya ukingo wa kijani, kisha gusa kitufe cheupe kupiga picha</string>
+    <string name="face_capture_auto_instructions">Weka uso katikati ya ukingo wa kijani na ukae bila kutikisika, picha itapigwa kiotomatiki</string>
     <string name="face_capture_auto_mode">Kupiga picha kiotomatiki</string>
     <string name="face_capture_manual_mode">Kupiga picha kwa mkono</string>
     <string name="face_capture_front_camera_unavailable">Kamera ya mbele haipatikani, chaguo la kubadilisha kamera litazimwa</string>
+    <string name="face_capture_retake_photo">Piga picha tena</string>
+
+    <string name="recording_notification_save_action">Hifadhi</string>
+    <string name="recording_notification_pause_action">Sitisha</string>
+    <string name="recording_notification_resume_action">Endelea</string>
 </resources>

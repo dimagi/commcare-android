@@ -1,0 +1,165 @@
+package org.commcare.fragments.connect;
+
+import android.os.Build;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.RequiresApi;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.commcare.adapters.ConnectDeliveryProgressReportAdapter;
+import org.commcare.android.database.connect.models.ConnectDeliveryDetails;
+import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding;
+import org.commcare.fragments.RefreshableTab;
+import org.commcare.views.connect.CircleProgressBar;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
+public class ConnectDeliveryDashboardFragment extends ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>
+        implements RefreshableTab {
+    private RecyclerView recyclerView;
+    private ConnectDeliveryProgressReportAdapter adapter;
+
+    public static ConnectDeliveryDashboardFragment newInstance() {
+        return new ConnectDeliveryDashboardFragment();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = super.onCreateView(inflater, container, savedInstanceState);
+        getBinding().btnSync.setOnClickListener(v -> {
+            ConnectDeliveryHomeFragment parentFragment = (ConnectDeliveryHomeFragment)getParentFragment();
+            if (parentFragment != null) {
+                parentFragment.refresh(false);
+            }
+            populateDeliveryProgress();
+        });
+
+        updateView();
+        populateDeliveryProgress();
+        return view;
+    }
+
+    @Override
+    public void updateView() {
+        reloadActiveJob();
+
+
+        int completed = job.getCompletedVisits();
+        int total = job.getMaxVisits();
+        int percent = total > 0 ? (100 * completed / total) : 100;
+
+        CircleProgressBar progress = getBinding().connectProgressProgressBar;
+        progress.setProgress(percent);
+        getBinding().connectProgressProgressText.setText(String.format(Locale.getDefault(), "%d%%", percent));
+
+        StringBuilder completedText = new StringBuilder(
+                getString(R.string.connect_progress_status, completed, total));
+
+        if (job.isMultiPayment() && completed > 0) {
+            HashMap<String, Integer> paymentCounts = job.getDeliveryCountsPerPaymentUnit(false);
+
+            for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
+                String key = unit.getUnitUUID();
+                int count = paymentCounts.containsKey(key) ? paymentCounts.get(key) : 0;
+                completedText.append(String.format(Locale.getDefault(), "\n%s: %d", unit.getName(), count));
+            }
+        }
+
+        getBinding().connectProgressStatusText.setText(completedText.toString());
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void populateDeliveryProgress() {
+        if (job.getDeliveries().isEmpty()) {
+            return;
+        }
+
+        List<ConnectDeliveryDetails> deliveryProgressList = new ArrayList<>();
+        HashMap<String, HashMap<String, Integer>> statusMap = getStatusMap(job);
+
+        for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
+            String unitIdKey = unit.getUnitUUID();
+            HashMap<String, Integer> statusCounts = statusMap.containsKey(unitIdKey) ? statusMap.get(unitIdKey)
+                    : new HashMap<>();
+            int approved = statusCounts.getOrDefault("approved", 0);
+            int remaining = unit.getMaxTotal() - approved;
+            String amount = job.getMoneyString(approved * unit.getAmount());
+            long daysLeft = job.getDaysRemaining();
+            double percentApproved = unit.getMaxTotal() > 0 ? (double)approved / unit.getMaxTotal() * 100 : 0.0;
+
+            deliveryProgressList.add(new ConnectDeliveryDetails(
+                    unit.getUnitUUID(), unit.getName(), approved, remaining, amount, daysLeft, percentApproved
+            ));
+        }
+
+        recyclerView = getBinding().rvDeliveryProgressReport;
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        if (adapter == null) {
+            adapter = new ConnectDeliveryProgressReportAdapter(
+                    getContext(), deliveryProgressList, this::navigateToDeliveries
+            );
+            recyclerView.setAdapter(adapter);
+        } else {
+            recyclerView.setAdapter(adapter);
+            adapter.updateData(deliveryProgressList);
+        }
+    }
+
+    private void navigateToDeliveries(String unitName) {
+        NavController navController = NavHostFragment.findNavController(this);
+
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.connect_delivery_home_fragment) {
+            navController.navigate(
+                    ConnectDeliveryHomeFragmentDirections
+                            .actionConnectDeliveryHomeFragmentToConnectDeliveryVisitsDetailFragment(unitName)
+            );
+        }
+    }
+
+    private HashMap<String, HashMap<String, Integer>> getStatusMap(ConnectJobRecord job) {
+        HashMap<String, HashMap<String, Integer>> statusMap = new HashMap<>();
+
+        for (ConnectJobDeliveryRecord delivery : job.getDeliveries()) {
+            if (delivery == null) continue;
+
+            String slug = delivery.getSlugUUID();
+            HashMap<String, Integer> countMap;
+
+            if (statusMap.containsKey(slug)) {
+                countMap = statusMap.get(slug);
+            } else {
+                countMap = new HashMap<>();
+                statusMap.put(slug, countMap);
+            }
+
+            String status = delivery.getStatus();
+            int count = countMap.containsKey(status) ? countMap.get(status) : 0;
+            countMap.put(status, count + 1);
+        }
+
+        return statusMap;
+    }
+
+
+    @Override
+    protected @NotNull FragmentConnectDeliveryDashboardBinding inflateBinding(@NotNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentConnectDeliveryDashboardBinding.inflate(inflater, container, false);
+    }
+}

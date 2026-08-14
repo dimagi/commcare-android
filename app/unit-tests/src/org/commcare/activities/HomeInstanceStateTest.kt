@@ -1,20 +1,24 @@
 package org.commcare.activities
 
+import org.commcare.android.util.ReflectionUtils
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
  * Characterization pin for the sync-icon instance-state that must survive an activity `recreate()`.
  *
- * CCCT-2683 relocates `last-icon-trigger` off `SyncCapableCommCareActivity` onto a
- * `SavedStateProvider`, claiming the move is behavior-preserving. The flag is private with no
- * accessor, so the round-trip is asserted via reflection against the field name
- * ([readField]/[writeField]); that scaffolding retires once the field moves.
+ * CCCT-2683 moves `last-icon-trigger` off `SyncCapableCommCareActivity` onto the coordinator's
+ * `SavedStateProvider`, claiming the move preserves behaviour. Nothing exercised `recreate()` before
+ * this, so the round-trip had no net.
+ *
+ * The flag is private, has no accessor, and reaches no view or intent, so there is nothing to
+ * observe it through: the round-trip is asserted against the field name via [ReflectionUtils]. That
+ * scaffolding retires once the field lives behind the coordinator.
  *
  * The three launch/nav keys this file also pinned now live on `HomeActivityCoordinator` (CCCT-2679)
- * and are asserted directly in [HomeInstanceStateRecreationTest].
+ * and are asserted directly, without reflection, in [HomeInstanceStateRecreationTest].
  */
-class HomeInstanceStateTest : HomeScreenActivityTest() {
+class HomeInstanceStateTest : BaseHomeScreenActivityTest() {
     @Test
     fun `last icon trigger survives recreate`() {
         val controller = buildStandardHomeController()
@@ -22,12 +26,12 @@ class HomeInstanceStateTest : HomeScreenActivityTest() {
 
         // Force a value distinct from the fresh-create default so the assertion is meaningful,
         // without importing the private SyncIconTrigger enum. (Default after create is NO_ANIMATION.)
-        val current = readField(home, "lastIconTrigger")!!
+        val current = ReflectionUtils.readField(home, "lastIconTrigger")!!
         val distinct = current.javaClass.enumConstants.first { it != current }
-        writeField(home, "lastIconTrigger", distinct)
+        ReflectionUtils.writeField(home, "lastIconTrigger", distinct)
 
         controller.recreate()
 
-        assertEquals(distinct, readField(controller.get(), "lastIconTrigger"))
+        assertEquals(distinct, ReflectionUtils.readField(controller.get(), "lastIconTrigger"))
     }
 }

@@ -161,10 +161,8 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         if (job.deliveryComplete()) {
             navigateToDeliveryProgress();
-        } else if (!job.passedAssessment()) {
+        } else if (!job.passedAssessment() || isLearning) {
             navigateToLearnProgress();
-        } else if (isLearning && job.passedAssessment()) {
-            navigateToDeliveryDetails();
         } else if (AppUtils.isAppInstalled(appId)) {
             new ConnectAppLaunchController(this).launchApp(appId, isLearning);
         } else {
@@ -194,16 +192,6 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 .navigate(
                         ConnectJobsListsFragmentDirections
                                 .actionConnectJobsListFragmentToConnectJobLearningProgressFragment()
-                );
-    }
-
-    private void navigateToDeliveryDetails() {
-        Navigation.findNavController(getBinding().getRoot())
-                .navigate(
-                        ConnectJobsListsFragmentDirections
-                                .actionConnectJobsListFragmentToConnectJobDeliveryDetailsFragment(
-                                        true
-                                )
                 );
     }
 

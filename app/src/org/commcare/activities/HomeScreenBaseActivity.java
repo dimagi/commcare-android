@@ -605,17 +605,24 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void userTriggeredLogout() {
+        if (isBlockedByActiveSync()) {
+            return;
+        }
+        CommCareApplication.instance().closeUserSession();
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    protected boolean isBlockedByActiveSync() {
         if (CommCareSessionService.sessionAliveLock.isLocked()) {
             Toast.makeText(
                     this,
                     Localization.get("background.sync.logout.attempt.during.sync"),
                     Toast.LENGTH_LONG
             ).show();
-            return;
+            return true;
         }
-        CommCareApplication.instance().closeUserSession();
-        setResult(RESULT_OK);
-        finish();
+        return false;
     }
 
     protected void userPressedOpportunityStatus() {

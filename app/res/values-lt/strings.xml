@@ -108,6 +108,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
     <string name="nav_drawer_opportunities">Galimybės</string>
     <string name="nav_drawer_commcare_apps">„CommCare“ programėlės</string>
+    <string name="nav_drawer_switch_app_dialog_title">Atsijungti nuo šios programėlės?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Būsite atjungti nuo šios programėlės ir grąžinti į prisijungimo langą, kuriame galėsite pasirinkti kitą programėlę.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Tęsti</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Atšaukti</string>
     <string name="play_service_update_error">Norint naudoti „PersonalID“, reikia atnaujinti „Google Play“ paslaugas. Palieskite čia, kad pereitumėte į „Google Play“ parduotuvę ir patikrintumėte, ar yra naujinių</string>
     <string name="nav_drawer_open">Atidaryti navigacijos meniu</string>
     <string name="nav_drawer_close">Uždaryti navigacijos meniu</string>
@@ -167,6 +171,7 @@
     <string name="connect_otp_verified">Puiku! Jūsų telefono numeris patvirtintas.</string>
     <string name="personalid_otp_verification_failed_generic">Klaida tikrinant jūsų telefono numerį. Bandykite dar kartą.</string>
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
+    <string name="personalid_email_already_in_use">Šis el. pašto adresas jau susietas su kita paskyra. Naudokite kitą el. pašto adresą.</string>
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
     <string name="personalid_network_response_parsing_error">Klaida analizuojant duomenis iš serverio. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="personalid_email_appbar_title">El. paštas</string>
@@ -238,9 +243,12 @@
 
     <string name="connect_complete_by">Užduotis baigiasi %s</string>
     <string name="connect_expired_on">Užduotis baigėsi %s</string>
-    <string name="connect_job_you_will_learn">Užbaikite šiuos mokymosi modulius ir vertinimą, kad gautumėte sertifikatą</string>
-    <string name="connect_job_preview_start">Pradėti</string>
-    <string name="connect_job_delivery_preview_subtitle">Baigę mokymosi vertinimą, pereisite prie pristatymo</string>
+    <string name="connect_dashboard">Skydelis</string>
+    <string name="connect_visits">Vizitai</string>
+    <string name="connect_more">Daugiau</string>
+    <string name="connect_delivery_start">Pradėti</string>
+    <string name="connect_delivery_continue_visits">Tęskite savo vizitus</string>
+    <string name="connect_delivery_continue_visits_subtitle">Pateikti pristatymo formas</string>
     <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_open_conversation_button_text">Atidaryti pokalbį</string>
@@ -322,12 +330,53 @@
     <string name="microimage_cropping_failed">Nepavyko apkarpyti vaizdo, įsitikinkite, kad objektas yra fiksavimo srityje</string>
     <string name="microimage_saving_failed">Nepavyko išsaugoti vaizdo. Bandykite dar kartą</string>
     <string name="face_capture_activity_title">Fotografuoti veidą</string>
-    <string name="face_capture_manual_instructions">Nustatykite veidą rėmelio viduryje, tada palieskite baltą mygtuką, kad padarytumėte nuotrauką</string>
-    <string name="face_capture_auto_instructions">Nustatykite veidą rėmelio viduryje ir nejudėkite, kad būtų suaktyvintas automatinio fiksavimo procesas</string>
+    <string name="face_capture_manual_instructions">Nustatykite veidą žalio kontūro viduryje, tada palieskite baltą mygtuką, kad padarytumėte nuotrauką</string>
+    <string name="face_capture_auto_instructions">Nustatykite veidą žalio kontūro viduryje ir nejudėkite, nuotrauka bus padaryta automatiškai</string>
     <string name="face_capture_auto_mode">Automatinis fiksavimas</string>
     <string name="face_capture_manual_mode">Rankinis fiksavimas</string>
     <string name="face_capture_front_camera_unavailable">Priekinė kamera nepasiekiama, kameros keitimo parinktis bus išjungta</string>
+    <string name="face_capture_retake_photo">Fotografuoti iš naujo</string>
 
     <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
+    <string name="connect_progress_count_format">%1$d iš %2$d</string>
 
+    <string name="connect_opportunity_badge_new">Nauja galimybė</string>
+    <string name="connect_opportunity_expiry_label">Galioja iki</string>
+    <string name="connect_opportunity_max_earnings_label">Didžiausias uždarbis</string>
+    <string name="connect_opportunity_learn_section_title">Mokymasis</string>
+    <string name="connect_opportunity_learn_section_subtitle">Baikite mokymus, kad pradėtumėte vizitus</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Mokymosi modulis</item>
+        <item quantity="few">Mokymosi moduliai</item>
+        <item quantity="many">Mokymosi modulio</item>
+        <item quantity="other">Mokymosi modulių</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Numatomas laikas: %d valanda</item>
+        <item quantity="few">Numatomas laikas: %d valandos</item>
+        <item quantity="many">Numatomas laikas: %d valandos</item>
+        <item quantity="other">Numatomas laikas: %d valandų</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Pristatymas</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Atlikite vizitus ir pateikite formas, kad gautumėte apmokėjimą</string>
+    <string name="connect_opportunity_max_visits_label">Iš viso vizitų</string>
+    <string name="connect_opportunity_visits_per_day">Iki %d per dieną</string>
+    <string name="connect_opportunity_days_to_complete_label">Dienos iki pabaigos</string>
+    <string name="connect_opportunity_max_earnings_card_label">Didžiausias uždarbis</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d mokėjimo vienetas</item>
+        <item quantity="few">%d mokėjimo vienetai</item>
+        <item quantity="many">%d mokėjimo vieneto</item>
+        <item quantity="other">%d mokėjimo vienetų</item>
+    </plurals>
+    <string name="connect_learn_completed">Užbaigta %s</string>
+    <string name="connect_learn_cert_score">Rezultatas: %s</string>
+    <string name="connect_learn_complete_footer_start_visits">Pradėti vizitus</string>
+    <string name="connect_opportunity_footer_start_learning">Pradėti mokymąsi</string>
+    <string name="connect_opportunity_footer_download_learn_app">Atsisiųsti mokymąsi</string>
+    <string name="connect_opportunity_modules_footer_note">Užbaikite modulius, išlaikykite vertinimą ir gaukite savo pažymėjimą</string>
+    <string name="connect_opportunity_footer_download_app">Atsisiųsti programą</string>
+    <string name="recording_notification_save_action">Išsaugoti</string>
+    <string name="recording_notification_pause_action">Pristabdyti</string>
+    <string name="recording_notification_resume_action">Tęsti</string>
 </resources>
