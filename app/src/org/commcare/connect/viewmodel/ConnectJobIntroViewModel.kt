@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.Job
-import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 
@@ -20,14 +19,11 @@ class ConnectJobIntroViewModel(
 
     private var startLearningJob: Job? = null
 
-    fun startLearning(
-        user: ConnectUserRecord,
-        jobUUID: String,
-    ) {
+    fun startLearning(jobUUID: String) {
         startLearningJob?.cancel()
         startLearningJob =
             collectInto(
-                flow = repository.startLearning(user, jobUUID),
+                flow = repository.startLearning(jobUUID),
                 liveData = _startLearning,
             )
     }

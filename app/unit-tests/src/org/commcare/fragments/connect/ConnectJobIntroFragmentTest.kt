@@ -189,7 +189,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
 
         val jobUuidSlot = slot<String>()
         val repo = ConnectRepository.getInstance(activity)
-        every { repo.startLearning(any(), capture(jobUuidSlot)) } returns
+        every { repo.startLearning(capture(jobUuidSlot)) } returns
             flow {
                 emit(DataState.Success(Unit))
             }

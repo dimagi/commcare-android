@@ -44,14 +44,14 @@ class ConnectJobIntroViewModelTest {
 
     @Test
     fun testStartLearning_postsLoadingThenSuccess() {
-        every { mockRepository.startLearning(any(), any()) } returns
+        every { mockRepository.startLearning(any()) } returns
             flowOf(DataState.Loading, DataState.Success(Unit))
 
         val results = mutableListOf<DataState<Unit>>()
         viewModel.startLearning.observeForever { results.add(it) }
 
         mainCoroutineRule.runBlockingTest {
-            viewModel.startLearning(mockk(), "test-uuid")
+            viewModel.startLearning("test-uuid")
         }
 
         assertEquals(2, results.size)
@@ -61,14 +61,14 @@ class ConnectJobIntroViewModelTest {
 
     @Test
     fun testStartLearning_postsError_onFailure() {
-        every { mockRepository.startLearning(any(), any()) } returns
+        every { mockRepository.startLearning(any()) } returns
             flowOf(DataState.Loading, DataState.Error())
 
         val results = mutableListOf<DataState<Unit>>()
         viewModel.startLearning.observeForever { results.add(it) }
 
         mainCoroutineRule.runBlockingTest {
-            viewModel.startLearning(mockk(), "test-uuid")
+            viewModel.startLearning("test-uuid")
         }
 
         assertEquals(2, results.size)

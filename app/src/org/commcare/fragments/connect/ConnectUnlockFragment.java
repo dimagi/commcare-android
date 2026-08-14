@@ -21,12 +21,11 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -34,8 +33,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.UnlockPolicy;
 import org.javarosa.core.services.Logger;
-
-import java.util.List;
 
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
@@ -93,29 +90,17 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void retrieveOpportunities() {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        new ConnectApiHandler<List<ConnectJobRecord>>() {
-
-            @Override
-            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode,
-                                  @androidx.annotation.Nullable Throwable t) {
-                if (!isAdded()) { return; }
-
-                tryToLoadInvitedOpp(false);
-                setFragmentRedirection();
-            }
-
-            @Override
-            public void onSuccess(List<ConnectJobRecord> jobs) {
-                if (!isAdded()) { return; }
-                if (!jobs.isEmpty()) {
-                    ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
+        ConnectRepository.getInstance(requireContext()).retrieveOpportunitiesForJava(
+                (success, error) -> {
+                    if (!isAdded()) return;
+                    if (success && !ConnectJobUtils.getCompositeJobs(
+                            requireContext(), ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty()) {
+                        ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
+                    }
+                    tryToLoadInvitedOpp(success);
+                    setFragmentRedirection();
                 }
-
-                tryToLoadInvitedOpp(true);
-                setFragmentRedirection();
-            }
-        }.getConnectOpportunities(requireContext(), user);
+        );
     }
 
     private void tryToLoadInvitedOpp(boolean refreshSucceeded) {

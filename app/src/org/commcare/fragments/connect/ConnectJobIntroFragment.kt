@@ -13,7 +13,6 @@ import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
-import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectJobIntroViewModel
@@ -169,8 +168,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     }
 
     private fun startLearning() {
-        val user = ConnectUserDatabaseUtil.getUser(context)
-        viewModel.startLearning(user, job.jobUUID)
+        viewModel.startLearning(job.jobUUID)
     }
 
     private fun reportApiCall(success: Boolean) {

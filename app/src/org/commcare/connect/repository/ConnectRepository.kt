@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -16,6 +17,7 @@ import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
@@ -115,17 +117,12 @@ class ConnectRepository
                 mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
             )
 
-        fun startLearning(
-            user: ConnectUserRecord,
-            jobUUID: String,
-        ): Flow<DataState<Unit>> = networkOnlyFlow(networkCall = { networkClient.startLearnApp(user, jobUUID) })
+        fun startLearning(jobUUID: String): Flow<DataState<Unit>> =
+            networkOnlyFlow(networkCall = { networkClient.startLearnApp(getConnectUser(), jobUUID) })
 
         fun claimJob(job: ConnectJobRecord): Flow<DataState<Unit>> =
             networkOnlyFlow(
-                networkCall = {
-                    val user = ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())
-                    networkClient.claimJob(user, job.jobUUID)
-                },
+                networkCall = { networkClient.claimJob(getConnectUser(), job.jobUUID) },
                 onNetworkSuccess = {
                     job.status = ConnectJobRecord.STATUS_DELIVERING
                     ConnectJobUtils.upsertJob(job)
@@ -152,10 +149,12 @@ class ConnectRepository
                 else -> flow { emit(DataState.Success(job)) }
             }
 
-
         /**
          * Emits Cached first,then Loading, then Success or Error after network call.
          * DB writes go in [onNetworkSuccess], re-read in [mapToEmit].
+         *
+         * Used for GET requests that have a cached value to emit first, then make a network call to update the cache and emit the updated value.
+         * Uses ConnectRequestManager to deduplicate requests for the same syncKey.
          */
         private fun <C, N> offlineFirstFlow(
             syncKey: String,
@@ -195,6 +194,13 @@ class ConnectRepository
                     }
             }.flowOn(DispatcherProvider.io())
 
+        /**
+         * Emits Loading, then Success or Error after network call.
+         * No cached emission, always make requests to network unlike [offlineFirstFlow].
+         * Doesn't use ConnectRequestManager to deduplicate requests.
+         *
+         * Used for one-time actions, mostly POST requests, that don't have a cached value to emit first.
+         */
         private fun <T> networkOnlyFlow(
             networkCall: suspend () -> Result<T>,
             onNetworkSuccess: suspend (T) -> Unit = {},
@@ -224,89 +230,47 @@ class ConnectRepository
         private suspend fun fetchDeliveryProgressFromNetwork(job: ConnectJobRecord): Result<DeliveryAppProgressResponseModel> =
             networkClient.getDeliveryProgress(getConnectUser(), job)
 
-    // Java interop — use the Flow-returning equivalents from Kotlin.
+        // Java interop — use the Flow-returning equivalents from Kotlin.
 
-    fun retrieveOpportunitiesForJava(listener: ConnectActivityCompleteListener) {
-        CoroutineScope(DispatcherProvider.io()).launch {
-            getOpportunities(forceRefresh = true).collect { state ->
-                when (state) {
-                    is DataState.Success -> {
-                        withContext(DispatcherProvider.main()) {
-                            listener.connectActivityComplete(
-                                true
-                            )
+        fun retrieveOpportunitiesForJava(listener: ConnectActivityCompleteListener) =
+            getOpportunities(forceRefresh = true).launchForJava(listener)
+
+        fun updateDeliveryProgressForJava(
+            job: ConnectJobRecord,
+            listener: ConnectActivityCompleteListener,
+        ) = getDeliveryProgress(job).launchForJava(listener)
+
+        fun updatePaymentsConfirmedForJava(
+            paymentConfirmations: List<ConnectPaymentConfirmationModel>,
+            listener: ConnectActivityCompleteListener,
+        ) = confirmPayments(paymentConfirmations).launchForJava(listener)
+
+        private fun <T> Flow<DataState<T>>.launchForJava(listener: ConnectActivityCompleteListener) {
+            CoroutineScope(DispatcherProvider.io()).launch {
+                collect { state ->
+                    when (state) {
+                        is DataState.Success -> {
+                            withContext(DispatcherProvider.main()) {
+                                listener.connectActivityComplete(true)
+                            }
                         }
-                    }
 
-                    is DataState.Error -> {
-                        withContext(DispatcherProvider.main()) {
-                            listener.connectActivityComplete(
-                                false
-                            )
+                        is DataState.Error -> {
+                            withContext(DispatcherProvider.main()) {
+                                listener.connectActivityComplete(
+                                    false,
+                                    PersonalIdOrConnectApiErrorHandler.handle(
+                                        CommCareApplication.instance(),
+                                        state.errorCode,
+                                        state.throwable,
+                                    ),
+                                )
+                            }
                         }
-                    }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
         }
-    }
-
-    fun updateDeliveryProgressForJava(
-        job: ConnectJobRecord,
-        listener: ConnectActivityCompleteListener,
-    ) {
-        CoroutineScope(DispatcherProvider.io()).launch {
-            getDeliveryProgress(job).collect { state ->
-                when (state) {
-                    is DataState.Success -> {
-                        withContext(DispatcherProvider.main()) {
-                            listener.connectActivityComplete(
-                                true
-                            )
-                        }
-                    }
-
-                    is DataState.Error -> {
-                        withContext(DispatcherProvider.main()) {
-                            listener.connectActivityComplete(
-                                false
-                            )
-                        }
-                    }
-
-                    else -> {}
-                }
-            }
-        }
-    }
-
-    fun updatePaymentsConfirmedForJava(
-        paymentConfirmations: List<ConnectPaymentConfirmationModel>,
-        listener: ConnectActivityCompleteListener,
-    ) {
-        CoroutineScope(DispatcherProvider.io()).launch {
-            confirmPayments(paymentConfirmations).collect { state ->
-                when (state) {
-                    is DataState.Success -> {
-                        withContext(DispatcherProvider.main()) {
-                            listener.connectActivityComplete(
-                                true
-                            )
-                        }
-                    }
-
-                    is DataState.Error -> {
-                        withContext(DispatcherProvider.main()) {
-                            listener.connectActivityComplete(
-                                false
-                            )
-                        }
-                    }
-
-                    else -> {}
-                }
-            }
-        }
-    }
     }
