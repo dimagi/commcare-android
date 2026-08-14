@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="@dimen/connect_radius_card"
-        app:cardElevation="@dimen/connect_info_card_elevation">
+        app:cardElevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -114,7 +114,7 @@
             android:orientation="horizontal"
             android:paddingStart="@dimen/connect_space_lg"
             android:paddingTop="@dimen/connect_progress_card_info_padding_top"
-            android:paddingEnd="@dimen/connect_space_sm"
+            android:paddingEnd="@dimen/connect_space_lg"
             android:paddingBottom="@dimen/connect_space_md">
 
             <TextView
