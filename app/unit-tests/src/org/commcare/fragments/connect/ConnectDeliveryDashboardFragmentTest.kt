@@ -122,6 +122,33 @@ class ConnectDeliveryDashboardFragmentTest {
         unmockkAll()
     }
 
+    /**
+     * The layout names colour roles rather than colours, and an unresolved `?attr/` fails silently
+     * at runtime rather than at build time, so the resolved values are asserted directly.
+     */
+    @Test
+    fun `the dashboard resolves its colour roles from ConnectTheme`() {
+        val view = launch(progressResponse()).requireView()
+
+        assertEquals(
+            ContextCompat.getColor(activity, R.color.cool_gray_800),
+            view.findViewById<TextView>(R.id.delivery_job_title).currentTextColor,
+        )
+        assertEquals(
+            ContextCompat.getColor(activity, R.color.cool_gray_900),
+            view.findViewById<TextView>(R.id.delivery_expiry_value).currentTextColor,
+        )
+        assertEquals(
+            ContextCompat.getColor(activity, R.color.connect_green),
+            view.findViewById<TextView>(R.id.delivery_chip_label).currentTextColor,
+        )
+        assertEquals(
+            "progress card content colour comes through the themed attribute",
+            ContextCompat.getColor(activity, R.color.connect_dark_grey),
+            view.findViewById<TextView>(R.id.progress_card_bar_label).currentTextColor,
+        )
+    }
+
     @Test
     fun `visit progress reflects the deliveries returned by the server`() {
         val dashboard = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 2)))
@@ -245,7 +272,7 @@ class ConnectDeliveryDashboardFragmentTest {
         val dashboard =
             launch(
                 progressResponse(
-                    deliveries = deliveriesToday(unit = 1, count = ConnectLearnJobTestData.MAX_DAILY_VISITS),
+                    deliveries = deliveriesToday(unit = 1, count = ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY),
                 ),
             )
         val view = dashboard.requireView()
@@ -280,7 +307,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
     @Test
     fun `every unit at its daily limit grays the figures`() {
-        val perUnit = ConnectLearnJobTestData.MAX_DAILY_VISITS
+        val perUnit = ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY
         val dashboard =
             launch(
                 progressResponse(

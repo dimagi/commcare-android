@@ -253,8 +253,8 @@ class ConnectJobRecordWorkBlockedTest {
     }
 
     @Test
-    fun `a multi-payment job ignores the job-level maximum in favour of its units`() {
-        val job = job(maxVisits = 2, maxDailyVisits = 1)
+    fun `a multi-payment job is blocked by the job-level total even with units under their limits`() {
+        val job = job(maxVisits = 2, maxDailyVisits = 100)
         job.paymentUnits =
             listOf(
                 paymentUnit(id = 1, maxTotal = 30, maxDaily = 5),
@@ -262,9 +262,50 @@ class ConnectJobRecordWorkBlockedTest {
             )
         job.deliveries =
             listOf(
-                delivery(1, 1, Date()),
-                delivery(2, 2, Date()),
+                delivery(1, 1, daysFromNow(-2)),
+                delivery(2, 2, daysFromNow(-1)),
             )
+
+        assertTrue(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `a multi-payment job is blocked by the job-level daily total even with units under their limits`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 1)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 30, maxDaily = 5),
+                paymentUnit(id = 2, maxTotal = 30, maxDaily = 5),
+            )
+        job.deliveries = listOf(delivery(1, 1, Date()))
+
+        assertTrue(job.isFurtherWorkBlocked)
+    }
+
+    /**
+     * A single unit at its limit leaves nothing to deliver against, so room under the job-level cap
+     * earns nothing. Only reachable when the unit is capped tighter than the job.
+     */
+    @Test
+    fun `a single-unit job is blocked once that unit is at its daily limit`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 5)
+        job.paymentUnits = listOf(paymentUnit(id = 1, maxTotal = 50, maxDaily = 3))
+        job.deliveries =
+            listOf(
+                delivery(1, 1, Date()),
+                delivery(2, 1, Date()),
+                delivery(3, 1, Date()),
+            )
+
+        assertTrue(job.isFurtherWorkBlocked)
+    }
+
+    /** Guards the empty case, where an unguarded `atLimit.size == units.size` compares 0 to 0. */
+    @Test
+    fun `a job with no payment units is not blocked while it has visits left`() {
+        val job = job(maxVisits = 10, maxDailyVisits = 5)
+        job.paymentUnits = emptyList()
+        job.deliveries = listOf(delivery(1, 1, Date()))
 
         assertFalse(job.isFurtherWorkBlocked)
     }

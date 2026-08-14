@@ -6,8 +6,9 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/connect_background_color"
-        android:clipToPadding="false">
+        android:background="?attr/connectBackground"
+        android:clipToPadding="false"
+        tools:theme="@style/ConnectTheme">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,7 +40,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/connect_space_xs"
                     android:text="@string/connect_progress_delivery"
-                    android:textColor="@color/connect_green"
+                    android:textColor="?attr/connectStatusPositive"
                     android:textSize="@dimen/connect_text_caption"
                     />
 
@@ -52,7 +53,7 @@
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
                 android:layout_marginTop="@dimen/connect_space_sm"
                 android:includeFontPadding="false"
-                android:textColor="@color/connect_darker_grey"
+                android:textColor="?attr/connectOnSurfaceStrong"
                 android:textSize="@dimen/connect_text_metric"
                 tools:text="Infant Vaccination" />
 
@@ -62,7 +63,7 @@
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
                 android:layout_marginTop="@dimen/connect_space_sm"
                 android:text="@string/connect_opportunity_expiry_label"
-                android:textColor="@color/connect_subtext_color"
+                android:textColor="?attr/connectOnSurfaceMuted"
                 android:textSize="@dimen/connect_text_caption" />
 
             <TextView
@@ -71,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
                 android:layout_marginTop="@dimen/connect_space_xs"
-                android:textColor="@color/connect_darkest_grey"
+                android:textColor="?attr/connectOnSurfaceEmphasis"
                 android:textSize="@dimen/connect_text_title"
                 tools:text="01/31/27" />
 
@@ -81,8 +82,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_sm"
                 android:layout_marginTop="@dimen/connect_space_lg"
-                app:contentDisabledColor="@color/connect_dark_grey"
-                app:contentPrimaryColor="@color/connect_dark_grey" />
+                app:contentDisabledColor="?attr/connectOnSurfaceVariant"
+                app:contentPrimaryColor="?attr/connectOnSurfaceVariant" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -91,7 +92,7 @@
                 android:layout_marginTop="@dimen/connect_space_lg"
                 android:text="@string/connect_delivery_your_progress"
                 android:textStyle="bold"
-                android:textColor="@color/connect_text_color"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/connect_text_title"
                 />
 

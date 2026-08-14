@@ -661,12 +661,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
         } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(context, this)) {
             return context.getString(R.string.connect_progress_relearn_tasks_completed);
-        } else if (isMultiPayment()) {
-            return getMultiVisitWarnings(context);
         } else if (getDeliveries().size() >= getMaxVisits()) {
+            // The job-level caps are checked ahead of the per-unit warnings: once the whole
+            // opportunity is spent, which individual unit ran out first no longer matters.
             return context.getString(R.string.connect_progress_warning_max_reached_single);
         } else if (numberOfDeliveriesToday() >= getMaxDailyVisits()) {
             return context.getString(R.string.connect_progress_warning_daily_max_reached_single);
+        } else if (!getPaymentUnits().isEmpty()) {
+            return getMultiVisitWarnings(context);
         }
 
         return null;
@@ -725,12 +727,17 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return true;
         }
 
-        if (isMultiPayment()) {
-            return getPaymentUnitsAtLimit().size() == getPaymentUnits().size();
+        // The job-level caps bind whatever the payment units allow, so they are checked first.
+        if (getDeliveries().size() >= getMaxVisits()
+                || numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+            return true;
         }
 
-        return getDeliveries().size() >= getMaxVisits()
-                || numberOfDeliveriesToday() >= getMaxDailyVisits();
+        // Any job with payment units is blocked once they are all at a limit, single unit included:
+        // with nothing left to deliver against, room under the job-level cap earns nothing. The
+        // empty check matters, otherwise a job with no units compares 0 == 0 and blocks forever.
+        List<ConnectPaymentUnitRecord> units = getPaymentUnits();
+        return !units.isEmpty() && getPaymentUnitsAtLimit().size() == units.size();
     }
 
     /**

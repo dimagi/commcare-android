@@ -177,7 +177,7 @@
     <dimen name="connect_space_sm">8dp</dimen>
     <dimen name="connect_space_md">12dp</dimen>
     <dimen name="connect_space_lg">16dp</dimen>
-    <dimen name="connect_chip_icon_size">16dp</dimen>
+    <dimen name="connect_chip_icon_size">20dp</dimen>
     <!-- Half of the gap between grid cards; the full 16dp gap is two of these. -->
     <dimen name="connect_grid_gutter_half">8dp</dimen>
     <!-- Corner radii -->

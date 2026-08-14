@@ -3,6 +3,20 @@
         <attr name="ratio_width" format="float" />
         <attr name="ratio_height" format="float" />
     </declare-styleable>
+    <!--
+        Connect colour roles, assigned in ConnectTheme. Named after their Material 3 counterparts so
+        a later Material upgrade can collapse them into the real M3 roles by re-pointing this file.
+        The roles Material 1.3.0 already provides (colorPrimary, colorOnPrimary, colorSurface,
+        colorOnSurface, colorError) are not redeclared here.
+        The on-surface roles run from strongest to weakest emphasis.
+    -->
+    <attr name="connectBackground" format="reference|color" />
+    <attr name="connectOnSurfaceEmphasis" format="reference|color" />
+    <attr name="connectOnSurfaceStrong" format="reference|color" />
+    <attr name="connectOnSurfaceVariant" format="reference|color" />
+    <attr name="connectOnSurfaceMuted" format="reference|color" />
+    <attr name="connectStatusPositive" format="reference|color" />
+
     <attr name="detail_even_row_color" format="reference" />
     <attr name="detail_odd_row_color" format="reference" />
     <attr name="entity_view_header_background_color" format="reference" />
