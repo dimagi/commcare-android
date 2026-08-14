@@ -17,6 +17,9 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
      */
     public static final String STORAGE_KEY = "connect_learn_modules";
 
+    public static final String META_MODULE_ID = "module_id";
+    /** Key the server sends the module id under; distinct from the local storage column. */
+    private static final String META_SERVER_ID = "id";
     public static final String META_SLUG = "slug";
     public static final String META_NAME = "name";
     public static final String META_DESCRIPTION = "description";
@@ -56,6 +59,15 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     @Persisting(8)
     @MetaField(META_JOB_UUID)
     private String jobUUID;
+
+    /**
+     * Server-assigned id for the module, matching {@link ConnectJobLearningRecord#getModuleId()}.
+     * The only key that ties a completed-module record back to the module it completed.
+     */
+    @Persisting(9)
+    @MetaField(META_MODULE_ID)
+    private int moduleId;
+
     public ConnectLearnModuleSummaryRecord() {
 
     }
@@ -67,6 +79,7 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         info.name = json.getString(META_NAME);
         info.description = json.getString(META_DESCRIPTION);
         info.timeEstimate = json.getInt(META_ESTIMATE);
+        info.moduleId = json.getInt(META_SERVER_ID);
         info.lastUpdate = new Date();
 
         info.jobId = job.getJobId();
@@ -75,21 +88,27 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         return info;
     }
 
-    public static ConnectLearnModuleSummaryRecord fromV21(ConnectLearnModuleSummaryRecordV21 connectLearnModuleSummaryRecordV21) {
-        ConnectLearnModuleSummaryRecord learnModuleSummaryRecord = new ConnectLearnModuleSummaryRecord();
-        learnModuleSummaryRecord.moduleIndex = connectLearnModuleSummaryRecordV21.getModuleIndex();
-        learnModuleSummaryRecord.slug = connectLearnModuleSummaryRecordV21.getSlug();
-        learnModuleSummaryRecord.name = connectLearnModuleSummaryRecordV21.getName();
-        learnModuleSummaryRecord.description = connectLearnModuleSummaryRecordV21.getDescription();
-        learnModuleSummaryRecord.timeEstimate = connectLearnModuleSummaryRecordV21.getTimeEstimate();
-        learnModuleSummaryRecord.lastUpdate = connectLearnModuleSummaryRecordV21.getLastUpdate();
-        learnModuleSummaryRecord.jobId = connectLearnModuleSummaryRecordV21.getJobId();
-        learnModuleSummaryRecord.jobUUID = String.valueOf(connectLearnModuleSummaryRecordV21.getJobId());
-        return learnModuleSummaryRecord;
+    public static ConnectLearnModuleSummaryRecord fromV28(ConnectLearnModuleSummaryRecordV28 oldRecord) {
+        ConnectLearnModuleSummaryRecord record = new ConnectLearnModuleSummaryRecord();
+        record.slug = oldRecord.getSlug();
+        record.name = oldRecord.getName();
+        record.description = oldRecord.getDescription();
+        record.timeEstimate = oldRecord.getTimeEstimate();
+        record.jobId = oldRecord.getJobId();
+        record.moduleIndex = oldRecord.getModuleIndex();
+        record.lastUpdate = oldRecord.getLastUpdate();
+        record.jobUUID = oldRecord.getJobUUID();
+        // Unknown until the next opportunities sync rewrites the module from the server payload.
+        record.moduleId = 0;
+        return record;
     }
 
     public void setJobId(int jobId) {
         this.jobId = jobId;
+    }
+
+    public int getModuleId() {
+        return moduleId;
     }
 
     public String getSlug() {
