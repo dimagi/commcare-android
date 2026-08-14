@@ -366,6 +366,16 @@
     <string name="connect_learn_completed">Užbaigta %s</string>
     <string name="connect_learn_cert_score">Rezultatas: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Pradėti vizitus</string>
+    <string name="connect_learn_modules_completed_label">Užbaigti moduliai</string>
+    <string name="connect_learn_unlock_assessment_caption">Užbaikite visus modulius, kad atrakintumėte vertinimą.</string>
+    <string name="connect_learn_up_next_label">Toliau</string>
+    <string name="connect_learn_completed_module_label">Užbaigtas modulis</string>
+    <string name="connect_learn_assessment_name">Vertinimas</string>
+    <string name="connect_learn_assessment_description">Išlaikykite vertinimą, kad gautumėte pažymėjimą.</string>
+    <string name="connect_learn_assessment_failed_banner">Neišlaikėte vertinimo. Galite bandyti dar kartą.</string>
+    <string name="connect_learn_cta_complete_assessment">Užbaigti vertinimą</string>
+    <string name="connect_learn_cta_take_assessment">Laikyti vertinimą</string>
+    <string name="connect_learn_cta_start">Pradėti</string>
     <string name="connect_opportunity_footer_start_learning">Pradėti mokymąsi</string>
     <string name="connect_opportunity_footer_download_learn_app">Atsisiųsti mokymąsi</string>
     <string name="connect_opportunity_modules_footer_note">Užbaikite modulius, išlaikykite vertinimą ir gaukite savo pažymėjimą</string>

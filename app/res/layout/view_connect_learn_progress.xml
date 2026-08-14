@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/standard_spacer_double">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/standard_spacer_double"
+                android:paddingHorizontal="@dimen/standard_spacer_double"
+                android:paddingBottom="@dimen/standard_spacer_half">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_connect_learn_badge"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/standard_spacer"
+                    android:paddingVertical="@dimen/standard_spacer">
+
+                    <ImageView
+                        android:layout_width="@dimen/connect_badge_icon_size"
+                        android:layout_height="@dimen/connect_badge_icon_size"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_connect_learn_app" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/standard_spacer_half"
+                        android:text="@string/connect_opportunity_learn_section_title"
+                        android:textColor="@color/connect_dark_blue_color"
+                        android:textSize="@dimen/connect_text_caption"
+                        />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/learn_progress_job_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/connect_text_color"
+                    android:textSize="@dimen/connect_text_metric"
+                    tools:text="Infant Vaccination" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_half"
+                    android:text="@string/connect_opportunity_expiry_label"
+                    android:textColor="@color/connect_grey"
+                    android:textSize="@dimen/connect_text_caption" />
+
+                <TextView
+                    android:id="@+id/learn_progress_expiry_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/connect_text_color"
+                    android:textSize="@dimen/connect_text_title"
+                    tools:text="01/31/27" />
+            </LinearLayout>
+
+            <org.commcare.views.connect.ConnectProgressCard
+                android:id="@+id/learn_progress_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/standard_title_margin_bottom"
+                tools:linearProgressLabel="@string/connect_learn_modules_completed_label" />
+
+            <TextView
+                android:id="@+id/learn_progress_continue_heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/standard_title_margin_bottom"
+                android:text="@string/connect_learn_continue"
+                android:textColor="@color/connect_text_color"
+                android:textSize="@dimen/connect_text_title"
+                />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/learn_progress_continue_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/connect_divider_color"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/standard_spacer_double">
+
+                    <TextView
+                        android:id="@+id/learn_progress_continue_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/connect_text_color"
+                        android:textSize="@dimen/connect_text_body"
+                        tools:text="Up Next" />
+
+                    <TextView
+                        android:id="@+id/learn_progress_continue_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/standard_spacer_double"
+                        android:textColor="@color/connect_text_color"
+                        android:textSize="@dimen/connect_text_title"
+                        tools:text="3. Malawian Vaccine Schedule" />
+
+                    <TextView
+                        android:id="@+id/learn_progress_continue_subtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/standard_spacer_half"
+                        android:textColor="@color/connect_grey"
+                        android:textSize="@dimen/connect_text_caption"
+                        tools:text="Estimated time: 1 hour" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <org.commcare.views.connect.ConnectCtaBar
+        android:id="@+id/learn_progress_cta_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:buttonText="@string/connect_learn_cta_start"
+        app:titleText="@string/connect_learn_continue" />
+</merge>
