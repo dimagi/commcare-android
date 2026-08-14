@@ -16,6 +16,9 @@ object ConnectLearnJobTestData {
     const val DELIVERY_APP_ID = "delivery-app-001"
     const val PASSING_SCORE = 80
     const val TOTAL_MODULES = 2
+
+    /** Server module ids run from `MODULE_ID_BASE + 1`, mirroring the real API's opaque ids. */
+    const val MODULE_ID_BASE = 4881
     const val MAX_VISITS = 40
     const val MAX_DAILY_VISITS = 5
     const val TOTAL_BUDGET = 2500
@@ -121,6 +124,7 @@ object ConnectLearnJobTestData {
             for (index in 1..TOTAL_MODULES) {
                 put(
                     JSONObject().apply {
+                        put("id", MODULE_ID_BASE + index)
                         put("slug", "module-$index")
                         put("name", "Module $index")
                         put("description", "Description of module $index")

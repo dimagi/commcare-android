@@ -175,15 +175,17 @@ abstract class BaseConnectJobIntroTest {
 
     private fun modulesJson(): JSONArray =
         JSONArray().apply {
-            put(moduleJson("Infant Vaccination", 1))
-            put(moduleJson("Barriers to Vaccination", 1))
+            put(moduleJson(4882, "Infant Vaccination", 1))
+            put(moduleJson(4883, "Barriers to Vaccination", 1))
         }
 
     private fun moduleJson(
+        id: Int,
         name: String,
         hours: Int,
     ): JSONObject =
         JSONObject().apply {
+            put("id", id)
             put("slug", name.lowercase().replace(' ', '-'))
             put("name", name)
             put("description", "Description of $name")
