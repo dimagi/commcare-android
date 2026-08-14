@@ -51,6 +51,11 @@ class ConnectRepository
                         ConnectNetworkClient.getInstance(),
                     ).also { instance = it }
                 }
+
+            @VisibleForTesting
+            internal fun resetInstance() {
+                instance = null
+            }
         }
 
         fun getOpportunities(

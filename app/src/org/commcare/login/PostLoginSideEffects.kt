@@ -16,6 +16,7 @@ import org.commcare.utils.CrashUtil
 internal class PostLoginSideEffects(
     private val context: Context,
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
+    private val repository: ConnectRepository = ConnectRepository.getInstance(context),
 ) {
     suspend fun runOnSuccess(username: String): PostLoginOutcome {
         CrashUtil.registerUserData()
@@ -40,7 +41,7 @@ internal class PostLoginSideEffects(
 
         ConnectAppUtils.updateLastAccessed(context, appId, username)
 
-        ConnectRepository.getInstance(context).syncJobProgress(job).collect {}
+        repository.syncJobProgress(job).collect {}
 
         return PostLoginOutcome(
             redirectToConnectOpportunityInfo = job.isUserSuspended,

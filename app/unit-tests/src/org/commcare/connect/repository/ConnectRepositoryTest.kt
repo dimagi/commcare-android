@@ -1,9 +1,11 @@
 package org.commcare.connect.repository
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -33,6 +35,7 @@ class ConnectRepositoryTest {
     private lateinit var mockSyncPrefs: ConnectSyncPreferences
     private lateinit var mockNetworkClient: ConnectNetworkClient
     private lateinit var mockUser: ConnectUserRecord
+    private lateinit var mockJob: ConnectJobRecord
     private lateinit var repository: ConnectRepository
 
     @Before
@@ -40,11 +43,14 @@ class ConnectRepositoryTest {
         mockSyncPrefs = mockk(relaxed = true)
         mockNetworkClient = mockk()
         mockUser = mockk()
+        mockJob = mockk(relaxed = true)
 
         // Static mocks for database utilities
         mockkStatic(ConnectJobUtils::class)
         mockkStatic(ConnectUserDatabaseUtil::class)
         every { ConnectUserDatabaseUtil.getUser(any()) } returns mockUser
+        every { ConnectJobUtils.upsertJob(any()) } just Runs
+        every { ConnectJobUtils.storePayment(any(), any()) } just Runs
 
         repository = ConnectRepository(mockSyncPrefs, mockNetworkClient)
     }
@@ -294,7 +300,7 @@ class ConnectRepositoryTest {
         runBlocking {
             coEvery { mockNetworkClient.claimJob(any(), any()) } returns Result.success(Unit)
 
-            val emissions = repository.claimJob("test-uuid").toList()
+            val emissions = repository.claimJob(mockJob).toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
@@ -307,7 +313,7 @@ class ConnectRepositoryTest {
             coEvery { mockNetworkClient.claimJob(any(), any()) } returns
                 Result.failure(Exception("Network error"))
 
-            val emissions = repository.claimJob("test-uuid").toList()
+            val emissions = repository.claimJob(mockJob).toList()
 
             assertEquals(2, emissions.size)
             assertTrue(emissions[0] is DataState.Loading)
