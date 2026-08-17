@@ -35,7 +35,7 @@ interface HomeActivityHost : SavedStateRegistryOwner {
 
     /**
      * Demo-mode query, consumed only by the launch pipeline's demo halt.
-     * Kept separate from [areActionsAvailable] because the two coincide for the session-gated hosts
+     * Kept separate from [areAppActionsAvailable] because the two coincide for the session-gated hosts
      * but are independent for `OpportunityHomeActivity`, where this is always `false`.
      */
     fun isDemoUser(): Boolean
@@ -43,5 +43,5 @@ interface HomeActivityHost : SavedStateRegistryOwner {
     /**
      * Per-action availability predicate for the action facade.
      */
-    fun areActionsAvailable(): Boolean
+    fun areAppActionsAvailable(): Boolean
 }

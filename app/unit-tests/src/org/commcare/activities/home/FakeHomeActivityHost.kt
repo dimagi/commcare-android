@@ -57,7 +57,7 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     override fun isDemoUser(): Boolean = demoUser
 
-    override fun areActionsAvailable(): Boolean = actionsAvailable
+    override fun areAppActionsAvailable(): Boolean = actionsAvailable
 
     /** `ComponentActivity.onCreate` step 1: restore the registry. Must precede [dispatchOnCreate]. */
     fun performRestore(savedState: Bundle? = null) {

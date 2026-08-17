@@ -35,9 +35,6 @@ class StandardHomePresentationTest : BaseHomeScreenActivityTest() {
         assertFalse(buildHome().usesSubmissionProgressBar())
     }
 
-    // `shouldHighlightSeatedApp` was pinned here until QA-8628 removed the in-drawer app list, which
-    // took the seated-app highlight — and the method answering for it — with it.
-
     @Test
     fun `activity title includes logged in username`() {
         val title = buildHome().activityTitle

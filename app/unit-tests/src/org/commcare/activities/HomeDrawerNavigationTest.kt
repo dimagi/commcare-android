@@ -8,9 +8,6 @@ import org.junit.Test
 /**
  * Characterization pins for the nav drawer's traditional destination (app switching).
  *
- * QA-8628 removed the in-drawer app list, so `COMMCARE_APPS` no longer carries the id of a chosen
- * app and no longer switches directly. It now raises a confirmation dialog and only returns to
- * login once the user confirms, which is what these pin.
  *
  * The Connect/PersonalId destinations live in [HomeConnectDrawerNavigationTest].
  */

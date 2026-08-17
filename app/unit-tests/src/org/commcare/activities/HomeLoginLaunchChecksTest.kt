@@ -97,8 +97,6 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     @Test
     fun `demo user halts before the pin step without claiming the launch`() {
         seatDemoUser()
-        // `isDemoUser()` is an instance method on the host as of CCCT-2679, so the precondition is
-        // gated on the seated session directly rather than through an activity that isn't built yet.
         assertEquals(
             "seatDemoUser() must produce a demo session, else this test can't gate on step 1",
             User.TYPE_DEMO,

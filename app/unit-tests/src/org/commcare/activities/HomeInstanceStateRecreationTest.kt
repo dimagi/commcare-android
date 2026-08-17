@@ -6,9 +6,9 @@ import org.junit.Test
 import org.robolectric.shadows.ShadowLooper
 
 /**
- * Acceptance coverage for CCCT-2679: the three launch/nav keys now live on
- * `HomeActivityCoordinator` and persist through the host's `SavedStateRegistry` instead of
- * `HomeScreenBaseActivity.onSaveInstanceState`. These tests prove they still survive `recreate()`.
+ * The three launch/nav keys now live on `HomeActivityCoordinator` and persist through the host's
+ * `SavedStateRegistry` instead of `HomeScreenBaseActivity.onSaveInstanceState`. These tests prove
+ * they still survive `recreate()`.
  */
 class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
     @Test

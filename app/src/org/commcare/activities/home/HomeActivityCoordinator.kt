@@ -60,8 +60,6 @@ class HomeActivityCoordinator(
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        // Covers hosts that never touch the launch/nav state, so the provider is registered and
-        // the state is still persisted for them. Later slices register delegates from here.
         ensureRestored()
     }
 

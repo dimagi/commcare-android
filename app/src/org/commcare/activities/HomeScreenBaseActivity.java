@@ -10,6 +10,7 @@ import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
@@ -191,7 +192,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     /**
      * The coordinator this home activity composes. Public so tests can assert on the launch/nav
      * state it now owns. Held here rather than in each concrete home activity for as long as this
-     * class exists; the slice that removes this class pushes the field down into both subclasses.
+     * class exists
      */
     public HomeActivityCoordinator getCoordinator() {
         return coordinator;
@@ -1641,14 +1642,14 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     /**
-     * Per-action availability for the session-gated home activities: a demo user gets no actions.
-     * OpportunityHomeActivity will instead report "session attached".
+     * Per-action availability for the session-gated home activities for CC apps
      */
     @Override
-    public boolean areActionsAvailable() {
+    public boolean areAppActionsAvailable() {
         return !isDemoUser();
     }
 
+    @NonNull
     @Override
     public Context getHostContext() {
         return this;
@@ -1656,7 +1657,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     /**
      * Host-agnostic name for "re-render the surface that presents coordinator actions". Each home
-     * activity already knows whether that means its options menu or its nav drawer.
+     * activity already knows whether that means its options menu, nav drawer, etc.
      */
     @Override
     public void rebuildOptionsMenu() {

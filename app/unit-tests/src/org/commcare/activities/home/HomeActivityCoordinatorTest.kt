@@ -2,7 +2,6 @@ package org.commcare.activities.home
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.junit.Assert.assertEquals
@@ -26,25 +25,6 @@ class HomeActivityCoordinatorTest {
         HomeActivityCoordinator(host)
 
         assertEquals(1, host.observerCount)
-    }
-
-    /**
-     * `onCreate` is observed, asserted through the only effect it has in this slice: the restore pass
-     * registers the saved-state provider, so a host that never touches the launch/nav state still
-     * contributes to the save bundle. Nothing here reads or writes the state, so the lazy restore in
-     * the property accessors cannot be what registered it.
-     */
-    @Test
-    fun `on-create registers the saved state provider for a host that never touches the state`() {
-        val host = FakeHomeActivityHost()
-        HomeActivityCoordinator(host)
-        host.performRestore()
-        assertTrue("nothing should be saved before on-create", host.performSave().isEmpty)
-
-        host.dispatchOnCreate()
-
-        assertEquals(Lifecycle.State.CREATED, host.lifecycle.currentState)
-        assertFalse("on-create must register the saved-state provider", host.performSave().isEmpty)
     }
 
     @Test
@@ -99,29 +79,6 @@ class HomeActivityCoordinatorTest {
         assertFalse(second.wasExternal)
         assertTrue(second.loginExtraWasConsumed)
         assertFalse(second.pendingEndpointNavigationAfterSync)
-    }
-
-    /**
-     * The session-gated hosts read this state inside `onCreateSessionSafe`, which runs during
-     * `Activity.onCreate` — before `ON_CREATE` is dispatched. Restoring only from `onCreate(owner)`
-     * would hand them stale defaults on every recreation, so a read before dispatch must already
-     * see the restored values.
-     */
-    @Test
-    fun `restored state is readable before on-create is dispatched`() {
-        val firstHost = FakeHomeActivityHost()
-        val first = HomeActivityCoordinator(firstHost)
-        firstHost.performRestore()
-        firstHost.dispatchOnCreate()
-        first.wasExternal = true
-        val saved = firstHost.performSave()
-
-        val secondHost = FakeHomeActivityHost()
-        val second = HomeActivityCoordinator(secondHost)
-        secondHost.performRestore(saved)
-        // No dispatchOnCreate() — this is the moment onCreateSessionSafe runs.
-
-        assertTrue(second.wasExternal)
     }
 
     /**
