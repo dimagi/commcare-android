@@ -30,17 +30,17 @@ flowchart TD
 ```mermaid
 flowchart TD
     Start([Connect user opens the mobile app]) --> Unlock{Unlock PersonalID}
-    Unlock -->|Cancelled or fails| Exit([Exit the app])
-    Unlock -->|Success| Land[Opportunity Home]
-    Land --> Login{Silent sign-in to the app}
-    Login -->|Success| Ready[Opportunity Home, ready to use]
-    Login -->|Network / temporary error| Retry[Opportunity Home with an error and a Retry]
-    Login -->|PersonalID credentials lost| Reregister[Re-register PersonalID]
+    Unlock -->|Cancelled or fails| Login[Login page]
+    Unlock -->|Success| Land[Opportunity Home loads<br/>Start button and menu disabled; sign-in fires]
+    Land --> Signin{Sign-in outcome}
+    Signin -->|Success| Ready[Start button and menu enabled — ready to use]
+    Signin -->|Network or temporary error| Retry[Opportunity Home shows an error and Retry; Start and menu stay disabled]
+    Signin -->|PersonalID credentials lost| Reregister[Re-register PersonalID]
 ```
 
 **How the Back button behaves**
 
-Back reverses the user's forward steps; the screen the app launched to is the task root, so Back exits from it, and a screen reached by navigating returns to its opener. In-page tabs and drawer section-switches are exceptions that don't retrace — the design doc has the full detail.
+Back reverses the user's forward steps; the screen the app launched to is the task root, so Back exits from it, and a screen reached by navigating returns to its opener. Drawer section-switches don't retrace (standard top-level-destination behavior); what Back does after an in-page **tab** switch is an open product question with no settled industry standard — see the design doc.
 
 ```mermaid
 flowchart TD
@@ -121,7 +121,7 @@ Testing strategy:
 
 **Precedence:** (1) explicit intent-driven launches first — external `ACTION_VIEW` install (via `CommCareSetupActivity`), `KEY_REQUIRE_REFRESH` verification (via `CommCareVerificationActivity`), deep links, push; (2) active session → resume by the persisted **last session context** (login provenance); tie-break: provenance wins over a stale `evaluateAppState` linkage; (3) no session → resolve by configuration.
 
-**PersonalID unlock** ([`PersonalIdUnlocker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdUnlocker.kt)): cancel and failure both resolve through `connectActivityComplete(false)`. On a warm entry the prompt dismisses and the underlying screen is unchanged; on a cold start (nothing beneath) it exits the app.
+**PersonalID unlock** ([`PersonalIdUnlocker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdUnlocker.kt)): cancel and failure both resolve through `connectActivityComplete(false)`. On a warm entry the prompt dismisses and the underlying screen is unchanged; on a **cold start** it falls back to the **Login page** (recovery — see "Failure fallback to Login" below), not exit. At cold start, show a splash / branded base behind the unlock prompt (Android 12+ `SplashScreen` kept on screen via `setKeepOnScreenCondition`, or a splash-themed `windowBackground`; `androidx.core:core-splashscreen` for pre-12) so the biometric/PIN dialog isn't floating over a blank window.
 
 ### New persistence
 
@@ -132,10 +132,23 @@ A dedicated shared-preferences store, **scoped to the active PersonalID account*
 - **North-star:** a single `NavHost` shell; Back is pure start-destination-exit + synthesized parent stacks; no flags.
 - **Interim (Solution A on today's activities):** `ConnectActivity` stays the for-result parent (edge-cases doc's Option D); keep `appLaunchedFromConnect` / `finishAffinity` / `REORDER_TO_FRONT` until the shell lands. `DispatchActivity` remains the manifest launcher for DB-bad-state, recovery, and external/session-endpoint launches; only the landing *decision* moves into the resolver.
 
+### Failure fallback to Login — two approaches
+
+Agreed UX: unlock/sign-in **failure → Login page** (recovery), while a **successful** Opp Home stays the task root (Back exits). Two ways to implement it, to compare with the team:
+
+- **Failure-only routing (recommended).** Opp Home launches as the task root; on failure, explicitly route to Login (Login is not otherwise in the back stack). *Pro:* the Back model stays clean — a successful Opp Home genuinely is the root, no special handling. *Con:* the failure path is an explicit route, not an automatic fall-through. (Closest to the edge-cases doc's Option A.)
+- **Login as a for-result parent (`Login → Opp Home`).** Launch Opp Home on top of Login for-result, mirroring today's `Login → App Home`; failure reveals Login automatically. *Pro:* consistent with the proven for-result pattern; the fallback is automatic. *Con:* Back from a *successful* Opp Home would reveal Login, so it needs special back handling (an exit flag / `finishAffinity`) to still exit — the tension raised in review. (Closest to Options C/D.)
+
+Recommendation: failure-only routing — it avoids reintroducing the exit-flag handling the north-star is trying to remove.
+
+### Sign-in ordering
+
+Opp Home loads first and fires sign-in simultaneously; the **Start button and overflow menu stay disabled until sign-in succeeds**. This maps to #3776's attach-gated capabilities (`areActionsAvailable()` = session attached), so no new mechanism is needed — the actions are gated on the attached session.
+
 ### Session lifecycle changes
 
 - **Expiry:** Standard Home → CommCare Apps list; Opportunity Home → silent re-login (#3776), foreground-visible even when resumed from background; neither relies on `DispatchActivity` re-dispatch.
-- **Forget PersonalID:** [`forgetUser()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L175) must also `closeUserSession()` before routing to Intro — it does not today, leaving a PersonalID-less session dangling.
+- **Forget PersonalID:** [`forgetUser()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L175) must also `closeUserSession()`, then **re-run the startup router** rather than hardcoding Intro — so a device with apps installed lands on the Login page / CommCare Apps list, and Intro only when nothing is configured. (`forgetUser()` already re-dispatches via `DispatchActivity` `CLEAR_TASK`; it just additionally needs to close the session.)
 
 ### Feature flag
 
