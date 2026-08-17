@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
-import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
@@ -163,8 +162,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         }
     }
 
-    @VisibleForTesting
-    void updateConnectJobMessage() {
+    private void updateConnectJobMessage() {
         String messageText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
         ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
@@ -245,8 +243,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         connectProgressJobSummaryAdapter.setDeliverySummaries(list);
     }
 
-    @VisibleForTesting
-    Vector<String> getHiddenButtons() {
+    private Vector<String> getHiddenButtons() {
         CommCareApp ccApp = CommCareApplication.instance().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
 

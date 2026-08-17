@@ -28,16 +28,23 @@ class HomeActivityCoordinatorTest {
         assertEquals(1, host.observerCount)
     }
 
+    /**
+     * `onCreate` is observed, asserted through the only effect it has in this slice: the restore pass
+     * registers the saved-state provider, so a host that never touches the launch/nav state still
+     * contributes to the save bundle. Nothing here reads or writes the state, so the lazy restore in
+     * the property accessors cannot be what registered it.
+     */
     @Test
-    fun `coordinator receives on-create from the host lifecycle`() {
+    fun `on-create registers the saved state provider for a host that never touches the state`() {
         val host = FakeHomeActivityHost()
-        val coordinator = HomeActivityCoordinator(host)
+        HomeActivityCoordinator(host)
         host.performRestore()
+        assertTrue("nothing should be saved before on-create", host.performSave().isEmpty)
 
         host.dispatchOnCreate()
 
         assertEquals(Lifecycle.State.CREATED, host.lifecycle.currentState)
-        assertEquals(1, coordinator.onCreateCallCount)
+        assertFalse("on-create must register the saved-state provider", host.performSave().isEmpty)
     }
 
     @Test

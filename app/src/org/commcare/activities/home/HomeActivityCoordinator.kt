@@ -2,20 +2,16 @@ package org.commcare.activities.home
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
 /**
  * Composition root for the behavior shared by every CommCare home screen.
  *
- * Registers itself on the host lifecycle in [init] — before `ON_CREATE` is dispatched — so it
- * observes the host directly instead of being driven by forwarded calls. It also owns the
- * launch/nav instance state that describes *how the activity was launched*, persisting it through
- * the host's `SavedStateRegistry` rather than a forwarded `onSaveInstanceState`.
- *
- * In this slice it holds no delegates; the five delegates and the action facade arrive in later
- * slices.
+ * - Registers itself on the host lifecycle during init — before `ON_CREATE` is dispatched — so it
+ * observes the host directly instead of being driven by forwarded calls.
+ * - Owns the launch/nav instance state that describes *how the activity was launched*, persisting
+ * it through the host's `SavedStateRegistry`.
  */
 class HomeActivityCoordinator(
     private val host: HomeActivityHost,
@@ -59,26 +55,18 @@ class HomeActivityCoordinator(
             endpointNavPendingAfterSync = value
         }
 
-    /** Test-visible proof the observer fired; later slices register delegates from [onCreate]. */
-    @VisibleForTesting
-    var onCreateCallCount: Int = 0
-        private set
-
     init {
         host.lifecycle.addObserver(this)
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        onCreateCallCount++
         // Covers hosts that never touch the launch/nav state, so the provider is registered and
-        // the state is still persisted for them.
+        // the state is still persisted for them. Later slices register delegates from here.
         ensureRestored()
     }
 
     /**
-     * Fan an activity result out to the delegates that need it. `onActivityResult` is the only
-     * cross-cutting host callback with no `Lifecycle` hook, so it stays a forwarded call. No
-     * delegates are registered yet, so this currently does nothing but establish the seam.
+     * Fan an activity result out to the delegates that need it
      */
     fun onActivityResult(
         requestCode: Int,
@@ -93,8 +81,7 @@ class HomeActivityCoordinator(
      *
      * Called lazily from the property accessors rather than only from [onCreate] because the
      * session-gated hosts read this state inside `onCreateSessionSafe`, which runs during
-     * `Activity.onCreate` — before `ON_CREATE` is dispatched. `AppCompatActivity.onCreate` has
-     * already run `SavedStateRegistryController.performRestore` by then, so consuming here is safe.
+     * `Activity.onCreate` — before `ON_CREATE` is dispatched.
      */
     private fun ensureRestored() {
         if (restored) {
