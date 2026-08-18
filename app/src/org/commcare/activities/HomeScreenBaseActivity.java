@@ -10,6 +10,7 @@ import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
@@ -21,6 +22,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.FormEntrySessionWrapper;
+import org.commcare.activities.home.HomeActivityHost;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.user.models.FormRecord;
@@ -121,7 +123,7 @@ import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLat
  * lifecycle, implementation of available actions, session navigation, etc.
  */
 public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
-        implements SessionNavigationResponder {
+        implements SessionNavigationResponder, HomeActivityHost {
 
     /**
      * Request code for launching a menu list or menu grid
@@ -1642,7 +1644,8 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         showAlertDialog(d);
     }
 
-    protected static boolean isDemoUser() {
+    @Override
+    public boolean isDemoUser() {
         try {
             User u = CommCareApplication.instance().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));
@@ -1651,6 +1654,34 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             // expires and hasn't redirected to login.
             return false;
         }
+    }
+
+    /**
+     * Per-action availability for the session-gated home activities for CC apps
+     */
+    @Override
+    public boolean areAppActionsAvailable() {
+        return !isDemoUser();
+    }
+
+    @NonNull
+    @Override
+    public Context getHostContext() {
+        return this;
+    }
+
+    /**
+     * Host-agnostic name for "re-render the surface that presents coordinator actions". Each home
+     * activity already knows whether that means its options menu, nav drawer, etc.
+     */
+    @Override
+    public void rebuildOptionsMenu() {
+        refreshCCUpdateOption();
+    }
+
+    @Override
+    public void refreshHostUi() {
+        refreshUI();
     }
 
     public static void createPreferencesMenu(AppCompatActivity activity) {
