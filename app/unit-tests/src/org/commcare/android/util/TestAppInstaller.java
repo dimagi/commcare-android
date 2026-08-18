@@ -58,6 +58,13 @@ public class TestAppInstaller {
     }
 
     /**
+     * The uniqueId of the app currently seated by an install
+     */
+    public static String seatedAppId() {
+        return CommCareApplication.instance().getCurrentApp().getUniqueId();
+    }
+
+    /**
      * Install an app without creating a user
      */
     public static void installApp(String appPath) {
