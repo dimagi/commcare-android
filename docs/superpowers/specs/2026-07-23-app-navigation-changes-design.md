@@ -40,8 +40,6 @@ flowchart TD
 
 **How the Back button behaves**
 
-Back reverses the user's forward steps; the screen the app launched to is the task root, so Back exits from it, and a screen reached by navigating returns to its opener. Drawer section-switches don't retrace (standard top-level-destination behavior); what Back does after an in-page **tab** switch is an open product question with no settled industry standard — see the design doc.
-
 ```mermaid
 flowchart TD
     A[Mobile app opened directly to a Home] -->|Back| AExit([Exit app])
@@ -51,8 +49,6 @@ flowchart TD
 ```
 
 **Near-term scope: before the CommCare Apps List exists**
-
-The diagrams above are the target; until the CommCare Apps List ships, the current Login Page is the interim home for traditional and PersonalID users — so at startup the "CommCare Apps list" landing becomes the Login Page. Back follows the same rule: it exits directly when App Home was the launch screen, and retraces to the Login Page when the user logged in there (below).
 
 ```mermaid
 flowchart TD
