@@ -2,9 +2,12 @@ package org.commcare.views.connect
 
 import android.content.Context
 import android.os.Build
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
@@ -99,6 +102,21 @@ class ConnectLearnCompleteViewTest {
             view.text(R.id.cert_score_text),
         )
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.cert_score_text).visibility)
+    }
+
+    @Test
+    fun `the certificate score reads at full strength against the dark card`() {
+        val view = bind()
+        val score = view.findViewById<TextView>(R.id.cert_score_text).text as Spanned
+        val spans = score.getSpans(0, score.length, ForegroundColorSpan::class.java)
+
+        assertEquals(1, spans.size)
+        assertEquals(ContextCompat.getColor(context, R.color.white), spans.first().foregroundColor)
+        assertEquals(
+            "only the number is brightened, not its label",
+            score.indexOf(':'),
+            score.getSpanStart(spans.first()),
+        )
     }
 
     @Test

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -536,6 +537,37 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public boolean attemptedAssessment() {
         return assessments != null && !assessments.isEmpty();
+    }
+
+    /**
+     * When the user finished learning: the last assessment they sat, or failing that the last module
+     * they completed. Falls back to today when the job carries neither.
+     *
+     * A record whose date failed to parse is skipped rather than allowed to decide the answer.
+     */
+    public Date getLearningCompletionDate() {
+        List<Date> dates = new ArrayList<>();
+
+        if (attemptedAssessment()) {
+            for (ConnectJobAssessmentRecord record : assessments) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        } else if (getLearnings() != null) {
+            for (ConnectJobLearningRecord record : getLearnings()) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        }
+
+        return dates.isEmpty() ? new Date() : Collections.max(dates);
+    }
+
+    /** Whether the job carries any record of learning having been done. */
+    public boolean hasLearningRecords() {
+        return attemptedAssessment() || (getLearnings() != null && !getLearnings().isEmpty());
     }
 
     public boolean passedAssessment() {

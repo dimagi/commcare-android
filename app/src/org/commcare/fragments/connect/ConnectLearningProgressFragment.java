@@ -10,8 +10,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import org.commcare.AppUtils;
-import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
-import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -30,8 +28,6 @@ import org.commcare.views.connect.ConnectViewUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
@@ -115,7 +111,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
             getBinding().learnCompleteView.setVisibility(View.VISIBLE);
             getBinding().learnCompleteView.bind(
                     job,
-                    getLatestCompletionDate(),
+                    job.getLearningCompletionDate(),
                     ConnectUserDatabaseUtil.getUser(requireContext()).getName(),
                     this::onDeliveryCtaClicked
             );
@@ -181,27 +177,6 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
                         getString(R.string.connect_downloading_delivery),
                         false
                 );
-    }
-
-    private Date getLatestCompletionDate() {
-        List<ConnectJobAssessmentRecord> assessments = job.getAssessments();
-        Date latestDate = null;
-
-        if (assessments != null && !assessments.isEmpty()) {
-            for (ConnectJobAssessmentRecord a : assessments) {
-                if (latestDate == null || latestDate.before(a.getDate())) {
-                    latestDate = a.getDate();
-                }
-            }
-        } else {
-            for (ConnectJobLearningRecord l : job.getLearnings()) {
-                if (latestDate == null || latestDate.before(l.getDate())) {
-                    latestDate = l.getDate();
-                }
-            }
-        }
-
-        return latestDate != null ? latestDate : new Date();
     }
 
     private void updateButtons(boolean learningComplete) {
