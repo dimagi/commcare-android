@@ -37,6 +37,7 @@ class ConnectDeliveryDashboardFragment :
     }
 
     override fun updateView() {
+        reloadActiveJob()
         val contentEnabled = !job.isFurtherWorkBlocked
         bindHeader()
         bindVisitProgress(contentEnabled)
