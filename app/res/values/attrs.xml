@@ -11,10 +11,14 @@
         The on-surface roles run from strongest to weakest emphasis.
     -->
     <attr name="connectBackground" format="reference|color" />
+    <attr name="connectSurfaceContainerLow" format="reference|color" />
     <attr name="connectOnSurfaceEmphasis" format="reference|color" />
     <attr name="connectOnSurfaceStrong" format="reference|color" />
     <attr name="connectOnSurfaceVariant" format="reference|color" />
     <attr name="connectOnSurfaceMuted" format="reference|color" />
+    <attr name="connectPrimaryContainer" format="reference|color" />
+    <attr name="connectOnPrimaryContainer" format="reference|color" />
+    <attr name="connectInversePrimary" format="reference|color" />
     <attr name="connectStatusPositive" format="reference|color" />
 
     <attr name="detail_even_row_color" format="reference" />

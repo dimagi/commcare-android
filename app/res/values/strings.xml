@@ -744,6 +744,16 @@
     <string name="connect_delivery_your_progress">Your Progress</string>
     <string name="connect_delivery_total_earnings">Total earnings</string>
     <string name="connect_delivery_amount_each">%1$s each</string>
+    <string name="connect_delivery_tasks_title">Tasks</string>
+    <string name="connect_delivery_tasks_mandatory_title">Mandatory</string>
+    <string name="connect_delivery_tasks_mandatory_subtitle">Complete tasks to continue delivery.</string>
+    <string name="connect_delivery_tasks_optional_title">Optional</string>
+    <string name="connect_delivery_tasks_optional_subtitle">Complete tasks anytime before expiry.</string>
+    <string name="connect_delivery_tasks_empty">No pending tasks available at the moment. We\'ll notify you when a new task is available.</string>
+    <string name="connect_delivery_revisit_learning_title">Revisit Learning</string>
+    <string name="connect_delivery_revisit_learning_completed">Completed %1$s</string>
+    <string name="connect_delivery_revisit_learning_view">View</string>
+    <string name="connect_task_expires_on">Expires on %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visit remaining today</item>
         <item quantity="other">%1$d visits remaining today</item>

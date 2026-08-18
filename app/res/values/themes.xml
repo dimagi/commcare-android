@@ -58,10 +58,14 @@
         <item name="appBarLayoutStyle">@style/Widget.Connect.AppBarLayout</item>
 
         <item name="connectBackground">@color/connect_background_color</item>
+        <item name="connectSurfaceContainerLow">@color/cool_gray_50</item>
         <item name="connectOnSurfaceEmphasis">@color/cool_gray_900</item>
         <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
         <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
         <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
+        <item name="connectPrimaryContainer">@color/connect_light_indigo</item>
+        <item name="connectOnPrimaryContainer">@color/neon_blue</item>
+        <item name="connectInversePrimary">@color/cc_brand_color</item>
         <item name="connectStatusPositive">@color/connect_green</item>
     </style>
 
