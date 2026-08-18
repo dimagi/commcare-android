@@ -249,6 +249,18 @@
     <string name="connect_delivery_start">Pradėti</string>
     <string name="connect_delivery_continue_visits">Tęskite savo vizitus</string>
     <string name="connect_delivery_continue_visits_subtitle">Pateikti pristatymo formas</string>
+    <string name="connect_delivery_visit_progress_title">Vizitų pažanga</string>
+    <string name="connect_delivery_total_visits_completed">iš viso atliktų vizitų</string>
+    <string name="connect_delivery_daily_visits">Dienos vizitai</string>
+    <string name="connect_delivery_your_progress">Jūsų pažanga</string>
+    <string name="connect_delivery_total_earnings">Bendras uždarbis</string>
+    <string name="connect_delivery_amount_each">po %1$s</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">šiandien liko %1$d vizitas</item>
+        <item quantity="few">šiandien liko %1$d vizitai</item>
+        <item quantity="many">šiandien liko %1$d vizito</item>
+        <item quantity="other">šiandien liko %1$d vizitų</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_open_conversation_button_text">Atidaryti pokalbį</string>

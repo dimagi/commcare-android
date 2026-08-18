@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:minHeight="@dimen/connect_info_card_min_height"
     android:padding="@dimen/connect_space_lg">
 
     <TextView
@@ -15,8 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/connect_space_sm"
         android:textColor="@color/connect_dark_blue_color"
-        android:textSize="@dimen/connect_text_value"
-        android:textStyle="bold"
+        android:textSize="@dimen/connect_text_headline"
         app:layout_constraintEnd_toStartOf="@id/info_card_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -40,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/connect_space_sm"
         android:textColor="@color/connect_text_color"
-        android:textSize="@dimen/connect_text_title"
+        android:textSize="@dimen/connect_text_body"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_card_value_text"

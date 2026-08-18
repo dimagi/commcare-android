@@ -1,24 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/connect_background_color"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:theme="@style/ConnectTheme">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/connect_delivery_home_tabs"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:background="@color/connect_background_color"
+        android:background="?attr/colorPrimary"
         app:tabGravity="fill"
         app:tabIndicator="@drawable/ic_connect_pager_indicator"
-        app:tabIndicatorColor="@color/connect_blue_color"
+        app:tabIndicatorColor="?attr/colorOnPrimary"
         app:tabInlineLabel="true"
         app:tabMode="fixed"
-        app:tabSelectedTextColor="@color/connect_blue_color"
+        app:tabSelectedTextColor="?attr/colorOnPrimary"
         app:tabTextAppearance="@style/TabTextStyle"
-        app:tabTextColor="@color/connect_grey" />
+        app:tabTextColor="?attr/colorOnPrimary" />
+
+    <!--
+        The activity's loading bar sits directly under the toolbar, which on this screen is above the
+        tab strip. This one takes its place so the bar reads as belonging to the tab content.
+    -->
+    <include
+        android:id="@+id/tab_network_loading"
+        layout="@layout/network_loading_bar"
+        android:visibility="gone" />
+
+    <!-- Hosts the sync status bar, which BaseConnectFragment would otherwise place above the tabs. -->
+    <FrameLayout
+        android:id="@+id/tab_status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <View
         android:id="@+id/divider"

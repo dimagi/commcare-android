@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit
  * [MockWebServer] harness that points [ConnectNetworkClient] at a local mock server so Connect API
  * calls hit it. The PersonalID equivalent lives in `PersonalIdMockApiServer`; the two target
  * different Retrofit clients.
- *
  * [ConnectNetworkClient] is a process-wide singleton, so [start] swaps its backing instance and
  * [shutdown] must restore it. Callers seat a Connect user with a valid token (see `ConnectTestUtils`)
  * so the calls don't detour to the PersonalId token endpoint, which this server doesn't serve.
