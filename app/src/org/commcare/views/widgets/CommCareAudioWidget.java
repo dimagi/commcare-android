@@ -1,5 +1,6 @@
 package org.commcare.views.widgets;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -19,9 +20,13 @@ import com.google.android.material.button.MaterialButton;
 
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.dialogs.CommCareAlertDialog;
+import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -35,6 +40,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 
+import static android.Manifest.permission.RECORD_AUDIO;
 import static org.commcare.views.widgets.RecordingFragment.APPEARANCE_ATTR_ARG_KEY;
 import static org.commcare.views.widgets.RecordingFragment.AUDIO_FILE_PATH_ARG_KEY;
 
@@ -86,8 +92,30 @@ public class CommCareAudioWidget extends AudioWidget
         playbackSeekBar = layout.findViewById(R.id.seekBar);
         deleteAudio = layout.findViewById(R.id.delete_audio);
 
-        captureButton.setOnClickListener(v -> captureAudio(mPrompt));
         deleteAudio.setOnClickListener(v -> launchAudioRecorder(mPrompt));
+
+        captureButton.setOnClickListener(v -> {
+            if (Permissions.missingAppPermission((AppCompatActivity)getContext(), RECORD_AUDIO)) {
+                pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
+                if (Permissions.shouldShowPermissionRationale(
+                        (AppCompatActivity)getContext(),
+                        Manifest.permission.RECORD_AUDIO)
+                ) {
+                    CommCareAlertDialog dialog =
+                            DialogCreationHelpers.buildPermissionRequestDialog(
+                                    (AppCompatActivity)getContext(), (RuntimePermissionRequester)getContext(),
+                                    REQUEST_RECORD_AUDIO_PERMISSION,
+                                    StringUtils.getStringRobust(getContext(), R.string.permission_microphone_title),
+                                    StringUtils.getStringRobust(getContext(), R.string.permission_microphone_message)
+                            );
+                    dialog.showNonPersistentDialog(getContext());
+                } else {
+                    ((RuntimePermissionRequester)getContext()).requestNeededPermissions(REQUEST_RECORD_AUDIO_PERMISSION);
+                }
+            } else {
+                captureAudio(mPrompt);
+            }
+        });
 
         // launch audio filechooser intent on click
         chooseButton.setOnClickListener(v -> {
@@ -107,6 +135,21 @@ public class CommCareAudioWidget extends AudioWidget
 
         showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
         chooseButton.setVisibility(showFileChooser ? VISIBLE : GONE);
+    }
+
+    @Override
+    public void notifyPermission(String permission, boolean permissionGranted) {
+        if (permission.contentEquals(RECORD_AUDIO)) {
+            if (permissionGranted) {
+                captureAudio(mPrompt);
+            } else {
+                Toast.makeText(
+                        getContext(),
+                        StringUtils.getStringRobust(getContext(), R.string.permission_microphone_denial_message),
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        }
     }
 
     @Override

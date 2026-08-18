@@ -263,4 +263,79 @@ class ConnectRepositoryTest {
             assertTrue(emissions[1] is DataState.Loading)
             assertTrue(emissions[2] is DataState.Error)
         }
+
+    @Test
+    fun testStartLearning_success_emitsLoadingThenSuccess() =
+        runBlocking {
+            coEvery { mockNetworkClient.startLearnApp(any(), any()) } returns Result.success(Unit)
+
+            val emissions = repository.startLearning("test-uuid").toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Success)
+        }
+
+    @Test
+    fun testStartLearning_failure_emitsLoadingThenError() =
+        runBlocking {
+            coEvery { mockNetworkClient.startLearnApp(any(), any()) } returns
+                Result.failure(Exception("Network error"))
+
+            val emissions = repository.startLearning("test-uuid").toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Error)
+        }
+
+    @Test
+    fun testClaimJob_success_emitsLoadingThenSuccess() =
+        runBlocking {
+            coEvery { mockNetworkClient.claimJob(any(), any()) } returns Result.success(Unit)
+
+            val emissions = repository.claimJob("test-uuid").toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Success)
+        }
+
+    @Test
+    fun testClaimJob_failure_emitsLoadingThenError() =
+        runBlocking {
+            coEvery { mockNetworkClient.claimJob(any(), any()) } returns
+                Result.failure(Exception("Network error"))
+
+            val emissions = repository.claimJob("test-uuid").toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Error)
+        }
+
+    @Test
+    fun testConfirmPayments_success_emitsLoadingThenSuccess() =
+        runBlocking {
+            coEvery { mockNetworkClient.confirmPayments(any(), any()) } returns Result.success(Unit)
+
+            val emissions = repository.confirmPayments(emptyList()).toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Success)
+        }
+
+    @Test
+    fun testConfirmPayments_failure_emitsLoadingThenError() =
+        runBlocking {
+            coEvery { mockNetworkClient.confirmPayments(any(), any()) } returns
+                Result.failure(Exception("Network error"))
+
+            val emissions = repository.confirmPayments(emptyList()).toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Error)
+        }
 }

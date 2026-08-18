@@ -90,6 +90,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
     private final static String TAG = QuestionWidget.class.getSimpleName();
 
+    public static final int REQUEST_CAMERA_PERMISSION = 1001;
+    public static final int REQUEST_RECORD_AUDIO_PERMISSION = 1002;
+
     private final LinearLayout.LayoutParams mLayout;
     protected final FormEntryPrompt mPrompt;
     private final boolean mCompact;

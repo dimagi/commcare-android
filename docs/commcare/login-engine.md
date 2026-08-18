@@ -80,6 +80,7 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 - **Back from the opportunities list after a launch** → exits the app: `ConnectActivity` carries a per-instance flag set at launch (`markAppLaunchedFromConnect`), and a back press on the opportunities-list destination calls `finishAffinity()`. Without a launch (plain browsing) back returns to whatever opened Connect.
 - **View Job Status** (`HomeScreenBaseActivity.userPressedOpportunityStatus`) opens the job-status page in a fresh `ConnectActivity` over the live Home; resuming from it finishes that activity, so the backstack stays stable.
 - **Logout** (`userTriggeredLogout`) uses Home's standard `setResult(RESULT_OK) + finish`: a non-Connect app returns to the login screen; a Connect-launched app reveals the opportunities list with the session closed.
+- **CommCare Apps in the nav drawer** → the drawer no longer lists the installed apps; the row confirms, then ends the session and starts `DispatchActivity`, which lands on `LoginActivity` and its app picker. It starts Dispatch rather than reporting the choice back by result because a Connect-launched Home has no caller to read that result and a Home reached by `FLAG_ACTIVITY_REORDER_TO_FRONT` has one that no longer sits beneath it. `ConnectActivity` is left in the stack, so backing out of the login screen still lands on the opportunities list.
 
 ## Adding a new caller
 

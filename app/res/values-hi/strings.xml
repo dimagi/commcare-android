@@ -462,6 +462,7 @@ License.
     <string name="connect_job_tile_daily_visits">दैनिक विज़िट</string>
     <string name="connect_appbar_title_app_lock">ऐप लॉक</string>
     <string name="personalid_incorrect_otp">आपने गलत 6-अंकीय पासकोड दर्ज किया है। कृपया पुन: प्रयास करें।</string>
+    <string name="personalid_email_already_in_use">यह ईमेल पहले से ही किसी अन्य खाते से जुड़ा हुआ है। कृपया कोई दूसरा ईमेल पता उपयोग करें।</string>
     <string name="personalid_too_many_otp_attempts">आपने OTP भेजने के बहुत अधिक प्रयास किए हैं। कृपया प्रतीक्षा करें और जब पुनः भेजें बटन दिखाई दे तब पुनः प्रयास करें।</string>
     <string name="personalid_otp_verification_failed_generic">आपके फ़ोन नंबर का सत्यापन करते समय कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
     <string name="personalid_otp_verification_failed">कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
@@ -541,6 +542,10 @@ License.
     <string name="nav_drawer_not_signed_in_to_personal_id">आप PersonalID में साइन इन नहीं हैं</string>
     <string name="nav_drawer_opportunities">अवसर</string>
     <string name="nav_drawer_commcare_apps">कॉमकेयर ऐप्स</string>
+    <string name="nav_drawer_switch_app_dialog_title">इस ऐप से लॉग आउट करें?</string>
+    <string name="nav_drawer_switch_app_dialog_message">आपको इस ऐप से लॉग आउट कर दिया जाएगा और लॉगिन स्क्रीन पर वापस भेज दिया जाएगा, जहाँ आप कोई दूसरा ऐप चुन सकते हैं।</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">जारी रखें</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">रद्द करें</string>
     <string name="play_service_update_error">PersonalID का उपयोग करने के लिए, आपको Google Play सेवाएं अपडेट करनी होंगी। अपडेट की जांच के लिए Google Play Store पर जाने के लिए यहां टैप करें।</string>
     <string name="nav_drawer_open">नेविगेशन ड्रॉअर खोलें</string>
     <string name="nav_drawer_close">नेविगेशन ड्रॉअर बंद करें</string>
@@ -697,11 +702,12 @@ License.
     <string name="connect_opportunity_footer_download_app">ऐप डाउनलोड करें</string>
     <string name="microimage_saving_failed">छवि सहेजी नहीं जा सकी। कृपया पुनः प्रयास करें</string>
     <string name="face_capture_activity_title">चेहरे की फ़ोटो लें</string>
-    <string name="face_capture_manual_instructions">फ्रेम के अंदर चेहरे को केंद्रित करें, फिर फ़ोटो लेने के लिए सफेद बटन दबाएं</string>
-    <string name="face_capture_auto_instructions">फ्रेम के अंदर चेहरे को केंद्रित करें, ऑटो-कैप्चर प्रक्रिया शुरू करने के लिए स्थिर रहें</string>
+    <string name="face_capture_manual_instructions">हरी रूपरेखा के अंदर चेहरे को केंद्रित करें, फिर फ़ोटो लेने के लिए सफेद बटन दबाएं</string>
+    <string name="face_capture_auto_instructions">हरी रूपरेखा के अंदर चेहरे को केंद्रित करें और स्थिर रहें, फ़ोटो अपने आप खिंच जाएगी</string>
     <string name="face_capture_auto_mode">ऑटो कैप्चर</string>
     <string name="face_capture_manual_mode">मैनुअल कैप्चर</string>
     <string name="face_capture_front_camera_unavailable">फ्रंट कैमरा उपलब्ध नहीं है, कैमरा बदलने का विकल्प अक्षम कर दिया जाएगा</string>
+    <string name="face_capture_retake_photo">फिर से फ़ोटो लें</string>
 
     <string name="recording_notification_save_action">सहेजें</string>
     <string name="recording_notification_pause_action">रोकें</string>

@@ -357,7 +357,7 @@ public class BreadcrumbBarHelper {
     }
 
     private static String defaultTitle(String currentTitle, AppCompatActivity activity) {
-        if (activity instanceof CommCareSetupActivity) {
+        if (activity instanceof CommCareActivity<?> ccActivity && ccActivity.usesGenericApplicationTitle()) {
             return activity.getString(R.string.application_name);
         }
         if (currentTitle == null || "".equals(currentTitle)) {

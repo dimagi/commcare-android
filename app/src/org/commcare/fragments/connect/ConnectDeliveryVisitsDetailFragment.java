@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,10 +28,13 @@ import com.google.common.base.Strings;
 import org.commcare.activities.CommonBaseActivity;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.repository.ConnectRepository;
+import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryVisitsDetailBinding;
+import org.commcare.fragments.RefreshableFragment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +42,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<FragmentConnectDeliveryVisitsDetailBinding> {
+public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<FragmentConnectDeliveryVisitsDetailBinding>
+        implements RefreshableFragment {
     private static final String ALL_IDENTIFIER = "all";
     private static final String APPROVED_IDENTIFIER = "approved";
     private static final String REJECTED_IDENTIFIER = "rejected";
@@ -50,6 +55,7 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
     private String currentFilter = ALL_IDENTIFIER;
     private String unitName;
     private DeliveryAdapter adapter;
+    private ConnectDeliveryHomeViewModel viewModel;
 
     public static ConnectDeliveryVisitsDetailFragment newInstance() {
         return new ConnectDeliveryVisitsDetailFragment();
@@ -65,8 +71,13 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
             ((CommonBaseActivity)requireActivity()).setActionBarTitle(getString(R.string.connect_visit_type_title, unitName));
             setupMenuProvider();
         }
+        viewModel = new ViewModelProvider(
+                this,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
+        ).get(ConnectDeliveryHomeViewModel.class);
         setupRecyclerView();
         setupFilterControls();
+        observeDeliveryProgress();
         return view;
     }
 
@@ -140,7 +151,7 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem item) {
                 if (item.getItemId() == R.id.action_sync) {
-                    refreshData();
+                    refresh(true);
                     return true;
                 }
                 return false;
@@ -148,13 +159,28 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
-    private void refreshData() {
-        ConnectJobHelper.INSTANCE.updateDeliveryProgress(getContext(), job, (success,error) -> {
-            if (success) {
-                updatePendingFilterVisibility();
-                adapter.updateDeliveries(getFilteredDeliveries());
-            }
-        });
+    private void observeDeliveryProgress() {
+        observeDataState(
+                viewModel.getDeliveryProgress(),
+                this::updateData,
+                this::updateData
+        );
+    }
+
+    private void updateData(@NotNull ConnectJobRecord job) {
+        setActiveJob(job);
+        updatePendingFilterVisibility();
+        adapter.updateDeliveries(getFilteredDeliveries());
+    }
+
+    @Override
+    public void refresh(boolean forceRefresh) {
+        viewModel.loadDeliveryProgress(job, forceRefresh);
+    }
+
+    @Override
+    public String getEndpoint() {
+        return ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.getJobUUID();
     }
 
     private void setFilterHighlight(CardView card, TextView label, boolean selected) {
