@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ApiConnect.API_VERSION_CONNECT
 import org.commcare.connect.network.ConnectApiService
 import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.base.BaseApiClient
@@ -20,6 +19,7 @@ import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponsePa
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
 import org.commcare.connect.network.getAuthorizationHeader
 import org.commcare.connect.network.mapHttpErrorCode
+import org.commcare.dalvik.BuildConfig
 import retrofit2.Response
 import java.io.IOException
 import java.io.InputStream
@@ -30,6 +30,9 @@ class ConnectNetworkClient
         private val apiService: ConnectApiService,
     ) {
         companion object {
+            private const val BASE_URL = "https://${BuildConfig.CCC_HOST}"
+            private const val API_VERSION_CONNECT = "1.0"
+
             @Volatile
             private var instance: ConnectNetworkClient? = null
 
@@ -37,7 +40,7 @@ class ConnectNetworkClient
                 instance ?: synchronized(this) {
                     instance ?: ConnectNetworkClient(
                         BaseApiClient
-                            .buildRetrofitClient(ConnectApiClient.BASE_URL)
+                            .buildRetrofitClient(BASE_URL)
                             .create(ConnectApiService::class.java),
                     ).also { instance = it }
                 }

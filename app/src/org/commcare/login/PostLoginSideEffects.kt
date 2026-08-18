@@ -1,14 +1,12 @@
 package org.commcare.login
 
 import android.content.Context
-import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
 import org.commcare.activities.LoginActivity
-import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectAppUtils
-import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.repository.ConnectRepository
 import org.commcare.utils.CrashUtil
 
 /**
@@ -18,6 +16,7 @@ import org.commcare.utils.CrashUtil
 internal class PostLoginSideEffects(
     private val context: Context,
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
+    private val repository: ConnectRepository = ConnectRepository.getInstance(context),
 ) {
     suspend fun runOnSuccess(username: String): PostLoginOutcome {
         CrashUtil.registerUserData()
@@ -42,18 +41,7 @@ internal class PostLoginSideEffects(
 
         ConnectAppUtils.updateLastAccessed(context, appId, username)
 
-        suspendCancellableCoroutine { continuation ->
-            val listener =
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) {
-                        continuation.resumeOnce(success)
-                    }
-                }
-            ConnectJobHelper.updateJobProgress(context, job, listener)
-        }
+        repository.syncJobProgress(job).collect {}
 
         return PostLoginOutcome(
             redirectToConnectOpportunityInfo = job.isUserSuspended,

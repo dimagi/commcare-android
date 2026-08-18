@@ -3,7 +3,7 @@ package org.commcare.connect.database
 import android.content.Context
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
-import org.commcare.connect.ConnectJobHelper.getJobForSeatedApp
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.models.database.SqlStorage
 import org.commcare.preferences.ConnectJobPreferences
 import org.commcare.utils.SyncDetailCalculations
@@ -120,7 +120,7 @@ object ConnectTaskUtils {
 
     @JvmStatic
     fun isLastTaskUpdateLaterThanLastSync(context: Context): Boolean {
-        val job = getJobForSeatedApp(context)
+        val job = ConnectJobUtils.getJobForSeatedApp(context)
         if (job == null || job.status != ConnectJobRecord.STATUS_DELIVERING) {
             return false
         }

@@ -14,24 +14,22 @@ import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAI
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING
-import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_DELIVERY
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
-import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.NotificationRecordDatabaseHelper.getNotificationById
+import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
 import org.commcare.util.LogTypes
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper
 import org.javarosa.core.services.Logger
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * This worker is responsible to sync different API endpoints from Connect and PersonalID server based on the action
@@ -124,20 +122,26 @@ class NotificationsSyncWorker(
             }
         }
 
-    private suspend fun syncOpportunities(): PNApiResponseStatus =
-        suspendCoroutine { continuation ->
-            ConnectJobHelper.retrieveOpportunities(
-                appContext,
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) {
-                        continuation.resume(PNApiResponseStatus(success, !success))
+    private suspend fun syncOpportunities(): PNApiResponseStatus {
+        var success = false
+        ConnectRepository
+            .getInstance(appContext)
+            .getOpportunities(forceRefresh = true)
+            .collect { state ->
+                when (state) {
+                    is DataState.Success -> {
+                        success = true
                     }
-                },
-            )
-        }
+
+                    is DataState.Error -> {
+                        success = false
+                    }
+
+                    else -> {}
+                }
+            }
+        return PNApiResponseStatus(success, !success)
+    }
 
     private suspend fun syncPersonalIdNotifications(): PNApiResponseStatus {
         val result = PushNotificationApiHelper.retrieveLatestPushNotifications(appContext)
@@ -146,24 +150,25 @@ class NotificationsSyncWorker(
 
     private suspend fun syncJobProgress(): PNApiResponseStatus {
         job = getConnectJob()
-        return if (job == null) {
-            handleNoConnectJob()
-        } else {
-            suspendCoroutine { continuation ->
-                ConnectJobHelper.updateJobProgress(
-                    appContext,
-                    job!!,
-                    object : ConnectActivityCompleteListener {
-                        override fun connectActivityComplete(
-                            success: Boolean,
-                            error: String?,
-                        ) {
-                            continuation.resume(PNApiResponseStatus(success, !success))
-                        }
-                    },
-                )
+        if (job == null) return handleNoConnectJob()
+        var success = false
+        ConnectRepository
+            .getInstance(appContext)
+            .syncJobProgress(job!!)
+            .collect { state ->
+                when (state) {
+                    is DataState.Success -> {
+                        success = true
+                    }
+
+                    is DataState.Error -> {
+                        success = false
+                    }
+
+                    else -> {}
+                }
             }
-        }
+        return PNApiResponseStatus(success, !success)
     }
 
     private fun checkForOpportunityStatus(): Boolean {
