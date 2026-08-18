@@ -71,7 +71,7 @@ Manage Profile
 
 ```
 Enter backup code  (existing, gains [Forgot?] link)
- └─[Forgot?]──► Send email OTP screen ──► Email OTP entry ──► Set new backup code
+ └─[Forgot?]──► Send email OTP screen ──► Email OTP entry ──► Complete recovery (sign in, no backup code required)
 ```
 
 ---
@@ -124,20 +124,37 @@ abstract fun setupHeader()                // implementations own full header UI 
 | `CONFIRM_BACKUP_CODE_CHANGE_CODE` | none (local validation against `ConnectUserRecord.password`) | — | no | no email → Manage Profile toast; has email → email OTP recovery |
 | `CONFIRM_BACKUP_CODE_CHANGE_EMAIL` | none (local validation against `ConnectUserRecord.password`) | — | no | → email OTP recovery (has email guaranteed) |
 | `CONFIRM_BACKUP_CODE_ADD_EMAIL` | none (local validation against `ConnectUserRecord.password`) | — | no | → Send Phone OTP screen |
-| `SET_NEW_CODE` | `/users/set_backup_code` | user credentials or session token | yes | n/a |
+| `SET_NEW_CODE` | `/users/set_recovery_pin` | `ProvidedAuth(userId, password)` | yes | n/a |
 
-### API Changes
 
-#### New: `POST /users/set_backup_code`
+#### Server Team Request — Account Recovery Without Backup Code
 
-We currently set the backup code only during registration using the `complete_profile` endpoint.
-This new endpoint allows users to change their backup code after registration or during account recovery.
+Two open questions for the server team to decide:
 
-| Field | Value                                                                                       |
-|---|---------------------------------------------------------------------------------------------|
-| Auth | `ProvidedAuth(userId, password)` (change flow) or `TokenAuth(sessionToken)` (recovery flow) |
-| Request | `{ "recovery_pin": "<new_code>" }`                                                          |
-| Success | `HTTP 200` — no response body                                                               |
+**1. Completing account recovery via email OTP (without backup code)**
+
+When a user forgets their backup code during the account configuration flow, they verify via
+email OTP (`verify_email_otp`). After OTP verification, the app needs to sign the user in —
+without requiring a backup code. The response must return the same sign-in fields as
+`confirm_backup_code` (`username`, `db_key`, `password`, `invited_user`, `previous_device`,
+`last_accessed`, `email`).
+
+Options for server team to decide between:
+- **(a) New endpoint** — e.g., `POST /users/recover/confirm_email_otp`: accepts the OTP
+  verification result and returns the sign-in payload.
+- **(b) Extend `confirm_backup_code`** — accept an OTP token in place of the backup code
+  and return the same payload.
+
+**2. Email availability in the account configuration flow**
+
+To offer email-based recovery during account configuration, the app must know the user's email
+address before the "Forgot?" link is shown. Email is not currently returned early enough in
+the flow.
+
+Options for server team to decide between:
+- **(a) `start_configuration` returns `email`** — preferred by client; email is available
+  from the very start of the configuration flow and supports any future email-aware logic.
+- **(b) `check_name` returns `email`** — makes email available at name-lookup time.
 
 ### Phone Verification Refactor — Base + Two Implementations
 
@@ -208,7 +225,7 @@ to save time during spec review.
 
 2. On submit → `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
    - Two fields (new + confirm)
-   - "Save" → `PersonalIdUnlocker.unlock(ALWAYS)` → `POST /users/set_backup_code` with
+   - "Save" → `PersonalIdUnlocker.unlock(ALWAYS)` → `POST /users/set_recovery_pin` with
      `ProvidedAuth(userId, password)`
 
 3. **Success:** update `ConnectUserRecord.password = newCode`, persist, pop back to profile
@@ -230,36 +247,54 @@ to save time during spec review.
 ## Area 2 — Backup Code Recovery
 
 **Triggered from** "Forgot backup code?" link on:
-- `PersonalIdBackupCodeFragment` in signup/recovery graph (session token available)
+- `PersonalIdBackupCodeFragment` in account configuration graph (session token available)
 - `PersonalIdProfileBackupCodeFragment` in profile graph (user signed in, no session token)
 
 **Visibility rule:**
-- Recovery graph: link hidden if `user.email == null`
+- Account configuration graph: link hidden if email is not available. 
 - Profile graph: link always visible; if `user.email == null`, redirect to Manage Profile with
   toast "Please add email to recover your backup code"
 
-### `EmailWorkFlow.BACKUP_CODE_RECOVERY`
+### `EmailWorkFlow` enum values
 
-New value added to `EmailWorkFlow` enum. Changes to `PersonalIdEmailVerificationFragment`:
-- `onEmailVerified()` — new branch navigates to `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
-- 3-failure path: navigate to message screen with CTA to pop back to profile
+Two distinct values handle the two recovery contexts:
+
+| Enum value | Graph | OTP verified → | Outcome |
+|---|---|---|---|
+| `BACKUP_CODE_RECOVERY_SIGN_IN` | Account configuration | Complete recovery via server (no backup code required) | User signed in |
+| `BACKUP_CODE_RECOVERY_SET_CODE` | Profile | `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)` | New backup code set |
+
+Changes to `PersonalIdEmailVerificationFragment`:
+- `onEmailVerified()` branches on workflow value (see table above)
+- 3-failure path: navigate to message screen with CTA
 - no "skip" option
 
-### Flow
+### Flow — Account configuration graph (`BACKUP_CODE_RECOVERY_SIGN_IN`)
 
-1. "Forgot backup code?" → `PersonalIdSendEmailOtpFragment(email=user.email, BACKUP_CODE_RECOVERY)`
+1. "Forgot backup code?" → `PersonalIdSendEmailOtpFragment(email=user.email, BACKUP_CODE_RECOVERY_SIGN_IN)`
    → tap "Send code" → `send_email_otp`
-   → navigate to `PersonalIdEmailVerificationFragment(BACKUP_CODE_RECOVERY)`
+   → navigate to `PersonalIdEmailVerificationFragment(BACKUP_CODE_RECOVERY_SIGN_IN)`
+
+2. OTP verified → call server endpoint to complete recovery without backup code
+   (endpoint TBD — see server team request above)
+   - Response: same sign-in fields as `confirm_backup_code` (`username`, `db_key`, `password`,
+     `invited_user`, `previous_device`, `last_accessed`, `email`)
+
+3. **Success:** sign user in using response payload, continue to next screen in account
+   configuration flow with success toast
+
+### Flow — Profile graph (`BACKUP_CODE_RECOVERY_SET_CODE`)
+
+1. "Forgot backup code?" → `PersonalIdSendEmailOtpFragment(email=user.email, BACKUP_CODE_RECOVERY_SET_CODE)`
+   → tap "Send code" → `send_email_otp`
+   → navigate to `PersonalIdEmailVerificationFragment(BACKUP_CODE_RECOVERY_SET_CODE)`
 
 2. OTP verified → navigate to `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)`
    - Two fields, biometric gate on Save
-   - `POST /users/set_backup_code`
-   - Auth: `TokenAuth(sessionToken)` in recovery graph;
-     `ProvidedAuth(userId, ConnectUserRecord.password)` in profile graph
+   - `POST /users/set_recovery_pin` with `ProvidedAuth(userId, ConnectUserRecord.password)`
 
-3. **Success:** update `ConnectUserRecord.password`
-   - Navigate to next screen in recovery graph with success toast
-   - Success Message screen with CTA to pop back to profile
+3. **Success:** update `ConnectUserRecord.password`, success message screen with CTA to pop back
+   to profile
 
 **Analytics:**
 - Recovery workflow initiated
