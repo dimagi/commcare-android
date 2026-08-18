@@ -1,5 +1,8 @@
 package org.commcare.activities
 
+import org.commcare.android.util.ActivityAssertions.assertOnly
+import org.commcare.android.util.ActivityAssertions.startedForResultIntents
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -93,21 +96,40 @@ class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
     /**
      * The behavioral half of `loginExtraWasConsumed`: arriving from login runs the launch checks
      * once, and a recreation must not run them a second time.
+     *
+     * Two details make this row able to fail. `PRIMED` mode carries the checks through to the PIN
+     * step, which launches `CreatePinActivity` — a re-run is visible rather than silent. And
+     * `START_FROM_LOGIN` is put back before `recreate()`, because `processFromLoginLaunch` strips it
+     * from the in-process intent: a process-death restore re-delivers the system's copy with the
+     * extra still on it, which is precisely the case the persisted flag exists to cover. Without
+     * restoring it the stripped extra alone would suppress the checks, and the row would pass with
+     * the flag never being read.
      */
     @Test
     fun `login launch checks do not re-run after recreation`() {
         val controller =
             buildStandardHomeController {
                 putExtra(DispatchActivity.START_FROM_LOGIN, true)
-                putExtra(LoginActivity.LOGIN_MODE, LoginMode.PASSWORD)
+                putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
             }
         assertTrue(controller.get().coordinator.loginExtraWasConsumed)
+        assertEquals(
+            "the first login launch should run the checks through to the PIN step",
+            CreatePinActivity::class.java.name,
+            assertOnly(startedForResultIntents(controller.get())).component!!.className,
+        )
 
+        controller.get().intent.putExtra(DispatchActivity.START_FROM_LOGIN, true)
         controller.recreate()
         ShadowLooper.idleMainLooper()
 
         val recreated = controller.get()
         assertTrue(recreated.coordinator.loginExtraWasConsumed)
+        assertEquals(
+            "the restored flag should keep the launch checks from running a second time",
+            emptyList<String>(),
+            startedForResultIntents(recreated).map { it.component?.className },
+        )
         assertFalse(recreated.isFinishing)
     }
 }
