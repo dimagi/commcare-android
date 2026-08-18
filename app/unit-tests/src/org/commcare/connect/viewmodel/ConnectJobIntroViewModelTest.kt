@@ -42,7 +42,7 @@ class ConnectJobIntroViewModelTest {
     }
 
     @Test
-    fun testStartLearning_postsLoadingThenSuccess() {
+    fun `startLearning posts loading then success`() {
         every { mockRepository.startLearning(any()) } returns
             flowOf(DataState.Loading, DataState.Success(Unit))
 
@@ -59,7 +59,7 @@ class ConnectJobIntroViewModelTest {
     }
 
     @Test
-    fun testStartLearning_postsError_onFailure() {
+    fun `startLearning posts error on failure`() {
         every { mockRepository.startLearning(any()) } returns
             flowOf(DataState.Loading, DataState.Error())
 
