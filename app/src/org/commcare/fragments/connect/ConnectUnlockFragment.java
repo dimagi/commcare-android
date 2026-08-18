@@ -22,7 +22,6 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -115,7 +114,7 @@ public class ConnectUnlockFragment extends Fragment {
             FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
                     getOppInviteSource(), true, null);
             ((ConnectActivity) requireActivity()).setActiveJob(requested);
-            redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
+            redirectionAction = ConnectJobUtils.resolveGenericOpportunityDestination(
                     redirectionAction, requested, null);
         }
     }

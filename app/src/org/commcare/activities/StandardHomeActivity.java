@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.ConnectNavHelper;
@@ -379,6 +379,6 @@ public class StandardHomeActivity
     }
 
     public ConnectJobRecord getActiveJob() {
-        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+        return ConnectJobUtils.getJobForSeatedApp(this);
     }
 }

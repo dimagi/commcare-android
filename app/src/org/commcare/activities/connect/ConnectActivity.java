@@ -27,7 +27,6 @@ import com.google.common.base.Strings;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -161,7 +160,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             );
         }
 
-        redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
+        redirectionAction = ConnectJobUtils.resolveGenericOpportunityDestination(
                 redirectionAction, job, getIntent().getStringExtra(PAYMENT_UUID));
 
 

@@ -1,6 +1,11 @@
 package org.commcare.connect.database;
 
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN;
+import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
+import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
 
 import android.content.Context;
 import android.os.Build;
@@ -576,5 +581,50 @@ public class ConnectJobUtils {
         Calendar upperBound = (Calendar) today.clone();
         upperBound.add(Calendar.DAY_OF_YEAR, 5);
         return !expiry.before(today) && !expiry.after(upperBound);
+    }
+
+    public static ConnectJobRecord getJobForSeatedApp(Context context) {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectAppRecord appRecord = getAppRecord(context, appId);
+        if (appRecord == null) {
+            return null;
+        }
+        return getCompositeJob(context, appRecord.getJobUUID());
+    }
+
+    public static boolean shouldShowJobStatus(Context context, String appId) {
+        ConnectAppRecord record = getAppRecord(context, appId);
+        if (record == null) {
+            return false;
+        }
+        ConnectJobRecord job = getJobForApp(context, appId);
+        if (job == null) {
+            return false;
+        }
+        // Only time not to show is when we're in learn app but job is in delivery state
+        return !record.getIsLearning() || job.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
+    }
+
+    public static String resolveGenericOpportunityDestination(
+            String currentAction,
+            ConnectJobRecord job,
+            String paymentUuid
+    ) {
+        if (!CCC_GENERIC_OPPORTUNITY.equals(currentAction) || job == null) {
+            return currentAction;
+        }
+        int status = job.getStatus();
+        if (status == ConnectJobRecord.STATUS_DELIVERING) {
+            return (paymentUuid != null && !paymentUuid.isEmpty())
+                    ? CCC_DEST_PAYMENTS
+                    : CCC_DEST_DELIVERY_PROGRESS;
+        } else if (status == ConnectJobRecord.STATUS_LEARNING) {
+            return CCC_DEST_LEARN_PROGRESS;
+        } else if (status == ConnectJobRecord.STATUS_AVAILABLE
+                || status == ConnectJobRecord.STATUS_AVAILABLE_NEW) {
+            return CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
+        } else {
+            return currentAction;
+        }
     }
 }
