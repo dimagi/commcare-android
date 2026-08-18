@@ -28,11 +28,22 @@ import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_
 /**
  * A foreground service intended to be bound to the RecordingFragment for managing audio recording
  * operations. Due to its persistent notification, the system treats it with higher importance, reducing the
- * likelihood of interruptions during recordings.
+ * likelihood of interruptions during recordings. This service owns the authoritative recording state.
  *
  * @author avazirna
  **/
 public class AudioRecordingService extends Service {
+
+    /**
+     * The lifecycle of a single recording session, from the service's point of view.
+     */
+    public enum RecordingState {
+        IDLE,
+        RECORDING,
+        PAUSED,
+        STOPPED
+    }
+
     private MediaRecorder recorder;
     private final IBinder binder = new AudioRecorderBinder();
     public static final String RECORDING_FILENAME_EXTRA_KEY = "recording-filename-extra-key";
@@ -44,6 +55,8 @@ public class AudioRecordingService extends Service {
     private AudioRecordingHelper audioRecordingHelper = new AudioRecordingHelper();
     private RecordingActionListener actionListener;
     private boolean pauseSupported;
+
+    private RecordingState state = RecordingState.IDLE;
 
     /**
      * Callback used to relay notification action button presses back to the bound
@@ -88,6 +101,12 @@ public class AudioRecordingService extends Service {
             return START_NOT_STICKY;
         }
 
+        // A rebinding UI or second start intent for a session that is already under way must not restart the
+        // recorder
+        if (state != RecordingState.IDLE) {
+            return START_NOT_STICKY;
+        }
+
         String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         pauseSupported = intent.getBooleanExtra(PAUSE_SUPPORTED_EXTRA_KEY, false);
         if (recorder == null) {
@@ -95,6 +114,7 @@ public class AudioRecordingService extends Service {
                     DeveloperPreferences.getAudioQualityProfile());
         }
         recorder.start();
+        state = RecordingState.RECORDING;
         // Re-post so the notification reflects pauseSupported, which is only known here (the
         // initial notification is built in onCreate, before this intent is delivered).
         notificationManager.notify(RECORDING_NOTIFICATION_ID, createNotification(true));
@@ -108,10 +128,14 @@ public class AudioRecordingService extends Service {
     }
 
     private void resetRecorder() {
-        if (recorder != null) {
-            recorder.release();
-            recorder = null;
+        if (recorder == null) {
+            return;
         }
+        if (state == RecordingState.RECORDING || state == RecordingState.PAUSED) {
+            stopRecording();
+        }
+        recorder.release();
+        recorder = null;
     }
 
     private Notification createNotification(boolean recordingRunning) {
@@ -177,9 +201,14 @@ public class AudioRecordingService extends Service {
         return recorder != null;
     }
 
+    public RecordingState getState() {
+        return state;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseRecording() {
         recorder.pause();
+        state = RecordingState.PAUSED;
         notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(false));
     }
@@ -187,11 +216,13 @@ public class AudioRecordingService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
         recorder.resume();
+        state = RecordingState.RECORDING;
         notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(true));
     }
 
     public void stopRecording() {
+        state = RecordingState.STOPPED;
         recorder.stop();
     }
 }
