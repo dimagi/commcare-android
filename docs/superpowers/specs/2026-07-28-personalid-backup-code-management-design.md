@@ -71,7 +71,7 @@ Manage Profile
 
 ```
 Enter backup code  (existing, gains [Forgot?] link)
- └─[Forgot?]──► Send email OTP screen ──► Email OTP entry ──► Complete recovery (sign in, no backup code required)
+ └─[Forgot?]──► Send email OTP screen ──► Email OTP entry ──► Complete recovery (sign in) ──► Set new backup code
 ```
 
 ---
@@ -261,7 +261,7 @@ Two distinct values handle the two recovery contexts:
 
 | Enum value | Graph | OTP verified → | Outcome |
 |---|---|---|---|
-| `BACKUP_CODE_RECOVERY_SIGN_IN` | Account configuration | Complete recovery via server (no backup code required) | User signed in |
+| `BACKUP_CODE_RECOVERY_SIGN_IN` | Account configuration | Complete recovery via server → `SET_NEW_CODE` | User signed in, new backup code set |
 | `BACKUP_CODE_RECOVERY_SET_CODE` | Profile | `PersonalIdProfileBackupCodeFragment(SET_NEW_CODE)` | New backup code set |
 
 Changes to `PersonalIdEmailVerificationFragment`:
@@ -280,8 +280,11 @@ Changes to `PersonalIdEmailVerificationFragment`:
    - Response: same sign-in fields as `confirm_backup_code` (`username`, `db_key`, `password`,
      `invited_user`, `previous_device`, `last_accessed`, `email`)
 
-3. **Success:** sign user in using response payload, continue to next screen in account
-   configuration flow with success toast
+3. **Sign-in success:** navigate to `SET_NEW_CODE` screen — user must set a new backup code
+   before continuing. Auth: `ProvidedAuth(userId, password)` using credentials from sign-in
+   response.
+
+4. **Backup code saved:** continue to next screen in account configuration flow with success toast
 
 ### Flow — Profile graph (`BACKUP_CODE_RECOVERY_SET_CODE`)
 
