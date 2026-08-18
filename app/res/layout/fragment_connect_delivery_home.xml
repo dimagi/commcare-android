@@ -22,6 +22,21 @@
         app:tabTextAppearance="@style/TabTextStyle"
         app:tabTextColor="?attr/colorOnPrimary" />
 
+    <!--
+        The activity's loading bar sits directly under the toolbar, which on this screen is above the
+        tab strip. This one takes its place so the bar reads as belonging to the tab content.
+    -->
+    <include
+        android:id="@+id/tab_network_loading"
+        layout="@layout/network_loading_bar"
+        android:visibility="gone" />
+
+    <!-- Hosts the sync status bar, which BaseConnectFragment would otherwise place above the tabs. -->
+    <FrameLayout
+        android:id="@+id/tab_status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
