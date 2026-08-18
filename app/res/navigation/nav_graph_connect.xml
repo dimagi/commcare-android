@@ -104,9 +104,6 @@
             app:destination="@id/connect_downloading_fragment"
             app:popUpTo="@id/connect_jobs_list_fragment" />
         <action
-            android:id="@+id/action_connect_delivery_home_fragment_to_connect_delivery_visits_detail_fragment"
-            app:destination="@id/connect_delivery_visits_detail_fragment" />
-        <action
             android:id="@+id/action_connect_delivery_home_fragment_to_connect_job_detail_bottom_sheet_dialog_fragment"
             app:destination="@id/connect_job_detail_bottom_sheet_dialog_fragment" />
     </fragment>

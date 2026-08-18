@@ -422,6 +422,16 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_delivery_start">Fara</string>
     <string name="connect_delivery_continue_visits">Ci gaba da ziyararku</string>
     <string name="connect_delivery_continue_visits_subtitle">Aika fom ɗin isar da kaya</string>
+    <string name="connect_delivery_visit_progress_title">Ci gaban ziyara</string>
+    <string name="connect_delivery_total_visits_completed">jimillar ziyarar da aka kammala</string>
+    <string name="connect_delivery_daily_visits">Ziyara na kowace rana</string>
+    <string name="connect_delivery_your_progress">Ci gabanka</string>
+    <string name="connect_delivery_total_earnings">Jimillar kuɗin shiga</string>
+    <string name="connect_delivery_amount_each">%1$s kowanne</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">ziyara %1$d ta rage yau</item>
+        <item quantity="other">ziyara %1$d suka rage yau</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
     <string name="please_wait">Da fatan za a jira wasu lokuta.</string>

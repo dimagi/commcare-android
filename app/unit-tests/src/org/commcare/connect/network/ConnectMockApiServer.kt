@@ -10,13 +10,15 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.connect.ConnectApiClient
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.repository.ConnectRepository
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
 /**
  * [MockWebServer] harness that points the Connect API clients at a local mock server so Connect API
- * calls hit it. The PersonalID equivalent lives in `PersonalIdMockApiServer`; the two target
- * different Retrofit clients.
+ * calls hit it: both the callback-based [ConnectApiClient] and the coroutine-based
+ * [ConnectNetworkClient] that [ConnectRepository] talks through. The PersonalID equivalent lives in
+ * `PersonalIdMockApiServer`; the two target different Retrofit clients.
  *
  * Both [ConnectApiClient] and [ConnectNetworkClient] are process-wide singletons, so [start] swaps
  * their backing instances and [shutdown] must restore them. Callers seat a Connect user with a valid
@@ -52,13 +54,13 @@ class ConnectMockApiServer {
                 }.build()
         httpDispatcher = (retrofit.callFactory() as OkHttpClient).dispatcher
         setConnectApiService(retrofit.create(ApiService::class.java))
-        setNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
+        setConnectNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
     }
 
     fun shutdown() {
         dispatchCallbacks = false
         setConnectApiService(null)
-        setNetworkClient(null)
+        setConnectNetworkClient(null)
         server.shutdown()
     }
 
@@ -136,12 +138,21 @@ class ConnectMockApiServer {
         apiServiceField.set(null, apiService)
     }
 
-    /** The companion's backing field is a static on [ConnectNetworkClient] itself, and is private. */
-    private fun setNetworkClient(client: ConnectNetworkClient?) {
-        ConnectNetworkClient::class.java
-            .getDeclaredField("instance")
-            .apply { isAccessible = true }
-            .set(null, client)
+    /**
+     * Swaps the [ConnectNetworkClient] singleton and drops the [ConnectRepository] one so the next
+     * caller rebuilds it against this client instead of the production base URL.
+     */
+    private fun setConnectNetworkClient(client: ConnectNetworkClient?) {
+        setStaticField(ConnectNetworkClient::class.java, "instance", client)
+        setStaticField(ConnectRepository::class.java, "instance", null)
+    }
+
+    private fun setStaticField(
+        owner: Class<*>,
+        name: String,
+        value: Any?,
+    ) {
+        owner.getDeclaredField(name).apply { isAccessible = true }.set(null, value)
     }
 
     companion object {

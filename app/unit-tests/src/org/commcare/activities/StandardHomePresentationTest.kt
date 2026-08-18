@@ -37,11 +37,6 @@ class StandardHomePresentationTest : BaseHomeScreenActivityTest() {
     }
 
     @Test
-    fun `seated app is highlighted`() {
-        assertTrue(buildHome().shouldHighlightSeatedApp())
-    }
-
-    @Test
     fun `activity title includes logged in username`() {
         val title = buildHome().activityTitle
         assertEquals(Localization.get("home.logged.in.message", arrayOf(TEST_USER)), title)

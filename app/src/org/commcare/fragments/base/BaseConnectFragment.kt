@@ -66,6 +66,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
      */
     abstract fun getEndpoint(): String?
 
+    /** Loading bar this fragment drives. Override to use one in the fragment's own layout. */
+    protected open val loadingBarViewId: Int = R.id.include_network_loading
+
+    /**
+     * Container in the fragment's layout to host the status bar. Override to place the bar there
+     * instead of directly above the fragment's content.
+     */
+    protected open val statusBarContainerViewId: Int = View.NO_ID
+
     fun getLastSyncTime(): Date? {
         val endpoint = getEndpoint() ?: return null
         return ConnectSyncPreferences.getInstance(requireContext()).getLastSyncTime(endpoint)
@@ -108,8 +117,10 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         )
         rootFrame.addView(verticalContainer)
 
-        // Inflate loading layout
-        progressBar = requireActivity().findViewById(R.id.include_network_loading)
+        // The fragment's own view is searched first because it is not attached to the activity yet,
+        // so a bar the fragment owns is invisible to the activity-wide lookup at this point.
+        progressBar = mainView.findViewById(loadingBarViewId)
+            ?: requireActivity().findViewById(loadingBarViewId)
             ?: run {
                 val loadingBinding = LoadingBinding.inflate(inflater, container, false)
                 rootFrame.addView(loadingBinding.root)
@@ -121,7 +132,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         val errorView = errorBinding.root
         errorView.visibility = View.GONE
         mNetworkStatusBarViewController = NetworkStatusBarViewController(errorBinding)
-        verticalContainer.addView(errorView, 0)
+
+        // findViewById answers null for NO_ID, so the default lands on the fallback unaided.
+        val statusBarContainer = mainView.findViewById<ViewGroup>(statusBarContainerViewId)
+        if (statusBarContainer != null) {
+            statusBarContainer.addView(errorView)
+        } else {
+            verticalContainer.addView(errorView, 0)
+        }
 
         rootView = rootFrame
         return rootView

@@ -146,6 +146,8 @@
     <color name="connect_subtext_color">#9CA3AF</color>
     <color name="connect_grey">#9A9A9A</color>
     <color name="connect_dark_grey">#4B5563</color>
+    <color name="cool_gray_800">#1F2937</color>
+    <color name="cool_gray_900">#111827</color>
     <color name="connect_divider_color">#E5E7EB</color>
     <color name="connect_background_color">#f7f9fa</color>
     <color name="connect_sky_blue">#87BDDF</color>

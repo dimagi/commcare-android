@@ -595,6 +595,16 @@
     <string name="connect_delivery_start">Anza</string>
     <string name="connect_delivery_continue_visits">Endelea na ziara zako</string>
     <string name="connect_delivery_continue_visits_subtitle">Wasilisha fomu za utoaji</string>
+    <string name="connect_delivery_visit_progress_title">Maendeleo ya ziara</string>
+    <string name="connect_delivery_total_visits_completed">jumla ya ziara zilizokamilika</string>
+    <string name="connect_delivery_daily_visits">Ziara za kila siku</string>
+    <string name="connect_delivery_your_progress">Maendeleo yako</string>
+    <string name="connect_delivery_total_earnings">Jumla ya mapato</string>
+    <string name="connect_delivery_amount_each">%1$s kila moja</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">ziara %1$d imesalia leo</item>
+        <item quantity="other">ziara %1$d zimesalia leo</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_barcode_top">Karibu CommCare!</string>
     <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>

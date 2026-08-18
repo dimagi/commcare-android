@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.View
+import android.view.ViewGroup
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -24,6 +25,7 @@ import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
@@ -36,6 +38,7 @@ import org.commcare.rules.MainCoroutineRule
 import org.commcare.views.connect.ConnectCtaBar
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -110,6 +113,54 @@ class ConnectDeliveryHomeFragmentTest {
         assertEquals(app.getString(R.string.connect_payment), tabLayout.getTabAt(1)?.text)
         assertEquals(app.getString(R.string.connect_visits), tabLayout.getTabAt(2)?.text)
         assertEquals(app.getString(R.string.connect_more), tabLayout.getTabAt(3)?.text)
+    }
+
+    /**
+     * The loading bar is resolved by id at inflate time and silently falls back to a full-screen
+     * spinner when the lookup misses, so the resolved view is asserted rather than assumed.
+     */
+    @Test
+    fun `loading bar sits below the tab strip rather than above it`() {
+        val oppHome = launchHome()
+        val view = oppHome.requireView()
+
+        val loadingBar = view.findViewById<View>(R.id.tab_network_loading)
+        assertEquals(
+            "the fragment should drive its own loading bar, not the activity's",
+            loadingBar,
+            ReflectionUtils.readField(oppHome, "progressBar"),
+        )
+
+        val tabs = view.findViewById<View>(R.id.connect_delivery_home_tabs)
+        val parent = loadingBar.parent as ViewGroup
+        assertTrue(
+            "loading bar should render below the tab strip",
+            parent.indexOfChild(loadingBar) > parent.indexOfChild(tabs),
+        )
+    }
+
+    /**
+     * The sync status bar is added in code, so without an explicit host it lands above the fragment's
+     * whole layout — which on this screen means above the tab strip.
+     */
+    @Test
+    fun `sync status bar sits below the tab strip rather than above it`() {
+        val oppHome = launchHome()
+        val view = oppHome.requireView()
+
+        val host = view.findViewById<ViewGroup>(R.id.tab_status_bar)
+        assertEquals("status bar should be hosted below the tabs", 1, host.childCount)
+        assertNotNull(
+            "the view hosted below the tabs should be the sync status bar",
+            host.getChildAt(0).findViewById<View>(R.id.tv_error_message),
+        )
+
+        val tabs = view.findViewById<View>(R.id.connect_delivery_home_tabs)
+        val parent = host.parent as ViewGroup
+        assertTrue(
+            "status bar host should render below the tab strip",
+            parent.indexOfChild(host) > parent.indexOfChild(tabs),
+        )
     }
 
     @Test
