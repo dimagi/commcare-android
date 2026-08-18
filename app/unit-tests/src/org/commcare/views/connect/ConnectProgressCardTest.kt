@@ -3,8 +3,11 @@ package org.commcare.views.connect
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
@@ -146,13 +149,12 @@ class ConnectProgressCardTest {
     }
 
     @Test
-    fun `contentEnabled false grays the progress text and true restores it`() {
+    fun `contentEnabled leaves the primary text at full strength either way`() {
         val card = newCard()
         val title = card.findViewById<TextView>(R.id.progress_card_title)
         val label = card.findViewById<TextView>(R.id.progress_card_bar_label)
 
-        val grey = ContextCompat.getColor(card.context, R.color.connect_grey)
-        val live = ContextCompat.getColor(card.context, R.color.connect_text_color)
+        val primary = ContextCompat.getColor(card.context, R.color.connect_text_color)
 
         val content =
             State(
@@ -161,12 +163,12 @@ class ConnectProgressCardTest {
             )
 
         card.bind(content.copy(contentEnabled = false))
-        assertEquals(grey, title.currentTextColor)
-        assertEquals(grey, label.currentTextColor)
+        assertEquals(primary, title.currentTextColor)
+        assertEquals(primary, label.currentTextColor)
 
         card.bind(content.copy(contentEnabled = true))
-        assertEquals(live, title.currentTextColor)
-        assertEquals(live, label.currentTextColor)
+        assertEquals(primary, title.currentTextColor)
+        assertEquals(primary, label.currentTextColor)
     }
 
     @Test
@@ -189,7 +191,7 @@ class ConnectProgressCardTest {
         assertEquals(grey, caption.currentTextColor)
         assertEquals(grey, semi.progressColor)
         assertEquals(grey, semi.valueTextColor)
-        assertEquals(grey, semi.descriptionTextColor)
+        assertEquals(primary, semi.descriptionTextColor)
 
         card.bind(content.copy(contentEnabled = true))
         assertEquals(accent, caption.currentTextColor)
@@ -230,6 +232,72 @@ class ConnectProgressCardTest {
         assertEquals(View.VISIBLE, cta.visibility)
         cta.performClick()
         assertTrue(clicked)
+    }
+
+    @Test
+    fun `info defaults to the blue appearance with no icon`() {
+        val card = newCard()
+        val box = card.findViewById<CardView>(R.id.progress_card_info_message)
+        val text = card.findViewById<TextView>(R.id.progress_card_info_text)
+        val icon = card.findViewById<ImageView>(R.id.progress_card_info_icon)
+
+        card.bind(State(info = State.Info(message = "Complete assigned tasks")))
+
+        assertEquals(
+            ContextCompat.getColor(card.context, R.color.connect_dark_blue_color),
+            box.cardBackgroundColor.defaultColor,
+        )
+        assertEquals(ContextCompat.getColor(card.context, R.color.white), text.currentTextColor)
+        assertEquals(View.GONE, icon.visibility)
+    }
+
+    @Test
+    fun `info warning appearance recolors the banner and reveals the icon`() {
+        val card = newCard()
+        val box = card.findViewById<CardView>(R.id.progress_card_info_message)
+        val text = card.findViewById<TextView>(R.id.progress_card_info_text)
+        val icon = card.findViewById<ImageView>(R.id.progress_card_info_icon)
+
+        val blue = ContextCompat.getColor(card.context, R.color.connect_dark_blue_color)
+
+        card.bind(
+            State(
+                info =
+                    State.Info(
+                        message = "The job has ended.",
+                        appearance = State.Info.Appearance.WARNING,
+                    ),
+            ),
+        )
+
+        assertEquals(
+            ContextCompat.getColor(card.context, R.color.connect_light_grey),
+            box.cardBackgroundColor.defaultColor,
+        )
+        assertEquals(blue, text.currentTextColor)
+        assertEquals(View.VISIBLE, icon.visibility)
+        assertEquals(blue, ImageViewCompat.getImageTintList(icon)?.defaultColor)
+    }
+
+    @Test
+    fun `rebinding switches the banner back out of the warning appearance`() {
+        val card = newCard()
+        val icon = card.findViewById<ImageView>(R.id.progress_card_info_icon)
+
+        card.bind(State(info = State.Info(message = "Ended", appearance = State.Info.Appearance.WARNING)))
+        assertEquals(View.VISIBLE, icon.visibility)
+
+        card.bind(State(info = State.Info(message = "Ended")))
+        assertEquals(View.GONE, icon.visibility)
+    }
+
+    @Test
+    fun `the info banner sits behind the main card`() {
+        val card = newCard()
+        val box = card.findViewById<CardView>(R.id.progress_card_info_message)
+        val main = card.findViewById<CardView>(R.id.progress_card_main)
+
+        assertTrue(box.z < main.z)
     }
 
     @Test
