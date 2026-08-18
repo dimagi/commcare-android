@@ -108,6 +108,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
     <string name="nav_drawer_opportunities">Galimybės</string>
     <string name="nav_drawer_commcare_apps">„CommCare“ programėlės</string>
+    <string name="nav_drawer_switch_app_dialog_title">Atsijungti nuo šios programėlės?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Būsite atjungti nuo šios programėlės ir grąžinti į prisijungimo langą, kuriame galėsite pasirinkti kitą programėlę.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Tęsti</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Atšaukti</string>
     <string name="play_service_update_error">Norint naudoti „PersonalID“, reikia atnaujinti „Google Play“ paslaugas. Palieskite čia, kad pereitumėte į „Google Play“ parduotuvę ir patikrintumėte, ar yra naujinių</string>
     <string name="nav_drawer_open">Atidaryti navigacijos meniu</string>
     <string name="nav_drawer_close">Uždaryti navigacijos meniu</string>
@@ -167,6 +171,7 @@
     <string name="connect_otp_verified">Puiku! Jūsų telefono numeris patvirtintas.</string>
     <string name="personalid_otp_verification_failed_generic">Klaida tikrinant jūsų telefono numerį. Bandykite dar kartą.</string>
     <string name="personalid_incorrect_otp">Įvedėte neteisingą 6 skaitmenų slaptažodį. Bandykite dar kartą.</string>
+    <string name="personalid_email_already_in_use">Šis el. pašto adresas jau susietas su kita paskyra. Naudokite kitą el. pašto adresą.</string>
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
     <string name="personalid_network_response_parsing_error">Klaida analizuojant duomenis iš serverio. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="personalid_email_appbar_title">El. paštas</string>
@@ -244,6 +249,18 @@
     <string name="connect_delivery_start">Pradėti</string>
     <string name="connect_delivery_continue_visits">Tęskite savo vizitus</string>
     <string name="connect_delivery_continue_visits_subtitle">Pateikti pristatymo formas</string>
+    <string name="connect_delivery_visit_progress_title">Vizitų pažanga</string>
+    <string name="connect_delivery_total_visits_completed">iš viso atliktų vizitų</string>
+    <string name="connect_delivery_daily_visits">Dienos vizitai</string>
+    <string name="connect_delivery_your_progress">Jūsų pažanga</string>
+    <string name="connect_delivery_total_earnings">Bendras uždarbis</string>
+    <string name="connect_delivery_amount_each">po %1$s</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">šiandien liko %1$d vizitas</item>
+        <item quantity="few">šiandien liko %1$d vizitai</item>
+        <item quantity="many">šiandien liko %1$d vizito</item>
+        <item quantity="other">šiandien liko %1$d vizitų</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_open_conversation_button_text">Atidaryti pokalbį</string>
@@ -325,11 +342,12 @@
     <string name="microimage_cropping_failed">Nepavyko apkarpyti vaizdo, įsitikinkite, kad objektas yra fiksavimo srityje</string>
     <string name="microimage_saving_failed">Nepavyko išsaugoti vaizdo. Bandykite dar kartą</string>
     <string name="face_capture_activity_title">Fotografuoti veidą</string>
-    <string name="face_capture_manual_instructions">Nustatykite veidą rėmelio viduryje, tada palieskite baltą mygtuką, kad padarytumėte nuotrauką</string>
-    <string name="face_capture_auto_instructions">Nustatykite veidą rėmelio viduryje ir nejudėkite, kad būtų suaktyvintas automatinio fiksavimo procesas</string>
+    <string name="face_capture_manual_instructions">Nustatykite veidą žalio kontūro viduryje, tada palieskite baltą mygtuką, kad padarytumėte nuotrauką</string>
+    <string name="face_capture_auto_instructions">Nustatykite veidą žalio kontūro viduryje ir nejudėkite, nuotrauka bus padaryta automatiškai</string>
     <string name="face_capture_auto_mode">Automatinis fiksavimas</string>
     <string name="face_capture_manual_mode">Rankinis fiksavimas</string>
     <string name="face_capture_front_camera_unavailable">Priekinė kamera nepasiekiama, kameros keitimo parinktis bus išjungta</string>
+    <string name="face_capture_retake_photo">Fotografuoti iš naujo</string>
 
     <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
     <string name="connect_progress_count_format">%1$d iš %2$d</string>

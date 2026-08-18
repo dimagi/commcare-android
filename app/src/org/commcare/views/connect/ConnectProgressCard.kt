@@ -1,6 +1,7 @@
 package org.commcare.views.connect
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -10,6 +11,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updateLayoutParams
+import androidx.core.widget.ImageViewCompat
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectProgressCardBinding
 import org.commcare.util.LogTypes
@@ -18,8 +20,9 @@ import org.javarosa.core.services.Logger
 
 /**
  * Reusable Connect card composing a progress area (an optional semi-circle indicator plus a
- * horizontal progress bar with label, count and caption), with an independently controllable blue
- * info-message banner (with an optional call-to-action button) that tucks up behind the main card.
+ * horizontal progress bar with label, count and caption), with an independently controllable
+ * info-message banner (with an optional call-to-action button) that tucks up behind the main card,
+ * in either a blue informational or a grey warning appearance.
  * Used by both the Learning Progress and Delivery Progress views.
  *
  * The whole card is configured atomically through a single [State] passed to [bind]; there are no
@@ -72,7 +75,11 @@ class ConnectProgressCard
                 val message: CharSequence,
                 val ctaText: CharSequence? = null,
                 val onCtaClick: (() -> Unit)? = null,
-            )
+                val appearance: Appearance = Appearance.INFO,
+            ) {
+                /** [WARNING] adds a warning icon and inverts the banner to blue-on-grey. */
+                enum class Appearance { INFO, WARNING }
+            }
         }
 
         init {
@@ -178,6 +185,30 @@ class ConnectProgressCard
             binding.progressCardInfoCta.setOnClickListener(
                 info.onCtaClick?.let { callback -> OnClickListener { callback() } },
             )
+            applyInfoAppearance(info.appearance)
+        }
+
+        private fun applyInfoAppearance(appearance: State.Info.Appearance) {
+            val isWarning = appearance == State.Info.Appearance.WARNING
+            val background =
+                ContextCompat.getColor(
+                    context,
+                    if (isWarning) R.color.connect_light_grey else R.color.connect_dark_blue_color,
+                )
+            val foreground =
+                ContextCompat.getColor(
+                    context,
+                    if (isWarning) R.color.connect_dark_blue_color else R.color.white,
+                )
+
+            binding.progressCardInfoMessage.setCardBackgroundColor(background)
+            binding.progressCardInfoText.setTextColor(foreground)
+            binding.progressCardInfoCta.setTextColor(foreground)
+            binding.progressCardInfoIcon.visibility = if (isWarning) VISIBLE else GONE
+            ImageViewCompat.setImageTintList(
+                binding.progressCardInfoIcon,
+                ColorStateList.valueOf(foreground),
+            )
         }
 
         /**
@@ -208,8 +239,9 @@ class ConnectProgressCard
             view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
         }
 
+        /** Only the accent is disabled: the primary text carries the same weight either way. */
         private fun applyContentColors(contentEnabled: Boolean) {
-            val primary = if (contentEnabled) contentPrimaryColor else contentDisabledColor
+            val primary = contentPrimaryColor
             val accent = if (contentEnabled) contentAccentColor else contentDisabledColor
 
             binding.progressCardTitle.setTextColor(primary)

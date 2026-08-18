@@ -30,6 +30,12 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 class ConnectDeliveryHomeFragment :
     ConnectJobFragment<FragmentConnectDeliveryHomeBinding>(),
     RefreshableFragment {
+    /**
+     * This screen's tab strip sits under the toolbar, so the loading and status bars go below the tabs.
+     */
+    override val loadingBarViewId = R.id.tab_network_loading
+    override val statusBarContainerViewId = R.id.tab_status_bar
+
     private data class TabItem(
         val titleRes: Int,
         val fragmentFactory: () -> Fragment,

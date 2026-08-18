@@ -106,6 +106,9 @@ abstract class BaseApiHandler<T>(
         // the user does not have much control over the photo size.
         FILE_TOO_LARGE_ERROR,
 
+        // The verified email is already tied to another active account.
+        EMAIL_ALREADY_IN_USE_ERROR,
+
         ;
 
         fun shouldAllowRetry(): Boolean =

@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/connect_text_color"
-                android:textSize="@dimen/connect_text_title"
+                android:textSize="@dimen/connect_text_body"
                 android:textStyle="bold"
                 android:visibility="gone"
                 tools:text="Delivery Progress"
@@ -94,13 +94,16 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Blue "appendage" that tucks up behind the main card (negative top margin +
-         0dp elevation so the main card, at 4dp, draws on top of the overlap). -->
+    <!-- "Appendage" that tucks up behind the main card: a negative top margin creates the overlap,
+         and a negative translationZ puts this behind the main card so the card's own content stays
+         visible through it (both cards sit at 0dp elevation, and as the later child this would
+         otherwise paint on top). -->
     <androidx.cardview.widget.CardView
         android:id="@+id/progress_card_info_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/connect_progress_card_info_overlap"
+        android:translationZ="-1dp"
         android:visibility="gone"
         app:cardBackgroundColor="@color/connect_dark_blue_color"
         app:cardCornerRadius="@dimen/connect_radius_card"
@@ -116,6 +119,16 @@
             android:paddingTop="@dimen/connect_progress_card_info_padding_top"
             android:paddingEnd="@dimen/connect_space_lg"
             android:paddingBottom="@dimen/connect_space_md">
+
+            <ImageView
+                android:id="@+id/progress_card_info_icon"
+                android:layout_width="@dimen/connect_progress_card_info_icon_size"
+                android:layout_height="@dimen/connect_progress_card_info_icon_size"
+                android:layout_marginEnd="@dimen/connect_space_md"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_connect_warning"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/progress_card_info_text"

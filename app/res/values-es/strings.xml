@@ -467,6 +467,7 @@
     <string name="connect_job_tile_daily_visits">Visitas diarias</string>
     <string name="connect_appbar_title_app_lock">Bloqueo de aplicación</string>
     <string name="personalid_incorrect_otp">Ha introducido el código de acceso de 6 dígitos incorrecto. Por favor, inténtelo de nuevo.</string>
+    <string name="personalid_email_already_in_use">Este correo electrónico ya está vinculado a otra cuenta. Por favor, utilice una dirección de correo electrónico diferente.</string>
     <string name="personalid_too_many_otp_attempts">Ha realizado demasiados intentos de envío de OTP. Por favor, espere e inténtelo de nuevo cuando el botón de reenvío sea visible.</string>
     <string name="personalid_otp_verification_failed_generic">Algo salió mal al verificar su número de teléfono. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
@@ -545,6 +546,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la PersonalID</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">¿Cerrar sesión en esta aplicación?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Se cerrará tu sesión en esta aplicación y volverás a la pantalla de inicio de sesión, donde podrás elegir otra aplicación.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Continuar</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Cancelar</string>
     <string name="play_service_update_error">Para usar PersonalID, necesita actualizar los servicios de Google Play. Toque aquí para ir a Google Play Store y buscar actualizaciones.</string>
     <string name="nav_drawer_open">Abrir el panel de navegación</string>
     <string name="nav_drawer_close">Cerrar el panel de navegación</string>
@@ -587,6 +592,16 @@
     <string name="connect_delivery_start">Iniciar</string>
     <string name="connect_delivery_continue_visits">Continúa tus visitas</string>
     <string name="connect_delivery_continue_visits_subtitle">Enviar formularios de entrega</string>
+    <string name="connect_delivery_visit_progress_title">Progreso de visitas</string>
+    <string name="connect_delivery_total_visits_completed">visitas totales completadas</string>
+    <string name="connect_delivery_daily_visits">Visitas diarias</string>
+    <string name="connect_delivery_your_progress">Tu progreso</string>
+    <string name="connect_delivery_total_earnings">Ganancias totales</string>
+    <string name="connect_delivery_amount_each">%1$s cada una</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">%1$d visita restante hoy</item>
+        <item quantity="other">%1$d visitas restantes hoy</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
     <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
     <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
@@ -692,11 +707,12 @@
     <string name="connect_opportunity_footer_download_app">Descargar app</string>
     <string name="microimage_saving_failed">No se pudo guardar la imagen. Inténtalo de nuevo</string>
     <string name="face_capture_activity_title">Tomar foto de rostro</string>
-    <string name="face_capture_manual_instructions">Centra un rostro dentro del marco y luego toca el botón blanco para tomar la foto</string>
-    <string name="face_capture_auto_instructions">Centra un rostro dentro del marco y mantente quieto para activar el proceso de captura automática</string>
+    <string name="face_capture_manual_instructions">Centra un rostro dentro del contorno verde y luego toca el botón blanco para tomar la foto</string>
+    <string name="face_capture_auto_instructions">Centra un rostro dentro del contorno verde y mantente quieto, la foto se tomará automáticamente</string>
     <string name="face_capture_auto_mode">Captura automática</string>
     <string name="face_capture_manual_mode">Captura manual</string>
     <string name="face_capture_front_camera_unavailable">La cámara frontal no está disponible, la opción de cambiar de cámara estará deshabilitada</string>
+    <string name="face_capture_retake_photo">Volver a tomar la foto</string>
 
     <string name="recording_notification_save_action">Guardar</string>
     <string name="recording_notification_pause_action">Pausar</string>

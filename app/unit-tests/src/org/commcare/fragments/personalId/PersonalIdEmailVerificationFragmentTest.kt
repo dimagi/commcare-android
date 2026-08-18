@@ -16,6 +16,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -145,6 +146,11 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
             View.VISIBLE,
             errorText!!.visibility,
         )
+        assertEquals(
+            "A wrong code should name the code, not report an authorization failure",
+            activity.getString(R.string.personalid_incorrect_otp),
+            errorText.text.toString(),
+        )
         // INCORRECT_OTP_ERROR is not in the shouldAllowRetry() allow-list (only NETWORK / SERVER /
         // INTEGRITY / TOKEN_UNAVAILABLE / UNKNOWN), so the verify button stays disabled — the user
         // retries by re-typing the OTP, which re-fires the auto-submit chain via
@@ -155,6 +161,51 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
             "Verify button should remain disabled after an incorrect-OTP failure",
             verifyButton!!.isEnabled,
         )
+    }
+
+    @Test
+    fun `email already in use response shows the email-in-use error instead of crashing`() {
+        mockWebServer.enqueue(emailAlreadyInUseResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        val errorText =
+            fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(
+            "Error text should be visible after a 400 response",
+            View.VISIBLE,
+            errorText!!.visibility,
+        )
+        assertEquals(
+            "A duplicate-email 400 should surface the email-already-in-use message",
+            activity.getString(R.string.personalid_email_already_in_use),
+            errorText.text.toString(),
+        )
+    }
+
+    @Test
+    fun `auth failure sharing the 401 is not reported as a wrong code`() {
+        mockWebServer.enqueue(lockedAccountResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        assertEquals(
+            "A locked account should route to the configuration-failed message screen",
+            R.id.personalid_message_display,
+            navController.currentDestination!!.id,
+        )
+    }
+
+    @Test
+    fun `malformed request fails fast rather than reporting an in-use email`() {
+        mockWebServer.enqueue(missingDataResponse())
+
+        assertThrows(RuntimeException::class.java) {
+            enterCode("123456")
+            drainHttp()
+        }
     }
 
     @Test
@@ -253,4 +304,19 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         MockResponse()
             .setResponseCode(401)
             .setBody("""{"error_code":"INCORRECT_OTP"}""")
+
+    private fun emailAlreadyInUseResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(400)
+            .setBody("""{"error_code":"EMAIL_ALREADY_IN_USE"}""")
+
+    private fun lockedAccountResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error_code":"LOCKED_ACCOUNT"}""")
+
+    private fun missingDataResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(400)
+            .setBody("""{"error_code":"MISSING_DATA"}""")
 }

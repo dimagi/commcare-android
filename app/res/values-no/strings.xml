@@ -108,6 +108,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">Du er ikke logget inn med PersonalID</string>
     <string name="nav_drawer_opportunities">Muligheter</string>
     <string name="nav_drawer_commcare_apps">CommCare-apper</string>
+    <string name="nav_drawer_switch_app_dialog_title">Logge ut av denne appen?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Du blir logget ut av denne appen og sendt tilbake til påloggingsskjermen, der du kan velge en annen app.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Fortsett</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Avbryt</string>
     <string name="play_service_update_error">For å bruke PersonalID må du oppdatere Google Play-tjenester. Trykk her for å gå til Google Play-butikken for å søke etter oppdateringer.</string>
     <string name="nav_drawer_open">Åpne navigasjonsmenyen</string>
     <string name="nav_drawer_close">Lukk navigasjonsmenyen</string>
@@ -167,6 +171,7 @@
     <string name="connect_otp_verified">Suksess! Ditt telefonnummer er blitt bekreftet.</string>
     <string name="personalid_otp_verification_failed_generic">Noe gikk galt under bekreftelsen av ditt telefonnummer. Prøv igjen.</string>
     <string name="personalid_incorrect_otp">Du har tastet inn feil 6-sifret adgangskode. Prøv igjen.</string>
+    <string name="personalid_email_already_in_use">Denne e-postadressen er allerede knyttet til en annen konto. Bruk en annen e-postadresse.</string>
     <string name="connect_backup_code_mismatch">Reservekodene du taster inn, må stemme overens.</string>
     <string name="personalid_network_response_parsing_error">Feil ved lesing av data fra serveren. Kontakt kundestøtte.</string>
     <string name="personalid_email_appbar_title">E-post</string>
@@ -234,6 +239,16 @@
     <string name="connect_delivery_start">Start</string>
     <string name="connect_delivery_continue_visits">Fortsett besøkene dine</string>
     <string name="connect_delivery_continue_visits_subtitle">Send inn leveringsskjemaer</string>
+    <string name="connect_delivery_visit_progress_title">Besøksfremgang</string>
+    <string name="connect_delivery_total_visits_completed">totalt antall fullførte besøk</string>
+    <string name="connect_delivery_daily_visits">Daglige besøk</string>
+    <string name="connect_delivery_your_progress">Din fremgang</string>
+    <string name="connect_delivery_total_earnings">Total inntjening</string>
+    <string name="connect_delivery_amount_each">%1$s hver</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">%1$d besøk gjenstår i dag</item>
+        <item quantity="other">%1$d besøk gjenstår i dag</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>
@@ -315,11 +330,12 @@
     <string name="microimage_cropping_failed">Kunne ikke beskjære bildet, kontroller at målet er innenfor opptaksområdet</string>
     <string name="microimage_saving_failed">Kunne ikke lagre bildet. Prøv igjen</string>
     <string name="face_capture_activity_title">Ta bilde av ansikt</string>
-    <string name="face_capture_manual_instructions">Sentrer et ansikt i rammen, trykk deretter på den hvite knappen for å ta bildet</string>
-    <string name="face_capture_auto_instructions">Sentrer et ansikt i rammen, hold deg i ro for å utløse automatisk opptak</string>
+    <string name="face_capture_manual_instructions">Sentrer et ansikt innenfor det grønne omrisset, trykk deretter på den hvite knappen for å ta bildet</string>
+    <string name="face_capture_auto_instructions">Sentrer et ansikt innenfor det grønne omrisset og hold deg i ro, bildet tas automatisk</string>
     <string name="face_capture_auto_mode">Automatisk opptak</string>
     <string name="face_capture_manual_mode">Manuelt opptak</string>
     <string name="face_capture_front_camera_unavailable">Frontkameraet er ikke tilgjengelig, alternativet for å bytte kamera vil bli deaktivert</string>
+    <string name="face_capture_retake_photo">Ta bilde på nytt</string>
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
     <string name="connect_progress_count_format">%1$d av %2$d</string>

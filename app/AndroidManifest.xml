@@ -207,7 +207,7 @@
             android:name="org.commcare.activities.connect.ConnectActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
@@ -611,6 +611,7 @@
         <activity
             android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/CommonTheme.NoActionBar"/>
 
         <service

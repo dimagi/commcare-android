@@ -9,7 +9,6 @@ import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
@@ -23,16 +22,14 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
-import org.commcare.utils.MultipleAppsUtil
 import org.commcare.utils.NotificationUtil.getNotificationIcon
 import org.commcare.views.dialogs.DialogCreationHelpers
 
 class BaseDrawerController(
     private val activity: CommCareActivity<*>,
     private val binding: DrawerViewRefs,
-    private val highlightSeatedApp: Boolean,
     private val photoUpdater: PersonalIdPhotoUpdater,
-    private val onItemClicked: (NavItemType, String?) -> Unit,
+    private val onItemClicked: (NavItemType) -> Unit,
 ) {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var navDrawerAdapter: NavDrawerAdapter
@@ -104,13 +101,9 @@ class BaseDrawerController(
             NavDrawerAdapter(
                 activity,
                 emptyList(),
-                onParentClick = {
+                onItemClick = {
                     FirebaseAnalyticsUtil.reportNavDrawerItemSelected(it.title)
-                    onItemClicked(it.type, null)
-                },
-                onChildClick = { parentType, childItem ->
-                    FirebaseAnalyticsUtil.reportNavDrawerItemSelected(childItem.childTitle)
-                    onItemClicked(parentType, childItem.recordId)
+                    onItemClicked(it.type)
                 },
             )
         binding.navDrawerRecycler.layoutManager = LinearLayoutManager(activity)
@@ -194,31 +187,12 @@ class BaseDrawerController(
                 }
             binding.userImageOverlayIcon.setImageResource(userImageOverlayIconRes)
 
-            val appRecords = MultipleAppsUtil.getUsableAppRecords()
-
-            val seatedApp =
-                if (highlightSeatedApp && appRecords.count() > 1) {
-                    CommCareApplication.instance().currentApp.uniqueId
-                } else {
-                    null
-                }
-
-            val commcareApps =
-                appRecords.map {
-                    NavDrawerItem.ChildItem(
-                        it.displayName,
-                        it.uniqueId,
-                        NavItemType.COMMCARE_APPS,
-                        it.uniqueId == seatedApp,
-                    )
-                }
-
             val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
 
-            val items = ArrayList<NavDrawerItem.ParentItem>()
+            val items = ArrayList<NavDrawerItem>()
             if (hasConnectAccess) {
                 items.add(
-                    NavDrawerItem.ParentItem(
+                    NavDrawerItem(
                         activity.getString(R.string.nav_drawer_opportunities),
                         R.drawable.connect_logo,
                         NavItemType.OPPORTUNITIES,
@@ -227,13 +201,10 @@ class BaseDrawerController(
             }
 
             items.add(
-                NavDrawerItem.ParentItem(
+                NavDrawerItem(
                     activity.getString(R.string.nav_drawer_commcare_apps),
                     R.drawable.commcare_actionbar_logo,
                     NavItemType.COMMCARE_APPS,
-                    isEnabled = commcareApps.isNotEmpty(),
-                    isExpanded = commcareApps.size < 2,
-                    children = commcareApps,
                 ),
             )
 
@@ -246,7 +217,7 @@ class BaseDrawerController(
             val messageCount = if (unreadCount > 0) unreadCount else null
 
             items.add(
-                NavDrawerItem.ParentItem(
+                NavDrawerItem(
                     activity.getString(R.string.connect_messaging_title),
                     R.drawable.nav_drawer_message_icon,
                     NavItemType.MESSAGING,
@@ -256,7 +227,7 @@ class BaseDrawerController(
 
             if (shouldShowWorkHistory()) {
                 items.add(
-                    NavDrawerItem.ParentItem(
+                    NavDrawerItem(
                         activity.getString(R.string.personalid_work_history),
                         R.drawable.ic_work_history,
                         NavItemType.WORK_HISTORY,

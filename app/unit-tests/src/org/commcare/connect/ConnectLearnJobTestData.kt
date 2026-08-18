@@ -20,7 +20,14 @@ object ConnectLearnJobTestData {
     /** Server module ids run from `MODULE_ID_BASE + 1`, mirroring the real API's opaque ids. */
     const val MODULE_ID_BASE = 4881
     const val MAX_VISITS = 40
-    const val MAX_DAILY_VISITS = 5
+
+    /**
+     * The job-level daily cap sits above the combined per-unit caps so the two limits can be
+     * exercised independently; a fixture where they coincide cannot express "one unit is done for
+     * today while the job still allows work".
+     */
+    const val MAX_DAILY_VISITS = 12
+    const val PAYMENT_UNIT_MAX_DAILY = 5
     const val TOTAL_BUDGET = 2500
     const val PAYMENT_UNIT_COUNT = 2
     const val CURRENCY = "INR"
@@ -97,7 +104,7 @@ object ConnectLearnJobTestData {
                         put("payment_unit_id", "unit-$id")
                         put("name", "Unit $id")
                         put("max_total", MAX_VISITS / PAYMENT_UNIT_COUNT)
-                        put("max_daily", 5)
+                        put("max_daily", PAYMENT_UNIT_MAX_DAILY)
                         put("amount", 25)
                     },
                 )

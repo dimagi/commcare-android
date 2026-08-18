@@ -324,6 +324,13 @@
         <item name="failureAccentColor">@color/connect_red</item>
     </style>
 
+    <style name="TextWithDropShadow" parent="TextAppearance.AppCompat">
+        <item name="android:shadowColor">@color/black_50</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">4</item>
+    </style>
+
     <style name="Widget.CommCare.ConnectSyncStatusCard" parent="Widget.MaterialComponents.CardView">
         <item name="syncOkBadgeColor">@color/connect_light_green</item>
         <item name="syncOkIconColor">@color/connect_green</item>

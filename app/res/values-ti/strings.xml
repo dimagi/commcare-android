@@ -446,6 +446,7 @@
     <string name="connect_completed">ተዛዚሙ</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
+    <string name="personalid_email_already_in_use">እዚ ኢመይል እዚ ምስ ካልእ ኣካውንት ተኣሳሲሩ ኣሎ። በጃኻ ካልእ ኣድራሻ ኢመይል ተጠቐም።</string>
     <string name="personalid_too_many_otp_attempts">OTP ንምልኣኽ ብዙሕ ግዜ ፈቲንካ ኢኻ። በጃኻ ተጸበ እሞ እቲ ናይ ደጊም ምልኣኽ መልጎም ክረአ ከሎ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed">ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
@@ -537,6 +538,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">ናይ ናፍቆት መለለዪ ኣብዚ ኣይተመዝገብካን</string>
     <string name="nav_drawer_opportunities">ኣገዳሲ ኣገባብ</string>
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
+    <string name="nav_drawer_switch_app_dialog_title">ካብዚ መተግበሪ ትወጽእ?</string>
+    <string name="nav_drawer_switch_app_dialog_message">ካብዚ መተግበሪ ክትወጽእ ኢኻ፡ ናብ መእተዊ መስኮት ድማ ክትምለስ ኢኻ፡ ኣብኡ ካልእ መተግበሪ ክትመርጽ ትኽእል።</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">ቀጽል</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">የቋርፁ</string>
     <string name="play_service_update_error">PersonalID ንኽትጥቀም፡ ናይ Google Play ኣገልግሎታት ከተሐድስ የድልየካ። ምዕዳጋት ንምርኣይ ናብ Google Play Store ንምኻድ ኣብዚ ጠውቕ።</string>
     <string name="nav_drawer_open">መንቀሳቐሲ ድርዕስ ክፈት</string>
     <string name="nav_drawer_close">መንቀሳቐሲ ድርዕስ ዝግ</string>
@@ -575,6 +580,16 @@
     <string name="connect_delivery_start">ጀምር</string>
     <string name="connect_delivery_continue_visits">ምብጻሓትካ ቀፅል</string>
     <string name="connect_delivery_continue_visits_subtitle">ናይ ምብጻሕ ቅጥዕታት ኣቕርብ</string>
+    <string name="connect_delivery_visit_progress_title">ምዕባለ ምብጻሕ</string>
+    <string name="connect_delivery_total_visits_completed">ጠቅላላ ዝተዛዘመ ምብጻሕ</string>
+    <string name="connect_delivery_daily_visits">መዓልታዊ ምብጻሕ</string>
+    <string name="connect_delivery_your_progress">ምዕባለኻ</string>
+    <string name="connect_delivery_total_earnings">ጠቅላላ እቶት</string>
+    <string name="connect_delivery_amount_each">%1$s ንነፍሲ ወከፍ</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">ሎሚ %1$d ምብጻሕ ተሪፉ</item>
+        <item quantity="other">ሎሚ %1$d ምብጻሓት ተሪፎም</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
     <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
     <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
@@ -680,11 +695,12 @@
     <string name="connect_opportunity_footer_download_app">መተግበሪ ኣውርድ</string>
     <string name="microimage_saving_failed">ስእሊ ክዕቀብ ኣይተኻእለን። በጃኹም ደጊምኩም ፈትኑ</string>
     <string name="face_capture_activity_title">ስእሊ ገጽ ምውሳድ</string>
-    <string name="face_capture_manual_instructions">ገጽ ኣብ ውሽጢ እቲ ቦታ ኣቐምጡ፣ ድሕሪኡ ስእሊ ንምውሳድ ነቲ ጻዕዳ መልጎም ጠውቑ</string>
-    <string name="face_capture_auto_instructions">ገጽ ኣብ ውሽጢ እቲ ቦታ ኣቐምጡ፣ ነቲ ናይ ብዘሓት ምውሳድ መስርሕ ንምጅማር ከይተንቀሳቐስኩም ጽንሑ</string>
+    <string name="face_capture_manual_instructions">ገጽ ኣብ ውሽጢ እቲ ቀጠልያ ቅርጺ ኣቐምጡ፣ ድሕሪኡ ስእሊ ንምውሳድ ነቲ ጻዕዳ መልጎም ጠውቑ</string>
+    <string name="face_capture_auto_instructions">ገጽ ኣብ ውሽጢ እቲ ቀጠልያ ቅርጺ ኣቐምጡ፣ ከይተንቀሳቐስኩም ጽንሑ፣ እታ ስእሊ ብቐጥታ ክትውሰድ እያ</string>
     <string name="face_capture_auto_mode">ብዘሓት ምውሳድ</string>
     <string name="face_capture_manual_mode">ብኢድ ምውሳድ</string>
     <string name="face_capture_front_camera_unavailable">ቅድሚት ካሜራ ኣይርከብን፣ ካሜራ ናይ ምቕያር ኣማራጺ ኪዕፀው እዩ</string>
+    <string name="face_capture_retake_photo">ደጊምካ ፎቶ ምልዓል</string>
 
     <string name="recording_notification_save_action">ኣቐምጥ</string>
     <string name="recording_notification_pause_action">ደው በል</string>

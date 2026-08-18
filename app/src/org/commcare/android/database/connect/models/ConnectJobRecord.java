@@ -24,8 +24,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -666,12 +668,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
         } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(context, this)) {
             return context.getString(R.string.connect_progress_relearn_tasks_completed);
-        } else if (isMultiPayment()) {
-            return getMultiVisitWarnings(context);
         } else if (getDeliveries().size() >= getMaxVisits()) {
+            // The job-level caps are checked ahead of the per-unit warnings: once the whole
+            // opportunity is spent, which individual unit ran out first no longer matters.
             return context.getString(R.string.connect_progress_warning_max_reached_single);
         } else if (numberOfDeliveriesToday() >= getMaxDailyVisits()) {
             return context.getString(R.string.connect_progress_warning_daily_max_reached_single);
+        } else if (!getPaymentUnits().isEmpty()) {
+            return getMultiVisitWarnings(context);
         }
 
         return null;
@@ -718,6 +722,50 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         return lines.isEmpty() ? null : TextUtils.join("\n", lines);
+    }
+
+    /**
+     * Whether no further work on this job can earn progress, so progress displays should render as
+     * disabled. For a multi-payment job this is only true once every payment unit is out of visits,
+     * either for good or for today; while any unit is still workable the limits are informational.
+     */
+    public boolean isFurtherWorkBlocked() {
+        if (isFinished() || getIsUserSuspended()) {
+            return true;
+        }
+
+        // The job-level caps bind whatever the payment units allow, so they are checked first.
+        if (getDeliveries().size() >= getMaxVisits()
+                || numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+            return true;
+        }
+
+        // Any job with payment units is blocked once they are all at a limit, single unit included:
+        // with nothing left to deliver against, room under the job-level cap earns nothing. The
+        // empty check matters, otherwise a job with no units compares 0 == 0 and blocks forever.
+        List<ConnectPaymentUnitRecord> units = getPaymentUnits();
+        return !units.isEmpty() && getPaymentUnitsAtLimit().size() == units.size();
+    }
+
+    /**
+     * UUIDs of the payment units that cannot earn another visit right now, because they are out of
+     * visits either for good or for today.
+     */
+    public Set<String> getPaymentUnitsAtLimit() {
+        HashMap<String, Integer> total = getDeliveryCountsPerPaymentUnit(false);
+        HashMap<String, Integer> today = getDeliveryCountsPerPaymentUnit(true);
+        Set<String> atLimit = new HashSet<>();
+
+        for (ConnectPaymentUnitRecord unit : getPaymentUnits()) {
+            String key = unit.getUnitUUID();
+            int totalCount = total.containsKey(key) ? total.get(key) : 0;
+            int todayCount = today.containsKey(key) ? today.get(key) : 0;
+            if (totalCount >= unit.getMaxTotal() || todayCount >= unit.getMaxDaily()) {
+                atLimit.add(key);
+            }
+        }
+
+        return atLimit;
     }
 
     public static ConnectJobRecord fromV21(ConnectJobRecordV21 oldRecord) {
