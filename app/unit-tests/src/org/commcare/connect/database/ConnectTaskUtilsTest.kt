@@ -371,4 +371,44 @@ class ConnectTaskUtilsTest {
 
         assertTrue(ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync(context))
     }
+
+    // ===========================
+    // getPendingTasksForJob
+    // ===========================
+
+    @Test
+    fun `getPendingTasksForJob returns only assigned tasks`() {
+        seedTask(makeTask(taskId = "assigned", status = STATUS_ASSIGNED))
+        seedTask(makeTask(taskId = "completed", status = STATUS_COMPLETED))
+
+        val pending = ConnectTaskUtils.getPendingTasksForJob(context, jobUUID)
+
+        assertEquals(listOf("assigned"), pending.map { it.taskId })
+    }
+
+    @Test
+    fun `getPendingTasksForJob orders tasks by soonest due date`() {
+        seedTask(makeTask(taskId = "later", dueDate = Date(3_000)))
+        seedTask(makeTask(taskId = "soonest", dueDate = Date(1_000)))
+        seedTask(makeTask(taskId = "middle", dueDate = Date(2_000)))
+
+        val pending = ConnectTaskUtils.getPendingTasksForJob(context, jobUUID)
+
+        assertEquals(listOf("soonest", "middle", "later"), pending.map { it.taskId })
+    }
+
+    @Test
+    fun `getPendingTasksForJob ignores tasks belonging to another opportunity`() {
+        seedTask(makeTask(taskId = "ours"))
+        seedTask(makeTask(taskId = "theirs").apply { jobUUID = "another-job-uuid" })
+
+        val pending = ConnectTaskUtils.getPendingTasksForJob(context, jobUUID)
+
+        assertEquals(listOf("ours"), pending.map { it.taskId })
+    }
+
+    @Test
+    fun `getPendingTasksForJob returns nothing when the job has no tasks`() {
+        assertTrue(ConnectTaskUtils.getPendingTasksForJob(context, jobUUID).isEmpty())
+    }
 }

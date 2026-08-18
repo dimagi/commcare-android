@@ -182,6 +182,7 @@
     <dimen name="connect_chip_icon_size">20dp</dimen>
     <!-- Keeps a borderless text button wide enough to stay an easy tap target. -->
     <dimen name="connect_text_button_min_width">64dp</dimen>
+    <dimen name="connect_touch_target_min">48dp</dimen>
     <!-- Half of the gap between grid cards; the full 16dp gap is two of these. -->
     <dimen name="connect_grid_gutter_half">8dp</dimen>
     <!-- Icons -->

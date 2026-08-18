@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
@@ -15,6 +16,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
 import org.commcare.connect.ConnectAppLaunchController
+import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel
 import org.commcare.dalvik.R
@@ -22,6 +24,7 @@ import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.RefreshableTab
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.views.extensions.themeColor
 
 /**
  * Shell hosting the delivery opportunity tabs (Dashboard, Payment, Visits, More) and the bottom
@@ -52,6 +55,8 @@ class ConnectDeliveryHomeFragment :
 
     private val visibleTabs get() = tabs.filter { it.visible }
 
+    private val moreTabPosition get() = visibleTabs.indexOfFirst { it.titleRes == R.string.connect_more }
+
     private lateinit var viewModel: ConnectDeliveryHomeViewModel
     private lateinit var pagerAdapter: DeliveryViewStateAdapter
     private var initialTabPosition = TAB_DASHBOARD
@@ -75,7 +80,7 @@ class ConnectDeliveryHomeFragment :
             )[ConnectDeliveryHomeViewModel::class.java]
 
         setupTabViewPager()
-        binding.connectDeliveryCtaBar.setOnCtaClickListener { launchDeliveryApp() }
+        binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
 
         observeDeliveryProgress()
         return view
@@ -96,6 +101,7 @@ class ConnectDeliveryHomeFragment :
             currentTabPosition = initialTabPosition
             viewPager.setCurrentItem(initialTabPosition, false)
         }
+        updateCtaBarVisibility()
 
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
@@ -104,6 +110,7 @@ class ConnectDeliveryHomeFragment :
                         return
                     }
                     currentTabPosition = position
+                    updateCtaBarVisibility()
                     tabLayout.getTabAt(position)?.text?.let {
                         FirebaseAnalyticsUtil.reportConnectTabChange(it.toString())
                     }
@@ -112,21 +119,50 @@ class ConnectDeliveryHomeFragment :
         )
     }
 
+    /**
+     * The More tab makes its highest-priority task the primary action, so the shared launch bar gets
+     * out of its way.
+     */
+    private fun updateCtaBarVisibility() {
+        binding.connectDeliveryCtaBar.isVisible = currentTabPosition != moreTabPosition
+    }
+
+    /** Surfaces how many tasks are waiting, so they are discoverable from any tab. */
+    private fun updateMoreTabBadge() {
+        val tab = binding.connectDeliveryHomeTabs.getTabAt(moreTabPosition) ?: return
+        val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID).size
+
+        if (pendingTasks == 0) {
+            tab.removeBadge()
+            return
+        }
+
+        tab.orCreateBadge.apply {
+            backgroundColor = requireContext().themeColor(R.attr.connectStatusNegative)
+            number = pendingTasks
+        }
+    }
+
+    /**
+     * The tabs read the opportunity back off the activity, and the repository hands back a fresh
+     * instance each sync, so the refreshed job has to be published there and not just kept here.
+     */
     private fun observeDeliveryProgress() {
         observeDataState(
             viewModel.deliveryProgress,
             { cached ->
-                job = cached
+                setActiveJob(cached)
                 refreshTabs()
             },
             { success ->
-                job = success
+                setActiveJob(success)
                 refreshTabs()
             },
         )
     }
 
     private fun refreshTabs() {
+        updateMoreTabBadge()
         childFragmentManager.fragments.forEach { fragment ->
             if (fragment.view != null && fragment is RefreshableTab) {
                 fragment.updateView()
@@ -149,19 +185,27 @@ class ConnectDeliveryHomeFragment :
             .setActionBarTitle(job.title, getString(R.string.connect_progress_delivery))
     }
 
-    private fun launchDeliveryApp() {
-        val appId = job.deliveryAppInfo.appId
+    /**
+     * Launches the opportunity's learn or delivery app, sending the user to the download screen when
+     * it isn't installed yet. Tabs route their own launches through here so the install check and the
+     * download hand-off live in one place.
+     */
+    fun launchApp(isLearning: Boolean) {
+        val appId = if (isLearning) job.learnAppInfo.appId else job.deliveryAppInfo.appId
         if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppLaunchController(this).launchApp(appId, false, Runnable { popSelfOnceHidden() })
-        } else {
-            val directions =
-                ConnectDeliveryHomeFragmentDirections
-                    .actionConnectDeliveryHomeFragmentToConnectDownloadingFragment(
-                        getString(R.string.connect_downloading_delivery),
-                        false,
-                    )
-            findNavController().navigate(directions)
+            ConnectAppLaunchController(this).launchApp(appId, isLearning, Runnable { popSelfOnceHidden() })
+            return
         }
+
+        val downloadTitle =
+            if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
+        val directions =
+            ConnectDeliveryHomeFragmentDirections
+                .actionConnectDeliveryHomeFragmentToConnectDownloadingFragment(
+                    getString(downloadTitle),
+                    isLearning,
+                )
+        findNavController().navigate(directions)
     }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.jobUUID

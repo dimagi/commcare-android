@@ -67,6 +67,7 @@
         <item name="connectOnPrimaryContainer">@color/neon_blue</item>
         <item name="connectInversePrimary">@color/cc_brand_color</item>
         <item name="connectStatusPositive">@color/connect_green</item>
+        <item name="connectStatusNegative">@color/red_600</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />

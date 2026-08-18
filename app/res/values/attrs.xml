@@ -20,6 +20,7 @@
     <attr name="connectOnPrimaryContainer" format="reference|color" />
     <attr name="connectInversePrimary" format="reference|color" />
     <attr name="connectStatusPositive" format="reference|color" />
+    <attr name="connectStatusNegative" format="reference|color" />
 
     <attr name="detail_even_row_color" format="reference" />
     <attr name="detail_odd_row_color" format="reference" />

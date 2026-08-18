@@ -1,5 +1,236 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/connect_background_color" />
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/connectBackground"
+        tools:theme="@style/ConnectTheme">
+
+        <!-- Cards draw a shadow outside their bounds, so no ancestor may clip them. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/connect_space_lg"
+            android:paddingTop="@dimen/connect_space_lg"
+            android:paddingBottom="@dimen/connect_space_lg">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_delivery_tasks_title"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="@dimen/connect_text_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/delivery_tasks_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/connect_delivery_tasks_empty"
+                android:textColor="?attr/connectOnSurfaceVariant"
+                android:textSize="@dimen/connect_text_caption"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/delivery_tasks_mandatory_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:clipChildren="false"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_delivery_tasks_mandatory_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/connect_text_body"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_delivery_tasks_mandatory_subtitle"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/connect_text_caption" />
+
+                <LinearLayout
+                    android:id="@+id/delivery_tasks_mandatory_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/connect_space_md"
+                    android:clipChildren="false"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/delivery_tasks_optional_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:clipChildren="false"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_delivery_tasks_optional_title"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/connect_text_body"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect_delivery_tasks_optional_subtitle"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="@dimen/connect_text_caption" />
+
+                <LinearLayout
+                    android:id="@+id/delivery_tasks_optional_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/connect_space_md"
+                    android:clipChildren="false"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/revisit_learning_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_xl"
+                android:clipChildren="false"
+                android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_delivery_revisit_learning_title"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="@dimen/connect_text_title"
+                android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_md"
+                app:cardBackgroundColor="?attr/colorSurface"
+                app:cardCornerRadius="@dimen/connect_radius_card"
+                app:cardElevation="@dimen/connect_card_elevation_low"
+                app:cardUseCompatPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/connect_space_lg">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- scaleType keeps the glyph at its own 20dp size, centred in the circle. -->
+                        <ImageView
+                            android:layout_width="@dimen/connect_icon_circle_sm"
+                            android:layout_height="@dimen/connect_icon_circle_sm"
+                            android:background="@drawable/bg_connect_circle"
+                            android:backgroundTint="?attr/connectPrimaryContainer"
+                            android:contentDescription="@null"
+                            android:scaleType="center"
+                            android:src="@drawable/ic_connect_local_library"
+                            app:tint="?attr/connectOnPrimaryContainer" />
+
+                        <TextView
+                            android:id="@+id/revisit_learning_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/connect_space_sm"
+                            android:layout_weight="1"
+                            android:textColor="?attr/connectOnSurfaceStrong"
+                            android:textSize="@dimen/connect_text_body"
+                            android:textStyle="bold"
+                            tools:text="Infant Vaccination" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/revisit_learning_completed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/connect_space_xs"
+                        android:textColor="?attr/connectOnSurfaceVariant"
+                        android:textSize="@dimen/connect_text_label"
+                        tools:text="Completed 24 July 2024" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/connect_space_lg"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/revisit_learning_certificate_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:minHeight="@dimen/connect_touch_target_min"
+                            android:minWidth="@dimen/connect_text_button_min_width"
+                            android:paddingHorizontal="@dimen/connect_space_sm"
+                            android:text="@string/connect_learn_certificate"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="@dimen/connect_text_caption"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/revisit_learning_view_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/connect_space_sm"
+                            android:background="?attr/selectableItemBackground"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:minHeight="@dimen/connect_touch_target_min"
+                            android:minWidth="@dimen/connect_text_button_min_width"
+                            android:paddingHorizontal="@dimen/connect_space_sm"
+                            android:text="@string/connect_delivery_revisit_learning_view"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="@dimen/connect_text_caption"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <include
+                        android:id="@+id/revisit_learning_certificate"
+                        layout="@layout/view_connect_learn_certificate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="0dp"
+                        android:layout_marginTop="@dimen/connect_space_lg"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+</layout>
