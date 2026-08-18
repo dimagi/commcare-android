@@ -5,7 +5,6 @@ import org.commcare.preferences.PrefValues
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -34,11 +33,6 @@ class StandardHomePresentationTest : BaseHomeScreenActivityTest() {
     @Test
     fun `does not use submission progress bar`() {
         assertFalse(buildHome().usesSubmissionProgressBar())
-    }
-
-    @Test
-    fun `seated app is highlighted`() {
-        assertTrue(buildHome().shouldHighlightSeatedApp())
     }
 
     @Test

@@ -41,7 +41,7 @@ class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
     fun `opportunities managed login goes straight to the jobs list`() {
         val home = buildHome(personalIdManagedLogin = true)
 
-        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES, null)
+        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES)
 
         assertStarted(home, ConnectActivity::class.java)
         verify(exactly = 0) { PersonalIdUnlocker.unlock(any(), any(), any()) }
@@ -51,7 +51,7 @@ class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
     fun `opportunities legacy login unlocks before the jobs list`() {
         val home = buildHome(personalIdManagedLogin = false)
 
-        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES, null)
+        home.handleDrawerItemClick(NavItemType.OPPORTUNITIES)
 
         verify(exactly = 1) { PersonalIdUnlocker.unlock(home, any(), any()) }
         assertStarted(home, ConnectActivity::class.java)
@@ -63,7 +63,7 @@ class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
     fun `messaging managed login goes straight to messaging`() {
         val home = buildHome(personalIdManagedLogin = true)
 
-        home.handleDrawerItemClick(NavItemType.MESSAGING, null)
+        home.handleDrawerItemClick(NavItemType.MESSAGING)
 
         assertStarted(home, ConnectMessagingActivity::class.java)
         verify(exactly = 0) { PersonalIdUnlocker.unlock(any(), any(), any()) }
@@ -73,7 +73,7 @@ class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
     fun `messaging legacy login unlocks before messaging`() {
         val home = buildHome(personalIdManagedLogin = false)
 
-        home.handleDrawerItemClick(NavItemType.MESSAGING, null)
+        home.handleDrawerItemClick(NavItemType.MESSAGING)
 
         verify(exactly = 1) { PersonalIdUnlocker.unlock(home, any(), any()) }
         assertStarted(home, ConnectMessagingActivity::class.java)
@@ -85,7 +85,7 @@ class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
     fun `work history managed login goes straight to work history`() {
         val home = buildHome(personalIdManagedLogin = true)
 
-        home.handleDrawerItemClick(NavItemType.WORK_HISTORY, null)
+        home.handleDrawerItemClick(NavItemType.WORK_HISTORY)
 
         assertStarted(home, PersonalIdWorkHistoryActivity::class.java)
         verify(exactly = 0) { PersonalIdUnlocker.unlock(any(), any(), any()) }
@@ -95,7 +95,7 @@ class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
     fun `work history legacy login unlocks before work history`() {
         val home = buildHome(personalIdManagedLogin = false)
 
-        home.handleDrawerItemClick(NavItemType.WORK_HISTORY, null)
+        home.handleDrawerItemClick(NavItemType.WORK_HISTORY)
 
         verify(exactly = 1) { PersonalIdUnlocker.unlock(home, any(), any()) }
         assertStarted(home, PersonalIdWorkHistoryActivity::class.java)
