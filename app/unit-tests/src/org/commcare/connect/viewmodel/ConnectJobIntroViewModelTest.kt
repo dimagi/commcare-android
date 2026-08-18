@@ -13,7 +13,6 @@ import org.commcare.connect.repository.DataState
 import org.commcare.rules.MainCoroutineRule
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -56,7 +55,7 @@ class ConnectJobIntroViewModelTest {
 
         assertEquals(2, results.size)
         assertEquals(DataState.Loading, results[0])
-        assertTrue(results[1] is DataState.Success)
+        assertEquals(DataState.Success(Unit), results[1])
     }
 
     @Test
@@ -72,6 +71,6 @@ class ConnectJobIntroViewModelTest {
         }
 
         assertEquals(2, results.size)
-        assertTrue(results[1] is DataState.Error)
+        assertEquals(DataState.Error<Unit>(), results[1])
     }
 }

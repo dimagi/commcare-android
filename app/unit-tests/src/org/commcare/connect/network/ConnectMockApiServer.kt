@@ -9,6 +9,7 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.repository.ConnectRepository
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
@@ -50,11 +51,13 @@ class ConnectMockApiServer {
                 }.build()
         httpDispatcher = (retrofit.callFactory() as OkHttpClient).dispatcher
         setNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
+        ConnectRepository.resetInstance()
     }
 
     fun shutdown() {
         dispatchCallbacks = false
         setNetworkClient(null)
+        ConnectRepository.resetInstance()
         server.shutdown()
     }
 
