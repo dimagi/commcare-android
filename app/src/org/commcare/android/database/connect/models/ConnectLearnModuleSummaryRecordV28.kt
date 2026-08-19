@@ -52,6 +52,7 @@ class ConnectLearnModuleSummaryRecordV28 :
 
     companion object {
         const val STORAGE_KEY = ConnectLearnModuleSummaryRecord.STORAGE_KEY
+
         fun fromV21(connectLearnModuleSummaryRecordV21: ConnectLearnModuleSummaryRecordV21): ConnectLearnModuleSummaryRecordV28 {
             val connectLearnModuleSummaryRecordV28 = ConnectLearnModuleSummaryRecordV28()
             connectLearnModuleSummaryRecordV28.moduleIndex =
