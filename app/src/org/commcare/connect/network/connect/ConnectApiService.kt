@@ -1,6 +1,7 @@
-package org.commcare.connect.network
+package org.commcare.connect.network.connect
 
 import okhttp3.ResponseBody
+import org.commcare.connect.network.ApiEndPoints
 import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
 import retrofit2.Response
 import retrofit2.http.Body

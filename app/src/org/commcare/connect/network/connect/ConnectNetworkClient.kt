@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ConnectApiService
 import org.commcare.connect.network.ConnectSsoSyncHelper
 import org.commcare.connect.network.NetworkUtils
 import org.commcare.connect.network.base.BaseApiClient
