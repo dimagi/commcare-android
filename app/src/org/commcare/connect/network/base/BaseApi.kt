@@ -50,7 +50,7 @@ class BaseApi {
                                 }
                             try {
                                 val errorBody = NetworkUtils.getErrorBody(stream)
-                                logFailedResponse(response.message(), response.code(), endPoint, errorBody)
+                                NetworkUtils.logFailedResponse(response.message(), response.code(), endPoint, errorBody)
                                 callback.processFailure(
                                     response.code(),
                                     endPoint,
@@ -69,7 +69,7 @@ class BaseApi {
                     ) {
                         dismissProgressDialog(context)
                         // Handle network errors, etc.
-                        logNetworkError(t, endPoint)
+                        NetworkUtils.logNetworkError(t, endPoint)
                         callback.processNetworkFailure(t)
                     }
                 },

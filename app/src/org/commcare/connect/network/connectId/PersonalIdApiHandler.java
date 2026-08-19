@@ -42,7 +42,7 @@ import java.util.Map;
 
 import kotlin.Pair;
 
-import static org.commcare.connect.network.NetworkUtils.getErrorCodes;
+import static org.commcare.connect.network.base.NetworkUtils.getErrorCodes;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 

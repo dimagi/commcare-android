@@ -10,7 +10,7 @@ import kotlinx.coroutines.test.runTest
 import org.commcare.CommCareApplication
 import org.commcare.activities.LoginMode
 import org.commcare.android.database.app.models.UserKeyRecord
-import org.commcare.connect.network.LoginInvalidatedException
+import org.commcare.connect.network.connectId.LoginInvalidatedException
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.AuthSource
 import org.commcare.login.LoginError

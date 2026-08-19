@@ -39,7 +39,7 @@ object ConnectSsoSyncHelper {
                 appRecord,
                 hqUsername,
                 performLink,
-                object : TokenCallback {
+                object : ConnectSsoHelper.TokenCallback {
                     override fun tokenRetrieved(token: TokenAuth) {
                         continuation.resume(token)
                     }

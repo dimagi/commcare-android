@@ -11,7 +11,7 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.network.SsoToken
+import org.commcare.connect.network.connectId.SsoToken
 import org.commcare.core.network.AuthInfo
 import org.junit.After
 import org.junit.Assert.assertEquals
