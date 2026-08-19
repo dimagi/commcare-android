@@ -9,7 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        tools:theme="@style/ConnectTheme">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,7 +46,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/standard_spacer_half"
                         android:text="@string/connect_opportunity_learn_section_title"
-                        android:textColor="@color/connect_dark_blue_color"
+                        android:textColor="?attr/colorPrimary"
                         android:textSize="@dimen/connect_text_caption"
                         />
                 </LinearLayout>
@@ -56,7 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standard_spacer"
                     android:includeFontPadding="false"
-                    android:textColor="@color/connect_text_color"
+                    android:textColor="?attr/connectOnSurfaceStrong"
                     android:textSize="@dimen/connect_text_metric"
                     tools:text="Infant Vaccination" />
 
@@ -65,14 +66,14 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standard_spacer_half"
                     android:text="@string/connect_opportunity_expiry_label"
-                    android:textColor="@color/connect_grey"
+                    android:textColor="?attr/connectOnSurfaceMuted"
                     android:textSize="@dimen/connect_text_caption" />
 
                 <TextView
                     android:id="@+id/learn_progress_expiry_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/connect_text_color"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
                     android:textSize="@dimen/connect_text_title"
                     tools:text="01/31/27" />
             </LinearLayout>
@@ -92,7 +93,7 @@
                 android:layout_marginHorizontal="@dimen/standard_spacer_double"
                 android:layout_marginTop="@dimen/standard_title_margin_bottom"
                 android:text="@string/connect_learn_continue"
-                android:textColor="@color/connect_text_color"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="@dimen/connect_text_title"
                 />
 
@@ -102,10 +103,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/standard_spacer_double"
                 android:layout_marginTop="@dimen/standard_spacer_one_and_half"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
                 app:cardElevation="0dp"
-                app:strokeColor="@color/connect_divider_color"
+                app:strokeColor="?attr/connectOutlineVariant"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
@@ -118,7 +119,7 @@
                         android:id="@+id/learn_progress_continue_label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/connect_text_color"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="@dimen/connect_text_body"
                         tools:text="Up Next" />
 
@@ -127,7 +128,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/standard_spacer_double"
-                        android:textColor="@color/connect_text_color"
+                        android:textColor="?attr/connectOnSurfaceStrong"
                         android:textSize="@dimen/connect_text_title"
                         tools:text="3. Malawian Vaccine Schedule" />
 
@@ -136,7 +137,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/standard_spacer_half"
-                        android:textColor="@color/connect_grey"
+                        android:textColor="?attr/connectOnSurfaceMuted"
                         android:textSize="@dimen/connect_text_caption"
                         tools:text="Estimated time: 1 hour" />
                 </LinearLayout>

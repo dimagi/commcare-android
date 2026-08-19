@@ -48,7 +48,7 @@ class ConnectLearnProgressViewTest {
         context =
             ContextThemeWrapper(
                 ApplicationProvider.getApplicationContext<CommCareTestApplication>(),
-                R.style.CommonTheme,
+                R.style.ConnectTheme,
             )
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false

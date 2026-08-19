@@ -1,21 +1,23 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:theme="@style/ConnectTheme">
 
         <org.commcare.views.connect.ConnectLearnProgressView
             android:id="@+id/learnProgressView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/connect_background_color"
+            android:background="?attr/connectBackground"
             android:orientation="vertical" />
 
         <org.commcare.views.connect.ConnectLearnCompleteView
             android:id="@+id/learnCompleteView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/connect_background_color"
+            android:background="?attr/connectBackground"
             android:orientation="vertical"
             android:visibility="gone" />
 

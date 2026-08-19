@@ -122,8 +122,8 @@
 
             <ImageView
                 android:id="@+id/progress_card_info_icon"
-                android:layout_width="@dimen/connect_progress_card_info_icon_size"
-                android:layout_height="@dimen/connect_progress_card_info_icon_size"
+                android:layout_width="@dimen/connect_chip_icon_size"
+                android:layout_height="@dimen/connect_chip_icon_size"
                 android:layout_marginEnd="@dimen/connect_space_md"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_connect_warning"
