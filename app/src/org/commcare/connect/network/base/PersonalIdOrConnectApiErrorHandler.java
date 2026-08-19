@@ -1,10 +1,9 @@
-package org.commcare.connect.network;
+package org.commcare.connect.network.base;
 
 import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 
