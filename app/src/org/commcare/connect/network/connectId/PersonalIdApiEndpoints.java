@@ -1,0 +1,24 @@
+package org.commcare.connect.network.connectId;
+
+public class PersonalIdApiEndpoints {
+    public static final String connectTokenURL = "/o/token/";
+    public static final String connectHeartbeatURL = "/users/heartbeat";
+    public static final String connectFetchDbKeyURL = "/users/fetch_db_key";
+    public static final String validateFirebaseIdToken = "/users/validate_firebase_id_token";
+    public static final String checkName = "/users/check_name";
+    public static final String reportIntegrity = "/users/report_integrity";
+    public static final String startConfiguration = "/users/start_configuration";
+    public static final String sendSessionOtp = "/users/send_session_otp";
+    public static final String validateSessionOtp = "/users/confirm_session_otp";
+    public static final String sendEmailOtp = "/users/send_email_otp";
+    public static final String verifyEmailOtp = "/users/verify_email_otp";
+    public static final String updateProfile = "/users/update_profile";
+    public static final String completeProfile = "/users/complete_profile";
+    public static final String confirmBackupCode = "/users/recover/confirm_backup_code";
+    public static final String CREDENTIALS = "/users/credentials";
+    public static final String RETRIEVE_NOTIFICATIONS = "/messaging/retrieve_notifications/";
+    public static final String UPDATE_NOTIFICATIONS = "/messaging/update_notification_received/";
+    public static final String CONNECT_MESSAGE_CHANNEL_CONSENT_URL = "/messaging/update_consent/";
+    public static final String CONNECT_MESSAGE_SEND_URL = "/messaging/send_message/";
+    public static final String RELEASE_TOGGLES = "/toggles";
+}
