@@ -8,22 +8,18 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
-import org.commcare.connect.network.connect.ConnectApiClient
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.repository.ConnectRepository
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
 /**
- * [MockWebServer] harness that points the Connect API clients at a local mock server so Connect API
- * calls hit it: both the callback-based [ConnectApiClient] and the coroutine-based
- * [ConnectNetworkClient] that [ConnectRepository] talks through. The PersonalID equivalent lives in
- * `PersonalIdMockApiServer`; the two target different Retrofit clients.
- *
- * Both [ConnectApiClient] and [ConnectNetworkClient] are process-wide singletons, so [start] swaps
- * their backing instances and [shutdown] must restore them. Callers seat a Connect user with a valid
- * token (see `ConnectTestUtils`) so the calls don't detour to the PersonalId token endpoint, which
- * this server doesn't serve.
+ * [MockWebServer] harness that points [ConnectNetworkClient] at a local mock server so Connect API
+ * calls hit it. The PersonalID equivalent lives in `PersonalIdMockApiServer`; the two target
+ * different Retrofit clients.
+ * [ConnectNetworkClient] is a process-wide singleton, so [start] swaps its backing instance and
+ * [shutdown] must restore it. Callers seat a Connect user with a valid token (see `ConnectTestUtils`)
+ * so the calls don't detour to the PersonalId token endpoint, which this server doesn't serve.
  *
  * Retrofit posts callbacks to the main looper as it does in production, and [drainHttp] runs them
  * deterministically. Calls that resume on a background dispatcher and only then post their result to
@@ -53,14 +49,14 @@ class ConnectMockApiServer {
                     Handler(Looper.getMainLooper()).post(runnable)
                 }.build()
         httpDispatcher = (retrofit.callFactory() as OkHttpClient).dispatcher
-        setConnectApiService(retrofit.create(ApiService::class.java))
-        setConnectNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
+        setNetworkClient(ConnectNetworkClient(retrofit.create(ConnectApiService::class.java)))
+        ConnectRepository.resetInstance()
     }
 
     fun shutdown() {
         dispatchCallbacks = false
-        setConnectApiService(null)
-        setConnectNetworkClient(null)
+        setNetworkClient(null)
+        ConnectRepository.resetInstance()
         server.shutdown()
     }
 
@@ -132,27 +128,12 @@ class ConnectMockApiServer {
         ShadowLooper.idleMainLooper()
     }
 
-    private fun setConnectApiService(apiService: ApiService?) {
-        val apiServiceField = ConnectApiClient::class.java.getDeclaredField("apiService")
-        apiServiceField.isAccessible = true
-        apiServiceField.set(null, apiService)
-    }
-
-    /**
-     * Swaps the [ConnectNetworkClient] singleton and drops the [ConnectRepository] one so the next
-     * caller rebuilds it against this client instead of the production base URL.
-     */
-    private fun setConnectNetworkClient(client: ConnectNetworkClient?) {
-        setStaticField(ConnectNetworkClient::class.java, "instance", client)
-        setStaticField(ConnectRepository::class.java, "instance", null)
-    }
-
-    private fun setStaticField(
-        owner: Class<*>,
-        name: String,
-        value: Any?,
-    ) {
-        owner.getDeclaredField(name).apply { isAccessible = true }.set(null, value)
+    /** The companion's backing field is a static on [ConnectNetworkClient] itself, and is private. */
+    private fun setNetworkClient(client: ConnectNetworkClient?) {
+        ConnectNetworkClient::class.java
+            .getDeclaredField("instance")
+            .apply { isAccessible = true }
+            .set(null, client)
     }
 
     companion object {

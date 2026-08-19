@@ -25,7 +25,7 @@ import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.dalvik.R;
@@ -163,12 +163,11 @@ public class ConnectDeliveryPaymentFragment extends ConnectJobFragment<FragmentC
                 ConnectJobPaymentRecord payment,
                 boolean result
         ) {
-            ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
-                    context,
+            ConnectRepository.getInstance(context).updatePaymentsConfirmedForJava(
                     Collections.singletonList(
                             new ConnectPaymentConfirmationModel(payment, result)
                     ),
-                    (success,error) -> {
+                    (success, error) -> {
                         holder.updateConfirmedText(context, payment);
                         rebuildPaymentsDisplayList();
                         notifyDataSetChanged();
