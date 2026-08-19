@@ -1,4 +1,4 @@
-package org.commcare.connect.network;
+package org.commcare.connect.network.connectId;
 
 import android.content.Context;
 
@@ -7,9 +7,10 @@ import androidx.annotation.NonNull;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.connect.network.ApiEndPoints;
 import org.commcare.connect.network.base.BaseApi;
-import org.commcare.connect.network.connectId.PersonalIdApiClient;
-import org.commcare.connect.network.connectId.PersonalIdApiService;
+import org.commcare.connect.network.base.IApiCallback;
+import org.commcare.connect.network.base.NetworkUtils;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.HttpUtils;
 import org.commcare.preferences.HiddenPreferences;
