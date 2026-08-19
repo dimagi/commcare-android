@@ -1,11 +1,10 @@
-package org.commcare.connect.network
+package org.commcare.connect.network.base
 
 import com.google.common.collect.ArrayListMultimap
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.core.network.ModernHttpRequester
 import org.commcare.util.LogTypes
 import org.commcare.utils.GlobalErrorUtil
