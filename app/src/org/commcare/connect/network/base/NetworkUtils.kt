@@ -15,7 +15,6 @@ import org.javarosa.core.services.Logger
 import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.HttpException
-import retrofit2.Response
 import java.io.IOException
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
