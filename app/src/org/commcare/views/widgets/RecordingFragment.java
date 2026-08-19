@@ -70,6 +70,10 @@ public class RecordingFragment extends DialogFragment {
 
     public static final String AUDIO_FILE_PATH_ARG_KEY = "audio_file_path";
     public static final String APPEARANCE_ATTR_ARG_KEY = "appearance_attr_key";
+    public static final String RESULT_REQUEST_KEY_ARG_KEY = "result_request_key";
+
+    /** Path the recording ended up at, absent if the dialog was dismissed without changing anything. */
+    public static final String RESULT_AUDIO_FILE_PATH_KEY = "result_audio_file_path";
     private static final CharSequence LONG_APPEARANCE_VALUE = "long";
     private static final String SAVE_TEXT_KEY = "save";
     private static final String CANCEL_TEXT_KEY = "recording.cancel";
@@ -98,7 +102,7 @@ public class RecordingFragment extends DialogFragment {
     private ProgressBar recordingProgress;
     private Chronometer recordingDuration;
 
-    private RecordingCompletionListener listener;
+    private boolean resultDelivered = false;
     private boolean inPausedState = false;
     private boolean pausedByUser = true;
     private boolean savedRecordingExists = false;
@@ -244,9 +248,7 @@ public class RecordingFragment extends DialogFragment {
     private void resetRecordingView() {
         // reset the file path
         initAudioFile();
-        if (listener != null) {
-            listener.onRecordingCompletion(fileName);
-        }
+        deliverResult(fileName);
         dismiss();
     }
 
@@ -485,21 +487,24 @@ public class RecordingFragment extends DialogFragment {
         if (inPausedState) {
             stopRecording(false);
         }
-        if (listener != null) {
-            listener.onRecordingCompletion(fileName);
-        }
+        deliverResult(fileName);
         dismissAllowingStateLoss();
     }
 
     /**
-     * A listener interface for handling post-recording events
+     * Reports the outcome through the fragment result API rather than a listener the caller holds, so
+     * that it still reaches a caller that was rebuilt while this dialog was open.
      */
-    public interface RecordingCompletionListener {
-        void onRecordingCompletion(String audioFile);
-    }
-
-    public void setListener(RecordingCompletionListener listener) {
-        this.listener = listener;
+    private void deliverResult(@Nullable String audioFile) {
+        resultDelivered = true;
+        Bundle args = getArguments();
+        String requestKey = args == null ? null : args.getString(RESULT_REQUEST_KEY_ARG_KEY);
+        if (requestKey == null) {
+            return;
+        }
+        Bundle result = new Bundle();
+        result.putString(RESULT_AUDIO_FILE_PATH_KEY, audioFile);
+        getParentFragmentManager().setFragmentResult(requestKey, result);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -581,6 +586,11 @@ public class RecordingFragment extends DialogFragment {
         unbindAudioRecordingService();
         if (endingSession) {
             requireActivity().stopService(new Intent(requireActivity(), AudioRecordingService.class));
+            if (!resultDelivered) {
+                // Dismissed without saving; tell the caller so it can drop the state it put up while
+                // this dialog was open.
+                deliverResult(null);
+            }
         }
     }
 
