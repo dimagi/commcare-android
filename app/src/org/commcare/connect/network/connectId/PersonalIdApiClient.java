@@ -1,6 +1,5 @@
 package org.commcare.connect.network.connectId;
 
-import org.commcare.connect.network.ApiService;
 import org.commcare.connect.network.base.BaseApiClient;
 
 
@@ -10,16 +9,16 @@ import org.commcare.connect.network.base.BaseApiClient;
 public class PersonalIdApiClient {
     public static final String BASE_URL = "https://connectid.dimagi.com";
     public static final String API_VERSION = "2.0";
-    private static volatile ApiService apiService;
+    private static volatile PersonalIdApiService apiService;
 
     private PersonalIdApiClient() {
     }
 
-    public static ApiService getClientApi() {
+    public static PersonalIdApiService getClientApi() {
         if (apiService == null) {
             synchronized (PersonalIdApiClient.class) { // Double-checked locking
                 if (apiService == null) {
-                    apiService = BaseApiClient.INSTANCE.buildRetrofitClient(BASE_URL, API_VERSION).create(ApiService.class);
+                    apiService = BaseApiClient.INSTANCE.buildRetrofitClient(BASE_URL, API_VERSION).create(PersonalIdApiService.class);
                 }
             }
         }

@@ -1,4 +1,4 @@
-package org.commcare.connect.network;
+package org.commcare.connect.network.connectId;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 import retrofit2.http.Url;
 
-public interface ApiService {
+public interface PersonalIdApiService {
 
     @POST(ApiEndPoints.reportIntegrity)
     Call<ResponseBody> reportIntegrity(@Header("CC-Integrity-Token") String integrityToken,
