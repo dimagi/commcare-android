@@ -1,4 +1,4 @@
-package org.commcare.connect.network
+package org.commcare.connect.network.connectId
 
 import android.content.Context
 import android.widget.Toast
