@@ -1,4 +1,4 @@
-package org.commcare.connect.network
+package org.commcare.connect.network.connectId
 
 import java.io.IOException
 
