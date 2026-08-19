@@ -138,7 +138,7 @@ class ConnectLearnProgressView
                 return lastCompletedModule(job, modules) ?: modules.last()
             }
 
-            if (modules.any { it.moduleId == UNKNOWN_MODULE_ID }) {
+            if (modules.any { it.moduleId == ConnectLearnModuleSummaryRecord.UNKNOWN_MODULE_ID }) {
                 return modules[job.completedLearningModules.coerceIn(0, modules.size - 1)]
             }
 
@@ -204,9 +204,4 @@ class ConnectLearnProgressView
                     context.getString(R.string.connect_learn_cta_complete_assessment)
                 }
             }
-
-        companion object {
-            /** Value a module carries when it predates the server id being persisted. */
-            private const val UNKNOWN_MODULE_ID = 0
-        }
     }

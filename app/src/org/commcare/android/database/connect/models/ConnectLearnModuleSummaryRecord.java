@@ -18,8 +18,6 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     public static final String STORAGE_KEY = "connect_learn_modules";
 
     public static final String META_MODULE_ID = "module_id";
-    /** Key the server sends the module id under; distinct from the local storage column. */
-    private static final String META_SERVER_ID = "id";
     public static final String META_SLUG = "slug";
     public static final String META_NAME = "name";
     public static final String META_DESCRIPTION = "description";
@@ -28,6 +26,18 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     public static final String META_INDEX = "module_index";
 
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
+
+    /**
+     * Key the server sends the module id under, distinct from the {@link #META_MODULE_ID} column it
+     * is stored in. Not a database field, so it is not a {@code META_} constant.
+     */
+    private static final String SERVER_ID = "id";
+
+    /**
+     * Stands in for a module whose server id is unavailable: it predates the id being persisted, or
+     * the payload omitted it. Consumers fall back to the completed-module count.
+     */
+    public static final int UNKNOWN_MODULE_ID = 0;
 
     @Persisting(1)
     @MetaField(META_SLUG)
@@ -79,7 +89,9 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         info.name = json.getString(META_NAME);
         info.description = json.getString(META_DESCRIPTION);
         info.timeEstimate = json.getInt(META_ESTIMATE);
-        info.moduleId = json.getInt(META_SERVER_ID);
+        // Optional: a module the server sends without an id is still usable, so it degrades to the
+        // unknown-id path rather than failing the whole opportunity it belongs to.
+        info.moduleId = json.optInt(SERVER_ID, UNKNOWN_MODULE_ID);
         info.lastUpdate = new Date();
 
         info.jobId = job.getJobId();
@@ -99,7 +111,7 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         record.lastUpdate = oldRecord.getLastUpdate();
         record.jobUUID = oldRecord.getJobUUID();
         // Unknown until the next opportunities sync rewrites the module from the server payload.
-        record.moduleId = 0;
+        record.moduleId = UNKNOWN_MODULE_ID;
         return record;
     }
 
