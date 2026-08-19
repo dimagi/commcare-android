@@ -14,76 +14,76 @@ import retrofit2.http.Url;
 
 public interface PersonalIdApiService {
 
-    @POST(ApiEndPoints.reportIntegrity)
+    @POST(PersonalIdApiEndpoints.reportIntegrity)
     Call<ResponseBody> reportIntegrity(@Header("CC-Integrity-Token") String integrityToken,
                                           @Header("CC-Request-Hash") String requestHash,
                                           @Body Map<String, String> reportRequest);
 
-    @POST(ApiEndPoints.startConfiguration)
+    @POST(PersonalIdApiEndpoints.startConfiguration)
     Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
                                           @Header("CC-Request-Hash") String requestHash,
                                           @Body Map<String, String> registrationRequest);
 
-    @POST(ApiEndPoints.validateFirebaseIdToken)
+    @POST(PersonalIdApiEndpoints.validateFirebaseIdToken)
     Call<ResponseBody> validateFirebaseIdToken(@Header("Authorization") String token,
                                                @Body Map<String, String> firebaseIdToken);
 
-    @POST(ApiEndPoints.checkName)
+    @POST(PersonalIdApiEndpoints.checkName)
     Call<ResponseBody> checkName(@Header("Authorization") String token,
                                  @Body Map<String, String> nameRequest);
 
-    @POST(ApiEndPoints.updateProfile)
+    @POST(PersonalIdApiEndpoints.updateProfile)
     Call<ResponseBody> updateProfile(@Header("Authorization") String token,
                                      @Body Map<String, String> updateProfile);
 
-    @POST(ApiEndPoints.completeProfile)
+    @POST(PersonalIdApiEndpoints.completeProfile)
     Call<ResponseBody> completeProfile(@Header("Authorization") String token,
                                        @Body Map<String, String> body);
 
-    @POST(ApiEndPoints.confirmBackupCode)
+    @POST(PersonalIdApiEndpoints.confirmBackupCode)
     Call<ResponseBody> confirmBackupCode(@Header("Authorization") String token,
                                          @Body Map<String, String> confirmBackupCodeRequest);
 
-    @GET(ApiEndPoints.CREDENTIALS)
+    @GET(PersonalIdApiEndpoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
 
-    @POST(ApiEndPoints.sendSessionOtp)
+    @POST(PersonalIdApiEndpoints.sendSessionOtp)
     Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);
 
-    @POST(ApiEndPoints.validateSessionOtp)
+    @POST(PersonalIdApiEndpoints.validateSessionOtp)
     Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
             @Body Map<String, String> body);
 
-    @POST(ApiEndPoints.sendEmailOtp)
+    @POST(PersonalIdApiEndpoints.sendEmailOtp)
     Call<ResponseBody> sendEmailOtp(@Header("Authorization") String token,
                                     @Body Map<String, String> emailRequest);
 
-    @POST(ApiEndPoints.verifyEmailOtp)
+    @POST(PersonalIdApiEndpoints.verifyEmailOtp)
     Call<ResponseBody> verifyEmailOtp(@Header("Authorization") String token,
                                       @Body Map<String, String> otpRequest);
 
-    @POST(ApiEndPoints.connectTokenURL)
+    @POST(PersonalIdApiEndpoints.connectTokenURL)
     Call<ResponseBody> connectToken(@HeaderMap Map<String, String> headers, @Body RequestBody connectTokenRequest);
 
-    @POST(ApiEndPoints.connectHeartbeatURL)
+    @POST(PersonalIdApiEndpoints.connectHeartbeatURL)
     Call<ResponseBody> connectHeartbeat(@Header("Authorization") String token,
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody connectTokenRequest);
 
-    @GET(ApiEndPoints.RETRIEVE_NOTIFICATIONS)
+    @GET(PersonalIdApiEndpoints.RETRIEVE_NOTIFICATIONS)
     Call<ResponseBody> getAllNotifications(@Header("Authorization") String token);
 
-    @POST(ApiEndPoints.UPDATE_NOTIFICATIONS)
+    @POST(PersonalIdApiEndpoints.UPDATE_NOTIFICATIONS)
     Call<ResponseBody> updateNotification(@Header("Authorization") String token,
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody updateNotificationRequest);
 
-    @POST(ApiEndPoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL)
+    @POST(PersonalIdApiEndpoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL)
     Call<ResponseBody> updateChannelConsent(@Header("Authorization") String token,
                                           @HeaderMap Map<String, String> headers,
                                           @Body RequestBody updateChannelConsentRequest);
 
-    @POST(ApiEndPoints.CONNECT_MESSAGE_SEND_URL)
+    @POST(PersonalIdApiEndpoints.CONNECT_MESSAGE_SEND_URL)
     Call<ResponseBody> sendMessagingMessage(@Header("Authorization") String token,
                                             @HeaderMap Map<String, String> headers,
                                             @Body RequestBody sendMessagingMessageRequest);
@@ -95,6 +95,6 @@ public interface PersonalIdApiService {
             @HeaderMap Map<String, String> headers,
             @Body RequestBody requestBody);
 
-    @GET(ApiEndPoints.RELEASE_TOGGLES)
+    @GET(PersonalIdApiEndpoints.RELEASE_TOGGLES)
     Call<ResponseBody> getReleaseToggles(@Header("Authorization") String token);
 }

@@ -1,7 +1,6 @@
 package org.commcare.connect.network.connect
 
 import okhttp3.ResponseBody
-import org.commcare.connect.network.ApiEndPoints
 import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
 import retrofit2.Response
 import retrofit2.http.Body
@@ -14,20 +13,20 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ConnectApiService {
-    @GET(ApiEndPoints.connectOpportunitiesURL)
+    @GET(ConnectApiEndpoints.connectOpportunitiesURL)
     suspend fun getConnectOpportunities(
         @Header("Authorization") authorization: String,
         @HeaderMap headers: Map<String, String>,
     ): Response<ResponseBody>
 
-    @GET(ApiEndPoints.connectLearnProgressURL)
+    @GET(ConnectApiEndpoints.connectLearnProgressURL)
     suspend fun getLearningProgress(
         @Header("Authorization") authorization: String,
         @Path("id") jobId: String,
         @HeaderMap headers: Map<String, String>,
     ): Response<ResponseBody>
 
-    @GET(ApiEndPoints.connectDeliveriesURL)
+    @GET(ConnectApiEndpoints.connectDeliveriesURL)
     suspend fun getDeliveryProgress(
         @Header("Authorization") authorization: String,
         @Path("id") jobId: String,
@@ -35,14 +34,14 @@ interface ConnectApiService {
     ): Response<ResponseBody>
 
     @FormUrlEncoded
-    @POST(ApiEndPoints.connectStartLearningURL)
+    @POST(ConnectApiEndpoints.connectStartLearningURL)
     suspend fun startLearnApp(
         @Header("Authorization") auth: String,
         @HeaderMap headers: Map<String, String>,
         @Field("opportunity") opportunityId: String,
     ): Response<ResponseBody>
 
-    @POST(ApiEndPoints.connectClaimJobURL)
+    @POST(ConnectApiEndpoints.connectClaimJobURL)
     suspend fun claimJob(
         @Header("Authorization") auth: String,
         @Path("id") jobUUID: String,
@@ -50,7 +49,7 @@ interface ConnectApiService {
         @Body body: Map<String, String>,
     ): Response<ResponseBody>
 
-    @POST(ApiEndPoints.PAYMENT_CONFIRMAITONS)
+    @POST(ConnectApiEndpoints.PAYMENT_CONFIRMAITONS)
     suspend fun confirmPayments(
         @Header("Authorization") auth: String,
         @HeaderMap headers: Map<String, String>,
