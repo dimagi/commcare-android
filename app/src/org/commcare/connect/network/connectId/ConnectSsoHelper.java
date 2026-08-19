@@ -1,4 +1,4 @@
-package org.commcare.connect.network;
+package org.commcare.connect.network.connectId;
 
 import android.content.Context;
 
@@ -8,7 +8,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.GlobalErrorUtil;
