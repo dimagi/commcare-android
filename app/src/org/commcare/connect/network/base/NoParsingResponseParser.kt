@@ -1,5 +1,4 @@
-package org.commcare.connect.network
-import org.commcare.connect.network.base.BaseApiResponseParser
+package org.commcare.connect.network.base
 import java.io.InputStream
 
 /**
