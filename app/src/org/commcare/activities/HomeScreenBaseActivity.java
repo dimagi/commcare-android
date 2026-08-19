@@ -1660,7 +1660,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      * activity already knows whether that means its options menu, nav drawer, etc.
      */
     @Override
-    public void rebuildOptionsMenu() {
+    public void refreshActionSurface() {
         refreshCCUpdateOption();
     }
 

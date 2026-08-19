@@ -23,9 +23,13 @@ interface HomeActivityHost : SavedStateRegistryOwner {
 
     /**
      * Re-render whatever surface the host uses to present coordinator actions. `StandardHomeActivity`
-     * invalidates its options menu; other activities may refresh the options in other ways
+     * invalidates its options menu; other activities may refresh the options in other ways.
+     *
+     * Deliberately not named `rebuildOptionsMenu()`: that name is already taken by
+     * `CommCareActivity`, and overriding it here would divert every existing caller — including
+     * `SyncCapableCommCareActivity.triggerSyncIconRefresh` — away from the sync-icon teardown.
      */
-    fun rebuildOptionsMenu()
+    fun refreshActionSurface()
 
     /**
      * Optional UI-refresh hook, used by actions like `changeLanguage()`. Hosts without a

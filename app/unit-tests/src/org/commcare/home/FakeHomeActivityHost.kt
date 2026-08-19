@@ -24,7 +24,7 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     var demoUser: Boolean = false
     var actionsAvailable: Boolean = true
-    var rebuildOptionsMenuCount: Int = 0
+    var refreshActionSurfaceCount: Int = 0
     var refreshHostUiCount: Int = 0
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
@@ -47,8 +47,8 @@ class FakeHomeActivityHost : HomeActivityHost {
         shownDialogs += dialog
     }
 
-    override fun rebuildOptionsMenu() {
-        rebuildOptionsMenuCount++
+    override fun refreshActionSurface() {
+        refreshActionSurfaceCount++
     }
 
     override fun refreshHostUi() {
