@@ -2,7 +2,7 @@ package org.commcare.network;
 
 import android.content.Context;
 
-import org.commcare.connect.network.TokenUnavailableException;
+import org.commcare.connect.network.connectId.TokenUnavailableException;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
 import org.commcare.core.network.ModernHttpRequester;

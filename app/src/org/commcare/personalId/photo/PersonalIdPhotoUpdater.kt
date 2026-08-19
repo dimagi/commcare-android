@@ -9,8 +9,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connectId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.utils.ConnectivityStatus

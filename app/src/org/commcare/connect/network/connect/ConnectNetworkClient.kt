@@ -4,11 +4,10 @@ import androidx.annotation.VisibleForTesting
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ConnectSsoSyncHelper
-import org.commcare.connect.network.NetworkUtils
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.base.NetworkUtils
 import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
@@ -17,6 +16,7 @@ import org.commcare.connect.network.connect.models.PaymentConfirmationBody
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
+import org.commcare.connect.network.connectId.ConnectSsoSyncHelper
 import org.commcare.dalvik.BuildConfig
 import retrofit2.Response
 import java.io.IOException

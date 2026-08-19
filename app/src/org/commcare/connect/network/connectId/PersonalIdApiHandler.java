@@ -10,9 +10,8 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.ApiPersonalId;
-import org.commcare.connect.network.IApiCallback;
-import org.commcare.connect.network.NoParsingResponseParser;
+import org.commcare.connect.network.base.IApiCallback;
+import org.commcare.connect.network.base.NoParsingResponseParser;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.base.BaseApiResponseParser;

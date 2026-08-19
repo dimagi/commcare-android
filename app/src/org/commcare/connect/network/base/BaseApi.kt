@@ -5,11 +5,6 @@ import android.os.Handler
 import okhttp3.ResponseBody
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.network.IApiCallback
-import org.commcare.connect.network.NetworkUtils
-import org.commcare.connect.network.NetworkUtils.getErrorCodes
-import org.commcare.connect.network.NetworkUtils.logFailedResponse
-import org.commcare.connect.network.NetworkUtils.logNetworkError
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import retrofit2.Call

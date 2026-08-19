@@ -5,8 +5,8 @@ import org.commcare.CommCareApplication
 import org.commcare.connect.ConnectConstants.CONNECT_KEY_EXPIRES
 import org.commcare.connect.ConnectConstants.CONNECT_KEY_TOKEN
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.network.SsoToken
 import org.commcare.connect.network.base.BaseApiResponseParser
+import org.commcare.connect.network.connectId.SsoToken
 import org.commcare.core.network.AuthInfo.TokenAuth
 import org.javarosa.core.io.StreamsUtil
 import org.json.JSONException

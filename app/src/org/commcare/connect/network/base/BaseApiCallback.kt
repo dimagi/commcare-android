@@ -1,7 +1,5 @@
 package org.commcare.connect.network.base
 
-import org.commcare.connect.network.IApiCallback
-import org.commcare.connect.network.NetworkUtils
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.GlobalErrors

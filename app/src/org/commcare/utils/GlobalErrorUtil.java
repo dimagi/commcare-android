@@ -3,7 +3,7 @@ package org.commcare.utils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
-import org.commcare.connect.network.LoginInvalidatedException;
+import org.commcare.connect.network.connectId.LoginInvalidatedException;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
