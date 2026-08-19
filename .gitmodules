@@ -1,0 +1,4 @@
+[submodule "libs/commcare-core"]
+	path = libs/commcare-core
+	url = https://github.com/dimagi/commcare-core.git
+	branch = master
