@@ -1,4 +1,4 @@
-package org.commcare.connect.network;
+package org.commcare.connect.network.base;
 
 import androidx.annotation.Nullable;
 
