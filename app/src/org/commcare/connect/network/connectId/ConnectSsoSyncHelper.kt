@@ -1,4 +1,4 @@
-package org.commcare.connect.network
+package org.commcare.connect.network.connectId
 
 import android.content.Context
 import kotlinx.coroutines.runBlocking
@@ -6,7 +6,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ConnectSsoHelper.TokenCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
 import org.commcare.core.network.AuthInfo
