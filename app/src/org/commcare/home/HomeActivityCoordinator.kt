@@ -1,4 +1,4 @@
-package org.commcare.activities.home
+package org.commcare.home
 
 import android.content.Intent
 import android.os.Bundle
@@ -102,7 +102,7 @@ class HomeActivityCoordinator(
     }
 
     companion object {
-        private const val PROVIDER_KEY = "org.commcare.activities.home.HomeActivityCoordinator"
+        private const val PROVIDER_KEY = "org.commcare.home.HomeActivityCoordinator"
         private const val KEY_WAS_EXTERNAL = "was_external"
         private const val KEY_LOGIN_EXTRA_CONSUMED = "login_extra_was_consumed"
         private const val KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC = "pending_endpoint_nav_after_sync"

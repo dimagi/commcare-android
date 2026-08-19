@@ -1,4 +1,4 @@
-package org.commcare.activities.home
+package org.commcare.home
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent

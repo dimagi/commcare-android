@@ -1,4 +1,4 @@
-package org.commcare.activities.home
+package org.commcare.home
 
 import android.content.Context
 import android.content.Intent
