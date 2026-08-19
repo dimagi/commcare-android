@@ -53,10 +53,16 @@ public class ConnectDatabaseHelper {
                         try {
                             connectDatabase = CommCareApplication.instance().getConnectDbOpenHelper(context);
                         } catch (Exception e) {
-                            //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
-                            dbBroken = true;
-                            Logger.exception("Error opening Connect DB", e);
-                            GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_GENERIC_ERROR);
+                            if (!dbExists()) {
+                                ConnectDatabaseNotFoundException dbNotFound = new ConnectDatabaseNotFoundException();
+                                Logger.exception("Error opening Connect DB", dbNotFound);
+                                throw dbNotFound;
+                            } else {
+                                //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
+                                dbBroken = true;
+                                Logger.exception("Error opening Connect DB", e);
+                                GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_GENERIC_ERROR);
+                            }
                         }
                     }
                     return connectDatabase;
