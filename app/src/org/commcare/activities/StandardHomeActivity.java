@@ -11,8 +11,9 @@ import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.EmailOfferHelper;
 import org.commcare.dalvik.R;
@@ -369,7 +370,7 @@ public class StandardHomeActivity
     public void fetchJobProgressOverNetwork() {
         ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, (success, error) -> {
+            ConnectRepository.getInstance(this).updateDeliveryProgressForJava(job, (success, error) -> {
                 if (success) {
                     uiController.updateConnectJobProgress();
                 }
@@ -378,6 +379,6 @@ public class StandardHomeActivity
     }
 
     public ConnectJobRecord getActiveJob() {
-        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+        return ConnectJobUtils.getJobForSeatedApp(this);
     }
 }

@@ -1,19 +1,21 @@
 package org.commcare.fragments.connect
 
+import android.content.Context
 import android.os.Build
-import android.os.Bundle
 import android.view.View
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.AppUtils
@@ -30,8 +32,10 @@ import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
 import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.ConnectRequestManager
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectSuccessFailureCard
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -67,31 +71,29 @@ class ConnectLearningProgressFragmentTest {
     fun setUp() {
         savedStatus = PersonalIdManager.getInstance().status
         PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        seedConnectUser(ApplicationProvider.getApplicationContext())
+
         mockApi.start()
+        ConnectRepository.resetInstance()
+        ConnectRequestManager.cancelAll()
+
+        mockkObject(DispatcherProvider)
+        every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
 
         mockkStatic(FirebaseAnalyticsUtil::class)
-        every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
-            object : NavController.OnDestinationChangedListener {
-                override fun onDestinationChanged(
-                    controller: NavController,
-                    destination: NavDestination,
-                    arguments: Bundle?,
-                ) = Unit
-            }
-        every { FirebaseAnalyticsUtil.reportCccApiClaimJob(any()) } returns Unit
-
-        // No emission: the screen must decide its state from the already-loaded active job.
-        mockkObject(ConnectRepository.Companion)
-        val repository = mockk<ConnectRepository>(relaxed = true)
-        every { ConnectRepository.getInstance(any()) } returns repository
-        every { repository.getOpportunities(any(), any()) } returns emptyFlow()
-        every { repository.getLearningProgress(any(), any(), any()) } returns emptyFlow()
+        every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns mockk(relaxed = true)
+        every { FirebaseAnalyticsUtil.reportCccApiClaimJob(any()) } just Runs
+        every { FirebaseAnalyticsUtil.reportCccApiLearnProgress(any()) } just Runs
 
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
+
+        // Pre-enqueue a response so the getOpportunities request made by the start destination
+        // does not hang, then drain it so it doesn't sit ahead of later requests in the queue.
+        mockApi.server.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
 
         activity =
             Robolectric
@@ -105,7 +107,8 @@ class ConnectLearningProgressFragmentTest {
             activity.supportFragmentManager
                 .findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
 
-        seedConnectUser()
+        mockApi.drainHttp()
+        ShadowLooper.idleMainLooper()
     }
 
     @After
@@ -178,10 +181,11 @@ class ConnectLearningProgressFragmentTest {
         val job = ConnectLearnJobTestData.job()
         job.status = ConnectJobRecord.STATUS_DELIVERING
         val fragment = launch(job)
+        val requestsBefore = mockApi.server.requestCount
 
         clickCta(fragment)
 
-        assertEquals("No claim request should be sent", 0, mockApi.requestCount)
+        assertEquals("No claim request should be sent", requestsBefore, mockApi.server.requestCount)
         assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
     }
 
@@ -215,11 +219,17 @@ class ConnectLearningProgressFragmentTest {
 
     private fun launch(job: ConnectJobRecord): ConnectLearningProgressFragment {
         activity.setActiveJob(job)
+        // Pre-enqueue a 400 for getLearningProgress so it doesn't hang; a 400 error leaves the
+        // seeded job state intact (the observer ignores DataState.Error updates to the job field).
+        mockApi.server.enqueue(MockResponse().setResponseCode(400).setBody("{}"))
         activity.runOnUiThread {
             navController.navigate(
                 R.id.action_connect_jobs_list_fragment_to_connect_job_learning_progress_fragment,
             )
         }
+        ShadowLooper.idleMainLooper()
+        // Drain the getLearningProgress request so it doesn't sit ahead of the claim request in the queue.
+        mockApi.drainHttp()
         ShadowLooper.idleMainLooper()
         return navHostFragment.childFragmentManager.primaryNavigationFragment
             as ConnectLearningProgressFragment
@@ -248,7 +258,7 @@ class ConnectLearningProgressFragmentTest {
      * [ConnectDatabaseHelper.dbExists] has to be stubbed because it probes for the on-disk connect
      * db, which never exists under the in-memory test open helper.
      */
-    private fun seedConnectUser() {
+    private fun seedConnectUser(context: Context = activity) {
         mockkStatic(ConnectDatabaseHelper::class)
         every { ConnectDatabaseHelper.dbExists() } returns true
 
@@ -266,7 +276,7 @@ class ConnectLearningProgressFragmentTest {
                 true,
             )
         user.updateConnectToken("test-token", tomorrow())
-        ConnectUserDatabaseUtil.storeUser(activity, user)
+        ConnectUserDatabaseUtil.storeUser(context, user)
     }
 
     private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time

@@ -23,7 +23,6 @@ import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
@@ -196,8 +195,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-        ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
-                requireContext(),
+        ConnectRepository.getInstance(requireContext()).updatePaymentsConfirmedForJava(
                 paymentsToConfirm,
                 (success, error) -> {
                     if (isAdded()) {

@@ -13,10 +13,13 @@ import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppLaunchController;
-import org.commcare.connect.ConnectJobClaimController;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.connect.repository.ConnectRepository;
+import org.commcare.connect.repository.DataState;
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding;
@@ -68,6 +71,7 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         populateJobCard();
         updateLearningUI();
         observeLearningProgress();
+        observeClaimJob();
         return view;
     }
 
@@ -134,27 +138,36 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
     private void onDeliveryCtaClicked(View view) {
         getBinding().learnCompleteView.hideClaimFailure();
         getBinding().learnCompleteView.setCtaEnabled(false);
+        viewModel.claimJob(job);
+    }
 
-        new ConnectJobClaimController(requireContext()).claimIfNeededAndProceed(
-                job,
-                deliveryAppInstalled -> {
-                    if (!hasLiveView(this)) {
-                        return;
-                    }
-                    Navigation.findNavController(view).navigate(
-                            deliveryAppInstalled
-                                    ? navigateToDeliveryProgress()
-                                    : navigateToDeliveryDownload()
-                    );
-                },
-                message -> {
-                    if (!hasLiveView(this)) {
-                        return;
-                    }
-                    getBinding().learnCompleteView.setCtaEnabled(true);
-                    getBinding().learnCompleteView.showClaimFailure(message);
+    private void observeClaimJob() {
+        viewModel.getClaimJob().observe(getViewLifecycleOwner(), state -> {
+            if (state instanceof DataState.Success) {
+                FirebaseAnalyticsUtil.reportCccApiClaimJob(true);
+                if (!hasLiveView(this)) {
+                    return;
                 }
-        );
+                boolean deliveryAppInstalled = AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
+                Navigation.findNavController(requireView()).navigate(
+                        deliveryAppInstalled
+                                ? navigateToDeliveryProgress()
+                                : navigateToDeliveryDownload()
+                );
+            } else if (state instanceof DataState.Error) {
+                FirebaseAnalyticsUtil.reportCccApiClaimJob(false);
+                DataState.Error<?> error = (DataState.Error<?>) state;
+                if (!hasLiveView(this)) {
+                    return;
+                }
+                getBinding().learnCompleteView.setCtaEnabled(true);
+                PersonalIdOrConnectApiErrorCodes errorCode = error.getErrorCode();
+                String message = errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR
+                        ? getString(R.string.recovery_unable_to_claim_opportunity)
+                        : PersonalIdOrConnectApiErrorHandler.handle(requireContext(), errorCode, error.getThrowable());
+                getBinding().learnCompleteView.showClaimFailure(message);
+            }
+        });
     }
 
     private NavDirections navigateToDeliveryProgress() {

@@ -25,7 +25,6 @@ import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummar
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectTaskRecord;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectTaskUtils;
@@ -262,7 +261,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectJobHelper.INSTANCE.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+        if (!ConnectJobUtils.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
         return hiddenButtons;
