@@ -151,6 +151,7 @@ class ConnectLearningProgressFragmentTest {
         val fragment =
             launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
 
+        val requestsBefore = mockApi.server.requestCount
         val ctaButton = learnProgressCta(fragment)
         activity.runOnUiThread { ctaButton.performClick() }
         ShadowLooper.idleMainLooper()
@@ -165,7 +166,7 @@ class ConnectLearningProgressFragmentTest {
             args?.getString("title"),
         )
         assertTrue("Should download the learn app, not the delivery app", args!!.getBoolean("learning"))
-        assertEquals("Progress CTA should not claim the job", 0, mockApi.requestCount)
+        assertEquals("Progress CTA should not claim the job", requestsBefore, mockApi.server.requestCount)
     }
 
     @Test

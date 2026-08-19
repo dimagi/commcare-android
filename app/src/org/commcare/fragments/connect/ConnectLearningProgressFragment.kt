@@ -9,15 +9,18 @@ import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import org.commcare.AppUtils
 import org.commcare.connect.ConnectAppLaunchController
-import org.commcare.connect.ConnectJobClaimController
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.extensions.hasLiveView
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import java.util.Date
 
 class ConnectLearningProgressFragment :
@@ -42,6 +45,7 @@ class ConnectLearningProgressFragment :
 
         updateLearningUI()
         observeLearningProgress()
+        observeClaimJob()
         return view
     }
 
@@ -81,34 +85,53 @@ class ConnectLearningProgressFragment :
                 job,
                 latestCompletionDate(),
                 ConnectUserDatabaseUtil.getUser(requireContext()).name,
-                View.OnClickListener { view -> onDeliveryCtaClicked(view) },
+                View.OnClickListener { onDeliveryCtaClicked() },
             )
         } else {
             binding.learnProgressView.bind(job, View.OnClickListener { navigateToLearnAppHome() })
         }
     }
 
-    private fun onDeliveryCtaClicked(view: View) {
+    private fun onDeliveryCtaClicked() {
         binding.learnCompleteView.hideClaimFailure()
         binding.learnCompleteView.isCtaEnabled = false
-
-        ConnectJobClaimController(requireContext()).claimIfNeededAndProceed(
-            job,
-            { deliveryAppInstalled ->
-                if (hasLiveView()) {
-                    Navigation.findNavController(view).navigate(
-                        if (deliveryAppInstalled) navigateToDeliveryProgress() else navigateToDeliveryDownload(),
-                    )
-                }
-            },
-            { message ->
-                if (hasLiveView()) {
-                    binding.learnCompleteView.isCtaEnabled = true
-                    binding.learnCompleteView.showClaimFailure(message)
-                }
-            },
-        )
+        viewModel.claimJob(job)
     }
+
+    private fun observeClaimJob() {
+        viewModel.claimJob.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is DataState.Success -> {
+                    FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
+                    if (hasLiveView()) {
+                        val deliveryAppInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
+                        Navigation.findNavController(requireView()).navigate(
+                            if (deliveryAppInstalled) navigateToDeliveryProgress() else navigateToDeliveryDownload(),
+                        )
+                    }
+                }
+
+                is DataState.Error -> {
+                    FirebaseAnalyticsUtil.reportCccApiClaimJob(false)
+                    if (hasLiveView()) {
+                        binding.learnCompleteView.isCtaEnabled = true
+                        binding.learnCompleteView.showClaimFailure(claimFailureMessage(state))
+                    }
+                }
+
+                else -> {
+                    Unit
+                }
+            }
+        }
+    }
+
+    private fun claimFailureMessage(error: DataState.Error<Unit>): String =
+        if (error.errorCode == PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR) {
+            getString(R.string.recovery_unable_to_claim_opportunity)
+        } else {
+            PersonalIdOrConnectApiErrorHandler.handle(requireContext(), error.errorCode, error.throwable)
+        }
 
     private fun navigateToDeliveryProgress(): NavDirections =
         ConnectLearningProgressFragmentDirections
