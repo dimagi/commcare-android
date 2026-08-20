@@ -77,6 +77,11 @@ public class RecordingFragment extends DialogFragment {
 
     private static final String MIMETYPE_AUDIO_AAC = "audio/mp4a-latm";
 
+    private static final String FILE_NAME_STATE_KEY = "file-name-state-key";
+    private static final String SESSION_STARTED_STATE_KEY = "session-started-state-key";
+    private static final String SAVED_RECORDING_EXISTS_STATE_KEY = "saved-recording-exists-state-key";
+    private static final String PAUSED_BY_USER_STATE_KEY = "paused-by-user-state-key";
+
     private String fileName;
     private static final String FILE_EXT_LEGACY = ".mp3";
     private static final String FILE_EXT_BALANCED = ".m4a";
@@ -95,7 +100,10 @@ public class RecordingFragment extends DialogFragment {
 
     private RecordingCompletionListener listener;
     private boolean inPausedState = false;
+    private boolean pausedByUser = true;
     private boolean savedRecordingExists = false;
+    /** Whether a recording session has been handed to the service, and so survives this view. */
+    private boolean recordingSessionStarted = false;
     private AudioManager.AudioRecordingCallback audioRecordingCallback;
     private boolean audioRecordingServiceBounded = false;
     private AudioRecordingService audioRecordingService;
@@ -138,6 +146,15 @@ public class RecordingFragment extends DialogFragment {
         } else if (savedInstanceState == null) {
             startRecording();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(FILE_NAME_STATE_KEY, fileName);
+        outState.putBoolean(SESSION_STARTED_STATE_KEY, recordingSessionStarted);
+        outState.putBoolean(SAVED_RECORDING_EXISTS_STATE_KEY, savedRecordingExists);
+        outState.putBoolean(PAUSED_BY_USER_STATE_KEY, pausedByUser);
     }
 
     private void initMediaResources() {
@@ -233,6 +250,7 @@ public class RecordingFragment extends DialogFragment {
 
         disableScreenRotation((AppCompatActivity) getContext());
         setCancelable(false);
+        recordingSessionStarted = true;
 
         Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
         serviceIntent.putExtra(RECORDING_FILENAME_EXTRA_KEY, fileName);
@@ -345,6 +363,7 @@ public class RecordingFragment extends DialogFragment {
     private void pauseRecording(boolean pausedByUser) {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording pausing");
         inPausedState = true;
+        this.pausedByUser = pausedByUser;
         audioRecordingService.pauseRecording();
 
         recordingDuration.stop();
@@ -519,9 +538,18 @@ public class RecordingFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        unbindAudioRecordingService();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             unregisterAudioRecordingConfigurationChangeCallback();
+        }
+        // On a configuration change this view is about to be rebuilt, so leave the recording running and
+        // let the new view rebind to it. Any other teardown ends the session for good.
+        boolean endingSession = !requireActivity().isChangingConfigurations();
+        if (endingSession && audioRecordingService != null) {
+            audioRecordingService.finishAndRelease();
+        }
+        unbindAudioRecordingService();
+        if (endingSession) {
+            requireActivity().stopService(new Intent(requireActivity(), AudioRecordingService.class));
         }
     }
 
@@ -531,8 +559,7 @@ public class RecordingFragment extends DialogFragment {
                 audioRecordingService.setRecordingActionListener(null);
             }
             requireActivity().unbindService(audioRecordingServiceConnection);
-            requireActivity()
-                    .stopService(new Intent(requireActivity(), AudioRecordingService.class));
+            audioRecordingServiceBounded = false;
         }
     }
 }

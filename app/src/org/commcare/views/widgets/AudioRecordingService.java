@@ -261,4 +261,12 @@ public class AudioRecordingService extends Service {
         state = RecordingState.STOPPED;
         recorder.stop();
     }
+
+    /**
+     * Ends the session: finalizes the audio file and releases it. Only for terminal actions (save, discard,
+     * cancel) - a UI that is merely being torn down and recreated should unbind and leave the recording running.
+     */
+    public void finishAndRelease() {
+        resetRecorder();
+    }
 }
