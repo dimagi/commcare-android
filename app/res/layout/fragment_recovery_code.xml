@@ -199,18 +199,40 @@
 
         </LinearLayout>
 
-        <TextView
-            android:textStyle="bold"
-            android:id="@+id/connect_backup_code_error_message"
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:id="@+id/backup_code_error_box"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_error_box"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:gravity="start"
-            android:textColor="@color/red"
-            android:textSize="16sp"
-            android:visibility="gone"/>
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/backup_code_error_icon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_alert_circle" />
+
+            <TextView
+                android:id="@+id/backup_code_error_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/dark_red_brick_red"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.4" />
+
+        </LinearLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

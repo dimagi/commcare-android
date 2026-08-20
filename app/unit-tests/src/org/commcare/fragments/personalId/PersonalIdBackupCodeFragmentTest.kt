@@ -92,7 +92,7 @@ class PersonalIdBackupCodeFragmentTest : BasePersonalIdBackupCodeFragmentTest() 
         assertEquals(View.VISIBLE, errorMessage.visibility)
         assertEquals(
             fragment.getString(R.string.connect_backup_code_mismatch),
-            errorMessage.text.toString(),
+            errorText.text.toString(),
         )
         assertFalse("Continue should stay disabled while the codes differ", continueButton.isEnabled)
     }
@@ -115,7 +115,7 @@ class PersonalIdBackupCodeFragmentTest : BasePersonalIdBackupCodeFragmentTest() 
         enterConfirmCode("65432")
 
         assertEquals(View.GONE, errorMessage.visibility)
-        assertEquals("", errorMessage.text.toString())
+        assertEquals("", errorText.text.toString())
     }
 
     // ========== Submission ==========

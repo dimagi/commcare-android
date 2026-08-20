@@ -254,7 +254,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         assertEquals(View.VISIBLE, errorMessage.visibility)
         assertEquals(
             fragment.getString(R.string.recovery_network_server_error),
-            errorMessage.text.toString(),
+            errorText.text.toString(),
         )
         assertTrue("Continue should be re-enabled so the user can retry", continueButton.isEnabled)
     }
@@ -270,7 +270,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         assertEquals(View.VISIBLE, errorMessage.visibility)
         assertEquals(
             fragment.getString(R.string.network_forbidden_error),
-            errorMessage.text.toString(),
+            errorText.text.toString(),
         )
         assertFalse("Continue should stay disabled on a non-retryable failure", continueButton.isEnabled)
     }

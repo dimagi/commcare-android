@@ -56,7 +56,9 @@ abstract class BasePersonalIdBackupCodeFragmentTest : BasePersonalIdConfiguratio
 
     protected val continueButton: MaterialButton get() = findView(R.id.connect_backup_code_button)
 
-    protected val errorMessage: TextView get() = findView(R.id.connect_backup_code_error_message)
+    protected val errorMessage: View get() = findView(R.id.backup_code_error_box)
+
+    protected val errorText: TextView get() = findView(R.id.backup_code_error_text)
 
     protected val heading: TextView get() = findView(R.id.recovery_code_tilte)
 
