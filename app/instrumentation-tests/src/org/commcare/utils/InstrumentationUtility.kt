@@ -331,9 +331,7 @@ object InstrumentationUtility {
     @JvmStatic
     fun setNetworkEnabled(enabled: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        uiDevice.executeShellCommand(if (enabled) "svc wifi enable" else "svc wifi disable")
-        uiDevice.executeShellCommand("settings put global wifi_wakeup " + if (enabled) "1" else "0")
-        uiDevice.executeShellCommand(if (enabled) "svc data enable" else "svc data disable")
+        uiDevice.executeShellCommand(if (enabled) "cmd connectivity airplane-mode disable" else "cmd connectivity airplane-mode enable")
         waitForNetworkConnectivity(enabled)
     }
 
