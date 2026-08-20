@@ -11,6 +11,7 @@ import android.media.MediaRecorder;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.SystemClock;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -56,6 +57,14 @@ public class AudioRecordingService extends Service {
     private RecordingActionListener actionListener;
     private boolean pauseSupported;
 
+    /**
+     * Base for the elapsed recording time, in the {@link SystemClock#elapsedRealtime()} timebase and in
+     * the form a Chronometer expects: the recording has been running for
+     * {@code elapsedRealtime() - chronometerBase} ms. Pausing advances it by the length of the pause.
+     */
+    private long chronometerBase;
+    /** When elapsed time last stopped advancing, i.e. when the recording was paused or stopped. */
+    private long mLastStopTime;
     private RecordingState state = RecordingState.IDLE;
 
     /**
@@ -114,6 +123,7 @@ public class AudioRecordingService extends Service {
                     DeveloperPreferences.getAudioQualityProfile());
         }
         recorder.start();
+        chronometerBase = SystemClock.elapsedRealtime();
         state = RecordingState.RECORDING;
         // Re-post so the notification reflects pauseSupported, which is only known here (the
         // initial notification is built in onCreate, before this intent is delivered).
@@ -205,9 +215,31 @@ public class AudioRecordingService extends Service {
         return state;
     }
 
+    /**
+     * The value to hand to {@link android.widget.Chronometer#setBase(long)} so that it displays the
+     * elapsed recording time, excluding any time spent paused. Safe to call in any state; before the
+     * recording starts it reads as zero elapsed time.
+     */
+    public long getChronometerBase() {
+        switch (state) {
+            case IDLE:
+                return SystemClock.elapsedRealtime();
+            case PAUSED:
+            case STOPPED:
+                // Keep the display frozen at the moment elapsed time stopped advancing.
+                return chronometerBase + (SystemClock.elapsedRealtime() - mLastStopTime);
+            default:
+                return chronometerBase;
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseRecording() {
+        if (state != RecordingState.RECORDING) {
+            return;
+        }
         recorder.pause();
+        mLastStopTime = SystemClock.elapsedRealtime();
         state = RecordingState.PAUSED;
         notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(false));
@@ -216,12 +248,16 @@ public class AudioRecordingService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
         recorder.resume();
+        chronometerBase += SystemClock.elapsedRealtime() - mLastStopTime;
         state = RecordingState.RECORDING;
         notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(true));
     }
 
     public void stopRecording() {
+        if (state == RecordingState.RECORDING) {
+            mLastStopTime = SystemClock.elapsedRealtime();
+        }
         state = RecordingState.STOPPED;
         recorder.stop();
     }

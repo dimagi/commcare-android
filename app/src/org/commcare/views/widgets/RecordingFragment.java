@@ -15,7 +15,6 @@ import android.media.AudioRecordingConfiguration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -95,7 +94,6 @@ public class RecordingFragment extends DialogFragment {
     private Chronometer recordingDuration;
 
     private RecordingCompletionListener listener;
-    private long mLastStopTime;
     private boolean inPausedState = false;
     private boolean savedRecordingExists = false;
     private AudioManager.AudioRecordingCallback audioRecordingCallback;
@@ -283,7 +281,6 @@ public class RecordingFragment extends DialogFragment {
                     registerAudioRecordingConfigurationChangeCallback();
                 }
 
-                recordingDuration.setBase(SystemClock.elapsedRealtime());
                 recordingInProgress();
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
 
@@ -303,6 +300,7 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void recordingInProgress() {
+        recordingDuration.setBase(audioRecordingService.getChronometerBase());
         recordingDuration.start();
         if (isPauseSupported()) {
             toggleRecording.setBackgroundResource(R.drawable.pause);
@@ -347,10 +345,10 @@ public class RecordingFragment extends DialogFragment {
     private void pauseRecording(boolean pausedByUser) {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording pausing");
         inPausedState = true;
-        recordingDuration.stop();
-        chronoPause();
-
         audioRecordingService.pauseRecording();
+
+        recordingDuration.stop();
+        recordingDuration.setBase(audioRecordingService.getChronometerBase());
         pauseRecordingIndicators();
 
         recordingActionContainer.setVisibility(VISIBLE);
@@ -397,7 +395,6 @@ public class RecordingFragment extends DialogFragment {
     private void resumeRecording() {
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording resuming");
         inPausedState = false;
-        chronoResume();
 
         audioRecordingService.resumeRecording();
         recordingInProgress();
@@ -453,21 +450,6 @@ public class RecordingFragment extends DialogFragment {
 
     private static void enableScreenRotation(AppCompatActivity context) {
         context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-    }
-
-    private void chronoPause() {
-        recordingDuration.stop();
-        mLastStopTime = SystemClock.elapsedRealtime();
-    }
-
-    private void chronoResume() {
-        if (mLastStopTime == 0) {
-            recordingDuration.setBase(SystemClock.elapsedRealtime());
-        } else {
-            long intervalOnPause = SystemClock.elapsedRealtime() - mLastStopTime;
-            recordingDuration.setBase(recordingDuration.getBase() + intervalOnPause);
-        }
-        recordingDuration.start();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
