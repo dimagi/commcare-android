@@ -9,6 +9,7 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.RemoteException
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.ListView
 import android.widget.TextView
@@ -332,6 +333,7 @@ object InstrumentationUtility {
     fun setNetworkEnabled(enabled: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         uiDevice.executeShellCommand(if (enabled) "cmd connectivity airplane-mode disable" else "cmd connectivity airplane-mode enable")
+        Log.d(this::class.toString(), "=================network state changed to $enabled=================")
         waitForNetworkConnectivity(enabled)
     }
 
@@ -360,6 +362,8 @@ object InstrumentationUtility {
     private fun isNetworkConnected(connectivityManager: ConnectivityManager): Boolean {
         val capabilities =
             connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork) ?: return false
+        Log.d(this::class.toString(), "==============NET_CAPABILITY_INTERNET:${capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)}")
+        Log.d(this::class.toString(), "==============NET_CAPABILITY_VALIDATED:${capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)}")
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
             capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
