@@ -52,7 +52,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
 
     private fun handleSubmit() {
         val enteredCode = binding.backupCodeView.codeValue
-        val storedPassword = ConnectUserDatabaseUtil.getUser(requireContext())?.password
+        val storedPassword = ConnectUserDatabaseUtil.getUser(requireContext())?.pin
         if (enteredCode == storedPassword) {
             findNavController().navigate(R.id.action_profile_backup_code_to_set_new_backup_code)
         } else {
