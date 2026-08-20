@@ -13,20 +13,20 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ConnectApiService {
-    @GET(ConnectApiEndpoints.connectOpportunitiesURL)
+    @GET(ConnectApiEndpoints.OPPORTUNITIES_URL)
     suspend fun getConnectOpportunities(
         @Header("Authorization") authorization: String,
         @HeaderMap headers: Map<String, String>,
     ): Response<ResponseBody>
 
-    @GET(ConnectApiEndpoints.connectLearnProgressURL)
+    @GET(ConnectApiEndpoints.LEARN_PROGRESS_URL)
     suspend fun getLearningProgress(
         @Header("Authorization") authorization: String,
         @Path("id") jobId: String,
         @HeaderMap headers: Map<String, String>,
     ): Response<ResponseBody>
 
-    @GET(ConnectApiEndpoints.connectDeliveriesURL)
+    @GET(ConnectApiEndpoints.DELIVERIES_URL)
     suspend fun getDeliveryProgress(
         @Header("Authorization") authorization: String,
         @Path("id") jobId: String,
@@ -34,14 +34,14 @@ interface ConnectApiService {
     ): Response<ResponseBody>
 
     @FormUrlEncoded
-    @POST(ConnectApiEndpoints.connectStartLearningURL)
+    @POST(ConnectApiEndpoints.START_LEARNING_URL)
     suspend fun startLearnApp(
         @Header("Authorization") auth: String,
         @HeaderMap headers: Map<String, String>,
         @Field("opportunity") opportunityId: String,
     ): Response<ResponseBody>
 
-    @POST(ConnectApiEndpoints.connectClaimJobURL)
+    @POST(ConnectApiEndpoints.CLAIM_JOB_URL)
     suspend fun claimJob(
         @Header("Authorization") auth: String,
         @Path("id") jobUUID: String,

@@ -38,7 +38,7 @@ object NetworkUtils {
      * Extracts error_code and error_sub_code from a JSON error response body.
      * If the stream is null or parsing fails, returns empty strings for both codes.
      *
-     * @param stream InputStream of the error response body
+     * @param errorBody The JSON error response body as a string.
      * @return Pair of error_code and error_sub_code
      */
     @JvmStatic

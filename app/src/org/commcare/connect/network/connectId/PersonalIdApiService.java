@@ -14,58 +14,58 @@ import retrofit2.http.Url;
 
 public interface PersonalIdApiService {
 
-    @POST(PersonalIdApiEndpoints.reportIntegrity)
+    @POST(PersonalIdApiEndpoints.REPORT_INTEGRITY)
     Call<ResponseBody> reportIntegrity(@Header("CC-Integrity-Token") String integrityToken,
                                           @Header("CC-Request-Hash") String requestHash,
                                           @Body Map<String, String> reportRequest);
 
-    @POST(PersonalIdApiEndpoints.startConfiguration)
+    @POST(PersonalIdApiEndpoints.START_CONFIGURATION)
     Call<ResponseBody> startConfiguration(@Header("CC-Integrity-Token") String integrityToken,
                                           @Header("CC-Request-Hash") String requestHash,
                                           @Body Map<String, String> registrationRequest);
 
-    @POST(PersonalIdApiEndpoints.validateFirebaseIdToken)
+    @POST(PersonalIdApiEndpoints.VALIDATE_FIREBASE_ID_TOKEN)
     Call<ResponseBody> validateFirebaseIdToken(@Header("Authorization") String token,
                                                @Body Map<String, String> firebaseIdToken);
 
-    @POST(PersonalIdApiEndpoints.checkName)
+    @POST(PersonalIdApiEndpoints.CHECK_NAME)
     Call<ResponseBody> checkName(@Header("Authorization") String token,
                                  @Body Map<String, String> nameRequest);
 
-    @POST(PersonalIdApiEndpoints.updateProfile)
+    @POST(PersonalIdApiEndpoints.UPDATE_PROFILE)
     Call<ResponseBody> updateProfile(@Header("Authorization") String token,
                                      @Body Map<String, String> updateProfile);
 
-    @POST(PersonalIdApiEndpoints.completeProfile)
+    @POST(PersonalIdApiEndpoints.COMPLETE_PROFILE)
     Call<ResponseBody> completeProfile(@Header("Authorization") String token,
                                        @Body Map<String, String> body);
 
-    @POST(PersonalIdApiEndpoints.confirmBackupCode)
+    @POST(PersonalIdApiEndpoints.CONFIRM_BACKUP_CODE)
     Call<ResponseBody> confirmBackupCode(@Header("Authorization") String token,
                                          @Body Map<String, String> confirmBackupCodeRequest);
 
     @GET(PersonalIdApiEndpoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
 
-    @POST(PersonalIdApiEndpoints.sendSessionOtp)
+    @POST(PersonalIdApiEndpoints.SEND_SESSION_OTP)
     Call<ResponseBody> sendSessionOtp(@Header("Authorization") String token);
 
-    @POST(PersonalIdApiEndpoints.validateSessionOtp)
+    @POST(PersonalIdApiEndpoints.VALIDATE_SESSION_OTP)
     Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
             @Body Map<String, String> body);
 
-    @POST(PersonalIdApiEndpoints.sendEmailOtp)
+    @POST(PersonalIdApiEndpoints.SEND_EMAIL_OTP)
     Call<ResponseBody> sendEmailOtp(@Header("Authorization") String token,
                                     @Body Map<String, String> emailRequest);
 
-    @POST(PersonalIdApiEndpoints.verifyEmailOtp)
+    @POST(PersonalIdApiEndpoints.VERIFY_EMAIL_OTP)
     Call<ResponseBody> verifyEmailOtp(@Header("Authorization") String token,
                                       @Body Map<String, String> otpRequest);
 
-    @POST(PersonalIdApiEndpoints.connectTokenURL)
+    @POST(PersonalIdApiEndpoints.TOKEN_URL)
     Call<ResponseBody> connectToken(@HeaderMap Map<String, String> headers, @Body RequestBody connectTokenRequest);
 
-    @POST(PersonalIdApiEndpoints.connectHeartbeatURL)
+    @POST(PersonalIdApiEndpoints.HEARTBEAT_URL)
     Call<ResponseBody> connectHeartbeat(@Header("Authorization") String token,
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody connectTokenRequest);
@@ -78,12 +78,12 @@ public interface PersonalIdApiService {
                                         @HeaderMap Map<String, String> headers,
                                         @Body RequestBody updateNotificationRequest);
 
-    @POST(PersonalIdApiEndpoints.CONNECT_MESSAGE_CHANNEL_CONSENT_URL)
+    @POST(PersonalIdApiEndpoints.MESSAGE_CHANNEL_CONSENT_URL)
     Call<ResponseBody> updateChannelConsent(@Header("Authorization") String token,
                                           @HeaderMap Map<String, String> headers,
                                           @Body RequestBody updateChannelConsentRequest);
 
-    @POST(PersonalIdApiEndpoints.CONNECT_MESSAGE_SEND_URL)
+    @POST(PersonalIdApiEndpoints.MESSAGE_SEND_URL)
     Call<ResponseBody> sendMessagingMessage(@Header("Authorization") String token,
                                             @HeaderMap Map<String, String> headers,
                                             @Body RequestBody sendMessagingMessageRequest);
