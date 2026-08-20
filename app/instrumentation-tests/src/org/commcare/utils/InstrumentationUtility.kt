@@ -7,7 +7,6 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
-import android.net.wifi.WifiManager
 import android.os.RemoteException
 import android.provider.MediaStore
 import android.view.View
