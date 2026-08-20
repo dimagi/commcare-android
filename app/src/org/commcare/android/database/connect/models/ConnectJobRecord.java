@@ -534,6 +534,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return total > 0 ? (100 * completed / total) : 100;
     }
 
+    /**
+     * Whether any learning module is still unfinished.
+     */
+    public boolean modulesRemaining() {
+        return learningModulesCompleted < numLearningModules;
+    }
+
     public boolean attemptedAssessment() {
         return assessments != null && !assessments.isEmpty();
     }

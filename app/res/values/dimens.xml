@@ -142,6 +142,8 @@
     <dimen name="side_nav_horizontal_padding">10dp</dimen>
     <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
 
+    <dimen name="connect_badge_icon_size">20dp</dimen>
+
     <dimen name="connect_info_card_corner_radius">8dp</dimen>
     <dimen name="connect_info_card_elevation">0dp</dimen>
 
@@ -155,14 +157,15 @@
     <dimen name="semi_circle_progress_description_text_size">16sp</dimen>
 
     <!-- Connect progress card -->
-    <dimen name="connect_progress_card_shadow_inset_horizontal">8dp</dimen>
-    <dimen name="connect_progress_card_shadow_inset_top">6dp</dimen>
-    <dimen name="connect_progress_card_shadow_inset_bottom">10dp</dimen>
+    <!-- Keeps the main card above the info banner that tucks up behind it. Kept to a hairline so
+         the shadow stays within the card's bounds rather than needing reserved padding. -->
+    <dimen name="connect_progress_card_elevation">1dp</dimen>
     <dimen name="connect_progress_card_semi_circle_inset">48dp</dimen>
     <dimen name="connect_progress_card_bar_height">8dp</dimen>
     <dimen name="connect_progress_card_info_overlap">-20dp</dimen>
-    <dimen name="connect_progress_card_info_padding_top">28dp</dimen>
-    <dimen name="connect_progress_card_info_icon_size">20dp</dimen>
+    <!-- Overlap (20dp) plus the 12dp the content sits below the banner's visible top edge. Keep in
+         step with connect_progress_card_info_overlap. -->
+    <dimen name="connect_progress_card_info_padding_top">32dp</dimen>
 
     <!-- Connect/PersonalID shared tokens -->
     <!-- Text -->
