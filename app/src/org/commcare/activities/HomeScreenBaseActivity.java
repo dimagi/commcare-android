@@ -1655,15 +1655,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return this;
     }
 
-    /**
-     * Host-agnostic name for "re-render the surface that presents coordinator actions". Each home
-     * activity already knows whether that means its options menu, nav drawer, etc.
-     */
-    @Override
-    public void refreshActionSurface() {
-        refreshCCUpdateOption();
-    }
-
     @Override
     public void refreshHostUi() {
         refreshUI();
@@ -1735,8 +1726,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     abstract void refreshUI();
 
-    abstract void refreshCCUpdateOption();
-
     @Override
     protected void onDestroy() {
         if (appUpdateController != null) {
@@ -1766,7 +1755,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                         String.valueOf(appUpdateController.availableVersionCode()))
                         > MAX_CC_UPDATE_CANCELLATION) {
                     showCommCareUpdateMenu = true;
-                    refreshCCUpdateOption();
+                    refreshActionSurface();
                     return;
                 }
                 startCommCareUpdate();
@@ -1782,7 +1771,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 if (showCommCareUpdateMenu) {
                     // Once downloading is started, we shouldn't show the update menu anymore.
                     showCommCareUpdateMenu = false;
-                    refreshCCUpdateOption();
+                    refreshActionSurface();
                 }
                 break;
             case DOWNLOADED:

@@ -362,8 +362,12 @@ public class StandardHomeActivity
         uiController.refreshView();
     }
 
+    /**
+     * The home actions live in this activity's options menu, so re-preparing the menu re-evaluates
+     * all of them: the demo-user gating, the CommCare-update item and the PIN item's set/change title.
+     */
     @Override
-    void refreshCCUpdateOption() {
+    public void refreshActionSurface() {
         invalidateOptionsMenu();
     }
 

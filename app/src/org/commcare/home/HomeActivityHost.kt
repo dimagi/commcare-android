@@ -22,12 +22,9 @@ interface HomeActivityHost : SavedStateRegistryOwner {
     fun showAlertDialog(dialog: CommCareAlertDialog)
 
     /**
-     * Re-render whatever surface the host uses to present coordinator actions. `StandardHomeActivity`
-     * invalidates its options menu; other activities may refresh the options in other ways.
-     *
-     * Deliberately not named `rebuildOptionsMenu()`: that name is already taken by
-     * `CommCareActivity`, and overriding it here would divert every existing caller — including
-     * `SyncCapableCommCareActivity.triggerSyncIconRefresh` — away from the sync-icon teardown.
+     * Signals that the coordinator-owned home actions may have changed, so the host should re-query
+     * their availability and re-render wherever it presents them. An imperative "ask me again"
+     * nudge rather than a state push; idempotent and cheap enough to call redundantly.
      */
     fun refreshActionSurface()
 
