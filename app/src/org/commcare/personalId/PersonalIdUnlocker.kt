@@ -77,7 +77,23 @@ object PersonalIdUnlocker {
                 override fun onAuthenticationError(
                     errorCode: Int,
                     errString: CharSequence,
-                ) = callback.connectActivityComplete(false)
+                ) {
+                    callback.connectActivityComplete(false)
+                    val fingerprintConfigured =
+                        BiometricsHelper.isFingerprintConfigured(
+                            activity,
+                            bioManager,
+                        )
+
+                    getBiometricErrorStringRes(fingerprintConfigured, errorCode)?.let { messageRes ->
+                        Toast
+                            .makeText(
+                                activity,
+                                activity.getString(messageRes),
+                                Toast.LENGTH_LONG,
+                            ).show()
+                    }
+                }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     lastUnlockTime = SystemClock.elapsedRealtime()
@@ -109,13 +125,42 @@ object PersonalIdUnlocker {
                     "No unlock method available when trying to unlock PersonalId",
                     Exception("No unlock option"),
                 )
-                Toast
-                    .makeText(
-                        activity,
-                        activity.getString(R.string.connect_unlock_unavailable),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                val messageRes =
+                    if (BiometricsHelper.isPinConfigured(activity, bioManager)) {
+                        R.string.personalid_configuration_process_biometric_unavailable_message
+                    } else {
+                        R.string.connect_unlock_unavailable
+                    }
+                Toast.makeText(activity, activity.getString(messageRes), Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private fun getBiometricErrorStringRes(
+        fingerprintConfigured: Boolean,
+        errorCode: Int,
+    ): Int? {
+        val promptDismissedErrors =
+            setOf(
+                BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+                BiometricPrompt.ERROR_USER_CANCELED,
+                BiometricPrompt.ERROR_CANCELED,
+            )
+
+        val plausibleLockoutErrors =
+            setOf(
+                BiometricPrompt.ERROR_NO_BIOMETRICS,
+                BiometricPrompt.ERROR_HW_UNAVAILABLE,
+            )
+
+        return when {
+            errorCode in promptDismissedErrors -> null
+            errorCode == BiometricPrompt.ERROR_LOCKOUT -> R.string.personalid_biometric_error_lockout
+            errorCode == BiometricPrompt.ERROR_LOCKOUT_PERMANENT -> R.string.personalid_biometric_error_lockout_permanent
+            errorCode == BiometricPrompt.ERROR_TIMEOUT -> R.string.personalid_biometric_error_timeout
+            fingerprintConfigured && errorCode in plausibleLockoutErrors -> R.string.personalid_biometric_error_lockout
+            !fingerprintConfigured -> R.string.personalid_configuration_process_biometric_unavailable_message
+            else -> R.string.personalid_authentication_failed
         }
     }
 

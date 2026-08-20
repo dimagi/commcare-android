@@ -129,7 +129,7 @@
     <string name="recovery_network_server_error">Hubo un error al procesar su solicitud.</string>
     <string name="recovery_app_manager">Ir al administrador de aplicaciones</string>
     <string name="recovery_retry">Reintentar recuperación</string>
-    <string name="recovery_unable_to_claim_opportunity">No se puede reclamar la oportunidad, comunícate con un administrador.</string>
+    <string name="recovery_unable_to_claim_opportunity">No se puede reclamar la oportunidad. Vuelve a intentarlo o comunícate con el soporte.</string>
     <string name="notification_channel_errors_title">Errores</string>
     <string name="notification_channel_errors_description">Notificaciones para mensajes de error cuando algo sucede, por ejemplo, al instalar una aplicación de CommCare o al sincronizar formularios con el servidor</string>
     <string name="notification_channel_user_session_title">Sesión de usuario</string>
@@ -255,10 +255,7 @@
     <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
-    <string name="connect_job_you_will_learn">Completa los siguientes módulos de aprendizaje y la evaluación para obtener un certificado</string>
-    <string name="connect_job_no_learning_required">No se requiere aprendizaje</string>
     <string name="connect_learn_progress_title">Progreso del aprendizaje</string>
-    <string name="connect_learn_complete_title">¡Formación completada!</string>
     <string name="connect_learn_need_assessment_title">Formación pendiente</string>
     <string name="connect_learn_failed_title">Error en la formación</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
@@ -266,17 +263,17 @@
     <string name="connect_learn_title">Progreso del aprendizaje</string>
     <string name="connect_learn_status">Has completado %d de %d lecciones.\nCompleta el aprendizaje para obtener tu certificado.</string>
     <string name="connect_learn_not_started">No has completado ninguna lección. Comienza a aprender para obtener tu certificado.</string>
-    <string name="connect_learn_finished">Has obtenido un certificado para este trabajo y eres elegible para postularte al trabajo y comenzar a brindar atención.\nTu puntuación: %d\nPuntuación para aprobar: %d</string>
     <string name="connect_fetch_learning_progress_error">No se pudo obtener el progreso del aprendizaje</string>
     <string name="connect_sms_invite_opportunity_not_found">Oportunidad no encontrada</string>
     <string name="connect_learn_need_assessment">Completa la evaluación para terminar la formación.</string>
     <string name="connect_learn_failed">Lo sentimos, no obtuviste la calificación aprobatoria en tu evaluación. Inténtalo de nuevo.\nTu calificación: %d\nCalificación aprobatoria: %d</string>
     <string name="connect_learn_complete">Completar</string>
     <string name="connect_learn_certificate">Certificado</string>
-    <string name="connect_learn_completed">Completado el: %s</string>
+    <string name="connect_learn_completed">Completado el %s</string>
+    <string name="connect_learn_cert_score">Puntuación: %s</string>
+    <string name="connect_learn_complete_footer_start_visits">Comenzar visitas</string>
     <string name="connect_learn_warning_ended">El trabajo ha terminado. No progresarás si realizas tareas adicionales.</string>
     <string name="connect_learn_review">Revisión del aprendizaje</string>
-    <string name="connect_learn_view_details">Ver detalles de la oportunidad</string>
     <string name="connect_learn_go_to_assessment">Ir a la evaluación</string>
     <string name="connect_learn_continue">Continuar aprendiendo</string>
     <string name="connect_delivery_earn_multi">Pago por visita:</string>
@@ -285,6 +282,7 @@
     <string name="connect_progress_title">Progreso de la entrega</string>
     <string name="connect_progress_status">Has realizado %d visitas de %d.</string>
     <string name="semi_circle_progress_value_format">%1$d de %2$d</string>
+    <string name="connect_progress_count_format">%1$d de %2$d</string>
     <string name="connect_progress_warning_ended">El trabajo ha terminado. No progresarás si realizas tareas adicionales.</string>
     <string name="connect_progress_warning_not_started">El trabajo aún no ha comenzado. No obtendrás ningún progreso.</string>
     <string name="accept_location">Ubicacion de Dato</string>
@@ -416,16 +414,13 @@
     <string name="personalid_profile_edit_save">Guardar</string>
     <string name="personalid_profile_edit_cancel">Cancelar</string>
     <string name="personalid_profile_edit_save_success">Tu perfil se ha actualizado correctamente.</string>
-    <string name="connect_job_info_title">Detalles de la oportunidad</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
     <string name="connect_job_info_visit">%d visitas máximo</string>
     <string name="connect_job_info_days">%d días para completar</string>
     <string name="connect_job_info_max_visit">Número máximo de visitas por día %d</string>
     <string name="connect_job_info_visit_charge">Gana hasta %s por visita</string>
-    <string name="connect_job_info_start_visit">Comenzar visita</string>
     <string name="connect_job_info_download_delivery">Descargar Entrega</string>
-    <string name="connect_job_info_download">Descargar</string>
     <string name="connect_job_info_view_info">Ver información</string>
     <string name="connect_job_info_view_resume">Reanudar</string>
     <string name="connect_job_info_view_review">Revisar</string>
@@ -457,7 +452,6 @@
     <string name="connect_messaging_message_notification_message">Has recibido un nuevo mensaje de %s, toca aquí para ver.</string>
     <string name="connect_messaging_channel_notification_title">Nuevo canal</string>
     <string name="connect_messaging_channel_notification_message">Un nuevo canal de mensajería está disponible de %s, toca aquí para ver</string>
-    <string name="connect_job_learn_details">Aprender detalles</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Has aprobado la evaluación y estás listo para entregar. Consulta el estado de la tarea para continuar.</string>
     <string name="connect_results_summary_all">Todo</string>
     <string name="connect_results_summary_pending">Pendiente</string>
@@ -472,6 +466,7 @@
     <string name="connect_job_tile_daily_visits">Visitas diarias</string>
     <string name="connect_appbar_title_app_lock">Bloqueo de aplicación</string>
     <string name="personalid_incorrect_otp">Ha introducido el código de acceso de 6 dígitos incorrecto. Por favor, inténtelo de nuevo.</string>
+    <string name="personalid_email_already_in_use">Este correo electrónico ya está vinculado a otra cuenta. Por favor, utilice una dirección de correo electrónico diferente.</string>
     <string name="personalid_too_many_otp_attempts">Ha realizado demasiados intentos de envío de OTP. Por favor, espere e inténtelo de nuevo cuando el botón de reenvío sea visible.</string>
     <string name="personalid_otp_verification_failed_generic">Algo salió mal al verificar su número de teléfono. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
@@ -550,6 +545,10 @@
     <string name="nav_drawer_not_signed_in_to_personal_id">No has iniciado sesión en la PersonalID</string>
     <string name="nav_drawer_opportunities">Oportunidades</string>
     <string name="nav_drawer_commcare_apps">Aplicaciones de CommCare</string>
+    <string name="nav_drawer_switch_app_dialog_title">¿Cerrar sesión en esta aplicación?</string>
+    <string name="nav_drawer_switch_app_dialog_message">Se cerrará tu sesión en esta aplicación y volverás a la pantalla de inicio de sesión, donde podrás elegir otra aplicación.</string>
+    <string name="nav_drawer_switch_app_dialog_confirm">Continuar</string>
+    <string name="nav_drawer_switch_app_dialog_cancel">Cancelar</string>
     <string name="play_service_update_error">Para usar PersonalID, necesita actualizar los servicios de Google Play. Toque aquí para ir a Google Play Store y buscar actualizaciones.</string>
     <string name="nav_drawer_open">Abrir el panel de navegación</string>
     <string name="nav_drawer_close">Cerrar el panel de navegación</string>
@@ -586,8 +585,22 @@
 
     <string name="connect_complete_by">La tarea termina el %s</string>
     <string name="connect_expired_on">La tarea terminó el %s</string>
-    <string name="connect_job_preview_start">Iniciar</string>
-    <string name="connect_job_delivery_preview_subtitle">Una vez que hayas completado la evaluación de aprendizaje, pasarás a la fase de entrega</string>
+    <string name="connect_dashboard">Panel</string>
+    <string name="connect_visits">Visitas</string>
+    <string name="connect_more">Más</string>
+    <string name="connect_delivery_start">Iniciar</string>
+    <string name="connect_delivery_continue_visits">Continúa tus visitas</string>
+    <string name="connect_delivery_continue_visits_subtitle">Enviar formularios de entrega</string>
+    <string name="connect_delivery_visit_progress_title">Progreso de visitas</string>
+    <string name="connect_delivery_total_visits_completed">visitas totales completadas</string>
+    <string name="connect_delivery_daily_visits">Visitas diarias</string>
+    <string name="connect_delivery_your_progress">Tu progreso</string>
+    <string name="connect_delivery_total_earnings">Ganancias totales</string>
+    <string name="connect_delivery_amount_each">%1$s cada una</string>
+    <plurals name="connect_delivery_visits_remaining_today">
+        <item quantity="one">%1$d visita restante hoy</item>
+        <item quantity="other">%1$d visitas restantes hoy</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
     <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
     <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
@@ -664,4 +677,43 @@
     <string name="camera_permission_denied">Ve a ajustes y habilita el permiso de la cámara para usar esta función</string>
     <string name="microimage_face_detection_mode_failed">Falló el modo de detección de rostros, cambiando al modo manual</string>
     <string name="microimage_cropping_failed">Falló el recorte de la imagen, asegúrate de que el objetivo esté dentro del área de captura</string>
+    <string name="connect_opportunity_badge_new">Nueva oportunidad</string>
+    <string name="connect_opportunity_expiry_label">Vence el</string>
+    <string name="connect_opportunity_max_earnings_label">Ganancias máximas</string>
+    <string name="connect_opportunity_learn_section_title">Aprendizaje</string>
+    <string name="connect_opportunity_learn_section_subtitle">Completa la capacitación para comenzar las visitas</string>
+    <plurals name="connect_opportunity_learn_modules_label">
+        <item quantity="one">Módulo de aprendizaje</item>
+        <item quantity="other">Módulos de aprendizaje</item>
+    </plurals>
+    <plurals name="connect_opportunity_estimated_hours">
+        <item quantity="one">Tiempo estimado: %d hora</item>
+        <item quantity="other">Tiempo estimado: %d horas</item>
+    </plurals>
+    <string name="connect_opportunity_delivery_section_title">Entrega</string>
+    <string name="connect_opportunity_delivery_section_subtitle">Completa las visitas y envía formularios para recibir el pago</string>
+    <string name="connect_opportunity_max_visits_label">Visitas totales</string>
+    <string name="connect_opportunity_visits_per_day">Hasta %d por día</string>
+    <string name="connect_opportunity_days_to_complete_label">Días para completar</string>
+    <string name="connect_opportunity_max_earnings_card_label">Ganancias máximas</string>
+    <plurals name="connect_opportunity_payment_units">
+        <item quantity="one">%d unidad de pago</item>
+        <item quantity="other">%d unidades de pago</item>
+    </plurals>
+    <string name="connect_opportunity_footer_start_learning">Comenzar a aprender</string>
+    <string name="connect_opportunity_footer_download_learn_app">Descargar Aprendizaje</string>
+    <string name="connect_opportunity_modules_footer_note">Completa los módulos, aprueba la evaluación y obtén tu certificado</string>
+    <string name="connect_opportunity_footer_download_app">Descargar app</string>
+    <string name="microimage_saving_failed">No se pudo guardar la imagen. Inténtalo de nuevo</string>
+    <string name="face_capture_activity_title">Tomar foto de rostro</string>
+    <string name="face_capture_manual_instructions">Centra un rostro dentro del contorno verde y luego toca el botón blanco para tomar la foto</string>
+    <string name="face_capture_auto_instructions">Centra un rostro dentro del contorno verde y mantente quieto, la foto se tomará automáticamente</string>
+    <string name="face_capture_auto_mode">Captura automática</string>
+    <string name="face_capture_manual_mode">Captura manual</string>
+    <string name="face_capture_front_camera_unavailable">La cámara frontal no está disponible, la opción de cambiar de cámara estará deshabilitada</string>
+    <string name="face_capture_retake_photo">Volver a tomar la foto</string>
+
+    <string name="recording_notification_save_action">Guardar</string>
+    <string name="recording_notification_pause_action">Pausar</string>
+    <string name="recording_notification_resume_action">Reanudar</string>
 </resources>

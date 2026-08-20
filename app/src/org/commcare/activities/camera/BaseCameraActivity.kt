@@ -38,6 +38,8 @@ abstract class BaseCameraActivity :
     @JvmField
     protected var cameraView: PreviewView? = null
 
+    protected var isFrontCameraAvailable: Boolean = false
+
     private val cameraPermissionRequestLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission(),
@@ -105,6 +107,8 @@ abstract class BaseCameraActivity :
             }
             try {
                 val cameraProvider = cameraProviderFuture.get()
+                isFrontCameraAvailable = cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)
+                onCameraProviderReady()
                 bindUseCases(cameraProvider)
             } catch (e: Exception) {
                 when (e) {
@@ -200,4 +204,10 @@ abstract class BaseCameraActivity :
     ): UseCase
 
     protected open fun onCameraViewReady() {}
+
+    /**
+     * Called once the camera provider has been resolved and before use cases are bound to accommodate any
+     * decisions that depend on the provider resolution
+     */
+    protected open fun onCameraProviderReady() {}
 }

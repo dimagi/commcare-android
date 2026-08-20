@@ -5,7 +5,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import org.commcare.CommCareTestApplication
@@ -14,7 +13,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELI
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord.Companion.STATUS_ASSIGNED
 import org.commcare.android.database.connect.models.ConnectTaskRecord.Companion.STATUS_COMPLETED
-import org.commcare.connect.ConnectJobHelper
 import org.commcare.preferences.ConnectJobPreferences
 import org.commcare.utils.SyncDetailCalculations
 import org.junit.After
@@ -325,24 +323,24 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `isLastTaskUpdateLaterThanLastSync returns false when no job is seated`() {
-        mockkObject(ConnectJobHelper)
-        every { ConnectJobHelper.getJobForSeatedApp(context) } returns null
+        mockkStatic(ConnectJobUtils::class)
+        every { ConnectJobUtils.getJobForSeatedApp(context) } returns null
 
         assertFalse(ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync(context))
     }
 
     @Test
     fun `isLastTaskUpdateLaterThanLastSync returns false when job is not DELIVERING`() {
-        mockkObject(ConnectJobHelper)
-        every { ConnectJobHelper.getJobForSeatedApp(context) } returns makeJob(ConnectJobRecord.STATUS_LEARNING)
+        mockkStatic(ConnectJobUtils::class)
+        every { ConnectJobUtils.getJobForSeatedApp(context) } returns makeJob(ConnectJobRecord.STATUS_LEARNING)
 
         assertFalse(ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync(context))
     }
 
     @Test
     fun `isLastTaskUpdateLaterThanLastSync returns false when task modified time is not set`() {
-        mockkObject(ConnectJobHelper)
-        every { ConnectJobHelper.getJobForSeatedApp(context) } returns makeJob()
+        mockkStatic(ConnectJobUtils::class)
+        every { ConnectJobUtils.getJobForSeatedApp(context) } returns makeJob()
 
         assertFalse(ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync(context))
     }
@@ -354,9 +352,9 @@ class ConnectTaskUtilsTest {
         ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = STATUS_COMPLETED)), jobUUID)
 
         // Mock last sync as happening after the task update
-        mockkObject(ConnectJobHelper)
+        mockkStatic(ConnectJobUtils::class)
         mockkStatic(SyncDetailCalculations::class)
-        every { ConnectJobHelper.getJobForSeatedApp(context) } returns makeJob()
+        every { ConnectJobUtils.getJobForSeatedApp(context) } returns makeJob()
         every { SyncDetailCalculations.getLastSyncTime() } returns System.currentTimeMillis() + 10_000L
 
         assertFalse(ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync(context))
@@ -364,9 +362,9 @@ class ConnectTaskUtilsTest {
 
     @Test
     fun `isLastTaskUpdateLaterThanLastSync returns true when task was modified after last sync`() {
-        mockkObject(ConnectJobHelper)
+        mockkStatic(ConnectJobUtils::class)
         mockkStatic(SyncDetailCalculations::class)
-        every { ConnectJobHelper.getJobForSeatedApp(context) } returns makeJob()
+        every { ConnectJobUtils.getJobForSeatedApp(context) } returns makeJob()
         every { SyncDetailCalculations.getLastSyncTime() } returns 0L
         seedTask(makeTask(taskId = "task-1", status = STATUS_ASSIGNED))
         ConnectTaskUtils.storeTasks(context, listOf(makeTask(taskId = "task-1", status = STATUS_COMPLETED)), jobUUID)

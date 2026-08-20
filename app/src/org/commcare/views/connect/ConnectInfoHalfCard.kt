@@ -5,11 +5,12 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoHalfCardBinding
+import org.commcare.views.extensions.bindOptional
+import org.commcare.views.extensions.bindReservingSpace
 
 /**
  * Reusable half-width Connect info card.
@@ -30,15 +31,27 @@ class ConnectInfoHalfCard
 
         var valueText: CharSequence?
             get() = binding.infoCardValueText.text
-            set(value) = bindOptionalText(binding.infoCardValueText, value)
+            set(value) = binding.infoCardValueText.bindOptional(value)
 
         var titleText: CharSequence?
             get() = binding.infoCardTitleText.text
-            set(value) = bindOptionalText(binding.infoCardTitleText, value)
+            set(value) = binding.infoCardTitleText.bindReservingSpace(value)
 
         var subtitleText: CharSequence?
             get() = binding.infoCardSubtitleText.text
-            set(value) = bindOptionalText(binding.infoCardSubtitleText, value)
+            set(value) = binding.infoCardSubtitleText.bindReservingSpace(value)
+
+        /** When false the value reads as disabled, matching a disabled [ConnectProgressCard]. */
+        var contentEnabled: Boolean = true
+            set(value) {
+                field = value
+                binding.infoCardValueText.setTextColor(
+                    ContextCompat.getColor(
+                        context,
+                        if (value) R.color.connect_dark_blue_color else R.color.connect_dark_grey,
+                    ),
+                )
+            }
 
         var icon: Drawable? = null
             set(value) {
@@ -56,9 +69,11 @@ class ConnectInfoHalfCard
             }
 
         init {
-            radius = resources.getDimension(R.dimen.connect_info_card_corner_radius)
+            radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
-            useCompatPadding = true
+            // Compat padding would reserve room for a shadow this flat card never draws, and it
+            // reserves more vertically than horizontally, so gaps between cards come out uneven.
+            useCompatPadding = false
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
             context.obtainStyledAttributes(attrs, R.styleable.ConnectInfoHalfCard).apply {
@@ -67,16 +82,9 @@ class ConnectInfoHalfCard
                 subtitleText = getString(R.styleable.ConnectInfoHalfCard_subtitleText)
                 icon = getDrawable(R.styleable.ConnectInfoHalfCard_icon)
                 navigable = getBoolean(R.styleable.ConnectInfoHalfCard_navigable, false)
+                contentEnabled = getBoolean(R.styleable.ConnectInfoHalfCard_contentEnabled, true)
                 recycle()
             }
-        }
-
-        private fun bindOptionalText(
-            view: TextView,
-            value: CharSequence?,
-        ) {
-            view.text = value
-            view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
         }
 
         private fun selectableItemForeground() =

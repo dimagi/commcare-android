@@ -46,6 +46,25 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <!--
+        The only place a Connect colour acquires meaning. Layouts reference these roles via
+        ?attr/…; they should not name a colour directly.
+    -->
+    <style name="ConnectTheme" parent="CommonTheme.NoActionBar">
+        <item name="colorPrimary">@color/neon_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/connect_text_color</item>
+        <item name="appBarLayoutStyle">@style/Widget.Connect.AppBarLayout</item>
+
+        <item name="connectBackground">@color/connect_background_color</item>
+        <item name="connectOnSurfaceEmphasis">@color/cool_gray_900</item>
+        <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
+        <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
+        <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
+        <item name="connectStatusPositive">@color/connect_green</item>
+    </style>
+
     <style name="AppBaseTheme" parent="CommonTheme" />
 
     <style name="PreferenceTheme" parent="AppBaseTheme">
@@ -107,6 +126,17 @@
 
     <style name="WhiteNavIcon" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
         <item name="android:tint">@color/white</item>
+    </style>
+
+    <!--
+        The Connect tab strip sits directly under the toolbar in the same colour, so the app bar's
+        default lift shadow reads as a dark line between them. Applied via ConnectTheme so the
+        shared appbar_layout keeps its shadow everywhere else.
+    -->
+    <style name="Widget.Connect.AppBarLayout" parent="Widget.MaterialComponents.AppBarLayout.Primary">
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
     </style>
 
     <style name="ToolbarThemeOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">

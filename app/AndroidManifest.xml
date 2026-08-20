@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.64">
+          android:versionName="2.65">
 
 
     <uses-permission android:name="android.permission.NFC"/>
@@ -207,7 +207,7 @@
             android:name="org.commcare.activities.connect.ConnectActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
@@ -571,8 +571,7 @@
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
         <activity
-            android:name="org.commcare.activities.camera.MicroImageActivity"
-            android:screenOrientation="portrait"/>
+            android:name="org.commcare.activities.camera.MicroImageActivity"/>
         <activity
             android:name="org.commcare.activities.camera.CameraOverlayActivity"/>
         <!-- Start Collect Manifest -->
@@ -612,6 +611,7 @@
         <activity
             android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/CommonTheme.NoActionBar"/>
 
         <service

@@ -56,16 +56,14 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaCapableWidget {
 
-    public static final int REQUEST_CAMERA_PERMISSION = 1001;
-
     public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
-    private static final String RECTANGLE_OVERLAY = "rectangle-overlay";
+    private static final String OVERLAY_SMALL = "overlay-small";
 
-    private final Button mCaptureButton;
-    private final Button mChooseButton;
+    protected final Button mCaptureButton;
+    protected final Button mChooseButton;
     private final Button mDiscardButton;
-    private ImageView mImageView;
+    protected ImageView mImageView;
 
     private String mBinaryName;
 
@@ -74,8 +72,9 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
+
     private final boolean useRectangleOverlay;
-    private final PendingCalloutInterface pendingCalloutInterface;
+    protected final PendingCalloutInterface pendingCalloutInterface;
 
     public static File getTempFileForImageCapture() {
         return new File(CommCareApplication.instance().
@@ -176,7 +175,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
 
         String appearanceHint = mPrompt.getAppearanceHint();
         boolean acquire = appearanceHint != null && appearanceHint.contains(QuestionWidget.ACQUIREFIELD);
-        useRectangleOverlay = appearanceHint != null && appearanceHint.contains(RECTANGLE_OVERLAY);
+        useRectangleOverlay = appearanceHint != null && appearanceHint.contains(OVERLAY_SMALL);
         if (acquire) {
             mChooseButton.setVisibility(View.GONE);
         }
@@ -216,6 +215,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }
                 mImageView.setImageBitmap(bmp);
+                mDiscardButton.setVisibility(View.VISIBLE);
             } else {
                 mImageView.setImageBitmap(null);
             }
@@ -227,7 +227,6 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
                     MediaWidget.playMedia(getContext(), "image/*", toDisplay.getAbsolutePath()));
 
             addView(mImageView);
-            mDiscardButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -262,7 +261,7 @@ public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaC
         return toDisplay;
     }
 
-    private void takePicture() {
+    protected void takePicture() {
         Intent intent;
         if (useRectangleOverlay) {
             intent = buildOverlayCaptureIntent();

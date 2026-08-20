@@ -29,7 +29,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.appupdate.AppUpdateControllerFactory;
 import org.commcare.appupdate.AppUpdateState;
 import org.commcare.appupdate.FlexibleAppUpdateController;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
@@ -608,12 +608,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void userTriggeredLogout() {
-        if (CommCareSessionService.sessionAliveLock.isLocked()) {
-            Toast.makeText(
-                    this,
-                    Localization.get("background.sync.logout.attempt.during.sync"),
-                    Toast.LENGTH_LONG
-            ).show();
+        if (isBlockedByActiveSync()) {
             return;
         }
         CommCareApplication.instance().closeUserSession();
@@ -621,11 +616,23 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         finish();
     }
 
+    protected boolean isBlockedByActiveSync() {
+        if (CommCareSessionService.sessionAliveLock.isLocked()) {
+            Toast.makeText(
+                    this,
+                    Localization.get("background.sync.logout.attempt.during.sync"),
+                    Toast.LENGTH_LONG
+            ).show();
+            return true;
+        }
+        return false;
+    }
+
     protected void userPressedOpportunityStatus() {
         // Launch the seated app's job status page on top of this (still-live) Home so the app
         // session is preserved and backing out of the status page returns here.
         ConnectJobRecord job = Objects.requireNonNull(
-                ConnectJobHelper.INSTANCE.getJobForSeatedApp(this),
+                ConnectJobUtils.getJobForSeatedApp(this),
                 "View Job Status pressed but no Connect job was found for the seated app"
         );
         ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);

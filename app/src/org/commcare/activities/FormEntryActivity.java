@@ -112,6 +112,8 @@ import static org.commcare.android.database.user.models.FormRecord.QuarantineRea
 import static org.commcare.android.database.user.models.FormRecord.QuarantineReason_RECORD_ERROR;
 import static org.commcare.sync.FirebaseMessagingDataSyncer.PENGING_SYNC_ALERT_ACTION;
 import static org.commcare.tasks.SaveToDiskTask.SaveStatus.SAVE_UNRECOVERABLE_ERROR;
+import static org.commcare.views.widgets.QuestionWidget.REQUEST_CAMERA_PERMISSION;
+import static org.commcare.views.widgets.QuestionWidget.REQUEST_RECORD_AUDIO_PERMISSION;
 
 /**
  * Displays questions, animates transitions between
@@ -389,8 +391,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                     break;
                 case FormEntryConstants.IMAGE_CAPTURE:
-                    ImageCaptureProcessing.processCaptureResponse(this,
-                            FormEntryInstanceState.getInstanceFolder(), true);
+                    ImageCaptureProcessing.processCaptureResponse(this, FormEntryInstanceState.getInstanceFolder(), true);
                     break;
                 case FormEntryConstants.SIGNATURE_CAPTURE:
                     Logger.log(LogTypes.SOFT_ASSERT, "Signature captured successfully");
@@ -1721,7 +1722,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     public void requestNeededPermissions(int requestCode) {
         switch (requestCode) {
-            case ImageWidget.REQUEST_CAMERA_PERMISSION:
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        requestCode);
+                return;
+            case REQUEST_CAMERA_PERMISSION:
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.CAMERA},
                         requestCode);
@@ -1733,7 +1739,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void onRequestPermissionsResult(int requestCode,
                                            String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case ImageWidget.REQUEST_CAMERA_PERMISSION: {
+            case REQUEST_CAMERA_PERMISSION, REQUEST_RECORD_AUDIO_PERMISSION: {
 
                 QuestionWidget pendingWidget = getPendingWidget();
                 resetPendingCalloutIndex();

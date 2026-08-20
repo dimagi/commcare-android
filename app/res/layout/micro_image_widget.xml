@@ -10,30 +10,96 @@
         android:id="@+id/view_finder"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_gravity="center">
+        android:layout_height="match_parent">
 
-        <org.commcare.views.FaceCaptureView
-            android:id="@+id/face_overlay"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:background_color="@color/cc_neutral_bg_tr"
-            app:face_capture_area_delimiter_color="@color/white"
-            app:face_marker_color="@color/cc_attention_positive_color"
-            app:countdown_text_size="@dimen/font_size_large"
-            android:layout_weight="1"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_gravity="center">
 
-        <ImageView
-            android:id="@+id/camera_shutter_button"
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" >
+                <org.commcare.views.FaceCaptureView
+                    android:id="@+id/face_overlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:background_color="@color/cc_neutral_bg_tr"
+                    app:face_capture_area_delimiter_color="@color/white"
+                    app:face_marker_color="@color/cc_attention_positive_color"
+                    app:countdown_text_size="@dimen/font_size_large" />
+
+                <TextView
+                    android:id="@+id/camera_capture_instructions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:text="@string/face_capture_auto_instructions"
+                    android:paddingBottom="2dp"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_medium"
+                    android:gravity="center"
+                    style="@style/TextWithDropShadow" />
+            </FrameLayout>
+            <LinearLayout
+                android:id="@+id/camera_controls_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="horizontal"
+                android:background="@color/cc_neutral_bg_tr"
+                android:visibility="gone"
+                android:paddingBottom="5dp">
+                <Space
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1" />
+                <ImageView
+                    android:id="@+id/camera_shutter_button"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:src="@drawable/ic_camera_shutter"
+                    app:tint="@color/camera_button_tint"
+                    android:visibility="invisible" />
+                <FrameLayout
+                    android:id="@+id/switch_camera_lens_container"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:visibility="invisible">
+                    <View
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/circle_background" />
+                    <ImageView
+                        android:id="@+id/switch_camera_lens_button"
+                        android:layout_height="match_parent"
+                        android:layout_width="match_parent"
+                        android:src="@drawable/ic_switch_camera_lens"
+                        app:tint="@color/camera_button_tint"
+                        android:clickable="false"
+                        android:alpha="0.5"
+                        android:scaleType="centerInside" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/camera_capture_mode_indicator"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:src="@drawable/ic_camera_shutter"
-            android:background="@color/cc_neutral_bg_tr"
-            android:visibility="gone"
-            android:paddingBottom="15dp"/>
-    </LinearLayout>
+            android:layout_gravity="center_horizontal"
+            android:text="@string/face_capture_auto_mode"
+            android:paddingTop="2dp"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_medium"
+            android:drawablePadding="7dp"
+            app:drawableStartCompat="@drawable/capture_mode_indicator"
+            app:drawableTint="@color/face_capture_indicator_selector" />
+    </FrameLayout>
 </FrameLayout>

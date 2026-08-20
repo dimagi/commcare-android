@@ -13,7 +13,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.dalvik.R;
@@ -85,13 +85,13 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
+    private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     private boolean waitingForActivityResultFromLogin;
 
     boolean alreadyCheckedForAppFilesChange;
     static final String REBUILD_SESSION = "rebuild_session";
     private boolean redirectToConnectOpportunityInfo = false;
-    private String redirectToLoginAppId = null;
     private boolean forceSingleAppMode = true;
 
     @Override
@@ -108,6 +108,12 @@ public class DispatchActivity extends AppCompatActivity {
             );
             waitingForActivityResultFromLogin = savedInstanceState.getBoolean(
                     KEY_WAITING_FOR_ACTIVITY_RESULT
+            );
+            userTriggeredLogout = savedInstanceState.getBoolean(KEY_USER_TRIGGERED_LOGOUT);
+        } else {
+            userTriggeredLogout = getIntent().getBooleanExtra(
+                    LoginActivity.USER_TRIGGERED_LOGOUT,
+                    false
             );
         }
     }
@@ -152,6 +158,7 @@ public class DispatchActivity extends AppCompatActivity {
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
         outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
         outState.putBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT, waitingForActivityResultFromLogin);
+        outState.putBoolean(KEY_USER_TRIGGERED_LOGOUT, userTriggeredLogout);
     }
 
     private void checkForChangedCCZ() {
@@ -240,7 +247,7 @@ public class DispatchActivity extends AppCompatActivity {
                     handleShortcutLaunch();
                 } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+                    ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
                 } else {
                     launchHomeScreen();
@@ -343,10 +350,6 @@ public class DispatchActivity extends AppCompatActivity {
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
 
             String sessionEndpointAppID = getSessionEndpointAppId();
-            if (sessionEndpointAppID == null && redirectToLoginAppId != null) {
-                sessionEndpointAppID = redirectToLoginAppId;
-                redirectToLoginAppId = null;
-            }
             if (sessionEndpointAppID != null) {
                 i.putExtra(EXTRA_APP_ID, sessionEndpointAppID);
                 i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, forceSingleAppMode);
@@ -517,8 +520,6 @@ public class DispatchActivity extends AppCompatActivity {
                     REDIRECT_TO_CONNECT_OPPORTUNITY_INFO,
                     false
             );
-            redirectToLoginAppId = intent.getStringExtra(EXTRA_APP_ID);
-            forceSingleAppMode = intent.getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
