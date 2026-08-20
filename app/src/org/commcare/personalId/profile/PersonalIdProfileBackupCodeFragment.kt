@@ -31,6 +31,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         binding.backupCodeView.setOnCodeChangedListener(
             NumericCodeView.OnCodeChangedListener { validateCode() },
         )
+        binding.backupCodeView.setCodeCompleteListener { submitIfEnabled() }
         binding.backupCodeView.setOnEnterKeyPressedListener(
             NumericCodeView.OnEnterKeyPressedListener { submitIfEnabled() },
         )
