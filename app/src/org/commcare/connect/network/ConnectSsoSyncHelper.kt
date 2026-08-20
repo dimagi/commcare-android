@@ -2,10 +2,16 @@ package org.commcare.connect.network
 
 import android.content.Context
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.network.ConnectSsoHelper.TokenCallback
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.core.network.AuthInfo
 import org.commcare.core.network.AuthInfo.TokenAuth
+import org.commcare.network.HttpUtils
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -59,5 +65,30 @@ object ConnectSsoSyncHelper {
     ): TokenAuth? =
         runBlocking {
             retrieveHqSsoTokenASync(context, user, appRecord, hqUsername, performLink)
+        }
+
+    suspend fun getAuthorizationHeader(user: ConnectUserRecord): Result<String> =
+        suspendCancellableCoroutine { continuation ->
+            ConnectSsoHelper.retrievePersonalIdToken(
+                CommCareApplication.instance(),
+                user,
+                object : ConnectSsoHelper.TokenCallback {
+                    override fun tokenRetrieved(token: AuthInfo.TokenAuth) {
+                        continuation.resume(Result.success(HttpUtils.getCredential(token)))
+                    }
+
+                    override fun tokenUnavailable() {
+                        continuation.resume(
+                            Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR)),
+                        )
+                    }
+
+                    override fun tokenRequestDenied() {
+                        continuation.resume(
+                            Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR)),
+                        )
+                    }
+                },
+            )
         }
 }

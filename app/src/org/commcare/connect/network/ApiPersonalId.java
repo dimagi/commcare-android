@@ -48,7 +48,7 @@ public class ApiPersonalId {
 
                         String tokenAuth = HttpUtils.getCredential(token);
                         HashMap<String, String> headers = new HashMap<>();
-                        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(
+                        RequestBody requestBody = NetworkUtils.buildPostFormHeaders(
                                 params,
                                 true,
                                 PersonalIdApiClient.API_VERSION,
@@ -95,7 +95,7 @@ public class ApiPersonalId {
         params.put("password", user.getPassword());
 
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(
+        RequestBody requestBody = NetworkUtils.buildPostFormHeaders(
                 params,
                 true,
                 PersonalIdApiClient.API_VERSION,
@@ -323,7 +323,7 @@ public class ApiPersonalId {
         HashMap<String, Object> params = new HashMap<>();
         params.put("notifications", notificationId);
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(
+        RequestBody requestBody = NetworkUtils.buildPostFormHeaders(
                 params,
                 false,
                 PersonalIdApiClient.API_VERSION,
@@ -430,7 +430,7 @@ public class ApiPersonalId {
         params.put("channel", channel);
         params.put("consent", consented);
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(
+        RequestBody requestBody = NetworkUtils.buildPostFormHeaders(
                 params,
                 false,
                 PersonalIdApiClient.API_VERSION,
@@ -494,7 +494,7 @@ public class ApiPersonalId {
             boolean useFormEncoding,
             IApiCallback callback
     ) {
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(
+        RequestBody requestBody = NetworkUtils.buildPostFormHeaders(
                 params,
                 useFormEncoding,
                 PersonalIdApiClient.API_VERSION,
@@ -544,7 +544,7 @@ public class ApiPersonalId {
         params.put("message_id", message.getMessageId());
 
         HashMap<String, String> headers = new HashMap<>();
-        RequestBody requestBody = ConnectNetworkHelper.buildPostFormHeaders(
+        RequestBody requestBody = NetworkUtils.buildPostFormHeaders(
                 params,
                 false,
                 PersonalIdApiClient.API_VERSION,

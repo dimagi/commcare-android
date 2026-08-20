@@ -1,7 +1,7 @@
 package org.commcare.connect.network.base
 
-import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.IApiCallback
+import org.commcare.connect.network.NetworkUtils
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.GlobalErrors
@@ -41,7 +41,7 @@ abstract class BaseApiCallback<T>(
                 )
 
             400 -> {
-                if (!ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody) ||
+                if (!NetworkUtils.checkForLoginFromDifferentDevice(errorBody) ||
                     !GlobalErrorUtil.triggerGlobalError(
                         GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR
                     )
