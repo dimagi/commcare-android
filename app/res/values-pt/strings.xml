@@ -427,6 +427,11 @@
     <string name="personalid_profile_edit_save">Salvar</string>
     <string name="personalid_profile_edit_cancel">Cancelar</string>
     <string name="personalid_profile_edit_save_success">Seu perfil foi atualizado com sucesso.</string>
+    <string name="personalid_profile_change_backup_code">Alterar código de backup</string>
+    <string name="personalid_confirm_backup_code_subtitle">Digite seu código de backup atual de 6 dígitos</string>
+    <string name="personalid_confirm_backup_code_wrong">Código de backup incorreto. Por favor, tente novamente.</string>
+    <string name="personalid_forgot_backup_code"><u>Esqueceu o código de backup?</u></string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Nenhum endereço de e-mail cadastrado. Entre em contato com o suporte para recuperar seu código de backup.</string>
     <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
     <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>
     <string name="connect_job_info_visit">%d máximo de visitas</string>

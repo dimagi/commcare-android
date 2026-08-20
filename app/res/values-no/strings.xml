@@ -103,6 +103,11 @@
     <string name="personalid_profile_edit_save">Lagre</string>
     <string name="personalid_profile_edit_cancel">Avbryt</string>
     <string name="personalid_profile_edit_save_success">Profilen din er oppdatert.</string>
+    <string name="personalid_profile_change_backup_code">Endre sikkerhetskode</string>
+    <string name="personalid_confirm_backup_code_subtitle">Skriv inn din nåværende 6-sifrede sikkerhetskode</string>
+    <string name="personalid_confirm_backup_code_wrong">Feil sikkerhetskode. Prøv igjen.</string>
+    <string name="personalid_forgot_backup_code"><u>Glemt sikkerhetskode?</u></string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Ingen e-postadresse registrert. Kontakt støtte for å gjenopprette sikkerhetskoden.</string>
     <string name="nav_drawer_signin_register">Logg inn / Registrer deg</string>
     <string name="nav_drawer_help">Hjelp</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Du er ikke logget inn med PersonalID</string>

@@ -413,6 +413,11 @@
     <string name="personalid_profile_edit_save">Hifadhi</string>
     <string name="personalid_profile_edit_cancel">Ghairi</string>
     <string name="personalid_profile_edit_save_success">Wasifu wako umesasishwa kwa mafanikio.</string>
+    <string name="personalid_profile_change_backup_code">Badilisha nambari ya hifadhi nakala</string>
+    <string name="personalid_confirm_backup_code_subtitle">Weka nambari yako ya sasa ya hifadhi nakala yenye tarakimu 6</string>
+    <string name="personalid_confirm_backup_code_wrong">Nambari ya hifadhi nakala si sahihi. Tafadhali jaribu tena.</string>
+    <string name="personalid_forgot_backup_code"><u>Umesahau nambari ya hifadhi nakala?</u></string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Hakuna anwani ya barua pepe kwenye faili. Tafadhali wasiliana na msaada ili kupata tena nambari yako ya hifadhi nakala.</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
     <string name="connect_job_info_visit">%d upeo wa Ziara</string>
