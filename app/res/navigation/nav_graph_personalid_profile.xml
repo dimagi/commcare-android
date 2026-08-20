@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_profile_to_profile_edit"
             app:destination="@id/personalid_profile_edit_fragment" />
+        <action
+            android:id="@+id/action_profile_to_profile_backup_code"
+            app:destination="@id/personalid_profile_backup_code_fragment" />
     </fragment>
 
     <fragment
@@ -38,4 +41,22 @@
             android:name="emailOtpRequestCount"
             app:argType="integer" />
     </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_backup_code_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileBackupCodeFragment"
+        android:label="@string/connect_backup_code_title_confirm">
+        <action
+            android:id="@+id/action_profile_backup_code_to_set_new_backup_code"
+            app:destination="@id/personalid_set_new_backup_code_fragment" />
+        <action
+            android:id="@+id/action_profile_backup_code_to_email_verification"
+            app:destination="@id/personalid_email_verification_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_set_new_backup_code_fragment"
+        android:name="org.commcare.personalId.profile.SetNewBackupCodeFragment"
+        android:label="Set New Backup Code" />
+
 </navigation>
