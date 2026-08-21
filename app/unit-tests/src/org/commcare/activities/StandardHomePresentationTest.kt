@@ -5,7 +5,6 @@ import org.commcare.preferences.PrefValues
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
