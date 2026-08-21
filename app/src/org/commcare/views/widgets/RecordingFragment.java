@@ -372,8 +372,15 @@ public class RecordingFragment extends DialogFragment {
         this.pausedByUser = pausedByUser;
         audioRecordingService.pauseRecording();
 
+        pausedRecording(pausedByUser);
+        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording paused");
+    }
+
+    private void pausedRecording(boolean pausedByUser) {
         recordingDuration.stop();
         recordingDuration.setBase(audioRecordingService.getChronometerBase());
+        recordingDuration.setVisibility(VISIBLE);
+        recordingProgress.setVisibility(VISIBLE);
         pauseRecordingIndicators();
 
         recordingActionContainer.setVisibility(VISIBLE);
@@ -382,7 +389,6 @@ public class RecordingFragment extends DialogFragment {
         toggleRecording.setOnClickListener(v -> resumeRecording());
         instruction.setText(Localization.get(pausedByUser ? "pause.recording"
                 : "pause.recording.because.no.sound.captured"));
-        Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording paused");
     }
 
     private void pauseRecordingIndicators() {
