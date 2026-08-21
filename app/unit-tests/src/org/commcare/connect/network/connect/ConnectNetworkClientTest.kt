@@ -4,9 +4,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.mockkObject
 import io.mockk.slot
-import io.mockk.unmockkStatic
+import io.mockk.unmockkObject
 import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
@@ -15,13 +15,13 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ConnectApiService
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.connect.ConnectApiService
 import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.PaymentConfirmationBody
-import org.commcare.connect.network.getAuthorizationHeader
+import org.commcare.connect.network.personalId.ConnectSsoSyncHelper
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,19 +42,19 @@ class ConnectNetworkClientTest {
     @Before
     fun setUp() {
         client = ConnectNetworkClient(mockApiService)
-        mockkStatic(::getAuthorizationHeader)
-        coEvery { getAuthorizationHeader(any()) } returns Result.success("Bearer testtoken")
+        mockkObject(ConnectSsoSyncHelper)
+        coEvery { ConnectSsoSyncHelper.getAuthorizationHeader(any()) } returns Result.success("Bearer testtoken")
     }
 
     @After
     fun tearDown() {
-        unmockkStatic(::getAuthorizationHeader)
+        unmockkObject(ConnectSsoSyncHelper)
     }
 
     @Test
     fun testGetConnectOpportunities_authHeaderFailure_returnsFailure() =
         runBlocking {
-            coEvery { getAuthorizationHeader(any()) } returns
+            coEvery { ConnectSsoSyncHelper.getAuthorizationHeader(any()) } returns
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR))
 
             val result = client.getConnectOpportunities(mockUser)
@@ -118,7 +118,7 @@ class ConnectNetworkClientTest {
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>()
             every { mockJob.jobUUID } returns "test-uuid"
-            coEvery { getAuthorizationHeader(any()) } returns
+            coEvery { ConnectSsoSyncHelper.getAuthorizationHeader(any()) } returns
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR))
 
             val result = client.getLearningProgress(mockUser, mockJob)
@@ -176,7 +176,7 @@ class ConnectNetworkClientTest {
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>()
             every { mockJob.jobUUID } returns "test-uuid"
-            coEvery { getAuthorizationHeader(any()) } returns
+            coEvery { ConnectSsoSyncHelper.getAuthorizationHeader(any()) } returns
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR))
 
             val result = client.getDeliveryProgress(mockUser, mockJob)
@@ -234,7 +234,7 @@ class ConnectNetworkClientTest {
     @Test
     fun testStartLearnApp_authHeaderFailure_returnsFailure() =
         runBlocking {
-            coEvery { getAuthorizationHeader(any()) } returns
+            coEvery { ConnectSsoSyncHelper.getAuthorizationHeader(any()) } returns
                 Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.TOKEN_UNAVAILABLE_ERROR))
             val result = client.startLearnApp(mockUser, "test-uuid")
             assertTrue(result.isFailure)

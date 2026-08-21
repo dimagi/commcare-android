@@ -7,7 +7,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.utils.PushNotificationApiHelper;
 import org.javarosa.core.services.Logger;
 

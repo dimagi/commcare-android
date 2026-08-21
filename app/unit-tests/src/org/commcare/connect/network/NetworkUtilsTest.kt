@@ -4,6 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockk
 import org.commcare.CommCareTestApplication
+import org.commcare.connect.network.base.NetworkUtils
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

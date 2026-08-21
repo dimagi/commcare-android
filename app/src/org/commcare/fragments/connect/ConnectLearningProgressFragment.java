@@ -15,7 +15,7 @@ import org.commcare.android.database.connect.models.ConnectJobLearningRecord;
 import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.connect.repository.ConnectRepository;

@@ -8,7 +8,8 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
-import org.commcare.connect.network.connectId.PersonalIdApiClient
+import org.commcare.connect.network.personalId.PersonalIdApiClient
+import org.commcare.connect.network.personalId.PersonalIdApiService
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
 
@@ -50,7 +51,7 @@ class PersonalIdMockApiServer(
                     }
                 }.build()
         httpDispatcher = (retrofit.callFactory() as OkHttpClient).dispatcher
-        setPersonalIdApiService(retrofit.create(ApiService::class.java))
+        setPersonalIdApiService(retrofit.create(PersonalIdApiService::class.java))
     }
 
     fun shutdown() {
@@ -130,7 +131,7 @@ class PersonalIdMockApiServer(
         }
     }
 
-    private fun setPersonalIdApiService(apiService: ApiService?) {
+    private fun setPersonalIdApiService(apiService: PersonalIdApiService?) {
         val apiServiceField = PersonalIdApiClient::class.java.getDeclaredField("apiService")
         apiServiceField.isAccessible = true
         apiServiceField.set(null, apiService)
