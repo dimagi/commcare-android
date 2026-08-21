@@ -642,7 +642,8 @@ public class PersonalIdManager {
     }
 
     public boolean checkDeviceCompability() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
+        int smallestWidthDp = CommCareApplication.instance().getResources().getConfiguration().smallestScreenWidthDp;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && smallestWidthDp < 600;
     }
 
     public int getFailureAttempt() {
