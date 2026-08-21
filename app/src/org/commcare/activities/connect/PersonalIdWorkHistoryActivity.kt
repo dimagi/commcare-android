@@ -97,7 +97,9 @@ class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActi
                 true
             }
 
-            else -> super.onOptionsItemSelected(item)
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
         }
 
     override fun generateProgressDialog(taskId: Int): CustomProgressDialog =
