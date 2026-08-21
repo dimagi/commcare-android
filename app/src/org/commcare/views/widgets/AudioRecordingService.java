@@ -65,6 +65,7 @@ public class AudioRecordingService extends Service {
     private long chronometerBase;
     /** When elapsed time last stopped advancing, i.e. when the recording was paused or stopped. */
     private long mLastStopTime;
+    private String fileName;
     private RecordingState state = RecordingState.IDLE;
 
     /**
@@ -116,7 +117,7 @@ public class AudioRecordingService extends Service {
             return START_NOT_STICKY;
         }
 
-        String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
+        fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         pauseSupported = intent.getBooleanExtra(PAUSE_SUPPORTED_EXTRA_KEY, false);
         if (recorder == null) {
             recorder = audioRecordingHelper.setupRecorder(fileName,
@@ -213,6 +214,10 @@ public class AudioRecordingService extends Service {
 
     public RecordingState getState() {
         return state;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     /**

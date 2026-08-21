@@ -300,6 +300,12 @@ public class RecordingFragment extends DialogFragment {
                 }
 
                 recordingInProgress();
+                // The service is the source of truth for the file and how far along we are, which is how
+                // a view recreated mid-recording picks the session back up.
+                if (audioRecordingService.getFileName() != null) {
+                    fileName = audioRecordingService.getFileName();
+                }
+
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
 
                 // Extend the user extension if about to expire, this is to prevent the session from expiring
