@@ -123,6 +123,35 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         assertTrue(continueButton().isEnabled)
     }
 
+    // ===== Locked state =====
+
+    @Test
+    fun `wrong code three times enters locked state`() {
+        // Each setCode("000000") auto-submits via setCodeCompleteListener (one attempt per call).
+        // Clear between attempts so validateCode re-enables the button before the next submission.
+        // Do NOT clear after the third attempt — that would re-invoke validateCode and undo the
+        // locked state's button setup.
+        onUiThread { backupCodeView().setCode("000000") }
+        ShadowLooper.idleMainLooper()
+        onUiThread { backupCodeView().clearCode() }
+        ShadowLooper.idleMainLooper()
+        onUiThread { backupCodeView().setCode("000000") }
+        ShadowLooper.idleMainLooper()
+        onUiThread { backupCodeView().clearCode() }
+        ShadowLooper.idleMainLooper()
+        onUiThread { backupCodeView().setCode("000000") }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(View.GONE, forgotButton().visibility)
+        assertFalse(backupCodeView().isEnabled)
+        assertEquals(
+            fragment().getString(R.string.personalid_go_back_label),
+            continueButton().text.toString(),
+        )
+        assertTrue(continueButton().isEnabled)
+        assertEquals(View.VISIBLE, errorMessage().visibility)
+    }
+
     // ===== Forgot — user has email =====
 
     @Test

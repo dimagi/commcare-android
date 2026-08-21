@@ -1,7 +1,9 @@
 package org.commcare.personalId.profile
 
+import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
@@ -10,7 +12,17 @@ import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.views.connect.NumericCodeView
 
 class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
-    private var failedAttempts = 0
+    private val viewModel: PersonalIdProfileBackupCodeViewModel by viewModels()
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        if (viewModel.failedAttempts >= MAX_ATTEMPTS) {
+            enterLockedState()
+        }
+    }
 
     override fun onBindingCreated() {
         requireActivity().title = getString(R.string.connect_backup_code_title_confirm)
@@ -30,7 +42,6 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     }
 
     private fun setupListeners() {
-        failedAttempts = 0
         binding.backupCodeView.setOnCodeChangedListener(
             NumericCodeView.OnCodeChangedListener { validateCode() },
         )
@@ -59,8 +70,8 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         if (enteredCode == storedPassword) {
             findNavController().navigate(R.id.action_profile_backup_code_to_set_new_backup_code)
         } else {
-            failedAttempts++
-            if (failedAttempts >= MAX_ATTEMPTS) {
+            viewModel.failedAttempts++
+            if (viewModel.failedAttempts >= MAX_ATTEMPTS) {
                 enterLockedState()
             } else {
                 showError(getString(R.string.personalid_confirm_backup_code_wrong))
@@ -87,7 +98,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                 PersonalIdProfileBackupCodeFragmentDirections
                     .actionProfileBackupCodeToEmailVerification(
                         email,
-                        EmailWorkFlow.RECOVERY,
+                        EmailWorkFlow.EXISTING_USER,
                         0,
                     ),
             )
