@@ -55,6 +55,7 @@ public class AudioRecordingService extends Service {
     private NotificationManager notificationManager;
     private AudioRecordingHelper audioRecordingHelper = new AudioRecordingHelper();
     private RecordingActionListener actionListener;
+    private String pendingAction;
     private boolean pauseSupported;
 
     /**
@@ -80,6 +81,25 @@ public class AudioRecordingService extends Service {
 
     public void setRecordingActionListener(RecordingActionListener actionListener) {
         this.actionListener = actionListener;
+        if (actionListener != null && pendingAction != null) {
+            String action = pendingAction;
+            pendingAction = null;
+            dispatchAction(action);
+        }
+    }
+
+    private void dispatchAction(String action) {
+        if (actionListener == null) {
+            // Nothing is bound, which on a configuration change means the UI is mid-rebuild. Hold the
+            // action so it isn't lost, and replay it when the new UI binds.
+            pendingAction = action;
+            return;
+        }
+        switch (action) {
+            case ACTION_SAVE_RECORDING -> actionListener.onSaveRequested();
+            case ACTION_PAUSE_RECORDING -> actionListener.onPauseRequested();
+            case ACTION_RESUME_RECORDING -> actionListener.onResumeRequested();
+        }
     }
 
 
@@ -101,13 +121,7 @@ public class AudioRecordingService extends Service {
         // relay them to the bound fragment instead of (re)starting the recorder.
         String action = intent.getAction();
         if (action != null) {
-            if (actionListener != null) {
-                switch (action) {
-                    case ACTION_SAVE_RECORDING -> actionListener.onSaveRequested();
-                    case ACTION_PAUSE_RECORDING -> actionListener.onPauseRequested();
-                    case ACTION_RESUME_RECORDING -> actionListener.onResumeRequested();
-                }
-            }
+            dispatchAction(action);
             return START_NOT_STICKY;
         }
 

@@ -131,21 +131,34 @@ public class RecordingFragment extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Bundle args = getArguments();
-        if (args != null) {
-            fileName = args.getString(AUDIO_FILE_PATH_ARG_KEY);
+        if (savedInstanceState != null) {
+            fileName = savedInstanceState.getString(FILE_NAME_STATE_KEY);
+            recordingSessionStarted = savedInstanceState.getBoolean(SESSION_STARTED_STATE_KEY);
+            savedRecordingExists = savedInstanceState.getBoolean(SAVED_RECORDING_EXISTS_STATE_KEY);
+            pausedByUser = savedInstanceState.getBoolean(PAUSED_BY_USER_STATE_KEY, true);
+        } else {
+            Bundle args = getArguments();
+            if (args != null) {
+                fileName = args.getString(AUDIO_FILE_PATH_ARG_KEY);
+            }
+        }
+
+        if (recordingSessionStarted) {
+            // Recreated mid-session; the service kept recording, so rebind and restore from it rather
+            // than looking at the audio file, which exists but is still being written to.
+            bindAudioRecordingService();
+            return;
+        }
+
+        if (fileName != null && new File(fileName).exists()) {
+            reloadSavedRecording();
+            return;
         }
 
         if (fileName == null) {
             initAudioFile();
         }
-
-        File f = new File(fileName);
-        if (f.exists()) {
-            reloadSavedRecording();
-        } else if (savedInstanceState == null) {
-            startRecording();
-        }
+        startRecording();
     }
 
     @Override
@@ -268,11 +281,23 @@ public class RecordingFragment extends DialogFragment {
                 getAudioRecordingServiceConnection(), Context.BIND_AUTO_CREATE);
     }
 
+    private void bindAudioRecordingService() {
+        Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
+        bindAudioRecordingService(serviceIntent);
+    }
+
     private ServiceConnection getAudioRecordingServiceConnection() {
         return audioRecordingServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 audioRecordingService = ((AudioRecordingService.AudioRecorderBinder) service).getService();
+
+                // The service is the source of truth for the file and how far along we are, which is how
+                // a view recreated mid-recording picks the session back up.
+                if (audioRecordingService.getFileName() != null) {
+                    fileName = audioRecordingService.getFileName();
+                }
+                restoreViewFromRecordingState();
 
                 // Relay notification action presses back to the recording UI. Invoked on the
                 // main thread from the service; guarded in case the dialog is no longer attached.
@@ -303,13 +328,6 @@ public class RecordingFragment extends DialogFragment {
                     registerAudioRecordingConfigurationChangeCallback();
                 }
 
-                recordingInProgress();
-                // The service is the source of truth for the file and how far along we are, which is how
-                // a view recreated mid-recording picks the session back up.
-                if (audioRecordingService.getFileName() != null) {
-                    fileName = audioRecordingService.getFileName();
-                }
-
                 Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording started");
 
                 // Extend the user extension if about to expire, this is to prevent the session from expiring
@@ -325,6 +343,25 @@ public class RecordingFragment extends DialogFragment {
                 audioRecordingServiceBounded = false;
             }
         };
+    }
+
+    /**
+     * Renders whichever point of the recording the service is at. Called on every bind, so it covers
+     * both starting a fresh recording and picking one back up after the view was recreated.
+     */
+    private void restoreViewFromRecordingState() {
+        switch (audioRecordingService.getState()) {
+            case PAUSED:
+                inPausedState = true;
+                pausedRecording(pausedByUser);
+                break;
+            case STOPPED:
+                // Nothing left to show; the dialog is already on its way out.
+                break;
+            default:
+                // IDLE means the start command hasn't been dispatched yet, but it is on its way.
+                recordingInProgress();
+        }
     }
 
     private void recordingInProgress() {
