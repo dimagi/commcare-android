@@ -2,6 +2,14 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.64.1
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- Fixed an issue where recovering a PersonalID account via backup code could result in the account being stored without a pin, causing authentication to fail after recovery.
+
 ## CommCare 2.63.5
 
 ### Release Notes
