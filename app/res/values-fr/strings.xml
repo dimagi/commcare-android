@@ -415,7 +415,9 @@ License.
     <string name="personalid_confirm_backup_code_subtitle">Entrez votre code de sauvegarde actuel à 6 chiffres</string>
     <string name="personalid_confirm_backup_code_wrong">Code de sauvegarde incorrect. Veuillez réessayer.</string>
     <string name="personalid_forgot_backup_code"><u>Code de sauvegarde oublié ?</u></string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Aucune adresse e-mail enregistrée. Veuillez contacter le support pour récupérer votre code de sauvegarde.</string>
+    <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_go_back_label">Go Back</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
     <string name="connect_job_info_visit">%d visites maximum</string>

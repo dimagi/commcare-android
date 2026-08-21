@@ -417,7 +417,9 @@
     <string name="personalid_confirm_backup_code_subtitle">Weka nambari yako ya sasa ya hifadhi nakala yenye tarakimu 6</string>
     <string name="personalid_confirm_backup_code_wrong">Nambari ya hifadhi nakala si sahihi. Tafadhali jaribu tena.</string>
     <string name="personalid_forgot_backup_code"><u>Umesahau nambari ya hifadhi nakala?</u></string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Hakuna anwani ya barua pepe kwenye faili. Tafadhali wasiliana na msaada ili kupata tena nambari yako ya hifadhi nakala.</string>
+    <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_go_back_label">Go Back</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
     <string name="connect_job_info_visit">%d upeo wa Ziara</string>

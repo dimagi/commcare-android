@@ -10,6 +10,8 @@ import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.views.connect.NumericCodeView
 
 class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
+    private var failedAttempts = 0
+
     override fun onBindingCreated() {
         requireActivity().title = getString(R.string.connect_backup_code_title_confirm)
 
@@ -28,6 +30,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     }
 
     private fun setupListeners() {
+        failedAttempts = 0
         binding.backupCodeView.setOnCodeChangedListener(
             NumericCodeView.OnCodeChangedListener { validateCode() },
         )
@@ -56,9 +59,24 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         if (enteredCode == storedPassword) {
             findNavController().navigate(R.id.action_profile_backup_code_to_set_new_backup_code)
         } else {
-            showError(getString(R.string.personalid_confirm_backup_code_wrong))
-            enableContinueButton(true)
+            failedAttempts++
+            if (failedAttempts >= MAX_ATTEMPTS) {
+                enterLockedState()
+            } else {
+                showError(getString(R.string.personalid_confirm_backup_code_wrong))
+                enableContinueButton(false)
+            }
         }
+    }
+
+    private fun enterLockedState() {
+        showError(getString(R.string.personalid_backup_code_too_many_attempts))
+        binding.notMeButton.visibility = View.GONE
+        binding.backupCodeView.isEnabled = false
+        binding.connectBackupCodeButton.text = getString(R.string.personalid_go_back_label)
+        binding.connectBackupCodeButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+        binding.connectBackupCodeButton.isEnabled = true
+        binding.connectBackupCodeButton.setOnClickListener { findNavController().popBackStack() }
     }
 
     private fun handleForgot() {
@@ -82,6 +100,10 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                 ).show()
             findNavController().popBackStack()
         }
+    }
+
+    companion object {
+        private const val MAX_ATTEMPTS = 3
     }
 
     override fun navigateToMessageDisplay(

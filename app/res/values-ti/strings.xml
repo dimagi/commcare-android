@@ -418,7 +418,9 @@
     <string name="personalid_confirm_backup_code_subtitle">ሕጂ ዘሎ 6-ቁጽሪ ናይ ምትካእ ኮድካ ኣእቱ</string>
     <string name="personalid_confirm_backup_code_wrong">ናይ ምትካእ ኮድ ጌጋ እዩ። በጃኻ ደጊምካ ፈትን።</string>
     <string name="personalid_forgot_backup_code"><u>ናይ ምትካእ ኮድ ረሲዕካ?</u></string>
-    <string name="personalid_no_email_forgot_backup_code_toast">ኣብ ፋይል ዝርከብ ናይ ኢሜይል ኣድራሻ የለን። ናይ ምትካእ ኮድካ ንምምላስ ምስ ደገፍ ኣወሃሃዲ ተወከስ።</string>
+    <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_go_back_label">Go Back</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
     <string name="connect_job_info_visit">%d ዝለዓለ ምብጻሕ</string>

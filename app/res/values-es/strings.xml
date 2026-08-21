@@ -418,7 +418,9 @@
     <string name="personalid_confirm_backup_code_subtitle">Introduce tu código de respaldo actual de 6 dígitos</string>
     <string name="personalid_confirm_backup_code_wrong">Código de respaldo incorrecto. Por favor, inténtalo de nuevo.</string>
     <string name="personalid_forgot_backup_code"><u>¿Olvidaste el código de respaldo?</u></string>
-    <string name="personalid_no_email_forgot_backup_code_toast">No hay dirección de correo electrónico en el archivo. Comunícate con el soporte para recuperar tu código de respaldo.</string>
+    <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_go_back_label">Go Back</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
     <string name="connect_job_info_visit">%d visitas máximo</string>

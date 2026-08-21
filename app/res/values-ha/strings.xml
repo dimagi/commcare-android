@@ -253,7 +253,9 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_confirm_backup_code_subtitle">Shigar da lambar sirrin ajiyar bayanai ta yanzu mai lamba 6</string>
     <string name="personalid_confirm_backup_code_wrong">Lambar sirrin ajiyar bayanai ba daidai ba ce. Da fatan za a sake gwadawa.</string>
     <string name="personalid_forgot_backup_code"><u>An manta lambar sirrin ajiyar bayanai?</u></string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Babu adireshin imel a fayil. Da fatan za a tuntubi tallafi don dawo da lambar sirrin ajiyar bayanai.</string>
+    <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_go_back_label">Go Back</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
     <string name="connect_job_info_visit">Matsakaicin Ziyarar %d</string>

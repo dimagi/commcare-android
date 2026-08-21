@@ -107,7 +107,9 @@
     <string name="personalid_confirm_backup_code_subtitle">Įveskite savo dabartinį 6 skaitmenų atsarginį kodą</string>
     <string name="personalid_confirm_backup_code_wrong">Neteisingas atsarginis kodas. Bandykite dar kartą.</string>
     <string name="personalid_forgot_backup_code"><u>Pamiršote atsarginį kodą?</u></string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Byloje nėra el. pašto adreso. Susisiekite su pagalbos tarnyba, kad atkurtumėte atsarginį kodą.</string>
+    <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_go_back_label">Go Back</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
