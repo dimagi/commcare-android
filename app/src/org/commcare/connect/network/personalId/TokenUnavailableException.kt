@@ -9,7 +9,7 @@ import java.io.IOException
  *      and the first token is rejected by the second OAuth server (i.e. due to expired token)
  * The best course of action is usually to try again.
  */
-class TokenUnavailableException() : IOException() {
+class TokenUnavailableException : IOException() {
     override val message: String
         get() = "Token is unavailable"
 }

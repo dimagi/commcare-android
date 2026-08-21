@@ -129,7 +129,8 @@ class ConnectNetworkClient
         ): Result<T> {
             return try {
                 val authHeader =
-                    ConnectSsoSyncHelper.getAuthorizationHeader(user)
+                    ConnectSsoSyncHelper
+                        .getAuthorizationHeader(user)
                         .getOrElse { return Result.failure(it) }
 
                 val response = apiCall(authHeader)

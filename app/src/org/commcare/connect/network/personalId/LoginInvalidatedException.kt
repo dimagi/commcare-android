@@ -12,7 +12,9 @@ import java.io.IOException
  * Trying again will not solve the problem in this case, as a new password must be established with the server.
  * Corrective action is to recover the ConnectID account on the device.
  */
-class LoginInvalidatedException(@JvmField var reason: GlobalErrors) : RuntimeException() {
+class LoginInvalidatedException(
+    @JvmField var reason: GlobalErrors,
+) : RuntimeException() {
     override val message: String
         get() = "Login invalidated due to reason: $reason"
 }
