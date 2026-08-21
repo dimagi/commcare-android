@@ -260,8 +260,12 @@ public class RecordingFragment extends DialogFragment {
         } else {
             requireActivity().startService(serviceIntent);
         }
-        requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(),
-                Context.BIND_AUTO_CREATE);
+        bindAudioRecordingService(serviceIntent);
+    }
+
+    private void bindAudioRecordingService(Intent serviceIntent) {
+        audioRecordingServiceBounded = requireActivity().bindService(serviceIntent,
+                getAudioRecordingServiceConnection(), Context.BIND_AUTO_CREATE);
     }
 
     private ServiceConnection getAudioRecordingServiceConnection() {
