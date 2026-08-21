@@ -119,7 +119,6 @@ public class RecordingFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
-        disableScreenRotation((AppCompatActivity) getContext());
         prepareButtons();
         prepareText();
         initMediaResources();
@@ -261,7 +260,6 @@ public class RecordingFragment extends DialogFragment {
             }
         }
 
-        disableScreenRotation((AppCompatActivity) getContext());
         setCancelable(false);
         recordingSessionStarted = true;
 
@@ -502,26 +500,6 @@ public class RecordingFragment extends DialogFragment {
 
     public void setListener(RecordingCompletionListener listener) {
         this.listener = listener;
-    }
-
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-        enableScreenRotation((AppCompatActivity) getContext());
-    }
-
-    private static void disableScreenRotation(AppCompatActivity context) {
-        int currentOrientation = context.getResources().getConfiguration().orientation;
-
-        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        } else {
-            context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-        }
-    }
-
-    private static void enableScreenRotation(AppCompatActivity context) {
-        context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
