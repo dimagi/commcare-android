@@ -19,7 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.javarosa.core.services.Logger;
 
 public class FirebaseAuthService implements OtpAuthService {

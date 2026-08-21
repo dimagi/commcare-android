@@ -13,6 +13,7 @@ import org.commcare.heartbeat.UpdateToPrompt
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.preferences.PrefValues
+import org.javarosa.core.model.User
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -96,9 +97,12 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     @Test
     fun `demo user halts before the pin step without claiming the launch`() {
         seatDemoUser()
-        assertTrue(
+        assertEquals(
             "seatDemoUser() must produce a demo session, else this test can't gate on step 1",
-            HomeScreenBaseActivity.isDemoUser(),
+            User.TYPE_DEMO,
+            CommCareApplication
+                .instance()
+                .session.loggedInUser.userType,
         )
 
         val run = buildHomeFromLogin(LoginMode.PRIMED)

@@ -19,8 +19,8 @@ import androidx.lifecycle.LiveData
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewbinding.ViewBinding
 import org.commcare.activities.connect.ConnectActivity
-import org.commcare.connect.network.TokenExceptionHandler.handleTokenDeniedException
 import org.commcare.connect.network.base.BaseApiHandler
+import org.commcare.connect.network.personalId.TokenExceptionHandler.handleTokenDeniedException
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R

@@ -13,7 +13,7 @@ import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectJobIntroViewModel
 import org.commcare.dalvik.R
