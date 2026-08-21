@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import org.commcare.connect.network.connectId.TokenExceptionHandler;
+import org.commcare.connect.network.personalId.TokenExceptionHandler;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
 

@@ -13,7 +13,7 @@ import androidx.work.WorkerParameters
 import com.google.common.base.Strings
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper.Companion.fetchIntegrityToken
 import org.commcare.android.logging.ReportingUtils
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine

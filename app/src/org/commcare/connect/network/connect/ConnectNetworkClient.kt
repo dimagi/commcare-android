@@ -16,7 +16,7 @@ import org.commcare.connect.network.connect.models.PaymentConfirmationBody
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
-import org.commcare.connect.network.connectId.ConnectSsoSyncHelper
+import org.commcare.connect.network.personalId.ConnectSsoSyncHelper
 import org.commcare.dalvik.BuildConfig
 import retrofit2.Response
 import java.io.IOException

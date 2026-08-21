@@ -18,7 +18,7 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;

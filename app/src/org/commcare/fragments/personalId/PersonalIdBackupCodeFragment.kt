@@ -15,7 +15,7 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ReleaseToggleHelper
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue

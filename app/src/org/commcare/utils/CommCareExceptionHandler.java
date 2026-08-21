@@ -8,7 +8,7 @@ import org.commcare.activities.CrashWarningActivity;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.network.connectId.LoginInvalidatedException;
+import org.commcare.connect.network.personalId.LoginInvalidatedException;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.javarosa.core.util.NoLocalizedTextException;

@@ -1,4 +1,4 @@
-package org.commcare.connect.network.connectId.parser;
+package org.commcare.connect.network.personalId.parser;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.json.JSONException;

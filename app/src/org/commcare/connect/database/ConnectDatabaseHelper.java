@@ -6,7 +6,7 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.network.connectId.SsoToken;
+import org.commcare.connect.network.personalId.SsoToken;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.AndroidDbHelper;

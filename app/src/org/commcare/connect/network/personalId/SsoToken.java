@@ -1,4 +1,4 @@
-package org.commcare.connect.network.connectId;
+package org.commcare.connect.network.personalId;
 
 import org.commcare.connect.ConnectConstants;
 import org.javarosa.core.io.StreamsUtil;

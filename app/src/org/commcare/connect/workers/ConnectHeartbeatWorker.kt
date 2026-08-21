@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import org.commcare.connect.PersonalIdManager
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 

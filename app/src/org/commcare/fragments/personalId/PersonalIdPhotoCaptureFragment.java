@@ -25,7 +25,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
 import org.commcare.activities.camera.MicroImageActivity;

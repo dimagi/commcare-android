@@ -21,7 +21,7 @@ import org.commcare.connect.network.connect.ConnectApiService
 import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.PaymentConfirmationBody
-import org.commcare.connect.network.connectId.ConnectSsoSyncHelper
+import org.commcare.connect.network.personalId.ConnectSsoSyncHelper
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

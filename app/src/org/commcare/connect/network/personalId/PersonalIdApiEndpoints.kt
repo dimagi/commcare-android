@@ -1,4 +1,4 @@
-package org.commcare.connect.network.connectId
+package org.commcare.connect.network.personalId
 
 object PersonalIdApiEndpoints {
     const val TOKEN_URL = "/o/token/"

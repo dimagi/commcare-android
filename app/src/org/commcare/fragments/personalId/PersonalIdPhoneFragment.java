@@ -42,7 +42,7 @@ import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.base.BaseApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;

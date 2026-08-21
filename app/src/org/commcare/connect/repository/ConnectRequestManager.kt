@@ -7,7 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import org.commcare.connect.network.connectId.LoginInvalidatedException
+import org.commcare.connect.network.personalId.LoginInvalidatedException
 import java.util.concurrent.ConcurrentHashMap
 
 /**

@@ -1,4 +1,4 @@
-package org.commcare.connect.network.connectId
+package org.commcare.connect.network.personalId
 
 import org.commcare.utils.GlobalErrors
 import java.io.IOException
