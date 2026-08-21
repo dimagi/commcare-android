@@ -163,8 +163,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         assertEquals(TEST_PHONE_NUMBER, storedUser.primaryPhone)
         assertEquals(TEST_PHOTO_BASE64, storedUser.photo)
         assertEquals(PersonalIdSessionData.PIN, storedUser.requiredLock)
-        // Recovery never writes the entered code onto the session data, so the stored record has no pin.
-        assertNull(storedUser.pin)
+        assertEquals(TEST_BACKUP_CODE, storedUser.pin)
 
         assertMessageDisplay(
             title = fragment.getString(R.string.connect_recovery_success_title),
