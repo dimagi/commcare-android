@@ -1,4 +1,4 @@
-package org.commcare.connect.network.connectId.parser
+package org.commcare.connect.network.personalId.parser
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4

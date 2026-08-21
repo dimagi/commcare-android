@@ -1,4 +1,4 @@
-package org.commcare.connect.network.connectId.parser
+package org.commcare.connect.network.personalId.parser
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -11,7 +11,7 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.network.connectId.SsoToken
+import org.commcare.connect.network.personalId.SsoToken
 import org.commcare.core.network.AuthInfo
 import org.junit.After
 import org.junit.Assert.assertEquals
