@@ -213,7 +213,9 @@ public class RecordingFragment extends DialogFragment {
         Rect displayRectangle = new Rect();
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        layout.setMinimumWidth((int) (displayRectangle.width() * 0.9f));
+
+        int maxWidth = getResources().getDimensionPixelSize(R.dimen.audio_recording_dialog_max_width);
+        layout.setMinimumWidth((int) (Math.min(displayRectangle.width() * 0.9f, maxWidth)));
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
     }
 
