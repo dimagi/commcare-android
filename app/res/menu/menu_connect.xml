@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/action_sync"
-        android:icon="@drawable/ic_backup"
+        android:icon="@drawable/ic_sync"
         android:iconTint="@color/white"
         android:title="@string/personalid_sync_menu_title"
         app:showAsAction="always" />
