@@ -537,7 +537,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     /**
      * Whether any learning module is still unfinished.
      */
-    public boolean modulesRemaining() {
+    public boolean ifModulesRemining() {
         return learningModulesCompleted < numLearningModules;
     }
 

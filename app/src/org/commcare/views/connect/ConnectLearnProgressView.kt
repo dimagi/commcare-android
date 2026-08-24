@@ -52,7 +52,7 @@ class ConnectLearnProgressView
         }
 
         private fun bindProgressCard(job: ConnectJobRecord) {
-            val failed = !job.modulesRemaining() && job.attemptedAssessment()
+            val failed = !job.ifModulesRemining() && job.attemptedAssessment()
 
             binding.learnProgressCard.bind(
                 ConnectProgressCard.State(
@@ -79,19 +79,29 @@ class ConnectLearnProgressView
          * The "Continue Learning" card points at a module — the next unfinished one while modules
          * remain, or the last completed one after a failed attempt — and otherwise at the
          * assessment, which is also the fallback when no module record is available to name.
+         *
+         * The card and its heading are hidden outright while any module is missing its server id,
+         * since nothing can be identified until the next sync populates them.
          */
         private fun bindContinueCard(job: ConnectJobRecord) {
             // The API returns modules unordered and the job is loaded in payload order, so they are
-            // sequenced by server id here rather than in the shared loader. Modules stored before
-            // that id was persisted all carry 0, leaving payload order as the tie-break.
+            // sequenced by server id here rather than in the shared loader.
             val modules =
                 job.learnAppInfo.learnModules
                     .orEmpty()
                     .sortedWith(compareBy({ it.moduleId }, { it.moduleIndex }))
 
+            val identifiable =
+                modules.none { it.moduleId == ConnectLearnModuleSummaryRecord.UNKNOWN_MODULE_ID }
+            binding.learnProgressContinueHeading.visibility = if (identifiable) VISIBLE else GONE
+            binding.learnProgressContinueCard.visibility = if (identifiable) VISIBLE else GONE
+            if (!identifiable) {
+                return
+            }
+
             // Every learn app ends in an assessment, so it is the meaningful fallback whenever no
             // module can be named — either all are done, or the module records have not synced.
-            if ((!job.modulesRemaining() && !job.attemptedAssessment()) || modules.isEmpty()) {
+            if ((!job.ifModulesRemining() && !job.attemptedAssessment()) || modules.isEmpty()) {
                 bindContinueCardContent(
                     label = context.getString(R.string.connect_learn_up_next_label),
                     title = context.getString(R.string.connect_learn_assessment_name),
@@ -100,12 +110,12 @@ class ConnectLearnProgressView
                 return
             }
 
-            val module = continueModule(job, modules)
+            val module = findContinueModule(job, modules)
 
             bindContinueCardContent(
                 label =
                     context.getString(
-                        if (job.modulesRemaining()) {
+                        if (job.ifModulesRemining()) {
                             R.string.connect_learn_up_next_label
                         } else {
                             R.string.connect_learn_completed_module_label
@@ -125,21 +135,13 @@ class ConnectLearnProgressView
          * Once every module is done the card names the most recently completed one; while modules
          * remain it names the first unfinished one. Both are resolved through the server ids on the
          * completion records, since modules can be completed in any order.
-         *
-         * Modules stored before that id was persisted all carry 0, which matches no completion and
-         * would pin the card to the first module. Those fall back to the completed count — the
-         * previous, order-assuming behaviour — until the next sync repopulates the ids.
          */
-        private fun continueModule(
+        private fun findContinueModule(
             job: ConnectJobRecord,
             modules: List<ConnectLearnModuleSummaryRecord>,
         ): ConnectLearnModuleSummaryRecord {
-            if (!job.modulesRemaining()) {
-                return lastCompletedModule(job, modules) ?: modules.last()
-            }
-
-            if (modules.any { it.moduleId == ConnectLearnModuleSummaryRecord.UNKNOWN_MODULE_ID }) {
-                return modules[job.completedLearningModules.coerceIn(0, modules.size - 1)]
+            if (!job.ifModulesRemining()) {
+                return findLastCompletedModule(job, modules) ?: modules.last()
             }
 
             val completedIds =
@@ -151,7 +153,7 @@ class ConnectLearnProgressView
         }
 
         /** The module behind the most recent completion, which is the one the retry state names. */
-        private fun lastCompletedModule(
+        private fun findLastCompletedModule(
             job: ConnectJobRecord,
             modules: List<ConnectLearnModuleSummaryRecord>,
         ): ConnectLearnModuleSummaryRecord? {
@@ -189,7 +191,7 @@ class ConnectLearnProgressView
 
         private fun ctaSubtitle(job: ConnectJobRecord): CharSequence =
             when {
-                job.modulesRemaining() -> {
+                job.ifModulesRemining() -> {
                     resources.getQuantityString(
                         R.plurals.connect_opportunity_learn_modules_label,
                         job.numLearningModules,

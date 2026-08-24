@@ -112,17 +112,30 @@ class ConnectLearnProgressViewTest {
     private fun ConnectJobRecord.withoutModuleIds(): ConnectJobRecord =
         apply {
             learnAppInfo.learnModules =
+                learnAppInfo.learnModules.mapIndexed { index, module -> idless(module, index) }
+        }
+
+    /** Clears the server id on a single module, leaving the rest of the list intact. */
+    private fun ConnectJobRecord.withoutModuleId(position: Int): ConnectJobRecord =
+        apply {
+            learnAppInfo.learnModules =
                 learnAppInfo.learnModules.mapIndexed { index, module ->
-                    ConnectLearnModuleSummaryRecord.fromV28(
-                        ConnectLearnModuleSummaryRecordV28().apply {
-                            name = module.name
-                            slug = module.slug
-                            timeEstimate = module.timeEstimate
-                            moduleIndex = index
-                        },
-                    )
+                    if (index == position) idless(module, index) else module
                 }
         }
+
+    private fun idless(
+        module: ConnectLearnModuleSummaryRecord,
+        index: Int,
+    ): ConnectLearnModuleSummaryRecord =
+        ConnectLearnModuleSummaryRecord.fromV28(
+            ConnectLearnModuleSummaryRecordV28().apply {
+                name = module.name
+                slug = module.slug
+                timeEstimate = module.timeEstimate
+                moduleIndex = index
+            },
+        )
 
     // endregion
 
@@ -318,9 +331,43 @@ class ConnectLearnProgressViewTest {
     }
 
     @Test
-    fun `modules without a server id fall back to the completed count`() {
-        val view = bind(inProgressJob(moduleOneId).withoutModuleIds())
+    fun `modules without a server id hide the continue card and its heading`() {
+        val hidden = bind(inProgressJob(moduleOneId).withoutModuleIds())
 
+        assertEquals(View.GONE, hidden.visibility(R.id.learn_progress_continue_heading))
+        assertEquals(View.GONE, hidden.visibility(R.id.learn_progress_continue_card))
+
+        val shown = bind(inProgressJob(moduleOneId))
+
+        assertEquals(View.VISIBLE, shown.visibility(R.id.learn_progress_continue_heading))
+        assertEquals(View.VISIBLE, shown.visibility(R.id.learn_progress_continue_card))
+    }
+
+    @Test
+    fun `one module without a server id is enough to hide the continue card`() {
+        val view = bind(inProgressJob(moduleOneId).withoutModuleId(0))
+
+        assertEquals(View.GONE, view.visibility(R.id.learn_progress_continue_heading))
+        assertEquals(View.GONE, view.visibility(R.id.learn_progress_continue_card))
+    }
+
+    @Test
+    fun `the continue card is hidden without server ids even after a failed assessment`() {
+        val view = bind(assessmentFailedJob().withoutModuleIds())
+
+        assertEquals(View.GONE, view.visibility(R.id.learn_progress_continue_heading))
+        assertEquals(View.GONE, view.visibility(R.id.learn_progress_continue_card))
+    }
+
+    @Test
+    fun `re-binding a job that has server ids restores the continue card`() {
+        val view = bind(inProgressJob(moduleOneId).withoutModuleIds())
+        assertEquals(View.GONE, view.visibility(R.id.learn_progress_continue_card))
+
+        view.bind(inProgressJob(moduleOneId)) {}
+
+        assertEquals(View.VISIBLE, view.visibility(R.id.learn_progress_continue_heading))
+        assertEquals(View.VISIBLE, view.visibility(R.id.learn_progress_continue_card))
         assertEquals("2. Module 2", view.text(R.id.learn_progress_continue_title))
     }
 
