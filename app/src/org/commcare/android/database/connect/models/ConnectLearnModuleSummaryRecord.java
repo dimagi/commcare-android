@@ -34,8 +34,8 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
     private static final String SERVER_ID = "id";
 
     /**
-     * Stands in for a module whose server id is unavailable: it predates the id being persisted, or
-     * the payload omitted it. Consumers fall back to the completed-module count.
+     * Stands in for the server id on modules migrated from before it was persisted, until the next
+     * opportunities sync rewrites them.
      */
     public static final int UNKNOWN_MODULE_ID = 0;
 
@@ -89,9 +89,7 @@ public class ConnectLearnModuleSummaryRecord extends Persisted implements Serial
         info.name = json.getString(META_NAME);
         info.description = json.getString(META_DESCRIPTION);
         info.timeEstimate = json.getInt(META_ESTIMATE);
-        // Optional: a module the server sends without an id is still usable, so it degrades to the
-        // unknown-id path rather than failing the whole opportunity it belongs to.
-        info.moduleId = json.optInt(SERVER_ID, UNKNOWN_MODULE_ID);
+        info.moduleId = json.getInt(SERVER_ID);
         info.lastUpdate = new Date();
 
         info.jobId = job.getJobId();
