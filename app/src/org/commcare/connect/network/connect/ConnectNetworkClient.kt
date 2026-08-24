@@ -4,11 +4,10 @@ import androidx.annotation.VisibleForTesting
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ConnectApiService
-import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.base.NetworkUtils
 import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
@@ -17,8 +16,7 @@ import org.commcare.connect.network.connect.models.PaymentConfirmationBody
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
-import org.commcare.connect.network.getAuthorizationHeader
-import org.commcare.connect.network.mapHttpErrorCode
+import org.commcare.connect.network.personalId.ConnectSsoSyncHelper
 import org.commcare.dalvik.BuildConfig
 import retrofit2.Response
 import java.io.IOException
@@ -47,7 +45,7 @@ class ConnectNetworkClient
         }
 
         private fun versionHeaders(): Map<String, String> =
-            HashMap<String, String>().also { ConnectNetworkHelper.addVersionHeader(it, API_VERSION_CONNECT) }
+            HashMap<String, String>().also { NetworkUtils.addVersionHeader(it, API_VERSION_CONNECT) }
 
         suspend fun getConnectOpportunities(user: ConnectUserRecord): Result<List<ConnectJobRecord>> =
             executeApiCall(
@@ -131,7 +129,8 @@ class ConnectNetworkClient
         ): Result<T> {
             return try {
                 val authHeader =
-                    getAuthorizationHeader(user)
+                    ConnectSsoSyncHelper
+                        .getAuthorizationHeader(user)
                         .getOrElse { return Result.failure(it) }
 
                 val response = apiCall(authHeader)
@@ -146,7 +145,7 @@ class ConnectNetworkClient
                         Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e))
                     }
                 } else {
-                    val errorCode = mapHttpErrorCode(response.code(), response.errorBody()?.string())
+                    val errorCode = NetworkUtils.mapHttpErrorCode(response.code(), response.errorBody()?.string())
                     Result.failure(ConnectApiException(errorCode))
                 }
             } catch (e: IOException) {

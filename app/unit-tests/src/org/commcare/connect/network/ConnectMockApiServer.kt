@@ -8,6 +8,7 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.connect.network.base.BaseApiClient
+import org.commcare.connect.network.connect.ConnectApiService
 import org.commcare.connect.network.connect.ConnectNetworkClient
 import org.commcare.connect.repository.ConnectRepository
 import org.robolectric.shadows.ShadowLooper
