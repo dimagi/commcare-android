@@ -38,22 +38,18 @@ object ConnectRequestManager {
         }
 
         // Launch in app scope so request + DB writes survive viewModelScope cancellation.
-        // The entry is dropped before the deferred completes: an awaiting caller resumes as soon as
-        // it completes, so leaving the entry in place until afterwards lets the next caller find a
-        // finished request and reuse its result instead of going to the network.
         scope.launch {
             try {
                 val result = request()
-                inFlightRequests.remove(url, deferred)
                 deferred.complete(result as Result<Any>)
             } catch (e: CancellationException) {
-                inFlightRequests.remove(url, deferred)
                 deferred.cancel(e)
                 throw e
             } catch (e: Exception) {
-                inFlightRequests.remove(url, deferred)
                 deferred.completeExceptionally(e)
                 throw e
+            } finally {
+                inFlightRequests.remove(url)
             }
         }
 
