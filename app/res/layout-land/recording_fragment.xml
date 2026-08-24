@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Landscape counterpart of layout/recording_fragment.xml. Same ids, laid out as two columns so the
+  record control and the text/actions sit side by side rather than stacking past the bottom of a
+  short screen.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingStart="10dp"
+    android:paddingLeft="10dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="10dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="10dp"
+    tools:viewBindingIgnore="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/recording_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_toStartOf="@+id/discardrecording"
+            android:layout_toLeftOf="@+id/discardrecording"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/text_medium" />
+
+        <ImageButton
+            android:id="@+id/discardrecording"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/icon_close_darkwarm" />
+
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:id="@+id/recording_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingHorizontal="10dp">
+
+            <ImageButton
+                android:id="@+id/startrecording"
+                android:layout_width="@dimen/audio_recording_button_size"
+                android:layout_height="@dimen/audio_recording_button_size"
+                android:layout_gravity="center"
+                android:background="@drawable/record_start" />
+
+            <ProgressBar
+                android:id="@+id/demo_mpc"
+                android:layout_width="@dimen/audio_recording_progress_size"
+                android:layout_height="@dimen/audio_recording_progress_size"
+                android:layout_gravity="center"
+                android:indeterminateDrawable="@drawable/progress_bar"
+                android:indeterminateDuration="2000"
+                android:visibility="invisible" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp">
+
+            <Chronometer
+                android:id="@+id/recording_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/audio_recording_timer_text_size"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/recording_animation_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/standard_spacer_double"
+                android:drawableStart="@drawable/recording_dot"
+                android:drawablePadding="8dp"
+                android:text="@string/recording_in_progress"
+                android:textColor="@color/audio_recording_primary_color"
+                android:textSize="@dimen/text_large"
+                android:textStyle="bold"
+                android:visibility="invisible" />
+
+            <LinearLayout
+                android:id="@+id/recording_action_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:visibility="gone"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/negative_action_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    style="@style/NegativeButtonStyle"
+                    tools:text="Finish"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/positive_action_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    android:padding="10dp"
+                    android:text="@string/confirm_audio_file_deletion"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
