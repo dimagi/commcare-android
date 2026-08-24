@@ -55,7 +55,11 @@ public class NumericCodeView extends LinearLayout {
 
         // Read attributes from XML
         if (attrs != null) {
-            try (TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NumericCodeView)) {
+            // Deliberately not try-with-resources: that needs TypedArray.close() (API 31), which leaves this
+            // view uninflatable under Robolectric's default SDK. recycle() is equivalent and available everywhere.
+            @SuppressWarnings("resource")
+            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NumericCodeView);
+            try {
                 digitCount = typedArray.getInt(R.styleable.NumericCodeView_codeViewDigitCount, digitCount);
                 borderColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewBorderColor, borderColor);
                 errorBorderColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewErrorBorderColor, errorBorderColor);
@@ -65,6 +69,8 @@ public class NumericCodeView extends LinearLayout {
                 errorTextColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewErrorTextColor, errorTextColor);
                 textSize = typedArray.getDimension(R.styleable.NumericCodeView_codeViewTextSize, textSize);
                 passwordMode = typedArray.getBoolean(R.styleable.NumericCodeView_codeViewPasswordMode, false);
+            } finally {
+                typedArray.recycle();
             }
         }
 

@@ -176,11 +176,10 @@ public class PersonalIdBackupCodeFragment extends BasePersonalIdFragment {
     private void handleBackupCodeSubmission() {
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null,
                 PersonalIdWorkflow.CONFIGURATION);
+        personalIdSessionData.setBackupCode(binding.backupCodeView.getCodeValue());
         if (isRecovery) {
             confirmBackupCode();
         } else {
-            personalIdSessionData.setBackupCode(
-                    binding.backupCodeView.getCodeValue());
             if (ReleaseToggleHelper.INSTANCE.isEmailOtpVerificationActive(personalIdSessionData)) {
                 navigateToEmail();
             } else {
