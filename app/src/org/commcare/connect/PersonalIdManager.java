@@ -82,6 +82,7 @@ public class PersonalIdManager {
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
+    private static final int MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID = 600;
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
@@ -643,7 +644,7 @@ public class PersonalIdManager {
 
     public boolean checkDeviceCompability() {
         int smallestWidthDp = CommCareApplication.instance().getResources().getConfiguration().smallestScreenWidthDp;
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && smallestWidthDp < 600;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && smallestWidthDp < MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID;
     }
 
     public int getFailureAttempt() {
