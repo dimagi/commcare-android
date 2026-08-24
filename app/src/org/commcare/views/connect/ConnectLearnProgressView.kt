@@ -84,15 +84,9 @@ class ConnectLearnProgressView
          * since nothing can be identified until the next sync populates them.
          */
         private fun bindContinueCard(job: ConnectJobRecord) {
-            // The API returns modules unordered and the job is loaded in payload order, so they are
-            // sequenced by server id here rather than in the shared loader.
-            val modules =
-                job.learnAppInfo.learnModules
-                    .orEmpty()
-                    .sortedWith(compareBy({ it.moduleId }, { it.moduleIndex }))
+            val modules = job.getSortedLearnModules()
 
-            val identifiable =
-                modules.none { it.moduleId == ConnectLearnModuleSummaryRecord.UNKNOWN_MODULE_ID }
+            val identifiable = job.isLearnModulesIdentifiable()
             binding.learnProgressContinueHeading.visibility = if (identifiable) VISIBLE else GONE
             binding.learnProgressContinueCard.visibility = if (identifiable) VISIBLE else GONE
             if (!identifiable) {
@@ -102,15 +96,15 @@ class ConnectLearnProgressView
             // Every learn app ends in an assessment, so it is the meaningful fallback whenever no
             // module can be named — either all are done, or the module records have not synced.
             if ((!job.ifModulesRemining() && !job.attemptedAssessment()) || modules.isEmpty()) {
-                bindContinueCardContent(
-                    label = context.getString(R.string.connect_learn_up_next_label),
-                    title = context.getString(R.string.connect_learn_assessment_name),
-                    subtitle = context.getString(R.string.connect_learn_assessment_description),
-                )
+                bindAssessmentContinueCard()
                 return
             }
 
             val module = findContinueModule(job, modules)
+            if (module == null) {
+                bindAssessmentContinueCard()
+                return
+            }
 
             bindContinueCardContent(
                 label =
@@ -134,31 +128,26 @@ class ConnectLearnProgressView
         /**
          * Once every module is done the card names the most recently completed one; while modules
          * remain it names the first unfinished one. Both are resolved through the server ids on the
-         * completion records, since modules can be completed in any order.
+         * completion records, since modules can be completed in any order, and both return null when
+         * no module matches.
          */
         private fun findContinueModule(
             job: ConnectJobRecord,
             modules: List<ConnectLearnModuleSummaryRecord>,
-        ): ConnectLearnModuleSummaryRecord {
+        ): ConnectLearnModuleSummaryRecord? =
             if (!job.ifModulesRemining()) {
-                return findLastCompletedModule(job, modules) ?: modules.last()
+                job.findLastCompletedLearnModule(modules)
+            } else {
+                job.findNextIncompleteLearnModule(modules)
             }
 
-            val completedIds =
-                job.learnings
-                    .orEmpty()
-                    .map { it.moduleId }
-                    .toSet()
-            return modules.firstOrNull { it.moduleId !in completedIds } ?: modules.first()
-        }
-
-        /** The module behind the most recent completion, which is the one the retry state names. */
-        private fun findLastCompletedModule(
-            job: ConnectJobRecord,
-            modules: List<ConnectLearnModuleSummaryRecord>,
-        ): ConnectLearnModuleSummaryRecord? {
-            val latest = job.learnings.orEmpty().maxByOrNull { it.date } ?: return null
-            return modules.firstOrNull { it.moduleId == latest.moduleId }
+        /** Every learn app ends in an assessment, so it is the subject when no module can be named. */
+        private fun bindAssessmentContinueCard() {
+            bindContinueCardContent(
+                label = context.getString(R.string.connect_learn_up_next_label),
+                title = context.getString(R.string.connect_learn_assessment_name),
+                subtitle = context.getString(R.string.connect_learn_assessment_description),
+            )
         }
 
         private fun bindContinueCardContent(

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -543,6 +544,83 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public boolean attemptedAssessment() {
         return assessments != null && !assessments.isEmpty();
+    }
+
+    public List<ConnectLearnModuleSummaryRecord> getSortedLearnModules() {
+        List<ConnectLearnModuleSummaryRecord> modules = learnModules();
+        List<ConnectLearnModuleSummaryRecord> sorted = new ArrayList<>(modules);
+        sorted.sort(Comparator
+                .comparingInt(ConnectLearnModuleSummaryRecord::getModuleId)
+                .thenComparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
+        return sorted;
+    }
+
+    /**
+     * Return false if any of the learn modules is not identifiable i.e. missing module id from server
+     */
+    public boolean isLearnModulesIdentifiable() {
+        for (ConnectLearnModuleSummaryRecord module : learnModules()) {
+            if (module.getModuleId() == ConnectLearnModuleSummaryRecord.UNKNOWN_MODULE_ID) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Return the most recent completed learn module
+     */
+    @Nullable
+    public ConnectLearnModuleSummaryRecord findLastCompletedLearnModule(
+            List<ConnectLearnModuleSummaryRecord> modules) {
+        if (learnings == null) {
+            return null;
+        }
+
+        ConnectJobLearningRecord latest = null;
+        for (ConnectJobLearningRecord learning : learnings) {
+            if (latest == null || learning.getDate().after(latest.getDate())) {
+                latest = learning;
+            }
+        }
+        if (latest == null) {
+            return null;
+        }
+
+        for (ConnectLearnModuleSummaryRecord module : modules) {
+            if (module.getModuleId() == latest.getModuleId()) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The first module with no completion record, or null when every one has been
+     * completed
+     */
+    @Nullable
+    public ConnectLearnModuleSummaryRecord findNextIncompleteLearnModule(
+            List<ConnectLearnModuleSummaryRecord> modules) {
+        Set<Integer> completedIds = new HashSet<>();
+        if (learnings != null) {
+            for (ConnectJobLearningRecord learning : learnings) {
+                completedIds.add(learning.getModuleId());
+            }
+        }
+
+        for (ConnectLearnModuleSummaryRecord module : modules) {
+            if (!completedIds.contains(module.getModuleId())) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    private List<ConnectLearnModuleSummaryRecord> learnModules() {
+        List<ConnectLearnModuleSummaryRecord> modules = learnAppInfo == null
+                ? null : learnAppInfo.getLearnModules();
+        return modules == null ? new ArrayList<>() : modules;
     }
 
     public boolean passedAssessment() {
