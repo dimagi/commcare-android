@@ -124,7 +124,7 @@ class ConnectLearningProgressFragmentTest {
         val view = fragment.requireView()
 
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnCompleteView).visibility)
-        assertEquals(View.GONE, view.findViewById<View>(R.id.progressContainer).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.learnProgressView).visibility)
     }
 
     @Test
@@ -133,7 +133,7 @@ class ConnectLearningProgressFragmentTest {
             launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
         val view = fragment.requireView()
 
-        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.progressContainer).visibility)
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnProgressView).visibility)
         assertEquals(View.GONE, view.findViewById<View>(R.id.learnCompleteView).visibility)
     }
 
@@ -142,8 +142,31 @@ class ConnectLearningProgressFragmentTest {
         val fragment = launch(ConnectLearnJobTestData.job(assessmentScore = 10))
         val view = fragment.requireView()
 
-        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.progressContainer).visibility)
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnProgressView).visibility)
         assertEquals(View.GONE, view.findViewById<View>(R.id.learnCompleteView).visibility)
+    }
+
+    @Test
+    fun `tapping the progress cta routes to the learn download when the learn app is missing`() {
+        val fragment =
+            launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
+
+        val requestsBefore = mockApi.server.requestCount
+        val ctaButton = learnProgressCta(fragment)
+        activity.runOnUiThread { ctaButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
+
+        // The delivery download reaches the same destination, so the arguments are what distinguish
+        // the two: this path must ask for the learn app.
+        val args = navController.currentBackStackEntry?.arguments
+        assertEquals(
+            activity.getString(R.string.connect_downloading_learn),
+            args?.getString("title"),
+        )
+        assertTrue("Should download the learn app, not the delivery app", args!!.getBoolean("learning"))
+        assertEquals("Progress CTA should not claim the job", requestsBefore, mockApi.server.requestCount)
     }
 
     @Test
@@ -193,7 +216,7 @@ class ConnectLearningProgressFragmentTest {
     fun `a failed claim shows the failure card, re-enables the cta and stays on the screen`() {
         val job = ConnectLearnJobTestData.job()
         val fragment = launch(job)
-        val ctaButton = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        val ctaButton = learnCompleteCta(fragment)
 
         clickCta(fragment)
         assertEquals("CTA should be disabled while claiming", false, ctaButton.isEnabled)
@@ -236,10 +259,27 @@ class ConnectLearningProgressFragmentTest {
     }
 
     private fun clickCta(fragment: ConnectLearningProgressFragment) {
-        val ctaButton = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        val ctaButton = learnCompleteCta(fragment)
         activity.runOnUiThread { ctaButton.performClick() }
         ShadowLooper.idleMainLooper()
     }
+
+    /**
+     * Both the progress and the complete view carry a [org.commcare.views.connect.ConnectCtaBar], so
+     * the lookup is scoped to the complete view rather than resolved from the fragment root.
+     */
+    private fun learnCompleteCta(fragment: ConnectLearningProgressFragment): MaterialButton =
+        fragment
+            .requireView()
+            .findViewById<View>(R.id.learnCompleteView)
+            .findViewById(R.id.cta_button)
+
+    /** The progress view's own CTA, scoped for the same reason as [learnCompleteCta]. */
+    private fun learnProgressCta(fragment: ConnectLearningProgressFragment): MaterialButton =
+        fragment
+            .requireView()
+            .findViewById<View>(R.id.learnProgressView)
+            .findViewById(R.id.cta_button)
 
     /**
      * Answers the pending claim request with [responseCode] and drains the response callback,
