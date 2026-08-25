@@ -57,6 +57,7 @@ import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
@@ -74,6 +75,9 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
+
+import kotlinx.coroutines.Job;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
@@ -132,6 +136,12 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private Map<Integer, String> menuIdToAnalyticsParam;
 
     private LoginPhase currentLoginPhase;
+
+    /**
+     * Job for the in-flight login pipeline, retained so that the progress dialog's STOP button can
+     * cancel it. Null whenever no login is running.
+     */
+    private Job loginJob;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -310,7 +320,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         );
 
         LoginController controller = new LoginController(this);
-        controller.start(this, request, createLoginProgressListener(), this::handleLoginResult);
+        loginJob = controller.start(this, request, createLoginProgressListener(), this::handleLoginResult);
     }
 
     private LoginProgressListener createLoginProgressListener() {
@@ -343,6 +353,25 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
 
         return TASK_KEY_EXCHANGE;
+    }
+
+    /**
+     * The login engine runs its tasks on a HeadlessTaskConnector, so they are never registered with
+     * the activity's task connector and the base implementation has nothing to cancel. Cancel the
+     * pipeline's job instead, which tears down the running task through its cancellation handler.
+     */
+    @Override
+    public void cancelCurrentTask() {
+        if (loginJob != null) {
+            Logger.log(LogTypes.TYPE_USER, "Login cancelled by user during "
+                    + currentLoginPhase + " phase");
+            loginJob.cancel(new CancellationException("Login cancelled by user"));
+            loginJob = null;
+            dismissLoginProgressDialog();
+            return;
+        }
+
+        super.cancelCurrentTask();
     }
 
     private void dismissLoginProgressDialog() {
@@ -505,6 +534,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void handleLoginResult(LoginResult result) {
+        loginJob = null;
         dismissLoginProgressDialog();
 
         if (result instanceof LoginResult.Success) {

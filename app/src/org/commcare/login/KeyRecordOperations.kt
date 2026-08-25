@@ -134,7 +134,10 @@ internal open class KeyRecordOperations(
                     }
                 }
 
-            continuation.invokeOnCancellation { task.cancel(true) }
+            continuation.invokeOnCancellation {
+                task.cancel(true)
+                task.tryAbort()
+            }
             task.connect(HeadlessTaskConnector(receiver))
             task.executeParallel()
         }
