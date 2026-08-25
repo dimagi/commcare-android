@@ -124,6 +124,7 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
      */
     private boolean triedBlockingWhilePaused;
     private int taskIdForPendingDismissal = UNDEFINED_TASK_ID;
+    private int taskIdForPendingShow = UNDEFINED_TASK_ID;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
@@ -390,6 +391,21 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
             triedBlockingWhilePaused = false;
             showNewProgressDialog();
         }
+
+        showPendingProgressDialog();
+    }
+
+    private void showPendingProgressDialog() {
+        int taskId = taskIdForPendingShow;
+        taskIdForPendingShow = UNDEFINED_TASK_ID;
+
+        if (taskId != UNDEFINED_TASK_ID) {
+            CustomProgressDialog current = getCurrentProgressDialog();
+            if (current != null && current.getTaskId() != taskId) {
+                dismissCurrentProgressDialog();
+            }
+            showProgressDialogIfNeeded(taskId);
+        }
     }
 
     @Override
@@ -642,6 +658,13 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
     @Override
     public void showProgressDialog(int taskId) {
         if (taskId >= 0) {
+            if (areFragmentsPaused) {
+                // post-pone the dialog transaction until after fragments have fully resumed
+                taskIdForPendingShow = taskId;
+                return;
+            }
+
+            taskIdForPendingShow = UNDEFINED_TASK_ID;
             CustomProgressDialog dialog = generateProgressDialog(taskId);
             if (dialog != null) {
                 dialog.showNow(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
@@ -674,6 +697,9 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
 
     private void dismissProgressDialog(int taskId, boolean dismissAny) {
         taskIdForPendingDismissal = UNDEFINED_TASK_ID;
+        if (dismissAny || taskIdForPendingShow == taskId) {
+            taskIdForPendingShow = UNDEFINED_TASK_ID;
+        }
         CustomProgressDialog progressDialog = getCurrentProgressDialog();
         if (progressDialog != null && progressDialog.isAdded() && (progressDialog.getTaskId() == taskId
                 || dismissAny)) {
