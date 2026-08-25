@@ -223,7 +223,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/personalid_this_is_not_me"
                     android:textColor="@color/cc_brand_color"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
