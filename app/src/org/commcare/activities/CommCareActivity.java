@@ -415,6 +415,8 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
         if (areFragmentsPaused) {
             // post-pone dialog transactions until after fragments have fully resumed.
             triedBlockingWhilePaused = true;
+            // This is the newer request, so it supersedes any postponed direct show.
+            taskIdForPendingShow = UNDEFINED_TASK_ID;
         } else {
             showNewProgressDialog();
         }

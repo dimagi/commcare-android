@@ -52,6 +52,10 @@ class LoginProgressDialogLifecycleTest {
 
     private val syncTaskId = DataPullTask.DATA_PULL_TASK_ID
 
+    /** Task id behind the staged-update install, the other connected task on this screen. */
+    private val upgradeTaskId: Int
+        get() = ReflectionUtils.readField(activity, "TASK_UPGRADE_INSTALL") as Int
+
     @Before
     fun setUp() {
         (CommCareTestApplication.instance() as CommCareTestApplication).initWorkManager()
@@ -143,6 +147,28 @@ class LoginProgressDialogLifecycleTest {
     }
 
     /**
+     * A connected task blocking while stopped is the newer request, so the earlier direct show
+     * must not take the resume. A queued dismissal makes this reachable: it skips the blocking
+     * branch, which would otherwise clear the postponed show on its way past.
+     */
+    @Test
+    fun `blocking request while stopped supersedes an earlier postponed show`() {
+        activity.showProgressDialog(syncTaskId)
+        background()
+
+        activity.dismissProgressDialogForTask(syncTaskId)
+        activity.showProgressDialog(keyExchangeTaskId)
+        activity.startBlockingForTask(upgradeTaskId)
+
+        foreground()
+
+        assertNull(
+            "The superseded show should not take the resume",
+            currentDialog(),
+        )
+    }
+
+    /**
      * Two login phases can map to the same task id, so a postponed show can land on a dialog that
      * is already correct. Rebuilding it would throw away the title and message the task has
      * reported since, so the existing dialog is kept.
@@ -197,10 +223,11 @@ class LoginProgressDialogLifecycleTest {
 
     /**
      * Bring the activity back through `onResumeFragments`, which is what flushes the deferred
-     * dialog work. `postResume` is required — `resume` alone does not dispatch it.
+     * dialog work. `resume()` dispatches it once, like a real resume; calling `postResume()` as
+     * well would dispatch a second time and hide ordering bugs between the two deferral slots.
      */
     private fun foreground() {
-        controller.start().resume().postResume()
+        controller.start().resume()
     }
 
     private fun currentDialog(): CustomProgressDialog? = activity.currentProgressDialog
