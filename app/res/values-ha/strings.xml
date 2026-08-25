@@ -250,6 +250,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_profile_edit_save">Ajiye</string>
     <string name="personalid_profile_edit_cancel">Soke</string>
     <string name="personalid_profile_edit_save_success">An sabunta bayanan martabarka cikin nasara.</string>
+    <string name="personalid_profile_change_backup_code">Canza lambar sirrin ajiyar bayanai</string>
+    <string name="personalid_forgot_backup_code">Ka manta da lambar sirrin ajiyar bayananka?</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Da fatan za a ƙara adireshin imel</string>
+    <string name="personalid_set_new_backup_code_title">Saita sabuwar lambar sirrin ajiyar bayanai</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
     <string name="connect_job_info_visit">Matsakaicin Ziyarar %d</string>

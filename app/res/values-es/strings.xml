@@ -415,6 +415,10 @@
     <string name="personalid_profile_edit_save">Guardar</string>
     <string name="personalid_profile_edit_cancel">Cancelar</string>
     <string name="personalid_profile_edit_save_success">Tu perfil se ha actualizado correctamente.</string>
+    <string name="personalid_profile_change_backup_code">Cambiar código de respaldo</string>
+    <string name="personalid_forgot_backup_code">¿Olvidaste tu código de respaldo?</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Por favor, añade una dirección de correo electrónico</string>
+    <string name="personalid_set_new_backup_code_title">Establecer nuevo código de respaldo</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
     <string name="connect_job_info_visit">%d visitas máximo</string>
