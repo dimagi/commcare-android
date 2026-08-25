@@ -9,6 +9,16 @@ This file is meant as an easy way for us to collate notes and change logs across
 #### Important Bug Fixes
 
 - Fixed an issue where recovering a PersonalID account via backup code could result in the account being stored without a pin, causing authentication to fail after recovery.
+- Backgrounding the app while logging in no longer crashes the app when the login sync finishes.
+- The STOP button on the login sync dialog cancels the login again, instead of hanging on "Cancelling...".
+
+### QA Notes
+
+- The login tests below need a login that takes the remote-sync path: clear the app's data first so the user has no local sandbox on the device. Make sure "Don't keep activities" is OFF in developer options, since it destroys the activity and hides the bug.
+- Log in as a traditional CommCare user (not from a Connect opportunity), background the app while the sync dialog is showing, and stay backgrounded until the restore finishes. The app should not crash. On returning to it, the login should either complete or report a failure you can retry from, and no progress dialog should be left stuck on screen.
+- Repeat the same steps but rotate the device or lock/unlock the screen mid-sync; progress dialogs should reappear correctly with no crash.
+- While the login sync dialog is showing, press STOP. The dialog should close and you should be back on the login screen, and logging in again should work normally.
+- Regression check on progress dialogs generally, since the fix touches the shared activity base class: app update installs, form record loading, multimedia inflation and app verification should all still show and dismiss their progress dialogs correctly, including when backgrounded and resumed mid-task.
 
 ## CommCare 2.63.5
 
