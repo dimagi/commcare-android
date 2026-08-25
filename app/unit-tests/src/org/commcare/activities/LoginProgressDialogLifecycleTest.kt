@@ -23,7 +23,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 
 /**
- * Regression pins for CI-915, covering both halves of the login progress dialog's behaviour when
+ * Regression pins covering both halves of the login progress dialog's behavior when
  * the user backgrounds the app mid-login.
  *
  * The login engine drives its dialogs by calling `showProgressDialog` directly from
@@ -87,9 +87,9 @@ class LoginProgressDialogLifecycleTest {
     }
 
     /**
-     * The exact CI-915 sequence: the sync dialog is up, the user backgrounds the app, and
-     * `DataPullTask` finishing emits `Syncing -> SigningIn`, which dismisses one dialog and shows
-     * the next. Only the incoming dialog should survive to the resume.
+     * The sync dialog is up, the user backgrounds the app, and `DataPullTask` finishing emits
+     * `Syncing -> SigningIn`, which dismisses one dialog and shows the next. Only the incoming
+     * dialog should survive to the resume.
      */
     @Test
     fun `sync to signing in swap while stopped leaves only the incoming dialog`() {
@@ -128,10 +128,10 @@ class LoginProgressDialogLifecycleTest {
 
     /**
      * A blanket dismissal is the caller saying nothing should be left showing, so it has to drop a
-     * post-poned show too — otherwise the dialog would appear after the thing that wanted it gone.
+     * postponed show too — otherwise the dialog would appear after the thing that wanted it gone.
      */
     @Test
-    fun `blanket dismissal while stopped drops a post-poned show`() {
+    fun `blanket dismissal while stopped drops a postponed show`() {
         background()
 
         activity.showProgressDialog(syncTaskId)
@@ -143,12 +143,12 @@ class LoginProgressDialogLifecycleTest {
     }
 
     /**
-     * Two login phases can map to the same task id, so a post-poned show can land on a dialog that
+     * Two login phases can map to the same task id, so a postponed show can land on a dialog that
      * is already correct. Rebuilding it would throw away the title and message the task has
      * reported since, so the existing dialog is kept.
      */
     @Test
-    fun `post-poned show for the task already showing keeps that dialog`() {
+    fun `postponed show for the task already showing keeps that dialog`() {
         activity.showProgressDialog(syncTaskId)
         val original = currentDialog()
         background()
@@ -160,13 +160,7 @@ class LoginProgressDialogLifecycleTest {
         assertSame("The dialog already up for this task should be left alone", original, currentDialog())
     }
 
-    // ========
-    // The STOP button
-    //
-    // These two pin the fix rather than reproducing the bug: the pre-fix build has no retained job
-    // at all, so they go red on the missing `loginJob` field rather than on a stuck dialog. The
-    // four cases above are the ones that reproduce the CI-915 crash itself.
-    // ========
+    // ======== The STOP button ========
 
     @Test
     fun `stop button cancels the login pipeline and dismisses the dialog`() {

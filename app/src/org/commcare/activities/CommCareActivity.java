@@ -124,11 +124,6 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
      */
     private boolean triedBlockingWhilePaused;
     private int taskIdForPendingDismissal = UNDEFINED_TASK_ID;
-
-    /**
-     * Id of a progress dialog whose show was requested while fragments were paused, so that the
-     * dialog can be committed once they have fully resumed.
-     */
     private int taskIdForPendingShow = UNDEFINED_TASK_ID;
 
     /**
@@ -400,13 +395,6 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
         showPendingProgressDialog();
     }
 
-    /**
-     * Show a progress dialog whose show was post-poned because fragments were paused. Runs after
-     * any pending dismissal so that the most recent show request is the one that takes effect.
-     *
-     * A dialog that is already up for the same task is left alone rather than rebuilt, so it keeps
-     * whatever title and message the task has since reported.
-     */
     private void showPendingProgressDialog() {
         int taskId = taskIdForPendingShow;
         taskIdForPendingShow = UNDEFINED_TASK_ID;
@@ -713,10 +701,8 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
             // added still has to be dealt with below.
             taskIdForPendingShow = UNDEFINED_TASK_ID;
         } else if (taskIdForPendingShow != UNDEFINED_TASK_ID && taskIdForPendingShow == taskId) {
-            // This task's show was post-poned and never committed, so dropping it is the whole
-            // dismissal. Returning here leaves taskIdForPendingDismissal alone, because the dialog
-            // that is actually added belongs to an earlier task and may still be owed its own --
-            // which is what a login finishing while backgrounded depends on.
+            // This task's show was postponed and never committed, so dropping it is the whole
+            // dismissal.
             taskIdForPendingShow = UNDEFINED_TASK_ID;
             return;
         }
