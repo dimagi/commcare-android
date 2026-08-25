@@ -28,7 +28,7 @@ jobs:
         env:
           # Only lint changed files in PR
           VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: master
+          DEFAULT_BRANCH: ${{ github.base_ref }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
           # File handling
