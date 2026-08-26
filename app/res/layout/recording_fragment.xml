@@ -11,6 +11,7 @@
     android:paddingTop="10dp"
     android:paddingEnd="10dp"
     android:paddingRight="10dp"
+    android:paddingBottom="4dp"
     tools:viewBindingIgnore="true">
 
     <RelativeLayout
@@ -25,12 +26,12 @@
             android:layout_alignParentLeft="true"
             android:layout_margin="10dp"
             android:textColor="@color/grey"
-            android:textSize="@dimen/text_medium" />
+            android:textSize="@dimen/audio_recording_header_text_size" />
 
         <ImageButton
             android:id="@+id/discardrecording"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/audio_recording_close_button_size"
+            android:layout_height="@dimen/audio_recording_close_button_size"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/icon_close_darkwarm" />
