@@ -534,9 +534,7 @@
         <activity
             android:name="org.commcare.activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="org.commcare.activities.CommCareWiFiDirectActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name="org.commcare.activities.CommCareWiFiDirectActivity" />
         <activity android:name="org.commcare.activities.RecoveryActivity" />
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
