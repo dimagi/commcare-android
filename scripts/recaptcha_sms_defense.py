@@ -24,9 +24,11 @@ Where to check current state:
     - `status` above is authoritative: it reads phoneEnforcementState,
       useSmsTollFraudProtection and the threshold rules straight from the API.
     - Google Cloud console, console.cloud.google.com/security/recaptcha ->
-      Settings -> SMS defense pane -> Configure, shows only an Enable toggle.
-      It does NOT show the enforcement mode or the threshold, so it cannot
-      distinguish AUDIT from ENFORCE. The Firebase console has no equivalent page.
+      Settings -> SMS defense pane -> Configure.
+    - Firebase console -> select project -> Authentication -> Settings ->
+      Safety (or reCAPTCHA Enterprise).
+      Both panes show the Enable toggle, the enforcement mode and the
+      threshold (as a slider). `status` reads the same fields from the API.
     - Scores and error rates during a rollout live in Cloud Monitoring, under
       identitytoolkit.googleapis.com/recaptcha/{verdict_count,token_count,
       sms_tf_risk_scores}. There is no console dashboard for risk scores.
@@ -34,6 +36,7 @@ Where to check current state:
 If this script cannot run, the equivalent rollback is:
 
     curl -s -X PATCH -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+      -H "x-goog-user-project: <firebase_project_id>" \
       -H "Content-Type: application/json" \
       "https://identitytoolkit.googleapis.com/admin/v2/projects/<firebase_project_id>/config?updateMask=recaptchaConfig.phoneEnforcementState,recaptchaConfig.useSmsTollFraudProtection,recaptchaConfig.tollFraudManagedRules" \
       -d '{"recaptchaConfig":{"phoneEnforcementState":"OFF","useSmsTollFraudProtection":false,"tollFraudManagedRules":[]}}'

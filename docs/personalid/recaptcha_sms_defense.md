@@ -23,6 +23,7 @@ installed and logged in:
 
 ```bash
 brew install --cask google-cloud-sdk
+gcloud components install beta   # `services identity` exists only in the beta track
 gcloud auth login
 gcloud config set project <firebase_project_id>
 ```
@@ -44,10 +45,37 @@ gcloud services list --enabled --project=<firebase_project_id>   # verify
 
 Both `recaptchaenterprise.googleapis.com` and `identitytoolkit.googleapis.com` are enabled.
 
-**Identity Toolkit service agent** — Identity Platform calls reCAPTCHA on our behalf, so it needs
-its own identity and permission to do so:
+**Identity Toolkit service agent** — Identity Platform calls reCAPTCHA Enterprise server-side during
+`sendVerificationCode`, authenticating as its own service agent.
+`roles/identitytoolkit.serviceAgent` is what permits that call.
+
+Google normally provisions this agent when Identity Toolkit is enabled, so **check before changing
+anything** — on an already-working project there is nothing to run here.
+
+### Check: does the agent hold the role?
 
 ```bash
+gcloud projects get-iam-policy <firebase_project_id> \
+  --flatten="bindings[].members" \
+  --filter="bindings.members:gcp-sa-identitytoolkit" \
+  --format="value(bindings.members,bindings.role)"
+```
+
+Expected output — one tab-separated row:
+
+```
+serviceAccount:service-<firebase_project_number>@gcp-sa-identitytoolkit.iam.gserviceaccount.com	roles/identitytoolkit.serviceAgent
+```
+
+**If that row appears, this section is done — skip the rest of it.** The agent exists and is bound,
+which is the only state reCAPTCHA needs. On `<firebase_project_id>` the row is present.
+
+**If the output is empty**, the agent is missing or unbound, and the two commands below fix it.
+
+### Repair: only if the check came back empty
+
+```bash
+# force-creates the agent if it was never provisioned; otherwise just prints its address
 gcloud beta services identity create \
   --service=identitytoolkit.googleapis.com --project=<firebase_project_id>
 
@@ -56,21 +84,59 @@ gcloud projects add-iam-policy-binding <firebase_project_id> \
   --role=roles/identitytoolkit.serviceAgent
 ```
 
-The agent exists and holds `roles/identitytoolkit.serviceAgent`.
+Both are idempotent, but the binding needs `resourcemanager.projects.setIamPolicy`, which
+`roles/editor` does **not** grant — see [Permissions you need to run this](#permissions-you-need-to-run-this). Expect to
+raise an infra request rather than running it yourself. Re-run the check afterwards.
 
-## Operator permissions
+### Reference: what the role permits
 
-Reading and changing the config needs `firebaseauth.configs.get` and
-`firebaseauth.configs.update` — that is, `roles/firebaseauth.admin` on the project:
+Not a check — this is the global role definition and returns the same thing on any project. Useful
+only to see why the role is the one that matters:
 
 ```bash
-gcloud projects get-iam-policy <firebase_project_id> \
-  --flatten="bindings[].members" \
-  --filter="bindings.members:USER@dimagi.com" --format="value(bindings.role)"
+gcloud iam roles describe roles/identitytoolkit.serviceAgent
 ```
 
-`configs.get` is confirmed working. `configs.update` is **not yet exercised** — the first write
-will be the first test of it.
+Expected output:
+
+```yaml
+description: Gives Identity Platform service account access to customer project resources.
+etag: AA==
+includedPermissions:
+- cloudfunctions.functions.invoke
+- recaptchaenterprise.assessments.create
+- recaptchaenterprise.keys.create
+- recaptchaenterprise.keys.delete
+- recaptchaenterprise.keys.get
+name: roles/identitytoolkit.serviceAgent
+stage: GA
+title: Identity Platform Service Agent
+```
+
+Four of the five permissions are `recaptchaenterprise.*`. `assessments.create` is the one that
+matters here — it is what scores each `sendVerificationCode`. `cloudfunctions.functions.invoke`
+belongs to Auth blocking functions and is unrelated. Predefined roles can change over time, so treat
+this as what to expect rather than a contract.
+
+## Permissions you need to run this
+
+Reading and changing the config needs `firebaseauth.configs.get` and
+`firebaseauth.configs.update`. `roles/firebaseauth.admin` grants both, but `roles/editor` is
+sufficient and is what we hold in practice.
+
+Query effective permissions rather than inferring them from role names:
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "Content-Type: application/json" \
+  -d '{"permissions":["firebaseauth.configs.update","resourcemanager.projects.setIamPolicy"]}' \
+  "https://cloudresourcemanager.googleapis.com/v1/projects/<firebase_project_id>:testIamPermissions"
+```
+
+`firebaseauth.configs.update` is granted via `roles/editor` (verified 2026-08-26), so IAM is not a
+blocker for enabling SMS Defense — though the write itself remains unexercised.
+`resourcemanager.projects.setIamPolicy` is **not** granted, so the service-agent binding above would
+need an infra request (Owner or Project IAM Admin).
 
 ## Client requirements
 
@@ -156,6 +222,88 @@ Android key is bound to the package name alone.
 > and your SHA-256 fingerprint (matching what is in your Firebase Project Settings)"* **during
 > reCAPTCHA key creation**, which matches neither flow above.
 
+## Register the key with Identity Platform
+
+Creating the reCAPTCHA key — in the reCAPTCHA Enterprise console or with `gcloud` — only generates
+the site key; it does not automatically link it to Firebase Authentication.
+
+You must map the generated key to the project's Identity Toolkit configuration using the API call
+below. Firebase Authentication needs this mapping to know which reCAPTCHA Enterprise key to invoke
+when performing risk analysis and verifying phone numbers for the Android app.
+
+The two live in separate resources owned by separate APIs — the key inventory under
+`recaptchaenterprise`, the mapping in `recaptchaConfig.recaptchaKeys` under `identitytoolkit` — so
+neither creation flow can write the mapping. Until it exists the key is invisible in the Firebase
+console and Identity Platform has nothing to produce assessments with.
+
+There is no `gcloud` equivalent for this write: `gcloud` exposes no `identity-platform` command group
+and `gcloud firebase` covers only Test Lab. It is REST, or the Firebase Admin SDK.
+
+`scripts/recaptcha_sms_defense.py` does **not** do this step — it only warns
+(`no recaptchaKeys configured on this project`). There is no subcommand for it; register with the
+call below before using `on`.
+
+### Register
+
+`updateMask` scopes the write to this one field:
+
+```bash
+curl -X PATCH -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "x-goog-user-project: <firebase_project_id>" \
+  -H "Content-Type: application/json" \
+  "https://identitytoolkit.googleapis.com/admin/v2/projects/<firebase_project_id>/config?updateMask=recaptchaConfig.recaptchaKeys" \
+  -d '{"recaptchaConfig":{"recaptchaKeys":[{"key":"projects/<firebase_project_id>/keys/<android_key_id>","type":"ANDROID"}]}}'
+```
+
+The response is the full config object with `recaptchaKeys` populated.
+
+> [!IMPORTANT]
+> `x-goog-user-project` is required. Without it, writes fail with **403** —
+> *"The identitytoolkit.googleapis.com API requires a quota project, which is not set by default."*
+> A user access token carries no quota project of its own, so the billing/quota target has to be
+> named explicitly. Using the header needs `serviceusage.services.use` on that project, which
+> `roles/editor` grants. `scripts/recaptcha_sms_defense.py` sets this header itself, which is why the
+> script never hits this error. Reads may succeed without it — do not infer from a working `GET` that
+> a `PATCH` will work.
+
+### Verify
+
+```bash
+curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "x-goog-user-project: <firebase_project_id>" \
+  "https://identitytoolkit.googleapis.com/admin/v2/projects/<firebase_project_id>/config" \
+  | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin).get("recaptchaConfig",{}),indent=2))'
+```
+
+Expected output *before* registering — the whole subobject is absent, which is what an unregistered
+project looks like:
+
+```json
+{}
+```
+
+Expected output *after* registering:
+
+```json
+{
+  "recaptchaKeys": [
+    {
+      "key": "projects/<firebase_project_id>/keys/<android_key_id>",
+      "type": "ANDROID"
+    }
+  ]
+}
+```
+
+### Two things to get right
+
+* **`recaptchaKeys` is an array, and a masked PATCH replaces it wholesale.** Always resend every
+  entry that should survive — registering an `IOS` or `WEB` key later without repeating the `ANDROID`
+  entry silently drops it.
+* **Register before enabling.** Registration is independent of `phoneEnforcementState`, so it can be
+  done while enforcement is still off — the safe order, since raising enforcement with no key
+  registered leaves Identity Platform nothing to produce assessments with.
+
 ## Toggle script
 
 `scripts/recaptcha_sms_defense.py` turns reCAPTCHA SMS Defense on and off, and reports the current
@@ -186,9 +334,11 @@ Read on 2026-08-21 (re-verify before acting, it may have moved):
 | `tollFraudManagedRules` | absent | An array, not a scalar. Each entry is `{"action": "BLOCK", "startScore": N}`, and `startScore` is the only place a threshold exists. Absent means no threshold at all, which is not the same as zero. | Yes — sets the blocking threshold |
 | `recaptchaKeys` | empty | Per-platform key registrations, each `{"key": "projects/{project}/keys/{KEY_ID}", "type": "ANDROID" \| "WEB" \| "IOS"}`, referencing a key already in the project's inventory. Distinct from what `gcloud recaptcha keys list` returns: the inventory holds the web key below, this registration list is empty. Empty means Identity Platform has no key to produce assessments with. | Yes — the `ANDROID` entry is required |
 
-The project's only reCAPTCHA key is `6Ldb8QgeXXXX8`, a **CHECKBOX web**
-key for `commcarehq.org` created in 2022. It is unrelated to mobile auth and must not be edited or
-deleted.
+The inventory holds two keys. `6Ldb8QgeXXXX8` is a **CHECKBOX web** key for `commcarehq.org` created
+in 2022; it is unrelated to mobile auth and must not be edited or deleted. *"Android - CommCare
+reCAPTCHA Key"* was created 2026-08-26 for `org.commcare.dalvik` with package-name enforcement on
+(`allowAllPackageNames: false`); it is **not yet registered** with Identity Platform — see
+[Register the key with Identity Platform](#register-the-key-with-identity-platform).
 
 ### Threshold semantics
 
@@ -269,11 +419,18 @@ gcloud logging read 'protoPayload.serviceName="identitytoolkit.googleapis.com"' 
 
 Monitor hourly through any audit or enforcement window and roll back if the error rate climbs.
 
-### What the console will not tell you
+### Where to view in console
 
-**Security → reCAPTCHA → Settings → SMS defense → Configure** shows only an Enable toggle. It does
-**not** show the enforcement mode or the threshold, so it cannot distinguish `AUDIT` from `ENFORCE`;
-the script's `status` is the only complete view. The Firebase console has no equivalent page.
+Two panes show parts of the config:
+
+**Google Cloud console** — Security → reCAPTCHA → Settings → SMS defense → Configure
+
+**Firebase console** — select project → left navigation menu → Authentication → Settings → Safety
+(or reCAPTCHA Enterprise)
+
+Both surface the Enable toggle, the enforcement mode (`AUDIT` or `ENFORCE`) and the threshold, the
+threshold as a slider. The script's `status` reads the same fields from the API, which is the quicker
+check and the one to trust if the two ever disagree.
 
 ## Cost
 
