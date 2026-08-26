@@ -207,7 +207,10 @@ public class WiFiDirectManagementFragment extends Fragment
 
     @Override
     public void onChannelDisconnected() {
-        CommCareWiFiDirectActivity activity = requireWiFiDirectActivity();
+        CommCareWiFiDirectActivity activity = (CommCareWiFiDirectActivity)getActivity();
+        if (activity == null) {
+            return;
+        }
         // we will try once more
         if (mManager != null) {
             Toast.makeText(activity, "Channel lost. Trying again", Toast.LENGTH_LONG).show();

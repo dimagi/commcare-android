@@ -55,7 +55,10 @@ public class FileServerFragment extends Fragment {
     }
 
     private void onFormsCopied(String result) {
-        ((CommCareWiFiDirectActivity)requireActivity()).onFormsCopied(result);
+        CommCareWiFiDirectActivity activity = (CommCareWiFiDirectActivity)getActivity();
+        if (activity != null) {
+            activity.onFormsCopied(result);
+        }
     }
 
     public void startServer(String mReceiveZipDirectory) {
