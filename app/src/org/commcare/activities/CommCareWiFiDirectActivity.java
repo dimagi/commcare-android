@@ -12,7 +12,6 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.ActionListener;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
-import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -241,6 +240,10 @@ public class CommCareWiFiDirectActivity
 
         fragment.startReceiver(mManager, mChannel);
         fragment.refreshConnectionInfo();
+        updatePeers();
+        if (sessionViewModel.getThisDevice() != null) {
+            deviceListFragment().updateThisDevice(sessionViewModel.getThisDevice());
+        }
 
         changeState();
     }
@@ -912,19 +915,21 @@ public class CommCareWiFiDirectActivity
     @Override
     public void updatePeers() {
         Logger.log(TAG, "Wi-Fi direct peers updating");
-        mManager.requestPeers(mChannel, (PeerListListener)this.getSupportFragmentManager()
-                .findFragmentById(R.id.frag_list));
-
+        if (mManager == null || mChannel == null) {
+            return;
+        }
+        try {
+            mManager.requestPeers(mChannel, deviceListFragment());
+        } catch (SecurityException e) {
+            Logger.log(TAG, "Cannot read Wi-fi direct peers without permission");
+        }
     }
 
     @Override
     public void updateDeviceStatus(WifiP2pDevice mDevice) {
         Logger.log(TAG, "Wi-fi direct status updating");
-        DeviceListFragment fragment = (DeviceListFragment)this.getSupportFragmentManager()
-                .findFragmentById(R.id.frag_list);
-
-        fragment.updateThisDevice(mDevice);
-
+        sessionViewModel.setThisDevice(mDevice);
+        deviceListFragment().updateThisDevice(mDevice);
     }
 
     /**

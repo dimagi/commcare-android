@@ -1,6 +1,7 @@
 package org.commcare.fragments
 
 import android.app.Application
+import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pManager
 import android.os.Build
 import android.os.Looper
@@ -16,6 +17,8 @@ class WiFiDirectSessionViewModel(
     var isModeDialogShowing = false
 
     var cachedRecords: Array<FormRecord>? = null
+
+    var thisDevice: WifiP2pDevice? = null
 
     val manager: WifiP2pManager? = application.getSystemService(WifiP2pManager::class.java)
 
