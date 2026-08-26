@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rvDeliveryProgressReport"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/connect_background_color" />
+    android:background="@color/connect_background_color"
+    android:clipToPadding="false"
+    android:paddingVertical="6dp"
+    tools:listitem="@layout/connect_delivery_progress_item" />
