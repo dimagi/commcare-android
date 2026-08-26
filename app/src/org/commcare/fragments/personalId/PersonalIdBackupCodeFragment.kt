@@ -134,10 +134,10 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             null,
             PersonalIdWorkflow.CONFIGURATION,
         )
+        personalIdSessionData.backupCode = binding.backupCodeView.codeValue
         if (isRecovery) {
             confirmBackupCode()
         } else {
-            personalIdSessionData.backupCode = binding.backupCodeView.codeValue
             if (ReleaseToggleHelper.isEmailOtpVerificationActive(personalIdSessionData)) {
                 navigateToEmail()
             } else {
