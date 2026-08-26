@@ -130,6 +130,17 @@ public class WiFiDirectManagementFragment extends Fragment
         this.mManager = mManager;
     }
 
+    public void refreshConnectionInfo() {
+        if (mManager == null || mChannel == null) {
+            return;
+        }
+        try {
+            mManager.requestConnectionInfo(mChannel, this);
+        } catch (SecurityException e) {
+            Logger.log(TAG, "Cannot read Wi-fi direct connection info without permission");
+        }
+    }
+
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo info) {
 

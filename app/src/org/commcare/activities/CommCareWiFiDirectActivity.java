@@ -27,6 +27,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 
 import org.commcare.CommCareApplication;
@@ -40,6 +41,7 @@ import org.commcare.fragments.FileServerFragment;
 import org.commcare.fragments.FileServerFragment.FileServerListener;
 import org.commcare.fragments.WiFiDirectManagementFragment;
 import org.commcare.fragments.WiFiDirectManagementFragment.WifiDirectManagerListener;
+import org.commcare.fragments.WiFiDirectSessionViewModel;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.models.database.SqlStorage;
@@ -112,7 +114,7 @@ public class CommCareWiFiDirectActivity
 
     private wdState mState = wdState.send;
 
-    private FormRecord[] cachedRecords;
+    private WiFiDirectSessionViewModel sessionViewModel;
 
     private final int NEARBY_WIFI_PERM_REQUEST = 2;
     private final String SHOW_PERMISSION_DIALOG = "show-permission-dialog";
@@ -175,7 +177,11 @@ public class CommCareWiFiDirectActivity
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-        if (savedInstanceState == null) {
+        sessionViewModel = new ViewModelProvider(this).get(WiFiDirectSessionViewModel.class);
+        if (sessionViewModel.getState() != null) {
+            mState = sessionViewModel.getState();
+        }
+        if (sessionViewModel.getState() == null || sessionViewModel.isModeDialogShowing()) {
             showChangeStateDialog();
         }
         uiController.setupUI();
@@ -211,6 +217,8 @@ public class CommCareWiFiDirectActivity
     }
 
     public void showChangeStateDialog() {
+        dismissAlertDialog();
+        sessionViewModel.setModeDialogShowing(true);
         showDialog(localize("wifi.direct.change.state.title").toString(),
                 localize("wifi.direct.change.state.text").toString());
     }
@@ -231,6 +239,7 @@ public class CommCareWiFiDirectActivity
         }
 
         fragment.startReceiver(mManager, mChannel);
+        fragment.refreshConnectionInfo();
 
         changeState();
     }
@@ -247,12 +256,9 @@ public class CommCareWiFiDirectActivity
     private void hostGroup() {
         Logger.log(TAG, "Hosting Wi-fi direct group");
 
-        final FileServerFragment fsFragment = (FileServerFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.file_server_fragment);
-        fsFragment.startServer(receiveZipDirectory);
+        fileServerFragment().startServer(receiveZipDirectory);
 
-        WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.wifi_manager_fragment);
+        WiFiDirectManagementFragment fragment = wifiManagementFragment();
 
         if (!fragment.isWifiP2pEnabled()) {
             Logger.log(TAG, "returning because Wi-fi direct is not available");
@@ -264,23 +270,45 @@ public class CommCareWiFiDirectActivity
         mManager.createGroup(mChannel, fragment);
     }
 
+    private void setState(wdState state) {
+        mState = state;
+        sessionViewModel.setState(state);
+        changeState();
+    }
+
     private void changeState() {
+        renderState();
         updateStatusText();
         uiController.refreshView();
+    }
+
+    private void renderState() {
+        switch (mState) {
+            case send:
+                renderSender();
+                break;
+            case receive:
+                renderReceiver();
+                break;
+            case submit:
+                renderSubmitter();
+                break;
+        }
     }
 
     private void showDialog(String title, String message) {
         StandardAlertDialog d = new StandardAlertDialog(title, message);
         DialogInterface.OnClickListener listener = (dialog, which) -> {
+            sessionViewModel.setModeDialogShowing(false);
             switch (which) {
                 case AlertDialog.BUTTON_POSITIVE:
-                    beSubmitter();
+                    enterSubmitter();
                     break;
                 case AlertDialog.BUTTON_NEUTRAL:
-                    beReceiver();
+                    enterReceiver();
                     break;
                 case AlertDialog.BUTTON_NEGATIVE:
-                    beSender();
+                    enterSender();
                     break;
             }
             dialog.dismiss();
@@ -291,104 +319,86 @@ public class CommCareWiFiDirectActivity
         showAlertDialog(d);
     }
 
-    private void beSender() {
-
+    private void enterSender() {
         myStatusText.setText(localize("wifi.direct.enter.send.mode"));
 
-        WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.wifi_manager_fragment);
-
-        DeviceListFragment fragmentList = (DeviceListFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.frag_list);
-
-        DeviceDetailFragment fragmentDetails = (DeviceDetailFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-
-        FileServerFragment fsFragment = (FileServerFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.file_server_fragment);
-
-        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
-
-        tr.show(wifiFragment);
-        tr.show(fragmentList);
-        tr.show(fragmentDetails);
-        tr.hide(fsFragment);
-        tr.commit();
-
-        wifiFragment.setIsHost(false);
-        wifiFragment.resetConnectionGroup();
-
+        wifiManagementFragment().resetConnectionGroup();
 
         Logger.log(TAG, "Device designated as sender");
         resetData();
-        mState = wdState.send;
-        changeState();
+        setState(wdState.send);
     }
 
-    private void beReceiver() {
-        myStatusText.setText(localize("wifi.direct.enter.receive.mode"));
-
-        WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.wifi_manager_fragment);
-
-        DeviceListFragment fragmentList = (DeviceListFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.frag_list);
-
-        DeviceDetailFragment fragmentDetails = (DeviceDetailFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-
-        FileServerFragment fsFragment = (FileServerFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.file_server_fragment);
-
+    private void renderSender() {
         FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
-
-        tr.show(wifiFragment);
-        tr.show(fragmentList);
-        tr.show(fragmentDetails);
-        tr.show(fsFragment);
+        tr.show(wifiManagementFragment());
+        tr.show(deviceListFragment());
+        tr.show(deviceDetailFragment());
+        tr.hide(fileServerFragment());
         tr.commit();
 
-        wifiFragment.setIsHost(true);
-        wifiFragment.resetConnectionGroup();
+        wifiManagementFragment().setIsHost(false);
+    }
+
+    private void enterReceiver() {
+        myStatusText.setText(localize("wifi.direct.enter.receive.mode"));
+
+        wifiManagementFragment().resetConnectionGroup();
 
         Logger.log(TAG, "Device designated as receiver");
         resetData();
+        setState(wdState.receive);
         hostGroup();
-
-        mState = wdState.receive;
-        changeState();
     }
 
-    private void beSubmitter() {
+    private void renderReceiver() {
+        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+        tr.show(wifiManagementFragment());
+        tr.show(deviceListFragment());
+        tr.show(deviceDetailFragment());
+        tr.show(fileServerFragment());
+        tr.commit();
+
+        wifiManagementFragment().setIsHost(true);
+    }
+
+    private void enterSubmitter() {
         unzipFilesHelper();
         myStatusText.setText(localize("wifi.direct.enter.submit.mode"));
 
-        WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.wifi_manager_fragment);
-
-        DeviceListFragment fragmentList = (DeviceListFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.frag_list);
-
-        DeviceDetailFragment fragmentDetails = (DeviceDetailFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-
-        FileServerFragment fsFragment = (FileServerFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.file_server_fragment);
-
-        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
-
-        tr.hide(fsFragment);
-        tr.hide(wifiFragment);
-        tr.hide(fragmentList);
-        tr.hide(fragmentDetails);
-        tr.commit();
-
-        wifiFragment.setIsHost(false);
-        wifiFragment.resetConnectionGroup();
+        wifiManagementFragment().resetConnectionGroup();
 
         Logger.log(TAG, "Device designated as submitter");
-        mState = wdState.submit;
-        changeState();
+        setState(wdState.submit);
+    }
+
+    private void renderSubmitter() {
+        FragmentTransaction tr = getSupportFragmentManager().beginTransaction();
+        tr.hide(fileServerFragment());
+        tr.hide(wifiManagementFragment());
+        tr.hide(deviceListFragment());
+        tr.hide(deviceDetailFragment());
+        tr.commit();
+
+        wifiManagementFragment().setIsHost(false);
+    }
+
+    private WiFiDirectManagementFragment wifiManagementFragment() {
+        return (WiFiDirectManagementFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.wifi_manager_fragment);
+    }
+
+    private DeviceListFragment deviceListFragment() {
+        return (DeviceListFragment)getSupportFragmentManager().findFragmentById(R.id.frag_list);
+    }
+
+    private DeviceDetailFragment deviceDetailFragment() {
+        return (DeviceDetailFragment)getSupportFragmentManager().findFragmentById(R.id.frag_detail);
+    }
+
+    private FileServerFragment fileServerFragment() {
+        return (FileServerFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.file_server_fragment);
     }
 
     private void cleanPostSend() {
@@ -397,7 +407,7 @@ public class CommCareWiFiDirectActivity
 
         // remove Forms from CC
 
-        WipeTask mWipeTask = new WipeTask(getApplicationContext(), this.cachedRecords) {
+        WipeTask mWipeTask = new WipeTask(getApplicationContext(), sessionViewModel.getCachedRecords()) {
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver,
                                          Boolean result) {
@@ -425,7 +435,7 @@ public class CommCareWiFiDirectActivity
 
         Logger.log(TAG, "Deleting dirs " + toBeTransferredDirectory + " and " + zipFilePath);
 
-        this.cachedRecords = null;
+        sessionViewModel.setCachedRecords(null);
 
     }
 
@@ -719,7 +729,7 @@ public class CommCareWiFiDirectActivity
                         R.layout.template_text_notification_problem);
                 return;
             }
-            this.cachedRecords = result.second;
+            sessionViewModel.setCachedRecords(result.second);
         }
         updateStatusText();
         moveReceivedFiles();
