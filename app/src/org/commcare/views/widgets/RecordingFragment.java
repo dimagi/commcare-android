@@ -149,8 +149,12 @@ public class RecordingFragment extends DialogFragment {
         if (recordingSessionStarted) {
             // Recreated mid-session; the service kept recording, so rebind and restore from it rather
             // than looking at the audio file, which exists but is still being written to.
-            bindAudioRecordingService();
-            return;
+            if (rebindToRunningRecording()) {
+                return;
+            }
+            // The service went down with the process, so there is nothing to pick up.
+            recordingSessionStarted = false;
+            discardUnfinalisedRecording();
         }
 
         if (fileName != null && new File(fileName).exists()) {
@@ -279,13 +283,38 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void bindAudioRecordingService(Intent serviceIntent) {
-        audioRecordingServiceBounded = requireActivity().bindService(serviceIntent,
-                getAudioRecordingServiceConnection(), Context.BIND_AUTO_CREATE);
+        requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(),
+                Context.BIND_AUTO_CREATE);
+        audioRecordingServiceBounded = true;
     }
 
-    private void bindAudioRecordingService() {
+    /**
+     * Attaches to a recording that is already running. Omits BIND_AUTO_CREATE so a session whose service
+     * is gone reports itself as such, rather than spinning up an idle one we would misread as live.
+     *
+     * @return whether there was a running recording to attach to
+     */
+    private boolean rebindToRunningRecording() {
         Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
-        bindAudioRecordingService(serviceIntent);
+        boolean bound = requireActivity().bindService(serviceIntent,
+                getAudioRecordingServiceConnection(), 0);
+        // Unbinding is required even when the bind fails, so record that we asked.
+        audioRecordingServiceBounded = true;
+        return bound;
+    }
+
+    /**
+     * Drops the file left behind by a session whose service died mid-recording; the recorder never
+     * finalised it, so it won't play.
+     */
+    private void discardUnfinalisedRecording() {
+        if (savedRecordingExists || fileName == null) {
+            return;
+        }
+        if (!new File(fileName).delete()) {
+            Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Failed to delete partial recording file");
+        }
+        fileName = null;
     }
 
     private ServiceConnection getAudioRecordingServiceConnection() {
@@ -579,9 +608,9 @@ public class RecordingFragment extends DialogFragment {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             unregisterAudioRecordingConfigurationChangeCallback();
         }
-        // On a configuration change this view is about to be rebuilt, so leave the recording running and
-        // let the new view rebind to it. Any other teardown ends the session for good.
-        boolean endingSession = !requireActivity().isChangingConfigurations();
+        // A config change, or the system reclaiming a stopped activity, rebuilds this view and the
+        // recording has to outlive it. Only a dismissal or a finishing activity ends the session.
+        boolean endingSession = isRemoving() || requireActivity().isFinishing();
         if (endingSession && audioRecordingService != null) {
             audioRecordingService.finishAndRelease();
         }
