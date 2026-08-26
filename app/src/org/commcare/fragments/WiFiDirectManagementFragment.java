@@ -1,7 +1,6 @@
 package org.commcare.fragments;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
@@ -32,7 +31,6 @@ import org.javarosa.core.services.Logger;
 public class WiFiDirectManagementFragment extends Fragment
         implements ConnectionInfoListener, ActionListener, ChannelListener {
     private static final String TAG = LogTypes.TYPE_WIFI_DIRECT;
-    private static CommCareWiFiDirectActivity mActivity;
 
     private TextView mStatusText;
 
@@ -44,16 +42,6 @@ public class WiFiDirectManagementFragment extends Fragment
 
     private WifiP2pManager mManager;
     private Channel mChannel;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mActivity = (CommCareWiFiDirectActivity)context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement fileServerListener");
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -69,12 +57,16 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void resetData() {
-        ((WifiDirectManagerListener)this.getActivity()).resetData();
+        requireWiFiDirectActivity().resetData();
+    }
+
+    private CommCareWiFiDirectActivity requireWiFiDirectActivity() {
+        return (CommCareWiFiDirectActivity)requireActivity();
     }
 
     public void onPeersChanged() {
         Logger.log(TAG, "Wi-fi direct peers changed");
-        mActivity.updatePeers();
+        requireWiFiDirectActivity().updatePeers();
     }
 
     public void onP2PConnectionChanged(boolean isConnected) {
@@ -106,7 +98,7 @@ public class WiFiDirectManagementFragment extends Fragment
             mManager.createGroup(mChannel, this);
         }
 
-        mActivity.updateDeviceStatus(mDevice);
+        requireWiFiDirectActivity().updateDeviceStatus(mDevice);
     }
 
     public String getHostAddress() {
@@ -215,13 +207,14 @@ public class WiFiDirectManagementFragment extends Fragment
 
     @Override
     public void onChannelDisconnected() {
+        CommCareWiFiDirectActivity activity = requireWiFiDirectActivity();
         // we will try once more
         if (mManager != null) {
-            Toast.makeText(mActivity, "Channel lost. Trying again", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Channel lost. Trying again", Toast.LENGTH_LONG).show();
             //resetData();
-            mManager.initialize(mActivity, mActivity.getMainLooper(), this);
+            mManager.initialize(activity, activity.getMainLooper(), this);
         } else {
-            Toast.makeText(mActivity,
+            Toast.makeText(activity,
                     "Severe! Channel is probably lost premanently. Try Disable/Re-Enable P2P.",
                     Toast.LENGTH_LONG).show();
         }

@@ -1,7 +1,6 @@
 package org.commcare.fragments;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,24 +30,12 @@ import java.net.Socket;
 public class FileServerFragment extends Fragment {
     private static final String TAG = FileServerFragment.class.getSimpleName();
 
-    private static CommCareWiFiDirectActivity mActivity;
-
-    private static TextView mStatusText;
+    private TextView mStatusText;
     private View mView;
 
-    private static String receiveZipDirectory;
+    private String receiveZipDirectory;
 
     private FileServerAsyncTask mFileServer;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mActivity = (CommCareWiFiDirectActivity)context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement fileServerListener");
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,6 +54,10 @@ public class FileServerFragment extends Fragment {
         void onFormsCopied(String result);
     }
 
+    private void onFormsCopied(String result) {
+        ((CommCareWiFiDirectActivity)requireActivity()).onFormsCopied(result);
+    }
+
     public void startServer(String mReceiveZipDirectory) {
         Logger.log(TAG, "File Server starting...");
 
@@ -76,9 +67,9 @@ public class FileServerFragment extends Fragment {
             mFileServer.cancel(true);
         }
 
-        mFileServer = new FileServerAsyncTask(this);
-
         receiveZipDirectory = mReceiveZipDirectory;
+
+        mFileServer = new FileServerAsyncTask(this);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
@@ -108,7 +99,7 @@ public class FileServerFragment extends Fragment {
             try {
                 ServerSocket serverSocket = new ServerSocket(8988);
                 long time = System.currentTimeMillis();
-                String finalFileName = receiveZipDirectory + time + ".zip";
+                String finalFileName = mListener.receiveZipDirectory + time + ".zip";
 
                 try {
                     publishProgress("Ready to accept new file transfer.", null);
@@ -161,10 +152,10 @@ public class FileServerFragment extends Fragment {
             }
 
             if (result != null) {
-                mActivity.onFormsCopied(result);
+                mListener.onFormsCopied(result);
             }
             Logger.log(TAG, "file server post-execute, relaunching server");
-            mListener.startServer(receiveZipDirectory);
+            mListener.startServer(mListener.receiveZipDirectory);
         }
 
         @Override
@@ -174,7 +165,7 @@ public class FileServerFragment extends Fragment {
 
         @Override
         protected void onProgressUpdate(String... params) {
-            mStatusText.setText(params[0]);
+            mListener.mStatusText.setText(params[0]);
         }
 
     }

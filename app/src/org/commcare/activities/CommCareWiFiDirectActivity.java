@@ -96,12 +96,12 @@ public class CommCareWiFiDirectActivity
 
     private WiFiDirectUIController uiController;
 
-    private static String baseDirectory;
-    private static String toBeTransferredDirectory;
-    private static String zipFilePath;
-    private static String receiveDirectory;
-    private static String receiveZipDirectory;
-    private static String toBeSubmittedDirectory;
+    private String baseDirectory;
+    private String toBeTransferredDirectory;
+    private String zipFilePath;
+    private String receiveDirectory;
+    private String receiveZipDirectory;
+    private String toBeSubmittedDirectory;
 
     private TextView myStatusText;
     private TextView formCountText;
