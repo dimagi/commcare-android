@@ -15,13 +15,15 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class FileServerViewModel : ViewModel() {
     private val _statusText = MutableLiveData<String>()
     val statusText: LiveData<String> = _statusText
 
-    private val _receivedZipPath = MutableLiveData<String>()
-    val receivedZipPath: LiveData<String> = _receivedZipPath
+    private val pendingZips = ConcurrentLinkedQueue<String>()
+    private val _receivedZipPaths = MutableLiveData<List<String>>(emptyList())
+    val receivedZipPaths: LiveData<List<String>> = _receivedZipPaths
 
     @Volatile
     private var running = false
@@ -31,6 +33,15 @@ class FileServerViewModel : ViewModel() {
 
     val isRunning: Boolean
         get() = running
+
+    fun onReceivedZipHandled(path: String) {
+        pendingZips.remove(path)
+        publishPendingZips()
+    }
+
+    private fun publishPendingZips() {
+        _receivedZipPaths.postValue(pendingZips.toList())
+    }
 
     fun startServer(receiveZipDirectory: String) {
         if (running) {
@@ -96,7 +107,8 @@ class FileServerViewModel : ViewModel() {
             CommCareWiFiDirectActivity.copyFile(client.getInputStream(), FileOutputStream(f))
 
             _statusText.postValue("copied files: ${f.absolutePath}")
-            _receivedZipPath.postValue(f.absolutePath)
+            pendingZips.add(f.absolutePath)
+            publishPendingZips()
         } catch (e: IOException) {
             val errorMessage = "File Server crashed after transfer with IO Exception: ${e.message}"
             Logger.exception(errorMessage, e)

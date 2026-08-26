@@ -48,8 +48,13 @@ public class FileServerFragment extends Fragment {
         mView.setVisibility(viewModel.isRunning() ? View.VISIBLE : View.GONE);
 
         viewModel.getStatusText().observe(getViewLifecycleOwner(), mStatusText::setText);
-        viewModel.getReceivedZipPath().observe(getViewLifecycleOwner(), path ->
-                ((CommCareWiFiDirectActivity)requireActivity()).onFormsCopied(path));
+        viewModel.getReceivedZipPaths().observe(getViewLifecycleOwner(), paths -> {
+            CommCareWiFiDirectActivity activity = (CommCareWiFiDirectActivity)requireActivity();
+            for (String path : paths) {
+                viewModel.onReceivedZipHandled(path);
+                activity.onFormsCopied(path);
+            }
+        });
     }
 
     public interface FileServerListener {
