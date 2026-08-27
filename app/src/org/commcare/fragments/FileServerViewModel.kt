@@ -8,8 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.commcare.activities.CommCareWiFiDirectActivity
 import org.commcare.util.LogTypes
+import org.commcare.utils.closeQuietly
 import org.javarosa.core.services.Logger
-import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -126,12 +126,5 @@ class FileServerViewModel : ViewModel() {
     companion object {
         private val TAG = LogTypes.TYPE_WIFI_DIRECT
         private const val PORT = 8988
-    }
-}
-
-private fun Closeable?.closeQuietly() {
-    try {
-        this?.close()
-    } catch (e: IOException) {
     }
 }
