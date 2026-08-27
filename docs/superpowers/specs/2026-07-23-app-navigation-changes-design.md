@@ -1,116 +1,106 @@
 # App Navigation — Technical Spec (Start-of-App Routing & Back Navigation)
 
-> **Important note: Please review [this tab of the design doc](https://docs.google.com/document/d/1rntc16FW2Jfr6CbzNcZ9RDOxIRrmfcWNU6_d5WL1rA8/edit?tab=t.ongpgraabwyz) first.** It defines the target behavior — the user types, where the app opens, how Back behaves, logout, and session timeout — and the product decisions behind them.
+> **Important: Read [this tab of the design doc](https://docs.google.com/document/d/1rntc16FW2Jfr6CbzNcZ9RDOxIRrmfcWNU6_d5WL1rA8/edit?tab=t.ongpgraabwyz) first.**
+>
+> It owns **all user-facing flow charts and visuals.**
 
-**Ticket:** [CCCT-2520](https://dimagi.atlassian.net/browse/CCCT-2520) · **Related:** [PR #3776](https://github.com/dimagi/commcare-android/pull/3776) (Opportunity Home composition), [PR #3765](https://github.com/dimagi/commcare-android/pull/3765) (silent app launch)
+**Prerequisite:** the Opportunity Home composition work, which provides the opportunity screen that can run a CommCare app inside itself instead of launching a separate one. The inline silent-login hand-off returns a finished login to that already-open screen; this spec depends on it.
 
-The diagrams below are carried over from the design doc for reference.
+## Scope
 
-**Where the app opens**
+**1. `DispatchActivity` becomes a one-time router.** It stays the single startup router — no second routing class — modified to decide **once per cold start** rather than re-evaluating in `onResume`, and to add a Connect-home branch. The decision logic is extracted into a testable pure helper it calls.
 
-```mermaid
-flowchart TD
-    Open([User opens the app]) --> Active{Logged into a CommCare app?}
-    Active -->|Yes, Traditional CommCare or PersonalID| AppHome[App Home]
-    Active -->|Yes, Connect| OppHome[Opportunity Home]
-    Active -->|No| Current{Is there a currently seated app to sign back into?}
-    Current -->|Yes, Traditional CommCare / PersonalID| LoginSeated[CommCare App List with the login sheet opened]
-    Current -->|Yes, Connect| UnlockRelogin[re-login to Opportunity Home]
-    Current -->|No| Type{What has the user set up?}
-    Type -->|Nothing yet| Intro[Intro screen]
-    Type -->|Only CommCare apps| Apps[CommCare Apps list]
-    Type -->|Only Connect opportunities| Opp{Opened an opportunity before?}
-    Type -->|Both CommCare apps and Connect opportunities| Last{Which did they use last?}
-    Last -->|A CommCare app| Apps
-    Last -->|A Connect opportunity| Opp
-    Opp -->|Yes| Home[Home of the most recently opened opportunity]
-    Opp -->|No, but only has one opportunity| HomeSingle[Home of that opportunity]
-    Opp -->|No, and has several opportunities| List[Opportunity List]
-```
+**2. Every entry seeds a complete back path.** The sign-in, account and Connect list screens are consolidated into one navigation surface (the "shell"); the CommCare app runtime stays a separately launched screen. Because the path is built before the target is shown, the per-case activity flags that used to force an exit are no longer needed.
 
-**When startup fails (Connect)**
+## Routing
 
 ```mermaid
 flowchart TD
-    Start([Connect user opens the mobile app]) --> Unlock{Unlock PersonalID}
-    Unlock -->|Cancelled or fails| Login[Login page]
-    Unlock -->|Success| Land[Opportunity Home loads<br/>Start button and menu disabled; sign-in fires]
-    Land --> Signin{Sign-in outcome}
-    Signin -->|Success| Ready[Start button and menu enabled — ready to use]
-    Signin -->|Network or temporary error| Retry[Opportunity Home shows an error and Retry; Start and menu stay disabled]
-    Signin -->|PersonalID credentials lost| Reregister[Re-register PersonalID]
+    E([App entry]) --> I{"Intent-driven?<br/>ACTION_VIEW install · KEY_REQUIRE_REFRESH<br/>deep link · push"}
+    I -->|Yes| Target[Target from the intent] --> Need{"PersonalID credentials<br/>needed for this branch?"}
+    I -->|No| S{Active session?}
+    S -->|Yes| Prov["Resume using the stored record of how<br/>the session was created, not evaluateAppState"] --> Need
+    S -->|No| Seat{An app already seated?}
+    Seat -->|Yes| SignIn["Sign in for that app,<br/>not the list to re-pick"] --> Need
+    Seat -->|No| Config[Decide from what the user has set up] --> Need
+    Need -->|No| Seed["Seed the full back path,<br/>then show the target"]
+    Need -->|Yes| Unlock{Unlock}
+    Unlock -->|Success| Seed
+    Unlock -->|Cancel or fail| Apps{CommCare apps installed?}
+    Apps -->|Yes| Login[Login page]
+    Apps -->|No| Intro[Intro page]
 ```
 
-**How the Back button behaves — two distinct controls**
+**Which home an active session resumes to** depends on how that session was created. A session signed in through PersonalID, on an app tied to an opportunity, resumes Opportunity Home; a session signed in with a username and password, or on an app with no opportunity, resumes the CommCare app home.
 
-- **Back** is *temporal*: it retraces the exact screens the user moved through and exits the app from the screen the session opened to. No hidden flags.
-- **Up** is *hierarchical*: a top-bar arrow that moves up the app's structure to the area's home; it never exits. For a directly-launched or deep-linked screen, Up follows a synthesized parent path.
+The unlock gate belongs to the router, so no entry point can bypass it — `ConnectUnlockFragment` stops being the startup host. Entries from inside the app, after the session has already expired, keep today's per-call helpers; north-star collapses both into the one gate.
 
-Where they differ: tabs (Back → the previous tab; Up → the page's Home), side-menu sections (Back → the previous section; Up → home), and a directly-opened screen (Back → exit; Up → its parent, e.g. Opportunity Home → Opportunity List).
+The fallback screen has to explain why the user is on it. For a PersonalID-assisted user the recovery action there is the PersonalID option, not username/password.
 
-```mermaid
-flowchart LR
-    OH[Opportunity Home opened at launch] -->|Back| EX([Exit app])
-    OH -->|Up| OL[Opportunity List]
-```
+## The seeded back path
 
-**Near-term scope: before the CommCare Apps List exists**
+| Entry | Task stack, bottom → top |
+|---|---|
+| Cold start, Connect user with a current opportunity | Opp List → Opp Home |
+| Cold start, Connect user with no current opportunity | Opp List |
+| Cold start, traditional CommCare or PersonalID user | Login page (CommCare Apps list, once it ships) → app Home |
+| Notification into a chat | Opp List → Opp Home → Messaging channel list → Chat |
+| Sidebar section opened from inside an opportunity | Opp List → Opp Home → Section |
+| A second sidebar section opened after the first | Opp List → Opp Home → New section (the first section is closed) |
 
-```mermaid
-flowchart TD
-    AppHome[App Home] -->|Back| Login[Login Page]
-    Login -->|Back| Exit([Exit app])
-```
+The stack therefore never holds more than four screens, and only reaches four when a notification or deep link opens something nested.
 
-## Why today's navigation can't deliver this
+A path is built only when there is no real history to retrace: a chat opened from a task on Opportunity Home has history, so Back returns there rather than inserting/building the messaging channel list.
 
-- `DispatchActivity` (the app's launcher) re-evaluates its routing in `onResume`, which — in the Connect silent-launch flow — made backing into it re-dispatch and loop (documented in #3765). It's a specific-scenario defect, not that every foreground return loops.
-- It only ever decides *login vs. CommCare home* — there is no first-class path to a Connect home.
-- Navigation is spread across four activities (`DispatchActivity` / `LoginActivity` / `ConnectActivity` / `StandardHomeActivity`), and Back is patched per-case with activity flags. That combination is the direct source of the loops, stale screens, stack growth, and inconsistent exits the team already hit while building the Connect launch flow (#3765).
+Seeding spans activities, not nav graphs — Messaging is a separate activity with its own `NavHost` and Opportunity Home is in another, so the path is a task stack. `NavDeepLinkBuilder` is not used: it synthesizes only within one graph, and it bypasses the unlock gate.
 
-## The approach
+## The app-bar slot
 
-Two changes deliver the target behavior.
+CommCare screens already route the app-bar arrow to Back, so dropping `Up` requires no change to them.
 
-**1. Make `DispatchActivity` a one-time router.** Keep `DispatchActivity` as the single startup router — no second routing class — but modify it to make its landing decision **once per cold start** (instead of re-evaluating in `onResume`, the source of the re-dispatch loop) and to **add the Connect-home branch** the current tree lacks. The decision logic can be extracted into a testable pure helper it calls. Its outcomes are the "Where the app opens" diagram.
+**Back-swipe** needs no separate rule, but note that on sidebar screens `DrawerLayout` automatically claims the left edge, so a left-edge swipe opens the sidebar while a right-edge swipe goes back.
 
-**2. A two-tier structure with temporal Back + hierarchical Up.** The identity / Connect / list screens are consolidated into one navigation surface (the "shell"); the CommCare app runtime stays a separately launched screen. **Back** is driven by the real screen stack (temporal) — the screen the app launched to is the task root (Back exits it) — so the per-case flags disappear; **Up** is a top-bar affordance that moves up the hierarchy, synthesizing a parent path for directly-launched / deep-linked screens. Connect opportunity screens become app-capable *in place* (via #3776), so opening an opportunity doesn't launch a separate home screen and the stack can't grow.
+## Sidebar
 
-## Why this covers the tricky cases
+**The Connect screens have no sidebar today.** Opportunity List, Opportunity Home, Messaging and Work History all need drawer support added.
 
-The stack-based model resolves the edge cases from [#3765's edge-cases doc](https://docs.google.com/document/d/1jiVEbljnR8abPwJnKzqULTEqbAxU_PAt9sRWkPjTB9k/edit?usp=sharing) without special-casing:
+## Tabs
 
-- Backing out of the launch screen exits, because that screen *is* the task root — the same rule whether the user launched there or navigated there (no `appLaunchedFromConnect`-style flag).
-- Switching apps, or re-launching a running app, reuses the existing home rather than leaving a stale one to Back into.
-- A notification deep-link opens directly to its target: **Back** exits (it's the task root), while **Up** follows a synthesized parent path (Android's deep-link guidance) so the user can still move up into the app.
+The selected Delivery tab is an **argument** to the destination rather than a destination of its own, so a deep link can open a specific tab.
 
-## Dependencies
+## Session lifecycle
 
-- **[#3776](https://github.com/dimagi/commcare-android/pull/3776) (Opportunity Home composition)** — provides the in-place, app-capable opportunity screen the router lands on. Hard dependency.
-- **Inline silent-login hand-off** — parallel work that returns a completed login to the *running* opportunity screen (rather than launching a fresh home). This spec consumes it.
-- **Login-page → app-list bottom-sheet redesign** — parallel, not blocking (see the design doc). The router and Back model ship independently; only the specific traditional/PersonalID landing screens depend on it.
+- **Expiry:** Standard Home → CommCare Apps list; Opportunity Home → silent re-login, foreground-visible even when resumed from background. Neither relies on `DispatchActivity` re-dispatch.
+- **Forget PersonalID:** close the user session, then **re-run the startup router** rather than hardcoding a destination.
 
-## Rollout & testing
+## Analytics
 
-Rollout gating, CommCare-division sign-off, and staging are covered in the design doc. Mechanism-wise the change ships [behind a feature flag](https://github.com/dimagi/commcare-android/blob/e1c8ba80ab43114c48d6eda3dd73e5cc724ce194/app/src/org/commcare/personalId/PersonalIdFeatureFlagChecker.kt#L8), dark to `master`, revealed with the redesign.
+- **Which control the user pressed** — app-bar arrow vs. system back. Android does not distinguish a back *gesture* from the back *button* (both arrive through the same callback), so they cannot be reported separately.
+- **Why the user was on the Opportunity List** — passing through it on the way out vs. going there deliberately to switch opportunities.
 
-Testing strategy:
+## Interim vs. north-star
 
-- **Router** — a pure function of its inputs, so it is unit-tested across every landing outcome plus the active-session short-circuit and the terminal/absent last-opportunity cases.
-- **Back navigation** — pinned with Robolectric regression tests built from the design doc's flows (assert the stack, not internals).
-- **Startup boundaries** — regressions for external `ACTION_VIEW` install, verification refresh, cold-start unlock cancellation, backgrounded session expiry, Forget-PersonalID with an active session, and feature-flag-off behavior for traditional users.
+- **North-star:** a single `NavHost` shell; the seeded path is the nav back stack.
+- **Interim:** the seeded path ships now as a **task stack** on today's activities. This *replaces* rather than coexists with `appLaunchedFromConnect` / `finishAffinity`. `REORDER_TO_FRONT` stays for reusing a running home. `DispatchActivity` stays the single router and continues to own the corrupted-database and recovery paths, plus launches that come from outside the app.
+
+## Feature flag
+
+A new flag in [`PersonalIdFeatureFlagChecker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdFeatureFlagChecker.kt), merged to `master` switched off, and turned on with the redesign. While it is off, today's routing and today's sidebar rules both stay in force and no back path is built.
+
+## Testing
+
+- **Router** — a pure function of its inputs, so unit-test every landing outcome, the case where an active session skips the rest of the decision, and the cases where the last-used opportunity has ended or no longer exists.
+- **Back navigation** — Robolectric regression tests over the seeded-path table above (assert the stack, not internals), plus two sidebar sections in succession.
+- **Startup boundaries** — external `ACTION_VIEW` install, verification refresh, cold-start unlock cancellation with and without apps installed, backgrounded session expiry, Forget-PersonalID with an active session, and flag-off behavior for traditional CommCare users.
+- **Sidebar availability** — assert the app-bar slot per screen, and that it no longer depends on whether the sidebar happens to have been shown before.
 
 ---
 
-## Implementation notes (may be skipped when reviewing the spec)
+## Implementation notes (may be skipped when reviewing)
 
-*For the implementer. This section adds no reviewer-facing behavior beyond the sections above — it records the code-level shape, interim mechanisms, and specific behavioral changes. Code references are pinned to `master` @ `dc7697645`.*
+***For the implementer. This adds no reviewer-facing behavior beyond the sections above. Pinned links are to `master` @ `dc7697645`; unpinned `Class:line` references are to `master` @ `aef4da2c0`.***
 
-### Startup router
-
-**Discriminator:** how the current session was established — a PersonalID-authenticated session on an opportunity-linked app resumes Opportunity Home; a manual or non-opportunity session resumes the CommCare app home. Verify the live-session signal agrees with `evaluateAppState`.
-
-**Inputs → source:**
+### Router inputs → source
 
 | Input | Source |
 |---|---|
@@ -121,44 +111,70 @@ Testing strategy:
 | Installed apps | [`MultipleAppsUtil.usableAppsPresent()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/utils/MultipleAppsUtil.java#L50) |
 | Last-accessed opportunity / last session context | new persistence (below) |
 
-**Precedence:** (1) explicit intent-driven launches first — external `ACTION_VIEW` install (via `CommCareSetupActivity`), `KEY_REQUIRE_REFRESH` verification (via `CommCareVerificationActivity`), deep links, push; (2) active session → resume by the persisted **last session context** (login provenance); tie-break: provenance wins over a stale `evaluateAppState` linkage; (3) **no active session but an app is seated** → sign in for *that* app (Login / App List with the credential sheet opened for traditional/PersonalID; unlock → silent re-login for Connect, else Opp List) — don't send the user to the list to re-pick; (4) no session and nothing seated → resolve by configuration.
+### Seeding mechanics
 
-**PersonalID unlock** ([`PersonalIdUnlocker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdUnlocker.kt)): cancel and failure both resolve through `connectActivityComplete(false)`. On a warm entry the prompt dismisses and the underlying screen is unchanged; on a **cold start** it falls back to the **Login page** (recovery — see "Failure fallback to Login" below), not exit. At cold start, show a splash / branded base behind the unlock prompt (Android 12+ `SplashScreen` kept on screen via `setKeepOnScreenCondition`, or a splash-themed `windowBackground`; `androidx.core:core-splashscreen` for pre-12) so the biometric/PIN dialog isn't floating over a blank window.
+**Interim (task stack).** Build the whole path in one call — `Activity.startActivities(Intent[])`, or `TaskStackBuilder` when the entry point is a notification `PendingIntent` — so the intermediate activities exist before the target is shown. Seed only when the task is being created; an existing task is left alone.
 
-### New persistence
+Cost to be aware of: each seeded activity is really created, so a Connect cold start instantiates Opportunity List underneath Opportunity Home. Keep the list's `onCreate` cheap (defer network and heavy binding to `onStart`/`onResume`, which won't run while it is beneath another activity). This cost is interim-only — in the shell, seeding is just pushing nav back-stack entries, with no activity creation.
 
-A dedicated shared-preferences store, **scoped to the active PersonalID account** (namespaced per account, cleared on `forgetUser()` / account switch, never inherited): last-accessed opportunity (`jobUUID`), last session context (`manual` / `PersonalId-non-opportunity` / `PersonalId-on-opportunity-X`), and a per-opportunity terminal-state acknowledgment flag (drives the reopen-once-then-fall-back-to-list behavior for ended opportunities).
+**Sidebar sections replacing each other.** Launching a section from the drawer finishes the section activity currently on top (if any) before starting the new one, rather than relying on intent flags — `FLAG_ACTIVITY_CLEAR_TOP` clears *ancestors*, not siblings, so it will not pop Messaging when launching Work History. In the shell this becomes `popUpTo(<workspace destination>)` followed by `navigate`, and the depth bound falls out of the graph rather than needing enforcement.
 
-### Back stack: north-star vs. interim
+**Explicitly do not** use `NavigationUI`'s default drawer behavior (`popUpTo(startDestination)` + `launchSingleTop`): the sidebar has no "back to my work" item, so popping to the root would leave the user with no route back to the opportunity.
 
-- **North-star:** a single `NavHost` shell; **Back** is pure temporal (start-destination-exit), **Up** uses the nav graph's hierarchy (with `NavDeepLinkBuilder`-synthesized parents for deep links); no flags.
-- **Interim (Solution A on today's activities):** `ConnectActivity` stays the for-result parent (edge-cases doc's Option D); keep `appLaunchedFromConnect` / `finishAffinity` / `REORDER_TO_FRONT` until the shell lands. `DispatchActivity` stays the **single router** — modified to decide once per cold start and to add the Connect-home branch — and continues to own DB-bad-state, recovery, and external/session-endpoint launches; no second routing class is introduced.
+### Slot enforcement
 
-### Back vs. Up (implementation)
+Interim: `BaseDrawerActivity` gains a declared slot per screen (sidebar / back / none) and configures the toggle and `setDisplayHomeAsUpEnabled` from it, replacing the per-activity `onOptionsItemSelected` handling. North-star: `AppBarConfiguration(topLevelDestinationIds)` with `NavigationUI.setupActionBarWithNavController`, listing the sidebar screens as top-level.
 
-- **Back** = temporal: the natural activity/fragment back stack, exiting from the task root; no flags.
-- **Up** = hierarchical: a top-bar arrow wired via `NavigationUI.setupActionBarWithNavController` (already used by the newer PersonalID/Connect screens), with `NavDeepLinkBuilder`-synthesized parents for deep links.
-- **Behavior change:** several legacy activities alias the top-bar arrow to Back today (`CommCareActivity.onOptionsItemSelected` → `onBackPressed()`). Adopting real Up changes those screens' arrow to hierarchical Up — a deliberate change. On gesture-nav there is no system Up, so the top-bar arrow is the only Up affordance.
-- **Tabs:** Back returns to the previously-viewed tab (temporal); Up leaves the tabbed page to its Home. (Resolved Back-vs-Up behavior — supersedes the earlier "Back leaves the page.")
+### Unlock mechanics
 
-### Failure fallback to Login — two approaches
+[`PersonalIdUnlocker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdUnlocker.kt): cancel and failure both resolve through `connectActivityComplete(false)`. `unlock` takes an `UnlockPolicy`; `SESSION_WITH_TIME_THRESHOLD` skips the prompt when unlocked within the last 10 minutes. `lastUnlockTime` is in-memory, so it does not survive process death — a background kill means a fresh prompt.
 
-Agreed UX: unlock/sign-in **failure → Login page** (recovery), while a **successful** Opp Home stays the task root (Back exits). Two ways to implement it, to compare with the team:
+Helpers that stay in place for sessions that have already expired: `ConnectNavHelper.unlockAndGoToConnectJobsList` / `unlockAndGoToMessaging` / `unlockAndGoToWorkHistory`, called from `BaseDrawerActivity`.
 
-- **Failure-only routing (recommended).** Opp Home launches as the task root; on failure, explicitly route to Login (Login is not otherwise in the back stack). *Pro:* the Back model stays clean — a successful Opp Home genuinely is the root, no special handling. *Con:* the failure path is an explicit route, not an automatic fall-through. (Closest to the edge-cases doc's Option A.)
-- **Login as a for-result parent (`Login → Opp Home`).** Launch Opp Home on top of Login for-result, mirroring today's `Login → App Home`; failure reveals Login automatically. *Pro:* consistent with the proven for-result pattern; the fallback is automatic. *Con:* Back from a *successful* Opp Home would reveal Login, so it needs special back handling (an exit flag / `finishAffinity`) to still exit — the tension raised in review. (Closest to Options C/D.)
+At cold start, show a splash / branded base behind the prompt — Android 12+ `SplashScreen` kept on screen via `setKeepOnScreenCondition`, or a splash-themed `windowBackground`, with `androidx.core:core-splashscreen` for pre-12 — so the biometric/PIN dialog isn't over a blank window.
 
-Recommendation: failure-only routing — it avoids reintroducing the exit-flag handling the north-star is trying to remove.
+### Sidebar code changes
+
+- `ConnectActivity` and `ConnectMessagingActivity` extend `NavigationHostCommCareActivity`; `PersonalIdWorkHistoryActivity` extends `CommCareActivity`. None extend `BaseDrawerActivity`, which is why those screens have no drawer. Move all three onto `BaseDrawerActivity` and override `shouldShowDrawer()` to return `true`, since the interim ships on today's activities. The shell absorbs them later, at which point the drawer comes from the shell activity instead.
+- Retire `NavDrawerHelper.drawerShownBefore()` / `setDrawerShown()` and the `shouldShowDrawerAfterCheck(requirePersonalIDLogin)` gate. Today `CommCareSetupActivity:315` passes `false` and sets the stored flag, and that stored flag then causes the checks in `LoginActivity:1069` and `StandardHomeActivity:354` to return early without ever testing for PersonalID. `shouldShowDrawer()` defaults to `false`, so only those three activities opt in at present.
+- Keep `checkDeviceCompability()` (`SDK_INT >= P`).
+- `RootMenuHomeActivity` still uses the legacy `HomeNavDrawerController`, pinned `LOCK_MODE_LOCKED_CLOSED`. Replace it rather than leaving two drawer implementations in the tree.
+- Drawer contents come from `BaseDrawerController.refreshDrawerContent`; the signed-out branch (`setSignedInState(false)` → `configureErrorState()`) renders the sign-up prompt, whose button calls `PersonalIdManager.launchPersonalId(activity, PERSONAL_ID_SIGN_UP_LAUNCH)`.
+
+### Nothing to remove for `Up`
+
+`NavUtils` / `navigateUpFromSameTask` are unused across the app. `CommCareActivity.onOptionsItemSelected:261` routes `android.R.id.home` to `onBackPressed()`. The single `android.support.PARENT_ACTIVITY` entry in the manifest (`ReportProblemActivity`) is inert because nothing calls `navigateUp`. `FormEntryActivity:651` raises the quit prompt from the arrow — leave as-is.
+
+### Tabs
+
+`ConnectDeliveryProgressFragment` hosts the tabs as a `TabLayout` + `ViewPager2`. Pass the wanted tab as a destination argument / intent extra and apply it with `setCurrentItem(index, false)` before the first frame; default to Dashboard when absent.
+
+### Persistence
+
+A dedicated shared-preferences store, **scoped to the active PersonalID account** (namespaced per account, cleared on `forgetUser()` / account switch, never inherited): last-accessed opportunity (`jobUUID`), last session context (`manual` / `PersonalId-non-opportunity` / `PersonalId-on-opportunity-X`), and a per-opportunity terminal-state acknowledgment flag (drives reopen-once-then-fall-back-to-list for ended opportunities).
+
+### Failure fallback — rejected alternative
+
+Do not launch Opportunity Home on top of Login for-result to make the fallback automatic: Back from a *successful* Opportunity Home would then reveal Login and need an exit flag / `finishAffinity` to suppress, reintroducing the per-case flag handling this spec removes.
 
 ### Sign-in ordering
 
-Opp Home loads first and fires sign-in simultaneously; the **Start button and overflow menu stay disabled until sign-in succeeds**. This maps to #3776's attach-gated capabilities (`areActionsAvailable()` = session attached), so no new mechanism is needed — the actions are gated on the attached session.
+Opportunity Home loads first and fires sign-in simultaneously; the Start button and overflow menu stay disabled until sign-in succeeds. The Opportunity Home composition work already gates those actions on whether a session is attached (`areActionsAvailable()`), so no new mechanism is needed.
 
-### Session lifecycle changes
+### Forget PersonalID
 
-- **Expiry:** Standard Home → CommCare Apps list; Opportunity Home → silent re-login (#3776), foreground-visible even when resumed from background; neither relies on `DispatchActivity` re-dispatch.
-- **Forget PersonalID:** [`forgetUser()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L175) must also `closeUserSession()`, then **re-run the startup router** rather than hardcoding Intro — so a device with apps installed lands on the Login page / CommCare Apps list, and Intro only when nothing is configured. (`forgetUser()` already re-dispatches via `DispatchActivity` `CLEAR_TASK`; it just additionally needs to close the session.)
+[`forgetUser()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L175) must also `closeUserSession()`. It already re-dispatches via `DispatchActivity` `CLEAR_TASK`; it just additionally needs to close the session.
 
-### Feature flag
+### Analytics wiring
 
-A new flag in [`PersonalIdFeatureFlagChecker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdFeatureFlagChecker.kt).
+`FirebaseAnalyticsUtil` with new constants in `CCAnalyticsEvent` / `CCAnalyticsParam`, following the existing `reportX` static pattern. The control-used event fires from the shared slot handling (app-bar arrow) and from the back-pressed path (system back); there is no public API distinguishing gesture from button, so do not add a third value. The Opportunity List event fires when that screen is opened, and the reason comes from how it was opened — placed underneath by the router, or tapped in the sidebar.
+
+### Rotation and process death
+
+Task stacks survive rotation and are restored by the system after process death, so seeded paths need no special handling. The one exception is `lastUnlockTime` above: a resume after process death re-prompts unlock.
+
+### Flag-off and upgrade
+
+With the flag off, the router helper returns the legacy decision, nothing is seeded, and the existing drawer gating stays — both paths coexist until the redesign is revealed.
+
+No migration is needed. `PersonalIdFeatureFlagChecker.isFeatureEnabled` resolves at compile time, so the flag changes only with an app update, never mid-session. If the OS restores a task created by the previous version, that task keeps its old stack shape until it is finished; the new model applies from the next task creation.
