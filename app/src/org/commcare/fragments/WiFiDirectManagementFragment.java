@@ -178,7 +178,7 @@ public class WiFiDirectManagementFragment extends Fragment
             if (isHost) {
                 setStatusText("You are the host but didn't form a group. Restart the Wi-fi functionality.");
             } else {
-                setStatusText("YWaiting to join new group...");
+                setStatusText("Waiting to join new group...");
             }
         }
     }
