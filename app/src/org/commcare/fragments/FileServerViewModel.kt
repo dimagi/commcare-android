@@ -17,6 +17,13 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.util.concurrent.ConcurrentLinkedQueue
 
+/**
+ * ViewModel for the file server fragment. Owns the Wi-Fi Direct receive socket for the activity rather than the
+ * fragment that starts it. The fragment is recreated on rotation, and a socket dying with it would leave port
+ * 8988 bound. onCleared is the only place the port is released.
+ *
+ * @author avazirna
+ */
 class FileServerViewModel : ViewModel() {
     private val _statusText = MutableLiveData<String>()
     val statusText: LiveData<String> = _statusText

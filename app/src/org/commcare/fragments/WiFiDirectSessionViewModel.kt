@@ -9,6 +9,12 @@ import androidx.lifecycle.AndroidViewModel
 import org.commcare.activities.CommCareWiFiDirectActivity
 import org.commcare.android.database.user.models.FormRecord
 
+/**
+ * Retains the Wi-Fi Direct session across activity recreation, and owns the Channel for the entire lifetime.
+ * onCleared is the only place the channel is released.
+ *
+ * @author avazirna
+ */
 class WiFiDirectSessionViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
