@@ -921,7 +921,7 @@ public class CommCareWiFiDirectActivity
         try {
             mManager.requestPeers(mChannel, deviceListFragment());
         } catch (SecurityException e) {
-            Logger.log(TAG, "Cannot read Wi-fi direct peers without permission");
+            Logger.exception("Cannot read Wi-fi direct peers without permission", e);
         }
     }
 

@@ -137,7 +137,7 @@ public class WiFiDirectManagementFragment extends Fragment
         try {
             mManager.requestConnectionInfo(mChannel, this);
         } catch (SecurityException e) {
-            Logger.log(TAG, "Cannot read Wi-fi direct connection info without permission");
+            Logger.exception("Cannot read Wi-fi direct connection info without permission", e);
         }
     }
 
