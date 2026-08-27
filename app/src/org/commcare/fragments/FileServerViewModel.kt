@@ -131,7 +131,7 @@ class FileServerViewModel : ViewModel() {
     }
 
     companion object {
-        private val TAG = LogTypes.TYPE_WIFI_DIRECT
+        private const val TAG = LogTypes.TYPE_WIFI_DIRECT
         private const val PORT = 8988
     }
 }
