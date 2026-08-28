@@ -71,7 +71,7 @@ The selected Delivery tab is an **argument** to the destination rather than a de
 ## Session lifecycle
 
 - **Expiry:** Standard Home → CommCare Apps list; Opportunity Home → silent re-login, foreground-visible even when resumed from background. Neither relies on `DispatchActivity` re-dispatch.
-- **Forget PersonalID:** close the user session, then **re-run the startup router** rather than hardcoding a destination.
+- **Forget PersonalID:** already closes the user session — it additionally needs to **re-run the startup router** rather than hardcoding a destination.
 
 ## Analytics
 
@@ -146,7 +146,7 @@ At cold start, show a splash / branded base behind the prompt — Android 12+ `S
 
 ### Persistence
 
-A dedicated shared-preferences store, **scoped to the active PersonalID account** (namespaced per account, cleared on `forgetUser()` / account switch, never inherited): last-accessed opportunity (`jobUUID`), last session context (`manual` / `PersonalId-non-opportunity` / `PersonalId-on-opportunity-X`), and a per-opportunity terminal-state acknowledgment flag (drives reopen-once-then-fall-back-to-list for ended opportunities).
+Add to `PersonalIdUserPreferences`, which `forgetUser()` already clears: last-accessed opportunity (`jobUUID`), last session context (`manual` / `PersonalId-non-opportunity` / `PersonalId-on-opportunity-X`), and a per-opportunity terminal-state acknowledgment flag (drives reopen-once-then-fall-back-to-list for ended opportunities).
 
 ### Failure fallback — rejected alternative
 
@@ -155,10 +155,6 @@ Do not launch Opportunity Home on top of Login for-result to make the fallback a
 ### Sign-in ordering
 
 Opportunity Home loads first and fires sign-in simultaneously; the Start button and overflow menu stay disabled until sign-in succeeds. The Opportunity Home composition work already gates those actions on whether a session is attached (`areActionsAvailable()`), so no new mechanism is needed.
-
-### Forget PersonalID
-
-[`forgetUser()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/connect/PersonalIdManager.java#L175) must also `closeUserSession()`. It already re-dispatches via `DispatchActivity` `CLEAR_TASK`; it just additionally needs to close the session.
 
 ### Analytics wiring
 
