@@ -11,6 +11,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Fixed an issue where recovering a PersonalID account via backup code could result in the account being stored without a pin, causing authentication to fail after recovery.
 - Backgrounding the app while logging in no longer crashes the app when the login sync finishes.
 - The STOP button on the login sync dialog cancels the login again, instead of hanging on "Cancelling...".
+- Rotating the device during login no longer cancels the sync and leaves the progress dialog stuck part-way.
 
 ### QA Notes
 
