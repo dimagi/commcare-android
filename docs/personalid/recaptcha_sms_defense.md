@@ -171,6 +171,10 @@ things are easy to conflate, though:
 Mobile keys are always score-based, so they are invisible to users. Our existing web key is
 CHECKBOX type and cannot be reused for Android.
 
+**Prefer the console for creation.** `gcloud` has no flag for SMS Toll Fraud Defense, so a
+gcloud-created key always needs a follow-up console visit — see
+[Enable SMS defense on the key](#enable-sms-defense-on-the-key).
+
 ### Create an Android key with gcloud
 
 One key can cover several packages
@@ -215,12 +219,13 @@ integration with reCAPTCHA"* — Identity Platform manages that one itself.
 Neither method takes SHA-256 as an input. Both ask only for a display name and package names, so an
 Android key is bound to the package name alone.
 
-> [!CAUTION]
-> ### Confirm with support before creating a reCAPTCHA key
+> [!NOTE]
+> ### Resolved: support's SHA-256 instruction
 >
-> The CCCT-2723 comment *"Email Response from Firebase"* instructs us to *"Enter your Package Name
-> and your SHA-256 fingerprint (matching what is in your Firebase Project Settings)"* **during
-> reCAPTCHA key creation**, which matches neither flow above.
+> The CCCT-2723 comment *"Email Response from Firebase"* instructed us to enter a package name and
+> SHA-256 during key creation, matching neither flow above. Resolved 2026-08-27: SHA-256 belongs to
+> the Firebase Android app (Project Settings → Your apps) and was already registered. The step
+> actually missing was [Enable SMS defense on the key](#enable-sms-defense-on-the-key).
 
 ## Register the key with Identity Platform
 
@@ -304,11 +309,43 @@ Expected output *after* registering:
   done while enforcement is still off — the safe order, since raising enforcement with no key
   registered leaves Identity Platform nothing to produce assessments with.
 
+## Enable SMS defense on the key
+
+**Console only**, and required. Neither `gcloud` nor the v1 Key resource exposes this setting, and
+`useSmsTollFraudProtection: true` does not imply it. Two layers must both be on:
+
+| Layer | Setting | Visibility |
+| --- | --- | --- |
+| Identity Platform | `useSmsTollFraudProtection` | API, set by [Toggle script](#toggle-script) |
+| reCAPTCHA Enterprise | SMS defense enablement | console only, manual |
+
+Google Cloud console → **reCAPTCHA** (or Fraud Defense) → select the key → configuration panel →
+enable **SMS Toll Fraud Defense**. It mirrors to **Settings → SMS defense → Configure**, so either
+surface confirms it.
+
+With the Identity Platform flag on and this off, assessments still run and return a bot score but no
+toll-fraud verdict: SMS Defense is inert while `status` reports it enabled. On
+`<firebase_project_id>` that state persisted for a day, producing `INVALID_APP_CREDENTIAL` on
+`SendVerificationCode`, a fallback to legacy reCAPTCHA v2, and continued error 39.
+
+### Verify
+
+No API exposes the setting, so check functionally: `sms_tf_risk_scores` records a point per assessed
+request once it is on, and nothing while it is off — see
+[Raw metric queries](#raw-metric-queries). On `<firebase_project_id>` the first score point landed
+the same second the toggle was enabled, so there is no propagation delay to wait out.
+
 ## Toggle script
 
 `scripts/recaptcha_sms_defense.py` turns reCAPTCHA SMS Defense on and off, and reports the current
 setting. Before changing anything it shows what will change and asks for confirmation, and it saves
 a backup of the old config so the change can be undone.
+
+> [!IMPORTANT]
+> `status` reads the Identity Platform layer only. It cannot see the console-only reCAPTCHA-side
+> enablement, so it will report `useSmsTollFraudProtection: true` even when no toll-fraud assessment
+> is happening. Treat it as necessary but not sufficient, and confirm with `sms_tf_risk_scores` —
+> see [Enable SMS defense on the key](#enable-sms-defense-on-the-key).
 
 ### reCAPTCHA ON and OFF with different modes
 
@@ -390,6 +427,68 @@ In audit mode, judge readiness from the ratio of `PASSED` to `FAILED_AUDIT`: a `
 request that *would* have been blocked under enforcement, so a high proportion means enforcing would
 reject real users at the chosen threshold.
 
+### Raw metric queries
+
+Metrics Explorer is the place to watch a rollout, but for a quick check — or to distinguish "no data"
+from "misconfigured" — query Cloud Monitoring directly. The method is `projects.timeSeries.list` on
+the Monitoring API v3:
+
+```bash
+curl -s -G \
+  -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+  -H "x-goog-user-project: <firebase_project_id>" \
+  --data-urlencode 'filter=metric.type="identitytoolkit.googleapis.com/recaptcha/token_count"' \
+  --data-urlencode 'interval.startTime=2026-08-27T00:00:01Z' \
+  --data-urlencode 'interval.endTime=2026-08-27T23:59:59Z' \
+  "https://monitoring.googleapis.com/v3/projects/<firebase_project_id>/timeSeries"
+```
+
+Swap the metric in the filter for `recaptcha/verdict_count` or `recaptcha/sms_tf_risk_scores`. Needs
+`monitoring.timeSeries.list`, which `roles/editor` grants.
+
+`-G` with `--data-urlencode` is required, not stylistic: the filter contains quotes, `=`, `/` and
+spaces, and the request fails unless they are encoded onto the query string.
+
+One time series comes back per label combination, so `token_state` and `verdict_state` arrive as
+*separate series* rather than fields on one. Counts live in `points[].value.int64Value`, one point
+per sample interval. To summarise:
+
+```bash
+... | python3 -c '
+import json,sys
+for ts in json.load(sys.stdin).get("timeSeries",[]):
+    l=ts["metric"]["labels"]
+    tot=sum(int(p["value"].get("int64Value",0)) for p in ts.get("points",[]))
+    print(l, "total=%d" % tot)'
+```
+
+`sms_tf_risk_scores` is a **distribution**, not a counter — it has no `int64Value`, so the snippet
+above sums to `0` and looks like "no data". Read `distributionValue.count` instead:
+
+```bash
+... | python3 -c '
+import json,sys
+for ts in json.load(sys.stdin).get("timeSeries",[]):
+    for pt in ts.get("points",[]):
+        dv=pt["value"].get("distributionValue") or {}
+        if int(dv.get("count",0) or 0):
+            print(pt["interval"]["endTime"], "count=%s" % dv["count"])'
+```
+
+Print every point, not a slice — truncating the list is an easy way to misread when scoring started.
+For the threshold decision, decode `distributionValue.bucketCounts`; `mean` is often absent.
+
+> [!IMPORTANT]
+> **Label values are lowercase in the API**, unlike the uppercase forms listed above. Observed on this
+> project: `token_state` of `invalid` and `missing`, and `verdict_state` of `failed_in_audit` — note
+> that last one is not `FAILED_AUDIT`. A filter written with the uppercase spelling matches nothing.
+> The remaining values are documented as listed above but have not been observed here, so confirm the
+> exact spelling against a real series before filtering on one.
+
+**Zero series is not the same as misconfigured.** `sms_tf_risk_scores` stays empty until a token
+validates, since a score cannot be computed without one — so an audit window that is refusing every
+token yields no scores while `token_count` and `verdict_count` are both populated.
+
 ### Per-key charts
 
 Google Cloud console → **reCAPTCHA** → **Keys** → click the key → **Bots** tab gives a Score
@@ -398,6 +497,31 @@ describe SMS-toll-fraud-specific charts here, so treat this as supporting detail
 `sms_tf_risk_scores` above.
 
 ### Errors
+
+`SendVerificationCode` outcomes — `INVALID_APP_CREDENTIAL`, `Error code: 39`,
+`TOO_MANY_ATTEMPTS_TRY_LATER`, `MISSING_RECAPTCHA_TOKEN` — come from the Identity Toolkit request
+log, bucketed by hour:
+
+```bash
+gcloud logging read \
+  'logName="projects/<firebase_project_id>/logs/identitytoolkit.googleapis.com%2Frequests"
+   AND timestamp>="2026-08-27T06:00:00Z"' \
+  --project=<firebase_project_id> --limit=300 --format=json \
+| python3 -c '
+import json,sys,collections
+buck=collections.defaultdict(collections.Counter)
+for e in json.load(sys.stdin):
+    p=e.get("jsonPayload",{})
+    if (p.get("methodName") or "").split(".")[-1]!="SendVerificationCode": continue
+    buck[e["timestamp"][11:13]+":00"][(p.get("status") or {}).get("message","SUCCESS")[:30]]+=1
+for h in sorted(buck): print(h, dict(buck[h]))'
+```
+
+This is the fastest read on whether a rollout is healthy: a rising `INVALID_APP_CREDENTIAL` count
+means app verification is failing and every send is taking the legacy fallback path, which burns the
+rate limit and keeps error 39 alive. Drop the `methodName` filter to see `GetRecaptchaParam` (the
+legacy v2 fallback) and `GetRecaptchaConfig` interleaved, which shows the retry sequence per request.
+Note the log carries **no package identifier**, so failures cannot be attributed to a specific app.
 
 Firebase Auth errors, including error 39, are in
 [Logs Explorer](https://console.cloud.google.com/logs/query?project=<firebase_project_id>) for the
