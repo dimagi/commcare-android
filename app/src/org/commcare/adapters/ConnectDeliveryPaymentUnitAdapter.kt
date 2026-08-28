@@ -9,33 +9,33 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ConnectDeliveryProgressItemBinding
 import org.commcare.models.connect.ConnectDeliveryDetails
 
-class ConnectDeliveryProgressReportAdapter(
-    private val onDeliveryClicked: (ConnectDeliveryDetails) -> Unit,
-) : RecyclerView.Adapter<ConnectDeliveryProgressReportAdapter.ProgressBarViewHolder>() {
-    private val deliveryProgressList = mutableListOf<ConnectDeliveryDetails>()
+class ConnectDeliveryPaymentUnitAdapter(
+    private val onPaymentUnitClicked: (ConnectDeliveryDetails) -> Unit,
+) : RecyclerView.Adapter<ConnectDeliveryPaymentUnitAdapter.PaymentUnitViewHolder>() {
+    private val paymentUnits = mutableListOf<ConnectDeliveryDetails>()
 
-    class ProgressBarViewHolder(
+    class PaymentUnitViewHolder(
         val binding: ConnectDeliveryProgressItemBinding,
     ) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
-    ): ProgressBarViewHolder {
+    ): PaymentUnitViewHolder {
         val binding =
             ConnectDeliveryProgressItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false,
             )
-        return ProgressBarViewHolder(binding)
+        return PaymentUnitViewHolder(binding)
     }
 
     override fun onBindViewHolder(
-        holder: ProgressBarViewHolder,
+        holder: PaymentUnitViewHolder,
         position: Int,
     ) {
-        val details = deliveryProgressList[position]
+        val details = paymentUnits[position]
         val context = holder.itemView.context
         with(holder.binding) {
             linearProgressBar.setProgress(details.approvedPercentage.toFloat())
@@ -46,7 +46,7 @@ class ConnectDeliveryProgressReportAdapter(
             tvApproved.text = details.approvedCount.toString()
             tvDeliveryTotalAmount.text = details.totalAmount
             tvRemaining.text = remainingText(context, details)
-            rootView.setOnClickListener { onDeliveryClicked(details) }
+            rootView.setOnClickListener { onPaymentUnitClicked(details) }
         }
     }
 
@@ -80,11 +80,11 @@ class ConnectDeliveryProgressReportAdapter(
         }
     }
 
-    override fun getItemCount(): Int = deliveryProgressList.size
+    override fun getItemCount(): Int = paymentUnits.size
 
     fun updateData(newData: List<ConnectDeliveryDetails>) {
-        deliveryProgressList.clear()
-        deliveryProgressList.addAll(newData)
+        paymentUnits.clear()
+        paymentUnits.addAll(newData)
         notifyDataSetChanged()
     }
 }

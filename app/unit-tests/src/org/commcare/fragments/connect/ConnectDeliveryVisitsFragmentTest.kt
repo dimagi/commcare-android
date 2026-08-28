@@ -124,7 +124,10 @@ class ConnectDeliveryVisitsFragmentTest {
 
     @Test
     fun `a card is shown for each payment unit`() {
-        val cards = cardsOn(launch(progressResponse(deliveries = approvedFor(unit = 1, count = 2))))
+        val cards =
+            getPaymentUnitCards(
+                launchVisitsTab(deliveryProgressJson(deliveries = approvedDeliveriesFor(unit = 1, count = 2))),
+            )
 
         assertEquals(ConnectLearnJobTestData.PAYMENT_UNIT_COUNT, cards.size)
         assertEquals("Unit 1", cards[0].title())
@@ -133,7 +136,10 @@ class ConnectDeliveryVisitsFragmentTest {
 
     @Test
     fun `a card shows its unit's approved count, amount earned and visits remaining`() {
-        val card = cardsOn(launch(progressResponse(deliveries = approvedFor(unit = 1, count = 2))))[0]
+        val card =
+            getPaymentUnitCards(
+                launchVisitsTab(deliveryProgressJson(deliveries = approvedDeliveriesFor(unit = 1, count = 2))),
+            )[0]
 
         assertEquals("2", card.approved())
         assertEquals("50 ${ConnectLearnJobTestData.CURRENCY}", card.amount())
@@ -150,12 +156,12 @@ class ConnectDeliveryVisitsFragmentTest {
     @Test
     fun `each card counts only its own unit's deliveries`() {
         val cards =
-            cardsOn(
-                launch(
-                    progressResponse(
+            getPaymentUnitCards(
+                launchVisitsTab(
+                    deliveryProgressJson(
                         deliveries =
-                            approvedFor(unit = 1, count = 2) +
-                                approvedFor(unit = 2, count = 3, startId = 50),
+                            approvedDeliveriesFor(unit = 1, count = 2) +
+                                approvedDeliveriesFor(unit = 2, count = 3, startId = 50),
                     ),
                 ),
             )
@@ -167,13 +173,13 @@ class ConnectDeliveryVisitsFragmentTest {
     @Test
     fun `only approved deliveries count toward a unit's progress`() {
         val card =
-            cardsOn(
-                launch(
-                    progressResponse(
+            getPaymentUnitCards(
+                launchVisitsTab(
+                    deliveryProgressJson(
                         deliveries =
-                            approvedFor(unit = 1, count = 2) +
-                                deliveriesFor(unit = 1, count = 4, status = "rejected", startId = 20) +
-                                deliveriesFor(unit = 1, count = 3, status = "pending", startId = 30),
+                            approvedDeliveriesFor(unit = 1, count = 2) +
+                                deliveriesJsonFor(unit = 1, count = 4, status = "rejected", startId = 20) +
+                                deliveriesJsonFor(unit = 1, count = 3, status = "pending", startId = 30),
                     ),
                 ),
             )[0]
@@ -185,10 +191,10 @@ class ConnectDeliveryVisitsFragmentTest {
     @Test
     fun `the progress bar tracks the unit's share of its target`() {
         val cards =
-            cardsOn(
-                launch(
-                    progressResponse(
-                        deliveries = approvedFor(unit = 1, count = perUnitTotal / 4),
+            getPaymentUnitCards(
+                launchVisitsTab(
+                    deliveryProgressJson(
+                        deliveries = approvedDeliveriesFor(unit = 1, count = perUnitTotal / 4),
                     ),
                 ),
             )
@@ -200,7 +206,11 @@ class ConnectDeliveryVisitsFragmentTest {
     @Test
     fun `a unit that has met its target reports that all visits are done`() {
         val cards =
-            cardsOn(launch(progressResponse(deliveries = approvedFor(unit = 1, count = perUnitTotal))))
+            getPaymentUnitCards(
+                launchVisitsTab(
+                    deliveryProgressJson(deliveries = approvedDeliveriesFor(unit = 1, count = perUnitTotal)),
+                ),
+            )
 
         assertEquals(
             appContext.getString(R.string.connect_results_summary_visits_done),
@@ -212,11 +222,11 @@ class ConnectDeliveryVisitsFragmentTest {
     @Test
     fun `remaining visits are counted against the last day when the job ends today`() {
         val cards =
-            cardsOn(
-                launch(
-                    progressResponse(
-                        deliveries = approvedFor(unit = 1, count = 2),
-                        endDate = daysFromToday(0),
+            getPaymentUnitCards(
+                launchVisitsTab(
+                    deliveryProgressJson(
+                        deliveries = approvedDeliveriesFor(unit = 1, count = 2),
+                        endDate = endDateDaysFromToday(0),
                     ),
                 ),
             )
@@ -230,11 +240,11 @@ class ConnectDeliveryVisitsFragmentTest {
     @Test
     fun `a card reports the days are over once the job has ended`() {
         val cards =
-            cardsOn(
-                launch(
-                    progressResponse(
-                        deliveries = approvedFor(unit = 1, count = 2),
-                        endDate = daysFromToday(-1),
+            getPaymentUnitCards(
+                launchVisitsTab(
+                    deliveryProgressJson(
+                        deliveries = approvedDeliveriesFor(unit = 1, count = 2),
+                        endDate = endDateDaysFromToday(-1),
                     ),
                 ),
             )
@@ -248,14 +258,14 @@ class ConnectDeliveryVisitsFragmentTest {
     @Test
     fun `tapping a card opens that unit's visits and lists only its own deliveries`() {
         val visits =
-            launch(
-                progressResponse(
+            launchVisitsTab(
+                deliveryProgressJson(
                     deliveries =
-                        approvedFor(unit = 1, count = 2) +
-                            approvedFor(unit = 2, count = 3, startId = 50),
+                        approvedDeliveriesFor(unit = 1, count = 2) +
+                            approvedDeliveriesFor(unit = 2, count = 3, startId = 50),
                 ),
             )
-        val unitTwoCard = cardsOn(visits)[1]
+        val unitTwoCard = getPaymentUnitCards(visits)[1]
 
         activity.runOnUiThread { unitTwoCard.performClick() }
         ShadowLooper.idleMainLooper()
@@ -272,7 +282,7 @@ class ConnectDeliveryVisitsFragmentTest {
         assertEquals(
             "only the tapped unit's visits are listed",
             listOf("Entity 50", "Entity 51", "Entity 52"),
-            visitNames(),
+            visitNamesOnDetailScreen(),
         )
     }
 
@@ -280,7 +290,7 @@ class ConnectDeliveryVisitsFragmentTest {
      * Navigates to the delivery home tabs, answers the delivery-progress request the screen fires on
      * resume with [responseBody], then selects the Visits tab and returns it once laid out.
      */
-    private fun launch(responseBody: String): ConnectDeliveryVisitsFragment {
+    private fun launchVisitsTab(responseBody: String): ConnectDeliveryVisitsFragment {
         deliveryProgressBody = responseBody
 
         activity.setActiveJob(job)
@@ -329,12 +339,12 @@ class ConnectDeliveryVisitsFragmentTest {
         ShadowLooper.idleMainLooper()
     }
 
-    private fun cardsOn(visits: ConnectDeliveryVisitsFragment): List<View> {
-        val recycler = visits.requireView().findViewById<RecyclerView>(R.id.rvDeliveryProgressReport)
+    private fun getPaymentUnitCards(visits: ConnectDeliveryVisitsFragment): List<View> {
+        val recycler = visits.requireView().findViewById<RecyclerView>(R.id.rvPaymentUnits)
         return (0 until recycler.childCount).map { recycler.getChildAt(it) }
     }
 
-    private fun visitNames(): List<String> {
+    private fun visitNamesOnDetailScreen(): List<String> {
         val detail =
             navHostFragment.childFragmentManager.primaryNavigationFragment
                 as ConnectDeliveryVisitsDetailFragment
@@ -396,7 +406,7 @@ class ConnectDeliveryVisitsFragmentTest {
         ShadowLooper.idleMainLooper()
     }
 
-    private fun progressResponse(
+    private fun deliveryProgressJson(
         deliveries: List<String> = emptyList(),
         endDate: String? = null,
     ): String {
@@ -408,14 +418,14 @@ class ConnectDeliveryVisitsFragmentTest {
         return "{${fields.joinToString(",")}}"
     }
 
-    private fun approvedFor(
+    private fun approvedDeliveriesFor(
         unit: Int,
         count: Int,
         startId: Int = 1,
-    ): List<String> = deliveriesFor(unit, count, status = "approved", startId = startId)
+    ): List<String> = deliveriesJsonFor(unit, count, status = "approved", startId = startId)
 
     /** One visit per earlier day, so a unit can reach its total cap without hitting a daily cap. */
-    private fun deliveriesFor(
+    private fun deliveriesJsonFor(
         unit: Int,
         count: Int,
         status: String,
@@ -438,7 +448,7 @@ class ConnectDeliveryVisitsFragmentTest {
             """.trimIndent()
         }
 
-    private fun daysFromToday(offset: Int): String =
+    private fun endDateDaysFromToday(offset: Int): String =
         endDateFormat.format(
             Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, offset) }.time,
         )

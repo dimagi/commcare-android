@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import org.commcare.adapters.ConnectDeliveryProgressReportAdapter
+import org.commcare.adapters.ConnectDeliveryPaymentUnitAdapter
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryVisitsBinding
 import org.commcare.fragments.RefreshableTab
@@ -19,7 +19,7 @@ import org.commcare.models.connect.ConnectDeliveryDetails
 class ConnectDeliveryVisitsFragment :
     ConnectJobFragment<FragmentConnectDeliveryVisitsBinding>(),
     RefreshableTab {
-    private val adapter = ConnectDeliveryProgressReportAdapter { navigateToDeliveries(it.unitUUID) }
+    private val adapter = ConnectDeliveryPaymentUnitAdapter { navigateToDeliveries(it.unitUUID) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,8 +27,8 @@ class ConnectDeliveryVisitsFragment :
         savedInstanceState: Bundle?,
     ): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        binding.rvDeliveryProgressReport.layoutManager = LinearLayoutManager(context)
-        binding.rvDeliveryProgressReport.adapter = adapter
+        binding.rvPaymentUnits.layoutManager = LinearLayoutManager(context)
+        binding.rvPaymentUnits.adapter = adapter
         updateView()
         return view
     }
