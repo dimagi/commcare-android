@@ -58,7 +58,6 @@
     <dimen name="font_size_xlarge">21sp</dimen>
     <dimen name="font_size_xlarger">23sp</dimen>
     <dimen name="font_size_40">40sp</dimen>
-    <dimen name="font_size_xxxxlarge">64sp</dimen>
     <dimen name="font_size_dp_medium">15dp</dimen>
     <dimen name="font_size_dp_large">18dp</dimen>
     <dimen name="cell_padding_vertical">8dp</dimen>
@@ -148,4 +147,12 @@
     <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
     <dimen name="semi_circle_progress_value_text_size">28sp</dimen>
     <dimen name="semi_circle_progress_description_text_size">16sp</dimen>
+
+    <dimen name="audio_recording_button_size">110dp</dimen>
+    <dimen name="audio_recording_progress_size">190dp</dimen>
+    <dimen name="audio_recording_timer_text_size">40sp</dimen>
+    <dimen name="audio_recording_dialog_max_width">420dp</dimen>
+    <dimen name="audio_recording_header_text_size">16sp</dimen>
+    <dimen name="audio_recording_capture_label_text_size">32sp</dimen>
+    <dimen name="audio_recording_close_button_size">40dp</dimen>
 </resources>
