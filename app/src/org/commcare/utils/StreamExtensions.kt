@@ -3,14 +3,14 @@
 package org.commcare.utils
 
 import org.javarosa.core.services.Logger
+import java.io.Closeable
 import java.io.IOException
-import java.io.OutputStream
 
-/** Closes the stream, logging any [IOException] as a non-fatal instead of throwing. */
-fun OutputStream.closeQuietly() {
+/** Closes the resource, logging any [IOException] as a non-fatal instead of throwing. */
+fun Closeable?.closeQuietly() {
     try {
-        close()
+        this?.close()
     } catch (e: IOException) {
-        Logger.exception("Failed to close output stream", e)
+        Logger.exception("Failed to close ${this?.javaClass?.simpleName}", e)
     }
 }
