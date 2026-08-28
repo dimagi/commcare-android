@@ -40,7 +40,7 @@
         android:id="@+id/sync_card_icon"
         android:layout_width="@dimen/connect_sync_card_badge_size"
         android:layout_height="@dimen/connect_sync_card_badge_size"
-        android:background="@drawable/bg_connect_sync_badge"
+        android:background="@drawable/bg_connect_circle"
         android:contentDescription="@null"
         android:padding="@dimen/connect_sync_card_badge_icon_inset"
         tools:backgroundTint="@color/connect_light_green"

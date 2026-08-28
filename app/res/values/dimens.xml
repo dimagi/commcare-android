@@ -169,6 +169,7 @@
 
     <!-- Connect/PersonalID shared tokens -->
     <!-- Text -->
+    <dimen name="connect_text_label">11sp</dimen>
     <dimen name="connect_text_caption">12sp</dimen>
     <dimen name="connect_text_body">14sp</dimen>
     <dimen name="connect_text_title">16sp</dimen>
@@ -180,14 +181,24 @@
     <dimen name="connect_space_sm">8dp</dimen>
     <dimen name="connect_space_md">12dp</dimen>
     <dimen name="connect_space_lg">16dp</dimen>
+    <dimen name="connect_space_xl">24dp</dimen>
     <dimen name="connect_chip_icon_size">20dp</dimen>
+    <!-- Keeps a borderless text button wide enough to stay an easy tap target. -->
+    <dimen name="connect_text_button_min_width">64dp</dimen>
+    <dimen name="connect_touch_target_min">48dp</dimen>
     <!-- Half of the gap between grid cards; the full 16dp gap is two of these. -->
     <dimen name="connect_grid_gutter_half">8dp</dimen>
+    <!-- Circles holding a 20dp glyph; the padding is what sizes the glyph down to 20dp. -->
+    <dimen name="connect_icon_circle_sm">28dp</dimen>
+    <dimen name="connect_icon_circle_lg">40dp</dimen>
+    <dimen name="connect_icon_circle_padding_lg">10dp</dimen>
     <!-- Corner radii -->
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>
     <dimen name="connect_radius_lg">16dp</dimen>
     <dimen name="connect_radius_pill">24dp</dimen>
+    <!-- Elevation -->
+    <dimen name="connect_card_elevation_low">2dp</dimen>
     <!-- Strokes -->
     <dimen name="connect_stroke_hairline">1dp</dimen>
 </resources>

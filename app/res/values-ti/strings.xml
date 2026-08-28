@@ -586,6 +586,16 @@
     <string name="connect_delivery_your_progress">ምዕባለኻ</string>
     <string name="connect_delivery_total_earnings">ጠቅላላ እቶት</string>
     <string name="connect_delivery_amount_each">%1$s ንነፍሲ ወከፍ</string>
+    <string name="connect_delivery_tasks_title">ዕማማት</string>
+    <string name="connect_delivery_tasks_mandatory_title">ግዴታ</string>
+    <string name="connect_delivery_tasks_mandatory_subtitle">ኣገልግሎት ንምቕጻል ዕማማት ዛዝም።</string>
+    <string name="connect_delivery_tasks_optional_title">ብምርጫ</string>
+    <string name="connect_delivery_tasks_optional_subtitle">ግዜኡ ከይወደአ ኣብ ዝኾነ ግዜ ዕማማት ዛዝም።</string>
+    <string name="connect_delivery_tasks_empty">ኣብዚ ሕጂ ተጸባይ ዕማም የለን። ሓድሽ ዕማም ምስ ተረኸበ ክንሕብረካ ኢና።</string>
+    <string name="connect_delivery_revisit_learning_title">ትምህርቲ ደጊምካ ርአ</string>
+    <string name="connect_delivery_revisit_learning_completed">%1$s ተዛዚሙ</string>
+    <string name="connect_delivery_revisit_learning_view">ርአ</string>
+    <string name="connect_task_expires_on">%1$s ይውዳእ</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">ሎሚ %1$d ምብጻሕ ተሪፉ</item>
         <item quantity="other">ሎሚ %1$d ምብጻሓት ተሪፎም</item>

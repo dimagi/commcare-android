@@ -219,7 +219,7 @@ class BaseDrawerController(
             items.add(
                 NavDrawerItem(
                     activity.getString(R.string.connect_messaging_title),
-                    R.drawable.nav_drawer_message_icon,
+                    R.drawable.ic_chat_bubble_outline,
                     NavItemType.MESSAGING,
                     badgeCount = messageCount,
                 ),

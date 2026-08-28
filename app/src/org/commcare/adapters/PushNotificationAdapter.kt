@@ -50,7 +50,7 @@ class PushNotificationAdapter(
             val iconRes =
                 when (item.action) {
                     CCC_DEST_PAYMENTS -> R.drawable.ic_dollar_payment_pn
-                    CCC_MESSAGE -> R.drawable.nav_drawer_message_icon
+                    CCC_MESSAGE -> R.drawable.ic_chat_bubble_outline
                     CCC_DEST_OPPORTUNITY_SUMMARY_PAGE -> R.drawable.ic_connect_new_opportunity
                     CCC_DEST_LEARN_PROGRESS -> R.drawable.ic_connect_learning
                     CCC_DEST_DELIVERY_PROGRESS -> R.drawable.ic_connect_delivery

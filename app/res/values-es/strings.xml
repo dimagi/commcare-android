@@ -598,6 +598,16 @@
     <string name="connect_delivery_your_progress">Tu progreso</string>
     <string name="connect_delivery_total_earnings">Ganancias totales</string>
     <string name="connect_delivery_amount_each">%1$s cada una</string>
+    <string name="connect_delivery_tasks_title">Tareas</string>
+    <string name="connect_delivery_tasks_mandatory_title">Obligatorias</string>
+    <string name="connect_delivery_tasks_mandatory_subtitle">Complete las tareas para continuar con la entrega.</string>
+    <string name="connect_delivery_tasks_optional_title">Opcionales</string>
+    <string name="connect_delivery_tasks_optional_subtitle">Complete las tareas en cualquier momento antes del vencimiento.</string>
+    <string name="connect_delivery_tasks_empty">No hay tareas pendientes en este momento. Le avisaremos cuando haya una nueva tarea disponible.</string>
+    <string name="connect_delivery_revisit_learning_title">Repasar el aprendizaje</string>
+    <string name="connect_delivery_revisit_learning_completed">Completado %1$s</string>
+    <string name="connect_delivery_revisit_learning_view">Ver</string>
+    <string name="connect_task_expires_on">Vence el %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visita restante hoy</item>
         <item quantity="other">%1$d visitas restantes hoy</item>
