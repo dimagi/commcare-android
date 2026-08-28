@@ -142,7 +142,7 @@ At cold start, show a splash / branded base behind the prompt — Android 12+ `S
 
 ### Tabs
 
-`ConnectDeliveryProgressFragment` hosts the tabs as a `TabLayout` + `ViewPager2`. Pass the wanted tab as a destination argument / intent extra and apply it with `setCurrentItem(index, false)` before the first frame; default to Dashboard when absent.
+`ConnectDeliveryHomeFragment` hosts the tabs and already accepts the wanted tab as a `TAB_POSITION` argument, defaulting to Dashboard. Deep links just need to set it.
 
 ### Persistence
 
