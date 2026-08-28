@@ -83,15 +83,11 @@ The selected Delivery tab is an **argument** to the destination rather than a de
 - **North-star:** a single `NavHost` shell; the seeded path is the nav back stack.
 - **Interim:** the seeded path ships now as a **task stack** on today's activities. This *replaces* rather than coexists with `appLaunchedFromConnect` / `finishAffinity`. `REORDER_TO_FRONT` stays for reusing a running home. `DispatchActivity` stays the single router and continues to own the corrupted-database and recovery paths, plus launches that come from outside the app.
 
-## Feature flag
-
-A new flag in [`PersonalIdFeatureFlagChecker`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/personalId/PersonalIdFeatureFlagChecker.kt), merged to `master` switched off, and turned on with the redesign. While it is off, today's routing and today's sidebar rules both stay in force and no back path is built.
-
 ## Testing
 
 - **Router** — a pure function of its inputs, so unit-test every landing outcome, the case where an active session skips the rest of the decision, and the cases where the last-used opportunity has ended or no longer exists.
 - **Back navigation** — Robolectric regression tests over the seeded-path table above (assert the stack, not internals), plus two sidebar sections in succession.
-- **Startup boundaries** — external `ACTION_VIEW` install, verification refresh, cold-start unlock cancellation with and without apps installed, backgrounded session expiry, Forget-PersonalID with an active session, and flag-off behavior for traditional CommCare users.
+- **Startup boundaries** — external `ACTION_VIEW` install, verification refresh, cold-start unlock cancellation with and without apps installed, backgrounded session expiry, and Forget-PersonalID with an active session.
 - **Sidebar availability** — assert the app-bar slot per screen, and that it no longer depends on whether the sidebar happens to have been shown before.
 
 ---
@@ -173,8 +169,6 @@ Opportunity Home loads first and fires sign-in simultaneously; the Start button 
 
 Task stacks survive rotation and are restored by the system after process death, so seeded paths need no special handling. The one exception is `lastUnlockTime` above: a resume after process death re-prompts unlock.
 
-### Flag-off and upgrade
+### Upgrade
 
-With the flag off, the router helper returns the legacy decision, nothing is seeded, and the existing drawer gating stays — both paths coexist until the redesign is revealed.
-
-No migration is needed. `PersonalIdFeatureFlagChecker.isFeatureEnabled` resolves at compile time, so the flag changes only with an app update, never mid-session. If the OS restores a task created by the previous version, that task keeps its old stack shape until it is finished; the new model applies from the next task creation.
+No migration is needed. If the OS restores a task created by the previous version, that task keeps its old stack shape until it is finished; the new model applies from the next task creation.
