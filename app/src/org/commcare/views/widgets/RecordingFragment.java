@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -90,7 +91,7 @@ public class RecordingFragment extends DialogFragment {
     private static final String FILE_EXT_LEGACY = ".mp3";
     private static final String FILE_EXT_BALANCED = ".m4a";
 
-    private LinearLayout layout;
+    private ScrollView layout;
     private FrameLayout recordingContainer;
     private ImageButton toggleRecording;
     private ImageButton discardRecording;
@@ -122,7 +123,7 @@ public class RecordingFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
+        layout = (ScrollView) inflater.inflate(R.layout.recording_fragment, container);
         prepareButtons();
         prepareText();
         initMediaResources();
@@ -219,7 +220,8 @@ public class RecordingFragment extends DialogFragment {
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
 
         int maxWidth = getResources().getDimensionPixelSize(R.dimen.audio_recording_dialog_max_width);
-        layout.setMinimumWidth((int) (Math.min(displayRectangle.width() * 0.9f, maxWidth)));
+        layout.findViewById(R.id.recording_content)
+                .setMinimumWidth((int)(Math.min(displayRectangle.width() * 0.9f, maxWidth)));
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
     }
 
