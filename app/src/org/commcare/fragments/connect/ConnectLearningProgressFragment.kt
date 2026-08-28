@@ -21,7 +21,6 @@ import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import java.util.Date
 
 class ConnectLearningProgressFragment :
     ConnectJobFragment<FragmentConnectLearningProgressBinding>(),
@@ -75,7 +74,9 @@ class ConnectLearningProgressFragment :
     }
 
     private fun updateLearningUI() {
-        val showLearningComplete = job.getLearningPercentComplete(false) >= 100 && job.passedAssessment()
+        val learnCompletionDate = job.learningCompletionDate
+        val showLearningComplete =
+            learnCompletionDate != null && job.getLearningPercentComplete(false) >= 100 && job.passedAssessment()
 
         binding.learnProgressView.visibility = if (showLearningComplete) View.GONE else View.VISIBLE
         binding.learnCompleteView.visibility = if (showLearningComplete) View.VISIBLE else View.GONE
@@ -83,7 +84,7 @@ class ConnectLearningProgressFragment :
         if (showLearningComplete) {
             binding.learnCompleteView.bind(
                 job,
-                latestCompletionDate(),
+                learnCompletionDate,
                 ConnectUserDatabaseUtil.getUser(requireContext()).name,
                 View.OnClickListener { onDeliveryCtaClicked() },
             )
@@ -143,12 +144,6 @@ class ConnectLearningProgressFragment :
                 getString(R.string.connect_downloading_delivery),
                 false,
             )
-
-    private fun latestCompletionDate(): Date {
-        val assessmentDates = job.assessments.orEmpty().map { it.date }
-        val dates = assessmentDates.ifEmpty { job.learnings.orEmpty().map { it.date } }
-        return dates.maxOrNull() ?: Date()
-    }
 
     private fun navigateToLearnAppHome() {
         val appId = job.learnAppInfo.appId

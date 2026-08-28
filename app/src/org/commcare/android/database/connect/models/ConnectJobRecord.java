@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -544,6 +545,32 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public boolean attemptedAssessment() {
         return assessments != null && !assessments.isEmpty();
+    }
+
+    /**
+     * The date learning finished: the latest assessment date, or the latest completed module if the
+     * user never took an assessment. Null when this device holds no dated record of either, which is
+     * the case until it has run a learn sync.
+     */
+    @Nullable
+    public Date getLearningCompletionDate() {
+        List<Date> dates = new ArrayList<>();
+
+        if (attemptedAssessment()) {
+            for (ConnectJobAssessmentRecord record : assessments) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        } else if (getLearnings() != null) {
+            for (ConnectJobLearningRecord record : getLearnings()) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        }
+
+        return dates.isEmpty() ? null : Collections.max(dates);
     }
 
     public List<ConnectLearnModuleSummaryRecord> getSortedLearnModules() {
