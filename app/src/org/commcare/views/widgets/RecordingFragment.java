@@ -279,13 +279,13 @@ public class RecordingFragment extends DialogFragment {
         } else {
             requireActivity().startService(serviceIntent);
         }
-        bindAudioRecordingService(serviceIntent);
+        bindAudioRecordingService(serviceIntent, Context.BIND_AUTO_CREATE);
     }
 
-    private void bindAudioRecordingService(Intent serviceIntent) {
-        requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(),
-                Context.BIND_AUTO_CREATE);
+    private boolean bindAudioRecordingService(Intent serviceIntent, int flags) {
+        boolean bound = requireActivity().bindService(serviceIntent, getAudioRecordingServiceConnection(), flags);
         audioRecordingServiceBounded = true;
+        return bound;
     }
 
     /**
@@ -296,11 +296,7 @@ public class RecordingFragment extends DialogFragment {
      */
     private boolean rebindToRunningRecording() {
         Intent serviceIntent = new Intent(requireActivity(), AudioRecordingService.class);
-        boolean bound = requireActivity().bindService(serviceIntent,
-                getAudioRecordingServiceConnection(), 0);
-        // Unbinding is required even when the bind fails, so record that we asked.
-        audioRecordingServiceBounded = true;
-        return bound;
+        return bindAudioRecordingService(serviceIntent, 0);
     }
 
     /**
