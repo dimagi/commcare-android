@@ -173,6 +173,22 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.CONFIRM_BACKUP_CODE);
     }
 
+    public static void setRecoveryPin(
+            Context context,
+            String userId,
+            String password,
+            String newPin,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String token = HttpUtils.getCredential(authInfo);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("recovery_pin", newPin);
+        PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.setRecoveryPin(token, params);
+        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.SET_RECOVERY_PIN);
+    }
+
     public static void reportIntegrity(
             Context context,
             Map<String, String> body,
