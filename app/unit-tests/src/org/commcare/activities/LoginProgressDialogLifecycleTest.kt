@@ -4,14 +4,23 @@ import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.awaitCancellation
 import org.commcare.CommCareTestApplication
+import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.android.util.ReflectionUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.dalvik.R
+import org.commcare.login.AuthSource
+import org.commcare.login.LoginError
 import org.commcare.login.LoginPhase
+import org.commcare.login.LoginProgress
+import org.commcare.login.LoginRequest
+import org.commcare.login.LoginResult
+import org.commcare.login.LoginViewModel
 import org.commcare.tasks.DataPullTask
 import org.commcare.views.dialogs.CustomProgressDialog
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -21,6 +30,7 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 /**
  * Regression pins covering both halves of the login progress dialog's behavior when
@@ -208,39 +218,128 @@ class LoginProgressDialogLifecycleTest {
         activity.cancelCurrentTask()
 
         assertTrue(job.isCancelled)
-        assertNull("The cancelled job should not be retained", ReflectionUtils.readField(activity, "loginJob"))
+        assertNull("The cancelled job should not be retained", ReflectionUtils.readField(viewModel(), "loginJob"))
+    }
+
+    // ======== Rotation ========
+
+    @Test
+    fun `rotation keeps the login running and puts its dialog back`() {
+        startSuspendingLogin()
+        assertEquals("The sync dialog should be up before rotating", syncTaskId, currentDialog()?.taskId)
+        val runningJob = ReflectionUtils.readField(viewModel(), "loginJob") as Job
+
+        rotate()
+
+        assertTrue("Rotation must not cancel the pipeline", runningJob.isActive)
+        assertSame(
+            "The recreated activity should reattach to the same pipeline",
+            runningJob,
+            ReflectionUtils.readField(viewModel(), "loginJob"),
+        )
+        assertEquals(
+            "The dialog should be rebuilt on the recreated activity",
+            syncTaskId,
+            currentDialog()?.taskId,
+        )
+    }
+
+    @Test
+    fun `stop button cancels a pipeline that survived rotation`() {
+        startSuspendingLogin()
+        val runningJob = ReflectionUtils.readField(viewModel(), "loginJob") as Job
+
+        rotate()
+        clickStopButton()
+
+        assertTrue("STOP should cancel the surviving pipeline", runningJob.isCancelled)
+        assertNull("STOP should dismiss the restored dialog", currentDialog())
+    }
+
+    @Test
+    fun `a consumed result is not redelivered after rotation`() {
+        val viewModel = viewModel()
+        viewModel.performLogin = { _, _ -> LoginResult.Failed(LoginError.BadCredentials) }
+
+        viewModel.start(request())
+        idle()
+        assertNull("The result should have been consumed on delivery", viewModel.result.value)
+
+        rotate()
+
+        assertNull("A consumed result must not be replayed", viewModel().result.value)
+        assertNull("And it must not rebuild a dialog", currentDialog())
+    }
+
+    @Test
+    fun `a finished login leaves no dialog behind on rotation`() {
+        val viewModel = viewModel()
+        viewModel.performLogin = { _, listener ->
+            listener.onProgress(LoginProgress(LoginPhase.Syncing))
+            LoginResult.Failed(LoginError.BadCredentials)
+        }
+
+        viewModel.start(request())
+        idle()
+
+        rotate()
+
+        assertNull("A stale phase should not survive the login that reported it", currentDialog())
+        assertFalse("No pipeline should still be running", isLoginRunning())
     }
 
     // ======== Helpers ========
 
-    /**
-     * Put the activity in the state the crash needs: stopped, so `areFragmentsPaused` is set and
-     * `onSaveInstanceState` has run.
-     */
     private fun background() {
         controller.pause().stop()
     }
 
-    /**
-     * Bring the activity back through `onResumeFragments`, which is what flushes the deferred
-     * dialog work. `resume()` dispatches it once, like a real resume; calling `postResume()` as
-     * well would dispatch a second time and hide ordering bugs between the two deferral slots.
-     */
     private fun foreground() {
         controller.start().resume()
     }
 
     private fun currentDialog(): CustomProgressDialog? = activity.currentProgressDialog
 
-    /**
-     * Stand in for a login that has reached the sync phase: the dialog the STOP button lives on is
-     * showing, and [job] is the pipeline the activity would cancel.
-     */
     private fun startFakeSyncPhase(job: Job) {
         ReflectionUtils.writeField(activity, "currentLoginPhase", LoginPhase.Syncing)
-        ReflectionUtils.writeField(activity, "loginJob", job)
+        ReflectionUtils.writeField(viewModel(), "loginJob", job)
         activity.showProgressDialog(syncTaskId)
     }
+
+    private fun viewModel(): LoginViewModel = ReflectionUtils.readField(activity, "loginViewModel") as LoginViewModel
+
+    private fun isLoginRunning(): Boolean = (ReflectionUtils.readField(viewModel(), "loginJob") as Job?)?.isActive == true
+
+    private fun startSuspendingLogin() {
+        viewModel().performLogin = { _, listener ->
+            listener.onProgress(LoginProgress(LoginPhase.Syncing))
+            awaitCancellation()
+        }
+        viewModel().start(request())
+        idle()
+    }
+
+    private fun rotate() {
+        controller.recreate()
+        activity = controller.get()
+        idle()
+    }
+
+    /** `postValue` hops through the main looper, so values land only once it has been drained. */
+    private fun idle() = ShadowLooper.idleMainLooper()
+
+    private fun request(): LoginRequest =
+        LoginRequest(
+            appId = "test-app",
+            username = "test-user",
+            passwordOrPin = "test-password",
+            credentialType = LoginMode.PASSWORD,
+            authSource = AuthSource.Manual,
+            restoreSession = false,
+            triggerMultipleUsersWarning = false,
+            blockRemoteKeyManagement = true,
+            dataPullMode = DataPullMode.NORMAL,
+        )
 
     private fun clickStopButton() {
         val dialog = requireNotNull(currentDialog()?.dialog as? AlertDialog) { "sync dialog not showing" }
