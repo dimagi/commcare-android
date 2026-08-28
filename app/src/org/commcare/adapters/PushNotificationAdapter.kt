@@ -19,48 +19,60 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ItemPushNotificationBinding
 
 class PushNotificationAdapter(
-    private val listener: OnNotificationClickListener
+    private val listener: OnNotificationClickListener,
 ) : ListAdapter<PushNotificationRecord, PushNotificationAdapter.PushNotificationViewHolder>(
-    NotificationDiffCallback
-) {
-    inner class PushNotificationViewHolder(val binding: ItemPushNotificationBinding) :
-        RecyclerView.ViewHolder(binding.root)
+        NotificationDiffCallback,
+    ) {
+    inner class PushNotificationViewHolder(
+        val binding: ItemPushNotificationBinding,
+    ) : RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PushNotificationViewHolder {
-        val binding = ItemPushNotificationBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): PushNotificationViewHolder {
+        val binding =
+            ItemPushNotificationBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            )
         return PushNotificationViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: PushNotificationViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: PushNotificationViewHolder,
+        position: Int,
+    ) {
         val item = getItem(position)
         with(holder.binding) {
             tvNotification.text = item.body
-            val iconRes = when (item.action) {
-                CCC_DEST_PAYMENTS -> R.drawable.ic_dollar_payment_pn
-                CCC_MESSAGE -> R.drawable.nav_drawer_message_icon
-                CCC_DEST_OPPORTUNITY_SUMMARY_PAGE -> R.drawable.ic_connect_new_opportunity
-                CCC_DEST_LEARN_PROGRESS -> R.drawable.ic_connect_learning
-                CCC_DEST_DELIVERY_PROGRESS -> R.drawable.ic_connect_delivery
-                else -> null
-            }
+            val iconRes =
+                when (item.action) {
+                    CCC_DEST_PAYMENTS -> R.drawable.ic_dollar_payment_pn
+                    CCC_MESSAGE -> R.drawable.nav_drawer_message_icon
+                    CCC_DEST_OPPORTUNITY_SUMMARY_PAGE -> R.drawable.ic_connect_new_opportunity
+                    CCC_DEST_LEARN_PROGRESS -> R.drawable.ic_connect_learning
+                    CCC_DEST_DELIVERY_PROGRESS -> R.drawable.ic_connect_delivery
+                    else -> null
+                }
             iconRes?.let { ivNotification.setImageResource(it) }
-            ivNotification.imageTintList = if (item.action == CCC_MESSAGE) {
-                ColorStateList.valueOf(ContextCompat.getColor(root.context, R.color.black))
-            } else null
+            ivNotification.imageTintList =
+                if (item.action == CCC_MESSAGE) {
+                    ColorStateList.valueOf(ContextCompat.getColor(root.context, R.color.black))
+                } else {
+                    null
+                }
 
             tvTime.text = formatNotificationTime(this.clMain.context, item.createdDate)
 
             if (item.readStatus) {
                 clMain.setBackgroundColor(
-                    ContextCompat.getColor(clMain.context, R.color.connect_background_color)
+                    ContextCompat.getColor(clMain.context, R.color.connect_background_color),
                 )
             } else {
                 clMain.setBackgroundColor(
-                    ContextCompat.getColor(clMain.context, R.color.white)
+                    ContextCompat.getColor(clMain.context, R.color.white),
                 )
             }
 
@@ -80,16 +92,12 @@ class PushNotificationAdapter(
     companion object NotificationDiffCallback : DiffUtil.ItemCallback<PushNotificationRecord>() {
         override fun areItemsTheSame(
             oldItem: PushNotificationRecord,
-            newItem: PushNotificationRecord
-        ): Boolean {
-            return oldItem.notificationId == newItem.notificationId
-        }
+            newItem: PushNotificationRecord,
+        ): Boolean = oldItem.notificationId == newItem.notificationId
 
         override fun areContentsTheSame(
             oldItem: PushNotificationRecord,
-            newItem: PushNotificationRecord
-        ): Boolean {
-            return oldItem.notificationId == newItem.notificationId
-        }
+            newItem: PushNotificationRecord,
+        ): Boolean = oldItem.notificationId == newItem.notificationId
     }
 }
