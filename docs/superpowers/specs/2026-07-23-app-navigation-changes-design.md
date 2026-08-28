@@ -50,7 +50,7 @@ The fallback screen has to explain why the user is on it. For a PersonalID-assis
 
 The stack therefore never holds more than four screens, and only reaches four when a notification or deep link opens something nested.
 
-A path is built only when there is no real history to retrace: a chat opened from a task on Opportunity Home has history, so Back returns there rather than inserting/building the messaging channel list.
+A path is built only when there is no real history to retrace: a chat opened from a task on Opportunity Home has history, so Back returns there.
 
 Seeding spans activities, not nav graphs — Messaging is a separate activity with its own `NavHost` and Opportunity Home is in another, so the path is a task stack. `NavDeepLinkBuilder` is not used: it synthesizes only within one graph, and it bypasses the unlock gate.
 
