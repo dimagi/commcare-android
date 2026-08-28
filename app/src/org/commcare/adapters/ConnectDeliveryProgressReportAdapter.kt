@@ -3,8 +3,8 @@ package org.commcare.adapters
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ConnectDeliveryProgressItemBinding
 import org.commcare.models.connect.ConnectDeliveryDetails
@@ -39,7 +39,9 @@ class ConnectDeliveryProgressReportAdapter(
         val context = holder.itemView.context
         with(holder.binding) {
             linearProgressBar.setProgress(details.approvedPercentage.toFloat())
-            linearProgressBar.setProgressColor(ContextCompat.getColor(context, R.color.connect_green))
+            linearProgressBar.setProgressColor(
+                MaterialColors.getColor(holder.itemView, R.attr.connectStatusPositive),
+            )
             tvDeliveryTitle.text = details.deliveryName
             tvApproved.text = details.approvedCount.toString()
             tvDeliveryTotalAmount.text = details.totalAmount

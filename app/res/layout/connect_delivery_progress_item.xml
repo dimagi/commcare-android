@@ -5,25 +5,25 @@
     android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_margin="@dimen/connect_space_md"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="15dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:cardCornerRadius="@dimen/connect_radius_lg"
     app:cardElevation="10dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="@dimen/connect_space_lg">
 
         <TextView
             android:id="@+id/tvDeliveryTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textSize="14sp"
+            android:textColor="?attr/connectOnSurfaceEmphasis"
+            android:textSize="@dimen/connect_text_body"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -33,8 +33,8 @@
             android:id="@+id/imgApproved"
             android:layout_width="13dp"
             android:layout_height="13dp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginStart="@dimen/connect_space_xs"
+            android:layout_marginTop="@dimen/connect_space_sm"
             android:contentDescription="@null"
             android:src="@drawable/ic_connect_thumb_up"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,7 @@
             android:id="@+id/approvedStats"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="@dimen/connect_space_sm"
             android:orientation="vertical"
             app:layout_constraintEnd_toStartOf="@id/centerGuideline"
             app:layout_constraintStart_toEndOf="@id/imgApproved"
@@ -54,17 +54,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/connect_results_summary_approved"
-                android:textColor="@color/connect_grey"
-                android:textSize="11sp"
+                android:textColor="?attr/connectOnSurfaceMuted"
+                android:textSize="@dimen/connect_text_caption"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvApproved"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:textColor="@color/connect_green"
-                android:textSize="12sp"
+                android:layout_marginTop="@dimen/connect_space_xs"
+                android:textColor="?attr/connectStatusPositive"
+                android:textSize="@dimen/connect_text_caption"
                 android:textStyle="bold"
                 tools:text="10" />
 
@@ -72,9 +72,9 @@
                 android:id="@+id/tvDeliveryTotalAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:textColor="@color/connect_green"
-                android:textSize="12sp"
+                android:layout_marginTop="@dimen/connect_space_xs"
+                android:textColor="?attr/connectStatusPositive"
+                android:textSize="@dimen/connect_text_caption"
                 android:textStyle="bold"
                 tools:text="10,000 MWK" />
         </LinearLayout>
@@ -83,7 +83,7 @@
             android:id="@+id/imgRemaining"
             android:layout_width="13dp"
             android:layout_height="13dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="@dimen/connect_space_xs"
             android:contentDescription="@null"
             android:src="@drawable/ic_connect_delivery_check_circle"
             app:layout_constraintStart_toStartOf="@id/centerGuideline"
@@ -93,7 +93,7 @@
             android:id="@+id/remainingStats"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="@dimen/connect_space_sm"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/imgRemaining"
@@ -103,17 +103,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/connect_results_summary_remaining"
-                android:textColor="@color/connect_grey"
-                android:textSize="11sp"
+                android:textColor="?attr/connectOnSurfaceMuted"
+                android:textSize="@dimen/connect_text_caption"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvRemaining"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:textColor="@color/connect_blue_color"
-                android:textSize="12sp"
+                android:layout_marginTop="@dimen/connect_space_xs"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="@dimen/connect_text_caption"
                 android:textStyle="bold"
                 tools:text="6 in 3 days" />
         </LinearLayout>
@@ -128,8 +128,8 @@
         <org.commcare.views.connect.LinearProgressBar
             android:id="@+id/linearProgressBar"
             android:layout_width="0dp"
-            android:layout_height="8dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="@dimen/connect_progress_card_bar_height"
+            android:layout_marginTop="@dimen/connect_space_sm"
             app:layout_constraintEnd_toStartOf="@id/progressEndGuideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/statsBottomBarrier" />
@@ -138,7 +138,7 @@
             android:id="@+id/imgArrowForward"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/connect_space_sm"
             android:contentDescription="@null"
             android:src="@drawable/ic_connect_arrow_forward"
             app:layout_constraintBottom_toBottomOf="parent"
