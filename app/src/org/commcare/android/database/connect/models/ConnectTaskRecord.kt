@@ -5,6 +5,7 @@ import org.commcare.models.framework.Persisting
 import org.commcare.modern.database.Table
 import org.commcare.modern.models.MetaField
 import org.commcare.utils.hasNonNull
+import org.commcare.utils.optStringSafe
 import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONException
 import org.json.JSONObject
@@ -55,6 +56,9 @@ class ConnectTaskRecord :
     @MetaField(META_DATE_MODIFIED)
     var dateModified: Date = Date()
 
+    val isOCSConversation: Boolean
+        get() = mode == MODE_OCS
+
     companion object {
         const val STORAGE_KEY = "connect_tasks"
 
@@ -83,10 +87,10 @@ class ConnectTaskRecord :
             task.jobUUID = job.jobUUID
             task.taskId = json.getString("assigned_task_id")
             task.name = json.getString("task_name")
-            task.description = json.optString("task_description", "")
+            task.description = json.optStringSafe("task_description", "").orEmpty()
             task.status = json.getString("status")
-            task.connectChannelId = json.optString("connect_channel_id", "")
-            task.mode = json.optString("task_mode", "")
+            task.connectChannelId = json.optStringSafe("connect_channel_id", "").orEmpty()
+            task.mode = json.optStringSafe("task_mode", "").orEmpty()
             if (json.hasNonNull("due_date")) {
                 task.dueDate = DateUtils.parseDate(json.getString("due_date"))
             }
