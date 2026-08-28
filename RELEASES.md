@@ -9,6 +9,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 #### Important Bug Fixes
 
 - Fixed an issue where recovering a PersonalID account via backup code could result in the account being stored without a pin, causing authentication to fail after recovery.
+- Fixed an issue where a worker who passed the learning assessment before completing all learn modules was shown as ready to claim the opportunity, and then hit a failure when trying to claim it. They are now directed back to finish the remaining modules first.
 
 ## CommCare 2.63.5
 
