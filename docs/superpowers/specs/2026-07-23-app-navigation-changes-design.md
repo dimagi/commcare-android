@@ -134,7 +134,6 @@ At cold start, show a splash / branded base behind the prompt — Android 12+ `S
 - `ConnectActivity` and `ConnectMessagingActivity` extend `NavigationHostCommCareActivity`; `PersonalIdWorkHistoryActivity` extends `CommCareActivity`. None extend `BaseDrawerActivity`, which is why those screens have no drawer. Move all three onto `BaseDrawerActivity` and override `shouldShowDrawer()` to return `true`, since the interim ships on today's activities. The shell absorbs them later, at which point the drawer comes from the shell activity instead.
 - Retire `NavDrawerHelper.drawerShownBefore()` / `setDrawerShown()` and the `shouldShowDrawerAfterCheck(requirePersonalIDLogin)` gate. Today `CommCareSetupActivity:315` passes `false` and sets the stored flag, and that stored flag then causes the checks in `LoginActivity:1069` and `StandardHomeActivity:354` to return early without ever testing for PersonalID. `shouldShowDrawer()` defaults to `false`, so only those three activities opt in at present.
 - Keep `checkDeviceCompability()` (`SDK_INT >= P`).
-- `RootMenuHomeActivity` still uses the legacy `HomeNavDrawerController`, pinned `LOCK_MODE_LOCKED_CLOSED`. Replace it rather than leaving two drawer implementations in the tree.
 - Drawer contents come from `BaseDrawerController.refreshDrawerContent`; the signed-out branch (`setSignedInState(false)` → `configureErrorState()`) renders the sign-up prompt, whose button calls `PersonalIdManager.launchPersonalId(activity, PERSONAL_ID_SIGN_UP_LAUNCH)`.
 
 ### Nothing to remove for `Up`
