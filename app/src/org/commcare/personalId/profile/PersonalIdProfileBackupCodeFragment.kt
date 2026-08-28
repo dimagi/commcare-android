@@ -50,20 +50,13 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         setupListeners()
     }
 
-    private fun setupListeners() {
-        binding.backupCodeView.setOnCodeChangedListener { validateCode() }
-        binding.backupCodeView.setOnEnterKeyPressedListener { submitIfEnabled() }
-        binding.connectBackupCodeButton.setOnClickListener { handleBackupCodeSubmission() }
-        forgotBackupCodeButton.setOnClickListener { handleForgot() }
-        binding.backupCodeVisibilityToggle.setOnClickListener {
-            togglePasswordVisibility(binding.backupCodeView, binding.backupCodeVisibilityToggle)
-        }
+    override fun onCodeChanged() {
+        if (!isLocked) validateBackupCodeAndEnableContinue()
     }
 
-    private fun validateCode() {
-        if (!isLocked) {
-            enableContinueButton(binding.backupCodeView.codeValue.length == BACKUP_CODE_LENGTH)
-        }
+    override fun setupListeners() {
+        super.setupListeners()
+        forgotBackupCodeButton.setOnClickListener { handleForgot() }
     }
 
     private fun handleForgot() {
@@ -114,15 +107,5 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
 
     companion object {
         private const val MAX_ATTEMPTS = 3
-    }
-
-    override fun navigateToMessageDisplay(
-        title: String,
-        message: String?,
-        isCancellable: Boolean,
-        phase: Int,
-        buttonText: Int,
-    ) {
-        // unreachable
     }
 }

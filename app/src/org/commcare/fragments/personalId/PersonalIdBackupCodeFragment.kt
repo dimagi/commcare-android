@@ -21,7 +21,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.utils.MediaUtil
-import org.commcare.views.connect.NumericCodeView
 import java.util.Date
 
 class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
@@ -48,7 +47,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
 
     override fun onResume() {
         super.onResume()
-        validateBackupCodeInputs()
+        validateBackupCodeAndEnableContinue()
     }
 
     private fun configureUiByMode() {
@@ -79,47 +78,11 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         }
     }
 
-    private fun setupListeners() {
-        val codeChangedListener = NumericCodeView.OnCodeChangedListener { validateBackupCodeInputs() }
-
-        binding.backupCodeView.setOnCodeChangedListener(codeChangedListener)
-        binding.confirmCodeView.setOnCodeChangedListener(codeChangedListener)
-
-        binding.backupCodeView.setCodeCompleteListener {
-            if (isRecovery) {
-                submitIfEnabled()
-            }
-        }
-
+    override fun setupListeners() {
+        super.setupListeners()
+        binding.backupCodeView.setCodeCompleteListener { if (isRecovery) submitIfEnabled() }
         binding.confirmCodeView.setCodeCompleteListener { submitIfEnabled() }
-
-        val enterKeyListener = NumericCodeView.OnEnterKeyPressedListener { submitIfEnabled() }
-        binding.backupCodeView.setOnEnterKeyPressedListener(enterKeyListener)
-        binding.confirmCodeView.setOnEnterKeyPressedListener(enterKeyListener)
-
-        binding.connectBackupCodeButton.setOnClickListener { handleBackupCodeSubmission() }
         binding.notMeButton.setOnClickListener { handleNotMeButtonPressed() }
-
-        binding.backupCodeVisibilityToggle.setOnClickListener {
-            togglePasswordVisibility(binding.backupCodeView, binding.backupCodeVisibilityToggle)
-        }
-        binding.confirmCodeVisibilityToggle.setOnClickListener {
-            togglePasswordVisibility(binding.confirmCodeView, binding.confirmCodeVisibilityToggle)
-        }
-    }
-
-    private fun validateBackupCodeInputs() {
-        val backupCode = binding.backupCodeView.codeValue
-        val confirmCode = binding.confirmCodeView.codeValue
-
-        val isCodeComplete = backupCode.length == BACKUP_CODE_LENGTH
-        val isCodeConfirmed = isRecovery || backupCode == confirmCode
-        val showMismatch = isCodeComplete && !isCodeConfirmed && confirmCode.length == BACKUP_CODE_LENGTH
-        val errorText = if (showMismatch) getString(R.string.connect_backup_code_mismatch) else ""
-
-        binding.connectBackupCodeErrorMessage.visibility = if (showMismatch) View.VISIBLE else View.GONE
-        binding.connectBackupCodeErrorMessage.text = errorText
-        enableContinueButton(isCodeComplete && isCodeConfirmed)
     }
 
     private fun handleNotMeButtonPressed() {
