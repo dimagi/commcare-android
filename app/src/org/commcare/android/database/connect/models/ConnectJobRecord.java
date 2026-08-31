@@ -548,12 +548,13 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     /**
-     * The date learning finished: the latest assessment date, or the latest completed module if the
-     * user never took an assessment. Null when this device holds no dated record of either, which is
+     * The most recent learning activity: the latest assessment date, or the latest completed module
+     * if the user never took an assessment. Callers that have established learning is complete read
+     * this as the completion date. Null when this device holds no dated record of either, which is
      * the case until it has run a learn sync.
      */
     @Nullable
-    public Date getLearningCompletionDate() {
+    public Date getLatestLearningActivityDate() {
         List<Date> dates = new ArrayList<>();
 
         if (attemptedAssessment()) {

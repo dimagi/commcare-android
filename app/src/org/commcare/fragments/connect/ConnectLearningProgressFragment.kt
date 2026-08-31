@@ -74,7 +74,7 @@ class ConnectLearningProgressFragment :
     }
 
     private fun updateLearningUI() {
-        val learnCompletionDate = job.learningCompletionDate
+        val learnCompletionDate = job.latestLearningActivityDate
         val showLearningComplete =
             learnCompletionDate != null && job.getLearningPercentComplete(false) >= 100 && job.passedAssessment()
 

@@ -127,7 +127,7 @@ class ConnectDeliveryMoreFragment :
      * certificate wait on the learn records, which only reach a device that ran the learn sync.
      */
     private fun bindRevisitLearning() {
-        val learnCompletionDate = job.learningCompletionDate
+        val learnCompletionDate = job.latestLearningActivityDate
         val hasCompletionDate = learnCompletionDate != null
         binding.revisitLearningTitle.text = job.title
 

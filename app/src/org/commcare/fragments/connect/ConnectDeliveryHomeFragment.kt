@@ -167,7 +167,7 @@ class ConnectDeliveryHomeFragment :
             if (state is DataState.Success) {
                 job.learnings = state.data.learnings
                 job.assessments = state.data.assessments
-                if (job.learningCompletionDate != null) {
+                if (job.latestLearningActivityDate != null) {
                     refreshTabs()
                 }
             }
@@ -193,7 +193,7 @@ class ConnectDeliveryHomeFragment :
      * running them together lets one revert the other's fields.
      */
     private fun loadLearningProgressIfMissing() {
-        if (job.learningCompletionDate == null) {
+        if (job.latestLearningActivityDate == null) {
             viewModel.loadLearningProgress(job)
         }
     }

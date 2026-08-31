@@ -15,7 +15,7 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * Covers [ConnectJobRecord.getLearningCompletionDate], which decides the date the Connect screens
+ * Covers [ConnectJobRecord.getLatestLearningActivityDate], which decides the date the Connect screens
  * present as when the user finished learning.
  *
  * Records are built through their own `fromJson`, so an unparseable date produces the same null the
@@ -23,19 +23,19 @@ import java.util.Locale
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class ConnectJobRecordLearningCompletionTest {
+class ConnectJobRecordLatestLearningActivityTest {
     @Test
     fun `the completion date is the last assessment the user sat`() {
         val job = jobWith(assessmentDates = listOf("2026-01-05T09:00:00", "2026-03-09T09:00:00"))
 
-        assertEquals(date(2026, Calendar.MARCH, 9), job.learningCompletionDate)
+        assertEquals(date(2026, Calendar.MARCH, 9), job.latestLearningActivityDate)
     }
 
     @Test
     fun `without an assessment the completion date is the last module completed`() {
         val job = jobWith(learningDates = listOf("2025-06-01T09:00:00", "2025-07-30T09:00:00"))
 
-        assertEquals(date(2025, Calendar.JULY, 30), job.learningCompletionDate)
+        assertEquals(date(2025, Calendar.JULY, 30), job.latestLearningActivityDate)
     }
 
     @Test
@@ -46,21 +46,21 @@ class ConnectJobRecordLearningCompletionTest {
                 learningDates = listOf("2026-12-31T09:00:00"),
             )
 
-        assertEquals(date(2026, Calendar.JANUARY, 5), job.learningCompletionDate)
+        assertEquals(date(2026, Calendar.JANUARY, 5), job.latestLearningActivityDate)
     }
 
     @Test
     fun `a record whose date failed to parse does not decide the answer`() {
         val job = jobWith(learningDates = listOf("not-a-date", "2025-06-01T09:00:00"))
 
-        assertEquals(date(2025, Calendar.JUNE, 1), job.learningCompletionDate)
+        assertEquals(date(2025, Calendar.JUNE, 1), job.latestLearningActivityDate)
     }
 
     @Test
     fun `records that all failed to parse leave the date unknown`() {
         val job = jobWith(learningDates = listOf("not-a-date"))
 
-        assertNull(job.learningCompletionDate)
+        assertNull(job.latestLearningActivityDate)
     }
 
     @Test
@@ -71,13 +71,13 @@ class ConnectJobRecordLearningCompletionTest {
                 learningDates = listOf("2025-06-01T09:00:00"),
             )
 
-        assertNull(job.learningCompletionDate)
+        assertNull(job.latestLearningActivityDate)
     }
 
     @Test
     fun `a job with no learning records at all has no completion date`() {
         // A device that never ran a learn sync holds none: the user learned elsewhere, or reinstalled.
-        assertNull(jobWith().learningCompletionDate)
+        assertNull(jobWith().latestLearningActivityDate)
     }
 
     private fun jobWith(
