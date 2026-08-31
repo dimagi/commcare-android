@@ -4,30 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph_connect_messaging"
     app:startDestination="@+id/channelListFragment">
-    <dialog
-        android:id="@+id/connect_messaging_channel_consent"
-        android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelConsentBottomSheet"
-        android:label="fragment_connect_messaging_consent_fragment"
-        tools:layout="@layout/fragment_channel_consent_bottom_sheet">
-        <argument
-            android:name="channelId"
-            app:argType="string" />
-        <argument
-            android:name="name"
-            app:argType="string" />
-        <action
-            android:id="@+id/action_channelConsent_to_connectMessageFragment"
-            app:destination="@id/connectMessageFragment" />
-    </dialog>
 
     <fragment
         android:id="@+id/channelListFragment"
         android:name="org.commcare.fragments.connectMessaging.ConnectMessageChannelListFragment"
         android:label="@string/connect_messaging_channel_list_title"
         tools:layout="@layout/fragment_channel_list" >
-        <action
-            android:id="@+id/action_channelListFragment_to_channelConsentBottomSheet"
-            app:destination="@id/connect_messaging_channel_consent" />
         <action
             android:id="@+id/action_channelListFragment_to_connectMessageFragment"
             app:destination="@id/connectMessageFragment" />

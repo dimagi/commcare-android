@@ -87,6 +87,10 @@ public class ConnectJobLearningRecord extends Persisted implements Serializable 
         return date;
     }
 
+    public String getDuration() {
+        return duration;
+    }
+
     public void setLastUpdate(Date date) {
         lastUpdate = date;
     }

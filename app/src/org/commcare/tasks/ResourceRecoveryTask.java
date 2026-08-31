@@ -45,7 +45,7 @@ public class ResourceRecoveryTask
                 singletonRunningInstance = new ResourceRecoveryTask();
                 return singletonRunningInstance;
             } else {
-                throw new IllegalStateException("An instance of " + TAG + " already exists.");
+                throw new IllegalStateException("An instance of " + ResourceRecoveryTask.class.getSimpleName() + " already exists.");
             }
         }
     }

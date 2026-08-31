@@ -1,0 +1,36 @@
+package org.commcare.services
+
+import org.commcare.CommCareApplication
+import org.commcare.android.security.AesKeyStoreHandler
+import org.commcare.android.security.AndroidKeyStore
+import org.commcare.utils.EncryptionKeyAndTransform
+
+/**
+ * Currently used to manage the session Android keystore backed encryption key,
+ */
+class CommCareKeyManager {
+    companion object {
+        private const val SESSION_KEY_ALIAS = "commcare_encryption_key"
+
+        private val sessionKeyAndTransformation by lazy {
+            AesKeyStoreHandler(SESSION_KEY_ALIAS, needsUserAuth = false).getKeyOrGenerate()
+        }
+
+        @JvmStatic
+        fun retrieveSessionKeyAndTransformation(): EncryptionKeyAndTransform = sessionKeyAndTransformation
+
+        /**
+         * An empty array indicates that the Android Keystore is supported and the key should be retrieved
+         * from the keystore.
+         * The Keystore availability check is currently disabled to allow for comparison of encryption times
+         * between keystore-backed keys and SecretKeySpec-backed keys.
+         */
+        @JvmStatic
+        fun generateLegacyKeyOrEmpty(): ByteArray =
+            if (false) { // AndroidKeyStore.isKeystoreAvailable()) {
+                ByteArray(0)
+            } else {
+                CommCareApplication.instance().createNewSymmetricKey().encoded
+            }
+    }
+}

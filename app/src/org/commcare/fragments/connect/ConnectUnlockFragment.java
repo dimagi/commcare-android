@@ -1,27 +1,15 @@
 package org.commcare.fragments.connect;
 
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.commcare.activities.CommCareActivity;
-import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
-import org.commcare.dalvik.R;
-import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
-import org.javarosa.core.services.Logger;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,10 +18,27 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.ConnectActivity;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.repository.ConnectRepository;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.dalvik.R;
+import org.commcare.dalvik.databinding.FragmentConnectUnlockBinding;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
+import org.javarosa.core.services.Logger;
+
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
     private boolean buttons = false;
+    private boolean fromOppInviteLink = false;
+    private String requestedOpportunityUuid = null;
 
     public ConnectUnlockFragment() {
         // Required empty public constructor
@@ -52,6 +57,9 @@ public class ConnectUnlockFragment extends Fragment {
         if(getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
             buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
+            fromOppInviteLink = getArguments().getBoolean(
+                    ConnectConstants.FROM_SMS_INVITE_LINK, false);
+            requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
         }
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
@@ -63,7 +71,7 @@ public class ConnectUnlockFragment extends Fragment {
     private final Runnable unlockRunnable = new Runnable() {
         @Override
         public void run() {
-            PersonalIdManager.getInstance().unlockConnect((CommCareActivity<?>) requireActivity(), success -> {
+            PersonalIdUnlocker.INSTANCE.unlock((CommCareActivity<?>) requireActivity(), UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
                 if (success) {
                     retrieveOpportunities();
                 } else {
@@ -81,23 +89,51 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void retrieveOpportunities() {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(getContext());
-        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
-
-            @Override
-            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @androidx.annotation.Nullable Throwable t) {
-                setFragmentRedirection();
-            }
-
-            @Override
-            public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                if (!data.getValidJobs().isEmpty()) {
-                    ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
+        ConnectRepository.getInstance(requireContext()).retrieveOpportunitiesForJava(
+                (success, error) -> {
+                    if (!isAdded()) return;
+                    if (success && !ConnectJobUtils.getCompositeJobs(
+                            requireContext(), ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty()) {
+                        ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
+                    }
+                    tryToLoadInvitedOpp(success);
+                    setFragmentRedirection();
                 }
-                setFragmentRedirection();
+        );
+    }
 
-            }
-        }.getConnectOpportunities(requireContext(), user);
+    private void tryToLoadInvitedOpp(boolean refreshSucceeded) {
+        ConnectJobRecord requested = ConnectJobUtils.getCompositeJob(
+                requireContext(), requestedOpportunityUuid);
+        if (requested == null) {
+            String failure = refreshSucceeded ?
+                    AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND :
+                    AnalyticsParamValue.OPP_INVITE_LINK_NETWORK_FAILURE;
+            handleOppInviteLinkFailure(failure);
+        } else {
+            FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
+                    getOppInviteSource(), true, null);
+            ((ConnectActivity) requireActivity()).setActiveJob(requested);
+            redirectionAction = ConnectJobUtils.resolveGenericOpportunityDestination(
+                    redirectionAction, requested, null);
+        }
+    }
+
+    private void handleOppInviteLinkFailure(String analyticsOutcome) {
+        FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
+                getOppInviteSource(), false, analyticsOutcome);
+        Toast.makeText(requireContext(),
+                R.string.connect_sms_invite_opportunity_not_found,
+                Toast.LENGTH_LONG).show();
+
+        //Clear the redirection action so we navigate to the jobs list
+        redirectionAction = "";
+    }
+
+    private String getOppInviteSource() {
+        return fromOppInviteLink ?
+                AnalyticsParamValue.OPP_INVITE_LINK :
+                AnalyticsParamValue.OPP_INVITE_PUSH_NOTIFICATION;
     }
 
     /**
@@ -116,15 +152,15 @@ public class ConnectUnlockFragment extends Fragment {
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)) {
             fragmentId = R.id.connect_job_learning_progress_fragment;
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
-            fragmentId = R.id.connect_job_delivery_progress_fragment;
+            fragmentId = R.id.connect_delivery_home_fragment;
             // Set the tab position in the bundle based on the redirection action
-            bundle.putInt(ConnectDeliveryProgressFragment.TAB_POSITION,
-                    ConnectDeliveryProgressFragment.TAB_PROGRESS);
+            bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
+                    ConnectDeliveryHomeFragment.TAB_DASHBOARD);
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
-            fragmentId = R.id.connect_job_delivery_progress_fragment;
+            fragmentId = R.id.connect_delivery_home_fragment;
             // Set the tab position in the bundle based on the redirection action
-            bundle.putInt(ConnectDeliveryProgressFragment.TAB_POSITION,
-                    ConnectDeliveryProgressFragment.TAB_PAYMENT);
+            bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
+                    ConnectDeliveryHomeFragment.TAB_PAYMENT);
         } else {
             //Default case
             fragmentId = R.id.connect_jobs_list_fragment;

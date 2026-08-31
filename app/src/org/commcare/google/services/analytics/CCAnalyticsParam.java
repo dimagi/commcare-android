@@ -5,7 +5,6 @@ package org.commcare.google.services.analytics;
  */
 
 public class CCAnalyticsParam {
-
     public static final String USER_CID = "user_cid";
 
     static final String BUILD_NUMBER = "build_number";
@@ -22,8 +21,11 @@ public class CCAnalyticsParam {
     static final String DIRECTION = "direction";
     static final String TIME_IN_MINUTES = "time_in_minutes";
     static final String MODE = "mode";
-    static final String REASON = "reason";
+    public static final String REASON = "reason";
     static final String RESULT = "result";
+    static final String TYPE = "type";
+    static final String SUCCESS = "success";
+    static final String ERROR = "error";
     static final String UI_STATE = "uite_state";
     public static final String USERNAME = "username";
     static final String FORM_ID = "form_id";
@@ -32,9 +34,6 @@ public class CCAnalyticsParam {
     static final String TRIGGER = "trigger";
 
     static final String USER_RETURNED = "user_returned";
-    static final String NOTIFICATION_TYPE = "notification_type";
-    static final String PARAM_CCC_RECOVERY_METHOD = "ccc_recovery_method";
-    static final String PARAM_CCC_RECOVERY_SUCCESS = "ccc_recovery_success";
     static final String PARAM_CCC_TAB_CHANGE_NAME = "ccc_tab_change_name";
     static final String PARAM_CCC_LAUNCH_APP_TYPE = "ccc_launch_app_type";
     static final String PARAM_CCC_APP_NAME = "ccc_app_name";
@@ -42,11 +41,31 @@ public class CCAnalyticsParam {
     static final String PARAM_API_SUCCESS_DELIVERY_INFO = "ccc_api_success_delivery_info";
     static final String PARAM_API_TOTAL_JOBS = "ccc_api_total_jobs";
     static final String PARAM_API_NEW_JOBS = "ccc_api_new_jobs";
-    public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO = "personal_id_continue_button_clicked_info";
+    public static final String PERSONAL_ID_CONTINUE_CLICKED_INFO =
+            "personal_id_continue_button_clicked_info";
+    public static final String PERSONAL_ID_WORKFLOW = "personalid_flow";
     static final String NOTIFICATION_EVENT_TYPE = "event_type";
     static final String NOTIFICATION_ACTION = "action";
     static final String NOTIFICATION_ID = "notification_id";
-    static final String NOTIFICATION_CLICK_METHOD = "click_method";
     static final String IS_PERSONAL_ID_DEMO_USER = "is_personal_id_demo_user";
     static final String APP_FLAVOR = "app_flavor";
+    static final String CCC_MESSAGING_EVENT_TYPE = "event_type";
+    static final String CCC_MESSAGING_CHANNEL_ID = "channel_id";
+    static final String CCC_MESSAGING_CONSENT_API_RESULT = "consent_api_success";
+    static final String CCC_MESSAGING_DESIRED_CONSENT_STATUS = "consent_api_desired_consent_status";
+
+    static final String MANAGE_PROFILE_ACTION = "manage_profile_action";
+    static final String MANAGE_PROFILE_OUTCOME = "outcome";
+
+    // Param keys for OTP analytics
+    public static final String OTP_OUTCOME = "outcome";
+    public static final String OTP_EVENT_TYPE = "event_type";
+    public static final String OTP_METHOD = "method";
+    public static final String OTP_FAILED_ATTEMPTS = "failed_attempts";
+    public static final String OTP_WORKFLOW = "workflow";
+
+    // Param keys for user prompt analytics
+    static final String USER_PROMPT_TYPE = "event_type";
+    static final String USER_PROMPT_ACTION = "action";
+    static final String USER_PROMPT_INFO = "info";
 }

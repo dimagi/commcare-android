@@ -171,6 +171,9 @@ public class BiometricsHelper {
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                 return ConfigurationStatus.NoHardware;
             }
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                return ConfigurationStatus.NotAvailable;
+            }
             case BiometricManager.BIOMETRIC_STATUS_UNKNOWN,
                  BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,
                  BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED-> {
@@ -269,4 +272,9 @@ public class BiometricsHelper {
     }
 
     //// end: min security requirements
+
+    public static boolean isAnyBiometricConfigured(Context context, BiometricManager biometricManager) {
+        return BiometricsHelper.isFingerprintConfigured(context, biometricManager)
+                || BiometricsHelper.isPinConfigured(context, biometricManager);
+    }
 }

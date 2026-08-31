@@ -8,15 +8,19 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.gms.common.util.Strings;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -24,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.PushNotificationLaunchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
@@ -32,6 +37,7 @@ import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -48,17 +54,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.commcare.activities.DispatchActivity.CC_LAUNCH_REQUIRE_SYNC;
+import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
+import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
+import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_BODY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_KEY;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_TITLE;
+import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
+import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
+import static org.commcare.utils.NotificationIdentifiers.FCM_NOTIFICATION_ID;
 
 /**
  * This class will be used to handle notification whenever
@@ -69,8 +84,9 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 public class FirebaseMessagingUtil {
     public static final String FCM_TOKEN = "fcm_token";
     public static final String FCM_TOKEN_TIME = "fcm_token_time";
-    private final static int FCM_NOTIFICATION = R.string.fcm_notification;
     public static final String MESSAGING_UPDATE_BROADCAST = "com.dimagi.messaging.update";
+    private static final long SERVICE_NOT_AVAILABLE_RETRY_DELAY_MS = 3000;
+    static final int MAX_CAUSE_CHAIN_DEPTH = 5;
 
 
     public static String getFCMToken() {
@@ -107,15 +123,86 @@ public class FirebaseMessagingUtil {
                 if (!StringUtils.isEmpty(token)) {
                     updateFCMToken(token);
                 } else {
-                    Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()) ,
+                    Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()),
                             new Throwable("FCM registration token is empty"));
                 }
             } else {
                 Throwable throwable = task.getException() != null ? task.getException() : new Throwable(
                         "Task to fetch FCM registration token failed");
                 Logger.exception("Fetching FCM registration token failed with network status: " + ConnectivityStatus.getNetworkType(CommCareApplication.instance()), throwable);
+
+                if (isFisAuthError(throwable)) {
+                    Logger.log(LogTypes.TYPE_FCM,
+                            "FIS_AUTH_ERROR detected, deleting Firebase installation"
+                                    + " and retrying token fetch");
+                    FirebaseInstallations.getInstance().delete().addOnCompleteListener(deleteTask -> {
+                        if (deleteTask.isSuccessful()) {
+                            retryFCMTokenFetch();
+                        } else {
+                            Logger.exception("Failed to delete Firebase installation for FIS_AUTH_ERROR recovery",
+                                    deleteTask.getException() != null ? deleteTask.getException()
+                                            : new Throwable("Firebase installation delete failed"));
+                        }
+                    });
+                } else if (isServiceNotAvailable(throwable)) {
+                    // SERVICE_NOT_AVAILABLE is transient (Google Play Services temporarily busy),
+                    // so delay retry by 3s to give it time to recover before re-attempting.
+                    Logger.log(LogTypes.TYPE_FCM,
+                            "SERVICE_NOT_AVAILABLE detected, retrying token fetch after delay");
+                    new Handler(Looper.getMainLooper()).postDelayed(
+                            FirebaseMessagingUtil::retryFCMTokenFetch, SERVICE_NOT_AVAILABLE_RETRY_DELAY_MS);
+                }
             }
         };
+    }
+
+    /**
+     * Retries FCM token fetch once. This intentionally does not re-enter handleFCMTokenRetrieval()
+     * to avoid recursive retry loops on repeated failures.
+     */
+    private static void retryFCMTokenFetch() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(retryTask -> {
+            if (retryTask.isSuccessful() && !StringUtils.isEmpty(retryTask.getResult())) {
+                Logger.log(LogTypes.TYPE_FCM, "FCM token retry succeeded");
+                updateFCMToken(retryTask.getResult());
+            } else {
+                Logger.exception("FCM token retry also failed",
+                        retryTask.getException() != null ? retryTask.getException()
+                                : new Throwable("Retry returned empty token"));
+            }
+        });
+    }
+
+    private static boolean isFisAuthError(Throwable throwable) {
+        return hasErrorInChain(throwable, "FIS_AUTH_ERROR");
+    }
+
+    private static boolean isServiceNotAvailable(Throwable throwable) {
+        return hasErrorInChain(throwable, "SERVICE_NOT_AVAILABLE");
+    }
+
+    /**
+     * Checks if the given error message exists in the throwable's cause chain,
+     * up to 5 levels deep. Firebase errors like FIS_AUTH_ERROR originate as IOException
+     * but arrive wrapped in ExecutionException, so the top-level throwable may not
+     * contain the actual error string — we need to walk the cause chain to find it.
+     */
+    @VisibleForTesting
+    static boolean hasErrorInChain(Throwable throwable, String errorMessage) {
+        Throwable current = throwable;
+        int maxDepth = MAX_CAUSE_CHAIN_DEPTH;
+        while (current != null && maxDepth-- > 0) {
+            String message = current.getMessage();
+            if (message != null && message.contains(errorMessage)) {
+                return true;
+            }
+            Throwable cause = current.getCause();
+            if (cause == current) {
+                break;
+            }
+            current = cause;
+        }
+        return false;
     }
 
     public static String serializeFCMMessageData(FCMMessageData fcmMessageData) {
@@ -223,7 +310,8 @@ public class FirebaseMessagingUtil {
                     handleResumeLearningOrDeliveryJobPushNotification(true, context, fcmMessageData,showNotification);
             case CCC_DEST_DELIVERY_PROGRESS ->
                     handleResumeLearningOrDeliveryJobPushNotification(false, context, fcmMessageData,showNotification);
-            default -> null;
+            default ->
+                    handleCccGenericOpportunityNotifcation( context, fcmMessageData,showNotification);
         };
     }
 
@@ -266,6 +354,47 @@ public class FirebaseMessagingUtil {
         String ccc_action = isLearning ? CCC_DEST_LEARN_PROGRESS : CCC_DEST_DELIVERY_PROGRESS;
         Logger.exception("Empty push notification for action '" + ccc_action + "'", new Throwable(String.format("Empty notification without 'opportunity' details")));
         return null;
+    }
+
+    private static Intent handleCccGenericOpportunityNotifcation(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification) {
+        String sessionEndpointId = fcmMessageData.getPayloadData()
+                .get(PushNotificationRecord.META_SESSION_ENDPOINT_ID);
+        Intent intent = null;
+        if (!TextUtils.isEmpty(sessionEndpointId)) {
+            intent =  handleSessionEndpointNotification(context, fcmMessageData, showNotification, sessionEndpointId);
+        }
+        if (intent == null) {
+            intent = getConnectActivityNotification(context, fcmMessageData);
+        }
+        if (showNotification)
+            showNotification(context, buildNotification(context, intent, fcmMessageData), fcmMessageData);
+        return intent;
+    }
+
+    private static Intent handleSessionEndpointNotification(
+            Context context, FCMMessageData fcmMessageData, boolean showNotification,
+            String sessionEndpointId) {
+        Map<String, String> payloadData = fcmMessageData.getPayloadData();
+        String opportunityID = payloadData.get(OPPORTUNITY_UUID);
+        String opportunityStatus = payloadData.get(OPPORTUNITY_STATUS);
+        String appId = null;
+        try {
+            appId = ConnectJobUtils.getAppIdForOpportunity(context, opportunityID, opportunityStatus);
+        } catch (IllegalArgumentException e) {
+            Logger.exception("Could not resolve appId for opportunity", e);
+            return null;
+        }
+
+        Intent intent = new Intent(context, DispatchActivity.class);
+        intent.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
+        intent.putExtra(SESSION_ENDPOINT_APP_ID, appId);
+        intent.putExtra(EXIT_AFTER_FORM_SUBMISSION, false);
+        // Default to true when the field is absent — older server payloads always require sync
+        String requireAppSyncStr = payloadData.get(PushNotificationRecord.META_REQUIRE_APP_SYNC);
+        boolean requireSync = requireAppSyncStr == null || Boolean.parseBoolean(requireAppSyncStr);
+        intent.putExtra(CC_LAUNCH_REQUIRE_SYNC, requireSync);
+        return intent;
     }
 
 
@@ -325,7 +454,6 @@ public class FirebaseMessagingUtil {
         return null;    // This will always null as we are already in DispatchActivity and don't want to start again
     }
 
-
     /**
      * Handle CCC messaging/channel push notification
      *
@@ -356,7 +484,7 @@ public class FirebaseMessagingUtil {
 
             notificationTitleId = R.string.connect_messaging_channel_notification_title;
             notificationMessage = context.getString(R.string.connect_messaging_channel_notification_message,
-                    channel.getChannelName());
+                    channel.getDisplayName());
 
             channelId = channel.getChannelId();
         }
@@ -397,6 +525,16 @@ public class FirebaseMessagingUtil {
         if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_UUID)) {
             intent.putExtra(OPPORTUNITY_UUID, fcmMessageData.getPayloadData().get(OPPORTUNITY_UUID));
         }
+        if (fcmMessageData.getPayloadData().containsKey(PAYMENT_UUID)) {
+            intent.putExtra(PAYMENT_UUID, fcmMessageData.getPayloadData().get(PAYMENT_UUID));
+        }
+        if (fcmMessageData.getPayloadData().containsKey(NOTIFICATION_KEY)) {
+            intent.putExtra(NOTIFICATION_KEY, fcmMessageData.getPayloadData().get(NOTIFICATION_KEY));
+        }
+        if (fcmMessageData.getPayloadData().containsKey(OPPORTUNITY_STATUS)) {
+            intent.putExtra(OPPORTUNITY_STATUS, fcmMessageData.getPayloadData().get(OPPORTUNITY_STATUS));
+        }
+
         return intent;
     }
 
@@ -409,17 +547,24 @@ public class FirebaseMessagingUtil {
      * @return NotificationCompat.Builder
      */
     private static NotificationCompat.Builder buildNotification(Context context, Intent intent, FCMMessageData fcmMessageData) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_NEW_TASK);
+        Bundle bundleExtras = new Bundle();
+        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
+
+        Intent launchIntent = new Intent(context, PushNotificationLaunchActivity.class);
+        launchIntent.putExtra(
+                PushNotificationLaunchActivity.EXTRA_WRAPPED_NAV_INTENT,
+                intent);
 
         int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                 : PendingIntent.FLAG_UPDATE_CURRENT;
 
-        Bundle bundleExtras = new Bundle();
-        intent.putExtra(NOTIFICATION_ID, fcmMessageData.getPayloadData().get(NOTIFICATION_ID));
-
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, flags);
+        String notificationId = fcmMessageData.getPayloadData().get(NOTIFICATION_ID);
+        int requestCode = !TextUtils.isEmpty(notificationId)
+                ? NotificationIdentifiers.generateNotificationIdFromString(notificationId)
+                : FCM_NOTIFICATION_ID;
+        launchIntent.setAction("org.commcare.notifications.tap." + requestCode);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, requestCode, launchIntent, flags);
 
         if (Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationTitle()) && Strings.isEmptyOrWhitespace(fcmMessageData.getNotificationText())) {
             Logger.exception("Empty push notification",
@@ -443,7 +588,6 @@ public class FirebaseMessagingUtil {
         return fcmNotification;
     }
 
-
     /**
      * Show notification
      *
@@ -456,13 +600,13 @@ public class FirebaseMessagingUtil {
         NotificationManager mNM = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
         String notificationId = fcmMessageData.getPayloadData().get(NOTIFICATION_ID);
         int notifId = !TextUtils.isEmpty(notificationId)
-                ? notificationId.hashCode()
-                : FCM_NOTIFICATION; // fallback to constant
+                ? NotificationIdentifiers.generateNotificationIdFromString(notificationId)
+                : FCM_NOTIFICATION_ID; // fallback to constant
         mNM.notify(notifId, notificationBuilder.build());
         FirebaseAnalyticsUtil.reportNotificationEvent(
                 AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_SHOW,
                 AnalyticsParamValue.REPORT_NOTIFICATION_METHOD_FIREBASE,
-                fcmMessageData.getAction(),
+                getNotificationActionFromPayload(fcmMessageData.getPayloadData()),
                 notificationId
         );
     }
@@ -478,18 +622,27 @@ public class FirebaseMessagingUtil {
         return action != null && action.contains("ccc_");
     }
 
-    public static Intent getIntentForPNIfAny(Context context,Intent intent){
-        if(intent!=null && intent.getExtras()!=null){
-            Map<String, String> dataPayload = new HashMap<>();
-            for (String key : intent.getExtras().keySet()) {
-                String value = intent.getExtras().getString(key);
-                dataPayload.put(key, value);
+    public static Intent getIntentForPNIfAny(Context context, Intent intent) {
+        //  Here we are handling only push notification-related intent, and
+        //  It has only strings as keys and values. But now, this function gets executed whenever
+        //  DispatchActivity is created; e.g., for showing the CC app, it might have a valid boolean intent.
+        //  e.g., is_launched_from_connect, but this function raises an exception. So in order to not break
+        //  things which are not even related to this getIntentForPNIfAny function, a try-catch has been put.
+        //  This also gives reason to not log any exception in catch.
+        try {
+            if (intent != null && intent.getExtras() != null) {
+                Map<String, String> dataPayload = new HashMap<>();
+                for (String key : intent.getExtras().keySet()) {
+                    String value = intent.getExtras().getString(key);
+                    dataPayload.put(key, value);
+                }
+                Intent pnIntent = handleNotification(context, dataPayload, null, false);
+                if (pnIntent != null) {
+                    intent.replaceExtras(new Bundle()); // clear intents if push notification intents are present else app keeps reloading same PN intents
+                }
+                return pnIntent;
             }
-            Intent pnIntent = handleNotification(context,dataPayload,null,false);
-            if(pnIntent!=null){
-                intent.replaceExtras(new Bundle()); // clear intents if push notification intents are present else app keeps reloading same PN intents
-            }
-            return pnIntent;
+        } catch (Exception e) {
         }
         return null;
     }
@@ -504,4 +657,13 @@ public class FirebaseMessagingUtil {
         return personalIdManager.isloggedIn();
     }
 
+    public static String getNotificationActionFromPayload(Map<String, String> payload) {
+        return (CCC_GENERIC_OPPORTUNITY.equals(payload.get(REDIRECT_ACTION)) &&
+                payload.containsKey(NOTIFICATION_KEY)) ? payload.get(NOTIFICATION_KEY) : payload.get(REDIRECT_ACTION);
+    }
+
+    public static String getNotificationActionFromIntent(Intent intent) {
+        return (CCC_GENERIC_OPPORTUNITY.equals(intent.getStringExtra(REDIRECT_ACTION)) &&
+                !TextUtils.isEmpty(intent.getStringExtra(NOTIFICATION_KEY))) ? intent.getStringExtra(NOTIFICATION_KEY) : intent.getStringExtra(REDIRECT_ACTION);
+    }
 }

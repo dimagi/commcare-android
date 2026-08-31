@@ -12,16 +12,21 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import org.commcare.dalvik.R
 
-class DrawerViewRefs(rootView: View) {
+class DrawerViewRefs(
+    rootView: View,
+) {
     val drawerLayout: DrawerLayout = rootView.findViewById(R.id.drawer_layout)
     val navDrawerRecycler: RecyclerView = rootView.findViewById(R.id.nav_drawer_recycler)
     val drawerFrame: FrameLayout = rootView.findViewById(R.id.nav_drawer_frame)
     val signInButton: Button = rootView.findViewById(R.id.nav_drawer_sign_in_button)
+    val signedOutText: TextView = rootView.findViewById(R.id.nav_drawer_signed_out_text)
     val versionText: TextView = rootView.findViewById(R.id.app_version)
     val signoutView: LinearLayout = rootView.findViewById(R.id.signout_view)
     val profileCard: CardView = rootView.findViewById(R.id.profile_card)
-    val imageUserProfile: ImageView = rootView.findViewById(R.id.image_user_profile)
+    val userImage: ImageView = rootView.findViewById(R.id.user_image)
+    val userImageOverlayIcon: ImageView = rootView.findViewById(R.id.user_image_overlay_icon)
     val userName: TextView = rootView.findViewById(R.id.header_user_name)
+    val manageProfileLink: TextView = rootView.findViewById(R.id.header_manage_profile)
     val notificationView: LinearLayout = rootView.findViewById(R.id.notification_view)
     val ivNotification: ImageView = rootView.findViewById(R.id.ivNotification)
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)

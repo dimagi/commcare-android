@@ -17,7 +17,21 @@ public abstract class ConnectJobFragment<T extends ViewBinding> extends BaseConn
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        job = ((ConnectActivity)requireActivity()).getActiveJob();
+        reloadActiveJob();
+    }
+
+    protected void setActiveJob(ConnectJobRecord updatedJob) {
+        job = updatedJob;
+        ((ConnectActivity) requireActivity()).setActiveJob(updatedJob);
+    }
+
+    protected void reloadActiveJob() {
+        job = ((ConnectActivity) requireActivity()).getActiveJob();
         Objects.requireNonNull(job);
+    }
+
+    @Override
+    public String getEndpoint() {
+        return null;
     }
 }

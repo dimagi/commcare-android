@@ -1,0 +1,98 @@
+package org.commcare.utils
+
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.fragments.personalId.EmailWorkFlow
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.util.LogTypes
+import org.javarosa.core.services.Logger
+
+/**
+ * Normalizes Firebase {@link OtpErrorType}, {@link PersonalIdOrConnectApiErrorCodes},
+ * and the OtpManager SMS-method string into the stable analytics strings emitted with
+ * the {@code otp_requested} event.
+ */
+object OtpAnalyticsMapper {
+    /**
+     * Maps the OtpManager SMS method string ([OtpManager.SMS_METHOD_FIREBASE] /
+     * [OtpManager.SMS_METHOD_PERSONAL_ID]) to the analytics method constant.
+     * Returns [AnalyticsParamValue.OTP_METHOD_FIREBASE] when the input is null
+     * (Firebase is the default flow), and `"UNKNOWN-<input>"` for any other value
+     * so unexpected SMS methods stay visible in BI.
+     */
+    @JvmStatic
+    fun methodFromSmsMethod(otpMethod: String?): String? =
+        when {
+            otpMethod == null -> {
+                AnalyticsParamValue.OTP_METHOD_FIREBASE
+            }
+
+            otpMethod.equals(OtpManager.SMS_METHOD_PERSONAL_ID, ignoreCase = true) -> {
+                AnalyticsParamValue.OTP_METHOD_PERSONAL_ID
+            }
+
+            otpMethod.equals(OtpManager.SMS_METHOD_FIREBASE, ignoreCase = true) -> {
+                AnalyticsParamValue.OTP_METHOD_FIREBASE
+            }
+
+            else -> {
+                "UNKNOWN-$otpMethod"
+            }
+        }
+
+    /**
+     * Maps a Firebase {@link OtpErrorType} to a stable lowercase reason string suitable
+     * for analytics. Returns null when the input is null.
+     */
+    @JvmStatic
+    fun reasonFrom(errorType: OtpErrorType?): String? = errorType?.name?.lowercase()
+
+    /**
+     * Maps a PersonalID/Connect API error code to a stable lowercase reason string
+     * suitable for analytics. Returns null when the input is null.
+     */
+    @JvmStatic
+    fun reasonFrom(errorCode: PersonalIdOrConnectApiErrorCodes?): String? = errorCode?.name?.lowercase()
+
+    /**
+     * Maps the email [EmailWorkFlow] (registration / recovery / existing-user) to a stable
+     * lowercase analytics string logged with the email OTP events.
+     */
+    @JvmStatic
+    fun workflowParam(workflow: EmailWorkFlow): String = workflow.name.lowercase()
+
+    /** Which OTP call is currently in flight, used to attribute the next callback. */
+    enum class OtpOp {
+        REQUEST_PHONE,
+        VERIFY_PHONE,
+        REQUEST_EMAIL,
+        VERIFY_EMAIL,
+    }
+
+    @JvmStatic
+    fun getEventType(currentOtpOp: OtpOp?): String? =
+        when {
+            OtpOp.REQUEST_PHONE == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST
+            }
+
+            OtpOp.VERIFY_PHONE == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY
+            }
+
+            OtpOp.REQUEST_EMAIL == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST_EMAIL
+            }
+
+            OtpOp.VERIFY_EMAIL == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY_EMAIL
+            }
+
+            else -> {
+                Logger.log(
+                    LogTypes.TYPE_ERROR_DESIGN,
+                    "reportOtpAnalytics called with null OtpOp",
+                )
+                null
+            }
+        }
+}

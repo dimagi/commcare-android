@@ -32,6 +32,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.LogTypes;
+import org.commcare.views.widgets.MediaWidget;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -991,5 +992,36 @@ public class FileUtil {
             returnCursor.moveToFirst();
             return returnCursor.getLong(sizeIndex) > FormUploadUtil.MAX_BYTES;
         }
+    }
+
+    /**
+     * Counts the number of media files in the given directory, excluding XML files and unsupported multimedia
+     * files.
+     * @param dirPath the path of the directory to count media files in
+     * @return number of media files in the given directory, or -1 if there was an error accessing the directory
+     */
+    public static int countMediaFiles(String dirPath) {
+        int count = 0;
+        try {
+            File dir = new File(dirPath);
+            if (!dir.exists() || !dir.isDirectory()) {
+                return -1;
+            }
+            File[] files = dir.listFiles();
+            if (files == null) {
+                return -1;
+            }
+            for (File file : files) {
+                if (file.isFile() &&
+                        !file.getName().endsWith(XML_EXTENSION) &&
+                        FormUploadUtil.isSupportedMediaOrEncryptedMedia(file.getName())) {
+                    count++;
+                }
+            }
+        } catch (Exception e) {
+            Logger.exception("Error counting media files: ", e);
+            return -1;
+        }
+        return count;
     }
 }

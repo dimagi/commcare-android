@@ -6,14 +6,13 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.network.SsoToken;
+import org.commcare.connect.network.personalId.SsoToken;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.CommCareApplication;
 import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
-import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
@@ -52,13 +51,7 @@ public class ConnectDatabaseHelper {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
-                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
-                            if (passphrase == null || passphrase.length == 0) {
-                                throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
-                            }
-
-                            connectDatabase = new EncryptedDatabaseAdapter(new DatabaseConnectOpenHelper(
-                                    this.c, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));
+                            connectDatabase = CommCareApplication.instance().getConnectDbOpenHelper(context);
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;

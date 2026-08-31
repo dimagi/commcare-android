@@ -1,6 +1,5 @@
 package org.commcare.connect.network.base
 
-import org.commcare.connect.network.IApiCallback
 import org.commcare.interfaces.base.BaseConnectView
 import org.javarosa.core.services.Logger
 import org.json.JSONException
@@ -50,7 +49,8 @@ abstract class BaseApiHandler<T>(
         // The request to get an SSO auth token is denied.
         TOKEN_DENIED_ERROR,
 
-        // The firebase ID token is invalid.
+        // For PersonalID, either the configuration session auth was invalid as no session could be
+        // found with the token or the firebase UID was not present when validating the token.
         TOKEN_INVALID_ERROR,
         INVALID_RESPONSE_ERROR,
 
@@ -103,11 +103,16 @@ abstract class BaseApiHandler<T>(
 
         // The photo uploaded for the user is too large for server to handle. Note that, currently,
         // the user does not have much control over the photo size.
-        FILE_TOO_LARGE_ERROR, ;
+        FILE_TOO_LARGE_ERROR,
+
+        // The verified email is already tied to another active account.
+        EMAIL_ALREADY_IN_USE_ERROR,
+
+        ;
 
         fun shouldAllowRetry(): Boolean =
-            this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) || (this == UNKNOWN_ERROR) ||
-                (this == INTEGRITY_ERROR)
+            this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) ||
+                (this == UNKNOWN_ERROR) || (this == INTEGRITY_ERROR)
     }
 
     fun createCallback(
@@ -131,7 +136,10 @@ abstract class BaseApiHandler<T>(
                     )
                 } catch (e: IOException) {
                     Logger.exception("Error parsing API response", e)
-                    stopLoadingAndInformError(PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR, e)
+                    stopLoadingAndInformError(
+                        PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
+                        e,
+                    )
                 }
             }
         }

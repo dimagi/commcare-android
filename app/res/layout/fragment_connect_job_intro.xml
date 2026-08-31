@@ -1,112 +1,260 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/connect_background_color"
+    android:orientation="vertical"
     tools:context="org.commcare.fragments.connect.ConnectJobIntroFragment">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/connect_background_color"
+        android:clipToPadding="false">
 
-        <include
-            android:id="@+id/viewJobCard"
-            layout="@layout/view_job_card"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp" />
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:backgroundTint="@color/connect_blue_color"
-            android:elevation="5dp"
-            app:cardCornerRadius="16dp">
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/white"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="@dimen/standard_spacer_double">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/connect_job_learn_details"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:background="@drawable/bg_connect_opportunity_badge"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="@dimen/standard_spacer"
+                    android:paddingVertical="@dimen/standard_spacer">
+
+                    <ImageView
+                        android:layout_width="@dimen/standard_spacer_double"
+                        android:layout_height="@dimen/standard_spacer_double"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_connect_opportunity_badge" />
+
+                    <TextView
+                        android:id="@+id/tv_opportunity_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/standard_spacer"
+                        android:text="@string/connect_opportunity_badge_new"
+                        android:textColor="@color/orange"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/connect_job_intro_learning_title"
+                    android:id="@+id/tv_job_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:paddingEnd="20dp"
-                    android:text="@string/connect_job_you_will_learn"
-                    android:textColor="@color/connect_subtext_color"
-                    android:textSize="12sp" />
+                    android:layout_marginTop="@dimen/standard_spacer"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/connect_text_color"
+                    android:textSize="22sp"
+                    tools:text="Infant Vaccination" />
 
                 <TextView
-                    android:id="@+id/connect_job_intro_learning"
+                    android:id="@+id/tv_job_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="20dp"
-                    android:textColor="@color/white"
-                    android:textSize="12sp" />
+                    android:layout_marginTop="@dimen/standard_spacer_half"
+                    android:textColor="@color/connect_dark_grey"
+                    android:textSize="14sp"
+                    tools:text="One line description about the opportunity." />
 
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cardButtonView"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:backgroundTint="#353ba6"
-                    android:elevation="2dp"
-                    android:padding="16dp"
-                    app:cardCornerRadius="24dp">
+                    android:layout_marginTop="@dimen/standard_spacer_double"
+                    android:orientation="horizontal">
 
                     <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="16dp">
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/connect_job_intro_start_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/connect_learn_start"
-                            android:textColor="@color/white"
-                            android:textSize="14sp" />
+                            android:text="@string/connect_opportunity_expiry_label"
+                            android:textColor="@color/connect_grey"
+                            android:textSize="11sp" />
 
                         <TextView
-                            android:id="@+id/connect_job_intro_learning_summary"
+                            android:id="@+id/tv_expiry_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/standard_spacer_half"
+                            android:textColor="@color/connect_text_color"
+                            android:textSize="16sp"
+                            tools:text="01/31/27" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                        android:background="@color/connect_divider_color" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/connect_opportunity_max_earnings_label"
+                            android:textColor="@color/connect_grey"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tv_max_earnings_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/standard_spacer_half"
+                            android:textColor="@color/connect_text_color"
+                            android:textSize="16sp"
+                            tools:text="₹2500" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/standard_spacer_double"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_large"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="@dimen/standard_spacer_large"
+                        android:layout_height="@dimen/standard_spacer_large"
+                        android:layout_marginTop="1dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_connect_learn_app" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/standard_spacer"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/connect_opportunity_learn_section_title"
+                            android:textColor="@color/neon_blue"
+                            android:textSize="16sp"
+                            />
+
+                        <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:textColor="@color/white"
-                            android:textSize="12sp" />
+                            android:layout_marginTop="@dimen/standard_spacer_half"
+                            android:text="@string/connect_opportunity_learn_section_subtitle"
+                            android:textColor="@color/connect_dark_grey"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/connect_job_intro_start_button"
+                <org.commcare.views.connect.ConnectInfoCard
+                    android:id="@+id/card_learn_modules"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_one_and_half" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_large"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="@dimen/standard_spacer_large"
+                        android:layout_height="@dimen/standard_spacer_large"
+                        android:layout_marginTop="1dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_connect_delivery_app" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/standard_spacer"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginStart="20dp"
-                            android:gravity="center"
-                            android:text="@string/connect_recovery_button_phone"
-                            android:drawableRight= "@drawable/ic_connect_arrow_forward_20px"
-                            android:backgroundTint= "@color/white"
-                            android:textColor= "@color/cc_brand_color" />
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+                            android:text="@string/connect_opportunity_delivery_section_title"
+                            android:textColor="@color/neon_blue"
+                            android:textSize="16sp"
+                             />
 
-</ScrollView>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/standard_spacer_half"
+                            android:text="@string/connect_opportunity_delivery_section_subtitle"
+                            android:textColor="@color/connect_dark_grey"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <org.commcare.views.connect.ConnectInfoCard
+                    android:id="@+id/card_max_visits"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="0dp"
+                    android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                    app:titleText="@string/connect_opportunity_max_visits_label" />
+
+                <org.commcare.views.connect.ConnectInfoCard
+                    android:id="@+id/card_days"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                    app:titleText="@string/connect_opportunity_days_to_complete_label" />
+
+                <org.commcare.views.connect.ConnectInfoCard
+                    android:id="@+id/card_max_earnings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                    app:titleText="@string/connect_opportunity_max_earnings_card_label" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <org.commcare.views.connect.ConnectCtaBar
+        android:id="@+id/connect_intro_cta_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:buttonText="@string/connect_opportunity_footer_download_app"
+        app:subtitleText="@string/connect_opportunity_footer_download_learn_app"
+        app:titleText="@string/connect_opportunity_footer_start_learning" />
+</LinearLayout>

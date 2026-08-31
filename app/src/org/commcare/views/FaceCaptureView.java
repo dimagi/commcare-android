@@ -12,8 +12,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.mlkit.vision.face.Face;
 
@@ -21,6 +24,9 @@ import org.commcare.dalvik.R;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.content.ContextCompat;
+
+import static java.lang.Math.max;
 
 public class FaceCaptureView extends AppCompatImageView {
 
@@ -38,10 +44,12 @@ public class FaceCaptureView extends AppCompatImageView {
     public static int DEFAULT_IMAGE_WIDTH = 480;
     public static int DEFAULT_IMAGE_HEIGHT = 640;
     private static float VIEW_CAPTURE_AREA_RATIO = 0.8f;
+    private static float FACE_ALIGNMENT_GUIDE_MARGIN_RATIO = 0.1f;
     private Object lock = new Object();
     private FaceOvalGraphic faceOvalGraphic;
     private float postScaleHeightOffset;
     private float postScaleWidthOffset;
+    private boolean mirrored = false;
     private float scaleFactor;
     private ImageStabilizedListener imageStabilizedListener;
     public enum CaptureMode {FaceDetectionMode, ManualMode}
@@ -109,6 +117,13 @@ public class FaceCaptureView extends AppCompatImageView {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         canvas.drawOval(faceCaptureArea, paint);
 
+        // draw face alignment guide
+        Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.face_alignment_guide);
+        if (drawable != null) {
+            drawable.setBounds(calcFaceAlignmentGuideBounds(drawable));
+            drawable.draw(canvas);
+        }
+
         setImageBitmap(previewOverlay);
 
         if (captureMode == CaptureMode.FaceDetectionMode) {
@@ -141,7 +156,7 @@ public class FaceCaptureView extends AppCompatImageView {
 
         synchronized (lock) {
             if (faceOvalGraphic != null) {
-                faceOvalGraphic.drawFaceOval(canvas);
+                faceOvalGraphic.drawCaptureCountdown(canvas);
             }
         }
     }
@@ -159,6 +174,15 @@ public class FaceCaptureView extends AppCompatImageView {
 
     public void setImageStabilizedListener(ImageStabilizedListener imageStabilizedListener) {
         this.imageStabilizedListener = imageStabilizedListener;
+    }
+
+    /**
+     * When mirrored (front-facing camera), the preview is horizontally flipped but the detected face coordinates
+     * are not; enabling this flips the overlay's x-axis so it aligns with what the user sees.
+     */
+      public void setMirrored(boolean mirrored) {
+        this.mirrored = mirrored;
+        invalidate();
     }
 
     public RectF getFaceCaptureArea() {
@@ -181,21 +205,65 @@ public class FaceCaptureView extends AppCompatImageView {
         return new RectF(captureAreaLeft, captureAreaTop, captureAreaRight, captureAreaBottom);
     }
 
-    private void calcScaleFactors(int viewWidth, int viewHeight) {
-        float viewAspectRatio = (float) viewWidth / viewHeight;
-        float imageAspectRatio = (float) imageWidth / imageHeight;
-        postScaleWidthOffset = 0;
-        postScaleHeightOffset = 0;
-        if (viewAspectRatio > imageAspectRatio) {
-            // The image needs to be vertically cropped to be displayed in this view.
-            scaleFactor = (float) viewWidth / imageWidth;
-            postScaleHeightOffset = ((float) viewWidth / imageAspectRatio - viewHeight) / 2;
-        } else {
-            // The image needs to be horizontally cropped to be displayed in this view.
-            scaleFactor = (float) viewHeight / imageHeight;
-            postScaleWidthOffset = ((float) viewHeight * imageAspectRatio - viewWidth) / 2;
-        }
+    /**
+     * Calculates the bounds at which the face alignment guide should be drawn so that it fits inside the
+     * faceCaptureArea while preserving the drawable's aspect ratio.
+     */
+    private Rect calcFaceAlignmentGuideBounds(Drawable guide) {
+        int drawableWidth = guide.getIntrinsicWidth();
+        int drawableHeight = guide.getIntrinsicHeight();
+        float areaWidth = faceCaptureArea.width();
+        float areaHeight = faceCaptureArea.height();
+
+        float scale = Math.min(areaWidth / drawableWidth, areaHeight / drawableHeight);
+        int guideWidth = Math.round(drawableWidth * scale);
+        int guideHeight = Math.round(drawableHeight * scale);
+
+        // Inset by a margin proportional to the guide's own size
+        guideWidth -= Math.round(guideWidth * FACE_ALIGNMENT_GUIDE_MARGIN_RATIO);
+        guideHeight -= Math.round(guideHeight * FACE_ALIGNMENT_GUIDE_MARGIN_RATIO);
+
+        int left = Math.round(faceCaptureArea.left + (areaWidth - guideWidth) / 2);
+        int top = Math.round(faceCaptureArea.top + (areaHeight - guideHeight) / 2);
+
+        return new Rect(left, top, left + guideWidth, top + guideHeight);
     }
+
+    private void calcScaleFactors(int viewWidth, int viewHeight) {
+        float contentWidth = getFullContentWidth();
+        float contentHeight = getFullContentHeight();
+        if (contentWidth == 0) {
+            contentWidth = viewWidth;
+        }
+        if (contentHeight == 0) {
+            contentHeight = viewHeight;
+        }
+        scaleFactor = max((float) contentWidth / imageWidth, (float) contentHeight / imageHeight);
+        postScaleWidthOffset = (imageWidth * scaleFactor - contentWidth) / 2;
+        postScaleHeightOffset = (imageHeight * scaleFactor - contentHeight) / 2;
+    }
+
+    private View getContentView() {
+        View rootView = this.getRootView();
+        return rootView.<ViewGroup>findViewById(android.R.id.content);
+    }
+
+    private float getFullContentHeight() {
+        View contentView = getContentView();
+        if (contentView == null) {
+            return 0;
+        }
+        return contentView.getHeight() - contentView.getPaddingTop() - contentView.getPaddingBottom();
+    }
+
+    private float getFullContentWidth() {
+        View contentView = getContentView();
+        if (contentView == null) {
+            return 0;
+        }
+        return contentView.getWidth() - contentView.getPaddingStart() - contentView.getPaddingEnd();
+    }
+
 
     /**
      * Translate coordinates from the preview's system to the view system.
@@ -205,6 +273,10 @@ public class FaceCaptureView extends AppCompatImageView {
         float y0 = scaleY(boundingBox.top);
         float dx = scaleX(boundingBox.right);
         float dy = scaleY(boundingBox.bottom);
+        if (mirrored) {
+            int width = (int) getFullContentWidth();
+            return new Rect(width - (int)x0, (int)y0, width - (int)dx, (int)dy);
+        }
         return new Rect((int)x0, (int)y0, (int)dx, (int)dy);
     }
 
@@ -225,11 +297,6 @@ public class FaceCaptureView extends AppCompatImageView {
         private Paint faceAreaTextPaint;
 
         public FaceOvalGraphic(){
-            faceAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-            faceAreaPaint.setStyle(Paint.Style.STROKE);
-            faceAreaPaint.setColor(faceMarkerColor);
-            faceAreaPaint.setStrokeWidth(10);
-
             faceAreaTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
             faceAreaTextPaint.setTextSize((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, countdownTextSizeSp, getResources().getDisplayMetrics()));
             faceAreaTextPaint.setTextAlign(Paint.Align.CENTER);
@@ -253,14 +320,12 @@ public class FaceCaptureView extends AppCompatImageView {
             countdown = COUNTDOWN_START;
         }
 
-        public void drawFaceOval(Canvas canvas) {
+        public void drawCaptureCountdown(Canvas canvas) {
             if (!isFaceBlank()) {
                 Rect faceOvalCoord = translateFaceOvalCoordinates(currFace.getBoundingBox());
-                canvas.drawOval(faceOvalCoord.left, faceOvalCoord.top, faceOvalCoord.right, faceOvalCoord.bottom, faceAreaPaint);
 
                 Point textCoord = calcTextPosition(faceOvalCoord);
                 canvas.drawText(countdown != COUNTDOWN_START? String.valueOf(countdown):"", textCoord.x, textCoord.y, faceAreaTextPaint);
-
                 if (countdown == 0) {
                     imageStabilizedListener.onImageStabilizedListener(currFace.getBoundingBox());
                 }

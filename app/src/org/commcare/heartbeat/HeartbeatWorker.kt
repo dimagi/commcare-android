@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import org.commcare.CommCareApplication
-import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
 import java.io.IOException
 import java.lang.IllegalStateException
@@ -13,13 +12,18 @@ import java.net.UnknownHostException
 /**
  * @author $|-|!˅@M
  */
-class HeartbeatWorker(context: Context, workerParams: WorkerParameters):
-        Worker(context, workerParams) {
+class HeartbeatWorker(
+    context: Context,
+    workerParams: WorkerParameters,
+) : Worker(context, workerParams) {
     private val requester = CommCareApplication.instance().heartbeatRequester
+
     override fun doWork(): Result {
         try {
-            if (CommCareApplication.instance().session.isActive &&
-                    !CommCareApplication.instance().session.heartbeatSucceededForSession()) {
+            if (!CommCareApplication.isSessionActive()) {
+                return Result.failure()
+            }
+            if (!CommCareApplication.instance().session.heartbeatSucceededForSession()) {
                 requester.makeRequest()
             }
         } catch (e: Exception) {
@@ -31,7 +35,7 @@ class HeartbeatWorker(context: Context, workerParams: WorkerParameters):
                 else -> {
                     Logger.exception(
                         "Encountered unexpected exception during heartbeat communications, stopping the heartbeat thread.",
-                        e
+                        e,
                     )
                     Result.failure()
                 }

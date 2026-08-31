@@ -515,6 +515,10 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
         return null;
     }
 
+    public boolean usesGenericApplicationTitle() {
+        return false;
+    }
+
     public static String getTopLevelTitleName(Context c) {
         try {
             return Localization.get("app.display.name");
@@ -642,6 +646,13 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
             if (dialog != null) {
                 dialog.showNow(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
             }
+        }
+    }
+
+    public void showProgressDialogIfNeeded(int taskId) {
+        CustomProgressDialog current = getCurrentProgressDialog();
+        if (current == null || current.getTaskId() != taskId) {
+            showProgressDialog(taskId);
         }
     }
 

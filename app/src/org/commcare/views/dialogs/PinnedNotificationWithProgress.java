@@ -13,6 +13,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.UpdateActivity;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.TaskListener;
+import org.commcare.utils.NotificationIdentifiers;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -32,7 +33,7 @@ public class PinnedNotificationWithProgress<R>
     public PinnedNotificationWithProgress(Context ctx, String titleText,
                                           String progressText,
                                           int largeIconResource) {
-        this.notificationId = titleText.hashCode();
+        this.notificationId = NotificationIdentifiers.generateNotificationIdFromString(titleText);
         this.progressText = progressText;
         this.titleText = titleText;
 

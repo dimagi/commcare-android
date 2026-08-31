@@ -6,14 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.TextView;
 
-import org.commcare.CommCareNoficationManager;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.InstallArchiveActivity;
 import org.commcare.activities.UpdateActivity;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.update.UpdateTask;
-import org.commcare.utils.RobolectricUtil;
+import org.commcare.utils.NotificationIdentifiers;
 import org.javarosa.core.services.locale.Localization;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,9 +74,9 @@ public class UpdateActivityTest {
         NotificationManager notificationManager =
                 (NotificationManager)ApplicationProvider.getApplicationContext()
                         .getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(CommCareNoficationManager.MESSAGE_NOTIFICATION);
+        notificationManager.cancel(NotificationIdentifiers.MESSAGE_NOTIFICATION_ID);
         Notification notification = Shadows.shadowOf(notificationManager)
-                .getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
+                .getNotification(NotificationIdentifiers.MESSAGE_NOTIFICATION_ID);
         assertNull(notification);
 
         // mock receiving the offline app reference and start the update
@@ -100,7 +99,7 @@ public class UpdateActivityTest {
         // check that a pinned notification was created for invalid update
         // NOTE: it is way more work to assert the notification body is correct, so skip over that
         notification = Shadows.shadowOf(notificationManager)
-                .getNotification(CommCareNoficationManager.MESSAGE_NOTIFICATION);
+                .getNotification(NotificationIdentifiers.MESSAGE_NOTIFICATION_ID);
         assertNotNull(notification);
     }
 }

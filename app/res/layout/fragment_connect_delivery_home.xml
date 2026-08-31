@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/connect_background_color"
+    android:orientation="vertical"
+    tools:theme="@style/ConnectTheme">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/connect_delivery_home_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:tabGravity="fill"
+        app:tabIndicator="@drawable/ic_connect_pager_indicator"
+        app:tabIndicatorColor="?attr/colorOnPrimary"
+        app:tabInlineLabel="true"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="?attr/colorOnPrimary"
+        app:tabTextAppearance="@style/TabTextStyle"
+        app:tabTextColor="?attr/colorOnPrimary" />
+
+    <!--
+        The activity's loading bar sits directly under the toolbar, which on this screen is above the
+        tab strip. This one takes its place so the bar reads as belonging to the tab content.
+    -->
+    <include
+        android:id="@+id/tab_network_loading"
+        layout="@layout/network_loading_bar"
+        android:visibility="gone" />
+
+    <!-- Hosts the sync status bar, which BaseConnectFragment would otherwise place above the tabs. -->
+    <FrameLayout
+        android:id="@+id/tab_status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/connect_divider_color" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/connect_delivery_home_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <org.commcare.views.connect.ConnectCtaBar
+        android:id="@+id/connect_delivery_cta_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:buttonText="@string/connect_delivery_start"
+        app:subtitleText="@string/connect_delivery_continue_visits_subtitle"
+        app:titleText="@string/connect_delivery_continue_visits" />
+</LinearLayout>

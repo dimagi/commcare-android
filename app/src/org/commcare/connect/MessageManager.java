@@ -2,14 +2,12 @@ package org.commcare.connect;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
-
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.utils.PushNotificationApiHelper;
 import org.javarosa.core.services.Logger;
 

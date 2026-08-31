@@ -6,9 +6,19 @@ updates:
       interval: daily
     labels:
       - dependencies
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
+          - "version-update:semver-minor"
   - package-ecosystem: gradle
     directory: "/app"
     schedule:
       interval: daily
     labels:
       - dependencies
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
+          - "version-update:semver-minor"

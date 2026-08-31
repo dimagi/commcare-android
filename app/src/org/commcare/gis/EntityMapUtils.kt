@@ -2,6 +2,7 @@ package org.commcare.gis
 
 import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import org.commcare.CommCareApplication
 import org.commcare.activities.EntitySelectActivity
 import org.commcare.cases.entity.Entity
@@ -66,7 +67,8 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getBoundaryHeader(detail: Detail): String? = getHeaderText(detail, TEMPLATE_FORM_GEO_BOUNDARY)
+    fun getBoundaryHeader(detail: Detail): String? =
+        getHeaderText(detail, TEMPLATE_FORM_GEO_BOUNDARY)
 
     @JvmStatic
     fun getEntityBoundary(
@@ -76,7 +78,7 @@ object EntityMapUtils {
     ): List<LatLng>? {
         if (TEMPLATE_FORM_GEO_BOUNDARY == detail.templateForms[fieldIndex]) {
             val boundaryString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            if(boundaryString.isNotEmpty()) {
+            if (boundaryString.isNotEmpty()) {
                 return parseBoundaryFromString(boundaryString)
             }
         }
@@ -91,7 +93,7 @@ object EntityMapUtils {
     ): Int? {
         if (TEMPLATE_FORM_GEO_BOUNDARY_COLOR == detail.templateForms[fieldIndex]) {
             val colorString = entity.getFieldString(fieldIndex).trim { it <= ' ' }
-            if(colorString.isNotEmpty()) {
+            if (colorString.isNotEmpty()) {
                 return parseHexColor(colorString)
             }
         }
@@ -99,7 +101,8 @@ object EntityMapUtils {
     }
 
     @JvmStatic
-    fun getGeopointsHeader(detail: Detail): String? = getHeaderText(detail, TEMPLATE_FORM_GEO_POINTS)
+    fun getGeopointsHeader(detail: Detail): String? =
+        getHeaderText(detail, TEMPLATE_FORM_GEO_POINTS)
 
     @JvmStatic
     fun getEntityPoints(
@@ -288,5 +291,21 @@ object EntityMapUtils {
         } else {
             null
         }
+    }
+
+    @JvmStatic
+    fun padBounds(bounds: LatLngBounds): LatLngBounds {
+        val latPadding = (bounds.northeast.latitude - bounds.southwest.latitude) * 0.1
+        val lngPadding = (bounds.northeast.longitude - bounds.southwest.longitude) * 0.1
+        return LatLngBounds(
+            LatLng(
+                bounds.southwest.latitude - latPadding,
+                bounds.southwest.longitude - lngPadding
+            ),
+            LatLng(
+                bounds.northeast.latitude + latPadding,
+                bounds.northeast.longitude + lngPadding
+            )
+        )
     }
 }

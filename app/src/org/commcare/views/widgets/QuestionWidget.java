@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.preferences.DeveloperPreferences;
@@ -36,6 +37,7 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.BlockingActionsManager;
+import org.commcare.utils.CrashUtil;
 import org.commcare.utils.DelayedBlockingAction;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
@@ -67,7 +69,29 @@ import androidx.preference.PreferenceManager;
 import javax.annotation.Nullable;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
+
+    /**
+     * Interface for widgets that have media attachments, to allow the base QuestionWidget to check if the
+     * attachment limit has been reached
+     */
+    protected interface MediaCapableWidget {
+        String getBinaryName();
+
+        /**
+         * Set the name of the binary associated with this widget and increment the number of attachments
+         * @param binaryName
+         */
+        void registerBinaryAttachment(String binaryName);
+
+        /**
+         * Clear the binary file associated with this widget and decrement the number of attachments
+         */
+        void clearBinaryAttachment();
+    }
     private final static String TAG = QuestionWidget.class.getSimpleName();
+
+    public static final int REQUEST_CAMERA_PERMISSION = 1001;
+    public static final int REQUEST_RECORD_AUDIO_PERMISSION = 1002;
 
     private final LinearLayout.LayoutParams mLayout;
     protected final FormEntryPrompt mPrompt;
@@ -208,6 +232,36 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         public void updateDrawState(TextPaint ds) {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
+        }
+    }
+
+    protected boolean warnIfAttachmentLimitReached() {
+        if (getContext() instanceof FormEntryActivity activity && this instanceof MediaCapableWidget mediaCapableWidget) {
+            if (mediaCapableWidget.getBinaryName() == null && !activity.canAddAttachment()) {
+                activity.showFormAttachmentLimitReachedError();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void incrementAttachmentCount() {
+        if (this instanceof MediaCapableWidget &&
+                getContext() instanceof FormEntryActivity activity) {
+                activity.incrementAttachmentCount();
+
+            CrashUtil.log("Attachment count incremented for question " + mPrompt.getIndex() + ". Current count: "
+                    + activity.getFormAttachmentCount());
+        }
+    }
+
+    public void decrementAttachmentCount() {
+        if (this instanceof MediaCapableWidget &&
+                getContext() instanceof FormEntryActivity activity) {
+            activity.decrementAttachmentCount();
+
+            CrashUtil.log("Attachment count decremented for question " + mPrompt.getIndex() + ". Current count: "
+                    + activity.getFormAttachmentCount());
         }
     }
 

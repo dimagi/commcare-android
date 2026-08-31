@@ -742,17 +742,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, fieldName}, fieldName + " IN " + querySet.first, querySet.second, null, null, null);
             try {
-                if (c.getCount() == 0) {
-                    return returnSet;
-                } else {
-                    c.moveToFirst();
-                    int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
-                    while (!c.isAfterLast()) {
-                        byte[] data = c.getBlob(index);
-
-                        returnSet.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
-                        c.moveToNext();
-                    }
+                c.moveToFirst();
+                int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
+                while (!c.isAfterLast()) {
+                    byte[] data = c.getBlob(index);
+                    returnSet.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                    c.moveToNext();
                 }
             } finally {
                 c.close();
@@ -768,13 +763,14 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public Vector<Integer> getBulkIdsForIndex(String indexName, Collection matchingValues) {
         String fieldName = TableBuilder.scrubName(indexName);
         List<Pair<String, String[]>> whereParamList = TableBuilder.sqlList(matchingValues, "?");
+        LinkedHashSet<Integer> returnSet = new LinkedHashSet<>();
         for (Pair<String, String[]> querySet : whereParamList) {
             Cursor c = helper.getHandle().query(table,
                     new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, fieldName},
                     fieldName + " IN " + querySet.first, querySet.second, null, null, null);
-            return fillIdWindow(c, DatabaseHelper.ID_COL, new LinkedHashSet<>());
+            fillIdWindow(c, DatabaseHelper.ID_COL, returnSet);
         }
-        return new Vector<>();
+        return new Vector<>(returnSet);
     }
 
     @Override

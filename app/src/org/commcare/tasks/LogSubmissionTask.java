@@ -16,6 +16,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.network.CommcareRequestGenerator;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadUtil;
@@ -290,12 +291,23 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         generator = new CommcareRequestGenerator(user);
 
         List<MultipartBody.Part> parts = new ArrayList<>();
-
-        parts.add(FormUploadUtil.createEncryptedFilePart(
-                "xml_submission_file",
-                f,
-                "text/xml",
-                new SecretKeySpec(slr.getKey(), "AES")));
+        MultipartBody.Part part;
+        if (slr.shouldUseKeystoreKey()) {
+            part = FormUploadUtil.createKeystoreEncryptedFilePart(
+                    "xml_submission_file",
+                    f,
+                    "text/xml",
+                    CommCareKeyManager.retrieveSessionKeyAndTransformation()
+            );
+        } else {
+            part = FormUploadUtil.createEncryptedFilePart(
+                    "xml_submission_file",
+                    f,
+                    "text/xml",
+                    new SecretKeySpec(slr.getKey(), "AES")
+            );
+        }
+        parts.add(part);
 
 
         Response<ResponseBody> response = null;

@@ -1,0 +1,101 @@
+# AI Agent Development Guidelines for CommCare Android
+
+## Build
+-  Always use the Gradle wrapper (`./gradlew`) from the commcare-android directory for building commcare-core
+
+## Project Overview
+- CommCare Android is an open-source Android application for data collection and service delivery in low-resource settings
+- CommCare Core is a shared Java library that provides core functionalities for CommCare's Android and Web Client
+
+## Concision (applies to all writing)
+Commits, PR descriptions, code comments, and documentation default to concise and high-level, and never restate what is already clear from reading the code.
+- Commit and PR bodies: convey the *why* and the shape of the change, not a walkthrough of the diff.
+- Code comments: reserve for non-obvious *why*; never narrate what the code plainly does.
+- Documentation: prefer one high-level sentence over a paragraph; touch only the lines a change affects.
+
+## Project Documentation
+Tech documentation for this repo is organized by Gradle submodule and, within the main `app` module, by product area:
+- `/docs/commcare/` — CommCare-specific subsystems (e.g., translations)
+- `/docs/connect/` — Connect-specific subsystems
+- `/docs/personalid/` — PersonalID-specific subsystems (e.g., OAuth/SSO, photo management)
+- `/docs/` (root) — cross-cutting subsystems that span multiple products (e.g., push notifications)
+- `commcare-support-library/docs/` — docs for the standalone `commcare-support-library` Maven artifact (e.g., third-party identity provider integration)
+
+**Before making any code change, search `/docs` and any module-level `docs/` folders for documentation relevant to the area you're modifying.** Update the corresponding doc when behavior, APIs, or data flow change.
+
+## Common Edge Cases
+When planning or writing a spec for a new feature, consult [`docs/common-edge-cases.md`](docs/common-edge-cases.md) and address every category that applies, so recurring edge cases are designed for up front rather than discovered in review or QA.
+
+## Code Quality Standards
+- [General code standards](https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md)
+- [Exception Handling Guidelines](https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md)
+- Write testable code
+- Don't be verbose but be detail oriented (i.e. ensure correctness without writing unnecessary code)
+- Any new classes should be written in Kotlin
+- Old classes can remain in Java unless it affects new code architecture significantly
+- Use standard Android APIs where applicable
+- Do not add any in-code comments unless explicitly requested.
+
+## Testing
+
+Two layers apply to your changes: **unit tests** (JUnit, plus Robolectric where an
+Android component is involved) and **Robolectric UI tests** (functional tests over
+screens, running on the JVM).
+
+### What to write
+
+- New screen, fragment or activity → a Robolectric UI test driving the real flow.
+- New business logic or utility class → unit tests covering the input space.
+
+### Mocking
+
+- Do not mock our own code in a Robolectric test. Mock only the outside world: the
+  server and network, hardware and system boundaries, clocks and randomness.
+- Mock freely in unit tests — anything not directly under test.
+
+## Workflow After Code Changes
+All the changes below should be part of a separate commit after the main code changes:
+- Clean up any unused code and imports
+- Verify Java code with `checkstyle.xml` and make changes as applicable
+- Run ktlint per the "AI Workflow: ktlint" rules below
+- Run relevant unit tests to ensure no regressions
+- Commit changes
+
+## AI Workflow: ktlint
+The Gradle ktlint task auto-formats a file and verifies it is clean:
+```bash
+./gradlew ktlintFile -PfilePath=<relative-path-to-file>
+```
+When to run it depends on whether the Kotlin file is new or existing:
+- **New Kotlin file** — run ktlint directly before committing.
+- **Existing Kotlin file** — you may run ktlint to *check* for violations, but do NOT auto-apply its formatting
+
+## Test File Locations
+- Unit tests: `app/unit-tests/src/`
+- Instrumentation tests: `app/instrumentation-tests/`
+
+## Project Structure Notes
+- CommCare Core is in `../commcare-core/`, always include it to the working directory for the current session
+- Connect and PersonalID share `org.commcare.connect` package
+- PersonalID Fragments are in `org.commcare.fragments.personalId` package
+- This is a multi-module Android project. When asked to find a file or class, search across all modules (commcare-android, commcare-core, commcare-support-library) rather than assuming the default module.
+
+## Git Usage Guidelines
+- Logical Commits: Break work into logical chunks and commit after completing each coherent piece of functionality
+- Commit Messages: Write concise commit messages that describe the change's purpose, not an exhaustive list of modifications
+- Commit Frequency: Commit regularly to create a clear development history and enable easy rollbacks
+- Message Format: Use imperative mood (e.g., "Add user authentication" not "Added user authentication")
+- Tag any commits with [AI] in the commit message
+
+## Resources
+- [CommCare Core Wiki](https://github.com/dimagi/commcare-core/wiki)
+- [CommCare Android Wiki](https://github.com/dimagi/commcare-android/wiki)
+- [Formplayer](https://github.com/dimagi/formplayer)
+- [Formplayer Wiki](https://github.com/dimagi/formplayer/wiki)
+- [CommCare Technical Overview](https://docs.google.com/document/d/1mr7MRboYGtsKKL9LMG-ZuBpYy10JLHzznIKVO32QRM8)
+
+## Agent Tone Guidelines
+- Be concise without subjective judgements
+- Never compliment the user
+- Never express confidence
+- Do not refer to your output as "perfect" or with other superlatives

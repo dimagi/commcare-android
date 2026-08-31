@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="@dimen/connect_space_lg">
+
+    <TextView
+        android:id="@+id/info_card_value_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/connect_space_sm"
+        android:textColor="@color/connect_dark_blue_color"
+        android:textSize="@dimen/connect_text_headline"
+        app:layout_constraintEnd_toStartOf="@id/info_card_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="15" />
+
+    <ImageView
+        android:id="@+id/info_card_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@null"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/info_card_value_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/info_card_value_text"
+        tools:src="@drawable/ic_connect_arrow_diagonal"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/info_card_title_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_sm"
+        android:textColor="@color/connect_text_color"
+        android:textSize="@dimen/connect_text_body"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/info_card_value_text"
+        tools:text="Primary Visits" />
+
+    <TextView
+        android:id="@+id/info_card_subtitle_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_xs"
+        android:textColor="@color/connect_grey"
+        android:textSize="@dimen/connect_text_caption"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/info_card_title_text"
+        tools:text="₹100 per visit" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

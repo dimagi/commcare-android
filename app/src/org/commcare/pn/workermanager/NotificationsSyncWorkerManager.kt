@@ -16,6 +16,7 @@ import org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS
 import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE
 import org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS
+import org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY
 import org.commcare.connect.ConnectConstants.CCC_MESSAGE
 import org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
@@ -88,9 +89,12 @@ class NotificationsSyncWorkerManager(
                         TimeUnit.MINUTES,
                     ).build()
 
+            // UPDATE rather than REPLACE: REPLACE cancels and re-enqueues, which makes the worker
+            // eligible to run immediately on every unlock. An in-flight run started that way can
+            // land after a subsequent sign-out and write to a deleted Connect DB.
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 PERIODIC_NOTIFICATION_REQUEST_NAME,
-                ExistingPeriodicWorkPolicy.REPLACE,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 retrievalRequest,
             )
         }
@@ -150,7 +154,7 @@ class NotificationsSyncWorkerManager(
                 }
 
                 CCC_DEST_PAYMENTS -> {
-                    startOpportunitiesSyncWorker(notificationPayload)
+                    startOpportunitiesSyncWorker(notificationPayload, false)
                     startDeliverySyncWorker(notificationPayload)
                     notificationHandled = true
                 }
@@ -166,14 +170,20 @@ class NotificationsSyncWorkerManager(
                 }
 
                 CCC_DEST_LEARN_PROGRESS -> {
-                    startOpportunitiesSyncWorker(notificationPayload)
+                    startOpportunitiesSyncWorker(notificationPayload, false)
                     startLearningSyncWorker(notificationPayload)
                     notificationHandled = true
                 }
 
                 CCC_DEST_DELIVERY_PROGRESS -> {
-                    startOpportunitiesSyncWorker(notificationPayload)
+                    startOpportunitiesSyncWorker(notificationPayload, false)
                     startDeliverySyncWorker(notificationPayload)
+                    notificationHandled = true
+                }
+
+                CCC_GENERIC_OPPORTUNITY -> {
+                    startOpportunitiesSyncWorker(notificationPayload, false)
+                    startJobProgressSyncWorker(notificationPayload)
                     notificationHandled = true
                 }
             }
@@ -248,12 +258,27 @@ class NotificationsSyncWorkerManager(
         }
     }
 
-    private fun startOpportunitiesSyncWorker(notificationPayload: Map<String, String>) {
+    private fun startOpportunitiesSyncWorker(
+        notificationPayload: Map<String, String>,
+        showNotification: Boolean = this.showNotification,
+    ) {
         if (cccCheckPassed(context)) {
             startWorkRequest(
                 notificationPayload,
                 SyncAction.SYNC_OPPORTUNITY,
                 SyncAction.SYNC_OPPORTUNITY.toString(),
+                showNotification,
+            )
+        }
+    }
+
+    private fun startJobProgressSyncWorker(notificationPayload: Map<String, String>) {
+        if (notificationPayload.containsKey(OPPORTUNITY_UUID) && cccCheckPassed(context)) {
+            val opportunityUUID = notificationPayload.get(OPPORTUNITY_UUID)
+            startWorkRequest(
+                notificationPayload,
+                SyncAction.SYNC_UPDATE_PROGRESS,
+                SyncAction.SYNC_UPDATE_PROGRESS.toString() + "-$opportunityUUID",
             )
         }
     }

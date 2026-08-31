@@ -73,9 +73,14 @@ public class DemoUserRestoreTest {
         Intent homeActivityIntent =
                 new Intent(ApplicationProvider.getApplicationContext(), StandardHomeActivity.class);
         homeActivityIntent.putExtra(DispatchActivity.START_FROM_LOGIN, true);
+        // Deliberately not calling visible(): it attaches the view hierarchy and runs a
+        // layout traversal, and the home grid's OnGlobalLayoutListener calls requestLayout()
+        // from within the dispatch. Under LEGACY looper mode that traversal runs re-entrantly
+        // and crashes with "IllegalStateException: Iteration already started".
         StandardHomeActivity homeActivity =
                 Robolectric.buildActivity(StandardHomeActivity.class, homeActivityIntent)
-                        .setup().get();
+                        .create().start().postCreate(null).resume().get();
+        ShadowLooper.idleMainLooper();
         return Shadows.shadowOf(homeActivity);
     }
 

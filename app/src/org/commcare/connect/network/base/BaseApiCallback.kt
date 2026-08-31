@@ -1,7 +1,5 @@
 package org.commcare.connect.network.base
 
-import org.commcare.connect.network.ConnectNetworkHelper
-import org.commcare.connect.network.IApiCallback
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.GlobalErrors
@@ -18,45 +16,50 @@ abstract class BaseApiCallback<T>(
         responseCode: Int,
         url: String?,
         errorBody: String,
+        t: Throwable,
     ) {
         // Common error_code handler used before checking error response code
         when (responseCode) {
-            401 ->
+            401 -> {
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR,
-                    null,
+                    t,
                 )
+            }
 
-            403 ->
+            403 -> {
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
-                    null,
+                    t,
                 )
+            }
 
-            429 ->
+            429 -> {
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
-                    null,
+                    t,
                 )
+            }
 
             400 -> {
-                if (!ConnectNetworkHelper.checkForLoginFromDifferentDevice(errorBody) ||
+                if (!NetworkUtils.checkForLoginFromDifferentDevice(errorBody) ||
                     !GlobalErrorUtil.triggerGlobalError(
-                        GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR
+                        GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR,
                     )
                 ) {
                     baseApiHandler.stopLoadingAndInformError(
                         PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,
-                        null,
+                        t,
                     )
                 }
             }
 
-            in 500..509 ->
+            in 500..509 -> {
                 baseApiHandler.stopLoadingAndInformError(
                     PersonalIdOrConnectApiErrorCodes.SERVER_ERROR,
-                    null,
+                    t,
                 )
+            }
 
             else -> {
                 val exception =
@@ -70,10 +73,10 @@ abstract class BaseApiCallback<T>(
         }
     }
 
-    override fun processNetworkFailure() {
+    override fun processNetworkFailure(t: Throwable) {
         baseApiHandler.stopLoadingAndInformError(
             PersonalIdOrConnectApiErrorCodes.NETWORK_ERROR,
-            null,
+            t,
         )
     }
 

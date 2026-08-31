@@ -1,9 +1,5 @@
 package org.commcare.android.javarosa;
 
-import static org.commcare.location.CommCareLocationControllerKt.DEFAULT_TIME_THRESHOLD;
-import static org.commcare.location.CommCareLocationControllerKt.isLocationFresh;
-import static org.commcare.location.CommCareLocationControllerKt.logStaleLocationSaved;
-
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -69,7 +65,6 @@ public class PollSensorAction extends Action {
 
     void updateReference(Location location) {
         if (target != null) {
-            logStaleLocationSaved(location);
             String result = GeoUtils.locationToString(location);
             TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
             EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), qualifiedReference);

@@ -1,7 +1,7 @@
 package org.commcare.fragments.personalId;
 
-import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA;
-import static org.commcare.fragments.MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA;
+import static org.commcare.activities.camera.MicroImageActivity.MICRO_IMAGE_MAX_DIMENSION_PX_EXTRA;
+import static org.commcare.activities.camera.MicroImageActivity.MICRO_IMAGE_MAX_SIZE_BYTES_EXTRA;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -24,15 +25,19 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhotoCaptureBinding;
-import org.commcare.fragments.MicroImageActivity;
+import org.commcare.activities.camera.MicroImageActivity;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.ImageSizeTooLargeException;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.QaAutomationPlaceholderPhoto;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -57,7 +62,29 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
         initTakePhotoLauncher();
         setUpUi();
+        if (isQaAutomationBuild()) {
+            applyPlaceholderPhoto();
+        }
         return viewBinding.getRoot();
+    }
+
+    /**
+     * Pre-loads a stand-in photo for QA build (to avoid the camera)
+     */
+    private void applyPlaceholderPhoto() {
+        try {
+            photoAsBase64 = QaAutomationPlaceholderPhoto.generateBase64(requireContext(),
+                    PHOTO_MAX_DIMENSION_PX, PHOTO_MAX_SIZE_BYTES);
+        } catch (IOException | ImageSizeTooLargeException e) {
+            throw new RuntimeException("Failed to generate placeholder photo for QA automation", e);
+        }
+        displayImage(photoAsBase64);
+        enableSaveButton();
+    }
+
+    @VisibleForTesting
+    protected boolean isQaAutomationBuild() {
+        return BuildConfig.IS_QA_AUTOMATION;
     }
 
     private void initTakePhotoLauncher() {
@@ -83,6 +110,8 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
     }
 
     private void uploadImageAndCompleteProfile() {
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null,
+                PersonalIdWorkflow.CONFIGURATION);
         clearError();
         disableSaveButton();
         disableTakePhotoButton();
@@ -137,6 +166,7 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
                 String.valueOf(personalIdSessionData.getBackupCode()), new Date(), photoAsBase64,
                 personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
                 personalIdSessionData.getInvitedUser());
+        user.setEmail(personalIdSessionData.getEmail());
         ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
     }
 

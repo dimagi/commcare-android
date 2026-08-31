@@ -1,5 +1,7 @@
 package org.commcare.views.media;
 
+import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -344,7 +346,7 @@ public class MediaLayout extends RelativeLayout {
                             FileUtil.getDuration(videoFile), duration);
                 });
 
-                videoView.setOnClickListener(v -> ViewUtil.hideVirtualKeyboard((AppCompatActivity)getContext()));
+                videoView.setOnClickListener(v -> hideVirtualKeyboard((AppCompatActivity)getContext()));
                 videoView.setVisibility(VISIBLE);
             }
         } catch (InvalidReferenceException ire) {

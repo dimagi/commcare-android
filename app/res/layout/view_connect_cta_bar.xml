@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <TextView
+        android:id="@+id/cta_info_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-15dp"
+        android:background="@drawable/bg_connect_cta_banner"
+        android:gravity="center"
+        android:paddingStart="@dimen/connect_space_md"
+        android:paddingTop="@dimen/connect_space_md"
+        android:paddingEnd="@dimen/connect_space_md"
+        android:paddingBottom="27dp"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        tools:text="Further visits will not count towards progress or payments"
+        tools:visibility="visible" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cta_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/connect_light_indigo"
+        app:cardCornerRadius="@dimen/connect_radius_card"
+        app:cardElevation="@dimen/connect_info_card_elevation"
+        app:contentPadding="@dimen/connect_space_lg">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <TextView
+                android:id="@+id/cta_title_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/connect_space_sm"
+                android:textColor="@color/connect_dark_blue_color"
+                android:textSize="@dimen/connect_text_title"
+                app:layout_constraintBottom_toTopOf="@id/cta_subtitle_text"
+                app:layout_constraintEnd_toStartOf="@id/cta_end_barrier"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                tools:text="Continue" />
+
+            <TextView
+                android:id="@+id/cta_subtitle_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_xs"
+                android:layout_marginEnd="@dimen/connect_space_sm"
+                android:textColor="@color/connect_secondary_text"
+                android:textSize="@dimen/connect_text_body"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/cta_end_barrier"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cta_title_text"
+                tools:text="Learning modules"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cta_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="3dp"
+                android:fontFamily="sans-serif"
+                android:paddingStart="40dp"
+                android:paddingEnd="40dp"
+                android:stateListAnimator="@null"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textStyle="normal"
+                app:backgroundTint="@color/connect_dark_blue_color"
+                app:cornerRadius="@dimen/connect_radius_pill"
+                app:icon="@drawable/ic_connect_arrow_forward"
+                app:iconGravity="textEnd"
+                app:iconTint="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Start" />
+
+            <FrameLayout
+                android:id="@+id/cta_progress_cluster"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible">
+
+                <org.commcare.views.connect.CircleProgressBar
+                    android:id="@+id/cta_progress_ring"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:progressBackgroundColor="@color/connect_light_grey"
+                    app:progressColor="@color/connect_dark_blue_color"
+                    app:strokeWidth="4dp" />
+
+                <TextView
+                    android:id="@+id/cta_progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/connect_dark_blue_color"
+                    android:textSize="@dimen/connect_text_caption"
+                    tools:text="25%" />
+            </FrameLayout>
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/cta_end_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="start"
+                app:constraint_referenced_ids="cta_button,cta_progress_cluster" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</merge>

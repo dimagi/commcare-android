@@ -16,7 +16,7 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
 apply plugin: 'com.google.firebase.firebase-perf'
-apply plugin: "androidx.navigation.safeargs"
+apply plugin: 'androidx.navigation.safeargs'
 
 repositories {
     // for local aar inclusion
@@ -34,7 +34,7 @@ configurations {
 
 dependencies {
     implementation 'androidx.exifinterface:exifinterface:1.3.6'
-    implementation 'com.google.android.play:integrity:1.4.0'
+    implementation 'com.google.android.play:integrity:1.6.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation('org.robolectric:robolectric:4.8.2') {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
@@ -42,25 +42,25 @@ dependencies {
     testImplementation 'androidx.test:core:1.6.1'
     testImplementation 'androidx.test:runner:1.6.2'
     testImplementation 'androidx.test.ext:junit:1.2.1'
-    testImplementation 'androidx.work:work-testing:2.7.1'
-    testImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    testImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
+    testImplementation "androidx.work:work-testing:$work_version"
+    testImplementation "androidx.test.espresso:espresso-core:$espresso_version"
+    testImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
     testImplementation 'org.json:json:20250517'
     testImplementation 'org.mockito:mockito-core:5.5.0'
-    testImplementation "org.mockito.kotlin:mockito-kotlin:5.2.1"
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
     testImplementation "androidx.navigation:navigation-testing:$nav_version"
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
 
     androidTestImplementation 'androidx.test:runner:1.6.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.ext:truth:1.6.0'
     androidTestImplementation 'androidx.test:rules:1.6.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
-    androidTestImplementation ('androidx.test.espresso:espresso-contrib:3.6.1') {
+    androidTestImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
+    androidTestImplementation ("androidx.test.espresso:espresso-contrib:$espresso_version") {
         exclude(group: 'com.google.protobuf', module: 'protobuf-lite')
     }
 
@@ -80,22 +80,22 @@ dependencies {
     implementation(name: 'htmlspanner-custom', ext: 'aar')
     implementation 'com.github.dimagi:zebra-print-android:v1.3'
     implementation 'com.simprints:libsimprints:2024.2.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
+    implementation "androidx.legacy:legacy-support-v4:$legacy_support_version"
+    implementation "androidx.legacy:legacy-preference-v14:$legacy_support_version"
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.72'
-    implementation 'com.google.android.gms:play-services-maps:19.2.0'
+    implementation 'com.google.android.gms:play-services-maps:20.0.0'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
     implementation 'joda-time:joda-time:2.9.4'
     implementation 'net.zetetic:sqlcipher-android:4.9.0@aar'
     implementation 'androidx.sqlite:sqlite:2.2.0'
     implementation 'com.google.android.gms:play-services-auth-api-phone:18.1.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.11.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
     implementation 'com.google.android.gms:play-services-identity:18.1.0'
     implementation 'com.google.android.gms:play-services-base:18.5.0'
 
@@ -108,7 +108,7 @@ dependencies {
     implementation 'com.scottyab:rootbeer-lib:0.1.1'
     implementation 'com.carrotsearch:hppc:0.9.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'com.jakewharton.rxbinding2:rxbinding:2.0.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding:2.2.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     implementation platform('com.google.firebase:firebase-bom:34.8.0')
     implementation 'com.google.firebase:firebase-analytics'
@@ -116,12 +116,13 @@ dependencies {
     implementation 'com.google.firebase:firebase-perf'
     implementation 'com.google.firebase:firebase-crashlytics'
     
-    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+    implementation "androidx.legacy:legacy-support-core-ui:$legacy_support_version"
     implementation('com.github.bumptech.glide:glide:4.9.0') {
         exclude group: 'com.android.support'
     }
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
 
@@ -130,13 +131,13 @@ dependencies {
     implementation "io.noties.markwon:ext-tables:$markwon_version"
     implementation "io.noties.markwon:ext-strikethrough:$markwon_version"
     
-    implementation 'androidx.work:work-runtime:2.10.3'
-    implementation 'androidx.work:work-runtime-ktx:2.10.3'
+    implementation "androidx.work:work-runtime:$work_version"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'android.arch.lifecycle:common-java8:1.1.1'
 
 
-    implementation('com.squareup.okhttp3:okhttp-tls:4.11.0') {
+    implementation("com.squareup.okhttp3:okhttp-tls:$okhttp_version") {
         exclude(group: 'org.bouncycastle', module: 'bcprov-jdk15on')
     }
 
@@ -166,34 +167,43 @@ dependencies {
     implementation "com.google.firebase:firebase-auth"
     implementation 'org.gavaghan:geodesy:1.1.3'
 }
+def localProperties = new Properties()
+
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
+def loadProp = { String key, def defaultValue = '' ->
+    localProperties.containsKey(key) ? localProperties.getProperty(key) : (project.properties[key] ?: defaultValue)
+}
 
 ext {
-    // Obtained from ~/.gradle/gradle.properties on build server (mobile agent), or your global
-    // user-level ~/.gradle/gradle.properties file, or loads default empty strings if neither is
-    // present
-    MAPBOX_SDK_API_KEY = project.properties['MAPBOX_SDK_API_KEY'] ?: ''
-    ANALYTICS_TRACKING_ID_DEV = project.properties['ANALYTICS_TRACKING_ID_DEV'] ?: ''
-    ANALYTICS_TRACKING_ID_LIVE = project.properties['ANALYTICS_TRACKING_ID_LIVE'] ?: ''
-    GOOGLE_PLAY_MAPS_API_KEY = project.properties['GOOGLE_PLAY_MAPS_API_KEY'] ?: ''
-    RELEASE_STORE_FILE = project.properties['RELEASE_STORE_FILE'] ?: '.'
-    RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ''
-    RELEASE_KEY_ALIAS = project.properties['RELEASE_KEY_ALIAS'] ?: ''
-    RELEASE_KEY_PASSWORD = project.properties['RELEASE_KEY_PASSWORD'] ?: ''
-    TRUSTED_SOURCE_PUBLIC_KEY = project.properties['TRUSTED_SOURCE_PUBLIC_KEY'] ?:
+    // Obtained from local.properties (project root) -> gradle.properties (global and project-level) -> default value
+    // On build server, it's supposed to load from the gradle.properties since local.properties is not supposed
+    // to be checked in with secrets
+    MAPBOX_SDK_API_KEY = loadProp('MAPBOX_SDK_API_KEY', '')
+    ANALYTICS_TRACKING_ID_DEV = loadProp('ANALYTICS_TRACKING_ID_DEV', '')
+    ANALYTICS_TRACKING_ID_LIVE = loadProp('ANALYTICS_TRACKING_ID_LIVE', '')
+    GOOGLE_PLAY_MAPS_API_KEY = loadProp('GOOGLE_PLAY_MAPS_API_KEY', '')
+    RELEASE_STORE_FILE = loadProp('RELEASE_STORE_FILE', '.')
+    RELEASE_STORE_PASSWORD = loadProp('RELEASE_STORE_PASSWORD', '')
+    RELEASE_KEY_ALIAS = loadProp('RELEASE_KEY_ALIAS', '')
+    RELEASE_KEY_PASSWORD = loadProp('RELEASE_KEY_PASSWORD', '')
+    TRUSTED_SOURCE_PUBLIC_KEY = loadProp('TRUSTED_SOURCE_PUBLIC_KEY',
             'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn' +
                     'HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo' +
                     'ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0' +
-                    'HaAJkjpnc165Os+aYwIDAQAB'
-    GOOGLE_SERVICES_API_KEY = project.properties['GOOGLE_SERVICES_API_KEY'] ?: ''
-    GOOGLE_CLOUD_PROJECT_NUMBER = project.properties['GOOGLE_CLOUD_PROJECT_NUMBER'] ?: -1L
+                    'HaAJkjpnc165Os+aYwIDAQAB')
+    GOOGLE_SERVICES_API_KEY = loadProp('GOOGLE_SERVICES_API_KEY', '')
+    GOOGLE_CLOUD_PROJECT_NUMBER = loadProp('GOOGLE_CLOUD_PROJECT_NUMBER', -1L)
     QA_BETA_APP_ID = ''
     STANDALONE_APP_ID = ''
     LTS_APP_ID = ''
     COMMCARE_APP_ID = ''
-    HQ_API_USERNAME = project.properties['HQ_API_USERNAME'] ?: ''
-    HQ_API_PASSWORD = project.properties['HQ_API_PASSWORD'] ?: ''
-    TEST_BUILD_TYPE = project.properties['TEST_BUILD_TYPE'] ?: 'debug'
-    FIREBASE_DATABASE_URL = project.properties['FIREBASE_DATABASE_URL'] ?: ''
+    HQ_API_USERNAME = loadProp('HQ_API_USERNAME', '')
+    HQ_API_PASSWORD = loadProp('HQ_API_PASSWORD', '')
+    TEST_BUILD_TYPE = loadProp('TEST_BUILD_TYPE', 'debug')
+    FIREBASE_DATABASE_URL = loadProp('FIREBASE_DATABASE_URL', '')
 }
 
 afterEvaluate {
@@ -205,6 +215,8 @@ afterEvaluate {
     processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
     processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCommcareQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    processCccStagingQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
 }
 
 /**
@@ -303,9 +315,10 @@ android {
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_LIVE', "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
         buildConfigField 'String', 'ANALYTICS_TRACKING_ID_DEV', "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
         buildConfigField 'String', 'MAPBOX_SDK_API_KEY', "\"${project.ext.MAPBOX_SDK_API_KEY}\""
-        buildConfigField "String", "FIREBASE_DATABASE_URL", "\"${project.ext.FIREBASE_DATABASE_URL}\""
+        buildConfigField 'String', 'FIREBASE_DATABASE_URL', "\"${project.ext.FIREBASE_DATABASE_URL}\""
         buildConfigField 'String', 'CCC_HOST', "\"connect.dimagi.com\""
         buildConfigField 'long', 'GOOGLE_CLOUD_PROJECT_NUMBER', "${project.ext.GOOGLE_CLOUD_PROJECT_NUMBER}"
+        buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'false'
         testInstrumentationRunner 'org.commcare.CommCareJUnitRunner'
     }
 
@@ -315,7 +328,7 @@ android {
     }
 
     applicationVariants.all { variant ->
-        if (variant.buildType.name == 'release') {
+        if (variant.buildType.name in ['release', 'qaAutomation']) {
             variant.outputs.each { output ->
                 output.versionCodeOverride = computeVersionCode()
             }
@@ -394,6 +407,7 @@ android {
         // by a similar customization.
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+        qaAutomation.setRoot('build-types/qaAutomation')
     }
 
     // Our flavours doesn't differ on a particular dimension yet, so just specify a dummy
@@ -489,6 +503,21 @@ android {
             buildConfigField 'boolean', 'USE_CRASHLYTICS', 'true'
             ext.enableCrashlytics = true
         }
+
+        qaAutomation {
+            initWith release
+            matchingFallbacks = ['release']
+            buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'true'
+        }
+    }
+
+    variantFilter { variant ->
+        if (variant.buildType.name == 'qaAutomation') {
+            def flavorName = variant.flavors.isEmpty() ? '' : variant.flavors[0].name
+            if (flavorName != 'commcare' && flavorName != 'cccStaging') {
+                variant.setIgnore(true)
+            }
+        }
     }
 
     // Ignore un-minified graphing files
@@ -497,6 +526,7 @@ android {
         unitTests.all {
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
+            maxHeapSize = "2g"
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
         }
@@ -587,12 +617,12 @@ tasks.configureEach { task ->
     }
     if ((task.name == 'processStandaloneDebugResources' ||
             task.name == 'processStandaloneReleaseResources')
-            && "true" == isConsumerApp && "true" == runDownloadScripts) {
+            && 'true' == isConsumerApp && 'true' == runDownloadScripts) {
         task.dependsOn downloadRestoreFile
     }
     if (isInstrumentationTestTask(task)) {
-        android.defaultConfig.buildConfigField "String", "HQ_API_USERNAME", "\"${project.ext.HQ_API_USERNAME}\""
-        android.defaultConfig.buildConfigField "String", "HQ_API_PASSWORD", "\"${project.ext.HQ_API_PASSWORD}\""
+        android.defaultConfig.buildConfigField 'String', 'HQ_API_USERNAME', "\"${project.ext.HQ_API_USERNAME}\""
+        android.defaultConfig.buildConfigField 'String', 'HQ_API_PASSWORD', "\"${project.ext.HQ_API_PASSWORD}\""
     }
 }
 
@@ -677,4 +707,60 @@ downloadLicenses {
 static def isInstrumentationTestTask(task){
     def instrumentationTestTaskNamePattern = /^(assemble|connected).*AndroidTest/
     return task.name ==~ instrumentationTestTaskNamePattern
+}
+
+// Run ktlint on a specific file: ./gradlew ktlintFile -PfilePath=path/to/File.kt
+// Auto-formats violations, then verifies the file is clean
+tasks.register('ktlintFile') {
+    description = 'Run ktlint format and check on a specific Kotlin file'
+    group = 'verification'
+
+    def filePathProp = providers.gradleProperty('filePath')
+
+    def rootPath = rootDir.absolutePath
+
+    doLast {
+        if (!filePathProp.isPresent()) {
+            throw new GradleException("Missing required property 'filePath'. Usage: ./gradlew ktlintFile -PfilePath=path/to/File.kt")
+        }
+        def filePath = filePathProp.get()
+        def file = new File(filePath)
+        if (!file.isAbsolute()) {
+            file = new File(rootPath, filePath)
+        }
+        if (!file.exists()) {
+            throw new GradleException("File not found: ${file.absolutePath}")
+        }
+        if (!file.name.endsWith('.kt')) {
+            throw new GradleException("Not a Kotlin file: ${file.name}. Only *.kt files are supported.")
+        }
+
+        // Step 1: Auto-format
+        def formatProcess = new ProcessBuilder(['ktlint', '--format', file.absolutePath])
+            .directory(new File(rootPath))
+            .redirectErrorStream(true)
+            .start()
+        def formatOutput = formatProcess.inputStream.text
+        def formatExitCode = formatProcess.waitFor()
+        if (formatOutput) {
+            println formatOutput
+        }
+        if (formatExitCode != 0) {
+            throw new GradleException("ktlint --format failed (exit code ${formatExitCode}). Is ktlint installed?\n${formatOutput}")
+        }
+
+        // Step 2: Verify no remaining violations
+        def checkProcess = new ProcessBuilder(['ktlint', file.absolutePath])
+            .directory(new File(rootPath))
+            .redirectErrorStream(true)
+            .start()
+        def checkOutput = checkProcess.inputStream.text
+        def checkExitCode = checkProcess.waitFor()
+        if (checkOutput) {
+            println checkOutput
+        }
+        if (checkExitCode != 0) {
+            throw new GradleException("ktlint found violations that could not be auto-fixed. Please resolve manually.")
+        }
+    }
 }

@@ -17,13 +17,15 @@ import androidx.navigation.Navigation;
 
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
 
 public class PersonalIdNameFragment extends BasePersonalIdFragment {
     private ScreenPersonalidNameBinding binding;
@@ -41,6 +43,7 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
         activity = requireActivity();
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
+        setUpEnterKeyAction(binding.nameTextValue);
         enableContinueButton(false);
         binding.nameTextValue.addTextChangedListener(createNameWatcher());
         return binding.getRoot();
@@ -80,7 +83,8 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
     }
 
     private void verifyOrAddName() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),null);
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(), null,
+                PersonalIdWorkflow.CONFIGURATION);
         clearError();
         enableContinueButton(false);
         new PersonalIdApiHandler<PersonalIdSessionData>() {
@@ -132,5 +136,12 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 .actionPersonalidNameToPersonalidMessage(title, message, phase, getString(buttonText), null)
                 .setIsCancellable(isCancellable);
         Navigation.findNavController(binding.getRoot()).navigate(action);
+    }
+
+    @Override
+    protected void keyboardEnterPressed() {
+        if (!Objects.requireNonNull(binding.nameTextValue.getText()).toString().isEmpty()) {
+            verifyOrAddName();
+        }
     }
 }
