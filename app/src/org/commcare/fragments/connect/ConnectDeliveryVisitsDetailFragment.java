@@ -29,6 +29,7 @@ import org.commcare.activities.CommonBaseActivity;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryFlagRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.connect.ConnectDateUtils;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel;
@@ -53,7 +54,7 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
     };
 
     private String currentFilter = ALL_IDENTIFIER;
-    private String unitName;
+    private String unitUuid;
     private DeliveryAdapter adapter;
     private ConnectDeliveryHomeViewModel viewModel;
 
@@ -65,10 +66,11 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
     public @NotNull View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         if (getArguments() != null) {
-            unitName = ConnectDeliveryVisitsDetailFragmentArgs.fromBundle(getArguments()).getUnitId();
+            unitUuid = ConnectDeliveryVisitsDetailFragmentArgs.fromBundle(getArguments()).getUnitId();
         }
-        if (unitName != null) {
-            ((CommonBaseActivity)requireActivity()).setActionBarTitle(getString(R.string.connect_visit_type_title, unitName));
+        if (unitUuid != null) {
+            ((CommonBaseActivity)requireActivity()).setActionBarTitle(
+                    getString(R.string.connect_visit_type_title, getUnitName()));
             setupMenuProvider();
         }
         viewModel = new ViewModelProvider(
@@ -79,6 +81,15 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
         setupFilterControls();
         observeDeliveryProgress();
         return view;
+    }
+
+    private String getUnitName() {
+        for (ConnectPaymentUnitRecord unit : job.getPaymentUnits()) {
+            if (unit.getUnitUUID().equals(unitUuid)) {
+                return unit.getName();
+            }
+        }
+        return "";
     }
 
     private void setupRecyclerView() {
@@ -203,7 +214,7 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
     }
 
     private boolean matchesFilter(ConnectJobDeliveryRecord delivery, String filter) {
-        boolean matchesUnit = unitName == null || delivery.getUnitName().equalsIgnoreCase(unitName);
+        boolean matchesUnit = unitUuid == null || unitUuid.equals(delivery.getSlugUUID());
         boolean matchesStatus = filter.equals(ALL_IDENTIFIER) || delivery.getStatus().equalsIgnoreCase(filter);
         return matchesUnit && matchesStatus;
     }
