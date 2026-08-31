@@ -418,6 +418,8 @@
     <string name="personalid_forgot_backup_code">Umesahau nambari yako ya hifadhi nakala?</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_set_new_backup_code_title">Weka nambari mpya ya hifadhi nakala</string>
+    <string name="personalid_backup_code_changed_success">Backup code updated successfully</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
     <string name="connect_job_info_visit">%d upeo wa Ziara</string>
