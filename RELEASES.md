@@ -2,18 +2,6 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
-## CommCare 2.65
-
-### Release Notes
-
-<!--
-These are published publicly on Playstore, Github Releases and CommCare Forums
--->
-
-#### What's New
-
-- The More tab of a delivery opportunity now lists outstanding tasks with their expiry dates, and gives access to the learn app and the learning certificate.
-
 ## CommCare 2.63.5
 
 ### Release Notes
