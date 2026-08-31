@@ -101,6 +101,7 @@ public class DemoUserRestoreTest {
         loginAsDemoUser();
 
         Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
 
         ShadowActivity shadowActivity = launchHomeActivityForDemoUser();
         checkOptionsMenuVisibility(shadowActivity);
