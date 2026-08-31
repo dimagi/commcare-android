@@ -417,7 +417,7 @@ License.
     <string name="personalid_backup_code_too_many_attempts">Trop de tentatives. Veuillez réessayer plus tard.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Veuillez ajouter une adresse e-mail</string>
     <string name="personalid_set_new_backup_code_title">Définir un nouveau code de sauvegarde</string>
-    <string name="personalid_backup_code_changed_success">Backup code updated successfully</string>
+    <string name="personalid_backup_code_changed_success">Code de sauvegarde mis à jour avec succès</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
     <string name="connect_job_info_visit">%d visites maximum</string>
