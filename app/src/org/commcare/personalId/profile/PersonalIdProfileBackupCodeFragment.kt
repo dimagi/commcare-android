@@ -31,7 +31,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             titleResId = R.string.connect_backup_code_title_confirm,
             showConfirmCode = false,
             subtitle = getString(R.string.connect_backup_code_message),
-            notMeButtonTextId = R.string.personalid_forgot_backup_code
+            notMeButtonTextId = R.string.personalid_forgot_backup_code,
         )
     }
 

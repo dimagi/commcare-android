@@ -73,7 +73,7 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         titleResId: Int,
         showConfirmCode: Boolean,
         subtitle: CharSequence,
-        notMeButtonTextId : Int? = null,
+        notMeButtonTextId: Int? = null,
     ) {
         requireActivity().title = getString(titleResId)
         binding.recoveryCodeTilte.setText(titleResId)
