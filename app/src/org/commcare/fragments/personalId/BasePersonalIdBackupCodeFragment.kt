@@ -118,7 +118,7 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         val isBackupCodeComplete = backupCode.length == BACKUP_CODE_LENGTH
         if (binding.confirmCodeLayout.visibility != View.VISIBLE) {
             enableContinueButton(isBackupCodeComplete)
-            return true
+            return isBackupCodeComplete
         }
         val confirmCode = binding.confirmCodeView.codeValue
         val isConfirmCodeComplete = confirmCode.length == BACKUP_CODE_LENGTH
