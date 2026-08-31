@@ -22,11 +22,14 @@ import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.connect.network.personalId.ConnectSsoHelper;
 import org.commcare.connect.network.personalId.ConnectSsoSyncHelper;
 import org.commcare.connect.network.personalId.TokenExceptionHandler;
@@ -49,6 +52,7 @@ import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
@@ -494,6 +498,20 @@ public class PersonalIdManager {
 
     public void setStatus(PersonalIdStatus status) {
         personalIdSatus = status;
+    }
+
+    public void successFlow(android.app.Activity activity, PersonalIdSessionData sessionData) {
+        setStatus(PersonalIdStatus.LoggedIn);
+        ConnectDatabaseHelper.setRegistrationPhase(activity, ConnectConstants.PERSONALID_NO_ACTIVITY);
+        if (sessionData != null) {
+            List<ConnectReleaseToggleRecord> toggles = sessionData.getFeatureReleaseToggles();
+            if (toggles != null) {
+                ConnectAppDatabaseUtil.storeReleaseToggles(activity, toggles);
+            }
+        }
+        ConnectSyncPreferences.Companion.getInstance(activity).markSessionStart();
+        activity.setResult(android.app.Activity.RESULT_OK);
+        activity.finish();
     }
 
     public void setParent(Context parent) {
