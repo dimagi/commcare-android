@@ -18,9 +18,16 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false)
+        initData()
+        setUpView()
+        setupListeners()
         clearBackupCodeFields()
         return binding.root
     }
+
+    open fun initData() {}
+
+    abstract fun setUpView()
 
     override fun onResume() {
         super.onResume()
@@ -60,6 +67,28 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
 
     protected fun enableContinueButton(enabled: Boolean) {
         binding.connectBackupCodeButton.isEnabled = enabled
+    }
+
+    protected fun setUpInitialState(
+        titleResId: Int,
+        showConfirmCode: Boolean,
+        subtitle: CharSequence,
+        notMeButtonTextId : Int? = null,
+    ) {
+        requireActivity().title = getString(titleResId)
+        binding.recoveryCodeTilte.setText(titleResId)
+        binding.backupCodeLayout.visibility = View.VISIBLE
+        binding.welcomeBackLayout.visibility = View.GONE
+        binding.notMeButton.visibility = View.GONE
+        val confirmVisibility = if (showConfirmCode) View.VISIBLE else View.GONE
+        binding.confirmCodeLayout.visibility = confirmVisibility
+        binding.confirmCodeLabel.visibility = confirmVisibility
+        binding.backupCodeSubtitle.text = subtitle
+        notMeButtonTextId?.let {
+            binding.notMeButton.setText(getString(it))
+            binding.notMeButton.visibility = View.VISIBLE
+        }
+        enableContinueButton(false)
     }
 
     protected open fun onCodeChanged() {

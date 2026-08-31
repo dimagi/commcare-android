@@ -26,28 +26,13 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
-        setUpView()
-        return view
-    }
-
-    fun setUpView() {
-        requireActivity().title = getString(R.string.connect_backup_code_title_confirm)
-        binding.recoveryCodeTilte.setText(R.string.connect_backup_code_title_confirm)
-        binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message)
-        binding.backupCodeLayout.visibility = View.VISIBLE
-        binding.confirmCodeLayout.visibility = View.GONE
-        binding.confirmCodeLabel.visibility = View.GONE
-        binding.welcomeBackLayout.visibility = View.GONE
-        forgotBackupCodeButton.visibility = View.VISIBLE
-        forgotBackupCodeButton.setText(R.string.personalid_forgot_backup_code)
-        enableContinueButton(false)
-        setupListeners()
+    override fun setUpView() {
+        setUpInitialState(
+            titleResId = R.string.connect_backup_code_title_confirm,
+            showConfirmCode = false,
+            subtitle = getString(R.string.connect_backup_code_message),
+            notMeButtonTextId = R.string.personalid_forgot_backup_code
+        )
     }
 
     override fun onCodeChanged() {

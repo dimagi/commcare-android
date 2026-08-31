@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
@@ -27,46 +26,34 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     private lateinit var personalIdSessionData: PersonalIdSessionData
     private var isRecovery = false
 
-    @StringRes
-    private var titleId = 0
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        val view = super.onCreateView(inflater, container, savedInstanceState)
-        personalIdSessionData =
-            ViewModelProvider(requireActivity())[PersonalIdSessionDataViewModel::class.java]
-                .personalIdSessionData
-        configureUiByMode()
-        setupListeners()
-        requireActivity().title = getString(titleId)
-        return view
-    }
-
     override fun onResume() {
         super.onResume()
         validateBackupCodeAndEnableContinue()
     }
 
-    private fun configureUiByMode() {
+    override fun initData() {
+        personalIdSessionData =
+            ViewModelProvider(requireActivity())[PersonalIdSessionDataViewModel::class.java]
+                .personalIdSessionData
+    }
+
+    override fun setUpView() {
         isRecovery = personalIdSessionData.accountExists == true
         if (isRecovery) {
-            titleId = R.string.connect_backup_code_title_confirm
+            setUpInitialState(
+                titleResId = R.string.connect_backup_code_title_confirm,
+                showConfirmCode = false,
+                subtitle = getString(R.string.connect_backup_code_message),
+            )
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title)
-            binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message)
-            binding.backupCodeLayout.visibility = View.VISIBLE
-            binding.confirmCodeLabel.visibility = View.GONE
-            binding.confirmCodeLayout.visibility = View.GONE
+            binding.welcomeBackLayout.visibility = View.VISIBLE
             setUserNameAndPhoto()
         } else {
-            titleId = R.string.connect_backup_code_title_set
-            binding.backupCodeSubtitle.text = getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH)
-            binding.backupCodeLayout.visibility = View.VISIBLE
-            binding.confirmCodeLabel.visibility = View.VISIBLE
-            binding.confirmCodeLayout.visibility = View.VISIBLE
-            binding.welcomeBackLayout.visibility = View.GONE
+            setUpInitialState(
+                titleResId = R.string.connect_backup_code_title_set,
+                showConfirmCode = true,
+                subtitle = getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH),
+            )
         }
     }
 
@@ -88,7 +75,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     private fun handleNotMeButtonPressed() {
         personalIdSessionData.accountExists = false
         clearBackupCodeFields()
-        configureUiByMode()
+        setUpView()
     }
 
     override fun handleBackupCodeSubmission() {
