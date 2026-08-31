@@ -200,15 +200,7 @@ class ConnectDeliveryMoreFragmentTest {
     }
 
     @Test
-    fun `the optional group stays hidden while no task can be non-blocking`() {
-        val moreTab = openMoreTab(deliveryProgressJson(tasks = listOf(taskJson())))
-        val optionalGroup = moreTab.requireView().findViewById<View>(R.id.delivery_tasks_optional_group)
-
-        assertEquals(View.GONE, optionalGroup.visibility)
-    }
-
-    @Test
-    fun `with no pending task the empty message replaces the groups`() {
+    fun `with no pending task the empty message replaces the group`() {
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
         val emptyMessage = moreTab.requireView().findViewById<TextView>(R.id.delivery_tasks_empty)
         val mandatoryGroup = moreTab.requireView().findViewById<View>(R.id.delivery_tasks_mandatory_group)

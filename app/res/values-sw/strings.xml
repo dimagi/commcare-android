@@ -605,8 +605,6 @@
     <string name="connect_delivery_tasks_title">Kazi</string>
     <string name="connect_delivery_tasks_mandatory_title">Za lazima</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Kamilisha kazi ili kuendelea kutoa huduma.</string>
-    <string name="connect_delivery_tasks_optional_title">Za hiari</string>
-    <string name="connect_delivery_tasks_optional_subtitle">Kamilisha kazi wakati wowote kabla ya muda kuisha.</string>
     <string name="connect_delivery_tasks_empty">Hakuna kazi zinazosubiri kwa sasa. Tutakujulisha kazi mpya inapopatikana.</string>
     <string name="connect_delivery_revisit_learning_title">Pitia mafunzo tena</string>
     <string name="connect_delivery_revisit_learning_completed">Ilikamilishwa %1$s</string>

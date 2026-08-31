@@ -73,39 +73,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/delivery_tasks_optional_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/connect_space_lg"
-                android:clipChildren="false"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/connect_delivery_tasks_optional_title"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/connect_text_body"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/connect_delivery_tasks_optional_subtitle"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/connect_text_caption" />
-
-                <LinearLayout
-                    android:id="@+id/delivery_tasks_optional_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/connect_space_md"
-                    android:clipChildren="false"
-                    android:orientation="vertical" />
-
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/revisit_learning_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

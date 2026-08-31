@@ -589,8 +589,6 @@
     <string name="connect_delivery_tasks_title">ዕማማት</string>
     <string name="connect_delivery_tasks_mandatory_title">ግዴታ</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">ኣገልግሎት ንምቕጻል ዕማማት ዛዝም።</string>
-    <string name="connect_delivery_tasks_optional_title">ብምርጫ</string>
-    <string name="connect_delivery_tasks_optional_subtitle">ግዜኡ ከይወደአ ኣብ ዝኾነ ግዜ ዕማማት ዛዝም።</string>
     <string name="connect_delivery_tasks_empty">ኣብዚ ሕጂ ተጸባይ ዕማም የለን። ሓድሽ ዕማም ምስ ተረኸበ ክንሕብረካ ኢና።</string>
     <string name="connect_delivery_revisit_learning_title">ትምህርቲ ደጊምካ ርአ</string>
     <string name="connect_delivery_revisit_learning_completed">%1$s ተዛዚሙ</string>

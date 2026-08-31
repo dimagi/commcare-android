@@ -52,24 +52,13 @@ class ConnectDeliveryMoreFragment :
         bindRevisitLearning()
     }
 
-    /**
-     * Every outstanding task blocks delivery today and the API carries no blocking flag, so they all
-     * render as mandatory and the optional group stays hidden until that flag exists.
-     */
+    /** Currently, every outstanding task blocks delivery, so they all render as mandatory. */
     private fun bindTasks() {
         val tasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
+        val list = binding.deliveryTasksMandatoryList
 
         binding.deliveryTasksEmpty.isVisible = tasks.isEmpty()
-        bindTaskGroup(binding.deliveryTasksMandatoryGroup, binding.deliveryTasksMandatoryList, tasks)
-        binding.deliveryTasksOptionalGroup.isVisible = false
-    }
-
-    private fun bindTaskGroup(
-        group: View,
-        list: LinearLayout,
-        tasks: List<ConnectTaskRecord>,
-    ) {
-        group.isVisible = tasks.isNotEmpty()
+        binding.deliveryTasksMandatoryGroup.isVisible = tasks.isNotEmpty()
         list.removeAllViews()
 
         tasks.forEachIndexed { index, task ->

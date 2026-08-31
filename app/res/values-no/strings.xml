@@ -248,8 +248,6 @@
     <string name="connect_delivery_tasks_title">Oppgaver</string>
     <string name="connect_delivery_tasks_mandatory_title">Obligatoriske</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Fullfør oppgavene for å fortsette leveringen.</string>
-    <string name="connect_delivery_tasks_optional_title">Valgfrie</string>
-    <string name="connect_delivery_tasks_optional_subtitle">Fullfør oppgavene når som helst før fristen.</string>
     <string name="connect_delivery_tasks_empty">Ingen ventende oppgaver er tilgjengelige for øyeblikket. Vi varsler deg når en ny oppgave er tilgjengelig.</string>
     <string name="connect_delivery_revisit_learning_title">Se opplæringen på nytt</string>
     <string name="connect_delivery_revisit_learning_completed">Fullført %1$s</string>

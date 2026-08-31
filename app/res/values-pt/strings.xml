@@ -607,8 +607,6 @@
     <string name="connect_delivery_tasks_title">Tarefas</string>
     <string name="connect_delivery_tasks_mandatory_title">Obrigatórias</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Conclua as tarefas para continuar a prestação de serviços.</string>
-    <string name="connect_delivery_tasks_optional_title">Opcionais</string>
-    <string name="connect_delivery_tasks_optional_subtitle">Conclua as tarefas a qualquer momento antes do prazo.</string>
     <string name="connect_delivery_tasks_empty">Não há tarefas pendentes neste momento. Avisaremos quando uma nova tarefa estiver disponível.</string>
     <string name="connect_delivery_revisit_learning_title">Revisitar a formação</string>
     <string name="connect_delivery_revisit_learning_completed">Concluído em %1$s</string>

@@ -601,8 +601,6 @@
     <string name="connect_delivery_tasks_title">Tareas</string>
     <string name="connect_delivery_tasks_mandatory_title">Obligatorias</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Complete las tareas para continuar con la entrega.</string>
-    <string name="connect_delivery_tasks_optional_title">Opcionales</string>
-    <string name="connect_delivery_tasks_optional_subtitle">Complete las tareas en cualquier momento antes del vencimiento.</string>
     <string name="connect_delivery_tasks_empty">No hay tareas pendientes en este momento. Le avisaremos cuando haya una nueva tarea disponible.</string>
     <string name="connect_delivery_revisit_learning_title">Repasar el aprendizaje</string>
     <string name="connect_delivery_revisit_learning_completed">Completado %1$s</string>

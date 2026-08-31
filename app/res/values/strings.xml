@@ -748,8 +748,6 @@
     <string name="connect_delivery_tasks_title">Tasks</string>
     <string name="connect_delivery_tasks_mandatory_title">Mandatory</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Complete tasks to continue delivery.</string>
-    <string name="connect_delivery_tasks_optional_title">Optional</string>
-    <string name="connect_delivery_tasks_optional_subtitle">Complete tasks anytime before expiry.</string>
     <string name="connect_delivery_tasks_empty">No pending tasks available at the moment. We\'ll notify you when a new task is available.</string>
     <string name="connect_delivery_revisit_learning_title">Revisit Learning</string>
     <string name="connect_delivery_revisit_learning_completed">Completed %1$s</string>

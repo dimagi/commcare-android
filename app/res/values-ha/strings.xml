@@ -432,8 +432,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_delivery_tasks_title">Ayyuka</string>
     <string name="connect_delivery_tasks_mandatory_title">Wajibi</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Kammala ayyukan don ci gaba da isar da sabis.</string>
-    <string name="connect_delivery_tasks_optional_title">Na zaɓi</string>
-    <string name="connect_delivery_tasks_optional_subtitle">Kammala ayyukan a kowane lokaci kafin karewar wa\'adi.</string>
     <string name="connect_delivery_tasks_empty">Babu ayyukan da ke jiran kammalawa a yanzu. Za mu sanar da kai idan sabon aiki ya samu.</string>
     <string name="connect_delivery_revisit_learning_title">Sake duba karatu</string>
     <string name="connect_delivery_revisit_learning_completed">An kammala %1$s</string>
