@@ -542,7 +542,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     /**
-     * Whether the user has finished everything requiresd before claiming the job:
+     * Whether the user has finished everything required before claiming the job:
      * every learn module submitted, and a passing assessment score
      */
     public boolean isLearningComplete() {
