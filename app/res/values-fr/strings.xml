@@ -412,6 +412,12 @@ License.
     <string name="personalid_profile_edit_save">Enregistrer</string>
     <string name="personalid_profile_edit_cancel">Annuler</string>
     <string name="personalid_profile_edit_save_success">Votre profil a été mis à jour avec succès.</string>
+    <string name="personalid_profile_change_backup_code">Changer le code de sauvegarde</string>
+    <string name="personalid_forgot_backup_code">Vous avez oublié votre code de sauvegarde ?</string>
+    <string name="personalid_backup_code_too_many_attempts">Trop de tentatives. Veuillez réessayer plus tard.</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Veuillez ajouter une adresse e-mail</string>
+    <string name="personalid_set_new_backup_code_title">Définir un nouveau code de sauvegarde</string>
+    <string name="personalid_backup_code_changed_success">Code de sauvegarde mis à jour avec succès</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
     <string name="connect_job_info_visit">%d visites maximum</string>

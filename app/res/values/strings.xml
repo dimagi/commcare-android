@@ -378,6 +378,7 @@
     <string name="connect_backup_code_message">Enter your 6-digit Backup Code</string>
     <string name="connect_backup_code_remember">Please be sure to remember your backup code! It must be %d digits. Keep it in a safe place as you will need it to access your account again.</string>
     <string name="connect_backup_code_mismatch">The backup codes you enter must match.</string>
+    <string name="personalid_set_new_backup_code_title">Set New Backup Code</string>
 
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
     <string name="personalid_network_response_parsing_error">Error parsing data from server. Please contact customer support.</string>
@@ -807,6 +808,11 @@
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
     <string name="personalid_photo_capture_save_photo_button">Save Photo</string>
     <string name="personalid_this_is_not_me"><u>This is not me</u></string>
+    <string name="personalid_profile_change_backup_code">Change backup code</string>
+    <string name="personalid_forgot_backup_code">Forgot your backup code?</string>
+    <string name="personalid_backup_code_changed_success">Backup code updated successfully</string>
+        <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="personalid_welcome_back_msg">Welcome back %s</string>
     <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
     <string name="personalid_second_device_login_title">Login on Second Device</string>

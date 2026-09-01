@@ -412,6 +412,12 @@ License.
     <string name="personalid_profile_edit_save">सहेजें</string>
     <string name="personalid_profile_edit_cancel">रद्द करें</string>
     <string name="personalid_profile_edit_save_success">आपकी प्रोफ़ाइल सफलतापूर्वक अपडेट कर दी गई है।</string>
+    <string name="personalid_profile_change_backup_code">बैकअप कोड बदलें</string>
+    <string name="personalid_forgot_backup_code">अपना बैकअप कोड भूल गए?</string>
+        <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
+    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_set_new_backup_code_title">नया बैकअप कोड सेट करें</string>
+    <string name="personalid_backup_code_changed_success">बैकअप कोड सफलतापूर्वक अपडेट किया गया</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
     <string name="connect_job_info_visit">अधिकतम %d विज़िट</string>

@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
@@ -17,62 +15,45 @@ import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiEr
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.utils.MediaUtil
-import org.commcare.views.connect.NumericCodeView
 import java.util.Date
 
-class PersonalIdBackupCodeFragment : BasePersonalIdFragment() {
-    private lateinit var binding: FragmentRecoveryCodeBinding
+class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     private lateinit var personalIdSessionData: PersonalIdSessionData
     private var isRecovery = false
 
-    @StringRes
-    private var titleId = 0
-
     override fun onResume() {
         super.onResume()
-        validateBackupCodeInputs()
-        binding.backupCodeView.requestFocus(requireActivity())
+        validateBackupCodeAndEnableContinue()
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
-        binding = FragmentRecoveryCodeBinding.inflate(inflater, container, false)
+    override fun initData() {
         personalIdSessionData =
             ViewModelProvider(requireActivity())[PersonalIdSessionDataViewModel::class.java]
                 .personalIdSessionData
-        configureUiByMode()
-        setupListeners()
-        clearBackupCodeFields()
-        requireActivity().title = getString(titleId)
-        return binding.root
     }
 
-    private fun configureUiByMode() {
+    override fun setUpView() {
         isRecovery = personalIdSessionData.accountExists == true
         if (isRecovery) {
-            titleId = R.string.connect_backup_code_title_confirm
+            setUpInitialState(
+                titleResId = R.string.connect_backup_code_title_confirm,
+                showConfirmCode = false,
+                subtitle = getString(R.string.connect_backup_code_message),
+            )
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title)
-            binding.backupCodeSubtitle.setText(R.string.connect_backup_code_message)
-            binding.backupCodeLayout.visibility = View.VISIBLE
-            binding.confirmCodeLabel.visibility = View.GONE
-            binding.confirmCodeLayout.visibility = View.GONE
+            binding.welcomeBackLayout.visibility = View.VISIBLE
             setUserNameAndPhoto()
         } else {
-            titleId = R.string.connect_backup_code_title_set
-            binding.backupCodeSubtitle.text = getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH)
-            binding.backupCodeLayout.visibility = View.VISIBLE
-            binding.confirmCodeLabel.visibility = View.VISIBLE
-            binding.confirmCodeLayout.visibility = View.VISIBLE
-            binding.welcomeBackLayout.visibility = View.GONE
+            setUpInitialState(
+                titleResId = R.string.connect_backup_code_title_set,
+                showConfirmCode = true,
+                subtitle = getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH),
+            )
         }
     }
 
@@ -84,90 +65,29 @@ class PersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         }
     }
 
-    private fun setupListeners() {
-        val codeChangedListener = NumericCodeView.OnCodeChangedListener { validateBackupCodeInputs() }
-
-        binding.backupCodeView.setOnCodeChangedListener(codeChangedListener)
-        binding.confirmCodeView.setOnCodeChangedListener(codeChangedListener)
-
-        binding.backupCodeView.setCodeCompleteListener {
-            if (isRecovery) {
-                submitIfEnabled()
-            }
-        }
-
+    override fun setupListeners() {
+        super.setupListeners()
+        binding.backupCodeView.setCodeCompleteListener { if (isRecovery) submitIfEnabled() }
         binding.confirmCodeView.setCodeCompleteListener { submitIfEnabled() }
-
-        val enterKeyListener = NumericCodeView.OnEnterKeyPressedListener { submitIfEnabled() }
-        binding.backupCodeView.setOnEnterKeyPressedListener(enterKeyListener)
-        binding.confirmCodeView.setOnEnterKeyPressedListener(enterKeyListener)
-
-        binding.connectBackupCodeButton.setOnClickListener { handleBackupCodeSubmission() }
         binding.notMeButton.setOnClickListener { handleNotMeButtonPressed() }
-
-        binding.backupCodeVisibilityToggle.setOnClickListener {
-            togglePasswordVisibility(binding.backupCodeView, binding.backupCodeVisibilityToggle)
-        }
-        binding.confirmCodeVisibilityToggle.setOnClickListener {
-            togglePasswordVisibility(binding.confirmCodeView, binding.confirmCodeVisibilityToggle)
-        }
-    }
-
-    private fun submitIfEnabled() {
-        if (binding.connectBackupCodeButton.isEnabled) {
-            handleBackupCodeSubmission()
-        }
-    }
-
-    private fun togglePasswordVisibility(
-        codeView: NumericCodeView,
-        toggle: ImageView,
-    ) {
-        codeView.isPasswordVisible = !codeView.isPasswordVisible
-        toggle.setImageResource(
-            if (codeView.isPasswordVisible) R.drawable.ic_visibility_off_24 else R.drawable.ic_visibility_24,
-        )
-    }
-
-    private fun clearBackupCodeFields() {
-        binding.confirmCodeView.clearCode()
-        binding.backupCodeView.clearCode()
-    }
-
-    private fun validateBackupCodeInputs() {
-        val backupCode = binding.backupCodeView.codeValue
-        val confirmCode = binding.confirmCodeView.codeValue
-
-        val isCodeComplete = backupCode.length == BACKUP_CODE_LENGTH
-        val isCodeConfirmed = isRecovery || backupCode == confirmCode
-        val showMismatch = isCodeComplete && !isCodeConfirmed && confirmCode.length == BACKUP_CODE_LENGTH
-        val errorText = if (showMismatch) getString(R.string.connect_backup_code_mismatch) else ""
-
-        binding.connectBackupCodeErrorMessage.visibility = if (showMismatch) View.VISIBLE else View.GONE
-        binding.connectBackupCodeErrorMessage.text = errorText
-        enableContinueButton(isCodeComplete && isCodeConfirmed)
     }
 
     private fun handleNotMeButtonPressed() {
         personalIdSessionData.accountExists = false
         clearBackupCodeFields()
-        configureUiByMode()
+        setUpView()
     }
 
-    private fun enableContinueButton(isEnable: Boolean) {
-        binding.connectBackupCodeButton.isEnabled = isEnable
-    }
-
-    private fun handleBackupCodeSubmission() {
+    override fun handleBackupCodeSubmission() {
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
             javaClass.simpleName,
             null,
             PersonalIdWorkflow.CONFIGURATION,
         )
+        personalIdSessionData.backupCode = binding.backupCodeView.codeValue
         if (isRecovery) {
             confirmBackupCode()
         } else {
-            personalIdSessionData.backupCode = binding.backupCodeView.codeValue
             if (ReleaseToggleHelper.isEmailOtpVerificationActive(personalIdSessionData)) {
                 navigateToEmail()
             } else {
@@ -214,16 +134,6 @@ class PersonalIdBackupCodeFragment : BasePersonalIdFragment() {
             PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
             navigateToSuccess()
         }
-    }
-
-    private fun clearError() {
-        binding.connectBackupCodeErrorMessage.visibility = View.GONE
-        binding.connectBackupCodeErrorMessage.text = ""
-    }
-
-    private fun showError(message: String) {
-        binding.connectBackupCodeErrorMessage.visibility = View.VISIBLE
-        binding.connectBackupCodeErrorMessage.text = message
     }
 
     private fun handleFailedBackupCodeAttempt() {
@@ -292,9 +202,4 @@ class PersonalIdBackupCodeFragment : BasePersonalIdFragment() {
     }
 
     private fun navigate(directions: NavDirections) = binding.root.findNavController().navigate(directions)
-
-    companion object {
-        // Note: This is brittle, defined in several places
-        private const val BACKUP_CODE_LENGTH = 6
-    }
 }
