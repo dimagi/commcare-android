@@ -279,8 +279,8 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void setRecoveryPin(Context context, String userId, String password, String newPin) {
-        ApiPersonalId.setRecoveryPin(
+    public void setBackupCode(Context context, String userId, String password, String newPin) {
+        ApiPersonalId.setBackupCode(
                 context,
                 userId,
                 password,

@@ -44,9 +44,9 @@ public interface PersonalIdApiService {
     Call<ResponseBody> confirmBackupCode(@Header("Authorization") String token,
                                          @Body Map<String, String> confirmBackupCodeRequest);
 
-    @POST(PersonalIdApiEndpoints.SET_RECOVERY_PIN)
-    Call<ResponseBody> setRecoveryPin(@Header("Authorization") String token,
-                                      @Body Map<String, String> body);
+    @POST(PersonalIdApiEndpoints.SET_BACKUP_CODE)
+    Call<ResponseBody> setBackupCode(@Header("Authorization") String token,
+                                     @Body Map<String, String> body);
 
     @GET(PersonalIdApiEndpoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);

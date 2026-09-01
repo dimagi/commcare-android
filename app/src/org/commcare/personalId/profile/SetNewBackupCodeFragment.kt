@@ -18,7 +18,6 @@ import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.UnlockPolicy
 
 class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
-
     override fun onResume() {
         super.onResume()
         validateBackupCodeAndEnableContinue()
@@ -62,7 +61,7 @@ class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             ) {
                 onSetBackupCodeCallFailure(errorCode, t)
             }
-        }.setRecoveryPin(requireContext(), user.getUserId(), user.getPassword(), backupCode)
+        }.setBackupCode(requireContext(), user.getUserId(), user.getPassword(), backupCode)
     }
 
     private fun onSetBackupCodeCallSuccess(

@@ -14,7 +14,7 @@ object PersonalIdApiEndpoints {
     const val UPDATE_PROFILE = "/users/update_profile"
     const val COMPLETE_PROFILE = "/users/complete_profile"
     const val CONFIRM_BACKUP_CODE = "/users/recover/confirm_backup_code"
-    const val SET_RECOVERY_PIN = "/users/set_recovery_pin"
+    const val SET_BACKUP_CODE = "/users/set_recovery_pin"
     const val CREDENTIALS = "/users/credentials"
     const val RETRIEVE_NOTIFICATIONS = "/messaging/retrieve_notifications/"
     const val UPDATE_NOTIFICATIONS = "/messaging/update_notification_received/"
