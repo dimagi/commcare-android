@@ -420,6 +420,7 @@
     <string name="personalid_backup_code_too_many_attempts">Demasiados intentos. Por favor, inténtalo de nuevo más tarde.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Por favor, añade una dirección de correo electrónico</string>
     <string name="personalid_set_new_backup_code_title">Establecer nuevo código de respaldo</string>
+    <string name="personalid_backup_code_changed_success">Código de respaldo actualizado correctamente</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
     <string name="connect_job_info_visit">%d visitas máximo</string>

@@ -420,6 +420,7 @@
     <string name="personalid_backup_code_too_many_attempts">ብዙሕ ፈተናታት። በጃኻ ድሕሪ ሕጂ እንደገና ፈትን።</string>
     <string name="personalid_no_email_forgot_backup_code_toast">በጃኻ ናይ ኢ-መይል ኣድራሻ ወስኽ</string>
     <string name="personalid_set_new_backup_code_title">ሓድሽ ናይ ምትካእ ኮድ ኣቐምጥ</string>
+    <string name="personalid_backup_code_changed_success">ናይ ምትካእ ኮድ ብዓወት ተሓዲሱ</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
     <string name="connect_job_info_visit">%d ዝለዓለ ምብጻሕ</string>

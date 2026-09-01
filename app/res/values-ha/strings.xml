@@ -255,6 +255,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_backup_code_too_many_attempts">Yunkuri da yawa. Da fatan za a sake gwadawa daga baya.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Da fatan za a ƙara adireshin imel</string>
     <string name="personalid_set_new_backup_code_title">Saita sabuwar lambar sirrin ajiyar bayanai</string>
+    <string name="personalid_backup_code_changed_success">An sabunta lambar sirrin ajiyar bayanai cikin nasara</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
     <string name="connect_job_info_visit">Matsakaicin Ziyarar %d</string>

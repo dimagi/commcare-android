@@ -107,6 +107,8 @@
     <string name="personalid_forgot_backup_code">Pamiršote savo atsarginį kodą?</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_set_new_backup_code_title">Nustatyti naują atsarginį kodą</string>
+    <string name="personalid_backup_code_changed_success">Atsarginis kodas sėkmingai atnaujintas</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>

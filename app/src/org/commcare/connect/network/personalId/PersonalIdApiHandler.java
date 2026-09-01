@@ -279,6 +279,16 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
+    public void setBackupCode(Context context, String userId, String password, String newPin) {
+        ApiPersonalId.setBackupCode(
+                context,
+                userId,
+                password,
+                newPin,
+                createCallback(new NoParsingResponseParser<>(), null)
+        );
+    }
+
     public void completeProfile(
             Context context,
             String userName,
