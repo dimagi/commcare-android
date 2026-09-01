@@ -9,13 +9,12 @@ import kotlinx.coroutines.Job
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
-import org.commcare.connect.repository.RefreshPolicy
 
 class ConnectJobsListViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
     @VisibleForTesting
-    internal var repository: ConnectRepository = ConnectRepository.getInstance(application)
+    internal var repository: ConnectRepository = ConnectRepository.getInstance()
 
     private val _opportunities = MutableLiveData<DataState<List<ConnectJobRecord>>>()
     val opportunities: LiveData<DataState<List<ConnectJobRecord>>> = _opportunities

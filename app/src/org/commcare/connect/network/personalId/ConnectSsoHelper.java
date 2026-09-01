@@ -55,7 +55,7 @@ public class ConnectSsoHelper {
 
             @Override
             public void onSuccess(AuthInfo.TokenAuth tokenAuth) {
-                ConnectUserDatabaseUtil.storeUser(context, user);
+                ConnectUserDatabaseUtil.storeUser(user);
                 callback.tokenRetrieved(tokenAuth);
             }
         }.retrievePersonalIdToken(context, user);
@@ -126,23 +126,24 @@ public class ConnectSsoHelper {
         }.retrieveHqToken(context, hqUsername, personalIdToken);
     }
 
-    public static void discardTokens(Context context, String username) {
+    public static void discardTokens(String username) {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         Logger.log(LogTypes.TYPE_MAINTENANCE, "Clearing SSO tokens");
 
         if (username != null) {
-            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, seatedAppId, username);
+            ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                    seatedAppId, username);
             if (appRecord != null) {
                 appRecord.clearHqToken();
-                ConnectAppDatabaseUtil.storeApp(context, appRecord);
+                ConnectAppDatabaseUtil.storeApp(appRecord);
             }
         }
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
         if (user != null) {
             user.clearConnectToken();
-            ConnectUserDatabaseUtil.storeUser(context, user);
+            ConnectUserDatabaseUtil.storeUser(user);
         }
     }
 

@@ -5,7 +5,6 @@ import android.content.Intent
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -26,7 +25,7 @@ object EmailOfferHelper {
             return false
         }
 
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
         if (user.email != null) {
             return false
         }

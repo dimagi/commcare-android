@@ -11,7 +11,6 @@ import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.StringUtils
 
@@ -35,7 +34,7 @@ object EmailHelper {
         sessionData: PersonalIdSessionData?,
     ): Pair<String?, ConnectUserRecord?> =
         when (workflow) {
-            EmailWorkFlow.EXISTING_USER -> null to ConnectUserDatabaseUtil.getUser(activity)
+            EmailWorkFlow.EXISTING_USER -> null to ConnectUserDatabaseUtil.getUser()
             EmailWorkFlow.REGISTRATION, EmailWorkFlow.RECOVERY -> sessionData?.token to null
         }
 

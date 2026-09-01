@@ -16,7 +16,7 @@ class LinkHqWorkerResponseParser<T>(
     ): T {
         val appRecord: ConnectLinkedAppRecord = anyInputObject as ConnectLinkedAppRecord
         appRecord.setWorkerLinked(true)
-        ConnectAppDatabaseUtil.storeApp(context, appRecord)
+        ConnectAppDatabaseUtil.storeApp(appRecord)
         return true as T
     }
 }

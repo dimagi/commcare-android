@@ -156,7 +156,7 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
         enableTakePhotoButton();
         disableSaveButton();
         personalIdSessionData.setPhotoBase64(photoAsBase64);
-        PersonalIdManager.getInstance().onAccountConfigurationSuccess(requireActivity(), personalIdSessionData);
+        PersonalIdManager.getInstance().onAccountConfigurationSuccess(personalIdSessionData);
         logAndShowAccountComplete();
     }
 

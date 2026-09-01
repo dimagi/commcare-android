@@ -17,7 +17,7 @@ class ConnectHeartbeatWorker(
         if (!personalIdManager.isloggedIn()) {
             return Result.failure()
         }
-        val user = personalIdManager.getUser(applicationContext)
+        val user = personalIdManager.getUser()
 
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {

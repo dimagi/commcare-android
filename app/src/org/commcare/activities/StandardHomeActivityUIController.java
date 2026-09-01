@@ -164,7 +164,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private void updateConnectJobMessage() {
         String messageText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
+        ConnectAppRecord record = ConnectJobUtils.getAppRecord(appId);
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {

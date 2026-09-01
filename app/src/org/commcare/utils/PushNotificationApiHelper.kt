@@ -72,7 +72,7 @@ object PushNotificationApiHelper {
     }
 
     private suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
         return suspendCoroutine { continuation ->
 
             object : PersonalIdApiHandler<NotificationParseResult>() {
@@ -165,7 +165,7 @@ object PushNotificationApiHelper {
         if (savedNotificationIds.isEmpty()) {
             return true
         }
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
                 override fun onSuccess(result: Boolean) {

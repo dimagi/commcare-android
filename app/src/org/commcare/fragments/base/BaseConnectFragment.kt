@@ -77,7 +77,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     fun getLastSyncTime(): Date? {
         val endpoint = getEndpoint() ?: return null
-        return ConnectSyncPreferences.getInstance(requireContext()).getLastSyncTime(endpoint)
+        return ConnectSyncPreferences.getInstance().getLastSyncTime(endpoint)
     }
 
     override fun onCreateView(

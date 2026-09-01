@@ -15,7 +15,7 @@ class ConnectCredentialResolver(
         username: String,
         createIfNeeded: Boolean,
     ): ConnectLinkedAppRecord {
-        val existing = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username)
+        val existing = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, username)
         val record =
             existing ?: run {
                 if (!createIfNeeded) {
@@ -38,7 +38,6 @@ class ConnectCredentialResolver(
         username: String,
     ): ConnectLinkedAppRecord =
         ConnectAppDatabaseUtil.storeApp(
-            context,
             appId,
             username,
             true,

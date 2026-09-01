@@ -36,7 +36,7 @@ class ConnectReleaseTogglesParserTest {
         mockkStatic(ConnectAppDatabaseUtil::class)
 
         // Mock the DB storage call so it doesn't try to access a real DB.
-        every { ConnectAppDatabaseUtil.storeReleaseToggles(any(), any()) } returns Unit
+        every { ConnectAppDatabaseUtil.storeReleaseToggles(any()) } returns Unit
     }
 
     @After
@@ -204,7 +204,7 @@ class ConnectReleaseTogglesParserTest {
         val result = parser.parse(200, inputStream, context)
 
         assertEquals(1, result.size)
-        verify(exactly = 1) { ConnectAppDatabaseUtil.storeReleaseToggles(context, result) }
+        verify(exactly = 1) { ConnectAppDatabaseUtil.storeReleaseToggles(result) }
     }
 
     @Test
@@ -216,7 +216,7 @@ class ConnectReleaseTogglesParserTest {
 
         //  the response is still parsed and returned, it just isn't persisted
         assertEquals(1, result.size)
-        verify(exactly = 0) { ConnectAppDatabaseUtil.storeReleaseToggles(any(), any()) }
+        verify(exactly = 0) { ConnectAppDatabaseUtil.storeReleaseToggles(any()) }
     }
 
     @Test

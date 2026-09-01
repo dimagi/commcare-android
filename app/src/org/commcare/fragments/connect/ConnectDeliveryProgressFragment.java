@@ -195,7 +195,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-        ConnectRepository.getInstance(requireContext()).updatePaymentsConfirmedForJava(
+        ConnectRepository.getInstance().updatePaymentsConfirmedForJava(
                 paymentsToConfirm,
                 (success, error) -> {
                     if (isAdded()) {

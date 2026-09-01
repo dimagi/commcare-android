@@ -59,7 +59,7 @@ class ConnectAppLauncher internal constructor(
     constructor() : this(
         seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
         performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
-        connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
+        connectUsername = { context -> ConnectUserDatabaseUtil.getUser()?.userId },
         isLoggedIntoApp = { appId -> PersonalIdManager.getInstance().isSessionLoggedIntoApp(appId) },
     )
 

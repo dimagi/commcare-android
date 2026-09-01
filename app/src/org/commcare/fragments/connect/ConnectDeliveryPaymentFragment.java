@@ -163,7 +163,7 @@ public class ConnectDeliveryPaymentFragment extends ConnectJobFragment<FragmentC
                 ConnectJobPaymentRecord payment,
                 boolean result
         ) {
-            ConnectRepository.getInstance(context).updatePaymentsConfirmedForJava(
+            ConnectRepository.getInstance().updatePaymentsConfirmedForJava(
                     Collections.singletonList(
                             new ConnectPaymentConfirmationModel(payment, result)
                     ),

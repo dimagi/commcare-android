@@ -174,12 +174,12 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
         // Verify
         connectDatabaseHelperMock.verify {
-            ConnectDatabaseHelper.handleReceivedDbPassphrase(Mockito.any(), Mockito.eq("test-db-key"))
+            ConnectDatabaseHelper.handleReceivedDbPassphrase(Mockito.eq("test-db-key"))
         }
 
         val userCaptor = ArgumentCaptor.forClass(ConnectUserRecord::class.java)
         connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(Mockito.any(), userCaptor.capture())
+            ConnectUserDatabaseUtil.storeUser(userCaptor.capture())
         }
         val storedUser = userCaptor.value
         assertEquals("Test User", storedUser.name)

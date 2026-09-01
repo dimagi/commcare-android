@@ -2,6 +2,7 @@ package org.commcare.connect.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import org.commcare.CommCareApplication
 import java.util.Date
 
 /**
@@ -9,7 +10,7 @@ import java.util.Date
  * Stores per-endpoint last sync times and session start time for refresh policies.
  */
 class ConnectSyncPreferences(
-    context: Context,
+    context: Context = CommCareApplication.instance().applicationContext,
 ) {
     companion object {
         private const val PREFS_NAME = "connect_sync_prefs"
@@ -19,9 +20,9 @@ class ConnectSyncPreferences(
         @Volatile
         private var instance: ConnectSyncPreferences? = null
 
-        fun getInstance(context: Context): ConnectSyncPreferences =
+        fun getInstance(): ConnectSyncPreferences =
             instance ?: synchronized(this) {
-                instance ?: ConnectSyncPreferences(context.applicationContext).also {
+                instance ?: ConnectSyncPreferences().also {
                     instance = it
                 }
             }

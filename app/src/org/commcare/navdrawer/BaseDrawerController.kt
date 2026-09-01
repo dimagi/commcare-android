@@ -175,7 +175,7 @@ class BaseDrawerController(
             setSignedInState(true)
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
 
-            val user = ConnectUserDatabaseUtil.getUser(activity)
+            val user = ConnectUserDatabaseUtil.getUser()
             binding.userName.text = user.name
             user.photo?.let { loadUserPhoto(it) }
 
@@ -187,7 +187,7 @@ class BaseDrawerController(
                 }
             binding.userImageOverlayIcon.setImageResource(userImageOverlayIconRes)
 
-            val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess(activity)
+            val hasConnectAccess = ConnectUserDatabaseUtil.hasConnectAccess()
 
             val items = ArrayList<NavDrawerItem>()
             if (hasConnectAccess) {
@@ -210,7 +210,7 @@ class BaseDrawerController(
 
             val unreadCount =
                 if (ConnectMessagingDatabaseHelper.getMessagingChannels(activity).isNotEmpty()) {
-                    ConnectMessagingDatabaseHelper.getUnviewedMessages(activity).size
+                    ConnectMessagingDatabaseHelper.getUnviewedMessages().size
                 } else {
                     0
                 }

@@ -223,7 +223,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
-        ConnectSyncPreferences.Companion.getInstance(this).markSessionStart();
+        ConnectSyncPreferences.Companion.getInstance().markSessionStart();
 
         turnOnStrictMode();
 
@@ -1248,13 +1248,13 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
-    public IDatabase getConnectDbOpenHelper(Context context) {
-        byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
+    public IDatabase getConnectDbOpenHelper() {
+        byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase();
         if (passphrase == null || passphrase.length == 0) {
             throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
         }
         return new EncryptedDatabaseAdapter(new DatabaseConnectOpenHelper(
-                context, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));
+                this, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));
     }
 
     public IDatabase getGlobalDbOpenHelper() {

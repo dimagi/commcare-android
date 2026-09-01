@@ -342,7 +342,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     @Override
-    public IDatabase getConnectDbOpenHelper(Context context) {
+    public IDatabase getConnectDbOpenHelper() {
         return new UnencryptedDatabaseAdapter(new DatabaseConnectOpenHelperMock(this));
     }
 

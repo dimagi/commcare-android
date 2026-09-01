@@ -193,7 +193,7 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         performSuccessfulSave()
 
         connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(any(), any())
+            ConnectUserDatabaseUtil.storeUser(any())
         }
         assertEquals("654321", user.pin)
     }

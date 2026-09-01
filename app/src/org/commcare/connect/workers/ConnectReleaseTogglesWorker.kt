@@ -28,7 +28,7 @@ class ConnectReleaseTogglesWorker(
             return Result.failure()
         }
 
-        val user = personalIdManager.getUser(context)
+        val user = personalIdManager.getUser()
 
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<List<ConnectReleaseToggleRecord>>() {

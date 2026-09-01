@@ -97,7 +97,7 @@ object ConnectTestUtils {
         createConnectDbFile()
         val user = ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", hasConnectAccess)
         user.updateConnectToken("test-connect-token", daysFromNow(1))
-        ConnectUserDatabaseUtil.storeUser(context, user)
+        ConnectUserDatabaseUtil.storeUser(user)
         PersonalIdManager.getInstance().init(context)
     }
 
@@ -130,5 +130,5 @@ object ConnectTestUtils {
             ).apply { setLastUpdate(Date()) }
 
     private fun <T : Persistable> connectStorage(clazz: Class<T>) =
-        ConnectDatabaseHelper.getConnectStorage(ApplicationProvider.getApplicationContext(), clazz)
+        ConnectDatabaseHelper.getConnectStorage(clazz)
 }

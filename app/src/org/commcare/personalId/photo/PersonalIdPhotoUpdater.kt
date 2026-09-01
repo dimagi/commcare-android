@@ -90,11 +90,11 @@ class PersonalIdPhotoUpdater(
     }
 
     private fun uploadUserPhoto(photoBase64: String) {
-        val user = ConnectUserDatabaseUtil.getUser(activity)
+        val user = ConnectUserDatabaseUtil.getUser()
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
                 user.photo = photoBase64
-                ConnectUserDatabaseUtil.storeUser(activity, user)
+                ConnectUserDatabaseUtil.storeUser(user)
                 val toastMessage = activity.getString(R.string.personalid_user_photo_update_success)
                 Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
                 this@PersonalIdPhotoUpdater.onSuccess(photoBase64)

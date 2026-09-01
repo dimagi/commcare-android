@@ -49,7 +49,7 @@ abstract class BaseConnectJobIntroTest {
         // real network call is made (which crashes background coroutines under Robolectric).
         mockkObject(ConnectRepository.Companion)
         val repository = mockk<ConnectRepository>(relaxed = true)
-        every { ConnectRepository.getInstance(any()) } returns repository
+        every { ConnectRepository.getInstance() } returns repository
         every { repository.getOpportunities(any(), any()) } returns emptyFlow()
 
         mockkStatic(FirebaseAnalyticsUtil::class)

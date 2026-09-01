@@ -18,7 +18,6 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -150,12 +149,12 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         drainHttp()
 
         connectDatabaseHelperMock.verify {
-            ConnectDatabaseHelper.handleReceivedDbPassphrase(Mockito.any(), Mockito.eq("test-db-key"))
+            ConnectDatabaseHelper.handleReceivedDbPassphrase(Mockito.eq("test-db-key"))
         }
 
         val userCaptor = ArgumentCaptor.forClass(ConnectUserRecord::class.java)
         connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(Mockito.any(), userCaptor.capture())
+            ConnectUserDatabaseUtil.storeUser(userCaptor.capture())
         }
         val storedUser = userCaptor.value
         assertEquals(TEST_USER_NAME, storedUser.name)
@@ -202,7 +201,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         drainHttp()
 
         connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(Mockito.any(), Mockito.any())
+            ConnectUserDatabaseUtil.storeUser(Mockito.any())
         }
         assertMessageDisplay(
             title = fragment.getString(R.string.connect_recovery_success_title),
