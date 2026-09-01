@@ -84,10 +84,10 @@ public class ConnectAppDatabaseUtil {
     ) {
         boolean togglesChanged = false;
 
+        SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
+                ConnectDatabaseHelper.getConnectStorage(ConnectReleaseToggleRecord.class);
+        ConnectDatabaseHelper.connectDatabase.beginTransaction();
         try {
-            SqlStorage<ConnectReleaseToggleRecord> toggleStorage =
-                    ConnectDatabaseHelper.getConnectStorage(ConnectReleaseToggleRecord.class);
-            ConnectDatabaseHelper.connectDatabase.beginTransaction();
 
             // Create map of existing toggles for easy comparison to incoming toggles.
             List<ConnectReleaseToggleRecord> existingToggles = getReleaseToggles();
