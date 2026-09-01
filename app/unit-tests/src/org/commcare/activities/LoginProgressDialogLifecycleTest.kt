@@ -1,17 +1,27 @@
 package org.commcare.activities
 
 import android.widget.Button
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.awaitCancellation
 import org.commcare.CommCareTestApplication
 import org.commcare.android.util.ReflectionUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.dalvik.R
+import org.commcare.login.LoginError
 import org.commcare.login.LoginPhase
+import org.commcare.login.LoginProgress
+import org.commcare.login.LoginProgressListener
+import org.commcare.login.LoginResult
+import org.commcare.login.LoginViewModel
+import org.commcare.login.PostLoginOutcome
 import org.commcare.tasks.DataPullTask
 import org.commcare.views.dialogs.CustomProgressDialog
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -21,10 +31,11 @@ import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 /**
- * Regression pins covering both halves of the login progress dialog's behavior when
- * the user backgrounds the app mid-login.
+ * Regression pins covering the login progress dialog's behavior when the user leaves the login
+ * screen mid-login, either by backgrounding the app or by rotating the device.
  *
  * The login engine drives its dialogs by calling `showProgressDialog` directly from
  * `LoginActivity.updateLoginProgressUi`, rather than through the paused-guarded
@@ -55,6 +66,14 @@ class LoginProgressDialogLifecycleTest {
     /** Task id behind the staged-update install, the other connected task on this screen. */
     private val upgradeTaskId: Int
         get() = ReflectionUtils.readField(activity, "TASK_UPGRADE_INSTALL") as Int
+
+    /**
+     * What the fake login work has been asked to do, so the tests can follow the pipeline from
+     * outside instead of inspecting the view model that runs it.
+     */
+    private var loginAttempts = 0
+    private var loginsInFlight = 0
+    private var loginCancellations = 0
 
     @Before
     fun setUp() {
@@ -190,42 +209,102 @@ class LoginProgressDialogLifecycleTest {
 
     @Test
     fun `stop button cancels the login pipeline and dismisses the dialog`() {
-        val job = Job()
-        startFakeSyncPhase(job)
+        startSuspendingLogin()
 
         clickStopButton()
 
-        assertTrue("STOP should cancel the login pipeline's job", job.isCancelled)
+        assertEquals("STOP should cancel the login pipeline", 1, loginCancellations)
         assertNull("STOP should dismiss the sync dialog", currentDialog())
     }
 
+    /**
+     * A cancelled login must not stay latched onto the screen: the next LOGIN press has to start a
+     * pipeline of its own, with its own dialog and its own working STOP button.
+     */
     @Test
-    fun `cancelling clears the retained job so a later stop is inert`() {
-        val job = Job()
-        startFakeSyncPhase(job)
+    fun `a cancelled login leaves the screen able to run and stop another`() {
+        startSuspendingLogin()
+        clickStopButton()
 
-        activity.cancelCurrentTask()
-        activity.cancelCurrentTask()
+        clickLogin()
 
-        assertTrue(job.isCancelled)
-        assertNull("The cancelled job should not be retained", ReflectionUtils.readField(activity, "loginJob"))
+        assertEquals("LOGIN should start a second pipeline", 2, loginAttempts)
+        assertEquals("The second login should get its own dialog", syncTaskId, currentDialog()?.taskId)
+
+        clickStopButton()
+
+        assertEquals("STOP should cancel the second pipeline too", 2, loginCancellations)
+        assertNull("STOP should dismiss the second login's dialog", currentDialog())
+    }
+
+    // ======== Rotation ========
+
+    @Test
+    fun `rotation keeps the login running and puts its dialog back`() {
+        startSuspendingLogin()
+        assertEquals("The sync dialog should be up before rotating", syncTaskId, currentDialog()?.taskId)
+
+        rotate()
+
+        assertEquals("Rotation must not cancel the pipeline", 0, loginCancellations)
+        assertEquals("Rotation must not start the login over", 1, loginAttempts)
+        assertEquals("The same pipeline should still be running", 1, loginsInFlight)
+        assertEquals(
+            "The dialog should be rebuilt on the recreated activity",
+            syncTaskId,
+            currentDialog()?.taskId,
+        )
+    }
+
+    @Test
+    fun `stop button cancels a pipeline that survived rotation`() {
+        startSuspendingLogin()
+
+        rotate()
+        clickStopButton()
+
+        assertEquals("STOP should cancel the surviving pipeline", 1, loginCancellations)
+        assertNull("STOP should dismiss the restored dialog", currentDialog())
+    }
+
+    /**
+     * A successful login closes the screen, so a result handed to the recreated activity a second
+     * time would close that one too — the user's rotation would eat the screen they came back to.
+     */
+    @Test
+    fun `a consumed result is not redelivered after rotation`() {
+        fakeLoginWork { successfulLogin() }
+
+        clickLogin()
+        assertTrue("A successful login should close the login screen", activity.isFinishing)
+
+        rotate()
+
+        assertFalse("A consumed result must not close the recreated screen too", activity.isFinishing)
+        assertNull("And it must not rebuild a dialog", currentDialog())
+    }
+
+    @Test
+    fun `a finished login leaves no dialog behind on rotation`() {
+        fakeLoginWork { listener ->
+            listener.onProgress(LoginProgress(LoginPhase.Syncing))
+            LoginResult.Failed(LoginError.BadCredentials)
+        }
+
+        clickLogin()
+
+        rotate()
+
+        assertNull("A stale phase should not survive the login that reported it", currentDialog())
+        assertEquals("No pipeline should still be running", 0, loginsInFlight)
     }
 
     // ======== Helpers ========
 
-    /**
-     * Put the activity in the state the crash needs: stopped, so `areFragmentsPaused` is set and
-     * `onSaveInstanceState` has run.
-     */
     private fun background() {
         controller.pause().stop()
     }
 
-    /**
-     * Bring the activity back through `onResumeFragments`, which is what flushes the deferred
-     * dialog work. `resume()` dispatches it once, like a real resume; calling `postResume()` as
-     * well would dispatch a second time and hide ordering bugs between the two deferral slots.
-     */
     private fun foreground() {
         controller.start().resume()
     }
@@ -233,13 +312,55 @@ class LoginProgressDialogLifecycleTest {
     private fun currentDialog(): CustomProgressDialog? = activity.currentProgressDialog
 
     /**
-     * Stand in for a login that has reached the sync phase: the dialog the STOP button lives on is
-     * showing, and [job] is the pipeline the activity would cancel.
+     * The plainest success the activity can act on: no PersonalId link check, so it goes straight
+     * to setting its result and finishing.
      */
-    private fun startFakeSyncPhase(job: Job) {
-        ReflectionUtils.writeField(activity, "currentLoginPhase", LoginPhase.Syncing)
-        ReflectionUtils.writeField(activity, "loginJob", job)
-        activity.showProgressDialog(syncTaskId)
+    private fun successfulLogin(): LoginResult.Success =
+        LoginResult.Success(
+            appId = "test-app",
+            username = TEST_USERNAME,
+            loginMode = LoginMode.PASSWORD,
+            restoreSession = false,
+            personalIdManagedLogin = false,
+            linkPassword = "",
+            postLoginOutcome = PostLoginOutcome(redirectToConnectOpportunityInfo = false),
+        )
+
+    /**
+     * The one seam these tests need: the login work itself, which would otherwise talk to the
+     * server. Everything else — starting a login, stopping it, rotating — goes through the screen.
+     */
+    private fun fakeLoginWork(work: suspend (LoginProgressListener) -> LoginResult) {
+        loginViewModel().performLogin = { _, listener ->
+            loginAttempts++
+            loginsInFlight++
+            try {
+                work(listener)
+            } catch (cancelled: CancellationException) {
+                loginCancellations++
+                throw cancelled
+            } finally {
+                loginsInFlight--
+            }
+        }
+    }
+
+    private fun loginViewModel(): LoginViewModel = ViewModelProvider(activity)[LoginViewModel::class.java]
+
+    /** Starts a login that reaches the sync phase and stays there until something cancels it. */
+    private fun startSuspendingLogin() {
+        fakeLoginWork { listener ->
+            listener.onProgress(LoginProgress(LoginPhase.Syncing))
+            awaitCancellation()
+        }
+        clickLogin()
+    }
+
+    private fun clickLogin() {
+        activity.findViewById<EditText>(R.id.edit_username).setText(TEST_USERNAME)
+        activity.findViewById<EditText>(R.id.edit_password).setText(TEST_PASSWORD)
+        activity.findViewById<Button>(R.id.login_button).performClick()
+        idle()
     }
 
     private fun clickStopButton() {
@@ -249,9 +370,21 @@ class LoginProgressDialogLifecycleTest {
                 "sync dialog has no STOP button"
             }
         stopButton.performClick()
+        idle()
     }
+
+    private fun rotate() {
+        controller.recreate()
+        activity = controller.get()
+        idle()
+    }
+
+    /** `postValue` hops through the main looper, so values land only once it has been drained. */
+    private fun idle() = ShadowLooper.idleMainLooper()
 
     companion object {
         private const val TEST_APP_PATH = "jr://resource/commcare-apps/form_nav_tests/profile.ccpr"
+        private const val TEST_USERNAME = "test-user"
+        private const val TEST_PASSWORD = "test-password"
     }
 }
