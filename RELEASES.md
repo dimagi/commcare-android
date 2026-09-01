@@ -10,12 +10,23 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - Fixed an issue where recovering a PersonalID account via backup code could result in the account being stored without a pin, causing authentication to fail after recovery.
 - Fixed an issue where a worker who passed the learning assessment before completing all learn modules was shown as ready to claim the opportunity, and then hit a failure when trying to claim it. They are now directed back to finish the remaining modules first.
+- Backgrounding the app while logging in no longer crashes the app when the login sync finishes.
+- The STOP button on the login sync dialog cancels the login again, instead of hanging on "Cancelling...".
+- Rotating the device during login no longer cancels the sync and leaves the progress dialog stuck part-way.
 
 ### QA Notes
 
 - On an opportunity where the assessment can be reached before all learn modules are done, pass the assessment with modules still outstanding and confirm the app keeps directing you to the remaining learning rather than offering to claim the job.
 - With all modules completed and the assessment passed, confirm claiming the opportunity and downloading the delivery app still works as before.
 - Confirm a worker who passed the assessment with modules still outstanding now sees their module progress on the learning screen rather than a blank progress area.
+- The login tests below need a login that takes the remote-sync path: clear the app's data first so the user has no local sandbox on the device. Make sure "Don't keep activities" is OFF in developer options, since it destroys the activity and hides the bug.
+- Log in as a traditional CommCare user (not from a Connect opportunity), background the app while the sync dialog is showing, and stay backgrounded until the restore finishes. The app should not crash. On returning to it, the login should either complete or report a failure you can retry from, and no progress dialog should be left stuck on screen.
+- Repeat the same steps but rotate the device mid-sync. The sync should keep running rather than restarting or stalling, the progress dialog should reappear on the rotated screen and keep advancing from where it was, and the login should finish normally. Rotating several times in a row during one sync should behave the same way.
+- Rotate the device mid-sync and then press STOP on the restored dialog. It should cancel the login just as it does without a rotation.
+- Lock/unlock the screen mid-sync; progress dialogs should reappear correctly with no crash.
+- Rotate the device on the login screen when no login is running, and after a login has failed and returned you to the login screen. No progress dialog should appear in either case.
+- While the login sync dialog is showing, press STOP. The dialog should close and you should be back on the login screen, and logging in again should work normally.
+- Regression check on progress dialogs generally, since the fix touches the shared activity base class: app update installs, form record loading, multimedia inflation and app verification should all still show and dismiss their progress dialogs correctly, including when backgrounded and resumed mid-task.
 
 ## CommCare 2.63.5
 

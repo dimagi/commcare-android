@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.util.Pair;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
 import androidx.work.WorkManager;
 
@@ -40,13 +41,12 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.login.AuthSource;
-import org.commcare.login.LoginController;
 import org.commcare.login.LoginError;
 import org.commcare.login.LoginPhase;
 import org.commcare.login.LoginProgress;
-import org.commcare.login.LoginProgressListener;
 import org.commcare.login.LoginRequest;
 import org.commcare.login.LoginResult;
+import org.commcare.login.LoginViewModel;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.personalId.PersonalIdUnlocker;
@@ -57,6 +57,7 @@ import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.suite.model.OfflineUserRestore;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
+import org.commcare.util.LogTypes;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
@@ -133,6 +134,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     private LoginPhase currentLoginPhase;
 
+    private LoginViewModel loginViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -146,6 +149,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
         uiController.setupUI();
         initPersonaIdManager();
+        observeLoginPipeline();
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -309,12 +313,28 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 dataPullMode
         );
 
-        LoginController controller = new LoginController(this);
-        controller.start(this, request, createLoginProgressListener(), this::handleLoginResult);
+        loginViewModel.start(request);
     }
 
-    private LoginProgressListener createLoginProgressListener() {
-        return progress -> runOnUiThread(() -> updateLoginProgressUi(progress));
+    private void observeLoginPipeline() {
+        loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+
+        loginViewModel.getProgress().observe(this, progress -> {
+            if (progress != null) {
+                updateLoginProgressUi(progress);
+            }
+        });
+
+        loginViewModel.getResult().observe(this, result -> {
+            if (result == null) {
+                return;
+            }
+
+            // Claim the result before acting on it; otherwise an activity recreated after login
+            // completes is handed the same outcome again and finishes twice.
+            loginViewModel.consumeResult();
+            handleLoginResult(result);
+        });
     }
 
     private void updateLoginProgressUi(LoginProgress progress) {
@@ -343,6 +363,23 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
 
         return TASK_KEY_EXCHANGE;
+    }
+
+    /**
+     * The login engine runs its tasks on a HeadlessTaskConnector, so they are never registered with
+     * the activity's task connector and the base implementation has nothing to cancel. Cancel the
+     * pipeline's job instead, which tears down the running task through its cancellation handler.
+     */
+    @Override
+    public void cancelCurrentTask() {
+        if (loginViewModel != null && loginViewModel.cancelLogin()) {
+            Logger.log(LogTypes.TYPE_USER, "Login cancelled by user during "
+                    + currentLoginPhase + " phase");
+            dismissLoginProgressDialog();
+            return;
+        }
+
+        super.cancelCurrentTask();
     }
 
     private void dismissLoginProgressDialog() {
