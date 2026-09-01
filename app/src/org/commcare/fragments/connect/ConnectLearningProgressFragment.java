@@ -108,10 +108,10 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
 
         updateProgressViews(
                 job.getLearningPercentComplete(true),
-                passedAssessment
+                job.isLearningComplete()
         );
-        updateCertificateView(learningComplete, passedAssessment);
-        updateButtons(learningComplete, passedAssessment);
+        updateCertificateView();
+        updateButtons(learningComplete);
         updateLearningStatus(learningComplete, passedAssessment, attemptedAssessment);
     }
 
@@ -130,12 +130,13 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         }
     }
 
-    private void updateCertificateView(boolean learningComplete, boolean passedAssessment) {
+    private void updateCertificateView() {
+        boolean showCertificate = job.isLearningComplete();
         getBinding().connectLearningCertificateContainer.setVisibility(
-                learningComplete && passedAssessment ? View.VISIBLE : View.GONE
+                showCertificate ? View.VISIBLE : View.GONE
         );
 
-        if (learningComplete && passedAssessment) {
+        if (showCertificate) {
             getBinding().connectLearnCertSubject.setText(job.getTitle());
             getBinding().connectLearnCertPerson.setText(
                     ConnectUserDatabaseUtil.getUser(requireContext()).getName()
@@ -172,12 +173,12 @@ public class ConnectLearningProgressFragment extends ConnectJobFragment<Fragment
         return latestDate != null ? latestDate : new Date();
     }
 
-    private void updateButtons(boolean learningComplete, boolean passedAssessment) {
+    private void updateButtons(boolean learningComplete) {
         getBinding().connectLearningReviewButton.setVisibility(View.GONE); // reserved for future logic
         getBinding().connectLearningButton.setVisibility(showAppLaunch ? View.VISIBLE : View.GONE);
 
         if (showAppLaunch) {
-            if (learningComplete && passedAssessment) {
+            if (job.isLearningComplete()) {
                 configureJobDetailsButton();
             } else if (!AppUtils.isAppInstalled(job.getLearnAppInfo().getAppId())) {
                 // This case needs to come before any that would launch the learn app

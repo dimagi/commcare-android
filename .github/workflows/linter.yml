@@ -28,10 +28,6 @@ jobs:
         env:
           # Only lint changed files in PR
           VALIDATE_ALL_CODEBASE: false
-          # Diff against the branch the PR actually targets. Super-linter picks its file set with
-          # a two-dot diff against DEFAULT_BRANCH, so hardcoding master made every PR based on a
-          # release branch lint that branch's entire divergence from master rather than the files
-          # the PR touches. This workflow is pull_request-only, so base_ref is always set.
           DEFAULT_BRANCH: ${{ github.base_ref }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

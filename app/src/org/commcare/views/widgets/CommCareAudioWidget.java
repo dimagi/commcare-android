@@ -39,10 +39,12 @@ import java.util.TimerTask;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static org.commcare.views.widgets.RecordingFragment.APPEARANCE_ATTR_ARG_KEY;
 import static org.commcare.views.widgets.RecordingFragment.AUDIO_FILE_PATH_ARG_KEY;
+import static org.commcare.views.widgets.RecordingFragment.RESULT_REQUEST_KEY_ARG_KEY;
 
 /**
  * An alternative audio widget that records and plays audio natively without
@@ -50,8 +52,7 @@ import static org.commcare.views.widgets.RecordingFragment.AUDIO_FILE_PATH_ARG_K
  *
  * @author Saumya Jain (sjain@dimagi.com)
  */
-public class CommCareAudioWidget extends AudioWidget
-        implements RecordingFragment.RecordingCompletionListener {
+public class CommCareAudioWidget extends AudioWidget {
 
     private LinearLayout layout;
     private ConstraintLayout playbackContainer;
@@ -65,6 +66,8 @@ public class CommCareAudioWidget extends AudioWidget
     private MediaPlayer player;
     private boolean showFileChooser;
     private static final String ACQUIRE_UPLOAD_FIELD = "acquire-or-upload";
+    private static final String RECORDER_FRAGMENT_TAG_PREFIX = "recorder-";
+    private static final String RECORDING_RESULT_REQUEST_KEY_PREFIX = "recording-result-";
     private ImageButton captureButton;
     private LinearLayout recordingContainer;
     private MaterialButton deleteAudio;
@@ -135,6 +138,12 @@ public class CommCareAudioWidget extends AudioWidget
 
         showFileChooser = ACQUIRE_UPLOAD_FIELD.equals(mPrompt.getAppearanceHint());
         chooseButton.setVisibility(showFileChooser ? VISIBLE : GONE);
+
+        listenForRecordingResult();
+        if (getSupportFragmentManager().findFragmentByTag(getRecorderFragmentTag()) != null) {
+            // Rebuilt while the recorder is still open, so re-apply the disable it was launched with.
+            setCaptureButtonEnabled(false);
+        }
     }
 
     @Override
@@ -189,19 +198,50 @@ public class CommCareAudioWidget extends AudioWidget
 
     private void launchAudioRecorder(FormEntryPrompt prompt) {
         RecordingFragment recorder = new RecordingFragment();
-        recorder.setListener(this);
         Bundle args = new Bundle();
         String sourceFilePath = getSourceFilePathToDisplay();
         if (!TextUtils.isEmpty(sourceFilePath)) {
             args.putString(AUDIO_FILE_PATH_ARG_KEY, sourceFilePath);
         }
         args.putString(APPEARANCE_ATTR_ARG_KEY, prompt.getAppearanceHint());
+        args.putString(RESULT_REQUEST_KEY_ARG_KEY, getRecordingResultRequestKey());
         recorder.setArguments(args);
-        recorder.show(((FragmentActivity)getContext()).getSupportFragmentManager(), "Recorder");
+        recorder.show(getSupportFragmentManager(), getRecorderFragmentTag());
     }
 
-    @Override
-    public void onRecordingCompletion(String audioFile) {
+    private String getRecorderFragmentTag() {
+        return RECORDER_FRAGMENT_TAG_PREFIX + mPrompt.getIndex().toString();
+    }
+
+    /**
+     * Keyed by form index so the result reaches this question rather than another audio widget on the
+     * same screen, and so that it still matches once the widget has been rebuilt.
+     */
+    private String getRecordingResultRequestKey() {
+        return RECORDING_RESULT_REQUEST_KEY_PREFIX + mPrompt.getIndex().toString();
+    }
+
+    private FragmentManager getSupportFragmentManager() {
+        return ((FragmentActivity)getContext()).getSupportFragmentManager();
+    }
+
+    /**
+     * Listens on the fragment manager rather than being handed to the dialog, so the result still
+     * arrives when this widget was rebuilt while the dialog was open.
+     */
+    private void listenForRecordingResult() {
+        getSupportFragmentManager().setFragmentResultListener(getRecordingResultRequestKey(),
+                (FragmentActivity)getContext(),
+                (requestKey, result) -> onRecordingResult(result));
+    }
+
+    private void onRecordingResult(Bundle result) {
+        String audioFile = result.getString(RecordingFragment.RESULT_AUDIO_FILE_PATH_KEY);
+        if (audioFile == null) {
+            // Dismissed without recording anything, so just undo the disable done on launch.
+            setCaptureButtonEnabled(true);
+            return;
+        }
         Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Saving recording: " + audioFile);
         if (new File(audioFile).exists()) {
             setBinaryData(audioFile);
