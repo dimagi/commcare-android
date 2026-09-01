@@ -610,6 +610,8 @@
     <string name="connect_delivery_tasks_empty">Não há tarefas pendentes neste momento. Avisaremos quando uma nova tarefa estiver disponível.</string>
     <string name="connect_delivery_revisit_learning_title">Revisitar a formação</string>
     <string name="connect_delivery_revisit_learning_completed">Concluído em %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">O certificado ficará disponível após a próxima sincronização</string>
+    <string name="connect_delivery_revisit_learning_offline">Os detalhes do certificado serão carregados quando estiver online novamente</string>
     <string name="connect_delivery_revisit_learning_view">Ver</string>
     <string name="connect_task_expires_on">Expira em %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">

@@ -751,6 +751,8 @@
     <string name="connect_delivery_tasks_empty">No pending tasks available at the moment. We\'ll notify you when a new task is available.</string>
     <string name="connect_delivery_revisit_learning_title">Revisit Learning</string>
     <string name="connect_delivery_revisit_learning_completed">Completed %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">Certificate available after your next sync</string>
+    <string name="connect_delivery_revisit_learning_offline">Certificate details will load when you\'re back online</string>
     <string name="connect_delivery_revisit_learning_view">View</string>
     <string name="connect_task_expires_on">Expires on %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">

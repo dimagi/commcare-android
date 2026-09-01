@@ -131,6 +131,16 @@
                             android:textStyle="bold"
                             tools:text="Infant Vaccination" />
 
+                        <ProgressBar
+                            android:id="@+id/revisit_learning_progress"
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="@dimen/connect_chip_icon_size"
+                            android:layout_height="@dimen/connect_chip_icon_size"
+                            android:layout_marginStart="@dimen/connect_space_sm"
+                            android:indeterminateTint="?attr/colorPrimary"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
                     </LinearLayout>
 
                     <TextView

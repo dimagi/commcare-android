@@ -603,6 +603,8 @@ License.
     <string name="connect_delivery_tasks_empty">Aucune tâche en attente pour le moment. Nous vous informerons dès qu\'une nouvelle tâche sera disponible.</string>
     <string name="connect_delivery_revisit_learning_title">Revoir la formation</string>
     <string name="connect_delivery_revisit_learning_completed">Terminé le %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">Le certificat sera disponible après votre prochaine synchronisation</string>
+    <string name="connect_delivery_revisit_learning_offline">Les détails du certificat se chargeront lorsque vous serez de nouveau en ligne</string>
     <string name="connect_delivery_revisit_learning_view">Voir</string>
     <string name="connect_task_expires_on">Expire le %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">

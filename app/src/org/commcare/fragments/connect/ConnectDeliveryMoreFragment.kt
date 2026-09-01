@@ -1,11 +1,14 @@
 package org.commcare.fragments.connect
 
+import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.connect.ConnectActivityCompleteListener
@@ -13,13 +16,18 @@ import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryMoreBinding
 import org.commcare.fragments.RefreshableTab
 import org.commcare.personalId.UnlockPolicy
+import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.connect.ConnectTaskCard
 import org.commcare.views.connect.bindCertificate
+import org.commcare.views.extensions.themeColor
 import java.text.DateFormat
+import androidx.appcompat.R as AppCompatR
 
 /**
  * More tab of a delivery opportunity: the tasks still outstanding on the opportunity, and a card for
@@ -34,6 +42,8 @@ class ConnectDeliveryMoreFragment :
     /** Survives the rebinds a sync triggers; the pager recreating the page collapses it again. */
     private var certificateExpanded = false
 
+    private var connectivityCallback: ConnectivityManager.NetworkCallback? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,8 +52,21 @@ class ConnectDeliveryMoreFragment :
         val view = super.onCreateView(inflater, container, savedInstanceState)
         binding.revisitLearningCertificateButton.setOnClickListener { toggleCertificate() }
         binding.revisitLearningViewButton.setOnClickListener { launchApp(isLearning = true) }
+        observeLearningFetch()
+        observeConnectivity()
         updateView()
         return view
+    }
+
+    private fun observeLearningFetch() {
+        ViewModelProvider(
+            requireParentFragment(),
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
+        )[ConnectDeliveryHomeViewModel::class.java]
+            .learningProgress
+            .observe(viewLifecycleOwner) { state ->
+                binding.revisitLearningProgress.isVisible = state is DataState.Loading
+            }
     }
 
     override fun updateView() {
@@ -122,18 +145,14 @@ class ConnectDeliveryMoreFragment :
         }
     }
 
-    /**
-     * Learning is always complete by the delivery stage, so the card is always offered. Its date and
-     * certificate wait on the learn records, which only reach a device that ran the learn sync.
-     */
     private fun bindRevisitLearning() {
         val learnCompletionDate = job.latestLearningActivityDate
         val hasCompletionDate = learnCompletionDate != null
         binding.revisitLearningTitle.text = job.title
+        binding.revisitLearningCompleted.isVisible = true
+        binding.revisitLearningCertificateButton.isVisible = true
 
         if (hasCompletionDate) {
-            binding.revisitLearningCompleted.isVisible = true
-            binding.revisitLearningCertificateButton.isVisible = true
             binding.revisitLearningCertificate.root.isVisible = certificateExpanded
             binding.revisitLearningCompleted.text =
                 getString(
@@ -145,10 +164,50 @@ class ConnectDeliveryMoreFragment :
                 ConnectUserDatabaseUtil.getUser(requireContext())?.name.orEmpty(),
                 learnCompletionDate,
             )
+            setCertificateButtonEnabled(true)
         } else {
-            binding.revisitLearningCompleted.isVisible = false
-            binding.revisitLearningCertificateButton.isVisible = false
             binding.revisitLearningCertificate.root.isVisible = false
+            setCertificateButtonEnabled(false)
+            val userIsOffline = !ConnectivityStatus.isNetworkAvailable(requireContext())
+            binding.revisitLearningCompleted.setText(
+                if (userIsOffline) {
+                    R.string.connect_delivery_revisit_learning_offline
+                } else {
+                    R.string.connect_delivery_revisit_learning_unsynced
+                },
+            )
+        }
+    }
+
+    private fun observeConnectivity() {
+        val manager = requireContext().getSystemService(ConnectivityManager::class.java) ?: return
+        val callback =
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) = rebindOnMainThread()
+
+                override fun onLost(network: Network) = rebindOnMainThread()
+
+                private fun rebindOnMainThread() {
+                    view?.post { if (isAdded) bindRevisitLearning() }
+                }
+            }
+        manager.registerDefaultNetworkCallback(callback)
+        connectivityCallback = callback
+    }
+
+    override fun onDestroyView() {
+        connectivityCallback?.let {
+            requireContext().getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(it)
+        }
+        connectivityCallback = null
+        super.onDestroyView()
+    }
+
+    private fun setCertificateButtonEnabled(enabled: Boolean) {
+        val colorAttr = if (enabled) AppCompatR.attr.colorPrimary else R.attr.connectOnSurfaceMuted
+        binding.revisitLearningCertificateButton.apply {
+            isEnabled = enabled
+            setTextColor(requireContext().themeColor(colorAttr))
         }
     }
 

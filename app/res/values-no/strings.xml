@@ -251,6 +251,8 @@
     <string name="connect_delivery_tasks_empty">Ingen ventende oppgaver er tilgjengelige for øyeblikket. Vi varsler deg når en ny oppgave er tilgjengelig.</string>
     <string name="connect_delivery_revisit_learning_title">Se opplæringen på nytt</string>
     <string name="connect_delivery_revisit_learning_completed">Fullført %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">Sertifikatet blir tilgjengelig etter neste synkronisering</string>
+    <string name="connect_delivery_revisit_learning_offline">Sertifikatdetaljene lastes inn når du er tilkoblet igjen</string>
     <string name="connect_delivery_revisit_learning_view">Vis</string>
     <string name="connect_task_expires_on">Utløper %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">

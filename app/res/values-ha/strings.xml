@@ -435,6 +435,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_delivery_tasks_empty">Babu ayyukan da ke jiran kammalawa a yanzu. Za mu sanar da kai idan sabon aiki ya samu.</string>
     <string name="connect_delivery_revisit_learning_title">Sake duba karatu</string>
     <string name="connect_delivery_revisit_learning_completed">An kammala %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">Takardar shaida za ta samu bayan aiki tare na gaba</string>
+    <string name="connect_delivery_revisit_learning_offline">Bayanan takardar shaida za su ɗauko sa\'ad da ka dawo kan layi</string>
     <string name="connect_delivery_revisit_learning_view">Duba</string>
     <string name="connect_task_expires_on">Wa\'adi ya ƙare a %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">

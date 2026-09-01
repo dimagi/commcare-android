@@ -600,6 +600,8 @@ License.
     <string name="connect_delivery_tasks_empty">इस समय कोई लंबित कार्य उपलब्ध नहीं है। नया कार्य उपलब्ध होने पर हम आपको सूचित करेंगे।</string>
     <string name="connect_delivery_revisit_learning_title">प्रशिक्षण दोबारा देखें</string>
     <string name="connect_delivery_revisit_learning_completed">%1$s को पूरा किया</string>
+    <string name="connect_delivery_revisit_learning_unsynced">प्रमाणपत्र आपके अगले सिंक के बाद उपलब्ध होगा</string>
+    <string name="connect_delivery_revisit_learning_offline">प्रमाणपत्र का विवरण तब लोड होगा जब आप फिर से ऑनलाइन होंगे</string>
     <string name="connect_delivery_revisit_learning_view">देखें</string>
     <string name="connect_task_expires_on">%1$s को समाप्त होगा</string>
     <plurals name="connect_delivery_visits_remaining_today">

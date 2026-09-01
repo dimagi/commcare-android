@@ -608,6 +608,8 @@
     <string name="connect_delivery_tasks_empty">Hakuna kazi zinazosubiri kwa sasa. Tutakujulisha kazi mpya inapopatikana.</string>
     <string name="connect_delivery_revisit_learning_title">Pitia mafunzo tena</string>
     <string name="connect_delivery_revisit_learning_completed">Ilikamilishwa %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">Cheti kitapatikana baada ya usawazishaji wako ujao</string>
+    <string name="connect_delivery_revisit_learning_offline">Maelezo ya cheti yatapakia utakaporejea mtandaoni</string>
     <string name="connect_delivery_revisit_learning_view">Tazama</string>
     <string name="connect_task_expires_on">Inaisha %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">

@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect
 
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -350,11 +351,47 @@ class ConnectDeliveryMoreFragmentTest {
         assertEquals(View.VISIBLE, revisitGroup.visibility)
         assertEquals(View.VISIBLE, viewButton.visibility)
         assertEquals(
-            "no completion date is invented for records the device does not hold",
-            View.GONE,
-            completedLine.visibility,
+            "the certificate reads as pending rather than absent",
+            View.VISIBLE,
+            certificateButton.visibility,
         )
-        assertEquals(View.GONE, certificateButton.visibility)
+        assertFalse("it cannot be opened until the records arrive", certificateButton.isEnabled)
+        assertEquals(
+            "no completion date is invented for records the device does not hold",
+            activity.getString(R.string.connect_delivery_revisit_learning_unsynced),
+            (completedLine as TextView).text.toString(),
+        )
+        assertEquals(View.GONE, moreTab.certificate().visibility)
+    }
+
+    @Test
+    fun `offline the card says the certificate waits on a connection rather than a sync`() {
+        ConnectJobUtils.storeAssessments(appContext, emptyList(), ConnectLearnJobTestData.JOB_UUID, true)
+        job = ConnectJobUtils.getCompositeJob(appContext, ConnectLearnJobTestData.JOB_UUID)!!
+
+        val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
+        goOffline()
+        activity.runOnUiThread { moreTab.updateView() }
+
+        val completedLine = moreTab.requireView().findViewById<TextView>(R.id.revisit_learning_completed)
+        assertEquals(
+            activity.getString(R.string.connect_delivery_revisit_learning_offline),
+            completedLine.text.toString(),
+        )
+    }
+
+    @Test
+    fun `a synced certificate leaves the button enabled and the waiting message gone`() {
+        val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
+        val certificateButton = moreTab.requireView().findViewById<View>(R.id.revisit_learning_certificate_button)
+        val completedLine = moreTab.requireView().findViewById<TextView>(R.id.revisit_learning_completed)
+
+        assertTrue(certificateButton.isEnabled)
+        assertFalse(
+            completedLine.text.toString().contains(
+                activity.getString(R.string.connect_delivery_revisit_learning_unsynced),
+            ),
+        )
     }
 
     @Test
@@ -623,6 +660,12 @@ class ConnectDeliveryMoreFragmentTest {
     }
 
     private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time
+
+    /** Robolectric reports a connected network by default, so the offline copy needs one taken away. */
+    private fun goOffline() {
+        val manager = appContext.getSystemService(ConnectivityManager::class.java)
+        shadowOf(manager).setActiveNetworkInfo(null)
+    }
 
     private companion object {
         const val DELIVERY_PROGRESS_PATH = "/delivery_progress"

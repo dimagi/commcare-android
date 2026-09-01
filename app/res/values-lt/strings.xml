@@ -261,6 +261,8 @@
     <string name="connect_delivery_tasks_empty">Šiuo metu nėra neatliktų užduočių. Pranešime jums, kai bus nauja užduotis.</string>
     <string name="connect_delivery_revisit_learning_title">Pakartoti mokymus</string>
     <string name="connect_delivery_revisit_learning_completed">Atlikta %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">Pažymėjimas bus prieinamas po kito sinchronizavimo</string>
+    <string name="connect_delivery_revisit_learning_offline">Pažymėjimo duomenys bus įkelti, kai vėl prisijungsite prie interneto</string>
     <string name="connect_delivery_revisit_learning_view">Peržiūrėti</string>
     <string name="connect_task_expires_on">Terminas – %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">

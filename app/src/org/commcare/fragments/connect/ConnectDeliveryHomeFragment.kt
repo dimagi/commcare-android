@@ -1,5 +1,8 @@
 package org.commcare.fragments.connect
 
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -62,6 +65,9 @@ class ConnectDeliveryHomeFragment :
     private lateinit var pagerAdapter: DeliveryViewStateAdapter
     private var initialTabPosition = TAB_DASHBOARD
     private var currentTabPosition = TAB_DASHBOARD
+    private var learningRetryCallback: ConnectivityManager.NetworkCallback? = null
+
+    private var networkValidated = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,6 +90,7 @@ class ConnectDeliveryHomeFragment :
         binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
 
         observeDeliveryProgress()
+        retryLearningFetchOnReconnect()
         return view
     }
 
@@ -196,6 +203,41 @@ class ConnectDeliveryHomeFragment :
         if (job.latestLearningActivityDate == null) {
             viewModel.loadLearningProgress(job)
         }
+    }
+
+    private fun retryLearningFetchOnReconnect() {
+        val manager = requireContext().getSystemService(ConnectivityManager::class.java) ?: return
+        val callback =
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onCapabilitiesChanged(
+                    network: Network,
+                    capabilities: NetworkCapabilities,
+                ) {
+                    val validated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                    if (validated && !networkValidated) {
+                        view?.post {
+                            if (isAdded && job.latestLearningActivityDate == null) {
+                                refresh(false)
+                            }
+                        }
+                    }
+                    networkValidated = validated
+                }
+
+                override fun onLost(network: Network) {
+                    networkValidated = false
+                }
+            }
+        manager.registerDefaultNetworkCallback(callback)
+        learningRetryCallback = callback
+    }
+
+    override fun onDestroyView() {
+        learningRetryCallback?.let {
+            requireContext().getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(it)
+        }
+        learningRetryCallback = null
+        super.onDestroyView()
     }
 
     override fun onResume() {

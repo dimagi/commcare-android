@@ -592,6 +592,8 @@
     <string name="connect_delivery_tasks_empty">ኣብዚ ሕጂ ተጸባይ ዕማም የለን። ሓድሽ ዕማም ምስ ተረኸበ ክንሕብረካ ኢና።</string>
     <string name="connect_delivery_revisit_learning_title">ትምህርቲ ደጊምካ ርአ</string>
     <string name="connect_delivery_revisit_learning_completed">%1$s ተዛዚሙ</string>
+    <string name="connect_delivery_revisit_learning_unsynced">ሰርቲፊኬት ኣብ ዝቕጽል ምስናይካ ክርከብ እዩ</string>
+    <string name="connect_delivery_revisit_learning_offline">ዝርዝራት ሰርቲፊኬት ናብ ኢንተርነት ምስ ተመለስካ ክጽዓን እዩ</string>
     <string name="connect_delivery_revisit_learning_view">ርአ</string>
     <string name="connect_task_expires_on">%1$s ይውዳእ</string>
     <plurals name="connect_delivery_visits_remaining_today">
