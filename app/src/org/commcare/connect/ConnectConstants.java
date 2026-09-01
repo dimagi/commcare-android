@@ -39,8 +39,7 @@ public class ConnectConstants {
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
-    public final static int PERSONALID_NO_ACTIVITY =
-            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
+    public final static int PERSONAL_ID_USER_STATUS_REGISTERED = 1000;
     public final static int PERSONALID_REGISTRATION_SUCCESS =
             ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
     public final static int PERSONALID_RECOVERY_SUCCESS =

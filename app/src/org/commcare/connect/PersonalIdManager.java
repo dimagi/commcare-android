@@ -117,7 +117,7 @@ public class PersonalIdManager {
         if (personalIdSatus == PersonalIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
             if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
+                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
                 personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
                 CrashUtil.registerUserData();
             } else if (ConnectDatabaseHelper.isDbBroken()) {
@@ -519,7 +519,7 @@ public class PersonalIdManager {
                 sessionData.getDemoUser(),sessionData.getRequiredLock(),
                 sessionData.getInvitedUser());
         user.setEmail(sessionData.getEmail());
-        user.setRegistrationPhase(ConnectConstants.PERSONALID_NO_ACTIVITY);
+        user.setRegistrationPhase(ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED);
         ConnectUserDatabaseUtil.storeUser(activity, user);
     }
 
