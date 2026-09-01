@@ -76,12 +76,14 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private String cachedUserPassword;
 
     private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
-    private boolean skipWorkManager = false;
 
     @Override
     public void onCreate() {
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
+
+        // initialize work manager before super.onCreate() to avoid IllegalStateException when WorkManager is used in onCreate() of CommCareApplication
+        initWorkManager();
 
         super.onCreate();
 
@@ -338,7 +340,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     public void setSkipWorkManager() {
-        skipWorkManager = true;
     }
 
     @Override
