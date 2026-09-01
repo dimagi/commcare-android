@@ -27,6 +27,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Rotate the device on the login screen when no login is running, and after a login has failed and returned you to the login screen. No progress dialog should appear in either case.
 - While the login sync dialog is showing, press STOP. The dialog should close and you should be back on the login screen, and logging in again should work normally.
 - Regression check on progress dialogs generally, since the fix touches the shared activity base class: app update installs, form record loading, multimedia inflation and app verification should all still show and dismiss their progress dialogs correctly, including when backgrounded and resumed mid-task.
+- After signing in to PersonalID, including via account recovery, confirm the side drawer that opens immediately afterwards shows the signed-in profile and menu rather than the signed-out Sign In view.
 
 ## CommCare 2.63.5
 
