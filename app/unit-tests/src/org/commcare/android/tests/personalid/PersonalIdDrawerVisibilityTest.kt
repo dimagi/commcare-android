@@ -1,6 +1,7 @@
 package org.commcare.android.tests.personalid
 
 import android.os.Build
+import android.view.View
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -22,6 +23,7 @@ import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Before
@@ -205,6 +207,35 @@ class PersonalIdDrawerVisibilityTest {
         doReturn(false).whenever(spyManager).checkDeviceCompability()
         val activity = Robolectric.buildActivity(StandardHomeActivity::class.java).create().get()
         assertNotNull("Drawer should be set up if previously shown, regardless of Android version", activity.drawerAdapter)
+    }
+
+    // ======== Drawer content on a programmatic open ========
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.P])
+    fun `programmatic open refreshes a stale signed out drawer`() {
+        // The drawer is built while PersonalId is signed out, as it is when account recovery starts
+        val activity = Robolectric.buildActivity(CommCareSetupActivity::class.java).create().get()
+        assertEquals(
+            "Drawer should start out showing the signed out state",
+            View.VISIBLE,
+            activity.findViewById<View>(R.id.signout_view).visibility,
+        )
+
+        // Recovery completes, and PersonalIdManager auto-opens the drawer
+        setLoggedIn(true)
+        activity.openDrawer()
+
+        assertEquals(
+            "Signed out view should be hidden once PersonalId is signed in",
+            View.GONE,
+            activity.findViewById<View>(R.id.signout_view).visibility,
+        )
+        assertEquals(
+            "Nav items should be shown once PersonalId is signed in",
+            View.VISIBLE,
+            activity.findViewById<View>(R.id.nav_drawer_recycler).visibility,
+        )
     }
 
     // ======== Helpers ========
