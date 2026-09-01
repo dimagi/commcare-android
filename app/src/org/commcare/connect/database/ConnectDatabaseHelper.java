@@ -3,7 +3,6 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.network.personalId.SsoToken;
@@ -84,14 +83,4 @@ public class ConnectDatabaseHelper {
         record.updateHqToken(token);
         getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
     }
-
-    public static void setRegistrationPhase(Context context, int phase) {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        if (user != null) {
-            user.setRegistrationPhase(phase);
-            ConnectUserDatabaseUtil.storeUser(context, user);
-        }
-    }
-
-
 }

@@ -500,18 +500,27 @@ public class PersonalIdManager {
         personalIdSatus = status;
     }
 
-    public void successFlow(android.app.Activity activity, PersonalIdSessionData sessionData) {
+    public void onAccountConfigurationSuccess(android.app.Activity activity, PersonalIdSessionData sessionData) {
+        createAndSaveConnectUser(activity, sessionData);
         setStatus(PersonalIdStatus.LoggedIn);
-        ConnectDatabaseHelper.setRegistrationPhase(activity, ConnectConstants.PERSONALID_NO_ACTIVITY);
-        if (sessionData != null) {
-            List<ConnectReleaseToggleRecord> toggles = sessionData.getFeatureReleaseToggles();
-            if (toggles != null) {
-                ConnectAppDatabaseUtil.storeReleaseToggles(activity, toggles);
-            }
+        List<ConnectReleaseToggleRecord> toggles = sessionData.getFeatureReleaseToggles();
+        if (toggles != null) {
+            ConnectAppDatabaseUtil.storeReleaseToggles(activity, toggles);
         }
         ConnectSyncPreferences.Companion.getInstance(activity).markSessionStart();
-        activity.setResult(android.app.Activity.RESULT_OK);
-        activity.finish();
+    }
+
+    private void createAndSaveConnectUser(android.app.Activity activity, PersonalIdSessionData sessionData) {
+        ConnectDatabaseHelper.handleReceivedDbPassphrase(activity, sessionData.getDbKey());
+        ConnectUserRecord user = new ConnectUserRecord(sessionData.getPhoneNumber(),
+                sessionData.getPersonalId(),
+                sessionData.getOauthPassword(), sessionData.getUserName(),
+                String.valueOf(sessionData.getBackupCode()), new Date(), sessionData.getPhotoBase64(),
+                sessionData.getDemoUser(),sessionData.getRequiredLock(),
+                sessionData.getInvitedUser());
+        user.setEmail(sessionData.getEmail());
+        user.setRegistrationPhase(ConnectConstants.PERSONALID_NO_ACTIVITY);
+        ConnectUserDatabaseUtil.storeUser(activity, user);
     }
 
     public void setParent(Context parent) {

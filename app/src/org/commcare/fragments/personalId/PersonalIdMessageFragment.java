@@ -115,7 +115,8 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         Activity activity = requireActivity();
         switch (callingClass) {
             case ConnectConstants.PERSONALID_REGISTRATION_SUCCESS, ConnectConstants.PERSONALID_RECOVERY_SUCCESS:
-                successFlow(activity);
+                activity.setResult(android.app.Activity.RESULT_OK);
+                activity.finish();
                 break;
             case ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL:
                 SettingsHelper.launchSecuritySettings(activity);
@@ -160,9 +161,5 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
 
     private NavDirections navigateToBackupCode() {
         return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidBackupcode();
-    }
-
-    private void successFlow(Activity activity) {
-        PersonalIdManager.getInstance().successFlow(activity, personalIdSessionData);
     }
 }
