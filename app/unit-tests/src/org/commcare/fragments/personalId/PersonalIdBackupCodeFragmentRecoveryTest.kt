@@ -10,21 +10,20 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.dalvik.R
+import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.MockedStatic
-import org.mockito.Mockito
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
@@ -34,23 +33,17 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmentTest() {
-    private lateinit var connectDatabaseHelperMock: MockedStatic<ConnectDatabaseHelper>
-    private lateinit var connectUserDatabaseUtilMock: MockedStatic<ConnectUserDatabaseUtil>
-
     @Before
     override fun setUp() {
+        MockAndroidKeyStoreProvider.registerProvider()
         super.setUp()
         launchBackupCodeFragment(buildSessionData(accountExists = true, photoBase64 = TEST_PHOTO_BASE64))
-        // Recovery success writes the account to the DB; stub those statics so no real storage is touched.
-        connectDatabaseHelperMock = Mockito.mockStatic(ConnectDatabaseHelper::class.java)
-        connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
     }
 
     @After
     override fun tearDown() {
         super.tearDown()
-        connectUserDatabaseUtilMock.close()
-        connectDatabaseHelperMock.close()
+        MockAndroidKeyStoreProvider.deregisterProvider()
     }
 
     // ========== Initial State ==========
@@ -148,21 +141,15 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         enterBackupCode(TEST_BACKUP_CODE)
         drainHttp()
 
-        connectDatabaseHelperMock.verify {
-            ConnectDatabaseHelper.handleReceivedDbPassphrase(Mockito.eq("test-db-key"))
-        }
+        assertArrayEquals("test-db-key".toByteArray(), ConnectDatabaseUtils.getConnectDbPassphrase())
 
-        val userCaptor = ArgumentCaptor.forClass(ConnectUserRecord::class.java)
-        connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(userCaptor.capture())
-        }
-        val storedUser = userCaptor.value
-        assertEquals(TEST_USER_NAME, storedUser.name)
+        val storedUser = storedUser()
+        assertNotNull(storedUser)
+        assertEquals(TEST_USER_NAME, storedUser!!.name)
         assertEquals("test-personal-id", storedUser.userId)
         assertEquals(TEST_PHONE_NUMBER, storedUser.primaryPhone)
         assertEquals(TEST_PHOTO_BASE64, storedUser.photo)
         assertEquals(PersonalIdSessionData.PIN, storedUser.requiredLock)
-        // Recovery never writes the entered code onto the session data, so the stored record has no pin.
         assertEquals(TEST_BACKUP_CODE, storedUser.pin)
 
         assertMessageDisplay(
@@ -189,7 +176,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
                 .arguments
                 ?.getSerializable("workflow"),
         )
-        connectUserDatabaseUtilMock.verifyNoInteractions()
+        assertNull("User should not be stored before email verification completes", storedUser())
     }
 
     @Test
@@ -200,9 +187,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         enterBackupCode(TEST_BACKUP_CODE)
         drainHttp()
 
-        connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(Mockito.any())
-        }
+        assertNotNull("User should be stored after recovery success", storedUser())
         assertMessageDisplay(
             title = fragment.getString(R.string.connect_recovery_success_title),
             message = fragment.getString(R.string.connect_recovery_success_message),
@@ -225,7 +210,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
             message = fragment.getString(R.string.personalid_wrong_backup_message, 2),
             phase = ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE,
         )
-        connectUserDatabaseUtilMock.verifyNoInteractions()
+        assertNull("User should not be stored on a wrong code", storedUser())
     }
 
     @Test
@@ -296,11 +281,16 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
 
     // ========== Helpers ==========
 
+    private fun storedUser(): ConnectUserRecord? {
+        val iter = ConnectDatabaseHelper.getConnectStorage(ConnectUserRecord::class.java).iterator()
+        return if (iter.hasNext()) iter.next() else null
+    }
+
     private fun successResponse(email: String? = null): MockResponse {
         val body =
             JSONObject().apply {
                 put("username", "test-personal-id")
-                put("db_key", "test-db-key")
+                put("db_key", "dGVzdC1kYi1rZXk=")
                 put("password", "test-oauth-pwd")
                 if (email != null) put("email", email)
             }
