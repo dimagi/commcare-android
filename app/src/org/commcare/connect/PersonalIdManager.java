@@ -668,6 +668,10 @@ public class PersonalIdManager {
         failedPinAttempts = failureAttempt;
     }
 
+    public static void clearInstance() {
+        manager = null;
+    }
+
     /**
      * Interface for handling callbacks when a PersonalId activity finishes
      */
