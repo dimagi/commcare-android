@@ -157,14 +157,6 @@ public class PersonalIdManager {
         return personalIdSatus == PersonalIdStatus.LoggedIn;
     }
 
-    public void completeSignin() {
-        personalIdSatus = PersonalIdStatus.LoggedIn;
-        userUnlockedPersonalId();
-        if (parentActivity instanceof BaseDrawerActivity) {
-            ((BaseDrawerActivity<?>)parentActivity).openDrawer();
-        }
-    }
-
     public void userUnlockedPersonalId() {
         scheduleHeartbeat();
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrieval(CommCareApplication.instance());
@@ -175,7 +167,9 @@ public class PersonalIdManager {
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
         parentActivity = activity;
         if (resultCode == AppCompatActivity.RESULT_OK) {
-            completeSignin();
+            if (parentActivity instanceof BaseDrawerActivity) {
+                ((BaseDrawerActivity<?>)parentActivity).openDrawer();
+            }
         }
     }
 
@@ -503,6 +497,7 @@ public class PersonalIdManager {
             ConnectAppDatabaseUtil.storeReleaseToggles(toggles);
         }
         ConnectSyncPreferences.Companion.getInstance().markSessionStart();
+        userUnlockedPersonalId();
     }
 
     private void createAndSaveConnectUser(PersonalIdSessionData sessionData) {
