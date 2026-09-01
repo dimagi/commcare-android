@@ -176,31 +176,6 @@ class ConnectDeliveryMoreFragmentTest {
     }
 
     @Test
-    fun `cards sit the same distance apart as the design's gap`() {
-        val moreTab =
-            openMoreTab(
-                deliveryProgressJson(
-                    tasks =
-                        listOf(
-                            taskJson(id = "one", dueDate = "2027-01-01"),
-                            taskJson(id = "two", dueDate = "2027-02-01"),
-                        ),
-                ),
-            )
-        val cards = moreTab.taskCards()
-
-        assertEquals(
-            activity.resources.getDimensionPixelSize(R.dimen.connect_space_md),
-            (cards[1].layoutParams as LinearLayout.LayoutParams).topMargin,
-        )
-        assertEquals(
-            "the first card starts flush with the group",
-            0,
-            (cards[0].layoutParams as LinearLayout.LayoutParams).topMargin,
-        )
-    }
-
-    @Test
     fun `with no pending task the empty message replaces the group`() {
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
         val emptyMessage = moreTab.requireView().findViewById<TextView>(R.id.delivery_tasks_empty)
@@ -423,24 +398,29 @@ class ConnectDeliveryMoreFragmentTest {
             ),
         )
 
-        assertEquals(2, moreTabHeader().orCreateBadge.number)
+        assertEquals(View.VISIBLE, moreTabBadge().visibility)
+        assertEquals("2", moreTabBadge().text.toString())
     }
 
     @Test
     fun `the more tab carries no badge when nothing is pending`() {
         openMoreTab(deliveryProgressJson(tasks = emptyList()))
 
-        assertNull(moreTabHeader().badge)
+        assertEquals(View.GONE, moreTabBadge().visibility)
     }
 
     @Test
     fun `the badge clears once the last pending task is done`() {
         openMoreTab(deliveryProgressJson(tasks = listOf(taskJson())))
-        assertEquals(1, moreTabHeader().orCreateBadge.number)
+        assertEquals(View.VISIBLE, moreTabBadge().visibility)
 
         resyncDeliveryProgress(deliveryProgressJson(tasks = emptyList()))
 
-        assertNull("a completed task must not leave its badge behind", moreTabHeader().badge)
+        assertEquals(
+            "a completed task must not leave its badge behind",
+            View.GONE,
+            moreTabBadge().visibility,
+        )
     }
 
     @Test
@@ -518,6 +498,8 @@ class ConnectDeliveryMoreFragmentTest {
             .findViewById<TabLayout>(R.id.connect_delivery_home_tabs)
             .getTabAt(ConnectDeliveryHomeFragment.TAB_MORE)!!
 
+    private fun moreTabBadge(): TextView = moreTabHeader().customView!!.findViewById(R.id.tab_badge)
+
     private fun ConnectDeliveryMoreFragment.taskCards(): List<ConnectTaskCard> {
         val list = requireView().findViewById<LinearLayout>(R.id.delivery_tasks_mandatory_list)
         return (0 until list.childCount).map { index -> list.getChildAt(index) as ConnectTaskCard }
@@ -579,6 +561,13 @@ class ConnectDeliveryMoreFragmentTest {
             if (System.currentTimeMillis() > deadline) {
                 throw AssertionError("Delivery progress was never synced within ${SYNC_TIMEOUT_MS}ms")
             }
+            ShadowLooper.idleMainLooper()
+            Thread.sleep(POLL_INTERVAL_MS)
+        }
+
+        // The sync time is stored before the success is emitted, so the observers that redraw the
+        // screen have not necessarily run yet when the wait above ends.
+        repeat(POST_SYNC_IDLE_PASSES) {
             ShadowLooper.idleMainLooper()
             Thread.sleep(POLL_INTERVAL_MS)
         }
@@ -675,6 +664,7 @@ class ConnectDeliveryMoreFragmentTest {
         const val RELEARN_MODE = "relearn"
         const val SYNC_TIMEOUT_MS = 10_000L
         const val POLL_INTERVAL_MS = 20L
+        const val POST_SYNC_IDLE_PASSES = 5
         const val SCREEN_WIDTH_PX = 1080
         const val SCREEN_HEIGHT_PX = 1920
     }

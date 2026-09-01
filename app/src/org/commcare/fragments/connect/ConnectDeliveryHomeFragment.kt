@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -28,7 +29,6 @@ import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.RefreshableTab
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.views.extensions.themeColor
 
 /**
  * Shell hosting the delivery opportunity tabs (Dashboard, Payment, Visits, More) and the bottom
@@ -102,6 +102,7 @@ class ConnectDeliveryHomeFragment :
 
         val tabLayout = binding.connectDeliveryHomeTabs
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.setCustomView(R.layout.view_connect_tab_label)
             tab.setText(visibleTabs[position].titleRes)
         }.attach()
 
@@ -135,20 +136,13 @@ class ConnectDeliveryHomeFragment :
         binding.connectDeliveryCtaBar.isVisible = currentTabPosition != moreTabPosition
     }
 
-    /** Surfaces how many tasks are waiting, so they are discoverable from any tab. */
     private fun updateMoreTabBadge() {
         val tab = binding.connectDeliveryHomeTabs.getTabAt(moreTabPosition) ?: return
+        val badge = tab.customView?.findViewById<TextView>(R.id.tab_badge) ?: return
         val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID).size
 
-        if (pendingTasks == 0) {
-            tab.removeBadge()
-            return
-        }
-
-        tab.orCreateBadge.apply {
-            backgroundColor = requireContext().themeColor(R.attr.connectStatusNegative)
-            number = pendingTasks
-        }
+        badge.isVisible = pendingTasks > 0
+        badge.text = pendingTasks.toString()
     }
 
     /**

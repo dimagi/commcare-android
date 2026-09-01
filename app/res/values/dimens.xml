@@ -169,6 +169,8 @@
 
     <!-- Connect/PersonalID shared tokens -->
     <!-- Text -->
+    <dimen name="connect_text_badge">10sp</dimen>
+    <dimen name="connect_text_tab">14sp</dimen>
     <dimen name="connect_text_label">11sp</dimen>
     <dimen name="connect_text_caption">12sp</dimen>
     <dimen name="connect_text_body">14sp</dimen>
@@ -190,6 +192,7 @@
     <dimen name="connect_grid_gutter_half">8dp</dimen>
     <!-- Circles holding a 20dp glyph; the padding is what sizes the glyph down to 20dp. -->
     <dimen name="connect_icon_circle_sm">28dp</dimen>
+    <dimen name="connect_tab_badge_size">16dp</dimen>
     <dimen name="connect_icon_circle_lg">40dp</dimen>
     <dimen name="connect_icon_circle_padding_lg">10dp</dimen>
     <!-- Corner radii -->
