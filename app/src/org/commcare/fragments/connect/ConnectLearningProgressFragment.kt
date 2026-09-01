@@ -21,6 +21,7 @@ import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import java.util.Date
 
 class ConnectLearningProgressFragment :
     ConnectJobFragment<FragmentConnectLearningProgressBinding>(),
@@ -74,9 +75,7 @@ class ConnectLearningProgressFragment :
     }
 
     private fun updateLearningUI() {
-        val learnCompletionDate = job.latestLearningActivityDate
-        val showLearningComplete =
-            learnCompletionDate != null && job.getLearningPercentComplete(false) >= 100 && job.passedAssessment()
+        val showLearningComplete = job.getLearningPercentComplete(false) >= 100 && job.passedAssessment()
 
         binding.learnProgressView.visibility = if (showLearningComplete) View.GONE else View.VISIBLE
         binding.learnCompleteView.visibility = if (showLearningComplete) View.VISIBLE else View.GONE
@@ -84,7 +83,7 @@ class ConnectLearningProgressFragment :
         if (showLearningComplete) {
             binding.learnCompleteView.bind(
                 job,
-                learnCompletionDate,
+                job.latestLearningActivityDate ?: Date(),
                 ConnectUserDatabaseUtil.getUser(requireContext()).name,
                 View.OnClickListener { onDeliveryCtaClicked() },
             )
