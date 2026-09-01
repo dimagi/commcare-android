@@ -223,11 +223,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     @Override
     public void onCreate() {
         super.onCreate();
-        ConnectSyncPreferences.Companion.getInstance().markSessionStart();
-
         turnOnStrictMode();
-
         CommCareApplication.app = this;
+
+        ConnectSyncPreferences.Companion.getInstance().markSessionStart();
         CrashUtil.init();
         DataChangeLogger.init(this);
         if (!BuildConfig.DEBUG) {
