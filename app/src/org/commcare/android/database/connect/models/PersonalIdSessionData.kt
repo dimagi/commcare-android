@@ -12,7 +12,7 @@ data class PersonalIdSessionData(
     // Tells which device auth is required for the given user
     @DeviceAuthType var requiredLock: String? = null,
     // states whether it is a demo user or normal user
-    var demoUser: Boolean? = null,
+    var demoUser: Boolean = false,
     // session token
     var token: String? = null,
     // Reason code to tell why user is not allowed to move forward with the flow

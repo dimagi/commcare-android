@@ -298,7 +298,7 @@ public class FirebaseMessagingUtil {
              return null;
          }
 
-        ConnectUserDatabaseUtil.turnOnConnectAccess(context);
+        ConnectUserDatabaseUtil.turnOnConnectAccess();
         return switch (fcmMessageData.getAction()) {
             case CCC_MESSAGE -> handleCCCMessageChannelPushNotification(context, fcmMessageData,showNotification);
             case CCC_DEST_PAYMENTS -> handleCCCPaymentPushNotification(context, fcmMessageData,showNotification);

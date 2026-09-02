@@ -156,7 +156,7 @@ class ConnectDeliveryMoreFragment :
                 )
             binding.revisitLearningCertificate.bindCertificate(
                 job,
-                ConnectUserDatabaseUtil.getUser(requireContext())?.name.orEmpty(),
+                ConnectUserDatabaseUtil.getUser()?.name.orEmpty(),
                 learnCompletionDate,
             )
             setCertificateButtonEnabled(true)

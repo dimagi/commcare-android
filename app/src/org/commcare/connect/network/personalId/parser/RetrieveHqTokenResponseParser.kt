@@ -38,7 +38,7 @@ class RetrieveHqTokenResponseParser<T>(
 
             val seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId()
             val ssoToken = SsoToken(token, expiration)
-            ConnectDatabaseHelper.storeHqToken(context, seatedAppId, hqUsername, ssoToken)
+            ConnectDatabaseHelper.storeHqToken(seatedAppId, hqUsername, ssoToken)
 
             return TokenAuth(token) as T
         } catch (e: JSONException) {

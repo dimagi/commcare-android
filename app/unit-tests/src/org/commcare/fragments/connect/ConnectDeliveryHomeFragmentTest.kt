@@ -82,7 +82,7 @@ class ConnectDeliveryHomeFragmentTest {
         every { job.status } returns ConnectJobRecord.STATUS_DELIVERING
 
         mockkStatic(ConnectJobUtils::class)
-        every { ConnectJobUtils.getCompositeJob(any(), eq(uuid)) } returns job
+        every { ConnectJobUtils.getCompositeJob(eq(uuid)) } returns job
         every { ConnectJobUtils.getPaymentsSortedByDate(any()) } returns emptyList()
 
         mockkStatic(MessageManager::class)
@@ -91,7 +91,7 @@ class ConnectDeliveryHomeFragmentTest {
         val mockRepository = mockk<ConnectRepository>(relaxed = true)
         every { mockRepository.getDeliveryProgress(any(), any(), any()) } returns flowOf(DataState.Loading)
         mockkObject(ConnectRepository.Companion)
-        every { ConnectRepository.getInstance(any()) } returns mockRepository
+        every { ConnectRepository.getInstance() } returns mockRepository
 
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false

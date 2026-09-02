@@ -51,9 +51,6 @@ import javax.annotation.Nullable;
 
 import androidx.preference.PreferenceManager;
 
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
-
 /**
  * Handles login activity UI
  *
@@ -574,12 +571,12 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (isPersonalIdLoggedIn) {
             setWelcomeMessage();
         }
-        setConnectButtonVisible(isPersonalIdLoggedIn && ConnectUserDatabaseUtil.hasConnectAccess(activity));
+        setConnectButtonVisible(isPersonalIdLoggedIn && ConnectUserDatabaseUtil.hasConnectAccess());
     }
 
     private void setWelcomeMessage() {
         String welcomeText = activity.getString(R.string.personalid_welcome_user,
-                ConnectUserDatabaseUtil.getUser(activity).getName());
+                ConnectUserDatabaseUtil.getUser().getName());
         welcomeMessage.setText(welcomeText);
     }
 }

@@ -3,7 +3,6 @@ package org.commcare.connect.database
 import android.content.Context
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
-import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.models.database.SqlStorage
 import org.commcare.preferences.ConnectJobPreferences
 import org.commcare.utils.SyncDetailCalculations
@@ -27,7 +26,7 @@ object ConnectTaskUtils {
         incoming: List<ConnectTaskRecord>,
         jobUUID: String,
     ) {
-        val storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectTaskRecord::class.java)
+        val storage = ConnectDatabaseHelper.getConnectStorage(ConnectTaskRecord::class.java)
         val existing = getTasksForJob(context, jobUUID, storage)
         var changed = false
 
@@ -168,7 +167,7 @@ object ConnectTaskUtils {
         jobUUID: String,
         storage: SqlStorage<ConnectTaskRecord>?,
     ): List<ConnectTaskRecord> {
-        val taskStorage = storage ?: ConnectDatabaseHelper.getConnectStorage(context, ConnectTaskRecord::class.java)
+        val taskStorage = storage ?: ConnectDatabaseHelper.getConnectStorage(ConnectTaskRecord::class.java)
         return taskStorage
             .getRecordsForValues(
                 arrayOf(ConnectTaskRecord.META_JOB_UUID),

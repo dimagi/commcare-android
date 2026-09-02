@@ -5,7 +5,6 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import io.mockk.every
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
 import kotlinx.coroutines.flow.flow
@@ -188,7 +187,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         every { AppUtils.isAppInstalled(any()) } returns false
 
         val jobUuidSlot = slot<String>()
-        val repo = ConnectRepository.getInstance(activity)
+        val repo = ConnectRepository.getInstance()
         every { repo.startLearning(capture(jobUuidSlot)) } returns
             flow {
                 emit(DataState.Success(Unit))
@@ -204,7 +203,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
         assertEquals(
             ConnectJobRecord.STATUS_LEARNING,
-            ConnectJobUtils.getCompositeJob(activity, job.jobUUID)?.status,
+            ConnectJobUtils.getCompositeJob(job.jobUUID)?.status,
         )
         assertEquals(
             R.id.connect_downloading_fragment,
@@ -221,7 +220,6 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         mockkStatic(ConnectDatabaseHelper::class)
         every { ConnectDatabaseHelper.dbExists() } returns true
         ConnectUserDatabaseUtil.storeUser(
-            activity,
             ConnectUserRecord(
                 "1234567890",
                 "test-user-id",

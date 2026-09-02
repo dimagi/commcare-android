@@ -15,7 +15,6 @@ import org.commcare.connect.ConnectDateUtils.parseIsoDateForSorting
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
-import org.commcare.personalId.PersonalIdFeatureFlagChecker
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.Companion.isFeatureEnabled
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.WORK_HISTORY_PENDING_TAB
 import org.commcare.utils.MultipleAppsUtil
@@ -35,7 +34,7 @@ class PersonalIdWorkHistoryViewModel(
 
     private lateinit var installedAppsWorkHistory: List<PersonalIdWorkHistory>
 
-    private val user = ConnectUserDatabaseUtil.getUser(application)
+    private val user = ConnectUserDatabaseUtil.getUser()
     val userName: String = user.name
     val profilePhoto: String? = user.photo
 

@@ -2,20 +2,16 @@ package org.commcare.connect.network.personalId.parser
 
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.json.JSONException
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.MockedStatic
-import org.mockito.Mockito.eq
 import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.times
 import org.mockito.MockitoAnnotations
@@ -80,7 +76,7 @@ class RetrieveWorkHistoryResponseParserTest {
     ) {
         val listCaptor = ArgumentCaptor.forClass(List::class.java) as ArgumentCaptor<List<PersonalIdWorkHistory>>
         mockedUtil.verify(
-            { ConnectAppDatabaseUtil.storeCredentialDataInTable(eq(context), listCaptor.capture()) },
+            { ConnectAppDatabaseUtil.storeCredentialDataInTable(listCaptor.capture()) },
             times(1),
         )
 
@@ -187,7 +183,6 @@ class RetrieveWorkHistoryResponseParserTest {
                 ArgumentCaptor.forClass(List::class.java) as ArgumentCaptor<List<PersonalIdWorkHistory>>
             mockedUtil.verify({
                 ConnectAppDatabaseUtil.storeCredentialDataInTable(
-                    eq(context),
                     listCaptor.capture(),
                 )
             }, times(1))

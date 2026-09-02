@@ -13,20 +13,20 @@ import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.allOf
 import org.json.JSONObject
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Mockito
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
@@ -173,16 +173,11 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
         drainHttp()
 
         // Verify
-        connectDatabaseHelperMock.verify {
-            ConnectDatabaseHelper.handleReceivedDbPassphrase(Mockito.any(), Mockito.eq("test-db-key"))
-        }
+        assertArrayEquals("test-db-key".toByteArray(), ConnectDatabaseUtils.getConnectDbPassphrase())
 
-        val userCaptor = ArgumentCaptor.forClass(ConnectUserRecord::class.java)
-        connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(Mockito.any(), userCaptor.capture())
-        }
-        val storedUser = userCaptor.value
-        assertEquals("Test User", storedUser.name)
+        val storedUser = storedUser()
+        assertNotNull(storedUser)
+        assertEquals("Test User", storedUser!!.name)
         assertEquals("test-personal-id", storedUser.userId)
         assertEquals("fake-base64-photo", storedUser.photo)
         assertEquals("+11234567890", storedUser.primaryPhone)
@@ -257,6 +252,11 @@ class PersonalIdPhotoCaptureFragmentTest : BasePersonalIdPhotoCaptureFragmentTes
 
         assertTrue("Save button should re-enable on retryable failure", saveButton.isEnabled)
         assertTrue("Take photo button should re-enable on retryable failure", takeButton.isEnabled)
+    }
+
+    private fun storedUser(): ConnectUserRecord? {
+        val iter = ConnectDatabaseHelper.getConnectStorage(ConnectUserRecord::class.java).iterator()
+        return if (iter.hasNext()) iter.next() else null
     }
 
     @Test

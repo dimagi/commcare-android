@@ -68,7 +68,6 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -513,7 +512,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         if (refreshItem != null) {
             boolean showRefreshMenu = !fromExternal &&
                     PersonalIdManager.getInstance().isloggedIn() &&
-                    !ConnectUserDatabaseUtil.hasConnectAccess(this);
+                    !ConnectUserDatabaseUtil.hasConnectAccess();
             refreshItem.setVisible(showRefreshMenu);
         }
         return true;
@@ -667,7 +666,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     private void updateConnectButton() {
         boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
-                && ConnectUserDatabaseUtil.hasConnectAccess(this);
+                && ConnectUserDatabaseUtil.hasConnectAccess();
         installFragment.updateConnectButton(isConnectEnabled, v -> {
             ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
             });
@@ -998,13 +997,13 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     private void refreshOpportunities() {
-        ConnectRepository.getInstance(this).retrieveOpportunitiesForJava(
+        ConnectRepository.getInstance().retrieveOpportunitiesForJava(
                 (success, error) -> {
                     if (success) {
                         boolean connectAccess = !ConnectJobUtils.getCompositeJobs(
-                                this, ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty();
+                                ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty();
                         if (connectAccess) {
-                            ConnectUserDatabaseUtil.turnOnConnectAccess(this);
+                            ConnectUserDatabaseUtil.turnOnConnectAccess();
                             updateConnectButton();
                             refreshDrawer();
                         }

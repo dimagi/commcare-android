@@ -182,7 +182,7 @@ class ConnectLearningProgressFragmentTest {
         assertEquals(ConnectJobRecord.STATUS_DELIVERING, job.status)
         assertEquals(
             ConnectJobRecord.STATUS_DELIVERING,
-            ConnectJobUtils.getCompositeJob(activity, job.jobUUID)?.status,
+            ConnectJobUtils.getCompositeJob(job.jobUUID)?.status,
         )
         assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
     }
@@ -316,7 +316,7 @@ class ConnectLearningProgressFragmentTest {
                 true,
             )
         user.updateConnectToken("test-token", tomorrow())
-        ConnectUserDatabaseUtil.storeUser(context, user)
+        ConnectUserDatabaseUtil.storeUser(user)
     }
 
     private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time

@@ -84,7 +84,7 @@ class ConnectDeliveryMoreFragmentTest {
         PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
         mockApi.start()
         mockApi.server.dispatcher = pathRoutingDispatcher()
-        ConnectSyncPreferences.getInstance(appContext).clearAll()
+        ConnectSyncPreferences.getInstance().clearAll()
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
@@ -314,7 +314,7 @@ class ConnectDeliveryMoreFragmentTest {
     @Test
     fun `revisiting learning is offered even before the device has synced any learning`() {
         ConnectJobUtils.storeAssessments(appContext, emptyList(), ConnectLearnJobTestData.JOB_UUID, true)
-        job = ConnectJobUtils.getCompositeJob(appContext, ConnectLearnJobTestData.JOB_UUID)!!
+        job = ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
 
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
         val view = moreTab.requireView()
@@ -342,7 +342,7 @@ class ConnectDeliveryMoreFragmentTest {
     @Test
     fun `offline the card says the certificate waits on a connection rather than a sync`() {
         ConnectJobUtils.storeAssessments(appContext, emptyList(), ConnectLearnJobTestData.JOB_UUID, true)
-        job = ConnectJobUtils.getCompositeJob(appContext, ConnectLearnJobTestData.JOB_UUID)!!
+        job = ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
 
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
         goOffline()
@@ -479,7 +479,7 @@ class ConnectDeliveryMoreFragmentTest {
     /** Answers a second delivery-progress request with [progressJson] and waits for it to land. */
     private fun resyncDeliveryProgress(progressJson: String) {
         deliveryProgressBody = progressJson
-        ConnectSyncPreferences.getInstance(appContext).clearAll()
+        ConnectSyncPreferences.getInstance().clearAll()
 
         activity.runOnUiThread { homeFragment().refresh(true) }
         ShadowLooper.idleMainLooper()
@@ -554,7 +554,7 @@ class ConnectDeliveryMoreFragmentTest {
      */
     private fun awaitDeliverySync() {
         val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
-        val prefs = ConnectSyncPreferences.getInstance(appContext)
+        val prefs = ConnectSyncPreferences.getInstance()
         val deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS
 
         while (prefs.getLastSyncTime(syncKey) == null) {
@@ -619,7 +619,7 @@ class ConnectDeliveryMoreFragmentTest {
             ConnectLearnJobTestData.JOB_UUID,
             true,
         )
-        return ConnectJobUtils.getCompositeJob(appContext, ConnectLearnJobTestData.JOB_UUID)!!
+        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
     }
 
     /**
@@ -645,7 +645,7 @@ class ConnectDeliveryMoreFragmentTest {
                 true,
             )
         user.updateConnectToken("test-token", tomorrow())
-        ConnectUserDatabaseUtil.storeUser(appContext, user)
+        ConnectUserDatabaseUtil.storeUser(user)
     }
 
     private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time

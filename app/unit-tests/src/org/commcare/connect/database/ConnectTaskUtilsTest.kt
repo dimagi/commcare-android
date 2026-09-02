@@ -47,7 +47,7 @@ class ConnectTaskUtilsTest {
 
     private fun prefs() = ConnectJobUtils.getJobPreferences(jobUUID)
 
-    private fun storage() = ConnectDatabaseHelper.getConnectStorage(context, ConnectTaskRecord::class.java)
+    private fun storage() = ConnectDatabaseHelper.getConnectStorage(ConnectTaskRecord::class.java)
 
     private fun makeTask(
         taskId: String = "task-1",

@@ -54,7 +54,7 @@ public class ConnectUserRecordV13 extends Persisted {
     private Date verifySecondaryPhoneByDate;
 
     public ConnectUserRecordV13() {
-        registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
+        registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;

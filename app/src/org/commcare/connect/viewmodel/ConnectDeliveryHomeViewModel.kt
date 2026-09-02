@@ -15,7 +15,7 @@ class ConnectDeliveryHomeViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
     @VisibleForTesting
-    internal var repository: ConnectRepository = ConnectRepository.getInstance(application)
+    internal var repository: ConnectRepository = ConnectRepository.getInstance()
 
     private val _deliveryProgress = MutableLiveData<DataState<ConnectJobRecord>>()
     val deliveryProgress: LiveData<DataState<ConnectJobRecord>> = _deliveryProgress

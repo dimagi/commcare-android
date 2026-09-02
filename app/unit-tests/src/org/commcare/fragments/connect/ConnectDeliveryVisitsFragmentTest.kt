@@ -80,7 +80,7 @@ class ConnectDeliveryVisitsFragmentTest {
         PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
         mockApi.start()
         mockApi.server.dispatcher = pathRoutingDispatcher()
-        ConnectSyncPreferences.getInstance(appContext).clearAll()
+        ConnectSyncPreferences.getInstance().clearAll()
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
@@ -393,7 +393,7 @@ class ConnectDeliveryVisitsFragmentTest {
      */
     private fun awaitDeliverySync() {
         val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
-        val prefs = ConnectSyncPreferences.getInstance(appContext)
+        val prefs = ConnectSyncPreferences.getInstance()
         val deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS
 
         while (prefs.getLastSyncTime(syncKey) == null) {
@@ -463,7 +463,7 @@ class ConnectDeliveryVisitsFragmentTest {
                 status = ConnectJobRecord.STATUS_DELIVERING
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
-        return ConnectJobUtils.getCompositeJob(appContext, ConnectLearnJobTestData.JOB_UUID)!!
+        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
     }
 
     /**
@@ -489,7 +489,7 @@ class ConnectDeliveryVisitsFragmentTest {
                 true,
             )
         user.updateConnectToken("test-token", tomorrow())
-        ConnectUserDatabaseUtil.storeUser(appContext, user)
+        ConnectUserDatabaseUtil.storeUser(user)
     }
 
     private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time

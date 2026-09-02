@@ -233,7 +233,7 @@ class SmsInviteLinkFlowTest {
         assertTrue(connectIntent.getBooleanExtra(ConnectConstants.SHOW_LAUNCH_BUTTON, false))
         assertEquals(uuid, connectIntent.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
 
-        every { ConnectJobUtils.getCompositeJob(any(), eq(uuid)) } returns jobInDb
+        every { ConnectJobUtils.getCompositeJob(eq(uuid)) } returns jobInDb
 
         val connect =
             Robolectric
