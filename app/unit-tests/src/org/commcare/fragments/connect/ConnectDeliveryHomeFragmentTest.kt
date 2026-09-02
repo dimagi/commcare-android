@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -19,6 +20,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
@@ -26,6 +28,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.util.ReflectionUtils
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
@@ -95,6 +98,10 @@ class ConnectDeliveryHomeFragmentTest {
 
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
+
+        // A missing app now installs in place, so the download is stubbed out rather than run.
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
     }
 
     @After
@@ -188,16 +195,23 @@ class ConnectDeliveryHomeFragmentTest {
     }
 
     @Test
-    fun `clicking Start when the app is not installed navigates to the downloading screen`() {
+    fun `clicking Start when the app is not installed downloads it in the launch bar`() {
         val oppHome = launchHome()
-        val startButton =
-            oppHome.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        val view = oppHome.requireView()
+        val startButton = view.findViewById<MaterialButton>(R.id.cta_button)
 
         startButton.performClick()
         shadowOf(Looper.getMainLooper()).idle()
 
+        verify { ConnectAppUtils.downloadApp(any(), any()) }
         val navController = NavHostFragment.findNavController(oppHome)
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertEquals(View.GONE, startButton.visibility)
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.cta_progress_ring).visibility)
+        assertEquals(
+            app.getString(R.string.connect_downloading_delivery),
+            view.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
+        )
     }
 
     private fun launchHome(): ConnectDeliveryHomeFragment {

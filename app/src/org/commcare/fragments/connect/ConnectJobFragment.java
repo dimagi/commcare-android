@@ -30,6 +30,11 @@ public abstract class ConnectJobFragment<T extends ViewBinding> extends BaseConn
         Objects.requireNonNull(job);
     }
 
+    /** Opens this opportunity's learn or delivery app, installing it first if need be. */
+    protected void launchApp(boolean isLearning) {
+        launchApp(job, isLearning);
+    }
+
     @Override
     public String getEndpoint() {
         return null;

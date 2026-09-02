@@ -335,18 +335,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void navigateToDeliverAppHome() {
-        String appId = job.getDeliveryAppInfo().getAppId();
-
-        if (AppUtils.isAppInstalled(appId)) {
-            new ConnectAppLaunchController(this).launchApp(appId, false, this::popSelfOnceHidden);
-        } else {
-            NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
-                    .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
-                            getString(R.string.connect_downloading_delivery),
-                            false
-                    );
-            Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
-        }
+        launchApp(false);
     }
 
     @Override

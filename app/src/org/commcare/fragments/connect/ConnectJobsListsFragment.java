@@ -19,7 +19,6 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -155,27 +154,13 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
     private void launchAppForJob(ConnectJobRecord job, boolean isLearning) {
         setActiveJob(job);
 
-        String appId = isLearning
-                ? job.getLearnAppInfo().getAppId()
-                : job.getDeliveryAppInfo().getAppId();
-
         if (job.deliveryComplete()) {
             navigateToDeliveryProgress();
         } else if (!job.passedAssessment() || isLearning) {
             navigateToLearnProgress();
-        } else if (AppUtils.isAppInstalled(appId)) {
-            new ConnectAppLaunchController(this).launchApp(appId, isLearning);
         } else {
-            int textId = isLearning
-                    ? R.string.connect_downloading_learn
-                    : R.string.connect_downloading_delivery;
-            Navigation.findNavController(getBinding().getRoot()).navigate(
-                    ConnectJobsListsFragmentDirections
-                            .actionConnectJobsListFragmentToConnectDownloadingFragment(
-                                    getString(textId),
-                                    isLearning
-                            )
-            );
+            // This list is the root of the Connect back stack, so it stays put once the app opens.
+            launchApp(job, isLearning, false);
         }
     }
 

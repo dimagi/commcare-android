@@ -1,6 +1,8 @@
 package org.commcare.fragments.base
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
@@ -12,24 +14,37 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.viewbinding.ViewBinding
+import org.commcare.AppUtils
+import org.commcare.activities.CommCareVerificationActivity
 import org.commcare.activities.connect.ConnectActivity
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.personalId.TokenExceptionHandler.handleTokenDeniedException
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
+import org.commcare.connect.viewmodel.InstallFailureRecovery
+import org.commcare.connect.viewmodel.InstallState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.dalvik.databinding.NetworkStatusBarLayoutBinding
+import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.interfaces.base.BaseConnectView
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.NetworkStatusBarViewController
+import org.commcare.views.dialogs.CustomProgressDialog
 import java.util.Date
 
 fun interface DataStateConsumer<T> {
@@ -51,6 +66,27 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var lastDataState: DataState<*>? = null
     private var wasOffline: Boolean = false
+
+    /** The app [launchApp] is working towards, kept across recreation so an install can finish. */
+    private var installTarget: InstallTarget? = null
+    private var installDialog: CustomProgressDialog? = null
+
+    private val installViewModel: ConnectAppInstallViewModel by lazy {
+        ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
+        )[ConnectAppInstallViewModel::class.java]
+    }
+
+    private val verificationLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                installViewModel.clear()
+                launchInstalledApp()
+            } else {
+                installViewModel.verificationFailed()
+            }
+        }
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -143,6 +179,21 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
         rootView = rootFrame
         return rootView
+    }
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        installTarget = InstallTarget.fromBundle(savedInstanceState)
+        installDialog = childFragmentManager.findFragmentByTag(INSTALL_DIALOG_TAG) as? CustomProgressDialog
+        installViewModel.installState.observe(viewLifecycleOwner) { onInstallState(it) }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        installTarget?.writeTo(outState)
     }
 
     override fun onStart() {
@@ -304,6 +355,136 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     /**
+     * Opens an opportunity's learn or delivery app, downloading and verifying it first when the
+     * device does not have it yet. The user stays on this screen throughout; progress and failures
+     * are rendered by [onInstallStateChanged].
+     *
+     * [popSelfOnLaunch] drops this screen from the back stack once the app is open, so returning
+     * from the app does not land the user back on it.
+     */
+    @JvmOverloads
+    protected fun launchApp(
+        job: ConnectJobRecord,
+        isLearning: Boolean,
+        popSelfOnLaunch: Boolean = true,
+    ) {
+        val app = if (isLearning) job.learnAppInfo else job.deliveryAppInfo
+        installTarget = InstallTarget(app.appId, isLearning, popSelfOnLaunch)
+
+        if (AppUtils.isAppInstalled(app.appId)) {
+            launchInstalledApp()
+        } else {
+            installViewModel.install(app.installUrl)
+        }
+    }
+
+    /**
+     * Renders [state] for this screen. The default is a blocking progress dialog and a toast on
+     * failure, which suits screens with no action bar of their own; screens that own a
+     * [org.commcare.views.connect.ConnectCtaBar] render into it instead.
+     */
+    protected open fun onInstallStateChanged(
+        state: InstallState?,
+        isLearning: Boolean,
+    ) {
+        when (state) {
+            is InstallState.Downloading -> showInstallDialog(isLearning, state.percent)
+            InstallState.Installed, InstallState.Verifying -> showInstallDialog(isLearning, INSTALL_PROGRESS_MAX)
+            is InstallState.Failed -> {
+                dismissInstallDialog()
+                Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+            }
+
+            null -> dismissInstallDialog()
+        }
+    }
+
+    private fun onInstallState(state: InstallState?) {
+        val isLearning = installTarget?.isLearning ?: false
+        // Re-applied on every state so a screen recreated mid-install locks itself down again.
+        setBackButtonAndActionBarState(!installViewModel.isInstalling)
+        onInstallStateChanged(state, isLearning)
+
+        when (state) {
+            InstallState.Installed -> startAppVerification()
+            is InstallState.Failed -> recoverFromInstallFailure(state)
+            else -> Unit
+        }
+    }
+
+    /** An installed app still needs its media verified before it can be seated and launched. */
+    private fun startAppVerification() {
+        installViewModel.markVerifying()
+        Toast.makeText(requireContext(), R.string.connect_app_installed, Toast.LENGTH_SHORT).show()
+        verificationLauncher.launch(
+            Intent(requireContext(), CommCareVerificationActivity::class.java)
+                .putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_CONNECT, true),
+        )
+    }
+
+    private fun launchInstalledApp() {
+        val target = installTarget ?: return
+        ConnectAppLaunchController(this).launchApp(
+            target.appId,
+            target.isLearning,
+            if (target.popSelfOnLaunch) Runnable { popSelfOnceHidden() } else null,
+        )
+    }
+
+    /** The two install failures the user can only act on through a prompt of their own. */
+    private fun recoverFromInstallFailure(state: InstallState.Failed) {
+        when (val recovery = state.recovery) {
+            is InstallFailureRecovery.ApkUpdate ->
+                ResourceInstallUtils.showApkUpdatePrompt(
+                    activity,
+                    recovery.versionRequired,
+                    recovery.versionAvailable,
+                )
+
+            InstallFailureRecovery.TargetMismatch -> ResourceInstallUtils.showTargetMismatchError(activity)
+            InstallFailureRecovery.None -> Unit
+        }
+    }
+
+    private fun showInstallDialog(
+        isLearning: Boolean,
+        percent: Int,
+    ) {
+        if (installDialog == null) {
+            // Showing a dialog after the fragment has saved its state would throw, so skip it.
+            if (childFragmentManager.isStateSaved) {
+                return
+            }
+            installDialog =
+                CustomProgressDialog
+                    .newInstance(
+                        getString(R.string.connect_cta_please_wait),
+                        getString(downloadingMessage(isLearning)),
+                        INSTALL_DIALOG_TASK_ID,
+                    ).apply { addProgressBar() }
+            installDialog?.showNow(childFragmentManager, INSTALL_DIALOG_TAG)
+        }
+        installDialog?.updateProgressBar(percent, INSTALL_PROGRESS_MAX)
+    }
+
+    private fun dismissInstallDialog() {
+        installDialog?.let {
+            if (it.isAdded) {
+                it.dismissAllowingStateLoss()
+            }
+        }
+        installDialog = null
+    }
+
+    private fun setBackButtonAndActionBarState(enabled: Boolean) {
+        (activity as? ConnectActivity)?.setBackButtonAndActionBarState(enabled)
+    }
+
+    @StringRes
+    protected fun downloadingMessage(isLearning: Boolean): Int =
+        if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
+
+    /**
      * Pops this fragment off the navigation back stack the next time it is hidden (its [onStop]).
      * A fragment that has launched another screen on top calls this so the user does not return to
      * it on back; deferring to onStop keeps the pop from briefly flashing the destination beneath.
@@ -323,5 +504,41 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 }
             },
         )
+    }
+
+    /** The app an install is working towards, and what to do with this screen once it opens. */
+    private data class InstallTarget(
+        val appId: String,
+        val isLearning: Boolean,
+        val popSelfOnLaunch: Boolean,
+    ) {
+        fun writeTo(outState: Bundle) {
+            outState.putString(KEY_INSTALL_APP_ID, appId)
+            outState.putBoolean(KEY_INSTALL_IS_LEARNING, isLearning)
+            outState.putBoolean(KEY_INSTALL_POP_SELF, popSelfOnLaunch)
+        }
+
+        companion object {
+            fun fromBundle(savedInstanceState: Bundle?): InstallTarget? {
+                val appId = savedInstanceState?.getString(KEY_INSTALL_APP_ID) ?: return null
+                return InstallTarget(
+                    appId,
+                    savedInstanceState.getBoolean(KEY_INSTALL_IS_LEARNING),
+                    savedInstanceState.getBoolean(KEY_INSTALL_POP_SELF),
+                )
+            }
+        }
+    }
+
+    companion object {
+        private const val INSTALL_DIALOG_TAG = "connect_install_progress"
+
+        // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
+        private const val INSTALL_DIALOG_TASK_ID = -11
+        private const val INSTALL_PROGRESS_MAX = 100
+
+        private const val KEY_INSTALL_APP_ID = "install_app_id"
+        private const val KEY_INSTALL_IS_LEARNING = "install_is_learning"
+        private const val KEY_INSTALL_POP_SELF = "install_pop_self"
     }
 }

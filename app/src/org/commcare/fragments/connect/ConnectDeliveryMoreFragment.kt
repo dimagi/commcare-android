@@ -47,7 +47,7 @@ class ConnectDeliveryMoreFragment :
     ): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
         binding.revisitLearningCertificateButton.setOnClickListener { toggleCertificate() }
-        binding.revisitLearningViewButton.setOnClickListener { launchApp(isLearning = true) }
+        binding.revisitLearningViewButton.setOnClickListener { launchApp(true) }
         observeLearningFetch()
         updateView()
         return view
@@ -136,7 +136,7 @@ class ConnectDeliveryMoreFragment :
                 },
             )
         } else {
-            launchApp(isLearning = false)
+            launchApp(false)
         }
     }
 
@@ -185,11 +185,6 @@ class ConnectDeliveryMoreFragment :
     private fun toggleCertificate() {
         certificateExpanded = !certificateExpanded
         binding.revisitLearningCertificate.root.isVisible = certificateExpanded
-    }
-
-    /** Launching is the host's job, so the install check and download screen stay in one place. */
-    private fun launchApp(isLearning: Boolean) {
-        (parentFragment as? ConnectDeliveryHomeFragment)?.launchApp(isLearning)
     }
 
     override fun inflateBinding(

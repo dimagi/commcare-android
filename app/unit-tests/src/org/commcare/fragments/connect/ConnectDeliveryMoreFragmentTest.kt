@@ -14,8 +14,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.tabs.TabLayout
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -27,6 +29,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectLearnJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
@@ -40,6 +43,7 @@ import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.views.connect.ConnectTaskCard
+import org.commcare.views.dialogs.CustomProgressDialog
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -102,6 +106,10 @@ class ConnectDeliveryMoreFragmentTest {
 
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
+
+        // A missing app now installs in place, so the download is stubbed out rather than run.
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
 
         // Counts as unlocked this session, so opening a conversation task navigates rather than
         // raising a biometric prompt.
@@ -216,21 +224,17 @@ class ConnectDeliveryMoreFragmentTest {
     }
 
     @Test
-    fun `tapping a relearn task goes to the download screen while the delivery app is missing`() {
+    fun `tapping a relearn task downloads the delivery app without leaving the tab`() {
         val moreTab = openMoreTab(deliveryProgressJson(tasks = listOf(taskJson(mode = RELEARN_MODE))))
 
         activity.runOnUiThread { moreTab.taskCards().first().performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
-        assertEquals(
-            activity.getString(R.string.connect_downloading_delivery),
-            navController.currentBackStackEntry?.arguments?.getString(DOWNLOAD_TITLE_ARG),
-        )
-        assertFalse(
-            "a relearn task downloads the delivery app, not the learn app",
-            navController.currentBackStackEntry!!.arguments!!.getBoolean(DOWNLOAD_LEARNING_ARG, true),
-        )
+        verify {
+            ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any())
+        }
+        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertInstallDialogShowing(moreTab, R.string.connect_downloading_delivery)
     }
 
     @Test
@@ -370,20 +374,15 @@ class ConnectDeliveryMoreFragmentTest {
     }
 
     @Test
-    fun `viewing learning goes to the download screen while the learn app is missing`() {
+    fun `viewing learning downloads the learn app without leaving the tab`() {
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
 
         moreTab.performClick(R.id.revisit_learning_view_button)
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
-        assertEquals(
-            activity.getString(R.string.connect_downloading_learn),
-            navController.currentBackStackEntry?.arguments?.getString(DOWNLOAD_TITLE_ARG),
-        )
-        assertTrue(
-            navController.currentBackStackEntry!!.arguments!!.getBoolean(DOWNLOAD_LEARNING_ARG, false),
-        )
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
+        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertInstallDialogShowing(moreTab, R.string.connect_downloading_learn)
     }
 
     @Test
@@ -656,10 +655,24 @@ class ConnectDeliveryMoreFragmentTest {
         shadowOf(manager).setActiveNetworkInfo(null)
     }
 
+    /**
+     * The More tab has no action bar of its own, so an install it starts is reported in a blocking
+     * dialog naming [downloadingRes].
+     */
+    private fun assertInstallDialogShowing(
+        moreTab: ConnectDeliveryMoreFragment,
+        downloadingRes: Int,
+    ) {
+        val dialog =
+            moreTab.childFragmentManager.findFragmentByTag(INSTALL_DIALOG_TAG) as? CustomProgressDialog
+        assertNotNull("an install dialog should be showing", dialog)
+        val message = dialog!!.requireDialog().findViewById<TextView>(R.id.progress_dialog_message)
+        assertEquals(activity.getString(downloadingRes), message.text.toString())
+    }
+
     private companion object {
         const val DELIVERY_PROGRESS_PATH = "/delivery_progress"
-        const val DOWNLOAD_TITLE_ARG = "title"
-        const val DOWNLOAD_LEARNING_ARG = "learning"
+        const val INSTALL_DIALOG_TAG = "connect_install_progress"
         const val LEARNER_NAME = "Test User"
         const val RELEARN_MODE = "relearn"
         const val SYNC_TIMEOUT_MS = 10_000L

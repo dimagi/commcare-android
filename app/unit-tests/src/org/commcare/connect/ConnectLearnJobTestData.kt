@@ -14,6 +14,10 @@ object ConnectLearnJobTestData {
     const val JOB_TITLE = "Infant Vaccine Check"
     const val LEARN_APP_ID = "learn-app-001"
     const val DELIVERY_APP_ID = "delivery-app-001"
+
+    // Distinct per app so a test can tell which of the two an install was asked for.
+    const val LEARN_APP_INSTALL_URL = "https://example.com/install/learn"
+    const val DELIVERY_APP_INSTALL_URL = "https://example.com/install/delivery"
     const val PASSING_SCORE = 80
     const val TOTAL_MODULES = 2
 
@@ -122,7 +126,10 @@ object ConnectLearnJobTestData {
             put("description", "Test app description")
             put("organization", "Test Org")
             put("passing_score", PASSING_SCORE)
-            put("install_url", "https://example.com/install")
+            put(
+                "install_url",
+                if (withModules) LEARN_APP_INSTALL_URL else DELIVERY_APP_INSTALL_URL,
+            )
             put("learn_modules", if (withModules) modulesJson() else JSONArray())
         }
 

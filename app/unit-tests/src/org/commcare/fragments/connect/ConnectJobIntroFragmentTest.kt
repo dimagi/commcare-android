@@ -1,18 +1,22 @@
 package org.commcare.fragments.connect
 
 import android.os.Build
+import android.view.View
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.flow.flow
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -186,6 +190,10 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
 
+        // A missing app now installs in place, so the download is stubbed out rather than run.
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
+
         val jobUuidSlot = slot<String>()
         val repo = ConnectRepository.getInstance()
         every { repo.startLearning(capture(jobUuidSlot)) } returns
@@ -205,9 +213,15 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
             ConnectJobRecord.STATUS_LEARNING,
             ConnectJobUtils.getCompositeJob(job.jobUUID)?.status,
         )
+        verify { ConnectAppUtils.downloadApp(any(), any()) }
         assertEquals(
-            R.id.connect_downloading_fragment,
+            R.id.connect_job_intro_fragment,
             navController.currentDestination?.id,
+        )
+        assertEquals(View.GONE, button.visibility)
+        assertEquals(
+            View.VISIBLE,
+            fragment.requireView().findViewById<View>(R.id.cta_progress_ring).visibility,
         )
     }
 

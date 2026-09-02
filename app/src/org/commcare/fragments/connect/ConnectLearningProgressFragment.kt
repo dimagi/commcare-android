@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import org.commcare.AppUtils
-import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
@@ -16,6 +15,7 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel
+import org.commcare.connect.viewmodel.InstallState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding
 import org.commcare.fragments.RefreshableFragment
@@ -88,7 +88,7 @@ class ConnectLearningProgressFragment :
                 View.OnClickListener { onDeliveryCtaClicked() },
             )
         } else {
-            binding.learnProgressView.bind(job, View.OnClickListener { navigateToLearnAppHome() })
+            binding.learnProgressView.bind(job, View.OnClickListener { launchApp(true) })
         }
     }
 
@@ -104,10 +104,12 @@ class ConnectLearningProgressFragment :
                 is DataState.Success -> {
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
-                        val deliveryAppInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
-                        Navigation.findNavController(requireView()).navigate(
-                            if (deliveryAppInstalled) navigateToDeliveryProgress() else navigateToDeliveryDownload(),
-                        )
+                        if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
+                            Navigation.findNavController(requireView()).navigate(navigateToDeliveryProgress())
+                        } else {
+                            // The delivery app downloads here, in the bar the user claimed from.
+                            launchApp(false)
+                        }
                     }
                 }
 
@@ -137,27 +139,13 @@ class ConnectLearningProgressFragment :
         ConnectLearningProgressFragmentDirections
             .actionConnectJobLearningProgressFragmentToConnectJobDeliveryProgressFragment()
 
-    private fun navigateToDeliveryDownload(): NavDirections =
-        ConnectLearningProgressFragmentDirections
-            .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
-                getString(R.string.connect_downloading_delivery),
-                false,
-            )
-
-    private fun navigateToLearnAppHome() {
-        val appId = job.learnAppInfo.appId
-
-        if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppLaunchController(this).launchApp(appId, true, Runnable { popSelfOnceHidden() })
-        } else {
-            Navigation.findNavController(binding.root).navigate(
-                ConnectLearningProgressFragmentDirections
-                    .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
-                        getString(R.string.connect_downloading_learn),
-                        true,
-                    ),
-            )
-        }
+    /** Learning and delivery are downloaded from different states of this screen, so both bars render. */
+    override fun onInstallStateChanged(
+        state: InstallState?,
+        isLearning: Boolean,
+    ) {
+        binding.learnProgressView.renderInstallState(state, isLearning)
+        binding.learnCompleteView.renderInstallState(state, isLearning)
     }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_LEARNING_PREFIX + job.jobUUID
