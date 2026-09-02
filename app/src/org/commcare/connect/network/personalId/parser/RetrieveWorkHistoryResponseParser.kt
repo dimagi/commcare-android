@@ -22,7 +22,7 @@ class RetrieveWorkHistoryResponseParser<T>(
         val jsonObject = JSONObject(jsonText)
         val jsonArray = jsonObject.getJSONArray("credentials")
         val result = PersonalIdWorkHistory.fromJsonArray(jsonArray)
-        storeCredentialDataInTable(context, result)
+        storeCredentialDataInTable(result)
         return result as T
     }
 }

@@ -84,7 +84,7 @@ class ConnectLearningProgressFragment :
             binding.learnCompleteView.bind(
                 job,
                 latestCompletionDate(),
-                ConnectUserDatabaseUtil.getUser(requireContext()).name,
+                ConnectUserDatabaseUtil.getUser().name,
                 View.OnClickListener { onDeliveryCtaClicked() },
             )
         } else {

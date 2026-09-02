@@ -40,7 +40,7 @@ class ConnectCredentialResolverTest {
     fun `returns existing record password`() {
         val record = recordWith(password = "stored-pw", localPassphrase = false)
         every {
-            ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, "app-1", "alice")
+            ConnectAppDatabaseUtil.getConnectLinkedAppRecord("app-1", "alice")
         } returns record
 
         val result = resolver.resolve("app-1", "alice", createIfNeeded = false)
@@ -54,7 +54,7 @@ class ConnectCredentialResolverTest {
     fun `reports analytics when existing record uses local passphrase`() {
         val record = recordWith(password = "pw", localPassphrase = true)
         every {
-            ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, "app-1", "alice")
+            ConnectAppDatabaseUtil.getConnectLinkedAppRecord("app-1", "alice")
         } returns record
 
         resolver.resolve("app-1", "alice", createIfNeeded = false)
@@ -64,10 +64,10 @@ class ConnectCredentialResolverTest {
 
     @Test
     fun `creates a new record when createIfNeeded and none exists`() {
-        every { ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, "app-1", "alice") } returns null
+        every { ConnectAppDatabaseUtil.getConnectLinkedAppRecord("app-1", "alice") } returns null
         val created = recordWith(password = "generated", localPassphrase = true)
         every {
-            ConnectAppDatabaseUtil.storeApp(context, "app-1", "alice", true, any(), true)
+            ConnectAppDatabaseUtil.storeApp("app-1", "alice", true, any(), true)
         } returns created
 
         val result = resolver.resolve("app-1", "alice", createIfNeeded = true)
@@ -79,7 +79,7 @@ class ConnectCredentialResolverTest {
     @Test(expected = IllegalStateException::class)
     fun `throws when no record exists and createIfNeeded is false`() {
         every {
-            ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, "app-1", "alice")
+            ConnectAppDatabaseUtil.getConnectLinkedAppRecord("app-1", "alice")
         } returns null
         resolver.resolve("app-1", "alice", createIfNeeded = false)
     }
@@ -88,11 +88,11 @@ class ConnectCredentialResolverTest {
     fun `generated password is 20 characters in the documented alphabet`() {
         val passwordSlot = slot<String>()
         every {
-            ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, "app-1", "alice")
+            ConnectAppDatabaseUtil.getConnectLinkedAppRecord("app-1", "alice")
         } returns null
         val created = recordWith(password = "ignored", localPassphrase = true)
         every {
-            ConnectAppDatabaseUtil.storeApp(context, "app-1", "alice", true, capture(passwordSlot), true)
+            ConnectAppDatabaseUtil.storeApp("app-1", "alice", true, capture(passwordSlot), true)
         } returns created
 
         resolver.resolve("app-1", "alice", createIfNeeded = true)

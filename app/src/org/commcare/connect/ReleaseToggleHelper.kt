@@ -16,7 +16,7 @@ object ReleaseToggleHelper {
     fun isToggleActive(
         context: Context,
         slug: String,
-    ): Boolean = evaluate(ConnectAppDatabaseUtil.getReleaseToggles(context), slug)
+    ): Boolean = evaluate(ConnectAppDatabaseUtil.getReleaseToggles(), slug)
 
     private fun evaluate(
         toggles: List<ConnectReleaseToggleRecord>?,

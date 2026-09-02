@@ -23,6 +23,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
@@ -154,20 +155,9 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
     private void onPhotoUploadSuccess(String photoAsBase64) {
         enableTakePhotoButton();
         disableSaveButton();
-        createAndSaveConnectUser(photoAsBase64);
+        personalIdSessionData.setPhotoBase64(photoAsBase64);
+        PersonalIdManager.getInstance().onAccountConfigurationSuccess(personalIdSessionData);
         logAndShowAccountComplete();
-    }
-
-    private void createAndSaveConnectUser(String photoAsBase64) {
-        ConnectDatabaseHelper.handleReceivedDbPassphrase(requireActivity(), personalIdSessionData.getDbKey());
-        ConnectUserRecord user = new ConnectUserRecord(personalIdSessionData.getPhoneNumber(),
-                personalIdSessionData.getPersonalId(),
-                personalIdSessionData.getOauthPassword(), personalIdSessionData.getUserName(),
-                String.valueOf(personalIdSessionData.getBackupCode()), new Date(), photoAsBase64,
-                personalIdSessionData.getDemoUser(),personalIdSessionData.getRequiredLock(),
-                personalIdSessionData.getInvitedUser());
-        user.setEmail(personalIdSessionData.getEmail());
-        ConnectUserDatabaseUtil.storeUser(requireActivity(), user);
     }
 
     private void clearError() {

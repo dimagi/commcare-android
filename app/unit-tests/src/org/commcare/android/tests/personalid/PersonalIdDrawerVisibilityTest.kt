@@ -73,17 +73,17 @@ class PersonalIdDrawerVisibilityTest {
             ConnectUserDatabaseUtil::class,
         )
         every { ConnectDatabaseHelper.isDbBroken() } returns false
-        every { ConnectJobUtils.getAppRecord(any(), any()) } returns null
+        every { ConnectJobUtils.getAppRecord(any()) } returns null
         every { ConnectMessagingDatabaseHelper.getMessagingChannels(any()) } returns emptyList()
-        every { ConnectAppDatabaseUtil.getReleaseToggles(any()) } returns emptyList()
+        every { ConnectAppDatabaseUtil.getReleaseToggles() } returns emptyList()
 
         // The drawer header reads the signed-in user's name off getUser(). hasConnectAccess() is
         // stubbed rather than left to run its real body (which just re-reads getUser() and checks a
         // flag), because a MockK static mock throws on any method it wasn't told about, and the
         // drawer + setup + login paths all call it.
-        every { ConnectUserDatabaseUtil.getUser(any()) } returns
+        every { ConnectUserDatabaseUtil.getUser() } returns
             ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", false)
-        every { ConnectUserDatabaseUtil.hasConnectAccess(any()) } returns false
+        every { ConnectUserDatabaseUtil.hasConnectAccess() } returns false
     }
 
     @After

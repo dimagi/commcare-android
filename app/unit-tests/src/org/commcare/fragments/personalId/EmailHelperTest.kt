@@ -95,7 +95,7 @@ class EmailHelperTest {
 
         mockStatic(ConnectUserDatabaseUtil::class.java).use { mockedDb ->
             mockedDb
-                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(activity) }
+                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
                 .thenReturn(user)
 
             mockStatic(ApiPersonalId::class.java).use { mockApi ->
@@ -191,7 +191,7 @@ class EmailHelperTest {
 
         mockStatic(ConnectUserDatabaseUtil::class.java).use { mockedDb ->
             mockedDb
-                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(activity) }
+                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
                 .thenReturn(user)
 
             mockStatic(ApiPersonalId::class.java).use { mockApi ->

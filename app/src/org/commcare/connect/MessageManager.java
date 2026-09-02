@@ -29,7 +29,7 @@ public class MessageManager {
 
     public static void updateChannelConsent(Context context, ConnectMessagingChannelRecord channel,
                                             ConnectActivityCompleteListener listener) {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
         new PersonalIdApiHandler<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
@@ -51,7 +51,7 @@ public class MessageManager {
 
     public static void getChannelEncryptionKey(Context context, ConnectMessagingChannelRecord channel,
                                                ConnectActivityCompleteListener listener) {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
         new PersonalIdApiHandler<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
@@ -67,7 +67,7 @@ public class MessageManager {
     }
 
     public static void sendUnsentMessages(Context context) {
-        List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesAll(context);
+        List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper.getMessagingMessagesAll();
         for (ConnectMessagingMessageRecord message : messages) {
             if (message.getIsOutgoing() && !message.getConfirmed()) {
                 sendMessage(context, message, (success,error) -> {
@@ -80,10 +80,11 @@ public class MessageManager {
 
     public static void sendMessage(Context context, ConnectMessagingMessageRecord message,
                                    ConnectActivityCompleteListener listener) {
-        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(context, message.getChannelId());
+        ConnectMessagingChannelRecord channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
+                message.getChannelId());
 
         if (!channel.getKey().isEmpty()) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
 
             new PersonalIdApiHandler<Boolean>() {
                 @Override

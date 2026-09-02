@@ -193,9 +193,9 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private fun onEmailVerified() {
         when (workflow) {
             EmailWorkFlow.EXISTING_USER -> {
-                val user = ConnectUserDatabaseUtil.getUser(requireActivity())
+                val user = ConnectUserDatabaseUtil.getUser()
                 user.email = enteredEmail
-                ConnectUserDatabaseUtil.storeUser(requireActivity(), user)
+                ConnectUserDatabaseUtil.storeUser(user)
                 showEmailAddedSuccessDialog()
             }
 

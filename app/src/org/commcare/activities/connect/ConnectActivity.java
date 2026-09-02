@@ -64,7 +64,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if (savedInstanceState != null) {
             String savedJobUuid = savedInstanceState.getString(OPPORTUNITY_UUID);
             if (savedJobUuid != null) {
-                job = ConnectJobUtils.getCompositeJob(this, savedJobUuid);
+                job = ConnectJobUtils.getCompositeJob(savedJobUuid);
             }
         }
 
@@ -132,7 +132,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
         opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
         if (job == null && !TextUtils.isEmpty(opportunityUuid)) {
-            job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
+            job = ConnectJobUtils.getCompositeJob(opportunityUuid);
         }
     }
 

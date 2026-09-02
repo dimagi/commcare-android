@@ -16,7 +16,7 @@ import org.commcare.utils.CrashUtil
 internal class PostLoginSideEffects(
     private val context: Context,
     private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
-    private val repository: ConnectRepository = ConnectRepository.getInstance(context),
+    private val repository: ConnectRepository = ConnectRepository.getInstance(),
 ) {
     suspend fun runOnSuccess(username: String): PostLoginOutcome {
         CrashUtil.registerUserData()

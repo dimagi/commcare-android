@@ -92,7 +92,6 @@ class RetrieveHqTokenResponseParserTest {
             mockedDb.verify(
                 {
                     ConnectDatabaseHelper.storeHqToken(
-                        eq(context),
                         eq(TEST_APP_ID),
                         eq(TEST_HQ_USERNAME),
                         ssoTokenCaptor.capture(),
@@ -118,7 +117,6 @@ class RetrieveHqTokenResponseParserTest {
             mockedDb.verify(
                 {
                     ConnectDatabaseHelper.storeHqToken(
-                        eq(context),
                         eq(TEST_APP_ID),
                         eq(TEST_HQ_USERNAME),
                         ssoTokenCaptor.capture(),
@@ -143,7 +141,6 @@ class RetrieveHqTokenResponseParserTest {
             mockedDb.verify(
                 {
                     ConnectDatabaseHelper.storeHqToken(
-                        eq(context),
                         eq(TEST_APP_ID),
                         eq(TEST_HQ_USERNAME),
                         ssoTokenCaptor.capture(),

@@ -102,7 +102,7 @@ class ReleaseToggleHelperTest {
 
     @Test
     fun `isToggleActive with context returns true when DB contains active toggle for slug`() {
-        every { ConnectAppDatabaseUtil.getReleaseToggles(context) } returns
+        every { ConnectAppDatabaseUtil.getReleaseToggles() } returns
             listOf(buildToggle("feature_a", active = true))
 
         assertTrue(ReleaseToggleHelper.isToggleActive(context, "feature_a"))
@@ -110,7 +110,7 @@ class ReleaseToggleHelperTest {
 
     @Test
     fun `isToggleActive with context returns false when DB contains inactive toggle for slug`() {
-        every { ConnectAppDatabaseUtil.getReleaseToggles(context) } returns
+        every { ConnectAppDatabaseUtil.getReleaseToggles() } returns
             listOf(buildToggle("feature_a", active = false))
 
         assertFalse(ReleaseToggleHelper.isToggleActive(context, "feature_a"))
@@ -118,7 +118,7 @@ class ReleaseToggleHelperTest {
 
     @Test
     fun `isToggleActive with context returns false when slug is missing from DB`() {
-        every { ConnectAppDatabaseUtil.getReleaseToggles(context) } returns
+        every { ConnectAppDatabaseUtil.getReleaseToggles() } returns
             listOf(buildToggle("other_feature", active = true))
 
         assertFalse(ReleaseToggleHelper.isToggleActive(context, "feature_a"))
@@ -126,14 +126,14 @@ class ReleaseToggleHelperTest {
 
     @Test
     fun `isToggleActive with context returns false when DB returns empty list`() {
-        every { ConnectAppDatabaseUtil.getReleaseToggles(context) } returns emptyList()
+        every { ConnectAppDatabaseUtil.getReleaseToggles() } returns emptyList()
 
         assertFalse(ReleaseToggleHelper.isToggleActive(context, "feature_a"))
     }
 
     @Test
     fun `isToggleActive with context returns false when DB returns null`() {
-        every { ConnectAppDatabaseUtil.getReleaseToggles(context) } returns null
+        every { ConnectAppDatabaseUtil.getReleaseToggles() } returns null
 
         assertFalse(ReleaseToggleHelper.isToggleActive(context, "feature_a"))
     }

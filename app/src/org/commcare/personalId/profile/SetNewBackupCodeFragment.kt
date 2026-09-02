@@ -48,7 +48,7 @@ class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     }
 
     private fun callSetBackupCodeApi(backupCode: String) {
-        val user = ConnectUserDatabaseUtil.getUser(requireContext())!!
+        val user = ConnectUserDatabaseUtil.getUser()!!
 
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(data: Boolean) {
@@ -69,7 +69,7 @@ class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         user: ConnectUserRecord,
     ) {
         user.pin = backupCode
-        ConnectUserDatabaseUtil.storeUser(requireContext(), user)
+        ConnectUserDatabaseUtil.storeUser(user)
         Toast
             .makeText(
                 requireContext(),

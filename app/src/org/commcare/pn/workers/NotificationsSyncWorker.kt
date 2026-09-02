@@ -125,7 +125,7 @@ class NotificationsSyncWorker(
     private suspend fun syncOpportunities(): PNApiResponseStatus {
         var success = false
         ConnectRepository
-            .getInstance(appContext)
+            .getInstance()
             .getOpportunities(forceRefresh = true)
             .collect { state ->
                 when (state) {
@@ -153,7 +153,7 @@ class NotificationsSyncWorker(
         if (job == null) return handleNoConnectJob()
         var success = false
         ConnectRepository
-            .getInstance(appContext)
+            .getInstance()
             .syncJobProgress(job!!)
             .collect { state ->
                 when (state) {
@@ -198,7 +198,6 @@ class NotificationsSyncWorker(
         val opportunityUUID = notificationPayload?.get(OPPORTUNITY_UUID)
         if (!TextUtils.isEmpty(opportunityUUID)) {
             return ConnectJobUtils.getCompositeJob(
-                appContext,
                 opportunityUUID!!,
             )
         }

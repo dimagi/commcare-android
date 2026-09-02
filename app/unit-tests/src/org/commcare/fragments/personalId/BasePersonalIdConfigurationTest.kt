@@ -19,6 +19,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.CommCareViewModelProvider
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.integrity.IntegrityTokenViewModel
+import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.dalvik.R
 import org.junit.After
@@ -74,6 +75,7 @@ abstract class BasePersonalIdConfigurationTest<T : BasePersonalIdFragment> {
         viewModelField.isAccessible = true
         viewModelField.set(null, null)
         mockApiServer.shutdown()
+        PersonalIdManager.clearInstance()
     }
 
     protected fun bootActivity() {

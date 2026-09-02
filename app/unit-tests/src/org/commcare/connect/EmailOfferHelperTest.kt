@@ -157,13 +157,13 @@ class EmailOfferHelperTest {
     // ---------- helpers ------------------------------------------------------------------
 
     private fun setEmailToggle(active: Boolean) {
-        every { ConnectAppDatabaseUtil.getReleaseToggles(any()) } returns
+        every { ConnectAppDatabaseUtil.getReleaseToggles() } returns
             listOf(buildToggle(emailOtpSlug, active))
     }
 
     private fun setUserEmail(email: String?) {
         val user = ConnectUserRecord().apply { setEmail(email) }
-        every { ConnectUserDatabaseUtil.getUser(any()) } returns user
+        every { ConnectUserDatabaseUtil.getUser() } returns user
     }
 
     private fun mockActivity(): CommCareActivity<*> {

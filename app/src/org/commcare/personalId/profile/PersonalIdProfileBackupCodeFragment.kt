@@ -1,9 +1,7 @@
 package org.commcare.personalId.profile
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -45,7 +43,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     }
 
     private fun handleForgot() {
-        val email = ConnectUserDatabaseUtil.getUser(requireContext())?.email
+        val email = ConnectUserDatabaseUtil.getUser()?.email
         if (email != null) {
             findNavController().navigate(
                 PersonalIdProfileBackupCodeFragmentDirections
@@ -68,7 +66,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
 
     override fun handleBackupCodeSubmission() {
         val enteredCode = binding.backupCodeView.codeValue
-        val storedBackupCode = ConnectUserDatabaseUtil.getUser(requireContext())?.pin
+        val storedBackupCode = ConnectUserDatabaseUtil.getUser()?.pin
         if (enteredCode == storedBackupCode) {
             PersonalIdUserPreferences.clearBackupCodeLockout()
             findNavController().navigate(R.id.action_profile_backup_code_to_set_new_backup_code)

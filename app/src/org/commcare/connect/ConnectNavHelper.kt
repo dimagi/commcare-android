@@ -106,13 +106,13 @@ object ConnectNavHelper {
     }
 
     private fun checkConnectAccess(context: Context) {
-        if (!ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+        if (!ConnectUserDatabaseUtil.hasConnectAccess()) {
             throw IllegalStateException("Cannot navigate to Connect Jobs List without access")
         }
     }
 
     fun goToConnectJobsListChecked(context: Context) {
-        if (ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+        if (ConnectUserDatabaseUtil.hasConnectAccess()) {
             goToConnectJobsList(context)
         }
     }

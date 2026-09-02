@@ -1,10 +1,8 @@
 package org.commcare.connect.repository
 
-import android.content.Context
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -44,10 +42,10 @@ class ConnectRepository
             private var instance: ConnectRepository? = null
 
             @JvmStatic
-            fun getInstance(context: Context): ConnectRepository =
+            fun getInstance(): ConnectRepository =
                 instance ?: synchronized(this) {
                     instance ?: ConnectRepository(
-                        ConnectSyncPreferences.getInstance(context),
+                        ConnectSyncPreferences.getInstance(),
                         ConnectNetworkClient.getInstance(),
                     ).also { instance = it }
                 }
@@ -68,7 +66,6 @@ class ConnectRepository
                 policy = policy,
                 loadCache = {
                     getCompositeJobs(
-                        CommCareApplication.instance(),
                         ConnectJobRecord.STATUS_ALL_JOBS,
                         null,
                     )
@@ -87,7 +84,7 @@ class ConnectRepository
                 syncKey = SYNC_KEY_LEARNING_PREFIX + job.jobUUID,
                 forceRefresh = forceRefresh,
                 policy = policy,
-                loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                loadCache = { getCompositeJob(job.jobUUID) },
                 networkCall = { fetchLearningProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
                     responseModel.applyToJob(job, CommCareApplication.instance())
@@ -96,7 +93,7 @@ class ConnectRepository
                     }
                 },
                 onNetworkFailure = { FirebaseAnalyticsUtil.reportCccApiLearnProgress(false) },
-                mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                mapToEmit = { _ -> getCompositeJob(job.jobUUID) },
             )
 
         fun getDeliveryProgress(
@@ -108,7 +105,7 @@ class ConnectRepository
                 syncKey = SYNC_KEY_DELIVERY_PREFIX + job.jobUUID,
                 forceRefresh = forceRefresh,
                 policy = policy,
-                loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                loadCache = { getCompositeJob(job.jobUUID) },
                 networkCall = { fetchDeliveryProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
                     val events = mutableSetOf<String?>()
@@ -119,7 +116,7 @@ class ConnectRepository
                     events.forEach { event -> FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event) }
                 },
                 onNetworkFailure = { FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false, null) },
-                mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                mapToEmit = { _ -> getCompositeJob(job.jobUUID) },
             )
 
         fun startLearning(jobUUID: String): Flow<DataState<Unit>> =
@@ -140,7 +137,7 @@ class ConnectRepository
                 onNetworkSuccess = {
                     for (paymentConfirmation in paymentConfirmations) {
                         paymentConfirmation.payment.confirmed = paymentConfirmation.toConfirm
-                        ConnectJobUtils.storePayment(CommCareApplication.instance(), paymentConfirmation.payment)
+                        ConnectJobUtils.storePayment(paymentConfirmation.payment)
                     }
                     FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(true)
                 },
@@ -223,8 +220,7 @@ class ConnectRepository
                     }
             }.flowOn(DispatcherProvider.io())
 
-        private fun getConnectUser(): ConnectUserRecord =
-            requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
+        private fun getConnectUser(): ConnectUserRecord = requireNotNull(ConnectUserDatabaseUtil.getUser()) { "No Connect user found" }
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> =
             networkClient.getConnectOpportunities(getConnectUser())
