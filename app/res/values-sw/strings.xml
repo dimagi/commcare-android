@@ -363,8 +363,6 @@
     <string name="connect_results_summary_earned">Imelipwa</string>
     <string name="connect_results_summary_transferred">Imehamishwa</string>
     <string name="connect_payment_confirm_text">Je, umelipwa %d %s kwa ajili ya fursa ya %s?</string>
-    <string name="connect_payment_confirm_yes">Ndiyo!</string>
-    <string name="connect_payment_confirm_no">Uliza baadaye</string>
     <string name="personalid_login_with">Ingia kwa PersonalId</string>
     <string name="personalid_link_app_title">Unganisha kwa PersonalId?</string>
     <string name="personalid_link_app_message">Je, ungependa kuunganisha kuingia huku kwa akaunti yako ya PersonalId? Hutahitaji kuandika nenosiri lako katika siku zijazo.</string>

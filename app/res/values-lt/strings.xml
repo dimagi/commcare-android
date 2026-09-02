@@ -208,8 +208,6 @@
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
     <string name="no_channel_msg">Jūs neprenumeruojate jokių susirašinėjimo kanalų. Kai būsite pridėtas prie kanalo, jis pasirodys šiame sąraše.</string>
     <string name="connect_payment_confirm_text">Ar gavote %d %s už %s galimybę?</string>
-    <string name="connect_payment_confirm_yes">Taip, gavau</string>
-    <string name="connect_payment_confirm_no">Ne, negavau</string>
     <string name="connect_payment">Mokėjimas</string>
     <string name="connect_payment_received">Mokėjimas gautas</string>
     <string name="connect_payment_transferred">Mokėjimas pervestas</string>

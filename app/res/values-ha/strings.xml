@@ -199,8 +199,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_results_summary_earned">An samu</string>
     <string name="connect_results_summary_transferred">An canja wurin</string>
     <string name="connect_payment_confirm_text">An biya ku %d %s don damar %s?</string>
-    <string name="connect_payment_confirm_yes">Eh!</string>
-    <string name="connect_payment_confirm_no">Tambayi daga baya</string>
     <string name="personalid_login_with">Shiga da PersonalId</string>
     <string name="personalid_link_app_title">Haɗi zuwa PersonalId?</string>
     <string name="personalid_link_app_message">Kana son haɗa wannan shiga zuwa asusun PersonalId ɗinka? Ba za ka buƙaci rubuta kalmar sirrinka a nan gaba ba.</string>

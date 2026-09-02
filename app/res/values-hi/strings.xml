@@ -361,8 +361,6 @@ License.
     <string name="connect_results_summary_earned">अर्जित</string>
     <string name="connect_results_summary_transferred">स्थानांतरित</string>
     <string name="connect_payment_confirm_text">क्या आपको %d %s अवसर के लिए %s का भुगतान किया गया है?</string>
-    <string name="connect_payment_confirm_yes">हाँ!</string>
-    <string name="connect_payment_confirm_no">बाद में</string>
     <string name="personalid_login_with">PersonalId से लॉग इन करें</string>
     <string name="personalid_link_app_title">PersonalId से लिंक करें?</string>
     <string name="personalid_link_app_message">क्या आप इस आईडी को अपने PersonalId खाते से लिंक करना चाहेंगे? आपको भविष्य में अपना पासवर्ड दर्ज करने की आवश्यकता नहीं होगी।</string>

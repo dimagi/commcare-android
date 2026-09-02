@@ -561,8 +561,6 @@
 
     <string name="connect_results_summary_transferred">Transferred</string>
     <string name="connect_payment_confirm_text">Have you been paid %d %s for %s Opportunity?</string>
-    <string name="connect_payment_confirm_yes">Yes!</string>
-    <string name="connect_payment_confirm_no">Ask later</string>
     <string name="personalid_login_with">Login with PersonalId</string>
     <string name="personalid_link_app_title">Link to PersonalId?</string>
     <string name="personalid_link_app_message">Do you want to link this login to your PersonalId account? You will not need to type your password in the future.</string>

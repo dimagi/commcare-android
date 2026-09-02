@@ -365,8 +365,6 @@
     <string name="connect_results_summary_visits_done">ኩሉ ዝተገብረ ምብጻሕ</string>
     <string name="connect_results_summary_days_over">መዓልታት ተወዲኡ</string>
     <string name="connect_payment_confirm_text">ን%d %s ዕድል ዝኸውን %s ተኸፊልካዶ?</string>
-    <string name="connect_payment_confirm_yes">እወ!</string>
-    <string name="connect_payment_confirm_no">ፀኒሕኻ ሕተት።</string>
     <string name="personalid_login_with">ብ PersonalId እቶ</string>
     <string name="personalid_link_app_title">ናብ PersonalId ዝወስድ ሊንክ?</string>
     <string name="personalid_link_app_message">ነዚ መእተዊ ምስ ናይ ምትእስሳር መለለዪ ኣካውንትካ ከተተሓሕዞ ትደሊ ዲኻ? ኣብ መጻኢ ፓስዎርድካ ምጽሓፍ ኣየድልየካን እዩ።</string>

@@ -364,8 +364,6 @@
     <string name="connect_results_summary_earned">Ganado</string>
     <string name="connect_results_summary_transferred">Transferido</string>
     <string name="connect_payment_confirm_text">¿Ha recibido el pago de %d %s por la oportunidad de %s?</string>
-    <string name="connect_payment_confirm_yes">¡Sí!</string>
-    <string name="connect_payment_confirm_no">Más tarde</string>
     <string name="personalid_login_with">Iniciar sesión con PersonalId</string>
     <string name="personalid_link_app_title">¿Vincular con PersonalId?</string>
     <string name="personalid_link_app_message">¿Te gustaría vincular este inicio de sesión con tu cuenta de PersonalId? No necesitarás ingresar tu contraseña en el futuro.</string>

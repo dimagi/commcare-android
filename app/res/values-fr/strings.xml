@@ -361,8 +361,6 @@ License.
     <string name="connect_results_summary_earned">Gagné</string>
     <string name="connect_results_summary_transferred">Transféré</string>
     <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
-    <string name="connect_payment_confirm_yes">Oui!</string>
-    <string name="connect_payment_confirm_no">Plus tard</string>
     <string name="personalid_login_with">Connectez-vous avec PersonalId</string>
     <string name="personalid_link_app_title">Lien vers PersonalId ?</string>
     <string name="personalid_link_app_message">Souhaitez-vous associer cet identifiant à votre compte PersonalId? Vous n\'aurez plus besoin de saisir votre mot de passe à l\'avenir.</string>

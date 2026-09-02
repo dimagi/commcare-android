@@ -377,8 +377,6 @@
     <string name="connect_results_summary_visits_done">Todas as Visitas Realizadas</string>
     <string name="connect_results_summary_days_over">Dias Acima</string>
     <string name="connect_payment_confirm_text">Você recebeu o pagamento de %d %s pela oportunidade %s?</string>
-    <string name="connect_payment_confirm_yes">Sim!</string>
-    <string name="connect_payment_confirm_no">Pergunte mais tarde</string>
     <string name="personalid_login_with">Iniciar sessão com o PersonalId</string>
     <string name="personalid_link_app_title">Link para PersonalId?</string>
     <string name="personalid_link_app_message">Deseja vincular este login à sua conta PersonalId? Você não precisará digitar sua senha no futuro.</string>
