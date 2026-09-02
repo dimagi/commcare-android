@@ -220,8 +220,7 @@ class ConnectRepository
                     }
             }.flowOn(DispatcherProvider.io())
 
-        private fun getConnectUser(): ConnectUserRecord =
-            requireNotNull(ConnectUserDatabaseUtil.getUser()) { "No Connect user found" }
+        private fun getConnectUser(): ConnectUserRecord = requireNotNull(ConnectUserDatabaseUtil.getUser()) { "No Connect user found" }
 
         private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> =
             networkClient.getConnectOpportunities(getConnectUser())

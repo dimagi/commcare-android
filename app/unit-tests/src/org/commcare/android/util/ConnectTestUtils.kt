@@ -129,6 +129,5 @@ object ConnectTestUtils {
                 isLearning,
             ).apply { setLastUpdate(Date()) }
 
-    private fun <T : Persistable> connectStorage(clazz: Class<T>) =
-        ConnectDatabaseHelper.getConnectStorage(clazz)
+    private fun <T : Persistable> connectStorage(clazz: Class<T>) = ConnectDatabaseHelper.getConnectStorage(clazz)
 }
