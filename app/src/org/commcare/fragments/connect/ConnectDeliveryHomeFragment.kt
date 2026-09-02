@@ -67,7 +67,7 @@ class ConnectDeliveryHomeFragment :
     private var currentTabPosition = TAB_DASHBOARD
     private var learningRetryCallback: ConnectivityManager.NetworkCallback? = null
 
-    private var networkValidated = false
+    private var networkOnline = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -207,19 +207,22 @@ class ConnectDeliveryHomeFragment :
                     network: Network,
                     capabilities: NetworkCapabilities,
                 ) {
-                    val validated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                    if (validated && !networkValidated) {
+                    val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                    val isOnline = hasInternet && isValidated
+
+                    if (isOnline && !networkOnline) {
                         view?.post {
                             if (isAdded && job.latestLearningActivityDate == null) {
                                 refresh(false)
                             }
                         }
                     }
-                    networkValidated = validated
+                    networkOnline = isOnline
                 }
 
                 override fun onLost(network: Network) {
-                    networkValidated = false
+                    networkOnline = false
                 }
             }
         manager.registerDefaultNetworkCallback(callback)
