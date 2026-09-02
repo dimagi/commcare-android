@@ -1,7 +1,5 @@
 package org.commcare.fragments.connect
 
-import android.net.ConnectivityManager
-import android.net.Network
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -42,8 +40,6 @@ class ConnectDeliveryMoreFragment :
     /** Survives the rebinds a sync triggers; the pager recreating the page collapses it again. */
     private var certificateExpanded = false
 
-    private var connectivityCallback: ConnectivityManager.NetworkCallback? = null
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,7 +49,6 @@ class ConnectDeliveryMoreFragment :
         binding.revisitLearningCertificateButton.setOnClickListener { toggleCertificate() }
         binding.revisitLearningViewButton.setOnClickListener { launchApp(isLearning = true) }
         observeLearningFetch()
-        observeConnectivity()
         updateView()
         return view
     }
@@ -177,30 +172,6 @@ class ConnectDeliveryMoreFragment :
                 },
             )
         }
-    }
-
-    private fun observeConnectivity() {
-        val manager = requireContext().getSystemService(ConnectivityManager::class.java) ?: return
-        val callback =
-            object : ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: Network) = rebindOnMainThread()
-
-                override fun onLost(network: Network) = rebindOnMainThread()
-
-                private fun rebindOnMainThread() {
-                    view?.post { if (isAdded) bindRevisitLearning() }
-                }
-            }
-        manager.registerDefaultNetworkCallback(callback)
-        connectivityCallback = callback
-    }
-
-    override fun onDestroyView() {
-        connectivityCallback?.let {
-            requireContext().getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(it)
-        }
-        connectivityCallback = null
-        super.onDestroyView()
     }
 
     private fun setCertificateButtonEnabled(enabled: Boolean) {

@@ -68,7 +68,7 @@ class ConnectDeliveryHomeFragment :
     private lateinit var pagerAdapter: DeliveryViewStateAdapter
     private var initialTabPosition = TAB_DASHBOARD
     private var currentTabPosition = TAB_DASHBOARD
-    private var learningRetryCallback: ConnectivityManager.NetworkCallback? = null
+    private var connectivityCallback: ConnectivityManager.NetworkCallback? = null
 
     private var networkOnline = false
 
@@ -93,7 +93,7 @@ class ConnectDeliveryHomeFragment :
         binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
 
         observeDeliveryProgress()
-        retryLearningFetchOnReconnect()
+        observeConnectivity()
         return view
     }
 
@@ -202,8 +202,8 @@ class ConnectDeliveryHomeFragment :
         }
     }
 
-    private fun retryLearningFetchOnReconnect() {
-        val manager = requireContext().getSystemService(ConnectivityManager::class.java) ?: return
+    private fun observeConnectivity() {
+        val connectivityManager = requireContext().getSystemService(ConnectivityManager::class.java) ?: return
         val callback =
             object : ConnectivityManager.NetworkCallback() {
                 override fun onCapabilitiesChanged(
@@ -212,29 +212,41 @@ class ConnectDeliveryHomeFragment :
                 ) {
                     val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                     val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                    val isOnline = hasInternet && isValidated
-
-                    if (isOnline && !networkOnline) {
-                        // Re-runs delivery rather than the learn fetch, so the two never write the
-                        // opportunity simultaneously; its success is what asks for the learn records.
-                        view?.post { if (isAdded && learningRecordsMissing) refresh(false) }
-                    }
-                    networkOnline = isOnline
+                    onConnectivityChanged(hasInternet && isValidated)
                 }
 
-                override fun onLost(network: Network) {
-                    networkOnline = false
-                }
+                override fun onLost(network: Network) = onConnectivityChanged(false)
             }
-        manager.registerDefaultNetworkCallback(callback)
-        learningRetryCallback = callback
+        connectivityManager.registerDefaultNetworkCallback(callback)
+        connectivityCallback = callback
+    }
+
+    private fun onConnectivityChanged(isOnline: Boolean) {
+        if (isOnline == networkOnline) {
+            return
+        }
+
+        networkOnline = isOnline
+
+        view?.post {
+            if (!isAdded) {
+                return@post
+            }
+
+            refreshTabs()
+            if (isOnline && learningRecordsMissing) {
+                // Re-runs delivery rather than the learn fetch, so the two never write the
+                // opportunity simultaneously; its success is what asks for the learn records.
+                refresh(false)
+            }
+        }
     }
 
     override fun onDestroyView() {
-        learningRetryCallback?.let {
+        connectivityCallback?.let {
             requireContext().getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(it)
         }
-        learningRetryCallback = null
+        connectivityCallback = null
         super.onDestroyView()
     }
 
