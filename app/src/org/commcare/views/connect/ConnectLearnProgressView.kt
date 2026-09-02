@@ -8,6 +8,7 @@ import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord
 import org.commcare.connect.ConnectDateUtils
+import org.commcare.connect.viewmodel.InstallState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectLearnProgressBinding
 import java.text.DateFormat
@@ -34,6 +35,12 @@ class ConnectLearnProgressView
         init {
             orientation = VERTICAL
         }
+
+        /** Renders an app install in this view's action bar. */
+        fun renderInstallState(
+            state: InstallState?,
+            isLearning: Boolean,
+        ) = binding.learnProgressCtaBar.renderInstallState(state, isLearning)
 
         fun bind(
             job: ConnectJobRecord,
