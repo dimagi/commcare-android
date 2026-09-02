@@ -209,8 +209,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
-        job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
-        job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
+        job.projectEndDate = JsonExtensions.requireDate(json, META_END_DATE);
+        job.projectStartDate = JsonExtensions.requireDate(json, META_START_DATE);
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
         job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
@@ -260,11 +260,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
 
             if (claim.has(META_END_DATE)) {
-                job.projectEndDate = DateUtils.parseDate(claim.getString(META_END_DATE));
+                job.projectEndDate = JsonExtensions.requireDate(claim, META_END_DATE);
             }
 
             if (claim.has(META_CLAIM_DATE)) {
-                job.dateClaimed = DateUtils.parseDate(claim.getString(META_CLAIM_DATE));
+                job.dateClaimed = JsonExtensions.requireDate(claim, META_CLAIM_DATE);
             }
 
             if (claim.has(META_PAYMENT_UNITS)) {

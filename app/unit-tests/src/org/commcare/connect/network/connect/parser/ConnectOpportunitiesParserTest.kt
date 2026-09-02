@@ -200,4 +200,29 @@ class ConnectOpportunitiesParserTest {
 
         verify(exactly = 1) { FirebaseAnalyticsUtil.reportCccApiJobs(false, 0, 0) }
     }
+
+    @Test
+    fun `parse skips job with null end_date and throws JSONException`() {
+        val nullDateJob = validJobJson(10).apply { put("end_date", JSONObject.NULL) }
+        val inputStream = jsonArrayOf(nullDateJob)
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 0
+
+        assertThrows(JSONException::class.java) {
+            parser.parse(200, inputStream, null)
+        }
+        verify(exactly = 1) { ConnectJobUtils.storeJobs(any(), match { it.isEmpty() }, true) }
+    }
+
+    @Test
+    fun `parse stores valid jobs when one entry has a null end_date`() {
+        val nullDateJob = validJobJson(10).apply { put("end_date", JSONObject.NULL) }
+        val inputStream = jsonArrayOf(validJobJson(1), nullDateJob)
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
+        every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
+
+        assertThrows(JSONException::class.java) {
+            parser.parse(200, inputStream, null)
+        }
+        verify(exactly = 1) { ConnectJobUtils.storeJobs(any(), match { it.size == 1 && it[0].jobId == 1 }, true) }
+    }
 }
