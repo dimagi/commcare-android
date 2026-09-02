@@ -12,7 +12,7 @@ class ConnectJobIntroViewModel(
     application: Application,
     private val repository: ConnectRepository,
 ) : AndroidViewModel(application) {
-    constructor(application: Application) : this(application, ConnectRepository.getInstance(application))
+    constructor(application: Application) : this(application, ConnectRepository.getInstance())
 
     private val _startLearning = MutableLiveData<DataState<Unit>>()
     val startLearning: LiveData<DataState<Unit>> = _startLearning

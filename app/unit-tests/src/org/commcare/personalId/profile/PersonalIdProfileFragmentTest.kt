@@ -71,4 +71,14 @@ class PersonalIdProfileFragmentTest : BasePersonalIdProfileTest() {
         assertNotNull("Forget PersonalID should show a confirmation dialog", dialog)
         assertTrue("The confirmation dialog should be visible", dialog.isShowing)
     }
+
+    @Test
+    fun `tapping change backup code row navigates to backup code screen`() {
+        val changeBackupCodeRow =
+            fragment().requireView().findViewById<TextView>(R.id.profile_change_backup_code)
+
+        onUiThread { changeBackupCodeRow.performClick() }
+
+        assertEquals(R.id.personalid_profile_backup_code_fragment, currentDestinationId())
+    }
 }

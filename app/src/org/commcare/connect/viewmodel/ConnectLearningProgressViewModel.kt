@@ -15,7 +15,7 @@ class ConnectLearningProgressViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
     @VisibleForTesting
-    internal var repository: ConnectRepository = ConnectRepository.getInstance(application)
+    internal var repository: ConnectRepository = ConnectRepository.getInstance()
 
     private val _learningProgress = MutableLiveData<DataState<ConnectJobRecord>>()
     val learningProgress: LiveData<DataState<ConnectJobRecord>> = _learningProgress

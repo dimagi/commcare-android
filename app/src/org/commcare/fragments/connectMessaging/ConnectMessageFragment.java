@@ -82,7 +82,7 @@ public class ConnectMessageFragment extends Fragment {
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
 
-        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(channelId);
 
         handleSendButtonListener();
         setChatAdapter();
@@ -297,7 +297,7 @@ public class ConnectMessageFragment extends Fragment {
         Context context = getContext();
         if (context != null) {
             List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper
-                    .getMessagingMessagesForChannel(context, channelId);
+                    .getMessagingMessagesForChannel(channelId);
             List<ConnectMessageChatData> chats = new ArrayList<>();
 
             for (ConnectMessagingMessageRecord message : messages) {
@@ -467,7 +467,6 @@ public class ConnectMessageFragment extends Fragment {
                     if (!isAdded()) return;
 
                     channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
-                            requireContext(),
                             channelId
                     );
                     activity.dismissProgressDialogForTask(

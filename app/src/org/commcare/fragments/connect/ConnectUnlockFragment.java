@@ -89,12 +89,12 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void retrieveOpportunities() {
-        ConnectRepository.getInstance(requireContext()).retrieveOpportunitiesForJava(
+        ConnectRepository.getInstance().retrieveOpportunitiesForJava(
                 (success, error) -> {
                     if (!isAdded()) return;
                     if (success && !ConnectJobUtils.getCompositeJobs(
-                            requireContext(), ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty()) {
-                        ConnectUserDatabaseUtil.turnOnConnectAccess(requireContext());
+                            ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty()) {
+                        ConnectUserDatabaseUtil.turnOnConnectAccess();
                     }
                     tryToLoadInvitedOpp(success);
                     setFragmentRedirection();
@@ -103,8 +103,7 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void tryToLoadInvitedOpp(boolean refreshSucceeded) {
-        ConnectJobRecord requested = ConnectJobUtils.getCompositeJob(
-                requireContext(), requestedOpportunityUuid);
+        ConnectJobRecord requested = ConnectJobUtils.getCompositeJob(requestedOpportunityUuid);
         if (requested == null) {
             String failure = refreshSucceeded ?
                     AnalyticsParamValue.OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND :

@@ -211,7 +211,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             boolean isDeliverAppInstalled =
                     AppUtils.isAppInstalled(job.getDeliveryAppInfo().getAppId());
             ConnectJobRecord compositeJob =
-                    ConnectJobUtils.getCompositeJob(requireActivity(), job.getJobUUID());
+                    ConnectJobUtils.getCompositeJob(job.getJobUUID());
             Objects.requireNonNull(compositeJob);
             boolean userCompletedDelivery =
                     compositeJob.getStatus() == STATUS_DELIVERING &&
@@ -372,12 +372,11 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
             ConnectJobRecord job,
             ConnectLoginJobListModel.JobListEntryType jobType
     ) {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(requireActivity());
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
 
         String appId = getAppRecord(job, jobType).getAppId();
 
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                requireActivity(), appId, user.getUserId());
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, user.getUserId());
 
         return appRecord != null ? appRecord.getLastAccessed() : new Date();
     }

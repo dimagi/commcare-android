@@ -14,6 +14,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - On a device where PersonalID sign-up previously got stuck due to a Firebase OTP error, a pre-invited user will now receive the OTP via Twilio automatically and can complete the sign-up flow.
 - Confirm that entering an incorrect verification code still displays the "incorrect code" error and does not silently trigger a new OTP.
+- On the QA automation build, the photo step of PersonalID sign-up should open with a placeholder photo already shown and Save Photo enabled, and saving it should create the account without the camera ever opening.
+- On a normal build, the photo step should be unchanged: Save Photo stays disabled until a photo is actually taken.
 
 ## CommCare 2.63.4
 

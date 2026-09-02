@@ -75,7 +75,7 @@ class LinkHqWorkerResponseParserTest {
 
         // Assert
         connectAppDatabaseMock.verify(
-            { ConnectAppDatabaseUtil.storeApp(context, appRecord) },
+            { ConnectAppDatabaseUtil.storeApp(appRecord) },
             times(1),
         )
     }

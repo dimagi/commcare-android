@@ -84,17 +84,6 @@ class ConnectProgressCard
 
         init {
             orientation = VERTICAL
-            // Reserve room for the main card's elevation shadow inside our own bounds (otherwise the
-            // parent clips it into a hard edge), and let the shadow and the overlapping banner draw
-            // into that reserved padding.
-            clipChildren = false
-            clipToPadding = false
-            setPadding(
-                resources.getDimensionPixelSize(R.dimen.connect_progress_card_shadow_inset_horizontal),
-                resources.getDimensionPixelSize(R.dimen.connect_progress_card_shadow_inset_top),
-                resources.getDimensionPixelSize(R.dimen.connect_progress_card_shadow_inset_horizontal),
-                resources.getDimensionPixelSize(R.dimen.connect_progress_card_shadow_inset_bottom),
-            )
 
             var primary = ContextCompat.getColor(context, R.color.connect_text_color)
             var accent = ContextCompat.getColor(context, R.color.connect_dark_blue_color)
@@ -178,7 +167,14 @@ class ConnectProgressCard
             }
         }
 
+        /**
+         * The card is only raised while the banner is showing, since the elevation exists solely to
+         * draw over the part of it that tucks behind. Flat at rest, so no shadow shows at the corners.
+         */
         private fun bindInfo(info: State.Info?) {
+            binding.progressCardMain.cardElevation =
+                if (info == null) 0f else resources.getDimension(R.dimen.connect_progress_card_elevation)
+
             if (info == null) {
                 binding.progressCardInfoMessage.visibility = GONE
                 return

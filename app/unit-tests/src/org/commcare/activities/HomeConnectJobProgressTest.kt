@@ -1,6 +1,5 @@
 package org.commcare.activities
 
-import androidx.test.core.app.ApplicationProvider
 import io.mockk.every
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -110,7 +109,7 @@ class HomeConnectJobProgressTest : BaseHomeScreenActivityTest() {
     private fun clickSyncButton(home: StandardHomeActivity) = clickHomeButton(home, Localization.get("home.sync"))
 
     private fun seatedJob(): ConnectJobRecord =
-        requireNotNull(ConnectJobUtils.getCompositeJob(ApplicationProvider.getApplicationContext(), JOB_UUID)) {
+        requireNotNull(ConnectJobUtils.getCompositeJob(JOB_UUID)) {
             "the seated job disappeared from the Connect DB"
         }
 

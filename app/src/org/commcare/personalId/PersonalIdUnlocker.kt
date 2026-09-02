@@ -70,7 +70,7 @@ object PersonalIdUnlocker {
 
         logBiometricInvalidations(activity)
         val bioManager = personalIdManager.getBiometricManager(activity)
-        val user = ConnectUserDatabaseUtil.getUser(activity)
+        val user = ConnectUserDatabaseUtil.getUser()
 
         val callbacks =
             object : BiometricPrompt.AuthenticationCallback() {
