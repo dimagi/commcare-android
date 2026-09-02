@@ -132,10 +132,12 @@ class ConnectDeliveryHomeFragment :
 
     /**
      * The More tab makes its highest-priority task the primary action, so the shared launch bar gets
-     * out of its way.
+     * out of its way — but not while it is reporting an install, which is the only sign the user has
+     * that a download they started is still running.
      */
     private fun updateCtaBarVisibility() {
-        binding.connectDeliveryCtaBar.isVisible = currentTabPosition != moreTabPosition
+        binding.connectDeliveryCtaBar.isVisible =
+            currentTabPosition != moreTabPosition || isInstallingApp
     }
 
     private fun updateMoreTabBadge() {
@@ -264,7 +266,10 @@ class ConnectDeliveryHomeFragment :
     override fun onInstallStateChanged(
         state: InstallState?,
         isLearning: Boolean,
-    ) = binding.connectDeliveryCtaBar.renderInstallState(state, isLearning)
+    ) {
+        binding.connectDeliveryCtaBar.renderInstallState(state, isLearning, ::forgetInstallFailure)
+        updateCtaBarVisibility()
+    }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.jobUUID
 

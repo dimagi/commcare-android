@@ -37,10 +37,12 @@ class ConnectLearnProgressView
         }
 
         /** Renders an app install in this view's action bar. */
+        @JvmOverloads
         fun renderInstallState(
             state: InstallState?,
             isLearning: Boolean,
-        ) = binding.learnProgressCtaBar.renderInstallState(state, isLearning)
+            onFailureDismissed: (() -> Unit)? = null,
+        ) = binding.learnProgressCtaBar.renderInstallState(state, isLearning, onFailureDismissed)
 
         fun bind(
             job: ConnectJobRecord,

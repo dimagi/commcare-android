@@ -165,7 +165,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     override fun onInstallStateChanged(
         state: InstallState?,
         isLearning: Boolean,
-    ) = binding.connectIntroCtaBar.renderInstallState(state, isLearning)
+    ) = binding.connectIntroCtaBar.renderInstallState(state, isLearning, ::forgetInstallFailure)
 
     private fun reportApiCall(success: Boolean) {
         FirebaseAnalyticsUtil.reportCccApiStartLearning(success)

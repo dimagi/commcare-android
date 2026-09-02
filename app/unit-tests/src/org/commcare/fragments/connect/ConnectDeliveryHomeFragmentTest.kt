@@ -101,7 +101,7 @@ class ConnectDeliveryHomeFragmentTest {
 
         // A missing app now installs in place, so the download is stubbed out rather than run.
         mockkObject(ConnectAppUtils)
-        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
     }
 
     @After

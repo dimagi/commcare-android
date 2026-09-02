@@ -45,11 +45,22 @@ sealed interface InstallFailureRecovery {
     data object TargetMismatch : InstallFailureRecovery
 }
 
+/** The app an install is working towards, and which screen is driving it. */
+data class InstallTarget(
+    val appId: String,
+    val isLearning: Boolean,
+    val popSelfOnLaunch: Boolean,
+    /** Identifies the screen that started the install, so only it acts on the result. */
+    val ownerKey: String,
+)
+
 /**
  * Downloads an opportunity's learn or delivery app and reports progress through [installState].
  *
- * Owning the install here rather than in a fragment is what lets it outlive a rotation: the screen
- * that started it re-observes the state it left behind instead of restarting the download.
+ * Scoped to the hosting activity rather than a single screen, because only one app can download at
+ * a time: a second screen must see the install already in flight instead of starting its own and
+ * waiting forever on a download that was never begun. Living above the fragments also lets an
+ * install outlive rotation and the recycling of a pager page.
  */
 class ConnectAppInstallViewModel(
     application: Application,
@@ -58,14 +69,47 @@ class ConnectAppInstallViewModel(
     private val _installState = MutableLiveData<InstallState?>()
     val installState: LiveData<InstallState?> = _installState
 
+    var target: InstallTarget? = null
+        private set
+
+    /** Guards the one-shot handling of a failure, which otherwise replays on every recreation. */
+    private var failureHandled = false
+
     val isInstalling get() = _installState.value.let { it is InstallState.Downloading || it is InstallState.Verifying }
 
-    fun install(installUrl: String?) {
+    /**
+     * Starts installing [target]'s app. Answers false when an install is already running, leaving
+     * the state describing that install untouched.
+     */
+    fun install(
+        target: InstallTarget,
+        installUrl: String?,
+    ): Boolean {
         if (isInstalling) {
-            return
+            return false
         }
+        // Set before starting so a callback arriving immediately has somewhere to land.
+        this.target = target
+        failureHandled = false
         _installState.value = InstallState.Downloading(0)
-        ConnectAppUtils.downloadApp(installUrl, this)
+
+        if (!ConnectAppUtils.downloadApp(installUrl, this)) {
+            clear()
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Answers true the first time it is asked about the current failure, so a screen shows its
+     * prompt or toast once rather than every time it re-observes.
+     */
+    fun consumeFailure(): Boolean {
+        if (failureHandled) {
+            return false
+        }
+        failureHandled = true
+        return true
     }
 
     fun markVerifying() {
@@ -82,6 +126,8 @@ class ConnectAppInstallViewModel(
 
     /** Clears the state once the screen has acted on it, so re-observing does not replay it. */
     fun clear() {
+        target = null
+        failureHandled = false
         _installState.value = null
     }
 

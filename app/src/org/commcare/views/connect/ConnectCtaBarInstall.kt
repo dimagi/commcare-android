@@ -5,11 +5,14 @@ import org.commcare.dalvik.R
 
 /**
  * Renders an app install in the bottom action bar the user started it from: a progress ring while
- * it runs, and a dismissible message with the CTA restored when it fails.
+ * it runs, and a dismissible message with the CTA restored when it fails. [onFailureDismissed] lets
+ * the caller forget the failure, so dismissing it is not undone by the next re-render.
  */
+@JvmOverloads
 fun ConnectCtaBar.renderInstallState(
     state: InstallState?,
     isLearning: Boolean,
+    onFailureDismissed: (() -> Unit)? = null,
 ) {
     val subtitle =
         context.getString(
@@ -19,7 +22,7 @@ fun ConnectCtaBar.renderInstallState(
         is InstallState.Downloading -> showInstallProgress(state.percent, subtitle)
         // Verification and seating carry on after the download, so the bar stays busy through them.
         InstallState.Installed, InstallState.Verifying -> showInstallProgress(FULL_PROGRESS, subtitle)
-        is InstallState.Failed -> showInstallFailure(state.message)
+        is InstallState.Failed -> showInstallFailure(state.message, onFailureDismissed)
         null -> {
             clearInstallProgress()
             hideInstallFailure()

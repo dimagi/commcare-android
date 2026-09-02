@@ -144,8 +144,8 @@ class ConnectLearningProgressFragment :
         state: InstallState?,
         isLearning: Boolean,
     ) {
-        binding.learnProgressView.renderInstallState(state, isLearning)
-        binding.learnCompleteView.renderInstallState(state, isLearning)
+        binding.learnProgressView.renderInstallState(state, isLearning, ::forgetInstallFailure)
+        binding.learnCompleteView.renderInstallState(state, isLearning, ::forgetInstallFailure)
     }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_LEARNING_PREFIX + job.jobUUID

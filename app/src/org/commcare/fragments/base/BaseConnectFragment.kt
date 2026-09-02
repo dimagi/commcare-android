@@ -36,15 +36,18 @@ import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.connect.viewmodel.InstallFailureRecovery
 import org.commcare.connect.viewmodel.InstallState
+import org.commcare.connect.viewmodel.InstallTarget
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.dalvik.databinding.NetworkStatusBarLayoutBinding
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.interfaces.base.BaseConnectView
+import org.commcare.util.LogTypes
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.NetworkStatusBarViewController
 import org.commcare.views.dialogs.CustomProgressDialog
+import org.javarosa.core.services.Logger
 import java.util.Date
 
 fun interface DataStateConsumer<T> {
@@ -67,22 +70,32 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var lastDataState: DataState<*>? = null
     private var wasOffline: Boolean = false
 
-    /** The app [launchApp] is working towards, kept across recreation so an install can finish. */
-    private var installTarget: InstallTarget? = null
     private var installDialog: CustomProgressDialog? = null
 
+    /**
+     * Shared with every other Connect screen in this activity, since only one app installs at a
+     * time. [installOwnerKey] is what distinguishes the screen driving the install from the ones
+     * merely watching it.
+     */
     private val installViewModel: ConnectAppInstallViewModel by lazy {
         ViewModelProvider(
-            this,
+            requireActivity(),
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
         )[ConnectAppInstallViewModel::class.java]
     }
 
+    /** Stable across recreation, so a screen reclaims the install it started before a rotation. */
+    private val installOwnerKey get() = javaClass.name
+
+    private val ownedInstallTarget: InstallTarget?
+        get() = installViewModel.target?.takeIf { it.ownerKey == installOwnerKey }
+
     private val verificationLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val target = ownedInstallTarget
             if (result.resultCode == Activity.RESULT_OK) {
                 installViewModel.clear()
-                launchInstalledApp()
+                target?.let { launchInstalledApp(it) }
             } else {
                 installViewModel.verificationFailed()
             }
@@ -186,14 +199,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        installTarget = InstallTarget.fromBundle(savedInstanceState)
         installDialog = childFragmentManager.findFragmentByTag(INSTALL_DIALOG_TAG) as? CustomProgressDialog
         installViewModel.installState.observe(viewLifecycleOwner) { onInstallState(it) }
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        installTarget?.writeTo(outState)
     }
 
     override fun onStart() {
@@ -369,12 +376,18 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         popSelfOnLaunch: Boolean = true,
     ) {
         val app = if (isLearning) job.learnAppInfo else job.deliveryAppInfo
-        installTarget = InstallTarget(app.appId, isLearning, popSelfOnLaunch)
+        val target = InstallTarget(app.appId, isLearning, popSelfOnLaunch, installOwnerKey)
 
         if (AppUtils.isAppInstalled(app.appId)) {
-            launchInstalledApp()
-        } else {
-            installViewModel.install(app.installUrl)
+            launchInstalledApp(target)
+            return
+        }
+        if (!installViewModel.install(target, app.installUrl)) {
+            // Another screen's install is already running; it stays the one being reported.
+            Logger.log(
+                LogTypes.SOFT_ASSERT,
+                "Ignored a Connect app launch for ${app.appId}: an install is already running",
+            )
         }
     }
 
@@ -399,15 +412,29 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         }
     }
 
+    /**
+     * Only the screen that started an install reports it or acts on its result, so a second screen
+     * observing the same install neither duplicates the launch nor shows a stray dialog.
+     */
     private fun onInstallState(state: InstallState?) {
-        val isLearning = installTarget?.isLearning ?: false
-        // Re-applied on every state so a screen recreated mid-install locks itself down again.
+        // Re-applied on every state so a screen recreated mid-install locks itself down again, and
+        // any screen re-enables the action bar once the install that disabled it is over.
         setBackButtonAndActionBarState(!installViewModel.isInstalling)
-        onInstallStateChanged(state, isLearning)
+
+        val target = ownedInstallTarget
+        if (target == null) {
+            onInstallStateChanged(null, false)
+            return
+        }
+        onInstallStateChanged(state, target.isLearning)
 
         when (state) {
             InstallState.Installed -> startAppVerification()
-            is InstallState.Failed -> recoverFromInstallFailure(state)
+            is InstallState.Failed ->
+                if (installViewModel.consumeFailure()) {
+                    recoverFromInstallFailure(state)
+                }
+
             else -> Unit
         }
     }
@@ -422,8 +449,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         )
     }
 
-    private fun launchInstalledApp() {
-        val target = installTarget ?: return
+    private fun launchInstalledApp(target: InstallTarget) {
         ConnectAppLaunchController(this).launchApp(
             target.appId,
             target.isLearning,
@@ -484,6 +510,16 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     protected fun downloadingMessage(isLearning: Boolean): Int =
         if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
 
+    /** True while any Connect screen in this activity has an app install in flight. */
+    protected val isInstallingApp get() = installViewModel.isInstalling
+
+    /** Drops a failure the user has dismissed, so re-rendering the screen does not bring it back. */
+    protected fun forgetInstallFailure() {
+        if (installViewModel.installState.value is InstallState.Failed) {
+            installViewModel.clear()
+        }
+    }
+
     /**
      * Pops this fragment off the navigation back stack the next time it is hidden (its [onStop]).
      * A fragment that has launched another screen on top calls this so the user does not return to
@@ -506,39 +542,11 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         )
     }
 
-    /** The app an install is working towards, and what to do with this screen once it opens. */
-    private data class InstallTarget(
-        val appId: String,
-        val isLearning: Boolean,
-        val popSelfOnLaunch: Boolean,
-    ) {
-        fun writeTo(outState: Bundle) {
-            outState.putString(KEY_INSTALL_APP_ID, appId)
-            outState.putBoolean(KEY_INSTALL_IS_LEARNING, isLearning)
-            outState.putBoolean(KEY_INSTALL_POP_SELF, popSelfOnLaunch)
-        }
-
-        companion object {
-            fun fromBundle(savedInstanceState: Bundle?): InstallTarget? {
-                val appId = savedInstanceState?.getString(KEY_INSTALL_APP_ID) ?: return null
-                return InstallTarget(
-                    appId,
-                    savedInstanceState.getBoolean(KEY_INSTALL_IS_LEARNING),
-                    savedInstanceState.getBoolean(KEY_INSTALL_POP_SELF),
-                )
-            }
-        }
-    }
-
     companion object {
         private const val INSTALL_DIALOG_TAG = "connect_install_progress"
 
         // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
         private const val INSTALL_DIALOG_TASK_ID = -11
         private const val INSTALL_PROGRESS_MAX = 100
-
-        private const val KEY_INSTALL_APP_ID = "install_app_id"
-        private const val KEY_INSTALL_IS_LEARNING = "install_is_learning"
-        private const val KEY_INSTALL_POP_SELF = "install_pop_self"
     }
 }

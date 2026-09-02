@@ -96,7 +96,7 @@ class ConnectLearningProgressFragmentTest {
 
         // A missing app now installs in place, so the download is stubbed out rather than run.
         mockkObject(ConnectAppUtils)
-        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
 
         // Pre-enqueue a response so the getOpportunities request made by the start destination
         // does not hang, then drain it so it doesn't sit ahead of later requests in the queue.

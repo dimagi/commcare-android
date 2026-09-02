@@ -28,7 +28,7 @@ class ConnectAppInstallViewModelTest {
     @Before
     fun setUp() {
         mockkObject(ConnectAppUtils)
-        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
         viewModel = ConnectAppInstallViewModel(application)
     }
 
@@ -39,31 +39,56 @@ class ConnectAppInstallViewModelTest {
 
     @Test
     fun `install starts a download and reports zero progress`() {
-        viewModel.install(INSTALL_URL)
+        assertTrue(viewModel.install(target(), INSTALL_URL))
 
         verify { ConnectAppUtils.downloadApp(INSTALL_URL, viewModel) }
         assertEquals(InstallState.Downloading(0), viewModel.installState.value)
+        assertEquals(target(), viewModel.target)
         assertTrue(viewModel.isInstalling)
     }
 
     @Test
-    fun `install is ignored while one is already running`() {
-        viewModel.install(INSTALL_URL)
+    fun `install is refused while one is already running`() {
+        viewModel.install(target(), INSTALL_URL)
         viewModel.updateResourceProgress(5, 10, 0)
 
-        viewModel.install(INSTALL_URL)
+        assertFalse(viewModel.install(target(appId = "other-app"), "https://example.com/other"))
 
         verify(exactly = 1) { ConnectAppUtils.downloadApp(any(), any()) }
         assertEquals(InstallState.Downloading(50), viewModel.installState.value)
     }
 
     @Test
+    fun `a refused install leaves the running install's target in place`() {
+        viewModel.install(target(), INSTALL_URL)
+
+        viewModel.install(target(appId = "other-app"), "https://example.com/other")
+
+        assertEquals(APP_ID, viewModel.target?.appId)
+    }
+
+    /**
+     * The download layer keeps its own process-wide guard; entering a downloading state it never
+     * backed would leave the screen waiting on progress that can never arrive.
+     */
+    @Test
+    fun `a download the download layer refuses to start leaves no install in flight`() {
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns false
+
+        assertFalse(viewModel.install(target(), INSTALL_URL))
+
+        assertNull(viewModel.installState.value)
+        assertNull(viewModel.target)
+        assertFalse(viewModel.isInstalling)
+    }
+
+    @Test
     fun `install runs again once the previous one has been cleared`() {
-        viewModel.install(INSTALL_URL)
+        viewModel.install(target(), INSTALL_URL)
         viewModel.reportSuccess(true)
         viewModel.clear()
 
-        viewModel.install(INSTALL_URL)
+        assertTrue(viewModel.install(target(), INSTALL_URL))
 
         verify(exactly = 2) { ConnectAppUtils.downloadApp(any(), any()) }
     }
@@ -141,9 +166,29 @@ class ConnectAppInstallViewModelTest {
 
         assertTrue(viewModel.isInstalling)
 
-        viewModel.install(INSTALL_URL)
+        assertFalse(viewModel.install(target(), INSTALL_URL))
 
         verify(exactly = 0) { ConnectAppUtils.downloadApp(any(), any()) }
+    }
+
+    @Test
+    fun `a failure is only handed out once, so it is not re-reported on every recreation`() {
+        viewModel.failUnknown(AppInstallStatus.UnknownFailure)
+
+        assertTrue(viewModel.consumeFailure())
+        assertFalse(viewModel.consumeFailure())
+    }
+
+    @Test
+    fun `a fresh install hands out its own failure again`() {
+        viewModel.failUnknown(AppInstallStatus.UnknownFailure)
+        viewModel.consumeFailure()
+        viewModel.clear()
+
+        viewModel.install(target(), INSTALL_URL)
+        viewModel.failUnknown(AppInstallStatus.UnknownFailure)
+
+        assertTrue(viewModel.consumeFailure())
     }
 
     @Test
@@ -156,16 +201,26 @@ class ConnectAppInstallViewModelTest {
     }
 
     @Test
-    fun `clearing drops the state so it is not replayed to the next observer`() {
+    fun `clearing drops the state and its target so neither is replayed to the next observer`() {
+        viewModel.install(target(), INSTALL_URL)
         viewModel.reportSuccess(true)
 
         viewModel.clear()
 
         assertNull(viewModel.installState.value)
+        assertNull(viewModel.target)
         assertFalse(viewModel.isInstalling)
     }
 
+    private fun target(
+        appId: String = APP_ID,
+        isLearning: Boolean = true,
+        ownerKey: String = OWNER_KEY,
+    ) = InstallTarget(appId, isLearning, popSelfOnLaunch = true, ownerKey = ownerKey)
+
     companion object {
         private const val INSTALL_URL = "https://example.com/install"
+        private const val APP_ID = "learn-app-001"
+        private const val OWNER_KEY = "org.commcare.fragments.connect.ConnectJobIntroFragment"
     }
 }

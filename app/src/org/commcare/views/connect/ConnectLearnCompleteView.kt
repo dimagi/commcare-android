@@ -50,10 +50,12 @@ class ConnectLearnCompleteView
         }
 
         /** Renders an app install in this view's action bar. */
+        @JvmOverloads
         fun renderInstallState(
             state: InstallState?,
             isLearning: Boolean,
-        ) = binding.learnCompleteCtaBar.renderInstallState(state, isLearning)
+            onFailureDismissed: (() -> Unit)? = null,
+        ) = binding.learnCompleteCtaBar.renderInstallState(state, isLearning, onFailureDismissed)
 
         fun showClaimFailure(message: String) {
             binding.learnCompleteFailureCard.show(ConnectSuccessFailureCard.Mode.FAILURE, message)

@@ -159,8 +159,9 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         } else if (!job.passedAssessment() || isLearning) {
             navigateToLearnProgress();
         } else {
-            // This list is the root of the Connect back stack, so it stays put once the app opens.
-            launchApp(job, isLearning, false);
+            // Learning is complete by here, so the delivery app is the only one left to open. This
+            // list is the root of the Connect back stack, so it stays put once that app opens.
+            launchApp(job, false, false);
         }
     }
 

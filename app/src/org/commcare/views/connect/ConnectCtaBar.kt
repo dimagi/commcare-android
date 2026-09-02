@@ -112,9 +112,13 @@ class ConnectCtaBar
         }
 
         /** Restores the CTA so the install can be retried, and explains why above the bar. */
-        fun showInstallFailure(message: CharSequence) {
+        @JvmOverloads
+        fun showInstallFailure(
+            message: CharSequence,
+            onDismiss: (() -> Unit)? = null,
+        ) {
             clearInstallProgress()
-            binding.ctaFailureCard.show(ConnectSuccessFailureCard.Mode.FAILURE, message)
+            binding.ctaFailureCard.show(ConnectSuccessFailureCard.Mode.FAILURE, message, onDismiss)
         }
 
         fun hideInstallFailure() {

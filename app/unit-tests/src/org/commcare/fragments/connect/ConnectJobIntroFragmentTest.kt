@@ -192,7 +192,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
 
         // A missing app now installs in place, so the download is stubbed out rather than run.
         mockkObject(ConnectAppUtils)
-        every { ConnectAppUtils.downloadApp(any(), any()) } returns Unit
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
 
         val jobUuidSlot = slot<String>()
         val repo = ConnectRepository.getInstance()
