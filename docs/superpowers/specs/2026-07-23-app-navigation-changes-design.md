@@ -10,7 +10,7 @@
 
 **1. `DispatchActivity` becomes a one-time router.** It stays the single startup router — no second routing class — modified to decide **once per cold start** rather than re-evaluating in `onResume`, and to add a Connect-home branch. The decision logic is extracted into a testable pure helper it calls.
 
-**2. Every entry seeds a complete back path.** The sign-in, account and Connect list screens are consolidated into one navigation surface (the "shell"); the CommCare app runtime stays a separately launched screen. Because the path is built before the target is shown, the per-case activity flags that used to force an exit are no longer needed.
+**2. The screen the router opens becomes the task root.** The sign-in, account and Connect list screens are consolidated into one navigation surface (the "shell"); the CommCare app runtime stays a separately launched screen. Because nothing sits beneath the landing screen, back exits from it as ordinary platform behaviour — no per-case activity flags. The exception is a deep link that opens something nested, where the screens it sits under are seeded first.
 
 ## Routing
 
@@ -23,9 +23,9 @@ flowchart TD
     S -->|No| Seat{An app already seated?}
     Seat -->|Yes| SignIn["Sign in for that app,<br/>not the list to re-pick"] --> Need
     Seat -->|No| Config[Decide from what the user has set up] --> Need
-    Need -->|No| Seed["Seed the full back path,<br/>then show the target"]
+    Need -->|No| Open["Open the target as the task root,<br/>seeding any screens it sits under"]
     Need -->|Yes| Unlock{Unlock}
-    Unlock -->|Success| Seed
+    Unlock -->|Success| Open
     Unlock -->|Cancel or fail| Apps{CommCare apps installed?}
     Apps -->|Yes| Login[Login page]
     Apps -->|No| Intro[Intro page]
@@ -35,30 +35,26 @@ flowchart TD
 
 The unlock gate belongs to the router, so no entry point can bypass it — `ConnectUnlockFragment` stops being the startup host. Entries from inside the app, after the session has already expired, keep today's per-call helpers; north-star collapses both into the one gate.
 
-The fallback screen has to explain why the user is on it. For a PersonalID-assisted user the recovery action there is the PersonalID option, not username/password.
+## The back path
 
-## The seeded back path
+| Entry | Task stack, bottom → top                                 |
+|---|----------------------------------------------------------|
+| Cold start, Connect user with a current opportunity | Opp Home                                                 |
+| Cold start, Connect user with no current opportunity | Opp List                                                 |
+| Cold start, traditional CommCare or PersonalID user | App Home (Login page when there is no session to resume) |
+| Notification into a chat | Opp Home → Messaging channel list → Chat                 |
+| Sidebar section opened from inside an opportunity | Opp Home → Section                                       |
+| A second sidebar section opened after the first | Opp Home → New section (the first section is closed)     |
 
-| Entry | Task stack, bottom → top |
-|---|---|
-| Cold start, Connect user with a current opportunity | Opp List → Opp Home |
-| Cold start, Connect user with no current opportunity | Opp List |
-| Cold start, traditional CommCare or PersonalID user | Login page (CommCare Apps list, once it ships) → app Home |
-| Notification into a chat | Opp List → Opp Home → Messaging channel list → Chat |
-| Sidebar section opened from inside an opportunity | Opp List → Opp Home → Section |
-| A second sidebar section opened after the first | Opp List → Opp Home → New section (the first section is closed) |
+The stack therefore never holds more than three screens.
 
-The stack therefore never holds more than four screens, and only reaches four when a notification or deep link opens something nested.
-
-A path is built only when there is no real history to retrace: a chat opened from a task on Opportunity Home has history, so Back returns there.
+Screens are seeded only when the app opens the user below their home. Ordinary in-app navigation already leaves real history to retrace: a chat opened from a task on Opportunity Home has history, so back returns there.
 
 Seeding spans activities, not nav graphs — Messaging is a separate activity with its own `NavHost` and Opportunity Home is in another, so the path is a task stack. `NavDeepLinkBuilder` is not used: it synthesizes only within one graph, and it bypasses the unlock gate.
 
 ## The app-bar slot
 
-CommCare screens already route the app-bar arrow to Back, so dropping `Up` requires no change to them.
-
-**Back-swipe** needs no separate rule, but note that on sidebar screens `DrawerLayout` automatically claims the left edge, so a left-edge swipe opens the sidebar while a right-edge swipe goes back.
+A **back-swipe gesture** needs no separate rule, but note that on sidebar screens `DrawerLayout` automatically claims the left edge, so a left-edge swipe opens the sidebar while a right-edge swipe goes back.
 
 ## Sidebar
 
@@ -75,20 +71,18 @@ The selected Delivery tab is an **argument** to the destination rather than a de
 
 ## Analytics
 
-- **Which control the user pressed** — app-bar arrow vs. system back. Android does not distinguish a back *gesture* from the back *button* (both arrive through the same callback), so they cannot be reported separately.
-- **Why the user was on the Opportunity List** — passing through it on the way out vs. going there deliberately to switch opportunities.
+**Which control the user pressed** — app-bar arrow vs. system back. Android does not distinguish a back *gesture* from the back *button* (both arrive through the same callback), so they cannot be reported separately.
 
 ## Interim vs. north-star
 
-- **North-star:** a single `NavHost` shell; the seeded path is the nav back stack.
-- **Interim:** the seeded path ships now as a **task stack** on today's activities. This *replaces* rather than coexists with `appLaunchedFromConnect` / `finishAffinity`. `REORDER_TO_FRONT` stays for reusing a running home. `DispatchActivity` stays the single router and continues to own the corrupted-database and recovery paths, plus launches that come from outside the app.
+- **North-star:** a single `NavHost` shell; the landing screen is the graph's start destination.
+- **Interim:** on today's activities the router makes the landing screen the task root. That removes the need for `appLaunchedFromConnect` / `finishAffinity`, which existed only because something else sat beneath the launch screen and had to be suppressed. `REORDER_TO_FRONT` stays for reusing a running home. `DispatchActivity` stays the single router and continues to own the corrupted-database and recovery paths, plus launches that come from outside the app.
 
 ## Testing
 
 - **Router** — a pure function of its inputs, so unit-test every landing outcome, the case where an active session skips the rest of the decision, and the cases where the last-used opportunity has ended or no longer exists.
-- **Back navigation** — Robolectric regression tests over the seeded-path table above (assert the stack, not internals), plus two sidebar sections in succession.
+- **Back navigation** — Robolectric regression tests over the back-path table above (assert the stack, not internals): back exits from each persona's landing screen, a sidebar section returns to the workspace, two sidebar sections in succession, and a notification into a nested screen walks down rather than exiting.
 - **Startup boundaries** — external `ACTION_VIEW` install, verification refresh, cold-start unlock cancellation with and without apps installed, backgrounded session expiry, and Forget-PersonalID with an active session.
-- **Sidebar availability** — assert the app-bar slot per screen, and that it no longer depends on whether the sidebar happens to have been shown before.
 
 ---
 
@@ -107,15 +101,13 @@ The selected Delivery tab is an **argument** to the destination rather than a de
 | Installed apps | [`MultipleAppsUtil.usableAppsPresent()`](https://github.com/dimagi/commcare-android/blob/dc7697645fefd99de4e234be569bd8447fb6e0ba/app/src/org/commcare/utils/MultipleAppsUtil.java#L50) |
 | Last-accessed opportunity / last session context | new persistence (below) |
 
-### Seeding mechanics
+### Making the landing screen the task root
 
-**Interim (task stack).** Build the whole path in one call — `Activity.startActivities(Intent[])`, or `TaskStackBuilder` when the entry point is a notification `PendingIntent` — so the intermediate activities exist before the target is shown. Seed only when the task is being created; an existing task is left alone.
+Launch it with `FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK` so nothing from the routing sequence is left beneath it. `LoginActivity` already removes itself on success (`setResult(RESULT_OK); finish()` at `:425`, `:433`, `:503`, `:624`), so no change is needed there — do not make it stay in the stack.
 
-Cost to be aware of: each seeded activity is really created, so a Connect cold start instantiates Opportunity List underneath Opportunity Home. Keep the list's `onCreate` cheap (defer network and heavy binding to `onStart`/`onResume`, which won't run while it is beneath another activity). This cost is interim-only — in the shell, seeding is just pushing nav back-stack entries, with no activity creation.
+Deep links are the only case that needs seeding: build the path in one call with `Activity.startActivities(Intent[])`, or `TaskStackBuilder` when the entry point is a notification `PendingIntent`, so the intermediate activities exist before the target is shown. Seed only when the task is being created; an existing task is left alone.
 
 **Sidebar sections replacing each other.** Launching a section from the drawer finishes the section activity currently on top (if any) before starting the new one, rather than relying on intent flags — `FLAG_ACTIVITY_CLEAR_TOP` clears *ancestors*, not siblings, so it will not pop Messaging when launching Work History. In the shell this becomes `popUpTo(<workspace destination>)` followed by `navigate`, and the depth bound falls out of the graph rather than needing enforcement.
-
-**Explicitly do not** use `NavigationUI`'s default drawer behavior (`popUpTo(startDestination)` + `launchSingleTop`): the sidebar has no "back to my work" item, so popping to the root would leave the user with no route back to the opportunity.
 
 ### Slot enforcement
 
@@ -131,10 +123,9 @@ At cold start, show a splash / branded base behind the prompt — Android 12+ `S
 
 ### Sidebar code changes
 
-- `ConnectActivity` and `ConnectMessagingActivity` extend `NavigationHostCommCareActivity`; `PersonalIdWorkHistoryActivity` extends `CommCareActivity`. None extend `BaseDrawerActivity`, which is why those screens have no drawer. Move all three onto `BaseDrawerActivity` and override `shouldShowDrawer()` to return `true`, since the interim ships on today's activities. The shell absorbs them later, at which point the drawer comes from the shell activity instead.
-- Retire `NavDrawerHelper.drawerShownBefore()` / `setDrawerShown()` and the `shouldShowDrawerAfterCheck(requirePersonalIDLogin)` gate. Today `CommCareSetupActivity:315` passes `false` and sets the stored flag, and that stored flag then causes the checks in `LoginActivity:1069` and `StandardHomeActivity:354` to return early without ever testing for PersonalID. `shouldShowDrawer()` defaults to `false`, so only those three activities opt in at present.
-- Keep `checkDeviceCompability()` (`SDK_INT >= P`).
-- Drawer contents come from `BaseDrawerController.refreshDrawerContent`; the signed-out branch (`setSignedInState(false)` → `configureErrorState()`) renders the sign-up prompt, whose button calls `PersonalIdManager.launchPersonalId(activity, PERSONAL_ID_SIGN_UP_LAUNCH)`.
+`ConnectActivity` and `ConnectMessagingActivity` extend `NavigationHostCommCareActivity`; `PersonalIdWorkHistoryActivity` extends `CommCareActivity`. None extend `BaseDrawerActivity`, which is why those screens have no drawer. Move all three onto `BaseDrawerActivity` and override `shouldShowDrawer()` to return `shouldShowDrawerAfterCheck(true)`, matching what `LoginActivity` and `StandardHomeActivity` already do. The shell absorbs them later, at which point the drawer comes from the shell activity instead.
+
+`NavDrawerHelper.drawerShownBefore()` and the `shouldShowDrawerAfterCheck(requirePersonalIDLogin)` gate stay as they are.
 
 ### Nothing to remove for `Up`
 
@@ -150,7 +141,7 @@ Add to `PersonalIdUserPreferences`, which `forgetUser()` already clears: last-ac
 
 ### Failure fallback — rejected alternative
 
-Do not launch Opportunity Home on top of Login for-result to make the fallback automatic: Back from a *successful* Opportunity Home would then reveal Login and need an exit flag / `finishAffinity` to suppress, reintroducing the per-case flag handling this spec removes.
+Do not launch Opportunity Home on top of Login for-result to make the fallback automatic: back from a *successful* Opportunity Home would then reveal Login and need an exit flag / `finishAffinity` to suppress.
 
 ### Sign-in ordering
 
@@ -158,11 +149,11 @@ Opportunity Home loads first and fires sign-in simultaneously; the Start button 
 
 ### Analytics wiring
 
-`FirebaseAnalyticsUtil` with new constants in `CCAnalyticsEvent` / `CCAnalyticsParam`, following the existing `reportX` static pattern. The control-used event fires from the shared slot handling (app-bar arrow) and from the back-pressed path (system back); there is no public API distinguishing gesture from button, so do not add a third value. The Opportunity List event fires when that screen is opened, and the reason comes from how it was opened — placed underneath by the router, or tapped in the sidebar.
+`FirebaseAnalyticsUtil` with a new constant in `CCAnalyticsEvent` / `CCAnalyticsParam`, following the existing `reportX` static pattern. The control-used event fires from the shared slot handling (app-bar arrow) and from the back-pressed path (system back); there is no public API distinguishing gesture from button, so do not add a third value.
 
 ### Rotation and process death
 
-Task stacks survive rotation and are restored by the system after process death, so seeded paths need no special handling. The one exception is `lastUnlockTime` above: a resume after process death re-prompts unlock.
+Task stacks survive rotation and are restored by the system after process death, so paths need no special handling. The one exception is `lastUnlockTime` above: a resume after process death re-prompts unlock.
 
 ### Upgrade
 
