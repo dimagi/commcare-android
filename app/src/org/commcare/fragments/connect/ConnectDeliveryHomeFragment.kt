@@ -61,6 +61,9 @@ class ConnectDeliveryHomeFragment :
 
     private val moreTabPosition get() = visibleTabs.indexOfFirst { it.titleRes == R.string.connect_more }
 
+    /** True until this device has synced the learn records the Revisit Learning card reads. */
+    private val learningRecordsMissing get() = job.latestLearningActivityDate == null
+
     private lateinit var viewModel: ConnectDeliveryHomeViewModel
     private lateinit var pagerAdapter: DeliveryViewStateAdapter
     private var initialTabPosition = TAB_DASHBOARD
@@ -194,7 +197,7 @@ class ConnectDeliveryHomeFragment :
      * running them together lets one revert the other's fields.
      */
     private fun loadLearningProgressIfMissing() {
-        if (job.latestLearningActivityDate == null) {
+        if (learningRecordsMissing) {
             viewModel.loadLearningProgress(job)
         }
     }
@@ -212,11 +215,9 @@ class ConnectDeliveryHomeFragment :
                     val isOnline = hasInternet && isValidated
 
                     if (isOnline && !networkOnline) {
-                        view?.post {
-                            if (isAdded && job.latestLearningActivityDate == null) {
-                                refresh(false)
-                            }
-                        }
+                        // Re-runs delivery rather than the learn fetch, so the two never write the
+                        // opportunity simultaneously; its success is what asks for the learn records.
+                        view?.post { if (isAdded && learningRecordsMissing) refresh(false) }
                     }
                     networkOnline = isOnline
                 }
