@@ -15,8 +15,7 @@
         android:id="@+id/screen_manager_banner_pane"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/activity_vertical_margin"
-        android:layout_below="@id/include_tool_bar">
+        android:padding="@dimen/activity_vertical_margin">
 
         <ImageView
             android:id="@+id/screen_manager_top_banner"
@@ -33,7 +32,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/manager_instructions"
-        android:layout_below="@id/screen_manager_banner_pane"
         android:paddingTop="@dimen/standard_spacer"
         android:paddingBottom="@dimen/standard_spacer"
         android:textSize="@dimen/font_size_large"
@@ -46,7 +44,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@id/manager_instructions"
         android:layout_marginTop="@dimen/standard_spacer"
         android:paddingHorizontal="@dimen/standard_spacer_double"
         android:onClick="installAppClicked"
