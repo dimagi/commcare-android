@@ -48,7 +48,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_manager);
-        ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
+        ListView appsList = this.findViewById(R.id.apps_list_view);
+        appsList.addHeaderView(
+                getLayoutInflater().inflate(R.layout.app_manager_header, appsList, false), null, false);
+        appsList.setOnItemClickListener(this);
         FirebaseAnalyticsUtil.reportAppManagerAction(AnalyticsParamValue.OPEN_APP_MANAGER);
     }
 
