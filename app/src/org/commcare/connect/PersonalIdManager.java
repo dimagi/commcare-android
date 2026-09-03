@@ -39,6 +39,7 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.personalId.PersonalIdReminderHelper;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.personalId.UnlockPolicy;
@@ -491,6 +492,7 @@ public class PersonalIdManager {
 
     public void onAccountConfigurationSuccess(PersonalIdSessionData sessionData) {
         createAndSaveConnectUser(sessionData);
+        PersonalIdReminderHelper.initialize();
         setStatus(PersonalIdStatus.LoggedIn);
         List<ConnectReleaseToggleRecord> toggles = sessionData.getFeatureReleaseToggles();
         if (toggles != null) {
