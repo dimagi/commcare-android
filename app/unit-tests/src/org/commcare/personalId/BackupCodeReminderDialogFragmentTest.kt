@@ -7,7 +7,6 @@ import com.google.android.material.button.MaterialButton
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.profile.BasePersonalIdProfileTest
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
