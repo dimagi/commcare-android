@@ -194,4 +194,16 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
         val nextDue = PersonalIdUserPreferences.getNextReminderDue()
         assertTrue(nextDue > System.currentTimeMillis())
     }
+
+    // ===== Back-dismiss =====
+
+    @Test
+    fun `back-dismiss calls scheduleNext so dialog does not re-fire`() {
+        PersonalIdReminderHelper.initialize()
+        onUiThread { dialog().dismiss() }
+        ShadowLooper.idleMainLooper()
+
+        val nextDue = PersonalIdUserPreferences.getNextReminderDue()
+        assertTrue(nextDue > System.currentTimeMillis())
+    }
 }

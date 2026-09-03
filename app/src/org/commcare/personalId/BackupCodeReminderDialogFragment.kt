@@ -1,5 +1,6 @@
 package org.commcare.personalId
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.DialogFragment
+import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
@@ -18,6 +20,13 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 class BackupCodeReminderDialogFragment : DialogFragment() {
     private lateinit var binding: DialogBackupCodeReminderBinding
     private var failedAttempts = 0
+    private var outcomeHandled = false
+    private var user: ConnectUserRecord? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        failedAttempts = savedInstanceState?.getInt(KEY_FAILED_ATTEMPTS) ?: 0
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,20 +41,32 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
         view: View,
         savedInstanceState: Bundle?,
     ) {
-        val user = ConnectUserDatabaseUtil.getUser(requireContext())
+        user = ConnectUserDatabaseUtil.getUser(requireContext())
         binding.forgotButton.visibility =
             if (user?.email != null) View.VISIBLE else View.GONE
-        setupListeners(user?.email)
+        setupListeners()
         reportShown()
     }
 
-    private fun setupListeners(email: String?) {
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_FAILED_ATTEMPTS, failedAttempts)
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        if (!outcomeHandled) {
+            PersonalIdReminderHelper.scheduleNext()
+        }
+    }
+
+    private fun setupListeners() {
         binding.backupCodeView.setOnCodeChangedListener { code ->
             binding.confirmButton.isEnabled = code.length == 6
         }
         binding.confirmButton.setOnClickListener { onConfirmClicked() }
         binding.skipButton.setOnClickListener { onSkipClicked() }
-        binding.forgotButton.setOnClickListener { onForgotClicked(email) }
+        binding.forgotButton.setOnClickListener { onForgotClicked(user?.email) }
         binding.backupCodeVisibilityToggle.setOnClickListener {
             toggleVisibility(binding.backupCodeVisibilityToggle)
         }
@@ -64,10 +85,11 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
 
     private fun onConfirmClicked() {
         val entered = binding.backupCodeView.codeValue
-        val stored = ConnectUserDatabaseUtil.getUser(requireContext())?.pin
+        val stored = user?.pin
         if (entered == stored) {
             reportAttempt(success = true)
             reportOutcome(AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT)
+            outcomeHandled = true
             PersonalIdReminderHelper.scheduleNext()
             dismiss()
             Toast
@@ -81,6 +103,7 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
             reportAttempt(success = false)
             if (failedAttempts >= MAX_ATTEMPTS) {
                 reportOutcome("max_attempts")
+                outcomeHandled = true
                 PersonalIdReminderHelper.scheduleNext()
                 dismiss()
                 Toast
@@ -97,12 +120,14 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
 
     private fun onSkipClicked() {
         reportOutcome(AnalyticsParamValue.USER_PROMPT_ACTION_SKIP)
+        outcomeHandled = true
         PersonalIdReminderHelper.scheduleNext()
         dismiss()
     }
 
     private fun onForgotClicked(email: String?) {
         reportOutcome(AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL)
+        outcomeHandled = true
         dismiss()
         val activity = requireActivity()
         if (email != null) {
@@ -161,5 +186,6 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
         fun newInstance(): BackupCodeReminderDialogFragment = BackupCodeReminderDialogFragment()
 
         private const val MAX_ATTEMPTS = 3
+        private const val KEY_FAILED_ATTEMPTS = "failed_attempts"
     }
 }
