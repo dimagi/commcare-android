@@ -418,6 +418,10 @@
     <string name="personalid_forgot_backup_code">Umesahau nambari yako ya hifadhi nakala?</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_send_email_otp_title">Rejesha msimbo wa hifadhi nakala</string>
+    <string name="personalid_send_email_otp_description">Tutatuma msimbo wa uthibitisho kwa:</string>
+    <string name="personalid_send_email_otp_button">Tuma msimbo</string>
+    <string name="personalid_send_email_otp_address_label">Barua pepe ya urejeshaji</string>
     <string name="personalid_set_new_backup_code_title">Weka nambari mpya ya hifadhi nakala</string>
     <string name="personalid_backup_code_changed_success">Nambari ya hifadhi nakala imesasishwa</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>

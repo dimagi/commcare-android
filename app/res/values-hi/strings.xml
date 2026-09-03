@@ -416,6 +416,10 @@ License.
     <string name="personalid_forgot_backup_code">अपना बैकअप कोड भूल गए?</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_send_email_otp_title">बैकअप कोड पुनः प्राप्त करें</string>
+    <string name="personalid_send_email_otp_description">हम इस पर एक सत्यापन कोड भेजेंगे:</string>
+    <string name="personalid_send_email_otp_button">कोड भेजें</string>
+    <string name="personalid_send_email_otp_address_label">रिकवरी ईमेल</string>
     <string name="personalid_set_new_backup_code_title">नया बैकअप कोड सेट करें</string>
     <string name="personalid_backup_code_changed_success">बैकअप कोड सफलतापूर्वक अपडेट किया गया</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
