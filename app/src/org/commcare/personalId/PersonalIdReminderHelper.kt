@@ -1,5 +1,8 @@
 package org.commcare.personalId
 
+import androidx.fragment.app.FragmentActivity
+import org.commcare.connect.PersonalIdManager
+
 object PersonalIdReminderHelper {
     private const val FIRST_INTERVAL_MS = 60 * 60 * 1000L
     private const val SECOND_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000L
@@ -28,5 +31,14 @@ object PersonalIdReminderHelper {
     @JvmStatic
     fun clear() {
         PersonalIdUserPreferences.clearReminderState()
+    }
+
+    @JvmStatic
+    fun checkAndShowReminder(activity: FragmentActivity) {
+        if (PersonalIdManager.getInstance().isloggedIn() && isDue()) {
+            BackupCodeReminderDialogFragment
+                .newInstance()
+                .show(activity.supportFragmentManager, BackupCodeReminderDialogFragment.TAG)
+        }
     }
 }
