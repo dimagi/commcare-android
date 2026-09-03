@@ -36,12 +36,10 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         val recoveryEmail = intent.getStringExtra(EXTRA_BACKUP_CODE_RECOVERY_EMAIL)
         if (recoveryEmail != null) {
             val args =
-                PersonalIdEmailVerificationFragmentArgs(
-                    email = recoveryEmail,
-                    workflow = EmailWorkFlow.RECOVERY,
-                    emailOtpRequestCount = 0,
-                )
-            navController.navigate(R.id.action_global_start_backup_code_recovery, args.toBundle())
+                PersonalIdEmailVerificationFragmentArgs
+                    .Builder(recoveryEmail, EmailWorkFlow.RECOVERY, 0)
+                    .build()
+            navController.navigate(R.id.personalid_email_verification_fragment, args.toBundle())
         }
     }
 
