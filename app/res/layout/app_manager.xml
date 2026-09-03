@@ -14,8 +14,8 @@
          view so they scroll with the list rather than just standing above -->
     <ListView
         android:id="@+id/apps_list_view"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@id/include_tool_bar"
         android:listSelector="@drawable/selector">
     </ListView>
