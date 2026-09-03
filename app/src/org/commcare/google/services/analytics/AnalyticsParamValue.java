@@ -236,6 +236,7 @@ public class AnalyticsParamValue {
 
     // Param values for user prompt analytics
     public static final String USER_PROMPT_TYPE_EMAIL = "email";
+    public static final String USER_PROMPT_TYPE_BACKUP_CODE_REMINDER = "backup_code_reminder";
     public static final String USER_PROMPT_ACTION_ACCEPT = "accept";
     public static final String USER_PROMPT_ACTION_SKIP = "skip";
     public static final String USER_PROMPT_ACTION_RETRY = "retry";
