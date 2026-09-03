@@ -444,6 +444,13 @@
     <string name="personalid_send_email_otp_button">Enviar código</string>
     <string name="personalid_send_email_otp_address_label">E-mail de recuperação</string>
     <string name="personalid_set_new_backup_code_title">Definir novo código de backup</string>
+    <string name="personalid_backup_code_reminder_title">Confirmar código de backup</string>
+    <string name="personalid_backup_code_reminder_message">Insira seu código de backup para confirmar que ainda o tem.</string>
+    <string name="personalid_backup_code_reminder_incorrect">Código de backup incorreto. Tente novamente. %d tentativas restantes.</string>
+    <string name="personalid_backup_code_reminder_success_toast">Ótimo, tudo pronto!</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">Você excedeu o número máximo de tentativas.</string>
+    <string name="personalid_backup_code_reminder_skip">Pular</string>
+    <string name="personalid_backup_code_reminder_confirm">Confirmar</string>
     <string name="personalid_backup_code_changed_success">Código de backup atualizado com sucesso</string>
     <string name="personalid_set_new_backup_code_abandon_title">Cancelar a configuração do código de backup?</string>
     <string name="personalid_set_new_backup_code_abandon_message">Voltar cancelará o processo de alteração do código de backup.</string>

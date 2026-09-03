@@ -428,6 +428,13 @@ License.
     <string name="personalid_send_email_otp_button">Envoyer le code</string>
     <string name="personalid_send_email_otp_address_label">E-mail de récupération</string>
     <string name="personalid_set_new_backup_code_title">Définir un nouveau code de sauvegarde</string>
+    <string name="personalid_backup_code_reminder_title">Confirmer le code de sauvegarde</string>
+    <string name="personalid_backup_code_reminder_message">Entrez votre code de sauvegarde pour confirmer que vous l\'avez toujours.</string>
+    <string name="personalid_backup_code_reminder_incorrect">Code de sauvegarde incorrect. Veuillez réessayer. %d tentatives restantes.</string>
+    <string name="personalid_backup_code_reminder_success_toast">Parfait, vous êtes prêt\(e\) !</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">Vous avez dépassé le nombre maximum de tentatives.</string>
+    <string name="personalid_backup_code_reminder_skip">Ignorer</string>
+    <string name="personalid_backup_code_reminder_confirm">Confirmer</string>
     <string name="personalid_backup_code_changed_success">Code de sauvegarde mis à jour avec succès</string>
     <string name="personalid_set_new_backup_code_abandon_title">Annuler la configuration du code de sauvegarde ?</string>
     <string name="personalid_set_new_backup_code_abandon_message">Revenir en arrière annulera le processus de modification du code de sauvegarde.</string>

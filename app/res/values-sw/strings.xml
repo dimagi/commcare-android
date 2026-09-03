@@ -430,6 +430,13 @@
     <string name="personalid_send_email_otp_button">Tuma msimbo</string>
     <string name="personalid_send_email_otp_address_label">Barua pepe ya urejeshaji</string>
     <string name="personalid_set_new_backup_code_title">Weka nambari mpya ya hifadhi nakala</string>
+    <string name="personalid_backup_code_reminder_title">Thibitisha nambari ya hifadhi</string>
+    <string name="personalid_backup_code_reminder_message">Weka nambari yako ya hifadhi kuthibitisha kuwa bado unayo.</string>
+    <string name="personalid_backup_code_reminder_incorrect">Nambari ya hifadhi si sahihi. Tafadhali jaribu tena. Majaribio %d yamesalia.</string>
+    <string name="personalid_backup_code_reminder_success_toast">Vizuri, uko tayari!</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">Umezidi idadi ya juu ya majaribio.</string>
+    <string name="personalid_backup_code_reminder_skip">Ruka</string>
+    <string name="personalid_backup_code_reminder_confirm">Thibitisha</string>
     <string name="personalid_backup_code_changed_success">Nambari ya hifadhi nakala imesasishwa</string>
     <string name="personalid_set_new_backup_code_abandon_title">Ghairi usanidi wa nambari ya hifadhi?</string>
     <string name="personalid_set_new_backup_code_abandon_message">Kurudi nyuma kutabatilisha mchakato wa kubadilisha nambari ya hifadhi.</string>
