@@ -53,7 +53,7 @@
         android:id="@+id/connect_delivery_cta_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginTop="10dp"
         app:buttonText="@string/connect_delivery_start"
         app:subtitleText="@string/connect_delivery_continue_visits_subtitle"
         app:titleText="@string/connect_delivery_continue_visits" />
