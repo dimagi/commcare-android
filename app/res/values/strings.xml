@@ -380,6 +380,14 @@
     <string name="connect_backup_code_mismatch">The backup codes you enter must match.</string>
     <string name="personalid_set_new_backup_code_title">Set New Backup Code</string>
 
+    <string name="personalid_backup_code_reminder_title">Remember your backup code?</string>
+    <string name="personalid_backup_code_reminder_message">Enter your backup code to confirm you still have it.</string>
+    <string name="personalid_backup_code_reminder_incorrect">Incorrect backup code. Please try again. &lt;b&gt;%d attempts remaining.&lt;/b&gt;</string>
+    <string name="personalid_backup_code_reminder_success_toast">Great, you\'re all set!</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">You have exceeded the maximum number of attempts.</string>
+    <string name="personalid_backup_code_reminder_skip">Skip</string>
+    <string name="personalid_backup_code_reminder_confirm">Confirm</string>
+
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
     <string name="personalid_network_response_parsing_error">Error parsing data from server. Please contact customer support.</string>
 
