@@ -18,6 +18,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
+import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
@@ -147,8 +148,12 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             workflow = workflow,
             sessionData = personalIdSessionData,
             tracker = emailOtpTracker,
-            onSuccess = { startResendTimer() },
+            onSuccess = {
+                if (!hasLiveView()) return@sendEmailOtp
+                startResendTimer()
+            },
             onFailure = { failureCode, t ->
+                if (!hasLiveView()) return@sendEmailOtp
                 showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
             },
         )
@@ -175,8 +180,12 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             workflow = workflow,
             sessionData = personalIdSessionData,
             tracker = emailOtpTracker,
-            onSuccess = { onEmailVerified() },
+            onSuccess = {
+                if (!hasLiveView()) return@verifyEmailOtp
+                onEmailVerified()
+            },
             onFailure = { failureCode, t ->
+                if (!hasLiveView()) return@verifyEmailOtp
                 if (!handleCommonSignupFailures(failureCode)) {
                     showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
                     failedOtpAttempts++
