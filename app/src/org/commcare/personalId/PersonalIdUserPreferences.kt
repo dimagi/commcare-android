@@ -15,6 +15,8 @@ object PersonalIdUserPreferences {
     private const val KEY_BACKUP_CODE_WINDOW_START = "backup_code_window_start"
     private const val KEY_PENDING_BACKUP_CODE = "pending_backup_code"
     private const val BACKUP_CODE_LOCKOUT_DURATION_MS = 24 * 60 * 60 * 1000L
+    private const val KEY_BACKUP_CODE_REMINDER_NEXT_DUE = "backup_code_reminder_next_due"
+    private const val KEY_BACKUP_CODE_REMINDER_STAGE = "backup_code_reminder_stage"
 
     private fun prefs(): SharedPreferences = CommCareApplication.instance().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -100,6 +102,25 @@ object PersonalIdUserPreferences {
 
     fun setPendingBackupCode(value: Boolean) {
         prefs().edit { if (value) putBoolean(KEY_PENDING_BACKUP_CODE, true) else remove(KEY_PENDING_BACKUP_CODE) }
+    }
+
+    fun getNextReminderDue(): Long = prefs().getLong(KEY_BACKUP_CODE_REMINDER_NEXT_DUE, -1L)
+
+    fun setNextReminderDue(value: Long) {
+        prefs().edit { putLong(KEY_BACKUP_CODE_REMINDER_NEXT_DUE, value) }
+    }
+
+    fun getReminderStage(): Int = prefs().getInt(KEY_BACKUP_CODE_REMINDER_STAGE, 0)
+
+    fun setReminderStage(stage: Int) {
+        prefs().edit { putInt(KEY_BACKUP_CODE_REMINDER_STAGE, stage) }
+    }
+
+    fun clearReminderState() {
+        prefs().edit {
+            remove(KEY_BACKUP_CODE_REMINDER_NEXT_DUE)
+            remove(KEY_BACKUP_CODE_REMINDER_STAGE)
+        }
     }
 
     /** Remove every PersonalID preference. Called on PersonalId logout. */
