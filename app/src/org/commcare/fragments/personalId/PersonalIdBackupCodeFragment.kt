@@ -51,6 +51,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             binding.personalidForgotBackupCode.visibility =
                 if (!personalIdSessionData.email.isNullOrEmpty()) View.VISIBLE else View.GONE
         } else {
+            binding.personalidForgotBackupCode.visibility = View.GONE
             setUpInitialState(
                 titleResId = R.string.connect_backup_code_title_set,
                 showConfirmCode = true,
