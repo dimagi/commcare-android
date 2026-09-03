@@ -372,14 +372,28 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
      */
     @Override
     public void cancelCurrentTask() {
-        if (loginViewModel != null && loginViewModel.cancelLogin()) {
-            Logger.log(LogTypes.TYPE_USER, "Login cancelled by user during "
-                    + currentLoginPhase + " phase");
-            dismissLoginProgressDialog();
+        boolean loginWasRunning = loginViewModel != null && loginViewModel.cancelLogin();
+        boolean loginDialogShowing = isShowingLoginProgressDialog();
+
+        if (!loginWasRunning && !loginDialogShowing) {
+            super.cancelCurrentTask();
             return;
         }
 
-        super.cancelCurrentTask();
+        Logger.log(LogTypes.TYPE_USER, "Login cancelled by user during "
+                + currentLoginPhase + " phase");
+        dismissLoginProgressDialog();
+
+        // A login dialog left up here would never be dismissed by anything else.
+        if (loginDialogShowing) {
+            dismissCurrentProgressDialog();
+        }
+    }
+
+    private boolean isShowingLoginProgressDialog() {
+        CustomProgressDialog dialog = getCurrentProgressDialog();
+        return dialog != null && (dialog.getTaskId() == TASK_KEY_EXCHANGE
+                || dialog.getTaskId() == DataPullTask.DATA_PULL_TASK_ID);
     }
 
     private void dismissLoginProgressDialog() {
