@@ -218,6 +218,7 @@
     <string name="personalid_email_otp_failed_message">Parece que tienes problemas para verificar tu correo electrónico. Puedes omitir esto por ahora e intentarlo de nuevo más tarde, o seguir intentándolo.</string>
     <string name="personalid_email_otp_failed_retry">Intentar de nuevo</string>
     <string name="personalid_email_otp_failed_skip">Continuar sin correo</string>
+    <string name="personalid_email_otp_max_attempts_reached">Se ha alcanzado el número máximo de intentos de verificación. Por favor, inténtelo de nuevo más tarde.</string>
     <string name="personalid_email_added_title">Correo añadido</string>
     <string name="personalid_email_added_message">Tu correo electrónico se ha añadido correctamente.</string>
     <string name="personalId_email_otp_sent">Se ha enviado un código de 6 dígitos a tu dirección de correo electrónico.</string>

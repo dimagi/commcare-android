@@ -400,6 +400,7 @@
     <string name="personalid_email_otp_failed_message">Looks like you\'re having trouble verifying your email. You can skip this for now and try again later, or keep trying.</string>
     <string name="personalid_email_otp_failed_retry">Try again</string>
     <string name="personalid_email_otp_failed_skip">Proceed without email</string>
+    <string name="personalid_email_otp_max_attempts_reached">Maximum verification attempts reached. Please try again later.</string>
     <string name="personalid_email_added_title">Email Added</string>
     <string name="personalid_email_added_message">Your email has been added successfully.</string>
     <string name="personalId_email_otp_sent">A 6-digit passcode has been sent to your email address.</string>

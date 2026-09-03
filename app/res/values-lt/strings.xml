@@ -200,6 +200,7 @@
     <string name="personalid_email_otp_failed_message">Atrodo, kad turite problemų patvirtindami savo el. paštą. Galite šį žingsnį dabar praleisti ir pabandyti vėliau, arba bandyti toliau.</string>
     <string name="personalid_email_otp_failed_retry">Bandyti dar kartą</string>
     <string name="personalid_email_otp_failed_skip">Tęsti be el. pašto</string>
+    <string name="personalid_email_otp_max_attempts_reached">Pasiektas maksimalus patvirtinimo bandymų skaičius. Bandykite dar kartą vėliau.</string>
     <string name="personalid_email_added_title">El. paštas pridėtas</string>
     <string name="personalid_email_added_message">Jūsų el. pašto adresas sėkmingai pridėtas.</string>
     <string name="personalId_email_otp_sent">Į jūsų el. pašto adresą išsiųstas 6 skaitmenų kodas.</string>

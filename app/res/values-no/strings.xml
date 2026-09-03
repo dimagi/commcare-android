@@ -200,6 +200,7 @@
     <string name="personalid_email_otp_failed_message">Det ser ut til at du har problemer med å bekrefte e-postadressen din. Du kan hoppe over dette nå og prøve igjen senere, eller fortsette å prøve.</string>
     <string name="personalid_email_otp_failed_retry">Prøv igjen</string>
     <string name="personalid_email_otp_failed_skip">Fortsett uten e-post</string>
+    <string name="personalid_email_otp_max_attempts_reached">Maksimalt antall bekreftingsforsøk er nådd. Vennligst prøv igjen senere.</string>
     <string name="personalid_email_added_title">E-post lagt til</string>
     <string name="personalid_email_added_message">E-postadressen din er lagt til.</string>
     <string name="personalId_email_otp_sent">En 6-sifret kode er sendt til e-postadressen din.</string>

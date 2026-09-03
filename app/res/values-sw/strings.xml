@@ -281,6 +281,7 @@
     <string name="personalid_email_otp_failed_message">Inaonekana una matatizo katika kuthibitisha barua pepe yako. Unaweza kuruka hatua hii kwa sasa na kujaribu tena baadaye, au uendelee kujaribu.</string>
     <string name="personalid_email_otp_failed_retry">Jaribu tena</string>
     <string name="personalid_email_otp_failed_skip">Endelea bila barua pepe</string>
+    <string name="personalid_email_otp_max_attempts_reached">Imefikiwa idadi ya juu ya majaribio ya uthibitishaji. Tafadhali jaribu tena baadaye.</string>
     <string name="personalid_email_added_title">Barua pepe imeongezwa</string>
     <string name="personalid_email_added_message">Barua pepe yako imeongezwa kwa mafanikio.</string>
     <string name="personalId_email_otp_sent">Msimbo wa tarakimu 6 umetumwa kwa anwani yako ya barua pepe.</string>

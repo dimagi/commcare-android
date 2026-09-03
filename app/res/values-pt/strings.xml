@@ -285,6 +285,7 @@
     <string name="personalid_email_otp_failed_message">Parece que você está tendo dificuldade para verificar seu e-mail. Você pode pular esta etapa por agora e tentar novamente mais tarde, ou continuar tentando.</string>
     <string name="personalid_email_otp_failed_retry">Tentar novamente</string>
     <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
+    <string name="personalid_email_otp_max_attempts_reached">Número máximo de tentativas de verificação atingido. Tente novamente mais tarde.</string>
     <string name="personalid_email_added_title">E-mail adicionado</string>
     <string name="personalid_email_added_message">Seu e-mail foi adicionado com sucesso.</string>
     <string name="personalId_email_otp_sent">Um código de 6 dígitos foi enviado para o seu endereço de e-mail.</string>

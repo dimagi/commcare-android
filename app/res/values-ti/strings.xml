@@ -273,6 +273,7 @@
     <string name="personalid_email_otp_failed_message">ኢመይል ምርግጋጽ ጸገም የጋጥመካ ኣሎ ዝመስል። ንሕጂ ነዚ ክትሓልፎ እሞ ድሕሪ ቑሩብ ግዜ ክትፍትን፣ ወይ ምፍታን ክትቕጽል ትኽእል ኢኻ።</string>
     <string name="personalid_email_otp_failed_retry">ከም ብሓዱሽ ፈትን</string>
     <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
+    <string name="personalid_email_otp_max_attempts_reached">ዝለዓለ ቁጽሪ ምርግጋጽ ፈቲኖ ኣኺሉ። በጃኹም ድሒሩ ደጊምኩም ፈትኑ።</string>
     <string name="personalid_email_added_title">ኢመይል ተወሲኹ</string>
     <string name="personalid_email_added_message">ኢመይልካ ብዓወት ተወሲኹ።</string>
     <string name="personalId_email_otp_sent">ናብ ኢመይል ኣድራሻኻ ናይ 6 ኣሃዝ መሕለፊ ቓል ተላኢኹ ኣሎ።</string>

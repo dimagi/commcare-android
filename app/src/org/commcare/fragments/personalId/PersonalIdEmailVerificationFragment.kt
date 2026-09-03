@@ -208,6 +208,12 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 personalIdSessionData!!.email = enteredEmail
                 navigateToPhotoCapture()
             }
+
+            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER -> {
+                binding.root
+                    .findNavController()
+                    .navigate(R.id.personalid_set_new_backup_code_fragment)
+            }
         }
     }
 
@@ -230,6 +236,10 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     }
 
     private fun showProceedWithoutEmailDialog() {
+        if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER) {
+            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
+            return
+        }
         val commCareActivity = requireActivity() as CommCareActivity<*>
         val dialog =
             StandardAlertDialog(
