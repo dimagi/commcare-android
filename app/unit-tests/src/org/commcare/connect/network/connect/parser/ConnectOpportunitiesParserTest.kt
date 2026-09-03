@@ -87,9 +87,33 @@ class ConnectOpportunitiesParserTest {
             put("learn_modules", JSONArray())
         }
 
+    private fun claimedJobJson(
+        id: Int,
+        claim: JSONObject,
+    ): JSONObject = validJobJson(id).apply { put("claim", claim) }
+
+    private fun claimJson(
+        endDate: Any,
+        dateClaimed: Any,
+    ): JSONObject =
+        JSONObject().apply {
+            put("end_date", endDate)
+            put("date_claimed", dateClaimed)
+        }
+
     private fun jsonArrayOf(vararg objects: JSONObject): ByteArrayInputStream {
         val array = JSONArray().apply { objects.forEach { put(it) } }
         return ByteArrayInputStream(array.toString().toByteArray())
+    }
+
+    private fun assertBadJobIsSkipped(badJob: JSONObject) {
+        val inputStream = jsonArrayOf(validJobJson(1), badJob)
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
+        every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
+        assertThrows(JSONException::class.java) {
+            parser.parse(200, inputStream, null)
+        }
+        verify(exactly = 1) { ConnectJobUtils.storeJobs(any(), match { it.size == 1 && it[0].jobId == 1 }, true) }
     }
 
     @Test
@@ -215,14 +239,41 @@ class ConnectOpportunitiesParserTest {
 
     @Test
     fun `parse stores valid jobs when one entry has a null end_date`() {
-        val nullDateJob = validJobJson(10).apply { put("end_date", JSONObject.NULL) }
-        val inputStream = jsonArrayOf(validJobJson(1), nullDateJob)
-        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
-        every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
+        assertBadJobIsSkipped(validJobJson(10).apply { put("end_date", JSONObject.NULL) })
+    }
 
-        assertThrows(JSONException::class.java) {
-            parser.parse(200, inputStream, null)
-        }
-        verify(exactly = 1) { ConnectJobUtils.storeJobs(any(), match { it.size == 1 && it[0].jobId == 1 }, true) }
+    @Test
+    fun `parse stores valid job and skips job with malformed end_date`() {
+        assertBadJobIsSkipped(validJobJson(10).apply { put("end_date", "not-a-date") })
+    }
+
+    @Test
+    fun `parse stores valid job and skips job with null start_date`() {
+        assertBadJobIsSkipped(validJobJson(10).apply { put("start_date", JSONObject.NULL) })
+    }
+
+    @Test
+    fun `parse stores valid job and skips job with malformed start_date`() {
+        assertBadJobIsSkipped(validJobJson(10).apply { put("start_date", "not-a-date") })
+    }
+
+    @Test
+    fun `parse stores valid job and skips claimed job with null claim end_date`() {
+        assertBadJobIsSkipped(claimedJobJson(10, claimJson(JSONObject.NULL, "2025-01-15")))
+    }
+
+    @Test
+    fun `parse stores valid job and skips claimed job with malformed claim end_date`() {
+        assertBadJobIsSkipped(claimedJobJson(10, claimJson("not-a-date", "2025-01-15")))
+    }
+
+    @Test
+    fun `parse stores valid job and skips claimed job with null date_claimed`() {
+        assertBadJobIsSkipped(claimedJobJson(10, claimJson("2025-12-31", JSONObject.NULL)))
+    }
+
+    @Test
+    fun `parse stores valid job and skips claimed job with malformed date_claimed`() {
+        assertBadJobIsSkipped(claimedJobJson(10, claimJson("2025-12-31", "not-a-date")))
     }
 }
