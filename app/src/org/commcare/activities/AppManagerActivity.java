@@ -187,7 +187,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 SingleAppManagerActivity.class);
         // Pass to SingleAppManager the index of the app that was selected, so it knows which
         // app to display information for
-        i.putExtra("position", position);
+        i.putExtra("position", position - ((ListView)parent).getHeaderViewsCount());
         startActivity(i);
     }
 
