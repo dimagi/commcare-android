@@ -5,6 +5,10 @@
     android:id="@+id/nav_graph_personalid_profile"
     app:startDestination="@id/personalid_profile_fragment">
 
+    <action
+        android:id="@+id/action_global_start_backup_code_recovery"
+        app:destination="@id/personalid_email_verification_fragment" />
+
     <fragment
         android:id="@+id/personalid_profile_fragment"
         android:name="org.commcare.personalId.profile.PersonalIdProfileFragment"
