@@ -421,6 +421,7 @@ License.
     <string name="personalid_send_email_otp_description">हम इस पर एक सत्यापन कोड भेजेंगे:</string>
     <string name="personalid_send_email_otp_button">कोड भेजें</string>
     <string name="personalid_send_email_otp_address_label">रिकवरी ईमेल</string>
+    <string name="personalid_email_otp_recovery_failed_message">बहुत अधिक सत्यापन प्रयास विफल हुए। कृपया अपने बैकअप कोड से प्रयास करें।</string>
     <string name="personalid_set_new_backup_code_title">नया बैकअप कोड सेट करें</string>
     <string name="personalid_backup_code_changed_success">बैकअप कोड सफलतापूर्वक अपडेट किया गया</string>
     <string name="personalid_set_new_backup_code_abandon_title">बैकअप कोड सेटअप रद्द करें?</string>

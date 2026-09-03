@@ -15,7 +15,9 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
 import org.commcare.fragments.extensions.hasLiveView
@@ -182,6 +184,11 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         clearError()
         enableVerifyButton(false)
 
+        if (workflow == EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN) {
+            submitOtpViaCompleteRecovery(otp)
+            return
+        }
+
         EmailHelper.verifyEmailOtp(
             activity = requireActivity(),
             email = enteredEmail,
@@ -212,6 +219,39 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         )
     }
 
+    private fun submitOtpViaCompleteRecovery(otp: String) {
+        object : PersonalIdApiHandler<PersonalIdSessionData>() {
+            override fun onSuccess(sessionData: PersonalIdSessionData) {
+                PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), sessionData)
+                personalIdSessionData!!.accountExists = false
+                binding.root
+                    .findNavController()
+                    .navigate(R.id.action_personalid_email_verification_to_personalid_backup_code)
+            }
+
+            override fun onFailure(
+                failureCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                if (!handleCommonSignupFailures(failureCode)) {
+                    failedOtpAttempts++
+                    showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
+                    if (failedOtpAttempts >= maxOtpAttempts) {
+                        navigateToMessageDisplay(
+                            getString(R.string.connect_backup_fail_title),
+                            getString(R.string.personalid_email_otp_recovery_failed_message),
+                            isCancellable = false,
+                            phase = ConnectConstants.PERSONALID_RECOVERY_EMAIL_OTP_FAILED,
+                            buttonText = R.string.ok,
+                        )
+                    } else if (failureCode.shouldAllowRetry()) {
+                        enableVerifyButton(true)
+                    }
+                }
+            }
+        }.completeRecoveryWithEmailOtp(requireActivity(), otp, personalIdSessionData!!)
+    }
+
     open fun canSkipEmailVerification(): Boolean = true
 
     open fun onEmailVerified() {
@@ -232,6 +272,8 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 personalIdSessionData!!.email = enteredEmail
                 navigateToPhotoCapture()
             }
+
+            EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN -> { /* handled in submitOtpViaCompleteRecovery */ }
 
             else -> {
                 throw IllegalStateException("Unexpected workflow: $workflow")
@@ -326,10 +368,7 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private fun navigateToPhotoCapture() {
         binding.root
             .findNavController()
-            .navigate(
-                PersonalIdEmailVerificationFragmentDirections
-                    .actionPersonalidEmailVerificationToPersonalidPhotoCapture(),
-            )
+            .navigate(R.id.action_personalid_email_verification_to_personalid_photo_capture)
     }
 
     private fun clearError() {
@@ -351,15 +390,16 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         phase: Int,
         buttonText: Int,
     ) {
-        val action =
-            PersonalIdEmailVerificationFragmentDirections
-                .actionPersonalidEmailVerificationToPersonalidMessage(
-                    title,
-                    message.orEmpty(),
-                    phase,
-                    getString(buttonText),
-                    null,
-                ).setIsCancellable(isCancellable)
-        binding.root.findNavController().navigate(action)
+        val bundle =
+            Bundle().apply {
+                putString("title", title)
+                putString("message", message.orEmpty())
+                putInt("callingClass", phase)
+                putString("buttonText", getString(buttonText))
+                putBoolean("isCancellable", isCancellable)
+            }
+        binding.root
+            .findNavController()
+            .navigate(R.id.action_personalid_email_verification_to_personalid_message, bundle)
     }
 }

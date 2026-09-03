@@ -423,6 +423,7 @@
     <string name="personalid_send_email_otp_description">Tutatuma msimbo wa uthibitisho kwa:</string>
     <string name="personalid_send_email_otp_button">Tuma msimbo</string>
     <string name="personalid_send_email_otp_address_label">Barua pepe ya urejeshaji</string>
+    <string name="personalid_email_otp_recovery_failed_message">Majaribio mengi ya uthibitisho yameshindwa. Tafadhali jaribu msimbo wako wa akiba badala yake.</string>
     <string name="personalid_set_new_backup_code_title">Weka nambari mpya ya hifadhi nakala</string>
     <string name="personalid_backup_code_changed_success">Nambari ya hifadhi nakala imesasishwa</string>
     <string name="personalid_set_new_backup_code_abandon_title">Ghairi usanidi wa nambari ya hifadhi?</string>

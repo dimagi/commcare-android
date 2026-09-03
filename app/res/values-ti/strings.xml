@@ -424,6 +424,7 @@
     <string name="personalid_send_email_otp_description">ናብዚ ናይ ምርግጋጽ ኮድ ክንሰድድ ኢና:</string>
     <string name="personalid_send_email_otp_button">ኮድ ስደድ</string>
     <string name="personalid_send_email_otp_address_label">ናይ ምምላስ ኢሜይል</string>
+    <string name="personalid_email_otp_recovery_failed_message">ብዙሕ ናይ ምርግጋጽ ፈተነታት ዘይተሳካ። በጃኻ ናይ ሓዝ ኮድካ ፈትን።</string>
     <string name="personalid_set_new_backup_code_title">ሓድሽ ናይ ምትካእ ኮድ ኣቐምጥ</string>
     <string name="personalid_backup_code_changed_success">ናይ ምትካእ ኮድ ብዓወት ተሓዲሱ</string>
     <string name="personalid_set_new_backup_code_abandon_title">ናይ ምትካእ ኮድ ቅጥዒ ምስረዛ?</string>

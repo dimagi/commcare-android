@@ -111,6 +111,7 @@
     <string name="personalid_send_email_otp_description">Vi sender en bekreftelseskode til:</string>
     <string name="personalid_send_email_otp_button">Send kode</string>
     <string name="personalid_send_email_otp_address_label">Gjenopprettings-e-post</string>
+    <string name="personalid_email_otp_recovery_failed_message">For mange mislykkede verifiseringsforsøk. Prøv sikkerhetskoden din i stedet.</string>
     <string name="personalid_set_new_backup_code_title">Angi ny sikkerhetskode</string>
     <string name="personalid_backup_code_changed_success">Sikkerhetskoden ble oppdatert</string>
     <string name="personalid_set_new_backup_code_abandon_title">Avbryt oppsett av sikkerhetskode?</string>

@@ -111,6 +111,7 @@
     <string name="personalid_send_email_otp_description">Išsiųsime patvirtinimo kodą į:</string>
     <string name="personalid_send_email_otp_button">Siųsti kodą</string>
     <string name="personalid_send_email_otp_address_label">Atkūrimo el. paštas</string>
+    <string name="personalid_email_otp_recovery_failed_message">Per daug nesėkmingų patvirtinimo bandymų. Prašome naudoti atsarginį kodą.</string>
     <string name="personalid_set_new_backup_code_title">Nustatyti naują atsarginį kodą</string>
     <string name="personalid_backup_code_changed_success">Atsarginis kodas sėkmingai atnaujintas</string>
     <string name="personalid_set_new_backup_code_abandon_title">Atšaukti atsarginio kodo nustatymą?</string>

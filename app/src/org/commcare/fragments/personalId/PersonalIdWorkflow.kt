@@ -24,6 +24,7 @@ enum class PersonalIdWorkflow {
             when (flow) {
                 EmailWorkFlow.EXISTING_USER -> USER_PROMPT
                 EmailWorkFlow.REGISTRATION, EmailWorkFlow.RECOVERY -> CONFIGURATION
+                EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN -> CONFIGURATION
                 EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER -> EDIT_PROFILE
             }
     }

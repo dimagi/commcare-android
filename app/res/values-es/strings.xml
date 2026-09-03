@@ -424,6 +424,7 @@
     <string name="personalid_send_email_otp_description">Enviaremos un código de verificación a:</string>
     <string name="personalid_send_email_otp_button">Enviar código</string>
     <string name="personalid_send_email_otp_address_label">Correo de recuperación</string>
+    <string name="personalid_email_otp_recovery_failed_message">Demasiados intentos de verificación fallidos. Por favor, intenta con tu código de respaldo.</string>
     <string name="personalid_set_new_backup_code_title">Establecer nuevo código de respaldo</string>
     <string name="personalid_backup_code_changed_success">Código de respaldo actualizado correctamente</string>
     <string name="personalid_set_new_backup_code_abandon_title">¿Cancelar la configuración del código de respaldo?</string>

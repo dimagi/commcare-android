@@ -812,6 +812,7 @@
     <string name="personalid_send_email_otp_description">We\'ll send a verification code to:</string>
     <string name="personalid_send_email_otp_button">Send code</string>
     <string name="personalid_send_email_otp_address_label">Recovery email</string>
+    <string name="personalid_email_otp_recovery_failed_message">Too many failed verification attempts. Please try your backup code instead.</string>
     <string name="personalid_welcome_back_msg">Welcome back %s</string>
     <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
     <string name="personalid_second_device_login_title">Login on Second Device</string>

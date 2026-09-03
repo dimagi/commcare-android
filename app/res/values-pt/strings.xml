@@ -437,6 +437,7 @@
     <string name="personalid_send_email_otp_description">Enviaremos um código de verificação para:</string>
     <string name="personalid_send_email_otp_button">Enviar código</string>
     <string name="personalid_send_email_otp_address_label">E-mail de recuperação</string>
+    <string name="personalid_email_otp_recovery_failed_message">Muitas tentativas de verificação malsucedidas. Por favor, tente o seu código de backup.</string>
     <string name="personalid_set_new_backup_code_title">Definir novo código de backup</string>
     <string name="personalid_backup_code_changed_success">Código de backup atualizado com sucesso</string>
     <string name="personalid_set_new_backup_code_abandon_title">Cancelar a configuração do código de backup?</string>

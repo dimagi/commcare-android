@@ -111,6 +111,9 @@
             android:id="@+id/action_personalid_backupcode_to_personalid_email"
             app:destination="@id/personalid_email"
             app:popUpTo="@id/personalid_backup_code" />
+        <action
+            android:id="@+id/action_personalid_backup_code_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment" />
     </fragment>
 
     <fragment
@@ -159,6 +162,25 @@
     </fragment>
 
     <fragment
+        android:id="@+id/personalid_send_email_otp_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdSendEmailOtpFragment"
+        android:label="@string/personalid_send_email_otp_title">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="masked"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <action
+            android:id="@+id/action_personalid_send_email_otp_to_email_verification"
+            app:destination="@id/personalid_email_verification" />
+    </fragment>
+
+    <fragment
         android:id="@+id/personalid_email"
         android:name="org.commcare.fragments.personalId.PersonalIdEmailFragment"
         android:label="fragment_personalid_email"
@@ -197,5 +219,10 @@
         <action
             android:id="@+id/action_personalid_email_verification_to_personalid_message"
             app:destination="@id/personalid_message_display" />
+        <action
+            android:id="@+id/action_personalid_email_verification_to_personalid_backup_code"
+            app:destination="@id/personalid_backup_code"
+            app:popUpTo="@id/personalid_backup_code"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

@@ -421,6 +421,7 @@ License.
     <string name="personalid_send_email_otp_description">Nous enverrons un code de vérification à :</string>
     <string name="personalid_send_email_otp_button">Envoyer le code</string>
     <string name="personalid_send_email_otp_address_label">E-mail de récupération</string>
+    <string name="personalid_email_otp_recovery_failed_message">Trop de tentatives de vérification échouées. Veuillez essayer votre code de secours.</string>
     <string name="personalid_set_new_backup_code_title">Définir un nouveau code de sauvegarde</string>
     <string name="personalid_backup_code_changed_success">Code de sauvegarde mis à jour avec succès</string>
     <string name="personalid_set_new_backup_code_abandon_title">Annuler la configuration du code de sauvegarde ?</string>

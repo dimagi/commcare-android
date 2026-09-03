@@ -48,6 +48,8 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title)
             binding.welcomeBackLayout.visibility = View.VISIBLE
             setUserNameAndPhoto()
+            binding.personalidForgotBackupCode.visibility =
+                if (!personalIdSessionData.email.isNullOrEmpty()) View.VISIBLE else View.GONE
         } else {
             setUpInitialState(
                 titleResId = R.string.connect_backup_code_title_set,
@@ -70,12 +72,25 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         binding.backupCodeView.setCodeCompleteListener { if (isRecovery) submitIfEnabled() }
         binding.confirmCodeView.setCodeCompleteListener { submitIfEnabled() }
         binding.notMeButton.setOnClickListener { handleNotMeButtonPressed() }
+        binding.personalidForgotBackupCode.setOnClickListener { handleForgotBackupCode() }
     }
 
     private fun handleNotMeButtonPressed() {
         personalIdSessionData.accountExists = false
         clearBackupCodeFields()
         setUpView()
+    }
+
+    private fun handleForgotBackupCode() {
+        val bundle =
+            Bundle().apply {
+                putString("email", personalIdSessionData.email!!)
+                putBoolean("masked", true)
+                putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+            }
+        binding.root
+            .findNavController()
+            .navigate(R.id.action_personalid_backup_code_to_send_email_otp, bundle)
     }
 
     override fun handleBackupCodeSubmission() {

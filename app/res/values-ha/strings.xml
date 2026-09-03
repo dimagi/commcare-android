@@ -259,6 +259,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_send_email_otp_description">Za mu aika lambar tabbatarwa zuwa:</string>
     <string name="personalid_send_email_otp_button">Aika lambar</string>
     <string name="personalid_send_email_otp_address_label">Imel na farfado</string>
+    <string name="personalid_email_otp_recovery_failed_message">Yawan yunƙuri na tabbatarwa sun kasa. Da fatan za a gwada lambar ajiyar ku a maimakon.</string>
     <string name="personalid_set_new_backup_code_title">Saita sabuwar lambar sirrin ajiyar bayanai</string>
     <string name="personalid_backup_code_changed_success">An sabunta lambar sirrin ajiyar bayanai cikin nasara</string>
     <string name="personalid_set_new_backup_code_abandon_title">Soke saita lambar ajiyar?</string>

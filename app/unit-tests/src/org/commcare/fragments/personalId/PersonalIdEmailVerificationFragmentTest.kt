@@ -9,6 +9,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
+import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.views.connect.NumericCodeView
 import org.json.JSONObject
@@ -21,6 +23,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.MockedStatic
+import org.mockito.Mockito
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
@@ -285,6 +289,113 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
             R.id.personalid_photo_capture,
             navController.currentDestination!!.id,
         )
+    }
+
+    // ========== BACKUP_CODE_RECOVERY_SIGN_IN tests ==========
+
+    @Test
+    fun `BACKUP_CODE_RECOVERY_SIGN_IN calls complete_recovery endpoint not verify_email_otp`() {
+        setUpPersonalIdActivityWithEmailVerificationFragment(
+            workflow = EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN,
+        )
+        activity.runOnUiThread {
+            installTestNavController(
+                fragment.requireView(),
+                R.id.personalid_email_verification,
+                Bundle().apply {
+                    putString("email", TEST_EMAIL)
+                    putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                    putInt("emailOtpRequestCount", 0)
+                },
+            )
+        }
+        ShadowLooper.idleMainLooper()
+
+        mockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                """{"username":"u","password":"p","db_key":"k","invited_user":false}""",
+            ),
+        )
+
+        val connectDatabaseHelperMock = Mockito.mockStatic(ConnectDatabaseHelper::class.java)
+        val connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
+        try {
+            enterCode("123456")
+            val request = takeRequestOrFail()
+            assertEquals("/users/recover/complete_recovery", request.path)
+            val body = JSONObject(request.body.readUtf8())
+            assertEquals("email_otp", body.getString("method"))
+            assertEquals("123456", body.getString("otp"))
+        } finally {
+            connectUserDatabaseUtilMock.close()
+            connectDatabaseHelperMock.close()
+        }
+    }
+
+    @Test
+    fun `BACKUP_CODE_RECOVERY_SIGN_IN success navigates to backup code fragment`() {
+        setUpPersonalIdActivityWithEmailVerificationFragment(
+            workflow = EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN,
+        )
+        activity.runOnUiThread {
+            installTestNavController(
+                fragment.requireView(),
+                R.id.personalid_email_verification,
+                Bundle().apply {
+                    putString("email", TEST_EMAIL)
+                    putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                    putInt("emailOtpRequestCount", 0)
+                },
+            )
+        }
+        ShadowLooper.idleMainLooper()
+
+        mockWebServer.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                """{"username":"u","password":"p","db_key":"k","invited_user":false}""",
+            ),
+        )
+
+        val connectDatabaseHelperMock = Mockito.mockStatic(ConnectDatabaseHelper::class.java)
+        val connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
+        try {
+            enterCode("123456")
+            drainHttp()
+
+            assertEquals(R.id.personalid_backup_code, navController.currentDestination!!.id)
+        } finally {
+            connectUserDatabaseUtilMock.close()
+            connectDatabaseHelperMock.close()
+        }
+    }
+
+    @Test
+    fun `BACKUP_CODE_RECOVERY_SIGN_IN three failures navigate to message screen`() {
+        setUpPersonalIdActivityWithEmailVerificationFragment(
+            workflow = EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN,
+        )
+        activity.runOnUiThread {
+            installTestNavController(
+                fragment.requireView(),
+                R.id.personalid_email_verification,
+                Bundle().apply {
+                    putString("email", TEST_EMAIL)
+                    putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                    putInt("emailOtpRequestCount", 0)
+                },
+            )
+        }
+        ShadowLooper.idleMainLooper()
+
+        repeat(3) {
+            mockWebServer.enqueue(
+                MockResponse().setResponseCode(401).setBody("""{"error_code":"INCORRECT_OTP"}"""),
+            )
+            enterCode("000000")
+            drainHttp()
+        }
+
+        assertEquals(R.id.personalid_message_display, navController.currentDestination!!.id)
     }
 
     // ========== Helpers ==========
