@@ -714,7 +714,7 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
         if (progressDialog != null && progressDialog.isAdded() && (progressDialog.getTaskId() == taskId
                 || dismissAny)) {
             if (areFragmentsPaused) {
-                taskIdForPendingDismissal = taskId;
+                taskIdForPendingDismissal = dismissAny ? progressDialog.getTaskId() : taskId;
             } else {
                 progressDialog.dismiss();
                 getSupportFragmentManager().executePendingTransactions();

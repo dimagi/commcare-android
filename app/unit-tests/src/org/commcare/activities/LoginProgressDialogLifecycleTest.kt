@@ -264,17 +264,25 @@ class LoginProgressDialogLifecycleTest {
     }
 
     /**
-     * Whatever else has gone wrong, a STOP press has to take the dialog down: the login screen is
-     * unusable behind it, and a pipeline that is already gone will never report a result to dismiss
-     * it.
+     * The phase is the stalest record of what the user is looking at, so a STOP press dismisses
+     * whichever login dialog is up rather than the one the phase names. A dialog left behind here
+     * would never come down: the cancelled pipeline reports no result.
      */
     @Test
-    fun `stop dismisses a login dialog with no pipeline behind it`() {
+    fun `stop dismisses a login dialog the phase no longer names`() {
+        fakeLoginWork { listener ->
+            listener.onProgress(LoginProgress(LoginPhase.SigningIn))
+            awaitCancellation()
+        }
+        clickLogin()
+
+        activity.dismissCurrentProgressDialog()
         activity.showProgressDialog(syncTaskId)
 
         clickStopButton()
 
-        assertNull("STOP should dismiss a login dialog even with nothing to cancel", currentDialog())
+        assertEquals("STOP should cancel the login pipeline", 1, loginCancellations)
+        assertNull("STOP should dismiss the dialog that is actually showing", currentDialog())
     }
 
     // ======== Rotation ========
