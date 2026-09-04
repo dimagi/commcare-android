@@ -426,6 +426,10 @@
     <string name="personalid_send_email_otp_address_label">ናይ ምምላስ ኢሜይል</string>
     <string name="personalid_set_new_backup_code_title">ሓድሽ ናይ ምትካእ ኮድ ኣቐምጥ</string>
     <string name="personalid_backup_code_changed_success">ናይ ምትካእ ኮድ ብዓወት ተሓዲሱ</string>
+    <string name="personalid_set_new_backup_code_abandon_title">ናይ ምትካእ ኮድ ቅጥዒ ምስረዛ?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">ምምላስ ናብ ድሕሪት ን ምቕያር ናይ ምትካእ ኮድ ሃለዋት ይስርዝ።</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">ናይ ምትካእ ኮድ ኣቐምጥ</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">ውጻእ</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
     <string name="connect_job_info_visit">%d ዝለዓለ ምብጻሕ</string>

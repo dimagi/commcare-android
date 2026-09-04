@@ -802,6 +802,10 @@
     <string name="personalid_profile_change_backup_code">Change backup code</string>
     <string name="personalid_forgot_backup_code">Forgot your backup code?</string>
     <string name="personalid_backup_code_changed_success">Backup code updated successfully</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Cancel Backup Code setup?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Going back will cancel the Backup Code change process.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Set Backup Code</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Exit</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="personalid_send_email_otp_title">Recover backup code</string>

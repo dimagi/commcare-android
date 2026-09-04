@@ -261,6 +261,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_send_email_otp_address_label">Imel na farfado</string>
     <string name="personalid_set_new_backup_code_title">Saita sabuwar lambar sirrin ajiyar bayanai</string>
     <string name="personalid_backup_code_changed_success">An sabunta lambar sirrin ajiyar bayanai cikin nasara</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Soke saita lambar ajiyar?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Koma baya zai soke tsarin canza lambar ajiyar.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Saita Lambar Ajiyar</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Fita</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
     <string name="connect_job_info_visit">Matsakaicin Ziyarar %d</string>

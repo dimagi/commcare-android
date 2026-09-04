@@ -423,6 +423,10 @@ License.
     <string name="personalid_send_email_otp_address_label">E-mail de récupération</string>
     <string name="personalid_set_new_backup_code_title">Définir un nouveau code de sauvegarde</string>
     <string name="personalid_backup_code_changed_success">Code de sauvegarde mis à jour avec succès</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Annuler la configuration du code de sauvegarde ?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Revenir en arrière annulera le processus de modification du code de sauvegarde.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Définir le code de sauvegarde</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Quitter</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
     <string name="connect_job_info_visit">%d visites maximum</string>

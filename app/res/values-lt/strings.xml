@@ -113,6 +113,10 @@
     <string name="personalid_send_email_otp_address_label">Atkūrimo el. paštas</string>
     <string name="personalid_set_new_backup_code_title">Nustatyti naują atsarginį kodą</string>
     <string name="personalid_backup_code_changed_success">Atsarginis kodas sėkmingai atnaujintas</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Atšaukti atsarginio kodo nustatymą?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Grįžus atgal bus atšauktas atsarginio kodo keitimo procesas.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Nustatyti atsarginį kodą</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Išeiti</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
