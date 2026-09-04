@@ -46,6 +46,21 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
         navHostFragment.childFragmentManager
             .primaryNavigationFragment as PersonalIdEmailVerificationForgotBackupCodeFragment
 
+    // ========== email masking ==========
+
+    @Test
+    fun `email shown in description is masked`() {
+        val descriptionView =
+            fragment().requireView().findViewById<TextView>(R.id.email_verification_description)
+        val maskedEmail = EmailHelper.maskEmail(TEST_EMAIL)
+        val expectedText = activity.getString(R.string.personalid_email_verification_description, maskedEmail)
+        assertEquals(
+            "Description should show masked email",
+            expectedText,
+            descriptionView.text.toString(),
+        )
+    }
+
     // ========== onEmailVerified ==========
 
     @Test

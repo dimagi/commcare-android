@@ -50,6 +50,8 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
     protected open fun resolveEmail(): String = args().email
 
+    protected open fun displayEmail(): String = enteredEmail
+
     protected open fun resolveWorkflow(): EmailWorkFlow = args().workflow
 
     protected open fun resolveEmailOtpRequestCount(): Int = args().emailOtpRequestCount
@@ -106,7 +108,7 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         binding.emailVerificationDescription.text =
-            getString(R.string.personalid_email_verification_description, enteredEmail)
+            getString(R.string.personalid_email_verification_description, displayEmail())
 
         binding.otpCodeView.setOnCodeChangedListener { code -> enableVerifyButton(code.length == 6) }
         binding.otpCodeView.setCodeCompleteListener { _ -> submitOtp() }
