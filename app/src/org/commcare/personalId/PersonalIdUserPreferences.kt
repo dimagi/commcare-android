@@ -13,6 +13,7 @@ object PersonalIdUserPreferences {
     private const val KEY_BACKUP_CODE_FAILED_ATTEMPTS = "backup_code_failed_attempts"
     private const val KEY_BACKUP_CODE_LOCKOUT_START = "backup_code_lockout_start"
     private const val KEY_BACKUP_CODE_WINDOW_START = "backup_code_window_start"
+    private const val KEY_PENDING_BACKUP_CODE = "pending_backup_code"
     private const val BACKUP_CODE_LOCKOUT_DURATION_MS = 24 * 60 * 60 * 1000L
 
     private fun prefs(): SharedPreferences = CommCareApplication.instance().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -92,6 +93,12 @@ object PersonalIdUserPreferences {
                 putLong(KEY_LAST_EMAIL_OFFER_DATE, value.time)
             }
         }
+    }
+
+    fun isPendingBackupCode(): Boolean = prefs().getBoolean(KEY_PENDING_BACKUP_CODE, false)
+
+    fun setPendingBackupCode(value: Boolean) {
+        prefs().edit { if (value) putBoolean(KEY_PENDING_BACKUP_CODE, true) else remove(KEY_PENDING_BACKUP_CODE) }
     }
 
     /** Remove every PersonalID preference. Called on PersonalId logout. */
