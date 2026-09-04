@@ -190,6 +190,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                     showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
                     failedOtpAttempts++
                     if (failedOtpAttempts >= maxOtpAttempts) {
+                        if (canSkipEmailVerification()) {
+                            showProceedWithoutEmailDialog()
+                        } else {
+                            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
+                        }
                         showProceedWithoutEmailDialog()
                     } else if (failureCode.shouldAllowRetry()) {
                         enableVerifyButton(true)
@@ -197,6 +202,10 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 }
             },
         )
+    }
+
+    private fun canSkipEmailVerification(): Boolean {
+        return  workflow != EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER;
     }
 
     private fun onEmailVerified() {
@@ -245,10 +254,6 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     }
 
     private fun showProceedWithoutEmailDialog() {
-        if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER) {
-            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
-            return
-        }
         val commCareActivity = requireActivity() as CommCareActivity<*>
         val dialog =
             StandardAlertDialog(
