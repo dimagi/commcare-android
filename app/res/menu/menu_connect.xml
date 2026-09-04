@@ -3,15 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_sync"
+        android:icon="@drawable/ic_sync"
+        android:iconTint="@color/white"
+        android:title="@string/personalid_sync_menu_title"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_bell"
         android:icon="@drawable/ic_bell"
         android:title="@string/personalid_notification"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_sync"
-        android:icon="@drawable/ic_backup"
-        android:iconTint="@color/white"
-        android:title="@string/personalid_sync_menu_title"
-        app:showAsAction="always" />
 </menu>
