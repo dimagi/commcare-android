@@ -9,17 +9,23 @@ import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.BasePersonalIdBackupCodeFragment
 import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.personalId.UnlockPolicy
 import org.commcare.views.dialogs.StandardAlertDialog
 
 class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
+    private val workflow: BackupCodeWorkflow?
+        get() = arguments?.getSerializable("workflow") as? BackupCodeWorkflow
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
@@ -108,13 +114,26 @@ class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     ) {
         user.pin = backupCode
         ConnectUserDatabaseUtil.storeUser(user)
-        Toast
-            .makeText(
-                requireContext(),
-                R.string.personalid_backup_code_changed_success,
-                Toast.LENGTH_LONG,
-            ).show()
-        findNavController().popBackStack(R.id.personalid_profile_backup_code_fragment, true)
+        if (workflow == BackupCodeWorkflow.RECOVERY_FORGOT_BACKUP_CODE) {
+            PersonalIdUserPreferences.setPendingBackupCode(false)
+            val bundle =
+                Bundle().apply {
+                    putString("title", getString(R.string.connect_recovery_success_title))
+                    putString("message", getString(R.string.connect_recovery_success_message))
+                    putInt("callingClass", ConnectConstants.PERSONALID_RECOVERY_SUCCESS)
+                    putString("buttonText", getString(R.string.ok))
+                    putBoolean("isCancellable", false)
+                }
+            findNavController().navigate(R.id.action_set_new_backup_code_to_personalid_message, bundle)
+        } else {
+            Toast
+                .makeText(
+                    requireContext(),
+                    R.string.personalid_backup_code_changed_success,
+                    Toast.LENGTH_LONG,
+                ).show()
+            findNavController().popBackStack(R.id.personalid_profile_backup_code_fragment, true)
+        }
     }
 
     private fun onSetBackupCodeCallFailure(
