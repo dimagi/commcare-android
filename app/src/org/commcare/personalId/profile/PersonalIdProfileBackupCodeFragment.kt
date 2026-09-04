@@ -45,14 +45,11 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     private fun handleForgot() {
         val email = ConnectUserDatabaseUtil.getUser()?.email
         if (email != null) {
-            findNavController().navigate(
+            val directions =
                 PersonalIdProfileBackupCodeFragmentDirections
-                    .actionProfileBackupCodeToEmailVerification(
-                        email,
-                        EmailWorkFlow.RECOVERY,
-                        0,
-                    ),
-            )
+                    .actionProfileBackupCodeToSendEmailOtp(email, EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER)
+                    .setMasked(true)
+            findNavController().navigate(directions)
         } else {
             Toast
                 .makeText(

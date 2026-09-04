@@ -281,6 +281,7 @@
     <string name="personalid_email_otp_failed_message">Inaonekana una matatizo katika kuthibitisha barua pepe yako. Unaweza kuruka hatua hii kwa sasa na kujaribu tena baadaye, au uendelee kujaribu.</string>
     <string name="personalid_email_otp_failed_retry">Jaribu tena</string>
     <string name="personalid_email_otp_failed_skip">Endelea bila barua pepe</string>
+    <string name="personalid_email_otp_max_attempts_reached">Imefikiwa idadi ya juu ya majaribio ya uthibitishaji. Tafadhali jaribu tena baadaye.</string>
     <string name="personalid_email_added_title">Barua pepe imeongezwa</string>
     <string name="personalid_email_added_message">Barua pepe yako imeongezwa kwa mafanikio.</string>
     <string name="personalId_email_otp_sent">Msimbo wa tarakimu 6 umetumwa kwa anwani yako ya barua pepe.</string>
@@ -418,8 +419,16 @@
     <string name="personalid_forgot_backup_code">Umesahau nambari yako ya hifadhi nakala?</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_send_email_otp_title">Rejesha msimbo wa hifadhi nakala</string>
+    <string name="personalid_send_email_otp_description">Tutatuma msimbo wa uthibitisho kwa:</string>
+    <string name="personalid_send_email_otp_button">Tuma msimbo</string>
+    <string name="personalid_send_email_otp_address_label">Barua pepe ya urejeshaji</string>
     <string name="personalid_set_new_backup_code_title">Weka nambari mpya ya hifadhi nakala</string>
     <string name="personalid_backup_code_changed_success">Nambari ya hifadhi nakala imesasishwa</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Ghairi usanidi wa nambari ya hifadhi?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Kurudi nyuma kutabatilisha mchakato wa kubadilisha nambari ya hifadhi.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Weka Nambari ya Hifadhi</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Toka</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
     <string name="connect_job_info_visit">%d upeo wa Ziara</string>

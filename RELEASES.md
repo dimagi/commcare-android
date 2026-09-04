@@ -6,6 +6,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 ### Release Notes
 
+#### What's New
+
+- The refresh and notifications icons in the Connect action bar have been updated to a new look.
+
 #### Important Bug Fixes
 
 - During PersonalID sign-up, the OTP request will automatically fall back to Twilio if Firebase encounters an unrecoverable error—without requiring the user to tap 'Resend Code'.

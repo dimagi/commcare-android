@@ -18,6 +18,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
+import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
@@ -25,8 +26,8 @@ import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 
-class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
-    private lateinit var binding: FragmentPersonalidEmailVerificationBinding
+open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
+    protected lateinit var binding: FragmentPersonalidEmailVerificationBinding
     private lateinit var activity: Activity
     private lateinit var emailOtpTracker: AttemptTracker
 
@@ -44,6 +45,16 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
      * and the "existing user adding email" entry point. Read from a required nav arg.
      */
     private lateinit var workflow: EmailWorkFlow
+
+    private fun args() = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments())
+
+    protected open fun resolveEmail(): String = args().email
+
+    protected open fun displayEmail(): String = enteredEmail
+
+    protected open fun resolveWorkflow(): EmailWorkFlow = args().workflow
+
+    protected open fun resolveEmailOtpRequestCount(): Int = args().emailOtpRequestCount
 
     private val resendHandler = Handler(Looper.getMainLooper())
     private var otpRequestTime: Long = 0L
@@ -78,12 +89,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             ViewModelProvider(requireActivity())
                 .get(PersonalIdSessionDataViewModel::class.java)
                 .personalIdSessionData
-        enteredEmail = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).email
-        workflow = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).workflow
+        enteredEmail = resolveEmail()
+        workflow = resolveWorkflow()
         emailOtpTracker =
             AttemptTracker(
-                initialRequestCount =
-                    PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).emailOtpRequestCount,
+                initialRequestCount = resolveEmailOtpRequestCount(),
             )
     }
 
@@ -98,7 +108,7 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         binding.emailVerificationDescription.text =
-            getString(R.string.personalid_email_verification_description, enteredEmail)
+            getString(R.string.personalid_email_verification_description, displayEmail())
 
         binding.otpCodeView.setOnCodeChangedListener { code -> enableVerifyButton(code.length == 6) }
         binding.otpCodeView.setCodeCompleteListener { _ -> submitOtp() }
@@ -147,8 +157,12 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             workflow = workflow,
             sessionData = personalIdSessionData,
             tracker = emailOtpTracker,
-            onSuccess = { startResendTimer() },
+            onSuccess = {
+                if (!hasLiveView()) return@sendEmailOtp
+                startResendTimer()
+            },
             onFailure = { failureCode, t ->
+                if (!hasLiveView()) return@sendEmailOtp
                 showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
             },
         )
@@ -175,13 +189,21 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             workflow = workflow,
             sessionData = personalIdSessionData,
             tracker = emailOtpTracker,
-            onSuccess = { onEmailVerified() },
+            onSuccess = {
+                if (!hasLiveView()) return@verifyEmailOtp
+                onEmailVerified()
+            },
             onFailure = { failureCode, t ->
+                if (!hasLiveView()) return@verifyEmailOtp
                 if (!handleCommonSignupFailures(failureCode)) {
                     showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
                     failedOtpAttempts++
                     if (failedOtpAttempts >= maxOtpAttempts) {
-                        showProceedWithoutEmailDialog()
+                        if (canSkipEmailVerification()) {
+                            showProceedWithoutEmailDialog()
+                        } else {
+                            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
+                        }
                     } else if (failureCode.shouldAllowRetry()) {
                         enableVerifyButton(true)
                     }
@@ -190,7 +212,9 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         )
     }
 
-    private fun onEmailVerified() {
+    open fun canSkipEmailVerification(): Boolean = true
+
+    open fun onEmailVerified() {
         when (workflow) {
             EmailWorkFlow.EXISTING_USER -> {
                 val user = ConnectUserDatabaseUtil.getUser()
@@ -207,6 +231,10 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             EmailWorkFlow.REGISTRATION -> {
                 personalIdSessionData!!.email = enteredEmail
                 navigateToPhotoCapture()
+            }
+
+            else -> {
+                throw IllegalStateException("Unexpected workflow: $workflow")
             }
         }
     }

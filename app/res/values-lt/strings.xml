@@ -107,8 +107,16 @@
     <string name="personalid_forgot_backup_code">Pamiršote savo atsarginį kodą?</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_send_email_otp_title">Atkurti atsarginį kodą</string>
+    <string name="personalid_send_email_otp_description">Išsiųsime patvirtinimo kodą į:</string>
+    <string name="personalid_send_email_otp_button">Siųsti kodą</string>
+    <string name="personalid_send_email_otp_address_label">Atkūrimo el. paštas</string>
     <string name="personalid_set_new_backup_code_title">Nustatyti naują atsarginį kodą</string>
     <string name="personalid_backup_code_changed_success">Atsarginis kodas sėkmingai atnaujintas</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Atšaukti atsarginio kodo nustatymą?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Grįžus atgal bus atšauktas atsarginio kodo keitimo procesas.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Nustatyti atsarginį kodą</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Išeiti</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>
     <string name="nav_drawer_help">Pagalba</string>
     <string name="nav_drawer_not_signed_in_to_personal_id">Neprisijungta prie „PersonalID“</string>
@@ -196,6 +204,7 @@
     <string name="personalid_email_otp_failed_message">Atrodo, kad turite problemų patvirtindami savo el. paštą. Galite šį žingsnį dabar praleisti ir pabandyti vėliau, arba bandyti toliau.</string>
     <string name="personalid_email_otp_failed_retry">Bandyti dar kartą</string>
     <string name="personalid_email_otp_failed_skip">Tęsti be el. pašto</string>
+    <string name="personalid_email_otp_max_attempts_reached">Pasiektas maksimalus patvirtinimo bandymų skaičius. Bandykite dar kartą vėliau.</string>
     <string name="personalid_email_added_title">El. paštas pridėtas</string>
     <string name="personalid_email_added_message">Jūsų el. pašto adresas sėkmingai pridėtas.</string>
     <string name="personalId_email_otp_sent">Į jūsų el. pašto adresą išsiųstas 6 skaitmenų kodas.</string>

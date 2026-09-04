@@ -280,6 +280,7 @@ License.
     <string name="personalid_email_otp_failed_message">लगता है आपको अपना ईमेल सत्यापित करने में समस्या हो रही है। आप इसे अभी छोड़ सकते हैं और बाद में पुनः प्रयास कर सकते हैं, या प्रयास करते रहें।</string>
     <string name="personalid_email_otp_failed_retry">पुनः प्रयास करें</string>
     <string name="personalid_email_otp_failed_skip">ईमेल के बिना आगे बढ़ें</string>
+    <string name="personalid_email_otp_max_attempts_reached">सत्यापन प्रयासों की अधिकतम सीमा पहुँच गई। कृपया बाद में पुनः प्रयास करें।</string>
     <string name="personalid_email_added_title">ईमेल जोड़ा गया</string>
     <string name="personalid_email_added_message">आपका ईमेल सफलतापूर्वक जोड़ दिया गया है।</string>
     <string name="personalId_email_otp_sent">आपके ईमेल पते पर 6 अंकों का पासकोड भेजा गया है।</string>
@@ -416,8 +417,16 @@ License.
     <string name="personalid_forgot_backup_code">अपना बैकअप कोड भूल गए?</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_send_email_otp_title">बैकअप कोड पुनः प्राप्त करें</string>
+    <string name="personalid_send_email_otp_description">हम इस पर एक सत्यापन कोड भेजेंगे:</string>
+    <string name="personalid_send_email_otp_button">कोड भेजें</string>
+    <string name="personalid_send_email_otp_address_label">रिकवरी ईमेल</string>
     <string name="personalid_set_new_backup_code_title">नया बैकअप कोड सेट करें</string>
     <string name="personalid_backup_code_changed_success">बैकअप कोड सफलतापूर्वक अपडेट किया गया</string>
+    <string name="personalid_set_new_backup_code_abandon_title">बैकअप कोड सेटअप रद्द करें?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">वापस जाने पर बैकअप कोड बदलने की प्रक्रिया रद्द हो जाएगी।</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">बैकअप कोड सेट करें</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">बाहर निकलें</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
     <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
     <string name="connect_job_info_visit">अधिकतम %d विज़िट</string>

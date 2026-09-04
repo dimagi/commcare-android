@@ -400,6 +400,7 @@
     <string name="personalid_email_otp_failed_message">Looks like you\'re having trouble verifying your email. You can skip this for now and try again later, or keep trying.</string>
     <string name="personalid_email_otp_failed_retry">Try again</string>
     <string name="personalid_email_otp_failed_skip">Proceed without email</string>
+    <string name="personalid_email_otp_max_attempts_reached">Maximum verification attempts reached. Please try again later.</string>
     <string name="personalid_email_added_title">Email Added</string>
     <string name="personalid_email_added_message">Your email has been added successfully.</string>
     <string name="personalId_email_otp_sent">A 6-digit passcode has been sent to your email address.</string>
@@ -811,8 +812,16 @@
     <string name="personalid_profile_change_backup_code">Change backup code</string>
     <string name="personalid_forgot_backup_code">Forgot your backup code?</string>
     <string name="personalid_backup_code_changed_success">Backup code updated successfully</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Cancel Backup Code setup?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Going back will cancel the Backup Code change process.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Set Backup Code</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Exit</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_send_email_otp_title">Recover backup code</string>
+    <string name="personalid_send_email_otp_description">We\'ll send a verification code to:</string>
+    <string name="personalid_send_email_otp_button">Send code</string>
+    <string name="personalid_send_email_otp_address_label">Recovery email</string>
     <string name="personalid_welcome_back_msg">Welcome back %s</string>
     <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
     <string name="personalid_second_device_login_title">Login on Second Device</string>
