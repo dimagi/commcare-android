@@ -92,7 +92,7 @@ class ConnectDeliveryHomeFragment :
         setupTabViewPager()
         binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
 
-        observeDeliveryProgress()
+        observeDeliveryAndLearningProgress()
         observeConnectivity()
         return view
     }
@@ -152,7 +152,7 @@ class ConnectDeliveryHomeFragment :
      * The tabs read the opportunity back off the activity, and the repository hands back a fresh
      * instance each sync, so the refreshed job has to be published there and not just kept here.
      */
-    private fun observeDeliveryProgress() {
+    private fun observeDeliveryAndLearningProgress() {
         observeDataState(
             viewModel.deliveryProgress,
             { cached ->
