@@ -35,11 +35,15 @@ Where to check current state:
 
 If this script cannot run, the equivalent rollback is:
 
+    MASK=recaptchaConfig.phoneEnforcementState,recaptchaConfig.useSmsTollFraudProtection
+    MASK=$MASK,recaptchaConfig.tollFraudManagedRules
+
     curl -s -X PATCH -H "Authorization: Bearer $(gcloud auth print-access-token)" \
       -H "x-goog-user-project: <firebase_project_id>" \
       -H "Content-Type: application/json" \
-      "https://identitytoolkit.googleapis.com/admin/v2/projects/<firebase_project_id>/config?updateMask=recaptchaConfig.phoneEnforcementState,recaptchaConfig.useSmsTollFraudProtection,recaptchaConfig.tollFraudManagedRules" \
-      -d '{"recaptchaConfig":{"phoneEnforcementState":"OFF","useSmsTollFraudProtection":false,"tollFraudManagedRules":[]}}'
+      "https://identitytoolkit.googleapis.com/admin/v2/projects/<firebase_project_id>/config?updateMask=$MASK" \
+      -d '{"recaptchaConfig":{"phoneEnforcementState":"OFF",
+           "useSmsTollFraudProtection":false,"tollFraudManagedRules":[]}}'
 """
 
 import argparse
