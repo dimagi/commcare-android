@@ -23,6 +23,7 @@ import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
@@ -221,10 +222,16 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     private fun submitOtpViaCompleteRecovery(otp: String) {
         object : PersonalIdApiHandler<PersonalIdSessionData>() {
             override fun onSuccess(sessionData: PersonalIdSessionData) {
+                if (!hasLiveView()) return
                 PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), sessionData)
+                PersonalIdUserPreferences.setPendingBackupCode(true)
+                val bundle =
+                    Bundle().apply {
+                        putSerializable("workflow", BackupCodeWorkflow.RECOVERY_FORGOT_BACKUP_CODE)
+                    }
                 binding.root
                     .findNavController()
-                    .navigate(R.id.action_personalid_email_verification_to_personalid_backup_code)
+                    .navigate(R.id.action_personalid_email_verification_to_set_new_backup_code, bundle)
             }
 
             override fun onFailure(
