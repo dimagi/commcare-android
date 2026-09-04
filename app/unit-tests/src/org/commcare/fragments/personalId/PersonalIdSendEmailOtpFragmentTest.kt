@@ -83,7 +83,7 @@ class PersonalIdSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
         }
         mockApiServer.drainHttp()
 
-        assertEquals(R.id.personalid_email_verification_fragment, testNavController.currentDestination!!.id)
+        assertEquals(R.id.personalid_email_verification_forgot_backup_code_fragment, testNavController.currentDestination!!.id)
     }
 
     @Test

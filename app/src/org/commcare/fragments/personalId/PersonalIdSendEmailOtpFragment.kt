@@ -4,10 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
-import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidSendEmailOtpBinding
@@ -77,7 +74,7 @@ class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
     private fun navigateToVerification() {
         val directions =
             PersonalIdSendEmailOtpFragmentDirections
-                .actionPersonalidSendEmailOtpToEmailVerification(email, workflow, emailOtpTracker.requestCount)
+                .actionPersonalidSendEmailOtpToEmailVerification(email, emailOtpTracker.requestCount)
         binding.root.findNavController().navigate(directions)
     }
 

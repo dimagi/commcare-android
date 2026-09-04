@@ -26,8 +26,8 @@ import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 
-class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
-    private lateinit var binding: FragmentPersonalidEmailVerificationBinding
+open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
+    protected lateinit var binding: FragmentPersonalidEmailVerificationBinding
     private lateinit var activity: Activity
     private lateinit var emailOtpTracker: AttemptTracker
 
@@ -45,6 +45,14 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
      * and the "existing user adding email" entry point. Read from a required nav arg.
      */
     private lateinit var workflow: EmailWorkFlow
+
+    private fun args() = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments())
+
+    protected open fun resolveEmail(): String = args().email
+
+    protected open fun resolveWorkflow(): EmailWorkFlow = args().workflow
+
+    protected open fun resolveEmailOtpRequestCount(): Int = args().emailOtpRequestCount
 
     private val resendHandler = Handler(Looper.getMainLooper())
     private var otpRequestTime: Long = 0L
@@ -79,12 +87,11 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             ViewModelProvider(requireActivity())
                 .get(PersonalIdSessionDataViewModel::class.java)
                 .personalIdSessionData
-        enteredEmail = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).email
-        workflow = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).workflow
+        enteredEmail = resolveEmail()
+        workflow = resolveWorkflow()
         emailOtpTracker =
             AttemptTracker(
-                initialRequestCount =
-                    PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments()).emailOtpRequestCount,
+                initialRequestCount = resolveEmailOtpRequestCount(),
             )
     }
 
@@ -195,7 +202,6 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                         } else {
                             showError(getString(R.string.personalid_email_otp_max_attempts_reached))
                         }
-                        showProceedWithoutEmailDialog()
                     } else if (failureCode.shouldAllowRetry()) {
                         enableVerifyButton(true)
                     }
@@ -204,11 +210,9 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         )
     }
 
-    private fun canSkipEmailVerification(): Boolean {
-        return  workflow != EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER;
-    }
+    open fun canSkipEmailVerification(): Boolean = true
 
-    private fun onEmailVerified() {
+    open fun onEmailVerified() {
         when (workflow) {
             EmailWorkFlow.EXISTING_USER -> {
                 val user = ConnectUserDatabaseUtil.getUser()
@@ -227,10 +231,8 @@ class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 navigateToPhotoCapture()
             }
 
-            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER -> {
-                binding.root
-                    .findNavController()
-                    .navigate(R.id.personalid_set_new_backup_code_fragment)
+            else -> {
+                throw IllegalStateException("Unexpected workflow: $workflow")
             }
         }
     }
