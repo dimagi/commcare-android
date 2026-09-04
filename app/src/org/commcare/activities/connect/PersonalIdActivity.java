@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.fragments.personalId.BackupCodeWorkflow;
 import org.commcare.fragments.personalId.EmailWorkFlow;
 import org.commcare.fragments.personalId.PersonalIdBiometricConfigFragment;
 import org.commcare.connect.ConnectConstants;
@@ -18,11 +19,13 @@ import org.commcare.fragments.personalId.PersonalIdEmailFragment;
 public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalIdActivity> {
 
     public static final String EXTRA_EXISTING_USER_EMAIL_FLOW = "extra_existing_user_email_flow";
+    public static final String EXTRA_PENDING_BACKUP_CODE = "extra_pending_backup_code";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkForEmailScreen();
+        checkForPendingBackupCode();
         updateBackButton();
     }
 
@@ -90,6 +93,21 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
                 new NavOptions.Builder()
                         .setPopUpTo(R.id.personalid_phone_fragment, true)
                         .build());
+    }
+
+    private void checkForPendingBackupCode() {
+        if (!getIntent().getBooleanExtra(EXTRA_PENDING_BACKUP_CODE, false)) {
+            return;
+        }
+        Bundle args = new Bundle();
+        args.putSerializable("workflow", BackupCodeWorkflow.RECOVERY_FORGOT_BACKUP_CODE);
+        getHostFragment().getNavController().navigate(
+                R.id.personalid_set_new_backup_code_fragment,
+                args,
+                new NavOptions.Builder()
+                        .setPopUpTo(R.id.personalid_phone_fragment, true)
+                        .build()
+        );
     }
 }
 
