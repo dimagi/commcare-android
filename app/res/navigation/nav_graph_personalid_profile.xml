@@ -94,6 +94,12 @@
     <fragment
         android:id="@+id/personalid_set_new_backup_code_fragment"
         android:name="org.commcare.personalId.profile.SetNewBackupCodeFragment"
-        android:label="@string/personalid_set_new_backup_code_title" />
+        android:label="@string/personalid_set_new_backup_code_title">
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.BackupCodeWorkflow"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 
 </navigation>
