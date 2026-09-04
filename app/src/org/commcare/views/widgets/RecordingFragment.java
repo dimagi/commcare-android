@@ -44,7 +44,6 @@ import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.PrefValues;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.MediaUtil;
 import org.commcare.utils.NotificationUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.Logger;
@@ -261,15 +260,6 @@ public class RecordingFragment extends DialogFragment {
     }
 
     private void startRecording() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (MediaUtil.isRecordingActive(getContext())) {
-                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT)
-                        .show();
-                Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording cancelled due to an ongoing recording");
-                return;
-            }
-        }
-
         setCancelable(false);
         recordingSessionStarted = true;
 
