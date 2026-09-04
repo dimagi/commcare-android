@@ -29,7 +29,7 @@ class PersonalIdSendEmailOtpConfigFragmentTest : BasePersonalIdConfigurationTest
             Bundle().apply {
                 putString("email", "user@example.com")
                 putBoolean("masked", true)
-                putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                putSerializable("workflow", EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY)
             },
         )
     }
@@ -76,7 +76,7 @@ class PersonalIdSendEmailOtpConfigFragmentTest : BasePersonalIdConfigurationTest
                 Bundle().apply {
                     putString("email", "user@example.com")
                     putBoolean("masked", true)
-                    putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                    putSerializable("workflow", EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY)
                 },
             )
             sendButton().performClick()

@@ -25,7 +25,7 @@ object EmailHelper {
      * Picks the right auth pair for an email OTP API call based on [workflow]:
      *  - [EmailWorkFlow.EXISTING_USER] / [EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER]: the user is already signed up
      *    so authenticate with the persisted [ConnectUserRecord]'s basic-auth credentials.
-     *  - [EmailWorkFlow.REGISTRATION] / [EmailWorkFlow.RECOVERY] / [EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN]:
+     *  - [EmailWorkFlow.REGISTRATION] / [EmailWorkFlow.RECOVERY] / [EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY]:
      *    the user has a fresh session token from /users/start_configuration API call.
      */
     private fun buildAuthArgs(
@@ -40,7 +40,7 @@ object EmailHelper {
 
             EmailWorkFlow.REGISTRATION,
             EmailWorkFlow.RECOVERY,
-            EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
             -> sessionData?.token to null
         }
 
@@ -181,7 +181,7 @@ object EmailHelper {
                 throw IllegalArgumentException("Unexpected workflow: $workflow")
             }
 
-            EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN -> { /* backup code recovery requires email — user cannot skip */ }
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY -> { /* backup code recovery requires email — user cannot skip */ }
         }
     }
 

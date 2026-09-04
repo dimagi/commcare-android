@@ -14,7 +14,6 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.views.connect.NumericCodeView
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -23,7 +22,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
@@ -296,7 +294,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
     @Test
     fun `BACKUP_CODE_RECOVERY_SIGN_IN calls complete_recovery endpoint not verify_email_otp`() {
         setUpPersonalIdActivityWithEmailVerificationFragment(
-            workflow = EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN,
+            workflow = EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
         )
         activity.runOnUiThread {
             installTestNavController(
@@ -304,7 +302,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
                 R.id.personalid_email_verification,
                 Bundle().apply {
                     putString("email", TEST_EMAIL)
-                    putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                    putSerializable("workflow", EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY)
                     putInt("emailOtpRequestCount", 0)
                 },
             )
@@ -335,7 +333,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
     @Test
     fun `BACKUP_CODE_RECOVERY_SIGN_IN success navigates to backup code fragment`() {
         setUpPersonalIdActivityWithEmailVerificationFragment(
-            workflow = EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN,
+            workflow = EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
         )
         activity.runOnUiThread {
             installTestNavController(
@@ -343,7 +341,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
                 R.id.personalid_email_verification,
                 Bundle().apply {
                     putString("email", TEST_EMAIL)
-                    putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                    putSerializable("workflow", EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY)
                     putInt("emailOtpRequestCount", 0)
                 },
             )
@@ -372,7 +370,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
     @Test
     fun `BACKUP_CODE_RECOVERY_SIGN_IN three failures navigate to message screen`() {
         setUpPersonalIdActivityWithEmailVerificationFragment(
-            workflow = EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN,
+            workflow = EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
         )
         activity.runOnUiThread {
             installTestNavController(
@@ -380,7 +378,7 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
                 R.id.personalid_email_verification,
                 Bundle().apply {
                     putString("email", TEST_EMAIL)
-                    putSerializable("workflow", EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN)
+                    putSerializable("workflow", EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY)
                     putInt("emailOtpRequestCount", 0)
                 },
             )

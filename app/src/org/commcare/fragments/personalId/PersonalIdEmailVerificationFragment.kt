@@ -15,7 +15,6 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
@@ -184,7 +183,7 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         clearError()
         enableVerifyButton(false)
 
-        if (workflow == EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN) {
+        if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY) {
             submitOtpViaCompleteRecovery(otp)
             return
         }
@@ -223,7 +222,6 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         object : PersonalIdApiHandler<PersonalIdSessionData>() {
             override fun onSuccess(sessionData: PersonalIdSessionData) {
                 PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), sessionData)
-                personalIdSessionData!!.accountExists = false
                 binding.root
                     .findNavController()
                     .navigate(R.id.action_personalid_email_verification_to_personalid_backup_code)
@@ -273,7 +271,7 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
                 navigateToPhotoCapture()
             }
 
-            EmailWorkFlow.BACKUP_CODE_RECOVERY_SIGN_IN -> { /* handled in submitOtpViaCompleteRecovery */ }
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY -> { /* handled in submitOtpViaCompleteRecovery */ }
 
             else -> {
                 throw IllegalStateException("Unexpected workflow: $workflow")
