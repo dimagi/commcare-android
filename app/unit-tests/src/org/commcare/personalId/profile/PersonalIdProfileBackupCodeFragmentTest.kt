@@ -192,11 +192,11 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     // ===== Forgot =====
 
     @Test
-    fun `forgot with email navigates to email verification`() {
+    fun `forgot with email navigates to send email otp`() {
         // user.email is "ada@example.com" per BasePersonalIdProfileTest
         onUiThread { forgotButton().performClick() }
 
-        assertEquals(R.id.personalid_email_verification_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_send_email_otp_fragment, currentDestinationId())
     }
 
     @Test

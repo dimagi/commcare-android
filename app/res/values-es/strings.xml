@@ -218,6 +218,7 @@
     <string name="personalid_email_otp_failed_message">Parece que tienes problemas para verificar tu correo electrónico. Puedes omitir esto por ahora e intentarlo de nuevo más tarde, o seguir intentándolo.</string>
     <string name="personalid_email_otp_failed_retry">Intentar de nuevo</string>
     <string name="personalid_email_otp_failed_skip">Continuar sin correo</string>
+    <string name="personalid_email_otp_max_attempts_reached">Se ha alcanzado el número máximo de intentos de verificación. Por favor, inténtelo de nuevo más tarde.</string>
     <string name="personalid_email_added_title">Correo añadido</string>
     <string name="personalid_email_added_message">Tu correo electrónico se ha añadido correctamente.</string>
     <string name="personalId_email_otp_sent">Se ha enviado un código de 6 dígitos a tu dirección de correo electrónico.</string>
@@ -419,8 +420,16 @@
     <string name="personalid_forgot_backup_code">¿Olvidaste tu código de respaldo?</string>
     <string name="personalid_backup_code_too_many_attempts">Demasiados intentos. Por favor, inténtalo de nuevo más tarde.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Por favor, añade una dirección de correo electrónico</string>
+    <string name="personalid_send_email_otp_title">Recuperar código de respaldo</string>
+    <string name="personalid_send_email_otp_description">Enviaremos un código de verificación a:</string>
+    <string name="personalid_send_email_otp_button">Enviar código</string>
+    <string name="personalid_send_email_otp_address_label">Correo de recuperación</string>
     <string name="personalid_set_new_backup_code_title">Establecer nuevo código de respaldo</string>
     <string name="personalid_backup_code_changed_success">Código de respaldo actualizado correctamente</string>
+    <string name="personalid_set_new_backup_code_abandon_title">¿Cancelar la configuración del código de respaldo?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Volver cancelará el proceso de cambio del código de respaldo.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Establecer código de respaldo</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Salir</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
     <string name="connect_job_info_visit">%d visitas máximo</string>

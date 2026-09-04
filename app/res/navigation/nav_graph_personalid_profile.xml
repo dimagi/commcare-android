@@ -43,6 +43,24 @@
     </fragment>
 
     <fragment
+        android:id="@+id/personalid_email_verification_forgot_backup_code_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdEmailVerificationForgotBackupCodeFragment"
+        android:label="@string/personalid_email_verification_appbar_title"
+        tools:layout="@layout/fragment_personalid_email_verification">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="emailOtpRequestCount"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_email_verification_forgot_backup_code_to_set_new_backup_code"
+            app:destination="@id/personalid_set_new_backup_code_fragment"
+            app:popUpTo="@id/personalid_profile_fragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
         android:id="@+id/personalid_profile_backup_code_fragment"
         android:name="org.commcare.personalId.profile.PersonalIdProfileBackupCodeFragment"
         android:label="@string/connect_backup_code_title_confirm">
@@ -50,8 +68,27 @@
             android:id="@+id/action_profile_backup_code_to_set_new_backup_code"
             app:destination="@id/personalid_set_new_backup_code_fragment" />
         <action
-            android:id="@+id/action_profile_backup_code_to_email_verification"
-            app:destination="@id/personalid_email_verification_fragment" />
+            android:id="@+id/action_profile_backup_code_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_send_email_otp_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdSendEmailOtpFragment"
+        android:label="@string/personalid_send_email_otp_title">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="masked"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <action
+            android:id="@+id/action_personalid_send_email_otp_to_email_verification"
+            app:destination="@id/personalid_email_verification_forgot_backup_code_fragment" />
     </fragment>
 
     <fragment
