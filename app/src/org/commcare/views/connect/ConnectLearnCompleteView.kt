@@ -1,13 +1,9 @@
 package org.commcare.views.connect
 
 import android.content.Context
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
 import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -62,61 +58,19 @@ class ConnectLearnCompleteView
 
         fun bind(
             job: ConnectJobRecord,
-            completedOn: Date,
+            learnCompletionDate: Date,
             learnerName: String,
             onCtaClick: OnClickListener,
         ) {
-            binding.learnCompleteCompletedOn.text = completedOnText(completedOn)
-            bindCertificate(job, learnerName, completedOn)
+            binding.learnCompleteCompletedOn.text = learnCompletionDateText(learnCompletionDate)
+            binding.certificate.bindCertificate(job, learnerName, learnCompletionDate)
             bindDeliveryCards(job)
             bindCtaBar(job, onCtaClick)
         }
 
-        private fun completedOnText(
-            completedOn: Date,
-            breakBeforeDate: Boolean = false,
-        ): CharSequence {
-            val date = ConnectDateUtils.formatDate(completedOn, DateFormat.SHORT)
-            val full = context.getString(R.string.connect_learn_completed, date)
-            val dateStart = full.lastIndexOf(date)
-
-            return if (!breakBeforeDate || dateStart <= 0) {
-                full
-            } else {
-                full.substring(0, dateStart).trimEnd() + "\n" + full.substring(dateStart)
-            }
-        }
-
-        private fun bindCertificate(
-            job: ConnectJobRecord,
-            learnerName: String,
-            completedOn: Date,
-        ) {
-            binding.certificate.certSubjectText.text = job.title
-            binding.certificate.certPersonText.text = learnerName
-            binding.certificate.certDateText.text =
-                completedOnText(completedOn, breakBeforeDate = true)
-            binding.certificate.certScoreText.apply {
-                text = scoreText(job.assessmentScore)
-                visibility = if (job.attemptedAssessment()) VISIBLE else GONE
-            }
-        }
-
-        private fun scoreText(score: Int): CharSequence {
-            val full = context.getString(R.string.connect_learn_cert_score, score.toString())
-            val valueStart = full.indexOf(SCORE_VALUE_SEPARATOR)
-            if (valueStart < 0) {
-                return full
-            }
-
-            return SpannableString(full).apply {
-                setSpan(
-                    ForegroundColorSpan(ContextCompat.getColor(context, R.color.white)),
-                    valueStart,
-                    length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-                )
-            }
+        private fun learnCompletionDateText(learnCompletionDate: Date): CharSequence {
+            val date = ConnectDateUtils.formatDate(learnCompletionDate, DateFormat.SHORT)
+            return context.getString(R.string.connect_learn_completed, date)
         }
 
         private fun bindDeliveryCards(job: ConnectJobRecord) {
@@ -173,6 +127,5 @@ class ConnectLearnCompleteView
 
         companion object {
             private const val EXPANDED_CHEVRON_ROTATION = 180f
-            private const val SCORE_VALUE_SEPARATOR = ':'
         }
     }

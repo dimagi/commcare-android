@@ -83,7 +83,7 @@ class ConnectLearningProgressFragment :
         if (showLearningComplete) {
             binding.learnCompleteView.bind(
                 job,
-                latestCompletionDate(),
+                job.latestLearningActivityDate ?: Date(),
                 ConnectUserDatabaseUtil.getUser().name,
                 View.OnClickListener { onDeliveryCtaClicked() },
             )
@@ -143,12 +143,6 @@ class ConnectLearningProgressFragment :
                 getString(R.string.connect_downloading_delivery),
                 false,
             )
-
-    private fun latestCompletionDate(): Date {
-        val assessmentDates = job.assessments.orEmpty().map { it.date }
-        val dates = assessmentDates.ifEmpty { job.learnings.orEmpty().map { it.date } }
-        return dates.maxOrNull() ?: Date()
-    }
 
     private fun navigateToLearnAppHome() {
         val appId = job.learnAppInfo.appId

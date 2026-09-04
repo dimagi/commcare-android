@@ -58,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@null"
-        android:src="@drawable/icon_chevron_right_white"
+        android:src="@drawable/ic_chevron_right"
         android:tint="@color/connect_grey"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

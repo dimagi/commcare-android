@@ -619,6 +619,16 @@
     <string name="connect_delivery_your_progress">Seu progresso</string>
     <string name="connect_delivery_total_earnings">Ganhos totais</string>
     <string name="connect_delivery_amount_each">%1$s cada</string>
+    <string name="connect_delivery_tasks_title">Tarefas</string>
+    <string name="connect_delivery_tasks_mandatory_title">Obrigatórias</string>
+    <string name="connect_delivery_tasks_mandatory_subtitle">Conclua as tarefas para continuar a prestação de serviços.</string>
+    <string name="connect_delivery_tasks_empty">Não há tarefas pendentes neste momento. Avisaremos quando uma nova tarefa estiver disponível.</string>
+    <string name="connect_delivery_revisit_learning_title">Revisitar a formação</string>
+    <string name="connect_delivery_revisit_learning_completed">Concluído em %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">O certificado ficará disponível após a próxima sincronização</string>
+    <string name="connect_delivery_revisit_learning_offline">Os detalhes do certificado serão carregados quando estiver online novamente</string>
+    <string name="connect_delivery_revisit_learning_view">Ver</string>
+    <string name="connect_task_expires_on">Expira em %1$s</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visita restante hoje</item>
         <item quantity="other">%1$d visitas restantes hoje</item>

@@ -102,19 +102,6 @@ class ConnectLearnCompleteViewTest {
     }
 
     @Test
-    fun `certificate date puts the label above the date`() {
-        val view = bind()
-        val lines = view.text(R.id.cert_date_text).lines()
-
-        assertEquals(2, lines.size)
-        assertEquals(expectedCompletedOn().replace("\n", " "), lines.joinToString(" "))
-        assertEquals(
-            ConnectDateUtils.formatDate(completedOn, DateFormat.SHORT),
-            lines[1],
-        )
-    }
-
-    @Test
     fun `certificate score is hidden when no assessment was attempted`() {
         val view = bind(ConnectLearnJobTestData.job(assessmentScore = null))
 

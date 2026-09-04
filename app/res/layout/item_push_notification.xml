@@ -14,7 +14,7 @@
         android:layout_marginTop="15dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/nav_drawer_message_icon" />
+        tools:src="@drawable/ic_chat_bubble_outline" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvNotification"

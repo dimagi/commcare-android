@@ -74,6 +74,19 @@ object ConnectTaskUtils {
         return ConnectJobUtils.getJobPreferences(jobUUID).isRelearnTaskPending()
     }
 
+    /**
+     * The job's outstanding tasks, soonest expiry first, as the server itself orders them. A task
+     * without a due date sorts last; the API always sends one, so that is defensive only.
+     */
+    @JvmStatic
+    fun getPendingTasksForJob(
+        context: Context,
+        jobUUID: String,
+    ): List<ConnectTaskRecord> =
+        getTasksForJob(context, jobUUID, null)
+            .filter { it.status == ConnectTaskRecord.STATUS_ASSIGNED }
+            .sortedWith(compareBy(nullsLast()) { it.dueDate })
+
     @JvmStatic
     fun hasPendingTaskOfMode(
         context: Context,

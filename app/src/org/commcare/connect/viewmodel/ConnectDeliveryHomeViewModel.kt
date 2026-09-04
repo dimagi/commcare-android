@@ -20,7 +20,11 @@ class ConnectDeliveryHomeViewModel(
     private val _deliveryProgress = MutableLiveData<DataState<ConnectJobRecord>>()
     val deliveryProgress: LiveData<DataState<ConnectJobRecord>> = _deliveryProgress
 
+    private val _learningProgress = MutableLiveData<DataState<ConnectJobRecord>>()
+    val learningProgress: LiveData<DataState<ConnectJobRecord>> = _learningProgress
+
     private var loadDeliveryProgressJob: Job? = null
+    private var loadLearningProgressJob: Job? = null
 
     fun loadDeliveryProgress(
         opportunity: ConnectJobRecord,
@@ -31,6 +35,19 @@ class ConnectDeliveryHomeViewModel(
             collectInto(
                 flow = repository.getDeliveryProgress(opportunity, forceRefresh, RefreshPolicy.ALWAYS),
                 liveData = _deliveryProgress,
+            )
+    }
+
+    /**
+     * Learning is complete by the time an opportunity is delivering, but the records proving it only
+     * reach a device that ran the learn sync — so a device that never did has to ask for them.
+     */
+    fun loadLearningProgress(opportunity: ConnectJobRecord) {
+        loadLearningProgressJob?.cancel()
+        loadLearningProgressJob =
+            collectInto(
+                flow = repository.getLearningProgress(opportunity, false, RefreshPolicy.ALWAYS),
+                liveData = _learningProgress,
             )
     }
 }
