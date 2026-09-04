@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
+import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -72,6 +74,8 @@ public class DispatchActivity extends AppCompatActivity {
      * Should signal a return from CommCareVerificationActivity.
      */
     public static final int MISSING_MEDIA_ACTIVITY = 4;
+
+    public static final int PERSONAL_ID_PENDING_BACKUP_CODE = 5;
 
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
@@ -249,6 +253,8 @@ public class DispatchActivity extends AppCompatActivity {
                     redirectToConnectOpportunityInfo = false;
                     ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+                } else if (PersonalIdUserPreferences.isPendingBackupCode()) {
+                    launchPersonalIdForPendingBackupCode();
                 } else {
                     launchHomeScreen();
                 }
@@ -383,6 +389,12 @@ public class DispatchActivity extends AppCompatActivity {
         startFromLogin = false;
         clearSessionEndpointIntentExtras();
         startActivityForResult(intent, HOME_SCREEN);
+    }
+
+    private void launchPersonalIdForPendingBackupCode() {
+        Intent intent = new Intent(this, PersonalIdActivity.class);
+        intent.putExtra(PersonalIdActivity.EXTRA_PENDING_BACKUP_CODE, true);
+        startActivityForResult(intent, PERSONAL_ID_PENDING_BACKUP_CODE);
     }
 
     public static boolean useRootMenuHomeActivity() {
@@ -564,6 +576,8 @@ public class DispatchActivity extends AppCompatActivity {
                 return;
             case RECOVERY_MEASURES:
                 RecoveryMeasuresHelper.handleExecutionActivityResult(this, intent);
+                return;
+            case PERSONAL_ID_PENDING_BACKUP_CODE:
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
