@@ -40,7 +40,7 @@ The unlock gate belongs to the router, so no entry point can bypass it — `Conn
 | Entry | Task stack, bottom → top                                 |
 |---|----------------------------------------------------------|
 | Cold start, Connect user with a current opportunity | Opp Home                                                 |
-| Cold start, Connect user with no current opportunity | Opp List                                                 |
+| Cold start, Connect user with more than one opportunity, none opened yet | Opp List                                                 |
 | Cold start, traditional CommCare or PersonalID user | App Home (Login page when there is no session to resume) |
 | Notification into a chat | Opp Home → Messaging channel list → Chat                 |
 | Sidebar section opened from inside an opportunity | Opp Home → Section                                       |
