@@ -23,8 +23,8 @@ object EmailHelper {
 
     /**
      * Picks the right auth pair for an email OTP API call based on [workflow]:
-     *  - [EmailWorkFlow.EXISTING_USER]: the user is already signed up so authenticate with the persisted [ConnectUserRecord]'s
-     *    basic-auth credentials.
+     *  - [EmailWorkFlow.EXISTING_USER] / [EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER]: the user is already signed up
+     *    so authenticate with the persisted [ConnectUserRecord]'s basic-auth credentials.
      *  - [EmailWorkFlow.REGISTRATION] / [EmailWorkFlow.RECOVERY]: the user has a fresh session
      *    token from /users/start_configuration API call.
      */
@@ -34,7 +34,10 @@ object EmailHelper {
         sessionData: PersonalIdSessionData?,
     ): Pair<String?, ConnectUserRecord?> =
         when (workflow) {
-            EmailWorkFlow.EXISTING_USER -> null to ConnectUserDatabaseUtil.getUser()
+            EmailWorkFlow.EXISTING_USER,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+            -> null to ConnectUserDatabaseUtil.getUser()
+
             EmailWorkFlow.REGISTRATION, EmailWorkFlow.RECOVERY -> sessionData?.token to null
         }
 
@@ -170,8 +173,18 @@ object EmailHelper {
             EmailWorkFlow.REGISTRATION -> {
                 onRegistration()
             }
+
+            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER -> {
+                throw IllegalArgumentException("Unexpected workflow: $workflow")
+            }
         }
     }
 
     fun isValidEmail(email: String?) = StringUtils.isValidEmail(email)
+
+    fun maskEmail(email: String): String {
+        val atIndex = email.indexOf('@')
+        if (atIndex < 2) return email
+        return "${email.first()}***${email[atIndex - 1]}${email.substring(atIndex)}"
+    }
 }

@@ -280,6 +280,7 @@ License.
     <string name="personalid_email_otp_failed_message">Il semble que vous ayez du mal à vérifier votre adresse e-mail. Vous pouvez ignorer cette étape pour le moment et réessayer plus tard, ou continuer d\'essayer.</string>
     <string name="personalid_email_otp_failed_retry">Réessayer</string>
     <string name="personalid_email_otp_failed_skip">Continuer sans e-mail</string>
+    <string name="personalid_email_otp_max_attempts_reached">Nombre maximum de tentatives de vérification atteint. Veuillez réessayer plus tard.</string>
     <string name="personalid_email_added_title">E-mail ajouté</string>
     <string name="personalid_email_added_message">Votre adresse e-mail a été ajoutée avec succès.</string>
     <string name="personalId_email_otp_sent">Un code à 6 chiffres a été envoyé à votre adresse e-mail.</string>
@@ -414,8 +415,16 @@ License.
     <string name="personalid_forgot_backup_code">Vous avez oublié votre code de sauvegarde ?</string>
     <string name="personalid_backup_code_too_many_attempts">Trop de tentatives. Veuillez réessayer plus tard.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Veuillez ajouter une adresse e-mail</string>
+    <string name="personalid_send_email_otp_title">Récupérer le code de sauvegarde</string>
+    <string name="personalid_send_email_otp_description">Nous enverrons un code de vérification à :</string>
+    <string name="personalid_send_email_otp_button">Envoyer le code</string>
+    <string name="personalid_send_email_otp_address_label">E-mail de récupération</string>
     <string name="personalid_set_new_backup_code_title">Définir un nouveau code de sauvegarde</string>
     <string name="personalid_backup_code_changed_success">Code de sauvegarde mis à jour avec succès</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Annuler la configuration du code de sauvegarde ?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Revenir en arrière annulera le processus de modification du code de sauvegarde.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Définir le code de sauvegarde</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Quitter</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
     <string name="connect_job_info_visit">%d visites maximum</string>

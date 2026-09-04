@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectUserRecord
@@ -16,8 +17,45 @@ import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.BasePersonalIdBackupCodeFragment
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.UnlockPolicy
+import org.commcare.views.dialogs.StandardAlertDialog
 
 class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        handleBackNavigation()
+    }
+
+    private fun handleBackNavigation() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    showAbandonDialog()
+                }
+            },
+        )
+    }
+
+    private fun showAbandonDialog() {
+        val dialog =
+            StandardAlertDialog(
+                getString(R.string.personalid_set_new_backup_code_abandon_title),
+                getString(R.string.personalid_set_new_backup_code_abandon_message),
+            )
+        dialog.setPositiveButton(getString(R.string.personalid_set_new_backup_code_abandon_positive)) { d, _ ->
+            d.dismiss()
+        }
+        dialog.setNegativeButton(getString(R.string.personalid_set_new_backup_code_abandon_negative)) { d, _ ->
+            d.dismiss()
+            findNavController().popBackStack()
+        }
+        dialog.makeCancelable()
+        dialog.showNonPersistentDialog(requireActivity())
+    }
+
     override fun onResume() {
         super.onResume()
         validateBackupCodeAndEnableContinue()

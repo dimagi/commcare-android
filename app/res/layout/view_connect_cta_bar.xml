@@ -28,14 +28,12 @@
         tools:text="Further visits will not count towards progress or payments"
         tools:visibility="visible" />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cta_bar"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/connect_light_indigo"
-        app:cardCornerRadius="@dimen/connect_radius_card"
-        app:cardElevation="@dimen/connect_info_card_elevation"
-        app:contentPadding="@dimen/connect_space_lg">
+        android:background="@drawable/connect_cta_bar_background"
+        android:elevation="@dimen/connect_info_card_elevation"
+        android:padding="@dimen/connect_space_lg">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -116,5 +114,5 @@
                 app:constraint_referenced_ids="cta_button,cta_progress_ring" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </FrameLayout>
 </merge>
