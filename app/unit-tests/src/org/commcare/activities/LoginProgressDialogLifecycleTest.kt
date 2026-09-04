@@ -75,6 +75,9 @@ class LoginProgressDialogLifecycleTest {
     private var loginsInFlight = 0
     private var loginCancellations = 0
 
+    /** The listener handed to the fake login work, so tests can emit progress from outside it. */
+    private var progressListener: LoginProgressListener? = null
+
     @Before
     fun setUp() {
         (CommCareTestApplication.instance() as CommCareTestApplication).initWorkManager()
@@ -237,6 +240,51 @@ class LoginProgressDialogLifecycleTest {
         assertNull("STOP should dismiss the second login's dialog", currentDialog())
     }
 
+    /**
+     * `DataPullTask` is an AsyncTask: cancelling it does not stop an `onProgressUpdate` that is
+     * already queued on the main looper, so the pipeline can report one more sync percentage after
+     * the user has pressed STOP. That late report must not put the dialog back up - nothing will
+     * ever dismiss it, since the cancelled pipeline produces no result.
+     */
+    @Test
+    fun `progress arriving after the stop press does not resurrect the dialog`() {
+        startSuspendingLogin()
+        emitSyncProgress(percent = 40)
+
+        clickStopButton()
+        emitSyncProgress(percent = 60)
+
+        assertNull("A cancelled login must not re-show its dialog", currentDialog())
+    }
+
+    private fun emitSyncProgress(percent: Int) {
+        requireNotNull(progressListener) { "no login in flight" }
+            .onProgress(LoginProgress(LoginPhase.Syncing, percent = percent))
+        idle()
+    }
+
+    /**
+     * The phase is the stalest record of what the user is looking at, so a STOP press dismisses
+     * whichever login dialog is up rather than the one the phase names. A dialog left behind here
+     * would never come down: the cancelled pipeline reports no result.
+     */
+    @Test
+    fun `stop dismisses a login dialog the phase no longer names`() {
+        fakeLoginWork { listener ->
+            listener.onProgress(LoginProgress(LoginPhase.SigningIn))
+            awaitCancellation()
+        }
+        clickLogin()
+
+        activity.dismissCurrentProgressDialog()
+        activity.showProgressDialog(syncTaskId)
+
+        clickStopButton()
+
+        assertEquals("STOP should cancel the login pipeline", 1, loginCancellations)
+        assertNull("STOP should dismiss the dialog that is actually showing", currentDialog())
+    }
+
     // ======== Rotation ========
 
     @Test
@@ -332,6 +380,7 @@ class LoginProgressDialogLifecycleTest {
      */
     private fun fakeLoginWork(work: suspend (LoginProgressListener) -> LoginResult) {
         loginViewModel().performLogin = { _, listener ->
+            progressListener = listener
             loginAttempts++
             loginsInFlight++
             try {

@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
 /**
@@ -34,7 +35,15 @@ class LoginViewModel(
 
         loginJob =
             viewModelScope.launch {
-                val outcome = performLogin(request) { progress -> _progress.postValue(progress) }
+                val pipeline = coroutineContext.job
+                // A canceled DataPullTask can still report progress it had already published
+                // If the pipeline was canceled, posting here would cause an orphaned dialog to show
+                val outcome =
+                    performLogin(request) { progress ->
+                        if (pipeline.isActive) {
+                            _progress.postValue(progress)
+                        }
+                    }
 
                 loginJob = null
                 _progress.postValue(null)

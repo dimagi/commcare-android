@@ -342,7 +342,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         int taskId = taskIdForPhase(phase);
 
         if (phase != currentLoginPhase) {
-            dismissLoginProgressDialog();
+            dismissDialogForCurrentPhase();
             currentLoginPhase = phase;
             showProgressDialog(taskId);
         }
@@ -372,21 +372,44 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
      */
     @Override
     public void cancelCurrentTask() {
-        if (loginViewModel != null && loginViewModel.cancelLogin()) {
-            Logger.log(LogTypes.TYPE_USER, "Login cancelled by user during "
-                    + currentLoginPhase + " phase");
-            dismissLoginProgressDialog();
+        if (loginViewModel == null || !loginViewModel.cancelLogin()) {
+            super.cancelCurrentTask();
             return;
         }
 
-        super.cancelCurrentTask();
+        Logger.log(LogTypes.TYPE_USER, "Login cancelled by user during "
+                + currentLoginPhase + " phase");
+        dismissLoginProgressDialog();
     }
 
-    private void dismissLoginProgressDialog() {
+    /**
+     * Hands one phase's dialog off to the next. Only the phase we last showed a dialog for is
+     * dismissed, so a dialog restored onto a recreated activity survives being re-reported.
+     */
+    private void dismissDialogForCurrentPhase() {
         if (currentLoginPhase != null) {
             dismissProgressDialogForTask(taskIdForPhase(currentLoginPhase));
             currentLoginPhase = null;
         }
+    }
+
+    /**
+     * Ends the login's hold on the screen. Whichever login dialog is up goes, rather than only the
+     * one the phase still knows about: the phase is the stalest record of what the user is actually
+     * looking at, and no login dialog left up past here would be dismissed by anything else.
+     */
+    private void dismissLoginProgressDialog() {
+        dismissDialogForCurrentPhase();
+
+        if (isShowingLoginProgressDialog()) {
+            dismissCurrentProgressDialog();
+        }
+    }
+
+    private boolean isShowingLoginProgressDialog() {
+        CustomProgressDialog dialog = getCurrentProgressDialog();
+        return dialog != null && (dialog.getTaskId() == TASK_KEY_EXCHANGE
+                || dialog.getTaskId() == DataPullTask.DATA_PULL_TASK_ID);
     }
 
     private AuthSource determineAuthSource() {
