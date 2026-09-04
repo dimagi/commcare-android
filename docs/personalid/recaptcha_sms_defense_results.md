@@ -31,8 +31,8 @@
 Observed results from the audit window on `<firebase_project_id>`. For the configuration itself and
 how to change it, see [reCAPTCHA SMS Defense for Firebase Phone OTP](recaptcha_sms_defense.md).
 
-All timestamps are **UTC**, and every table covers `2026-08-31T00:00:00Z` onwards, so 2026-09-02 is a
-partial day. Every section was read at `2026-09-03T07:08:48Z`, so the counts are directly comparable
+All timestamps are **UTC**, and every table covers `2026-08-31T00:00:00Z` onwards, so 2026-09-04 is a
+partial day. Every section was read at `2026-09-04T13:48:05Z`, so the counts are directly comparable
 across them.
 
 ## Token and verdict counts
@@ -43,7 +43,7 @@ curl -s -G \
   -H "x-goog-user-project: <firebase_project_id>" \
   --data-urlencode 'filter=metric.type="identitytoolkit.googleapis.com/recaptcha/token_count"' \
   --data-urlencode 'interval.startTime=2026-08-31T00:00:00Z' \
-  --data-urlencode 'interval.endTime=2026-09-03T07:08:48Z' \
+  --data-urlencode 'interval.endTime=2026-09-04T13:48:05Z' \
   "https://monitoring.googleapis.com/v3/projects/<firebase_project_id>/timeSeries"
 ```
 
@@ -59,8 +59,9 @@ sum of `points[].value.int64Value`, and the state is a metric *label* (`token_st
 | 2026-08-31 | 90 | 82 | 8 | — | 91% |
 | 2026-09-01 | 89 | 48 | 41 | — | 54% |
 | 2026-09-02 | 74 | 47 | 26 | 1 | 64% |
-| 2026-09-03 (partial) | 3 | 2 | 1 | — | 67% |
-| **Total** | **256** | **179** | **76** | **1** | **70%** |
+| 2026-09-03 | 69 | 47 | 22 | — | 68% |
+| 2026-09-04 (partial) | 36 | 31 | 5 | — | 86% |
+| **Total** | **358** | **255** | **102** | **1** | **71%** |
 
 The two metrics measure different things. `token_state` is about the token alone; `verdict_state` is
 the overall outcome, which folds in the score comparison as well:
@@ -98,7 +99,7 @@ curl -s -G \
   -H "x-goog-user-project: <firebase_project_id>" \
   --data-urlencode 'filter=metric.type="identitytoolkit.googleapis.com/recaptcha/sms_tf_risk_scores"' \
   --data-urlencode 'interval.startTime=2026-08-31T00:00:00Z' \
-  --data-urlencode 'interval.endTime=2026-09-03T07:08:48Z' \
+  --data-urlencode 'interval.endTime=2026-09-04T13:48:05Z' \
   "https://monitoring.googleapis.com/v3/projects/<firebase_project_id>/timeSeries"
 ```
 
@@ -157,19 +158,19 @@ sum of `bucketCounts`; if the two disagree, the read is wrong rather than the da
 
 ### Score Result (SMS Fraud)
 
-| Range | 08-31 | 09-01 | 09-02 | 09-03 | Total |
-| --- | --- | --- | --- | --- | --- |
-| `0.0` – `0.1` | 30 | 23 | 21 | — | 74 |
-| `0.1` – `0.2` | 47 | 19 | 23 | 2 | 91 |
-| `0.3` – `0.4` | — | — | 1 | — | 1 |
-| `0.5` – `0.6` | 1 | 1 | — | — | 2 |
-| `0.6` – `0.7` | 3 | 5 | 2 | — | 10 |
-| `0.7` – `0.8` | 1 | — | — | — | 1 |
-| **`≥ 0.8`** | **0** | **0** | **0** | **0** | **0** |
-| Samples | 82 | 48 | 47 | 2 | 179 |
+| Range | 08-31 | 09-01 | 09-02 | 09-03 | 09-04 | Total |
+| --- | --- | --- | --- | --- | --- | --- |
+| `0.0` – `0.1` | 30 | 23 | 21 | 22 | 10 | 106 |
+| `0.1` – `0.2` | 47 | 19 | 23 | 22 | 20 | 131 |
+| `0.3` – `0.4` | — | — | 1 | 3 | — | 4 |
+| `0.5` – `0.6` | 1 | 1 | — | — | — | 2 |
+| `0.6` – `0.7` | 3 | 5 | 2 | — | 1 | 11 |
+| `0.7` – `0.8` | 1 | — | — | — | — | 1 |
+| **`≥ 0.8`** | **0** | **0** | **0** | **0** | **0** | **0** |
+| Samples | 82 | 48 | 47 | 47 | 31 | 255 |
 
-92% of scored traffic sits below `0.2`, and **nothing has reached `0.8` on any day**. Enforcing at
-the current provisional `0.8` would therefore block none of these 179 requests — safe for users, and
+93% of scored traffic sits below `0.2`, and **nothing has reached `0.8` on any day**. Enforcing at
+the current provisional `0.8` would therefore block none of these 255 requests — safe for users, and
 equally no protection against anything present in this window. The highest sample observed falls in
 `0.7`–`0.8`, leaving about one bucket of headroom.
 
@@ -190,19 +191,19 @@ Then tally `jsonPayload.status.message`, treating an absent status as success.
 > returns *before* any client-side filtering, so reading the whole requests log and then keeping the
 > `SendVerificationCode` entries silently drops most of them — the log is dominated by
 > `GetRecaptchaConfig`, `SignInWithPhoneNumber` and `GetAccountInfo`. Raise `--limit` until the count
-> stops changing; 234 here is stable at 300 and 1000.
+> stops changing; 395 here is stable at 1000 and 2000.
 
-`SendVerificationCode`, 283 calls in the window:
+`SendVerificationCode`, 395 calls in the window:
 
 | Outcome | Count | Share |
 | --- | --- | --- |
-| `SUCCESS` | 223 | 79% |
-| `OPERATION_NOT_ALLOWED` — region not enabled | 21 | 7% |
-| `INVALID_APP_CREDENTIAL` | 17 | 6% |
+| `SUCCESS` | 316 | 80% |
+| `OPERATION_NOT_ALLOWED` — region not enabled | 22 | 6% |
+| `INVALID_APP_CREDENTIAL` | 20 | 5% |
+| `Error code: 39` | 12 | 3% |
+| `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` — invalid Play Integrity token | 10 | 3% |
+| `TOO_MANY_ATTEMPTS_TRY_LATER` | 9 | 2% |
 | `MISSING_RECAPTCHA_TOKEN` | 6 | 2% |
-| `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` — invalid Play Integrity token | 6 | 2% |
-| `TOO_MANY_ATTEMPTS_TRY_LATER` | 5 | 2% |
-| `Error code: 39` | 5 | 2% |
 
 ## Before Enabling ENFORCE Mode
 
@@ -215,7 +216,7 @@ fallback: the request is blocked and the client gets `onVerificationFailed` imme
 
 This is a change in kind, not degree — LTS users would lose phone verification outright rather than
 see it slow down. And because package attribution is not available, the size of the affected
-population cannot be measured from the logs; the `missing` share (30% of requests in this window) is
+population cannot be measured from the logs; the `missing` share (28% of requests in this window) is
 the upper bound of what could break. Add the LTS package names to the key, or confirm those users do
 not need phone verification, before flipping.
 
@@ -225,7 +226,7 @@ not need phone verification, before flipping.
 | **Current State** (`CommCare LTS` unlisted) | **Failed / Missing** | `ENFORCE` | Client receives instant error (`onVerificationFailed`). No fallback used. | **No** |
 | **Fixed State** (Add CommCare LTS package names to key) | **Valid** | `AUDIT / ENFORCE (Score <= 0.8)` | Background Play Integrity check (Silent, no visual reCAPTCHA). | **Yes** |
 
-**Error 39 has not stopped.** Five events in the window.
+**Error 39 has not stopped.** Twelve events in the window, seven of them on 2026-09-03 alone.
 
 **The `missing` rate stepped up sharply on 2026-09-01.** Requests without a token went from 8 to 41
 on almost identical total volume (90 → 89).
@@ -233,9 +234,9 @@ on almost identical total volume (90 → 89).
 **Which app a request came from is not recorded.** No log or metric attributes a request to a
 package, so the composition of the `missing` bucket cannot be measured server-side.
 
-**Region rejections are the largest failure category**, at 7%, with app-credential failures next at
-6% — together roughly seven times error 39. `smsRegionConfig` disallows only `CN`, so the region rejections
-are unrelated to reCAPTCHA yet cost more sends than the problem this work addresses.
+**Region rejections are the largest failure category**, at 6%, with app-credential failures next at
+5% — together roughly three and a half times error 39. `smsRegionConfig` disallows only `CN`, so the
+region rejections are unrelated to reCAPTCHA yet cost more sends than the problem this work addresses.
 
 **Solving the visual reCAPTCHA does not guarantee an SMS.** The two stages are independent gates.
 Even when a real person successfully solves the image puzzle on screen, if the target phone number or
@@ -247,11 +248,10 @@ verification — whether silently via Play Integrity or by solving the challenge
 as far as the risk check. It does not exempt it from the score threshold.
 
 **The threshold itself has never fired.** Across the whole period since scoring began
-(`2026-08-27T11:55Z`, when SMS defense was enabled on the key) there have been **352 scored requests
+(`2026-08-27T11:54Z`, when SMS defense was enabled on the key) there have been **428 scored requests
 and none at `≥ 0.8`** — the highest band reached is `0.7`–`0.8`, twice, leaving a full band of
-headroom. Over the same period `passed` tracks `valid` exactly (351 against 352, the difference being
-ingestion lag on the newest sample), which is the direct evidence: no valid token has ever been
-rejected on risk grounds.
+headroom. Over the same period `passed` matches `valid` exactly, 428 against 428, which is the direct
+evidence: no valid token has ever been rejected on risk grounds.
 
 So every `failed_in_audit` recorded so far is a token problem, not a fraud judgement. That narrows
 the `ENFORCE` decision usefully — on current traffic the score threshold would block nobody, and the

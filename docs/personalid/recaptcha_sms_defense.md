@@ -222,7 +222,7 @@ Android key is bound to the package name alone.
 > [!NOTE]
 > ### Resolved: support's SHA-256 instruction
 >
-> The CCCT-2723 comment *"Email Response from Firebase"* instructed us to enter a package name and
+> The *"Email Response from Firebase"* comment instructed us to enter a package name and
 > SHA-256 during key creation, matching neither flow above. Resolved 2026-08-27: SHA-256 belongs to
 > the Firebase Android app (Project Settings → Your apps) and was already registered. The step
 > actually missing was [Enable SMS defense on the key](#enable-sms-defense-on-the-key).
@@ -604,8 +604,7 @@ the substance of the [open question in step 3](#3-enforce).
 
 ## Test plan
 
-The staged rollout from CCCT-2723. Every window runs during late EST / early IST, when Connect
-traffic is lowest.
+The staged rollout. Every window runs during late EST / early IST, when Connect traffic is lowest.
 
 ### 1. Prep up
 
