@@ -39,6 +39,7 @@
                 android:layout_height="@dimen/audio_recording_close_button_size"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
+                android:visibility="invisible"
                 android:background="@drawable/icon_close_darkwarm" />
 
         </RelativeLayout>

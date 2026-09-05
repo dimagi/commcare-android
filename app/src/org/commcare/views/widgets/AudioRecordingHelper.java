@@ -77,7 +77,8 @@ public class AudioRecordingHelper {
                     + " | " + encoder.bitrate);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            recorder.release();
+            throw new IllegalStateException("Could not prepare the recorder for " + fileName, e);
         }
         return recorder;
     }
