@@ -22,6 +22,7 @@ import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
@@ -52,6 +53,7 @@ public class AudioRecordingService extends Service {
     public static final String ACTION_SAVE_RECORDING = "action-save-recording";
     public static final String ACTION_PAUSE_RECORDING = "action-pause-recording";
     public static final String ACTION_RESUME_RECORDING = "action-resume-recording";
+    public static final String ACTION_RECORDING_FAILED = "action-recording-failed";
     private NotificationManager notificationManager;
     private AudioRecordingHelper audioRecordingHelper = new AudioRecordingHelper();
     private RecordingActionListener actionListener;
@@ -77,6 +79,9 @@ public class AudioRecordingService extends Service {
         void onSaveRequested();
         void onPauseRequested();
         void onResumeRequested();
+
+        /** The recorder could not take the microphone, so this session never started. */
+        void onRecordingFailed();
     }
 
     public void setRecordingActionListener(RecordingActionListener actionListener) {
@@ -99,6 +104,7 @@ public class AudioRecordingService extends Service {
             case ACTION_SAVE_RECORDING -> actionListener.onSaveRequested();
             case ACTION_PAUSE_RECORDING -> actionListener.onPauseRequested();
             case ACTION_RESUME_RECORDING -> actionListener.onResumeRequested();
+            case ACTION_RECORDING_FAILED -> actionListener.onRecordingFailed();
         }
     }
 
@@ -133,11 +139,20 @@ public class AudioRecordingService extends Service {
 
         fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         pauseSupported = intent.getBooleanExtra(PAUSE_SUPPORTED_EXTRA_KEY, false);
-        if (recorder == null) {
-            recorder = audioRecordingHelper.setupRecorder(fileName,
-                    DeveloperPreferences.getAudioQualityProfile());
+        try {
+            if (recorder == null) {
+                recorder = audioRecordingHelper.setupRecorder(fileName,
+                        DeveloperPreferences.getAudioQualityProfile());
+            }
+            recorder.start();
+        } catch (RuntimeException e) {
+            Logger.exception("Could not start audio recording", e);
+            resetRecorder();
+            state = RecordingState.IDLE;
+            dispatchAction(ACTION_RECORDING_FAILED);
+            stopSelf();
+            return START_NOT_STICKY;
         }
-        recorder.start();
         chronometerBase = SystemClock.elapsedRealtime();
         state = RecordingState.RECORDING;
         // Re-post so the notification reflects pauseSupported, which is only known here (the

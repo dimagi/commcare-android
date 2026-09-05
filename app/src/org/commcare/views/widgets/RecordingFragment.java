@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -334,6 +335,17 @@ public class RecordingFragment extends DialogFragment {
                     public void onResumeRequested() {
                         if (isAdded() && getView() != null && inPausedState) {
                             resumeRecording();
+                        }
+                    }
+
+                    @Override
+                    public void onRecordingFailed() {
+                        if (isAdded()) {
+                            Toast.makeText(getContext(), Localization.get("start.recording.failed"),
+                                    Toast.LENGTH_SHORT).show();
+                            recordingSessionStarted = false;
+                            setCancelable(true);
+                            dismiss();
                         }
                     }
                 });
