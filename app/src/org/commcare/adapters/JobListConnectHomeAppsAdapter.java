@@ -34,7 +34,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private final ArrayList<ConnectJobListItem> displayItems = new ArrayList<>();
 
     private static final int VIEW_TYPE_SECTION_HEADER = 0;
-    private static final int VIEW_TYPE_NON_CORRUPT_JOB = 2;
+    private static final int VIEW_TYPE_OPPORTUNITY = 1;
 
     public JobListConnectHomeAppsAdapter(
             Context context,
@@ -98,7 +98,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             return VIEW_TYPE_SECTION_HEADER;
         }
 
-        return VIEW_TYPE_NON_CORRUPT_JOB;
+        return VIEW_TYPE_OPPORTUNITY;
     }
 
     public static class NonCorruptJobViewHolder extends RecyclerView.ViewHolder {
