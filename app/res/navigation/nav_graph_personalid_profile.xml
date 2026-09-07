@@ -74,7 +74,7 @@
 
     <fragment
         android:id="@+id/personalid_send_email_otp_fragment"
-        android:name="org.commcare.fragments.personalId.PersonalIdSendEmailOtpFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdProfileSendEmailOtpFragment"
         android:label="@string/personalid_send_email_otp_title">
         <argument
             android:name="email"

@@ -14,7 +14,7 @@ import org.commcare.fragments.personalId.EmailHelper.maskEmail
 /**
  * Screen that sends an email OTP to the user and navigates to the verification screen.
  */
-class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
+class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidSendEmailOtpBinding
     private lateinit var email: String
     private var masked: Boolean = true
@@ -37,7 +37,7 @@ class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
     }
 
     private fun initArguments() {
-        val args = PersonalIdSendEmailOtpFragmentArgs.fromBundle(requireArguments())
+        val args = PersonalIdProfileSendEmailOtpFragmentArgs.fromBundle(requireArguments())
         email = args.email
         masked = args.masked
         workflow = args.workflow
@@ -73,7 +73,7 @@ class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
 
     private fun navigateToVerification() {
         val directions =
-            PersonalIdSendEmailOtpFragmentDirections
+            PersonalIdProfileSendEmailOtpFragmentDirections
                 .actionPersonalidSendEmailOtpToEmailVerification(email, emailOtpTracker.requestCount)
         binding.root.findNavController().navigate(directions)
     }
