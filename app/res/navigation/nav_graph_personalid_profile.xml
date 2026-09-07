@@ -28,7 +28,7 @@
 
     <fragment
         android:id="@+id/personalid_email_verification_fragment"
-        android:name="org.commcare.fragments.personalId.PersonalIdEmailVerificationFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdProfileEmailVerificationFragment"
         android:label="@string/personalid_email_verification_appbar_title"
         tools:layout="@layout/fragment_personalid_email_verification">
         <argument

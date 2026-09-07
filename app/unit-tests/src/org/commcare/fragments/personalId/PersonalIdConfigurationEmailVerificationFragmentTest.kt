@@ -12,7 +12,6 @@ import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.commcare.views.connect.NumericCodeView
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -34,7 +33,7 @@ import org.robolectric.shadows.ShadowLooper
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
+class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
     @Before
     override fun setUp() {
         super.setUp()
