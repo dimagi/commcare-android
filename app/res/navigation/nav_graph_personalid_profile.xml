@@ -55,7 +55,7 @@
             app:argType="integer" />
         <action
             android:id="@+id/action_email_verification_forgot_backup_code_to_set_new_backup_code"
-            app:destination="@id/personalid_set_new_backup_code_fragment"
+            app:destination="@id/personalid_profile_set_new_backup_code_fragment"
             app:popUpTo="@id/personalid_profile_fragment"
             app:popUpToInclusive="false" />
     </fragment>
@@ -66,7 +66,7 @@
         android:label="@string/connect_backup_code_title_confirm">
         <action
             android:id="@+id/action_profile_backup_code_to_set_new_backup_code"
-            app:destination="@id/personalid_set_new_backup_code_fragment" />
+            app:destination="@id/personalid_profile_set_new_backup_code_fragment" />
         <action
             android:id="@+id/action_profile_backup_code_to_send_email_otp"
             app:destination="@id/personalid_send_email_otp_fragment" />
@@ -92,8 +92,8 @@
     </fragment>
 
     <fragment
-        android:id="@+id/personalid_set_new_backup_code_fragment"
-        android:name="org.commcare.personalId.profile.SetNewBackupCodeFragment"
+        android:id="@+id/personalid_profile_set_new_backup_code_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileSetNewBackupCodeFragment"
         android:label="@string/personalid_set_new_backup_code_title" />
 
 </navigation>

@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.navigation.NavDirections
+import androidx.navigation.findNavController
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding
 import org.commcare.views.connect.NumericCodeView
@@ -139,6 +141,8 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
     ) {
         // no default implementation
     }
+
+    protected fun navigate(directions: NavDirections) = binding.root.findNavController().navigate(directions)
 
     companion object {
         const val BACKUP_CODE_LENGTH = 6

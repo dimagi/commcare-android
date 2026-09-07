@@ -1,9 +1,7 @@
 package org.commcare.fragments.personalId
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
@@ -11,7 +9,6 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ReleaseToggleHelper
-import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
@@ -200,6 +197,4 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                 ).setIsCancellable(isCancellable),
         )
     }
-
-    private fun navigate(directions: NavDirections) = binding.root.findNavController().navigate(directions)
 }

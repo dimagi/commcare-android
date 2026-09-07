@@ -28,7 +28,7 @@ import org.robolectric.shadows.ShadowToast
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
+class BasePersonalIdSetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     @Before
     fun navigateToSetNewBackupCodeScreen() {
         mockkObject(PersonalIdUnlocker)
@@ -51,7 +51,7 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         unmockkObject(PersonalIdUnlocker)
     }
 
-    private fun fragment() = navHostFragment.childFragmentManager.primaryNavigationFragment as SetNewBackupCodeFragment
+    private fun fragment() = navHostFragment.childFragmentManager.primaryNavigationFragment as BasePersonalIdSetNewBackupCodeFragment
 
     private fun backupCodeViewOnConfirmScreen(): NumericCodeView {
         val confirmFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
@@ -208,7 +208,7 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
 
         setCodesAndContinue("654321")
 
-        assertEquals(R.id.personalid_set_new_backup_code_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, currentDestinationId())
         assertEquals(0, mockWebServer.requestCount)
     }
 
@@ -220,7 +220,7 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
 
         mockApiServer.drainHttp()
 
-        assertEquals(R.id.personalid_set_new_backup_code_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, currentDestinationId())
         assertEquals(View.VISIBLE, errorMessage().visibility)
         assertTrue(continueButton().isEnabled)
     }

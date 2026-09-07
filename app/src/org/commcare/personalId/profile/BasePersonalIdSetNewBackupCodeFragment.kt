@@ -1,10 +1,7 @@
 package org.commcare.personalId.profile
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import org.commcare.activities.CommCareActivity
@@ -19,7 +16,7 @@ import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.UnlockPolicy
 import org.commcare.views.dialogs.StandardAlertDialog
 
-class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
+abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
@@ -108,14 +105,10 @@ class SetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     ) {
         user.pin = backupCode
         ConnectUserDatabaseUtil.storeUser(user)
-        Toast
-            .makeText(
-                requireContext(),
-                R.string.personalid_backup_code_changed_success,
-                Toast.LENGTH_LONG,
-            ).show()
-        findNavController().popBackStack(R.id.personalid_profile_backup_code_fragment, true)
+        showSuccess()
     }
+
+    abstract fun showSuccess()
 
     private fun onSetBackupCodeCallFailure(
         errorCode: PersonalIdOrConnectApiErrorCodes,

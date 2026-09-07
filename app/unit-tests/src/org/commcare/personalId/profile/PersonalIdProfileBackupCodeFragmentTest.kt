@@ -106,7 +106,7 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     fun `correct code navigates to set-new-backup-code`() {
         setCodeAndContinue("123456")
 
-        assertEquals(R.id.personalid_set_new_backup_code_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, currentDestinationId())
     }
 
     // ===== Wrong code =====
