@@ -48,6 +48,10 @@ public interface PersonalIdApiService {
     Call<ResponseBody> setBackupCode(@Header("Authorization") String token,
                                      @Body Map<String, String> body);
 
+    @POST(PersonalIdApiEndpoints.COMPLETE_RECOVERY)
+    Call<ResponseBody> completeRecovery(@Header("Authorization") String token,
+                                        @Body Map<String, String> body);
+
     @GET(PersonalIdApiEndpoints.CREDENTIALS)
     Call<ResponseBody> retrieveCredentials(@Header("Authorization") String token);
 

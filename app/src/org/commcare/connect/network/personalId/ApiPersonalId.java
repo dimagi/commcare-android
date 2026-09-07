@@ -189,6 +189,22 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.SET_BACKUP_CODE);
     }
 
+    public static void completeRecoveryWithEmailOtp(
+            Context context,
+            String otp,
+            String token,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("method", "email_otp");
+        params.put("otp", otp);
+        PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.completeRecovery(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.COMPLETE_RECOVERY);
+    }
+
     public static void reportIntegrity(
             Context context,
             Map<String, String> body,
