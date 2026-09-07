@@ -8,7 +8,6 @@ sealed class ConnectJobListItem {
     ) : ConnectJobListItem()
 
     data class JobItem(
-        val jobModel: ConnectLoginJobListModel,
-        val isCorrupt: Boolean,
+        val jobModel: ConnectLoginJobListModel
     ) : ConnectJobListItem()
 }
