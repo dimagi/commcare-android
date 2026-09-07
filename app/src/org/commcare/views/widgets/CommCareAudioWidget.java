@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -23,12 +24,14 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.util.LogTypes;
+import org.commcare.utils.MediaUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
@@ -186,6 +189,15 @@ public class CommCareAudioWidget extends AudioWidget {
 
     @Override
     protected void captureAudio(FormEntryPrompt prompt) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (MediaUtil.isRecordingActive(getContext())) {
+                Toast.makeText(getContext(), Localization.get("start.recording.failed"), Toast.LENGTH_SHORT)
+                        .show();
+                Logger.log(LogTypes.TYPE_MEDIA_EVENT, "Recording cancelled due to an ongoing recording");
+                return;
+            }
+        }
+
         setCaptureButtonEnabled(false);
         launchAudioRecorder(prompt);
     }
