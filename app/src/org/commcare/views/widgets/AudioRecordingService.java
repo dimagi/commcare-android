@@ -21,8 +21,8 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID;
@@ -139,20 +139,20 @@ public class AudioRecordingService extends Service {
 
         fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         pauseSupported = intent.getBooleanExtra(PAUSE_SUPPORTED_EXTRA_KEY, false);
-        try {
-            if (recorder == null) {
-                recorder = audioRecordingHelper.setupRecorder(fileName,
-                        DeveloperPreferences.getAudioQualityProfile());
-            }
-            recorder.start();
-        } catch (RuntimeException e) {
-            Logger.exception("Could not start audio recording", e);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                MediaUtil.isRecordingActive(this)) {
             resetRecorder();
             state = RecordingState.IDLE;
             dispatchAction(ACTION_RECORDING_FAILED);
             stopSelf();
             return START_NOT_STICKY;
         }
+        if (recorder == null) {
+            recorder = audioRecordingHelper.setupRecorder(fileName,
+                    DeveloperPreferences.getAudioQualityProfile());
+        }
+        recorder.start();
         chronometerBase = SystemClock.elapsedRealtime();
         state = RecordingState.RECORDING;
         // Re-post so the notification reflects pauseSupported, which is only known here (the
