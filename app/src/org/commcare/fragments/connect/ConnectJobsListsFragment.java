@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -29,7 +29,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectJobsListBinding;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.fragments.base.BaseConnectFragment;
-import org.commcare.interfaces.OnJobSelectionClick;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -102,22 +101,16 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
                 inProgressJobs,
                 newJobs,
                 finishedJobs,
-                (job, isLearning, appId, jobType, action) -> {
-                    if (action == OnJobSelectionClick.Action.VIEW_INFO) {
-                        setActiveJob(job);
-                        if (job.getStatus() == STATUS_AVAILABLE_NEW
-                                || job.getStatus() == STATUS_AVAILABLE) {
-                            navigateToJobIntro();
-                        } else {
-                            navigateToJobDetailBottomSheet(getView());
-                        }
+                model -> {
+                    // protecting against double tap
+                    if (hasLeftJobsList()) {
                         return;
                     }
-
-                    if (jobType == ConnectLoginJobListModel.JobListEntryType.NEW_OPPORTUNITY) {
-                        launchJobInfo(job);
+                    if (model.isNew()) {
+                        setActiveJob(model.getJob());
+                        navigateToJobIntro();
                     } else {
-                        launchAppForJob(job, isLearning);
+                        launchAppForJob(model.getJob(), model.isLearningApp());
                     }
                 }
         );
@@ -127,25 +120,14 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
         getBinding().rvJobList.setAdapter(adapter);
     }
 
-    private void navigateToJobDetailBottomSheet(View view) {
-        NavController navController = Navigation.findNavController(view);
-        if (navController.getCurrentDestination() != null &&
-                navController.getCurrentDestination().getId()
-                        == R.id.connect_job_detail_bottom_sheet_dialog_fragment) {
-            return;
-        }
-        navController.navigate(R.id.connect_job_detail_bottom_sheet_dialog_fragment);
+    /** Whether a previous tap has already navigated away, so a second one must be ignored. */
+    private boolean hasLeftJobsList() {
+        NavDestination destination =
+                Navigation.findNavController(getBinding().getRoot()).getCurrentDestination();
+        return destination == null || destination.getId() != R.id.connect_jobs_list_fragment;
     }
 
     private void navigateToJobIntro() {
-        Navigation.findNavController(getBinding().getRoot()).navigate(
-                ConnectJobsListsFragmentDirections
-                        .actionConnectJobsListFragmentToConnectJobIntroFragment()
-        );
-    }
-
-    private void launchJobInfo(ConnectJobRecord job) {
-        setActiveJob(job);
         Navigation.findNavController(getBinding().getRoot()).navigate(
                 ConnectJobsListsFragmentDirections
                         .actionConnectJobsListFragmentToConnectJobIntroFragment()

@@ -2,36 +2,37 @@ package org.commcare.adapters;
 
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.DimenRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.commcare.android.database.connect.models.ConnectJobRecord;
+import com.google.android.material.color.MaterialColors;
+
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemSectionHeaderBinding;
-import org.commcare.interfaces.OnJobSelectionClick;
+import org.commcare.interfaces.OnJobCardClick;
 import org.commcare.models.connect.ConnectJobListItem;
 import org.commcare.models.connect.ConnectLoginJobListModel;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.commcare.connect.ConnectDateUtils.formatDate;
 import static org.commcare.connect.database.ConnectJobUtils.isExpiryDateUnderFiveDays;
-import static org.commcare.views.ViewUtil.dpToPx;
 
 public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
-    private final OnJobSelectionClick launcher;
+    private final OnJobCardClick launcher;
 
     private final ArrayList<ConnectJobListItem> displayItems = new ArrayList<>();
 
@@ -44,7 +45,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             ArrayList<ConnectLoginJobListModel> inProgressJobs,
             ArrayList<ConnectLoginJobListModel> newJobs,
             ArrayList<ConnectLoginJobListModel> completedJobs,
-            OnJobSelectionClick launcher
+            OnJobCardClick launcher
     ) {
         this.mContext = context;
         this.launcher = launcher;
@@ -78,8 +79,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         if (holder instanceof SectionHeaderViewHolder sectionHeaderViewHolder) {
             ConnectJobListItem.SectionHeader header =
                     (ConnectJobListItem.SectionHeader) displayItem;
-            boolean showSectionDivider = position > 0;
-            bind(sectionHeaderViewHolder.binding, header.getTextResID(), showSectionDivider);
+            bind(sectionHeaderViewHolder.binding, header.getTextResID());
             return;
         }
 
@@ -153,214 +153,114 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             Context mContext,
             ConnectJobListItemBinding binding,
             ConnectLoginJobListModel connectLoginJobListModel,
-            OnJobSelectionClick launcher
+            OnJobCardClick launcher
     ) {
         binding.getRoot().setTag("opp_uuid: " + connectLoginJobListModel.getUuid());
         binding.tvTitle.setText(connectLoginJobListModel.getName());
-        if (isExpiryDateUnderFiveDays(connectLoginJobListModel.getDate())) {
-            int redColor = ContextCompat.getColor(mContext, R.color.dark_red_brick_red);
 
-            binding.tvDate.setTextColor(redColor);
-            binding.ivInfo.setVisibility(View.VISIBLE);
-            binding.ivInfo.setColorFilter(redColor, PorterDuff.Mode.SRC_IN);
-        } else {
-            binding.tvDate.setTextColor(
-                    ContextCompat.getColor(mContext, R.color.moon_gray)
-            );
-            binding.ivInfo.clearColorFilter();
-            binding.ivInfo.setVisibility(View.GONE);
-        }
+        bindDate(binding, connectLoginJobListModel);
+        bindBadge(mContext, binding, connectLoginJobListModel);
 
-        int dateRes = connectLoginJobListModel.getJobFinished()
-                ? R.string.connect_expired_on
-                : R.string.connect_complete_by;
-        binding.tvDate.setText(
-                mContext.getString(dateRes, formatDate(connectLoginJobListModel.getDate()))
-        );
-
-        binding.ivCompletedCheck.setVisibility(
-                connectLoginJobListModel.getUserCompletedDelivery()
-                        ? View.VISIBLE
-                        : View.INVISIBLE
-        );
-
-        Drawable startDrawableResume = connectLoginJobListModel.isAppInstalled()
-                ? null
-                : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle);
-        binding.btnResume.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                startDrawableResume,
-                null,
-                null,
-                null
-        );
-
-        Drawable startDrawableReview = connectLoginJobListModel.isAppInstalled()
-                ? null
-                : ContextCompat.getDrawable(mContext, R.drawable.ic_download_circle_faded);
-        binding.btnReview.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                startDrawableReview,
-                null,
-                null,
-                null
-        );
-
-        if (connectLoginJobListModel.getJobFinished()) {
-            // Show the "Review" button.
-            binding.btnResume.setVisibility(View.INVISIBLE);
-            binding.btnReview.setVisibility(View.VISIBLE);
-            binding.btnProceed.setVisibility(View.INVISIBLE);
-        } else if (connectLoginJobListModel.isLearningApp() &&
-                connectLoginJobListModel.getLearningProgress() == 100) {
-            // Show the "Proceed" button.
-            binding.btnResume.setVisibility(View.INVISIBLE);
-            binding.btnReview.setVisibility(View.INVISIBLE);
-            binding.btnProceed.setVisibility(View.VISIBLE);
-        } else {
-            // Show the "Resume" button.
-            binding.btnResume.setVisibility(View.VISIBLE);
-            binding.btnReview.setVisibility(View.INVISIBLE);
-            binding.btnProceed.setVisibility(View.INVISIBLE);
-        }
-
-        handleProgressBarUI(mContext, connectLoginJobListModel, binding);
-        configureJobType(mContext, connectLoginJobListModel, binding);
-
-        clickListener(binding, connectLoginJobListModel, launcher);
+        binding.getRoot().setOnClickListener(view -> launcher.onClick(connectLoginJobListModel));
     }
 
     public void bind(
             ConnectJobListItemSectionHeaderBinding binding,
-            @StringRes int headerTextResId,
-            boolean showSectionDivider
+            @StringRes int headerTextResId
     ) {
         binding.tvSectionHeader.setText(mContext.getString(headerTextResId));
-        binding.vSectionDivider.setVisibility(showSectionDivider ? View.VISIBLE : View.GONE);
     }
 
-    private void clickListener(
+    private void bindDate(
             ConnectJobListItemBinding binding,
-            ConnectLoginJobListModel connectLoginJobListModel,
-            OnJobSelectionClick launcher
+            ConnectLoginJobListModel item
     ) {
-        binding.btnViewOpportunity.setOnClickListener(
-                view -> launcher.onClick(
-                        connectLoginJobListModel.getJob(),
-                        connectLoginJobListModel.isLearningApp(),
-                        connectLoginJobListModel.getAppId(),
-                        connectLoginJobListModel.getJobType(),
-                        OnJobSelectionClick.Action.VIEW_INFO
-                )
+        int labelRes;
+        if (!item.getJobFinished()) {
+            labelRes = R.string.connect_label_expiry;
+        } else if (item.getUserCompletedDelivery()) {
+            labelRes = R.string.connect_label_completed_on;
+        } else {
+            labelRes = R.string.connect_label_expired_on;
+        }
+        binding.tvDateLabel.setText(labelRes);
+        binding.tvDate.setText(formatDate(item.getDate(), DateFormat.SHORT));
+
+        boolean expiringSoon = isExpiryDateUnderFiveDays(item.getDate());
+        int dateColor = MaterialColors.getColor(
+                binding.getRoot(),
+                expiringSoon ? R.attr.connectStatusNegative : R.attr.connectOnSurfaceVariant
         );
-        binding.btnResume.setOnClickListener(
-                view -> launcher.onClick(
-                        connectLoginJobListModel.getJob(),
-                        connectLoginJobListModel.isLearningApp(),
-                        connectLoginJobListModel.getAppId(),
-                        connectLoginJobListModel.getJobType(),
-                        OnJobSelectionClick.Action.RESUME
-                )
-        );
-        binding.btnViewInfo.setOnClickListener(
-                view -> launcher.onClick(
-                        connectLoginJobListModel.getJob(),
-                        connectLoginJobListModel.isLearningApp(),
-                        connectLoginJobListModel.getAppId(),
-                        connectLoginJobListModel.getJobType(),
-                        OnJobSelectionClick.Action.VIEW_INFO
-                )
-        );
-        binding.btnReview.setOnClickListener(
-                view -> launcher.onClick(
-                        connectLoginJobListModel.getJob(),
-                        connectLoginJobListModel.isLearningApp(),
-                        connectLoginJobListModel.getAppId(),
-                        connectLoginJobListModel.getJobType(),
-                        OnJobSelectionClick.Action.RESUME
-                )
-        );
-        binding.btnProceed.setOnClickListener(
-                view -> launcher.onClick(
-                        connectLoginJobListModel.getJob(),
-                        connectLoginJobListModel.isLearningApp(),
-                        connectLoginJobListModel.getAppId(),
-                        connectLoginJobListModel.getJobType(),
-                        OnJobSelectionClick.Action.RESUME
-                )
-        );
+        binding.tvDate.setTextColor(dateColor);
+        binding.ivInfo.setVisibility(expiringSoon ? View.VISIBLE : View.GONE);
     }
 
-    public void handleProgressBarUI(
+    private void bindBadge(
             Context context,
-            ConnectLoginJobListModel item,
-            ConnectJobListItemBinding binding
+            ConnectJobListItemBinding binding,
+            ConnectLoginJobListModel item
     ) {
-        int progress = 0;
-        int progressColor = 0;
-        boolean showPercentageText = true;
-        ConnectLoginJobListModel.JobListEntryType jobType = item.getJobType();
-        ConnectJobRecord job = item.getJob();
-
-        if (job.deliveryComplete()) {
-            binding.groupProgress.setVisibility(View.GONE);
+        if (item.isNew()) {
+            showBadgeWithoutRing(context, binding, R.drawable.ic_connect_new_opportunity);
             return;
         }
 
-        switch (jobType) {
-            case NEW_OPPORTUNITY:
-                progress = 100;
-                progressColor = ContextCompat.getColor(context, R.color.burnt_amber);
-                showPercentageText = false;
-                break;
-            case LEARNING:
-                progress = item.getLearningProgress();
-                progressColor = ContextCompat.getColor(context, R.color.connect_blue_color);
-                break;
-            case DELIVERY:
-                if (!job.isFinished()) {
-                    progress = item.getDeliveryProgress();
-                    progressColor = ContextCompat.getColor(context, R.color.connect_green);
-                }
-                break;
+        if (item.getJobFinished()) {
+            showBadgeWithoutRing(context, binding, item.getUserCompletedDelivery()
+                    ? R.drawable.ic_connect_completed_badge
+                    : R.drawable.ic_connect_expired_badge);
+            return;
         }
 
-        binding.groupProgress.setVisibility(View.VISIBLE);
-        int progessBarWidthPx = dpToPx(6, context);
-        binding.progressBar.setStrokeWidth(progessBarWidthPx);
+        int progress;
+        int progressColor;
+        int iconRes;
+        if (item.isLearningApp()) {
+            progress = item.getLearningProgress();
+            progressColor = MaterialColors.getColor(
+                    binding.getRoot(),
+                    com.google.android.material.R.attr.colorPrimary
+            );
+            iconRes = R.drawable.ic_connect_learning;
+        } else {
+            progress = item.getDeliveryProgress();
+            progressColor = MaterialColors.getColor(binding.getRoot(), R.attr.connectStatusPositive);
+            iconRes = R.drawable.ic_connect_delivery;
+        }
+
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.progressBar.setStrokeWidth(
+                context.getResources().getDimensionPixelSize(R.dimen.connect_job_badge_ring_stroke)
+        );
         binding.progressBar.setProgress(progress);
         binding.progressBar.setProgressColor(progressColor);
-        binding.tvProgressPercent.setText(showPercentageText ? progress + " %" : "");
+
+        setBadgeIcon(context, binding, iconRes, R.dimen.connect_job_badge_icon_in_ring);
     }
 
-    private void configureJobType(
+    private void showBadgeWithoutRing(
             Context context,
-            ConnectLoginJobListModel item,
-            ConnectJobListItemBinding binding
+            ConnectJobListItemBinding binding,
+            @DrawableRes int iconRes
     ) {
-        if (item.isNew()) {
-            binding.imgJobType.setImageDrawable(
-                    ContextCompat.getDrawable(context, R.drawable.ic_connect_new_opportunity)
-            );
-            binding.btnViewOpportunity.setVisibility(View.VISIBLE);
-            binding.btnResume.setVisibility(View.GONE);
-            binding.btnReview.setVisibility(View.GONE);
-            binding.btnViewInfo.setVisibility(View.GONE);
-            binding.btnProceed.setVisibility(View.GONE);
-        } else {
-            binding.btnViewOpportunity.setVisibility(View.GONE);
-            binding.btnViewInfo.setVisibility(View.VISIBLE);
+        // INVISIBLE rather than GONE: the icon is centred on the ring, so the ring has to keep
+        // occupying its box for the icon to stay put and for card heights to match across states.
+        binding.progressBar.setVisibility(View.INVISIBLE);
+        setBadgeIcon(context, binding, iconRes, R.dimen.connect_job_badge_icon_standalone);
+    }
 
-            if (item.isLearningApp()) {
-                binding.imgJobType.setImageDrawable(
-                        ContextCompat.getDrawable(context, R.drawable.ic_connect_learning)
-                );
-            } else if (item.isDeliveryApp()) {
-                boolean finished = item.getJob().isFinished();
-                int iconId = finished
-                        ? R.drawable.ic_connect_expired
-                        : R.drawable.ic_connect_delivery;
-                binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconId));
-            }
-        }
+    private void setBadgeIcon(
+            Context context,
+            ConnectJobListItemBinding binding,
+            @DrawableRes int iconRes,
+            @DimenRes int sizeRes
+    ) {
+        int size = context.getResources().getDimensionPixelSize(sizeRes);
+        ViewGroup.LayoutParams params = binding.imgJobType.getLayoutParams();
+        params.width = size;
+        params.height = size;
+        binding.imgJobType.setLayoutParams(params);
+        binding.imgJobType.setImageDrawable(ContextCompat.getDrawable(context, iconRes));
     }
 
     private void buildDisplayList(
@@ -378,18 +278,18 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         }
 
         if (!newJobs.isEmpty()) {
-            displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
+            displayItems.add(
+                    new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
             for (ConnectLoginJobListModel jobListModel : newJobs) {
                 displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
             }
         }
 
         if (!completedJobs.isEmpty()) {
-            displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed));
+            displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed_expired_label));
             for (ConnectLoginJobListModel jobListModel : completedJobs) {
                 displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
             }
         }
     }
 }
-

@@ -204,4 +204,11 @@
     <dimen name="connect_card_elevation_low">2dp</dimen>
     <!-- Strokes -->
     <dimen name="connect_stroke_hairline">1dp</dimen>
+    <!-- Opportunity list card -->
+    <dimen name="connect_radius_md">12dp</dimen>
+    <dimen name="connect_job_badge_ring_size">48dp</dimen>
+    <dimen name="connect_job_badge_ring_stroke">4dp</dimen>
+    <dimen name="connect_job_badge_icon_in_ring">28dp</dimen>
+    <dimen name="connect_job_badge_icon_standalone">32dp</dimen>
+    <dimen name="connect_job_expiry_warning_size">16dp</dimen>
 </resources>
