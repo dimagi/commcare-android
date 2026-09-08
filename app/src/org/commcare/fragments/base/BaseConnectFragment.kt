@@ -193,11 +193,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         onSuccess: DataStateConsumer<T>,
     ) {
         liveData.observe(viewLifecycleOwner) { state ->
-            if (lastDataState == null && (state is DataState.Success || state is DataState.Error)) {
-                // terminal states should not be shown on initial load to avoid jarring UX
-                // this happens when LiveData emits a cached value immediately upon observation
-                return@observe
-            }
+            // A terminal state arriving as the first update of a view is a value replayed from a
+            // previous one: the fragment outlives its view, so the LiveData still holds whatever
+            // it last emitted while nothing was observing. The data is still good; only the
+            // banner announcing a sync that already happened is not.
+            val isStaleReplay =
+                lastDataState == null &&
+                    (state is DataState.Success || state is DataState.Error)
+
             when (state) {
                 is DataState.Loading -> {
                     hideError()
@@ -211,25 +214,31 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                 is DataState.Success -> {
                     hideLoading()
                     hideError()
-                    if (wasOffline) {
-                        showBackOnline()
-                    } else {
-                        showSyncSuccess()
+                    if (!isStaleReplay) {
+                        if (wasOffline) {
+                            showBackOnline()
+                        } else {
+                            showSyncSuccess()
+                        }
+                        wasOffline = false
                     }
-                    wasOffline = false
                     onSuccess.accept(state.data)
                 }
 
                 is DataState.Error -> {
-                    hideLoading()
-                    if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR) {
-                        handleTokenDeniedException()
-                    } else if (state.isNetworkError() &&
-                        !ConnectivityStatus.isNetworkAvailable(requireContext())
-                    ) {
-                        showOfflineIndicator()
-                    } else {
-                        showError(getString(R.string.connect_sync_failed, getRelativeLastSyncTime()))
+                    // Suppressed entirely for a replay: there is no data to deliver, and a stale
+                    // TOKEN_DENIED would otherwise re-trigger the global error on every return.
+                    if (!isStaleReplay) {
+                        hideLoading()
+                        if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR) {
+                            handleTokenDeniedException()
+                        } else if (state.isNetworkError() &&
+                            !ConnectivityStatus.isNetworkAvailable(requireContext())
+                        ) {
+                            showOfflineIndicator()
+                        } else {
+                            showError(getString(R.string.connect_sync_failed, getRelativeLastSyncTime()))
+                        }
                     }
                 }
             }
