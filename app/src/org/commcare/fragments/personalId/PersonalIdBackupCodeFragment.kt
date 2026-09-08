@@ -45,7 +45,10 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title)
             binding.welcomeBackLayout.visibility = View.VISIBLE
             setUserNameAndPhoto()
+            binding.personalidForgotBackupCode.visibility =
+                if (!personalIdSessionData.email.isNullOrEmpty()) View.VISIBLE else View.GONE
         } else {
+            binding.personalidForgotBackupCode.visibility = View.GONE
             setUpInitialState(
                 titleResId = R.string.connect_backup_code_title_set,
                 showConfirmCode = true,
@@ -67,6 +70,16 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         binding.backupCodeView.setCodeCompleteListener { if (isRecovery) submitIfEnabled() }
         binding.confirmCodeView.setCodeCompleteListener { submitIfEnabled() }
         binding.notMeButton.setOnClickListener { handleNotMeButtonPressed() }
+    }
+
+    override fun handleForgotBackupCode() {
+        navigate(
+            PersonalIdBackupCodeFragmentDirections
+                .actionPersonalidBackupCodeToSendEmailOtp(
+                    personalIdSessionData.email!!,
+                    EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
+                ),
+        )
     }
 
     private fun handleNotMeButtonPressed() {

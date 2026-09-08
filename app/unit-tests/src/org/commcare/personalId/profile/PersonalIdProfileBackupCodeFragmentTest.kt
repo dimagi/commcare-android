@@ -47,7 +47,9 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
 
     private fun errorMessage(): TextView = fragment().requireView().findViewById(R.id.connect_backup_code_error_message)
 
-    private fun forgotButton(): TextView = fragment().requireView().findViewById(R.id.not_me_button)
+    private fun forgotButton(): TextView = fragment().requireView().findViewById(R.id.personalid_forgot_backup_code)
+
+    private fun notMeButton(): View = fragment().requireView().findViewById(R.id.not_me_button)
 
     private fun setCodeAndContinue(code: String = "000000") {
         onUiThread { backupCodeView().setCode(code) }
@@ -75,6 +77,11 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     @Test
     fun `error message starts hidden`() {
         assertEquals(View.GONE, errorMessage().visibility)
+    }
+
+    @Test
+    fun `not me button is hidden`() {
+        assertEquals(View.GONE, notMeButton().visibility)
     }
 
     @Test

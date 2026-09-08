@@ -47,6 +47,8 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
 
     abstract fun handleBackupCodeSubmission()
 
+    open fun handleForgotBackupCode() {}
+
     protected fun togglePasswordVisibility(
         codeView: NumericCodeView,
         toggle: ImageView,
@@ -103,6 +105,7 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         binding.confirmCodeView.setOnCodeChangedListener { onCodeChanged() }
         binding.confirmCodeView.setOnEnterKeyPressedListener { submitIfEnabled() }
         binding.connectBackupCodeButton.setOnClickListener { handleBackupCodeSubmission() }
+        binding.personalidForgotBackupCode.setOnClickListener { handleForgotBackupCode() }
         binding.backupCodeVisibilityToggle.setOnClickListener {
             togglePasswordVisibility(binding.backupCodeView, binding.backupCodeVisibilityToggle)
         }
