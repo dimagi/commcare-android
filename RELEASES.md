@@ -2,6 +2,18 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.65
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- Fixed an issue where the day and year fields of the date widget used by date questions with a `gregorian` appearance could not be edited with the keyboard in landscape.
+
+### QA Notes
+
+- Gregorian Date Widget: set a date in portrait, rotate to landscape, and update it with the keyboard. Tapping the day or the year field should bring up the keyboard's own full-width editor with a DONE key, and the value typed there should apply to the widget once DONE is pressed.
+
 ## CommCare 2.63.5
 
 ### Release Notes
