@@ -274,7 +274,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         clearUserData(activity);
     }
 
-    private static void clearUserData(final AppCompatActivity activity) {
+    public static void clearUserData(final AppCompatActivity activity) {
         int numUnsentAndIncompleteForms = StorageUtils.getNumUnsentAndIncompleteForms();
         StandardAlertDialog d =
                 new StandardAlertDialog(

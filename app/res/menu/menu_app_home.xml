@@ -39,5 +39,8 @@
         android:id="@+id/action_update_commcare"
         android:title="Update CommCare"
         app:showAsAction="never" />
-
+    <item
+        android:id="@+id/action_clear_user_data"
+        android:title="Clear User Data"
+        app:showAsAction="never" />
 </menu>
