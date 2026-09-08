@@ -255,24 +255,6 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         questionsView.setFocus(activity, indexOfLastChangedWidget);
 
         setupGroupLabel();
-        checkForOrientationRequirements();
-    }
-
-    private void checkForOrientationRequirements() {
-        if (currentScreenShouldForcePortrait()) {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else if (activity.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED) {
-            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        }
-    }
-
-    private boolean currentScreenShouldForcePortrait() {
-        for (QuestionWidget w : this.questionsView.getWidgets()) {
-            if (w.forcesPortrait()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void setupGroupLabel() {
