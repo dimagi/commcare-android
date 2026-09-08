@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.SpannableStringBuilder;
