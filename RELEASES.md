@@ -2,6 +2,14 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.65
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- The Connect opportunity list no longer appears blank after returning to it from another Connect screen.
+
 ## CommCare 2.63.5
 
 ### Release Notes
