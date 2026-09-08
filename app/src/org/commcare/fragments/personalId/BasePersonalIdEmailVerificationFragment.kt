@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
@@ -180,21 +181,32 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
             },
             onFailure = { failureCode, t ->
                 if (!hasLiveView()) return@verifyEmailOtp
-                if (!handleCommonSignupFailures(failureCode)) {
-                    showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
-                    failedOtpAttempts++
-                    if (failedOtpAttempts >= maxOtpAttempts) {
-                        if (canSkipEmailVerification()) {
-                            showProceedWithoutEmailDialog()
-                        } else {
-                            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
-                        }
-                    } else if (failureCode.shouldAllowRetry()) {
-                        enableVerifyButton(true)
-                    }
-                }
+                onEmailVerificationFailure(failureCode, t)
             },
         )
+    }
+
+    protected fun onEmailVerificationFailure(
+        failureCode: BaseApiHandler.PersonalIdOrConnectApiErrorCodes,
+        t: Throwable?
+    ) {
+        if (!handleCommonSignupFailures(failureCode)) {
+            showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
+            failedOtpAttempts++
+            if (failedOtpAttempts >= maxOtpAttempts) {
+                onMaxingEmailVerificationAttempts()
+            } else if (failureCode.shouldAllowRetry()) {
+                enableVerifyButton(true)
+            }
+        }
+    }
+
+    protected open fun onMaxingEmailVerificationAttempts() {
+        if (canSkipEmailVerification()) {
+            showProceedWithoutEmailDialog()
+        } else {
+            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
+        }
     }
 
     open fun canSkipEmailVerification(): Boolean = false

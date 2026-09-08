@@ -13,6 +13,7 @@ import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.BasePersonalIdBackupCodeFragment
 import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.personalId.UnlockPolicy
 import org.commcare.views.dialogs.StandardAlertDialog
 
@@ -105,6 +106,7 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
     ) {
         user.pin = backupCode
         ConnectUserDatabaseUtil.storeUser(user)
+        PersonalIdUserPreferences.setPendingBackupCode(false)
         showSuccess()
     }
 
