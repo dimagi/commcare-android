@@ -65,7 +65,7 @@
             android:layout_height="@dimen/connect_job_expiry_warning_size"
             android:layout_marginStart="@dimen/connect_space_xs"
             android:contentDescription="@null"
-            android:src="@drawable/ic_connect_error"
+            android:src="@drawable/ic_error_white"
             app:tint="?attr/connectStatusNegative"
             tools:visibility="visible" />
     </LinearLayout>
