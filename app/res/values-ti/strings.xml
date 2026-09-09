@@ -238,8 +238,11 @@
     <string name="personalid_login_via">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
     <string name="personalid_welcome_user">እንቋዕ ብደሓን መጻእኩም %s!</string>
     <string name="personalid_choice_or">_____________ ወይ _____________</string>
+    <string name="connect_download_delivery">ዳውንሎድ ምብፃሕ</string>
+    <string name="connect_app_install_setting_up">መተግበሪ ይዳሎ ኣሎ…</string>
+    <string name="connect_app_finishing_install">ምትካል ይውዳእ ኣሎ…</string>
+    <string name="connect_app_launching">ምውራድ ተወዲኡ፣ መተግበሪ ይኽፈት ኣሎ…</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">ኣብ ውቅር ኣፕ ጌጋ ኣጋጢሙ ብሰንኪ እዚ ድማ ኩሎም ኣብቲ ካርታ ዘለዉ ማርከራት ብትኽክል ኣይጽዓኑን እዮም።</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">ብ PersonalID ጀምር</string>
@@ -353,9 +356,10 @@
     <string name="connect_progress_warning_relearn_tasks_pending">ኣገልግሎት ምሃብ ንምቕጻል ዝተመደቡ ዕማማት ኣጠናቕቑ።</string>
     <string name="connect_open_conversation_button_text">ዘተ ክፈት</string>
     <string name="connect_progress_relearn_tasks_completed">ኩሎም ዝድለዩ ስራሕቲ ተዛዚሞም ኣለዉ። ምስ ናይ ኣወሃህባ ንጥፈታት ክትቅጽል ትኽእል ኢኻ።</string>
-    <string name="connect_download_learn">Download ተማሃሩ ኣፕ</string>
-    <string name="connect_downloading_learn">ምውራድ ( Downloading ) ናይ ትምህርቲ ኣፕ ( App )</string>
-    <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
+    <string name="connect_download_learn">ትምህርቲ ኣውርድ</string>
+    <string name="connect_starting_learning">ትምህርቲ ይጅምር ኣሎ</string>
+    <string name="connect_downloading_learn">ትምህርቲ ይወርድ ኣሎ</string>
+    <string name="connect_downloading_delivery">ምብፃሕ ይወርድ ኣሎ</string>
     <string name="connect_results_summary_earned">ዝረኸበ</string>
     <string name="connect_results_summary_transferred">ተሰጋጊሩ</string>
     <string name="connect_results_summary_all">ኩሎም</string>
@@ -376,7 +380,6 @@
     <string name="personalid_link_app_yes">እወ</string>
     <string name="personalid_link_app_no">አይኮንን</string>
     <string name="personalid_signup">ኣብ PersonalId ተመዝገቡ</string>
-    <string name="connect_app_install_setting_up">መተግበሪ ይዳሎ ኣሎ…</string>
     <string name="connect_app_install_unknown_error">ናይ ኣፕሊኬሽን ምፅዓን ብሰንኪ ዘይተፈልጠ ጌጋ ኣይተዓወተን</string>
     <string name="connect_app_installed">ኣፕሊኬሽን ተፃዒኑ</string>
     <string name="app_with_id_not_found">ዘድሊ CommCare App ኣብ መሳርሒ ኣይተተኸለን</string>
@@ -439,7 +442,6 @@
     <string name="connect_job_info_visit_charge">ንምጉብናይ ክሳብ %s ኣታዊ ምርካብ</string>
     <string name="connect_job_info_delivery_hours">ሰዓታት ምብጻሕ</string>
     <string name="connect_job_info_view_more">ተወሳኺ ርአ</string>
-    <string name="connect_job_info_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_job_info_view_info">ሓበሬታ ርአ</string>
     <string name="connect_job_info_view_resume">ቐጽል</string>
     <string name="connect_job_info_view_review">ዳግመ ግምት</string>
@@ -716,7 +718,6 @@
         <item quantity="other">%d ናይ ክፍሊት ኣሃዱታት</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">ትምህርቲ ጀምር</string>
-    <string name="connect_opportunity_footer_download_learn_app">ትምህርቲ ኣውርድ</string>
     <string name="connect_opportunity_modules_footer_note">ሞጁላት ወድእ፣ ነቲ ገምጋም ሕለፍ፣ ከምኡውን ምስክር ወረቐትካ ተቐበል</string>
     <string name="connect_opportunity_footer_download_app">መተግበሪ ኣውርድ</string>
     <string name="microimage_saving_failed">ስእሊ ክዕቀብ ኣይተኻእለን። በጃኹም ደጊምኩም ፈትኑ</string>

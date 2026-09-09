@@ -130,10 +130,13 @@
     <string name="nav_drawer_open">Åpne navigasjonsmenyen</string>
     <string name="nav_drawer_close">Lukk navigasjonsmenyen</string>
     <string name="connect_message_you">Du</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_message_them">Dem</string>
     <string name="fcm_sync_failed_body_text">Klikk her for å vite mer</string>
+    <string name="connect_starting_learning">Starter læring</string>
+    <string name="connect_download_delivery">Last ned levering</string>
     <string name="connect_app_install_setting_up">Setter opp appen…</string>
+    <string name="connect_app_finishing_install">Fullfører installasjonen…</string>
+    <string name="connect_app_launching">Nedlasting fullført, starter appen…</string>
     <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
     <string name="personalid_not_login_from_fcm_error">Vennligst logg inn på PersonalId for å se detaljene</string>
     <string name="connect_messaging_resubscribe_dialog_title">Abonner på %s på nytt</string>
@@ -403,7 +406,9 @@
     <string name="connect_learn_cta_take_assessment">Ta vurderingen</string>
     <string name="connect_learn_cta_start">Start</string>
     <string name="connect_opportunity_footer_start_learning">Start læring</string>
-    <string name="connect_opportunity_footer_download_learn_app">Last ned Læring</string>
+    <string name="connect_download_learn">Last ned Læring</string>
+    <string name="connect_downloading_learn">Laster ned Læring</string>
+    <string name="connect_downloading_delivery">Laster ned levering</string>
     <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
     <string name="connect_opportunity_footer_download_app">Last ned appen</string>
     <string name="recording_notification_save_action">Lagre</string>

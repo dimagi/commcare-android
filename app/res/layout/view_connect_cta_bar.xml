@@ -4,6 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:orientation="vertical"
     tools:parentTag="android.widget.LinearLayout">
+    <org.commcare.views.connect.ConnectSuccessFailureCard
+        android:id="@+id/cta_failure_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/standard_spacer_double"
+        android:layout_marginBottom="@dimen/standard_spacer_double" />
 
     <TextView
         android:id="@+id/cta_info_banner"
@@ -16,7 +22,7 @@
         android:paddingTop="@dimen/connect_space_md"
         android:paddingEnd="@dimen/connect_space_md"
         android:paddingBottom="27dp"
-        android:textColor="@color/white"
+        android:textColor="?attr/colorOnPrimary"
         android:visibility="gone"
         tools:text="Further visits will not count towards progress or payments"
         tools:visibility="visible" />
@@ -39,7 +45,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/connect_space_sm"
-                android:textColor="@color/connect_dark_blue_color"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="@dimen/connect_text_title"
                 app:layout_constraintBottom_toTopOf="@id/cta_subtitle_text"
                 app:layout_constraintEnd_toStartOf="@id/cta_end_barrier"
@@ -54,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_xs"
                 android:layout_marginEnd="@dimen/connect_space_sm"
-                android:textColor="@color/connect_secondary_text"
+                android:textColor="?attr/connectOnSurfaceVariant"
                 android:textSize="@dimen/connect_text_body"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -74,52 +80,37 @@
                 android:paddingEnd="40dp"
                 android:stateListAnimator="@null"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
+                android:textColor="?attr/colorOnPrimary"
                 android:textStyle="normal"
-                app:backgroundTint="@color/connect_dark_blue_color"
+                app:backgroundTint="?attr/colorPrimary"
                 app:cornerRadius="@dimen/connect_radius_pill"
                 app:icon="@drawable/ic_connect_arrow_forward"
                 app:iconGravity="textEnd"
-                app:iconTint="@color/white"
+                app:iconTint="?attr/colorOnPrimary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Start" />
 
-            <FrameLayout
-                android:id="@+id/cta_progress_cluster"
+            <org.commcare.views.connect.CircleProgressBar
+                android:id="@+id/cta_progress_ring"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible">
-
-                <org.commcare.views.connect.CircleProgressBar
-                    android:id="@+id/cta_progress_ring"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:progressBackgroundColor="@color/connect_light_grey"
-                    app:progressColor="@color/connect_dark_blue_color"
-                    app:strokeWidth="4dp" />
-
-                <TextView
-                    android:id="@+id/cta_progress_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:textColor="@color/connect_dark_blue_color"
-                    android:textSize="@dimen/connect_text_caption"
-                    tools:text="25%" />
-            </FrameLayout>
+                app:progressBackgroundColor="?attr/connectOutlineVariant"
+                app:progressColor="?attr/colorPrimary"
+                app:strokeWidth="4dp"
+                tools:visibility="visible" />
 
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/cta_end_barrier"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:barrierDirection="start"
-                app:constraint_referenced_ids="cta_button,cta_progress_cluster" />
+                app:constraint_referenced_ids="cta_button,cta_progress_ring" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>

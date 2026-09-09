@@ -87,8 +87,11 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_login_via">Ta hanyar PersonalID (ko danna nan)</string>
     <string name="personalid_welcome_user">Barka da zuwa %s!</string>
     <string name="personalid_choice_or">_________ KO _________</string>
+    <string name="connect_download_delivery">Sauke Isarwa</string>
+    <string name="connect_app_install_setting_up">Ana saita manhaja…</string>
+    <string name="connect_app_finishing_install">Ana kammala shigarwa…</string>
+    <string name="connect_app_launching">An gama sauke, ana buɗe manhaja…</string>
     <string name="connect_button_logged_in">Je zuwa menu na Haɗawa</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_registration_title">Fara da PersonalID</string>
     <string name="connect_consent_message_1">Na karanta kuma na yarda da Dimagi\'s</string>
     <string name="connect_phone_country_code_default">+1</string>
@@ -194,9 +197,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_warning_relearn_tasks_pending">Kammala ayyukan da aka ba ka don ci gaba da bayar da hidimomi.</string>
     <string name="connect_open_conversation_button_text">Buɗe Tattaunawa</string>
     <string name="connect_progress_relearn_tasks_completed">An kammala duk ayyukan da ake bukata. Kuna iya ci gaba da ayyukan isarwa.</string>
-    <string name="connect_download_learn">Sauke Manhajar Koyi</string>
-    <string name="connect_downloading_learn">Sauke Manhajar Koyo</string>
-    <string name="connect_downloading_delivery">Sauke Manhajar Isarwa</string>
+    <string name="connect_download_learn">Sauke Koyo</string>
+    <string name="connect_starting_learning">Ana fara koyo</string>
+    <string name="connect_downloading_learn">Ana sauke Koyo</string>
+    <string name="connect_downloading_delivery">Ana sauke Isarwa</string>
     <string name="connect_results_summary_earned">An samu</string>
     <string name="connect_results_summary_transferred">An canja wurin</string>
     <string name="connect_payment_confirm_text">An biya ku %d %s don damar %s?</string>
@@ -211,7 +215,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_link_app_no">A\'a</string>
     <string name="personalid_signup">Yi rijista don PersonalID</string>
     <string name="connect_refresh_opportunities">Damar Sabuntawa</string>
-    <string name="connect_app_install_setting_up">Ana saita manhaja…</string>
     <string name="connect_app_install_unknown_error">Shigar da manhajar ya gaza saboda kuskuren da ba a sani ba</string>
     <string name="connect_app_installed">An shigar da manhaja</string>
     <string name="app_with_id_not_found">Ba a shigar da Manhajar CommCare da ake buƙata a kan na\'urar ba</string>
@@ -272,7 +275,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_info_days">Kwanaki %d da za a kammala</string>
     <string name="connect_job_info_max_visit">Matsakaicin ziyara a kowace rana %d</string>
     <string name="connect_job_info_visit_charge">Sami har zuwa %s don ziyara</string>
-    <string name="connect_job_info_download_delivery">Sauke Isarwa</string>
     <string name="connect_job_info_view_info">Duba Bayani</string>
     <string name="connect_job_info_view_resume">Ci gaba da karatu</string>
     <string name="connect_job_info_view_review">Bita</string>
@@ -722,7 +724,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
         <item quantity="other">Sassan biya %d</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Fara koyo</string>
-    <string name="connect_opportunity_footer_download_learn_app">Sauke Koyo</string>
     <string name="connect_opportunity_modules_footer_note">Kammala kayayyakin koyo, ka ci jarrabawa, sannan ka sami takardar shaidarka</string>
     <string name="connect_opportunity_footer_download_app">Sauke manhaja</string>
     <string name="microimage_saving_failed">An kasa ajiye hoton. Da fatan za a sake gwadawa</string>

@@ -248,8 +248,11 @@
     <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
     <string name="personalid_welcome_user">Karibu %s!</string>
     <string name="personalid_choice_or">____________ AU _____________</string>
+    <string name="connect_download_delivery">Pakua Uwasilishaji</string>
+    <string name="connect_app_install_setting_up">Inasanidi programu…</string>
+    <string name="connect_app_finishing_install">Inakamilisha usakinishaji…</string>
+    <string name="connect_app_launching">Upakuaji umekamilika, inafungua programu…</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Kulikuwa na hitilafu katika usanidi wa programu kutokana na ambayo si alama zote kwenye ramani zimepakiwa ipasavyo</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya PersonalID tena.</string>
     <string name="connect_registration_title">Usajili wa PersonalId</string>
@@ -358,9 +361,10 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Kamilisha kazi zilizopewa ili kuendelea kutoa huduma.</string>
     <string name="connect_open_conversation_button_text">Fungua Mazungumzo</string>
     <string name="connect_progress_relearn_tasks_completed">Kazi zote zinazohitajika zimekamilika. Unaweza kuendelea na shughuli za uwasilishaji.</string>
-    <string name="connect_download_learn">Pakua Programu ya Jifunze</string>
-    <string name="connect_downloading_learn">Inapakua Programu ya Jifunze</string>
-    <string name="connect_downloading_delivery">Inapakua Programu ya Uwasilishaji</string>
+    <string name="connect_download_learn">Pakua Kujifunza</string>
+    <string name="connect_starting_learning">Kuanza kujifunza</string>
+    <string name="connect_downloading_learn">Inapakua Kujifunza</string>
+    <string name="connect_downloading_delivery">Inapakua Uwasilishaji</string>
     <string name="connect_results_summary_earned">Imelipwa</string>
     <string name="connect_results_summary_transferred">Imehamishwa</string>
     <string name="connect_payment_confirm_text">Je, umelipwa %d %s kwa ajili ya fursa ya %s?</string>
@@ -375,7 +379,6 @@
     <string name="personalid_link_app_no">Hapana</string>
     <string name="personalid_signup">Jisajili kwa PersonalId</string>
     <string name="connect_refresh_opportunities">Onyesha Fursa</string>
-    <string name="connect_app_install_setting_up">Inasanidi programu…</string>
     <string name="connect_app_install_unknown_error">Usakinishaji wa programu haukufaulu kwa sababu ya hitilafu isiyojulikana</string>
     <string name="connect_app_installed">Programu imesakinishwa</string>
     <string name="app_with_id_not_found">Programu ya CommCare Inayohitajika haijasakinishwa kwenye kifaa</string>
@@ -436,7 +439,6 @@
     <string name="connect_job_info_days">Siku %d kukamilika</string>
     <string name="connect_job_info_max_visit">Upeo wa juu wa kutembelewa kwa siku %d</string>
     <string name="connect_job_info_visit_charge">Pata hadi %s kwa kutembelewa</string>
-    <string name="connect_job_info_download_delivery">Pakua Uwasilishaji</string>
     <string name="connect_job_info_view_info">Angalia Taarifa</string>
     <string name="connect_job_info_view_resume">Endelea</string>
     <string name="connect_job_info_view_review">Revisar</string>
@@ -732,7 +734,6 @@
         <item quantity="other">Vipimo %d vya malipo</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Anza kujifunza</string>
-    <string name="connect_opportunity_footer_download_learn_app">Pakua Kujifunza</string>
     <string name="connect_opportunity_modules_footer_note">Kamilisha moduli, ufaulu tathmini, na upate cheti chako</string>
     <string name="connect_opportunity_footer_download_app">Pakua programu</string>
     <string name="microimage_saving_failed">Picha haikuweza kuhifadhiwa. Tafadhali jaribu tena</string>

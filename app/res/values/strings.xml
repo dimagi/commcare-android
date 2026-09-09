@@ -356,7 +356,7 @@
     <!-- PersonalID strings -->
     <string name="personalid_login_via">Via PersonalID (or press here)</string>
     <string name="connect_button_logged_in">Go to Connect menu</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
+
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
 
@@ -544,9 +544,14 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Complete assigned tasks to continue delivering services.</string>
     <string name="connect_open_conversation_button_text">Open Conversation</string>
     <string name="connect_progress_relearn_tasks_completed">All required tasks have been completed. You may continue with delivery activities.</string>
-    <string name="connect_download_learn">Download Learn App</string>
-    <string name="connect_downloading_learn">Downloading Learn App</string>
-    <string name="connect_downloading_delivery">Downloading Delivery App</string>
+    <string name="connect_download_learn">Download Learn</string>
+    <string name="connect_starting_learning">Starting Learning</string>
+    <string name="connect_download_delivery">Download Delivery</string>
+    <string name="connect_app_install_setting_up">Setting up app…</string>
+    <string name="connect_app_finishing_install">Finishing installation…</string>
+    <string name="connect_app_launching">Download complete, launching app…</string>
+    <string name="connect_downloading_learn">Downloading Learn</string>
+    <string name="connect_downloading_delivery">Downloading Delivery</string>
     <string name="connect_results_summary_all">All</string>
     <string name="connect_results_summary_pending">Pending</string>
     <string name="connect_results_summary_rejected">Rejected</string>
@@ -575,7 +580,6 @@
     <string name="connect_refresh_opportunities">Refresh Opportunities</string>
 
     <string name="connect_app_install_unknown_error">App install failed due to an unknown error</string>
-    <string name="connect_app_install_setting_up">Setting up app…</string>
     <string name="connect_app_installed">App installed</string>
 
     <string name="app_with_id_not_found">Required CommCare App is not installed on device</string>
@@ -698,7 +702,6 @@
     <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
     <string name="connect_job_info_delivery_hours">Delivery Hours</string>
     <string name="connect_job_info_view_more">View More</string>
-    <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_view_opportunity">View Opportunity</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
@@ -729,7 +732,6 @@
         <item quantity="other">%d payment units</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Start Learning</string>
-    <string name="connect_opportunity_footer_download_learn_app">Download Learn</string>
     <string name="connect_opportunity_modules_footer_note">Complete the modules, pass the assessment, and earn your certificate</string>
     <string name="connect_opportunity_footer_download_app">Download App</string>
 
