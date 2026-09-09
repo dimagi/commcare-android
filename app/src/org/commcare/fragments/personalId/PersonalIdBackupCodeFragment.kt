@@ -46,7 +46,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             binding.welcomeBackLayout.visibility = View.VISIBLE
             setUserNameAndPhoto()
             binding.personalidForgotBackupCode.visibility =
-                if (!personalIdSessionData.email.isNullOrEmpty()) View.VISIBLE else View.GONE
+                if (!personalIdSessionData.maskedEmail.isNullOrEmpty()) View.VISIBLE else View.GONE
         } else {
             binding.personalidForgotBackupCode.visibility = View.GONE
             setUpInitialState(
@@ -76,7 +76,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         navigate(
             PersonalIdBackupCodeFragmentDirections
                 .actionPersonalidBackupCodeToSendEmailOtp(
-                    personalIdSessionData.email!!,
+                    personalIdSessionData.maskedEmail!!,
                     EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
                 ),
         )
