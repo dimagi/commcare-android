@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,54 +9,14 @@
         android:id="@+id/include_tool_bar"
         layout="@layout/appbar_layout" />
 
-    <FrameLayout
-        android:id="@+id/screen_manager_banner_pane"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/activity_vertical_margin"
-        android:layout_below="@id/include_tool_bar">
-
-        <ImageView
-            android:id="@+id/screen_manager_top_banner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitStart"
-            app:srcCompat="@drawable/commcare_by_dimagi"
-            android:adjustViewBounds="true"/>
-
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/manager_instructions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/manager_instructions"
-        android:layout_below="@id/screen_manager_banner_pane"
-        android:paddingTop="@dimen/standard_spacer"
-        android:paddingBottom="@dimen/standard_spacer"
-        android:textSize="@dimen/font_size_large"
-        android:textColor="@color/darkest_grey"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"/>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/install_app_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/manager_instructions"
-        android:layout_marginTop="@dimen/standard_spacer"
-        android:paddingHorizontal="@dimen/standard_spacer_double"
-        android:onClick="installAppClicked"
-        android:text="@string/install_app" />
-
+    <!-- The banner, instructions and install button are app_manager_header.xml, added as a header
+         view so they scroll with the list rather than just standing above -->
     <ListView
         android:id="@+id/apps_list_view"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/install_app_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/include_tool_bar"
         android:listSelector="@drawable/selector">
     </ListView>
 
 </RelativeLayout>
-
