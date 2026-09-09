@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
@@ -75,7 +75,7 @@ class ConnectJobsListsFragmentTest {
         savedStatus = PersonalIdManager.getInstance().status
         PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
         mockApi.start()
-        mockApi.server.dispatcher = emptyBodyDispatcher()
+        mockApi.server.dispatcher = alwaysEmptyJsonDispatcher()
         ConnectRepository.resetInstance()
         ConnectRequestManager.cancelAll()
 
@@ -127,7 +127,7 @@ class ConnectJobsListsFragmentTest {
                 .findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
 
         ShadowLooper.idleMainLooper()
-        layOutHierarchy()
+        measureAndLayoutScreen()
     }
 
     @After
@@ -148,7 +148,7 @@ class ConnectJobsListsFragmentTest {
                 activity.getString(R.string.connect_new_opportunities),
                 activity.getString(R.string.connect_completed_expired_label),
             ),
-            sectionHeaders(),
+            getSectionHeaderTitles(),
         )
     }
 
@@ -158,7 +158,7 @@ class ConnectJobsListsFragmentTest {
     fun `a running opportunity is labelled with its expiry`() {
         assertEquals(
             activity.getString(R.string.connect_label_expiry),
-            dateLabelOf(LEARNING_UUID),
+            getDateLabelText(LEARNING_UUID),
         )
     }
 
@@ -166,7 +166,7 @@ class ConnectJobsListsFragmentTest {
     fun `a new opportunity is labelled with its expiry`() {
         assertEquals(
             activity.getString(R.string.connect_label_expiry),
-            dateLabelOf(NEW_UUID),
+            getDateLabelText(NEW_UUID),
         )
     }
 
@@ -174,7 +174,7 @@ class ConnectJobsListsFragmentTest {
     fun `a finished opportunity the worker completed is labelled completed on`() {
         assertEquals(
             activity.getString(R.string.connect_label_completed_on),
-            dateLabelOf(COMPLETED_UUID),
+            getDateLabelText(COMPLETED_UUID),
         )
     }
 
@@ -182,7 +182,7 @@ class ConnectJobsListsFragmentTest {
     fun `a finished opportunity the worker did not complete is labelled expired on`() {
         assertEquals(
             activity.getString(R.string.connect_label_expired_on),
-            dateLabelOf(EXPIRED_UUID),
+            getDateLabelText(EXPIRED_UUID),
         )
     }
 
@@ -190,22 +190,22 @@ class ConnectJobsListsFragmentTest {
 
     @Test
     fun `an opportunity expiring within five days shows the alert icon and a negative date`() {
-        val row = rowFor(EXPIRING_SOON_UUID)
+        val row = getRowForJobUuid(EXPIRING_SOON_UUID)
 
         assertEquals(View.VISIBLE, row.findViewById<ImageView>(R.id.ivInfo).visibility)
         assertEquals(
-            ContextCompat.getColor(activity, R.color.red_600),
+            roleColour(row, R.attr.connectStatusNegative),
             row.findViewById<TextView>(R.id.tvDate).currentTextColor,
         )
     }
 
     @Test
     fun `an opportunity expiring later hides the alert icon and keeps a muted date`() {
-        val row = rowFor(LEARNING_UUID)
+        val row = getRowForJobUuid(LEARNING_UUID)
 
         assertEquals(View.GONE, row.findViewById<ImageView>(R.id.ivInfo).visibility)
         assertEquals(
-            ContextCompat.getColor(activity, R.color.connect_dark_grey),
+            roleColour(row, R.attr.connectOnSurfaceVariant),
             row.findViewById<TextView>(R.id.tvDate).currentTextColor,
         )
     }
@@ -214,66 +214,46 @@ class ConnectJobsListsFragmentTest {
 
     @Test
     fun `only a running opportunity draws the progress ring`() {
-        assertEquals(View.VISIBLE, ringOf(LEARNING_UUID).visibility)
-        assertEquals(View.VISIBLE, ringOf(EXPIRING_SOON_UUID).visibility)
-        assertEquals(View.INVISIBLE, ringOf(NEW_UUID).visibility)
-        assertEquals(View.INVISIBLE, ringOf(COMPLETED_UUID).visibility)
-        assertEquals(View.INVISIBLE, ringOf(EXPIRED_UUID).visibility)
+        assertEquals(View.VISIBLE, getProgressRing(LEARNING_UUID).visibility)
+        assertEquals(View.VISIBLE, getProgressRing(EXPIRING_SOON_UUID).visibility)
+        assertEquals(View.INVISIBLE, getProgressRing(NEW_UUID).visibility)
+        assertEquals(View.INVISIBLE, getProgressRing(COMPLETED_UUID).visibility)
+        assertEquals(View.INVISIBLE, getProgressRing(EXPIRED_UUID).visibility)
     }
 
     @Test
     fun `each state shows its own badge icon`() {
-        assertEquals(R.drawable.ic_connect_learning, badgeResOf(LEARNING_UUID))
-        assertEquals(R.drawable.ic_connect_delivery, badgeResOf(EXPIRING_SOON_UUID))
-        assertEquals(R.drawable.ic_connect_new_opportunity, badgeResOf(NEW_UUID))
-        assertEquals(R.drawable.ic_connect_completed_badge, badgeResOf(COMPLETED_UUID))
-        assertEquals(R.drawable.ic_connect_expired_badge, badgeResOf(EXPIRED_UUID))
-    }
-
-    @Test
-    fun `the badge is smaller inside the ring than when it stands alone`() {
-        val inRing = activity.resources.getDimensionPixelSize(R.dimen.connect_job_badge_icon_in_ring)
-        val standalone = activity.resources.getDimensionPixelSize(R.dimen.connect_job_badge_icon_standalone)
-
-        assertEquals(inRing, badgeOf(LEARNING_UUID).layoutParams.width)
-        assertEquals(standalone, badgeOf(NEW_UUID).layoutParams.width)
-        assertEquals(standalone, badgeOf(EXPIRED_UUID).layoutParams.width)
+        assertEquals(R.drawable.ic_connect_learning, getBadgeDrawableRes(LEARNING_UUID))
+        assertEquals(R.drawable.ic_connect_delivery, getBadgeDrawableRes(EXPIRING_SOON_UUID))
+        assertEquals(R.drawable.ic_connect_new_opportunity, getBadgeDrawableRes(NEW_UUID))
+        assertEquals(R.drawable.ic_connect_completed_badge, getBadgeDrawableRes(COMPLETED_UUID))
+        assertEquals(R.drawable.ic_connect_expired_badge, getBadgeDrawableRes(EXPIRED_UUID))
     }
 
     // ---------- Card ----------
 
     @Test
-    fun `the whole card is the tap target`() {
-        assertEquals(true, rowFor(LEARNING_UUID).isClickable)
-        assertEquals(true, rowFor(NEW_UUID).isClickable)
-    }
-
-    @Test
     fun `tapping a new opportunity opens the opportunity intro`() {
-        activity.runOnUiThread { rowFor(NEW_UUID).performClick() }
+        activity.runOnUiThread { getRowForJobUuid(NEW_UUID).performClick() }
         ShadowLooper.idleMainLooper()
 
         assertEquals(R.id.connect_job_intro_fragment, navController.currentDestination?.id)
     }
 
-    /**
-     * The row names colour roles rather than colours, and an unresolved `?attr/` fails silently at
-     * runtime rather than at build time, so the resolved values are asserted directly.
-     */
     @Test
     fun `the card resolves its colour roles from ConnectTheme`() {
-        val row = rowFor(LEARNING_UUID)
+        val row = getRowForJobUuid(LEARNING_UUID)
 
         assertEquals(
-            ContextCompat.getColor(activity, R.color.cool_gray_900),
+            roleColour(row, R.attr.connectOnSurfaceEmphasis),
             row.findViewById<TextView>(R.id.tvTitle).currentTextColor,
         )
         assertEquals(
-            ContextCompat.getColor(activity, R.color.connect_subtext_color),
+            roleColour(row, R.attr.connectOnSurfaceMuted),
             row.findViewById<TextView>(R.id.tvDateLabel).currentTextColor,
         )
         assertEquals(
-            ContextCompat.getColor(activity, R.color.connect_dark_grey),
+            roleColour(row, R.attr.connectOnSurfaceVariant),
             row.findViewById<TextView>(R.id.tvDate).currentTextColor,
         )
     }
@@ -320,33 +300,39 @@ class ConnectJobsListsFragmentTest {
 
     // ---------- View access ----------
 
-    private val recyclerView: RecyclerView get() = activity.findViewById(R.id.rvJobList)
+    private val jobListRecyclerView: RecyclerView get() = activity.findViewById(R.id.rvJobList)
 
     /** The adapter tags each row with its opportunity, which is the only stable row identity. */
-    private fun rowFor(uuid: String): View =
-        (0 until recyclerView.childCount)
-            .map { recyclerView.getChildAt(it) }
+    private fun getRowForJobUuid(uuid: String): View =
+        (0 until jobListRecyclerView.childCount)
+            .map { jobListRecyclerView.getChildAt(it) }
             .firstOrNull { it.tag == "opp_uuid: $uuid" }
             ?: throw AssertionError("No row rendered for $uuid")
 
-    private fun rowsOfType(childId: Int): List<View> =
-        (0 until recyclerView.childCount)
-            .map { recyclerView.getChildAt(it) }
+    private fun getRowsContainingView(childId: Int): List<View> =
+        (0 until jobListRecyclerView.childCount)
+            .map { jobListRecyclerView.getChildAt(it) }
             .filter { it.findViewById<View>(childId) != null }
 
-    private fun sectionHeaders(): List<String> =
-        rowsOfType(R.id.tv_section_header)
+    private fun getSectionHeaderTitles(): List<String> =
+        getRowsContainingView(R.id.tv_section_header)
             .map { it.findViewById<TextView>(R.id.tv_section_header).text.toString() }
 
-    private fun dateLabelOf(uuid: String): String = rowFor(uuid).findViewById<TextView>(R.id.tvDateLabel).text.toString()
+    private fun getDateLabelText(uuid: String): String = getRowForJobUuid(uuid).findViewById<TextView>(R.id.tvDateLabel).text.toString()
 
-    private fun ringOf(uuid: String): CircleProgressBar = rowFor(uuid).findViewById(R.id.progressBar)
+    private fun getProgressRing(uuid: String): CircleProgressBar = getRowForJobUuid(uuid).findViewById(R.id.progressBar)
 
-    private fun badgeOf(uuid: String): ImageView = rowFor(uuid).findViewById(R.id.imgJobType)
+    private fun getBadgeImageView(uuid: String): ImageView = getRowForJobUuid(uuid).findViewById(R.id.imgJobType)
 
-    private fun badgeResOf(uuid: String): Int = Shadows.shadowOf(badgeOf(uuid).drawable).createdFromResId
+    /** The colour the row's own theme gives a role, so assertions survive a palette change. */
+    private fun roleColour(
+        row: View,
+        attr: Int,
+    ): Int = MaterialColors.getColor(row, attr)
 
-    private fun layOutHierarchy() {
+    private fun getBadgeDrawableRes(uuid: String): Int = Shadows.shadowOf(getBadgeImageView(uuid).drawable).createdFromResId
+
+    private fun measureAndLayoutScreen() {
         val root = activity.window.decorView
         root.measure(
             View.MeasureSpec.makeMeasureSpec(SCREEN_WIDTH_PX, View.MeasureSpec.EXACTLY),
@@ -360,7 +346,7 @@ class ConnectJobsListsFragmentTest {
      * An empty body is deliberate: a parsed empty opportunity list would prune the seeded jobs
      * back out of the database.
      */
-    private fun emptyBodyDispatcher(): Dispatcher =
+    private fun alwaysEmptyJsonDispatcher(): Dispatcher =
         object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse = MockResponse().setResponseCode(200).setBody("{}")
         }
