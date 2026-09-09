@@ -7,14 +7,13 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
-import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.ConnectJobIntroViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding
@@ -73,7 +72,13 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         viewModel.startLearning.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is DataState.Loading -> {
+                    // The app download follows this call straight away, so the bottom CTA bar stays
+                    // busy across both.
                     showLoading()
+                    binding.connectIntroCtaBar.showInstallProgress(
+                        0,
+                        getString(R.string.connect_starting_learning),
+                    )
                 }
 
                 is DataState.Success -> {
@@ -86,23 +91,14 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                     if (!hasLiveView()) return@observe
                     hideError()
 
-                    val appId = job.learnAppInfo.appId
-                    if (AppUtils.isAppInstalled(appId)) {
-                        ConnectAppLaunchController(this)
-                            .launchApp(appId, true, this::popSelfOnceHidden)
-                    } else {
-                        val title = getString(R.string.connect_downloading_learn)
-                        NavHostFragment.findNavController(this).navigate(
-                            ConnectJobIntroFragmentDirections
-                                .actionConnectJobIntroFragmentToConnectDownloadingFragment(title, true),
-                        )
-                    }
+                    launchApp(isLearning = true)
                 }
 
                 is DataState.Error -> {
                     reportApiCall(false)
                     if (!hasLiveView()) return@observe
                     hideLoading()
+                    binding.connectIntroCtaBar.clearInstallProgress()
                     val error =
                         PersonalIdOrConnectApiErrorHandler.handle(
                             requireActivity(),
@@ -170,6 +166,12 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     private fun startLearning() {
         viewModel.startLearning(job.jobUUID)
     }
+
+    /** The learn app downloads into the same bar the user pressed to start learning. */
+    override fun onAppInstallStateChanged(
+        state: AppInstallState,
+        isLearning: Boolean,
+    ) = binding.connectIntroCtaBar.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
 
     private fun reportApiCall(success: Boolean) {
         FirebaseAnalyticsUtil.reportCccApiStartLearning(success)

@@ -8,13 +8,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import org.commcare.AppUtils
-import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding
@@ -74,9 +74,11 @@ class ConnectLearningProgressFragment :
         )
     }
 
-    private fun updateLearningUI() {
-        val showLearningComplete = job.getLearningPercentComplete(false) >= 100 && job.passedAssessment()
+    /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */
+    private val showLearningComplete
+        get() = job.getLearningPercentComplete(false) >= 100 && job.passedAssessment()
 
+    private fun updateLearningUI() {
         binding.learnProgressView.visibility = if (showLearningComplete) View.GONE else View.VISIBLE
         binding.learnCompleteView.visibility = if (showLearningComplete) View.VISIBLE else View.GONE
 
@@ -88,7 +90,7 @@ class ConnectLearningProgressFragment :
                 View.OnClickListener { onDeliveryCtaClicked() },
             )
         } else {
-            binding.learnProgressView.bind(job, View.OnClickListener { navigateToLearnAppHome() })
+            binding.learnProgressView.bind(job, View.OnClickListener { launchApp(isLearning = true) })
         }
     }
 
@@ -104,10 +106,11 @@ class ConnectLearningProgressFragment :
                 is DataState.Success -> {
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
-                        val deliveryAppInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
-                        Navigation.findNavController(requireView()).navigate(
-                            if (deliveryAppInstalled) navigateToDeliveryProgress() else navigateToDeliveryDownload(),
-                        )
+                        if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
+                            Navigation.findNavController(requireView()).navigate(navigateToDeliveryProgress())
+                        } else {
+                            launchApp(isLearning = false)
+                        }
                     }
                 }
 
@@ -137,26 +140,14 @@ class ConnectLearningProgressFragment :
         ConnectLearningProgressFragmentDirections
             .actionConnectJobLearningProgressFragmentToConnectJobDeliveryProgressFragment()
 
-    private fun navigateToDeliveryDownload(): NavDirections =
-        ConnectLearningProgressFragmentDirections
-            .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
-                getString(R.string.connect_downloading_delivery),
-                false,
-            )
-
-    private fun navigateToLearnAppHome() {
-        val appId = job.learnAppInfo.appId
-
-        if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppLaunchController(this).launchApp(appId, true, Runnable { popSelfOnceHidden() })
+    override fun onAppInstallStateChanged(
+        state: AppInstallState,
+        isLearning: Boolean,
+    ) {
+        if (showLearningComplete) {
+            binding.learnCompleteView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
         } else {
-            Navigation.findNavController(binding.root).navigate(
-                ConnectLearningProgressFragmentDirections
-                    .actionConnectJobLearningProgressFragmentToConnectDownloadingFragment(
-                        getString(R.string.connect_downloading_learn),
-                        true,
-                    ),
-            )
+            binding.learnProgressView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
         }
     }
 
