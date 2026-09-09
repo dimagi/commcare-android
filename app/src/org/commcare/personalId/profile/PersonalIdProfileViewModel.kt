@@ -13,7 +13,7 @@ class PersonalIdProfileViewModel(
     val profileDisplayModel: LiveData<PersonalIdProfileDisplayModel> = _profileDisplayModel
 
     fun loadProfile() {
-        val user = ConnectUserDatabaseUtil.getUser(getApplication())
+        val user = ConnectUserDatabaseUtil.getUser()
         _profileDisplayModel.value = PersonalIdProfileDisplayModel.fromUserRecord(getApplication(), user)
     }
 }

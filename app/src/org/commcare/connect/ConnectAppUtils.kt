@@ -61,10 +61,10 @@ object ConnectAppUtils {
         appId: String,
         username: String,
     ) {
-        val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username)
+        val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, username)
         if (record != null) {
             record.lastAccessed = Date()
-            ConnectAppDatabaseUtil.storeApp(context, record)
+            ConnectAppDatabaseUtil.storeApp(record)
         }
     }
 }

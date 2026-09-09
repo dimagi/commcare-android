@@ -73,7 +73,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
         if (channelId != null) {
             getArguments().remove(CHANNEL_ID);
             ConnectMessagingChannelRecord channel =
-                    ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
+                    ConnectMessagingDatabaseHelper.getMessagingChannel(channelId);
             selectChannel(channel);
         }
     }

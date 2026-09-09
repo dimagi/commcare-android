@@ -24,6 +24,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecordV4;
 import org.commcare.android.database.connect.models.ConnectJobRecordV7;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecordV21;
+import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecordV28;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
@@ -195,6 +196,11 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 27) {
             upgradeTwentySevenTwentyEight(db);
             oldVersion = 28;
+        }
+
+        if (oldVersion == 28) {
+            upgradeTwentyEightTwentyNine(db);
+            oldVersion = 29;
         }
     }
 
@@ -915,14 +921,14 @@ public class ConnectDatabaseUpgrader {
                 ConnectLearnModuleSummaryRecordV21.class,
                 new ConcreteAndroidDbHelper(c, db));
 
-        SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                ConnectLearnModuleSummaryRecord.STORAGE_KEY,
-                ConnectLearnModuleSummaryRecord.class,
+        SqlStorage<ConnectLearnModuleSummaryRecordV28> newStorage = new SqlStorage<>(
+                ConnectLearnModuleSummaryRecordV28.STORAGE_KEY,
+                ConnectLearnModuleSummaryRecordV28.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         for (Persistable r : oldStorage) {
             ConnectLearnModuleSummaryRecordV21 oldRecord = (ConnectLearnModuleSummaryRecordV21)r;
-            ConnectLearnModuleSummaryRecord newRecord = ConnectLearnModuleSummaryRecord.fromV21(oldRecord);
+            ConnectLearnModuleSummaryRecordV28 newRecord = ConnectLearnModuleSummaryRecordV28.Companion.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -1140,6 +1146,37 @@ public class ConnectDatabaseUpgrader {
 
             for (ConnectMessagingChannelRecordV27 oldRecord : oldStorage) {
                 ConnectMessagingChannelRecord newRecord = ConnectMessagingChannelRecord.fromV27(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyEightTwentyNine(IDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLearnModuleSummaryRecord.STORAGE_KEY,
+                    ConnectLearnModuleSummaryRecord.META_MODULE_ID,
+                    "INTEGER"));
+
+            SqlStorage<ConnectLearnModuleSummaryRecordV28> oldStorage = new SqlStorage<>(
+                    ConnectLearnModuleSummaryRecord.STORAGE_KEY,
+                    ConnectLearnModuleSummaryRecordV28.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectLearnModuleSummaryRecord> newStorage = new SqlStorage<>(
+                    ConnectLearnModuleSummaryRecord.STORAGE_KEY,
+                    ConnectLearnModuleSummaryRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectLearnModuleSummaryRecordV28 oldRecord : oldStorage) {
+                ConnectLearnModuleSummaryRecord newRecord =
+                        ConnectLearnModuleSummaryRecord.fromV28(oldRecord);
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }

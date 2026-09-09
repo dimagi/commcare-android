@@ -41,6 +41,9 @@ class PersonalIdProfileFragment : BasePersonalIdProfileFragment() {
         viewModel = ViewModelProvider(this)[PersonalIdProfileViewModel::class.java]
         viewModel.profileDisplayModel.observe(viewLifecycleOwner) { displayProfileDetails(it) }
         binding.profileBtnForgetPersonalid.setOnClickListener { showForgetPersonalIdDialog() }
+        binding.profileChangeBackupCode.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_profile_backup_code)
+        }
     }
 
     override fun onResume() {

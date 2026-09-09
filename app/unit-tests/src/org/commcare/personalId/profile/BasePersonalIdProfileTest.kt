@@ -15,7 +15,6 @@ import org.junit.After
 import org.junit.Before
 import org.mockito.MockedStatic
 import org.mockito.Mockito
-import org.mockito.kotlin.any
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
@@ -58,7 +57,7 @@ abstract class BasePersonalIdProfileTest {
                 email = "ada@example.com"
             }
         connectUserDatabaseUtilMock
-            .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(any()) }
+            .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
             .thenReturn(user)
         firebaseAnalyticsUtilMock = Mockito.mockStatic(FirebaseAnalyticsUtil::class.java)
         firebaseAnalyticsUtilMock

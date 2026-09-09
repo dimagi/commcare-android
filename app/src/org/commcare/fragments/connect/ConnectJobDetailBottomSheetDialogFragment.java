@@ -151,7 +151,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                 deliveryEnabled,
                 job.getDeliveryProgressPercentage(),
                 ContextCompat.getColor(requireContext(), R.color.cyan),
-                R.drawable.ic_enabled_delivery,
+                R.drawable.ic_connect_assignment_turned_in,
                 R.drawable.ic_disabled_delivery
         );
     }

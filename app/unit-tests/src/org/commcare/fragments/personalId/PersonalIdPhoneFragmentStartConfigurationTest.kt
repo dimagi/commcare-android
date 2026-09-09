@@ -8,7 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.logging.ReportingUtils
-import org.commcare.connect.network.connectId.PersonalIdApiClient
+import org.commcare.connect.network.personalId.PersonalIdApiClient
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.utils.HashUtils

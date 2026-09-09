@@ -158,7 +158,7 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
         mockApiServer.drainHttp()
 
         connectUserDatabaseUtilMock.verify {
-            ConnectUserDatabaseUtil.storeUser(any(), any())
+            ConnectUserDatabaseUtil.storeUser(any())
         }
         firebaseAnalyticsUtilMock.verify {
             FirebaseAnalyticsUtil.reportPersonalIdProfileAction(

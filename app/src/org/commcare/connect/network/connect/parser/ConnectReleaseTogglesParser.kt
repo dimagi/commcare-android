@@ -1,6 +1,5 @@
 package org.commcare.connect.network.connect.parser
 
-import android.content.Context
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectAppDatabaseUtil
@@ -19,7 +18,7 @@ class ConnectReleaseTogglesParser : BaseApiResponseParser<List<ConnectReleaseTog
 
         return ConnectReleaseToggleRecord.releaseTogglesFromJson(responseJson).also {
             if (PersonalIdManager.getInstance().isloggedIn()) {
-                ConnectAppDatabaseUtil.storeReleaseToggles(anyInputObject as Context, it)
+                ConnectAppDatabaseUtil.storeReleaseToggles(it)
             }
         }
     }

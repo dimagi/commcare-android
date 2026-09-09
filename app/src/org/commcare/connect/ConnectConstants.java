@@ -39,8 +39,7 @@ public class ConnectConstants {
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
-    public final static int PERSONALID_NO_ACTIVITY =
-            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
+    public final static int PERSONAL_ID_USER_STATUS_REGISTERED = 1000;
     public final static int PERSONALID_REGISTRATION_SUCCESS =
             ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
     public final static int PERSONALID_RECOVERY_SUCCESS =
@@ -59,6 +58,8 @@ public class ConnectConstants {
             ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 11;
     public final static int PERSONALID_DEVICE_CONFIGURATION_ISSUE_WARNING =
             ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 12;
+    public final static int PERSONALID_RECOVERY_EMAIL_OTP_FAILED =
+            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 13;
     public final static String NOTIFICATION_TITLE = "title";
     public final static String NOTIFICATION_BODY = "body";
     public final static String NOTIFICATION_ID = "notification_id";

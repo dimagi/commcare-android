@@ -13,7 +13,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.dalvik.R;
@@ -247,7 +247,7 @@ public class DispatchActivity extends AppCompatActivity {
                     handleShortcutLaunch();
                 } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+                    ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
                 } else {
                     launchHomeScreen();

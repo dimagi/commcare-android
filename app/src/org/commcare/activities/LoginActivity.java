@@ -691,7 +691,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         if (loginManagedByPersonalId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
             PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(
-                    this,
                     record.getUniqueId(),
                     getUniformUsername()
             );
@@ -1098,7 +1097,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         if (personalIdManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(
-                    this,
                     seatedAppId,
                     uiController.getEnteredUsername()
             );

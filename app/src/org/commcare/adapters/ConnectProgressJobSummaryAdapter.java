@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummaryInfo;
 import org.commcare.dalvik.R;
+import org.commcare.utils.ProgressUtils;
 import org.commcare.views.connect.LinearProgressBar;
 
 import java.util.List;
@@ -38,10 +39,8 @@ public class ConnectProgressJobSummaryAdapter extends RecyclerView.Adapter<Conne
         holder.tvPrimaryVisitCount.setText(String.format(Locale.getDefault(), "%d/%d",
                 summary.getPaymentUnitAmount(), summary.getPaymentUnitMaxDaily()));
 
-        float percentage = 0;
-        if (summary.getPaymentUnitMaxDaily() > 0) {
-            percentage = ((float) summary.getPaymentUnitAmount() / summary.getPaymentUnitMaxDaily()) * 100;
-        }
+        float percentage = ProgressUtils.calculateProgress(
+                summary.getPaymentUnitAmount(), summary.getPaymentUnitMaxDaily()) * 100;
         if (summary.getPaymentUnitAmount() >= summary.getPaymentUnitMaxDaily()){
             holder.lpPrimaryVisitProgress.setProgressColor(holder.lpPrimaryVisitProgress.getResources().getColor(R.color.green));
         }

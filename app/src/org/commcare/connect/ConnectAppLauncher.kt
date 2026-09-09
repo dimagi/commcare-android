@@ -10,7 +10,7 @@ import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 import org.commcare.android.database.app.models.UserKeyRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.LoginInvalidatedException
+import org.commcare.connect.network.personalId.LoginInvalidatedException
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.AppSeater
 import org.commcare.login.AuthSource
@@ -59,7 +59,7 @@ class ConnectAppLauncher internal constructor(
     constructor() : this(
         seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
         performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
-        connectUsername = { context -> ConnectUserDatabaseUtil.getUser(context)?.userId },
+        connectUsername = { context -> ConnectUserDatabaseUtil.getUser()?.userId },
         isLoggedIntoApp = { appId -> PersonalIdManager.getInstance().isSessionLoggedIntoApp(appId) },
     )
 

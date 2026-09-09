@@ -4,12 +4,14 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.LayoutInflater
-import android.widget.TextView
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.updateLayoutParams
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoCardBinding
+import org.commcare.views.extensions.bindOptional
 
 /**
  * Reusable full-width Connect info card.
@@ -32,15 +34,19 @@ class ConnectInfoCard
 
         var valueText: CharSequence?
             get() = binding.infoCardValueText.text
-            set(value) = bindOptionalText(binding.infoCardValueText, value)
+            set(value) = binding.infoCardValueText.bindOptional(value)
 
         var titleText: CharSequence?
             get() = binding.infoCardTitleText.text
-            set(value) = bindOptionalText(binding.infoCardTitleText, value)
+            set(value) = binding.infoCardTitleText.bindOptional(value)
 
         var subtitleText: CharSequence?
             get() = binding.infoCardSubtitleText.text
-            set(value) = bindOptionalText(binding.infoCardSubtitleText, value)
+
+            set(value) {
+                binding.infoCardSubtitleText.bindOptional(value)
+                applySubtitleLayout(hasSubtitle = !value.isNullOrEmpty())
+            }
 
         var navigable: Boolean = false
             set(value) {
@@ -54,14 +60,15 @@ class ConnectInfoCard
         var onCardClick: (() -> Unit)? = null
             set(value) {
                 field = value
-                navigable = value != null
+                // setOnClickListener forces isClickable on, even for null, so apply it first.
                 setOnClickListener(value?.let { callback -> OnClickListener { callback() } })
+                navigable = value != null
             }
 
         init {
-            radius = resources.getDimension(R.dimen.connect_info_card_corner_radius)
+            radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
-            useCompatPadding = true
+            useCompatPadding = false
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
             context.withStyledAttributes(attrs, R.styleable.ConnectInfoCard) {
@@ -72,12 +79,25 @@ class ConnectInfoCard
             }
         }
 
-        private fun bindOptionalText(
-            view: TextView,
-            value: CharSequence?,
-        ) {
-            view.text = value
-            view.visibility = if (value.isNullOrEmpty()) GONE else VISIBLE
+        private fun applySubtitleLayout(hasSubtitle: Boolean) {
+            val (reserved, bias) =
+                if (hasSubtitle) {
+                    0 to 0f
+                } else {
+                    subtitleReservedHeight() to CENTERED_BIAS
+                }
+
+            binding.infoCardTextContainer.setPadding(0, reserved / 2, 0, reserved - reserved / 2)
+            binding.infoCardValueText.updateLayoutParams<ConstraintLayout.LayoutParams> {
+                verticalBias = bias
+            }
+        }
+
+        private fun subtitleReservedHeight(): Int {
+            val subtitle = binding.infoCardSubtitleText
+            val unspecified = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            subtitle.measure(unspecified, unspecified)
+            return subtitle.measuredHeight + (subtitle.layoutParams as MarginLayoutParams).topMargin
         }
 
         private fun selectableItemForeground() =
@@ -85,4 +105,8 @@ class ConnectInfoCard
                 context.theme.resolveAttribute(android.R.attr.selectableItemBackground, it, true)
                 ContextCompat.getDrawable(context, it.resourceId)
             }
+
+        companion object {
+            private const val CENTERED_BIAS = 0.5f
+        }
     }

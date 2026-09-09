@@ -2,16 +2,13 @@ package org.commcare.personalId
 
 import android.app.Activity
 import org.commcare.CommCareNoficationManager
-import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.PersonalIdManager
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.NotificationUtil
 import org.javarosa.core.model.utils.DateUtils
-import java.util.Date
 
 /**
  * Finalises account recovery.
@@ -26,24 +23,7 @@ object PersonalIdRecoveryCompleter {
         activity: Activity,
         sessionData: PersonalIdSessionData,
     ) {
-        ConnectDatabaseHelper.handleReceivedDbPassphrase(activity, sessionData.dbKey)
-
-        val user =
-            ConnectUserRecord(
-                sessionData.phoneNumber,
-                sessionData.personalId,
-                sessionData.oauthPassword,
-                sessionData.userName,
-                sessionData.backupCode,
-                Date(),
-                sessionData.photoBase64,
-                sessionData.demoUser ?: false,
-                sessionData.requiredLock,
-                sessionData.invitedUser,
-            )
-        user.email = sessionData.email
-        ConnectUserDatabaseUtil.storeUser(activity, user)
-
+        PersonalIdManager.getInstance().onAccountConfigurationSuccess(sessionData)
         logRecoverySuccessResult()
         notifySecondDeviceLoginIfApplicable(activity, sessionData)
     }

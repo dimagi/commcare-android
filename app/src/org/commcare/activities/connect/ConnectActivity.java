@@ -27,7 +27,6 @@ import com.google.common.base.Strings;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
@@ -65,7 +64,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if (savedInstanceState != null) {
             String savedJobUuid = savedInstanceState.getString(OPPORTUNITY_UUID);
             if (savedJobUuid != null) {
-                job = ConnectJobUtils.getCompositeJob(this, savedJobUuid);
+                job = ConnectJobUtils.getCompositeJob(savedJobUuid);
             }
         }
 
@@ -133,7 +132,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         redirectionAction = getIntent().getStringExtra(REDIRECT_ACTION);
         opportunityUuid = getIntent().getStringExtra(OPPORTUNITY_UUID);
         if (job == null && !TextUtils.isEmpty(opportunityUuid)) {
-            job = ConnectJobUtils.getCompositeJob(this, opportunityUuid);
+            job = ConnectJobUtils.getCompositeJob(opportunityUuid);
         }
     }
 
@@ -143,7 +142,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
 
         return job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
-                ? R.id.connect_job_delivery_progress_fragment
+                ? R.id.connect_delivery_home_fragment
                 : R.id.connect_job_learning_progress_fragment;
     }
 
@@ -161,7 +160,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             );
         }
 
-        redirectionAction = ConnectJobHelper.INSTANCE.resolveGenericOpportunityDestination(
+        redirectionAction = ConnectJobUtils.resolveGenericOpportunityDestination(
                 redirectionAction, job, getIntent().getStringExtra(PAYMENT_UUID));
 
 

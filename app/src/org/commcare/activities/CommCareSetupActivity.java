@@ -16,14 +16,13 @@ import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.personalId.UnlockPolicy;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connect.ConnectApiHandler;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -69,7 +68,6 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -514,7 +512,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         if (refreshItem != null) {
             boolean showRefreshMenu = !fromExternal &&
                     PersonalIdManager.getInstance().isloggedIn() &&
-                    !ConnectUserDatabaseUtil.hasConnectAccess(this);
+                    !ConnectUserDatabaseUtil.hasConnectAccess();
             refreshItem.setVisible(showRefreshMenu);
         }
         return true;
@@ -668,7 +666,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     private void updateConnectButton() {
         boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
-                && ConnectUserDatabaseUtil.hasConnectAccess(this);
+                && ConnectUserDatabaseUtil.hasConnectAccess();
         installFragment.updateConnectButton(isConnectEnabled, v -> {
             ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
             });
@@ -999,30 +997,24 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     private void refreshOpportunities() {
-        CommCareActivity activity = this;
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-        new ConnectApiHandler<List<ConnectJobRecord>>() {
-
-            @Override
-            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                String error = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t);
-                Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onSuccess(List<ConnectJobRecord> jobs) {
-                boolean connectAccess = !jobs.isEmpty();
-                String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
-                if (connectAccess) {
-                    ConnectUserDatabaseUtil.turnOnConnectAccess(activity);
-
-                    updateConnectButton();
-                    refreshDrawer();
-
-                    toastMessage = getString(R.string.setup_refresh_opportunities_with_jobs);
+        ConnectRepository.getInstance().retrieveOpportunitiesForJava(
+                (success, error) -> {
+                    if (success) {
+                        boolean connectAccess = !ConnectJobUtils.getCompositeJobs(
+                                ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty();
+                        if (connectAccess) {
+                            ConnectUserDatabaseUtil.turnOnConnectAccess();
+                            updateConnectButton();
+                            refreshDrawer();
+                        }
+                        String toastMessage = connectAccess
+                                ? getString(R.string.setup_refresh_opportunities_with_jobs)
+                                : getString(R.string.setup_refresh_opportunities_no_jobs);
+                        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                    }
                 }
-                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show();
-            }
-        }.getConnectOpportunities(activity, user);
+        );
     }
 }

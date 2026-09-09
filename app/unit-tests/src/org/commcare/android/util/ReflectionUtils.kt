@@ -4,6 +4,7 @@ import java.lang.reflect.Field
 
 /**
  * Reads private fields by name, walking up the class hierarchy.
+ * Reads and writes private fields by name, walking up the class hierarchy.
  *
  * For state that production exposes no accessor for and no UI surface reflects. Anything observable
  * through a view, an intent or a public method should be asserted there instead.
@@ -13,6 +14,12 @@ object ReflectionUtils {
         target: Any,
         name: String,
     ): Any? = fieldFor(target.javaClass, name).get(target)
+
+    fun writeField(
+        target: Any,
+        name: String,
+        value: Any?,
+    ) = fieldFor(target.javaClass, name).set(target, value)
 
     private fun fieldFor(
         start: Class<*>,

@@ -4,19 +4,20 @@ import androidx.annotation.VisibleForTesting
 import okhttp3.ResponseBody
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.network.ApiConnect.API_VERSION_CONNECT
-import org.commcare.connect.network.ConnectApiService
-import org.commcare.connect.network.ConnectNetworkHelper
 import org.commcare.connect.network.base.BaseApiClient
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.ConnectApiException
+import org.commcare.connect.network.base.NetworkUtils
+import org.commcare.connect.network.connect.models.ConfirmPaymentsRequest
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
+import org.commcare.connect.network.connect.models.PaymentConfirmationBody
 import org.commcare.connect.network.connect.parser.ConnectOpportunitiesParser
 import org.commcare.connect.network.connect.parser.DeliveryAppProgressResponseParser
 import org.commcare.connect.network.connect.parser.LearningAppProgressResponseParser
-import org.commcare.connect.network.getAuthorizationHeader
-import org.commcare.connect.network.mapHttpErrorCode
+import org.commcare.connect.network.personalId.ConnectSsoSyncHelper
+import org.commcare.dalvik.BuildConfig
 import retrofit2.Response
 import java.io.IOException
 import java.io.InputStream
@@ -27,6 +28,9 @@ class ConnectNetworkClient
         private val apiService: ConnectApiService,
     ) {
         companion object {
+            private const val BASE_URL = "https://${BuildConfig.CCC_HOST}"
+            private const val API_VERSION_CONNECT = "1.0"
+
             @Volatile
             private var instance: ConnectNetworkClient? = null
 
@@ -34,14 +38,14 @@ class ConnectNetworkClient
                 instance ?: synchronized(this) {
                     instance ?: ConnectNetworkClient(
                         BaseApiClient
-                            .buildRetrofitClient(ConnectApiClient.BASE_URL)
+                            .buildRetrofitClient(BASE_URL)
                             .create(ConnectApiService::class.java),
                     ).also { instance = it }
                 }
         }
 
         private fun versionHeaders(): Map<String, String> =
-            HashMap<String, String>().also { ConnectNetworkHelper.addVersionHeader(it, API_VERSION_CONNECT) }
+            HashMap<String, String>().also { NetworkUtils.addVersionHeader(it, API_VERSION_CONNECT) }
 
         suspend fun getConnectOpportunities(user: ConnectUserRecord): Result<List<ConnectJobRecord>> =
             executeApiCall(
@@ -75,6 +79,49 @@ class ConnectNetworkClient
                 parse = { code, stream -> DeliveryAppProgressResponseParser<DeliveryAppProgressResponseModel>().parse(code, stream, job) },
             )
 
+        suspend fun startLearnApp(
+            user: ConnectUserRecord,
+            jobUUID: String,
+        ): Result<Unit> =
+            executeApiCall(
+                user = user,
+                apiCall = { auth -> apiService.startLearnApp(auth, versionHeaders(), jobUUID) },
+                parse = { _, _ -> Unit },
+            )
+
+        suspend fun claimJob(
+            user: ConnectUserRecord,
+            jobUUID: String,
+        ): Result<Unit> =
+            executeApiCall(
+                user = user,
+                apiCall = { auth -> apiService.claimJob(auth, jobUUID, versionHeaders(), emptyMap()) },
+                parse = { _, _ -> Unit },
+            )
+
+        suspend fun confirmPayments(
+            user: ConnectUserRecord,
+            paymentConfirmations: List<ConnectPaymentConfirmationModel>,
+        ): Result<Unit> =
+            executeApiCall(
+                user = user,
+                apiCall = { auth ->
+                    apiService.confirmPayments(auth, versionHeaders(), getConfirmPaymentsRequest(paymentConfirmations))
+                },
+                parse = { _, _ -> Unit },
+            )
+
+        private fun getConfirmPaymentsRequest(paymentConfirmations: List<ConnectPaymentConfirmationModel>) =
+            ConfirmPaymentsRequest(
+                payments =
+                    paymentConfirmations.map { confirmation ->
+                        PaymentConfirmationBody(
+                            id = confirmation.payment.paymentUUID,
+                            confirmed = if (confirmation.toConfirm) "true" else "false",
+                        )
+                    },
+            )
+
         private suspend fun <T> executeApiCall(
             user: ConnectUserRecord,
             apiCall: suspend (authHeader: String) -> Response<ResponseBody>,
@@ -82,7 +129,8 @@ class ConnectNetworkClient
         ): Result<T> {
             return try {
                 val authHeader =
-                    getAuthorizationHeader(user)
+                    ConnectSsoSyncHelper
+                        .getAuthorizationHeader(user)
                         .getOrElse { return Result.failure(it) }
 
                 val response = apiCall(authHeader)
@@ -97,7 +145,7 @@ class ConnectNetworkClient
                         Result.failure(ConnectApiException(PersonalIdOrConnectApiErrorCodes.JSON_PARSING_ERROR, e))
                     }
                 } else {
-                    val errorCode = mapHttpErrorCode(response.code(), response.errorBody()?.string())
+                    val errorCode = NetworkUtils.mapHttpErrorCode(response.code(), response.errorBody()?.string())
                     Result.failure(ConnectApiException(errorCode))
                 }
             } catch (e: IOException) {

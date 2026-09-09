@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/standard_spacer_extra_large"
+    android:backgroundTint="@color/connect_dark_blue_color"
+    app:cardCornerRadius="@dimen/connect_radius_lg"
+    app:cardElevation="@dimen/connect_info_card_elevation">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/connect_space_lg"
+        android:paddingVertical="@dimen/connect_space_md">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/connect_learn_certificate"
+            android:textAlignment="center"
+            android:textColor="@color/connect_aqua"
+            android:textSize="@dimen/connect_text_body" />
+
+        <TextView
+            android:id="@+id/cert_subject_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_xs"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/connect_text_body"
+            android:textStyle="bold"
+            tools:text="Infant Vaccine Check" />
+
+        <TextView
+            android:id="@+id/cert_person_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/connect_text_caption"
+            tools:text="Person Name" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_xs"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/cert_score_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:textColor="@color/connect_subtext_color"
+                android:textSize="11sp"
+                tools:text="Score: 100" />
+
+            <TextView
+                android:id="@+id/cert_date_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:textColor="@color/connect_subtext_color"
+                android:textSize="11sp"
+                tools:text="Completed on\n21/02/2024" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/standard_spacer_half"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/flower" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@null"
+                    android:src="@drawable/cert_1" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/connect_space_sm"
+                    android:contentDescription="@null"
+                    android:minWidth="48dp"
+                    android:src="@drawable/logo_white" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/flower" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

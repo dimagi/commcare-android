@@ -24,8 +24,6 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
 
-import java.util.Objects;
-
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
@@ -170,7 +168,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
 
     private void handleChannelForValidity(String channelId) {
         ConnectMessagingChannelRecord connectMessagingChannelRecord =
-                ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
+                ConnectMessagingDatabaseHelper.getMessagingChannel(channelId);
         if (connectMessagingChannelRecord == null) {
             handleNoChannel(channelId); //This happens if local DB doesn't have the channel yet
         } else {
@@ -182,7 +180,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         MessageManager.retrieveMessages(this, (success, error) -> {
             // This is required to update the local DB for channels
             ConnectMessagingChannelRecord connectMessagingChannelRecord =
-                    ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
+                    ConnectMessagingDatabaseHelper.getMessagingChannel(channelId);
             if (connectMessagingChannelRecord == null) {
                 showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
             } else {

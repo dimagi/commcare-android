@@ -1,9 +1,11 @@
 package org.commcare.connect.repository
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
@@ -11,11 +13,13 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.junit.After
@@ -33,6 +37,7 @@ class ConnectRepositoryTest {
     private lateinit var mockSyncPrefs: ConnectSyncPreferences
     private lateinit var mockNetworkClient: ConnectNetworkClient
     private lateinit var mockUser: ConnectUserRecord
+    private lateinit var mockJob: ConnectJobRecord
     private lateinit var repository: ConnectRepository
 
     @Before
@@ -40,11 +45,12 @@ class ConnectRepositoryTest {
         mockSyncPrefs = mockk(relaxed = true)
         mockNetworkClient = mockk()
         mockUser = mockk()
+        mockJob = mockk(relaxed = true)
 
         // Static mocks for database utilities
         mockkStatic(ConnectJobUtils::class)
         mockkStatic(ConnectUserDatabaseUtil::class)
-        every { ConnectUserDatabaseUtil.getUser(any()) } returns mockUser
+        every { ConnectUserDatabaseUtil.getUser() } returns mockUser
 
         repository = ConnectRepository(mockSyncPrefs, mockNetworkClient)
     }
@@ -57,7 +63,7 @@ class ConnectRepositoryTest {
     @Test
     fun testGetOpportunities_noCache_emitsLoadingThenSuccess() =
         runBlocking {
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns emptyList()
             every { mockSyncPrefs.getLastSyncTime(any()) } returns null
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
             mockGetOpportunitiesSuccess()
@@ -77,7 +83,7 @@ class ConnectRepositoryTest {
     fun testGetOpportunities_withCache_shouldRefreshFalse_emitsCachedOnly() =
         runBlocking {
             val cachedJobs = listOf(mockk<ConnectJobRecord>())
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns cachedJobs
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns cachedJobs
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
 
@@ -95,7 +101,7 @@ class ConnectRepositoryTest {
             val freshJobs = listOf(mockk<ConnectJobRecord>(), mockk())
             mockGetOpportunitiesSuccess(freshJobs)
 
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns cachedJobs
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns cachedJobs
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
 
@@ -112,7 +118,7 @@ class ConnectRepositoryTest {
     fun testGetOpportunities_networkFailure_withCache_emitsError_withCachedData() =
         runBlocking {
             val cachedJobs = listOf(mockk<ConnectJobRecord>())
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns cachedJobs
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns cachedJobs
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
             coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns
@@ -129,7 +135,7 @@ class ConnectRepositoryTest {
     @Test
     fun testGetOpportunities_networkFailure_neverSynced_emitsError_withEmptyCachedData() =
         runBlocking {
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns emptyList()
             every { mockSyncPrefs.getLastSyncTime(any()) } returns null
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
             coEvery { mockNetworkClient.getConnectOpportunities(any()) } returns
@@ -146,7 +152,7 @@ class ConnectRepositoryTest {
     fun testGetOpportunities_syncedEmptyList_emitsCached() =
         runBlocking {
             val syncTime = Date()
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns emptyList()
             every { mockSyncPrefs.getLastSyncTime(any()) } returns syncTime
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
 
@@ -162,7 +168,7 @@ class ConnectRepositoryTest {
     fun testGetOpportunities_forceRefresh_bypassesShouldRefreshCheck() =
         runBlocking {
             val cachedJobs = listOf(mockk<ConnectJobRecord>())
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns cachedJobs
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns cachedJobs
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns false
             val freshJobs = listOf(mockk<ConnectJobRecord>(), mockk())
@@ -179,7 +185,7 @@ class ConnectRepositoryTest {
     @Test
     fun testGetOpportunities_networkSuccess_storesLastSyncTime() =
         runBlocking {
-            every { ConnectJobUtils.getCompositeJobs(any(), any(), any()) } returns emptyList()
+            every { ConnectJobUtils.getCompositeJobs(any(), any()) } returns emptyList()
             every { mockSyncPrefs.getLastSyncTime(any()) } returns null
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
             mockGetOpportunitiesSuccess()
@@ -196,7 +202,7 @@ class ConnectRepositoryTest {
             val mockModel = mockk<LearningAppProgressResponseModel>(relaxed = true)
             every { mockModel.connectJobLearningRecords } returns emptyList()
             every { mockModel.connectJobAssessmentRecords } returns emptyList()
-            every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
+            every { ConnectJobUtils.getCompositeJob(any()) } returns mockJob
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
             coEvery { mockNetworkClient.getLearningProgress(any(), any()) } returns Result.success(mockModel)
@@ -215,7 +221,7 @@ class ConnectRepositoryTest {
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>(relaxed = true)
             val mockModel = DeliveryAppProgressResponseModel()
-            every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
+            every { ConnectJobUtils.getCompositeJob(any()) } returns mockJob
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
             coEvery { mockNetworkClient.getDeliveryProgress(any(), any()) } returns Result.success(mockModel)
@@ -233,7 +239,7 @@ class ConnectRepositoryTest {
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>(relaxed = true)
             val mockModel = DeliveryAppProgressResponseModel()
-            every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
+            every { ConnectJobUtils.getCompositeJob(any()) } returns mockJob
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
             coEvery { mockNetworkClient.getDeliveryProgress(any(), any()) } returns Result.success(mockModel)
@@ -250,7 +256,7 @@ class ConnectRepositoryTest {
     fun testGetDeliveryProgress_networkFailure_withCache_emitsError() =
         runBlocking {
             val mockJob = mockk<ConnectJobRecord>(relaxed = true)
-            every { ConnectJobUtils.getCompositeJob(any(), any()) } returns mockJob
+            every { ConnectJobUtils.getCompositeJob(any()) } returns mockJob
             every { mockSyncPrefs.getLastSyncTime(any()) } returns Date()
             every { mockSyncPrefs.shouldRefresh(any(), any()) } returns true
             coEvery { mockNetworkClient.getDeliveryProgress(any(), any()) } returns
@@ -262,5 +268,88 @@ class ConnectRepositoryTest {
             assertTrue(emissions[0] is DataState.Cached)
             assertTrue(emissions[1] is DataState.Loading)
             assertTrue(emissions[2] is DataState.Error)
+        }
+
+    @Test
+    fun testStartLearning_success_emitsLoadingThenSuccess() =
+        runBlocking {
+            coEvery { mockNetworkClient.startLearnApp(any(), any()) } returns Result.success(Unit)
+
+            val emissions = repository.startLearning("test-uuid").toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Success)
+        }
+
+    @Test
+    fun testStartLearning_failure_emitsLoadingThenError() =
+        runBlocking {
+            coEvery { mockNetworkClient.startLearnApp(any(), any()) } returns
+                Result.failure(Exception("Network error"))
+
+            val emissions = repository.startLearning("test-uuid").toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Error)
+        }
+
+    @Test
+    fun testClaimJob_success_emitsLoadingThenSuccess() =
+        runBlocking {
+            coEvery { mockNetworkClient.claimJob(any(), any()) } returns Result.success(Unit)
+            every { ConnectJobUtils.upsertJob(any()) } just Runs
+
+            val emissions = repository.claimJob(mockJob).toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Success)
+            verify { mockJob.status = ConnectJobRecord.STATUS_DELIVERING }
+            verify { ConnectJobUtils.upsertJob(mockJob) }
+        }
+
+    @Test
+    fun testClaimJob_failure_emitsLoadingThenError() =
+        runBlocking {
+            coEvery { mockNetworkClient.claimJob(any(), any()) } returns
+                Result.failure(Exception("Network error"))
+
+            val emissions = repository.claimJob(mockJob).toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Error)
+        }
+
+    @Test
+    fun testConfirmPayments_success_emitsLoadingThenSuccess() =
+        runBlocking {
+            val paymentRecord = mockk<ConnectJobPaymentRecord>(relaxed = true)
+            val paymentConfirmation = ConnectPaymentConfirmationModel(paymentRecord, toConfirm = true)
+            coEvery { mockNetworkClient.confirmPayments(any(), any()) } returns Result.success(Unit)
+            every { ConnectJobUtils.storePayment(any()) } just Runs
+
+            val emissions = repository.confirmPayments(listOf(paymentConfirmation)).toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Success)
+            verify { paymentRecord.confirmed = true }
+            verify { ConnectJobUtils.storePayment(paymentRecord) }
+        }
+
+    @Test
+    fun testConfirmPayments_failure_emitsLoadingThenError() =
+        runBlocking {
+            coEvery { mockNetworkClient.confirmPayments(any(), any()) } returns
+                Result.failure(Exception("Network error"))
+
+            val emissions = repository.confirmPayments(emptyList()).toList()
+
+            assertEquals(2, emissions.size)
+            assertTrue(emissions[0] is DataState.Loading)
+            assertTrue(emissions[1] is DataState.Error)
         }
 }
