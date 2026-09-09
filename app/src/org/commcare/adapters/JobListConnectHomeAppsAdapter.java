@@ -1,6 +1,5 @@
 package org.commcare.adapters;
 
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +16,6 @@ import com.google.android.material.color.MaterialColors;
 
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ConnectJobListItemBinding;
-import org.commcare.dalvik.databinding.ConnectJobListItemCorruptBinding;
 import org.commcare.dalvik.databinding.ConnectJobListItemSectionHeaderBinding;
 import org.commcare.interfaces.OnJobCardClick;
 import org.commcare.models.connect.ConnectJobListItem;
@@ -37,8 +35,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
     private final ArrayList<ConnectJobListItem> displayItems = new ArrayList<>();
 
     private static final int VIEW_TYPE_SECTION_HEADER = 0;
-    private static final int VIEW_TYPE_CORRUPT_JOB = 1;
-    private static final int VIEW_TYPE_NON_CORRUPT_JOB = 2;
+    private static final int VIEW_TYPE_OPPORTUNITY = 1;
 
     public JobListConnectHomeAppsAdapter(
             Context context,
@@ -62,9 +59,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
                     ConnectJobListItemSectionHeaderBinding
                             .inflate(inflater, parent, false)
             );
-            case VIEW_TYPE_CORRUPT_JOB -> new CorruptJobViewHolder(
-                    ConnectJobListItemCorruptBinding.inflate(inflater, parent, false)
-            );
             default -> new NonCorruptJobViewHolder(
                     ConnectJobListItemBinding.inflate(inflater, parent, false)
             );
@@ -85,9 +79,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
 
         // Handle the job items.
         ConnectJobListItem.JobItem jobItem = (ConnectJobListItem.JobItem) displayItem;
-        if (holder instanceof CorruptJobViewHolder corruptJobViewHolder) {
-            bind(corruptJobViewHolder.binding, jobItem.getJobModel());
-        } else if (holder instanceof NonCorruptJobViewHolder nonCorruptJobViewHolder) {
+        if (holder instanceof NonCorruptJobViewHolder nonCorruptJobViewHolder) {
             bind(mContext, nonCorruptJobViewHolder.binding, jobItem.getJobModel(), launcher);
         }
     }
@@ -106,27 +98,13 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             return VIEW_TYPE_SECTION_HEADER;
         }
 
-        // Handle the job items.
-        if (((ConnectJobListItem.JobItem) displayItem).isCorrupt()) {
-            return VIEW_TYPE_CORRUPT_JOB;
-        } else {
-            return VIEW_TYPE_NON_CORRUPT_JOB;
-        }
+        return VIEW_TYPE_OPPORTUNITY;
     }
 
     public static class NonCorruptJobViewHolder extends RecyclerView.ViewHolder {
         private final ConnectJobListItemBinding binding;
 
         public NonCorruptJobViewHolder(ConnectJobListItemBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
-        }
-    }
-
-    public static class CorruptJobViewHolder extends RecyclerView.ViewHolder {
-        private final ConnectJobListItemCorruptBinding binding;
-
-        public CorruptJobViewHolder(ConnectJobListItemCorruptBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
@@ -140,15 +118,6 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             this.binding = binding;
         }
     }
-
-    public void bind(
-            ConnectJobListItemCorruptBinding binding,
-            ConnectLoginJobListModel connectLoginJobListModel
-    ) {
-        binding.getRoot().setTag("opp_uuid: " + connectLoginJobListModel.getUuid());
-        binding.tvTitle.setText(connectLoginJobListModel.getName());
-    }
-
     public void bind(
             Context mContext,
             ConnectJobListItemBinding binding,
@@ -273,7 +242,7 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
         if (!inProgressJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_in_progress));
             for (ConnectLoginJobListModel jobListModel : inProgressJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
+                displayItems.add(new ConnectJobListItem.JobItem(jobListModel));
             }
         }
 
@@ -281,14 +250,14 @@ public class JobListConnectHomeAppsAdapter extends RecyclerView.Adapter<Recycler
             displayItems.add(
                     new ConnectJobListItem.SectionHeader(R.string.connect_new_opportunities));
             for (ConnectLoginJobListModel jobListModel : newJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
+                displayItems.add(new ConnectJobListItem.JobItem(jobListModel));
             }
         }
 
         if (!completedJobs.isEmpty()) {
             displayItems.add(new ConnectJobListItem.SectionHeader(R.string.connect_completed_expired_label));
             for (ConnectLoginJobListModel jobListModel : completedJobs) {
-                displayItems.add(new ConnectJobListItem.JobItem(jobListModel, false));
+                displayItems.add(new ConnectJobListItem.JobItem(jobListModel));
             }
         }
     }
