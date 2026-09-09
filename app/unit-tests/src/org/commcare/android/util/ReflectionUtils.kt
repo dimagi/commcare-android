@@ -3,6 +3,7 @@ package org.commcare.android.util
 import java.lang.reflect.Field
 
 /**
+ * Reads private fields by name, walking up the class hierarchy.
  * Reads and writes private fields by name, walking up the class hierarchy.
  *
  * For state that production exposes no accessor for and no UI surface reflects. Anything observable

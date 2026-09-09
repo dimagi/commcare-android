@@ -10,8 +10,8 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.dalvik.R
+import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.json.JSONObject
 import org.junit.After
@@ -33,6 +33,7 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmentTest() {
+
     @Before
     override fun setUp() {
         MockAndroidKeyStoreProvider.registerProvider()
@@ -186,7 +187,6 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
 
         enterBackupCode(TEST_BACKUP_CODE)
         drainHttp()
-
         assertNotNull("User should be stored after recovery success", storedUser())
         assertMessageDisplay(
             title = fragment.getString(R.string.connect_recovery_success_title),

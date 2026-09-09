@@ -161,7 +161,7 @@ public class ConnectJobsListsFragment extends BaseConnectFragment<FragmentConnec
 
         if (job.deliveryComplete()) {
             navigateToDeliveryProgress();
-        } else if (!job.passedAssessment() || isLearning) {
+        } else if (!job.isLearningComplete()) {
             navigateToLearnProgress();
         } else if (AppUtils.isAppInstalled(appId)) {
             new ConnectAppLaunchController(this).launchApp(appId, isLearning);
