@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
-import android.annotation.SuppressLint;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,6 +10,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.OneShotPreDrawListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -277,16 +276,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         grid.setItemAnimator(null);
         grid.setAdapter(adapter);
 
-        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @SuppressLint("NewApi")
-            @Override
-            public void onGlobalLayout() {
-                grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                grid.requestLayout();
-                adapter.notifyDataSetChanged();
-                activity.rebuildOptionsMenu();
-            }
+        OneShotPreDrawListener.add(grid, () -> {
+            adapter.notifyDataSetChanged();
+            activity.invalidateOptionsMenu();
         });
     }
 
