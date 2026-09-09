@@ -49,6 +49,9 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
         dialog.setNegativeButton(getString(R.string.personalid_set_new_backup_code_abandon_negative)) { d, _ ->
             d.dismiss()
             findNavController().popBackStack()
+            if (findNavController().currentDestination == null) {
+                requireActivity().finish()
+            }
         }
         dialog.makeCancelable()
         dialog.showNonPersistentDialog(requireActivity())
