@@ -373,6 +373,7 @@ License.
     <string name="personalid_link_app_no">नहीं</string>
     <string name="personalid_signup">PersonalId के लिए साइन अप करें</string>
     <string name="connect_refresh_opportunities">अवसर रीफ्रेश करें</string>
+    <string name="connect_app_install_setting_up">ऐप सेट किया जा रहा है…</string>
     <string name="connect_app_install_unknown_error">अज्ञात त्रुटि के कारण एप्लिकेशन इंस्टॉल करने में विफल रहा</string>
     <string name="connect_app_installed">एप्लिकेशन इंस्टॉल किया गया</string>
     <string name="app_with_id_not_found">आवश्यक CommCare एप्लिकेशन डिवाइस पर इंस्टॉल नहीं है</string>

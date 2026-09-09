@@ -211,6 +211,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_link_app_no">A\'a</string>
     <string name="personalid_signup">Yi rijista don PersonalID</string>
     <string name="connect_refresh_opportunities">Damar Sabuntawa</string>
+    <string name="connect_app_install_setting_up">Ana saita manhaja…</string>
     <string name="connect_app_install_unknown_error">Shigar da manhajar ya gaza saboda kuskuren da ba a sani ba</string>
     <string name="connect_app_installed">An shigar da manhaja</string>
     <string name="app_with_id_not_found">Ba a shigar da Manhajar CommCare da ake buƙata a kan na\'urar ba</string>

@@ -133,6 +133,7 @@
     <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_message_them">Dem</string>
     <string name="fcm_sync_failed_body_text">Klikk her for å vite mer</string>
+    <string name="connect_app_install_setting_up">Setter opp appen…</string>
     <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
     <string name="personalid_not_login_from_fcm_error">Vennligst logg inn på PersonalId for å se detaljene</string>
     <string name="connect_messaging_resubscribe_dialog_title">Abonner på %s på nytt</string>

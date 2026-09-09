@@ -133,6 +133,7 @@
     <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_message_them">Jie</string>
     <string name="fcm_sync_failed_body_text">Norėdami sužinoti daugiau, spustelėkite čia</string>
+    <string name="connect_app_install_setting_up">Ruošiama programa…</string>
     <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
     <string name="personalid_not_login_from_fcm_error">Norėdami peržiūrėti išsamią informaciją, prisijunkite prie „PersonalId“.</string>
     <string name="connect_messaging_resubscribe_dialog_title">Vėl užsiprenumeruoti %s</string>
