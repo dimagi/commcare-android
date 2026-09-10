@@ -28,6 +28,7 @@ import org.commcare.views.connect.NumericCodeView
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -259,7 +260,8 @@ class PersonalIdProfileActivityTest {
         mockApiServer.server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         activity.runOnUiThread {
             val setNewBackupCodeFragment = setNewBackupCodeFragment()
-            setNewBackupCodeFragment.requireView()
+            setNewBackupCodeFragment
+                .requireView()
                 .findViewById<NumericCodeView>(R.id.backup_code_view)
                 .setCode(backupCode)
 
@@ -276,6 +278,58 @@ class PersonalIdProfileActivityTest {
         mockApiServer.drainHttp()
 
         unmockkObject(PersonalIdUnlocker)
+    }
 
+    private fun recreateActivityWithPendingBackupCode() {
+        val savedState = Bundle()
+        activityController.saveInstanceState(savedState)
+        ShadowLooper.idleMainLooper()
+        activityController.pause().stop().destroy()
+        activityController =
+            Robolectric.buildActivity(
+                PersonalIdProfileActivity::class.java,
+                Intent().putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true),
+            )
+        activity =
+            activityController
+                .create(savedState)
+                .postCreate(savedState)
+                .start()
+                .resume()
+                .get()
+        ShadowLooper.idleMainLooper()
+        val navHostFragment = activity.supportFragmentManager.findFragmentById(R.id.profile_nav_host) as NavHostFragment
+        navController = navHostFragment.navController
+    }
+
+    @Test
+    fun `recreation does not push set-new-backup-code onto the stack a second time`() {
+        launchAndResumeWithPendingBackupCode()
+        recreateActivityWithPendingBackupCode()
+
+        assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, navController.currentDestination!!.id)
+        assertNotEquals(
+            "set-new-backup-code must not appear twice in the back stack after recreation",
+            R.id.personalid_profile_set_new_backup_code_fragment,
+            navController.previousBackStackEntry?.destination?.id,
+        )
+    }
+
+    @Test
+    fun `abandoning set-new-backup-code after recreation finishes the activity`() {
+        launchAndResumeWithPendingBackupCode()
+        recreateActivityWithPendingBackupCode()
+
+        activity.runOnUiThread { activity.onBackPressedDispatcher.onBackPressed() }
+        ShadowLooper.idleMainLooper()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        activity.runOnUiThread { dialog.findViewById<Button>(R.id.negative_button)!!.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        assertTrue(
+            "activity should finish when abandoning after recreation — if it does not, set-new-backup-code was duplicated on the back stack",
+            activity.isFinishing,
+        )
     }
 }
