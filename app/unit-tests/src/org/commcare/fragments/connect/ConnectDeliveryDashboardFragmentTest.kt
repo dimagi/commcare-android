@@ -12,8 +12,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -34,7 +36,9 @@ import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectInfoHalfCard
+import org.commcare.views.connect.ConnectSyncStatusCard
 import org.commcare.views.connect.SemiCircleProgressBar
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -68,6 +72,9 @@ class ConnectDeliveryDashboardFragmentTest {
     @Volatile
     private var deliveryProgressBody: String = "{}"
 
+    @Volatile
+    private var deliveryProgressRequests: Int = 0
+
     private val visitDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
     private val navController: NavController get() = navHostFragment.navController
     private val appContext get() = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
@@ -79,6 +86,9 @@ class ConnectDeliveryDashboardFragmentTest {
         mockApi.start()
         mockApi.server.dispatcher = pathRoutingDispatcher()
         ConnectSyncPreferences.getInstance().clearAll()
+
+        mockkObject(DispatcherProvider)
+        every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
@@ -170,6 +180,33 @@ class ConnectDeliveryDashboardFragmentTest {
             activity.getString(R.string.connect_delivery_total_visits_completed),
             semiCircle.descriptionText.toString(),
         )
+    }
+
+    /**
+     * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
+     * same delivery-progress call and land its result on the figures.
+     */
+    @Test
+    fun `tapping the sync card refreshes delivery progress`() {
+        val dashboard = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 1)))
+        val view = dashboard.requireView()
+        val syncCard = view.findViewById<ConnectSyncStatusCard>(R.id.delivery_sync_card)
+
+        assertTrue("The sync card invites a tap", syncCard.isClickable)
+
+        val requestsBefore = deliveryProgressRequests
+        deliveryProgressBody = progressResponse(deliveries = deliveriesToday(unit = 1, count = 3))
+        activity.runOnUiThread { syncCard.performClick() }
+        // The response is applied on the IO dispatcher before it reaches the main looper, which is
+        // the hand-off awaitRequest covers and drainHttp does not.
+        mockApi.awaitRequest()
+
+        assertEquals("The tap asks for delivery progress", requestsBefore + 1, deliveryProgressRequests)
+        assertEquals(
+            "3 of ${ConnectLearnJobTestData.MAX_DAILY_VISITS}",
+            view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString(),
+        )
+        assertEquals(3, view.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle).current)
     }
 
     @Test
@@ -380,6 +417,7 @@ class ConnectDeliveryDashboardFragmentTest {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 val body =
                     if (request.path?.endsWith(DELIVERY_PROGRESS_PATH) == true) {
+                        deliveryProgressRequests++
                         deliveryProgressBody
                     } else {
                         ""
