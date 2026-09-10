@@ -14,11 +14,12 @@ import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding
 import org.commcare.fragments.RefreshableTab
 import org.commcare.views.connect.ConnectInfoHalfCard
 import org.commcare.views.connect.ConnectProgressCard
+import org.commcare.views.connect.ConnectSyncStatusCard
 import java.text.DateFormat
 
 /**
- * Dashboard tab of a delivery opportunity: visit progress and a per-payment-unit breakdown of the
- * worker's own progress.
+ * Dashboard tab of a delivery opportunity: visit progress, a sync card that re-syncs on tap, and a
+ * per-payment-unit breakdown of the worker's own progress.
  *
  * Figures render disabled once no further work earns progress, and an individual payment unit's card
  * also dims on its own once that unit is out of visits.
@@ -26,6 +27,9 @@ import java.text.DateFormat
 class ConnectDeliveryDashboardFragment :
     ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>(),
     RefreshableTab {
+    /** The tab has no endpoint of its own; delivery is synced by the host, which owns the status. */
+    private val host get() = requireParentFragment() as ConnectDeliveryHomeFragment
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,6 +45,7 @@ class ConnectDeliveryDashboardFragment :
         val contentEnabled = !job.isFurtherWorkBlocked
         bindHeader()
         bindVisitProgress(contentEnabled)
+        bindSyncCard(host.syncStatus, host.isSynced)
         bindProgressGrid(contentEnabled)
     }
 
@@ -85,6 +90,28 @@ class ConnectDeliveryDashboardFragment :
                     ),
             ),
         )
+    }
+
+    /** Called by the host, which owns the delivery sync and so learns its status first. */
+    fun updateSyncStatus(
+        syncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        bindSyncCard(syncStatus, synced)
+    }
+
+    private fun bindSyncCard(
+        syncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        binding.deliverySyncCard.bind(
+            ConnectSyncStatusCard.State(
+                statusText = getString(R.string.connect_sync_card_press_to_sync),
+                statusSubtext = syncStatus,
+                warning = !synced,
+            ),
+        )
+        binding.deliverySyncCard.onCardClick = { host.refresh(true) }
     }
 
     private fun bindProgressGrid(contentEnabled: Boolean) {

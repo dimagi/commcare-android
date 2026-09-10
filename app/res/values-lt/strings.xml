@@ -293,6 +293,7 @@
     <string name="connect_last_synced">Paskutinė sinchronizacija: %s</string>
     <string name="connect_sync_successful">Paskutinė sinchronizacija: Ką tik</string>
     <string name="connect_sync_failed">Sinchronizacija nepavyko, paskutinė sinchronizacija: %s</string>
+    <string name="connect_sync_card_press_to_sync">Norėdami sinchronizuoti, spustelėkite čia</string>
     <string name="connect_offline">Neprisijungęs</string>
     <string name="connect_back_online">Vėl prisijungta</string>
     <string name="connect_never">Niekada</string>

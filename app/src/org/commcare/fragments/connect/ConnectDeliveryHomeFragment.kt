@@ -191,6 +191,18 @@ class ConnectDeliveryHomeFragment :
         viewModel.loadDeliveryProgress(job, forceRefresh)
     }
 
+    /** Delivery is synced here rather than per tab, so the status has to reach the tabs showing it. */
+    override fun informSyncStatus(
+        lastSyncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        childFragmentManager.fragments.forEach { fragment ->
+            if (fragment.view != null && fragment is ConnectDeliveryDashboardFragment) {
+                fragment.updateSyncStatus(lastSyncStatus, synced)
+            }
+        }
+    }
+
     /**
      * Learning finished before delivery began, so its records are fetched only for a device that is
      * missing them, and only once delivery progress has landed: both write the opportunity row, and

@@ -17,9 +17,10 @@ import java.text.DateFormat
  * everything short of a passed assessment, which [ConnectLearnCompleteView] renders instead.
  *
  * Shows the opportunity header, a [ConnectProgressCard] carrying the module count and the
- * failed-assessment banner, a non-interactive "Continue Learning" card, and a [ConnectCtaBar]
- * pinned below the scrolling content. Call [bind] to populate it; the view derives its whole
- * appearance from the job and holds no state of its own, so re-binding fully re-renders.
+ * failed-assessment banner, a [ConnectSyncStatusCard] that re-syncs on tap, a non-interactive
+ * "Continue Learning" card, and a [ConnectCtaBar] pinned below the scrolling content. Call [bind]
+ * to populate it; the view derives its whole appearance from the job and holds no state of its
+ * own, so re-binding fully re-renders.
  */
 class ConnectLearnProgressView
     @JvmOverloads
@@ -38,11 +39,30 @@ class ConnectLearnProgressView
         fun bind(
             job: ConnectJobRecord,
             onCtaClick: OnClickListener,
+            onSyncClick: () -> Unit,
         ) {
             bindHeader(job)
             bindProgressCard(job)
+            binding.learnProgressSyncCard.onCardClick = onSyncClick
             bindContinueCard(job)
             bindCtaBar(job, onCtaClick)
+        }
+
+        /**
+         * Captions the sync card with [syncStatus], which the hosting fragment is told about, and
+         * warns while [synced] is false so stale figures read as stale.
+         */
+        fun updateSyncStatus(
+            syncStatus: CharSequence,
+            synced: Boolean,
+        ) {
+            binding.learnProgressSyncCard.bind(
+                ConnectSyncStatusCard.State(
+                    statusText = context.getString(R.string.connect_sync_card_press_to_sync),
+                    statusSubtext = syncStatus,
+                    warning = !synced,
+                ),
+            )
         }
 
         private fun bindHeader(job: ConnectJobRecord) {

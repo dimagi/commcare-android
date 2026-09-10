@@ -677,6 +677,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_last_synced">Aiki na ƙarshe: %s</string>
     <string name="connect_sync_successful">Aiki na ƙarshe: Yanzu haka</string>
     <string name="connect_sync_failed">Daidaitawa ta kasa, aiki na ƙarshe: %s</string>
+    <string name="connect_sync_card_press_to_sync">Danna nan don daidaitawa</string>
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_back_online">An Sake Haɗawa</string>
     <string name="connect_never">Ba taɓa</string>
