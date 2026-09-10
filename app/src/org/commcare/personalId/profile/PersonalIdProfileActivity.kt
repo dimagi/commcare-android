@@ -28,7 +28,9 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         // No top-level destinations, so a back arrow shows on every screen, including the start.
         val appBarConfiguration = AppBarConfiguration(emptySet())
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
-        checkForPendingBackupCode()
+        if (savedInstanceState == null) {
+            checkForPendingBackupCode()
+        }
     }
 
     override fun shouldShowBreadcrumbBar(): Boolean = false
