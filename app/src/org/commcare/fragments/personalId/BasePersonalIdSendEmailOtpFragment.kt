@@ -54,7 +54,7 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
         clearError()
         EmailHelper.sendEmailOtp(
             activity = requireActivity(),
-            email = email,
+            email = emailForApiCall(),
             workflow = workflow,
             sessionData = getSessionData(),
             tracker = emailOtpTracker,
@@ -83,6 +83,8 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
     abstract fun getSessionData(): PersonalIdSessionData?
 
     abstract fun navigateToVerification()
+
+    open fun emailForApiCall(): String? = email
 
     override fun navigateToMessageDisplay(
         title: String,

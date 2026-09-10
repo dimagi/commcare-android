@@ -50,7 +50,7 @@ object EmailHelper {
      */
     fun sendEmailOtp(
         activity: Activity,
-        email: String,
+        email: String?,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
         tracker: AttemptTracker = AttemptTracker(),

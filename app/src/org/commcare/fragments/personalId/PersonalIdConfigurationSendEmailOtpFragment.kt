@@ -29,6 +29,8 @@ class PersonalIdConfigurationSendEmailOtpFragment : BasePersonalIdSendEmailOtpFr
 
     override fun getSessionData(): PersonalIdSessionData? = personalIdSessionData
 
+    override fun emailForApiCall(): String? = null
+
     override fun navigateToVerification() {
         val directions =
             PersonalIdConfigurationSendEmailOtpFragmentDirections

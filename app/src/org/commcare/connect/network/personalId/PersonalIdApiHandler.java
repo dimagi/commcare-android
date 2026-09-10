@@ -372,7 +372,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
      */
     public void sendEmailOtp(
             Activity activity,
-            String email,
+            @Nullable String email,
             String personalIdConfigurationToken,
             ConnectUserRecord user
     ) {
