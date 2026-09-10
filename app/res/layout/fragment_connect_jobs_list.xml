@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/connectBackground"
-    tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment"
+    tools:context="org.commcare.fragments.connect.ConnectOpportunityListFragment"
     tools:theme="@style/ConnectTheme">
 
     <TextView
