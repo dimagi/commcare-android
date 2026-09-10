@@ -12,7 +12,8 @@ class PersonalIdProfileSetNewBackupCodeFragment : BasePersonalIdSetNewBackupCode
                 R.string.personalid_backup_code_changed_success,
                 Toast.LENGTH_LONG,
             ).show()
-        if (!findNavController().popBackStack(R.id.personalid_profile_backup_code_fragment, true)) {
+        if (!findNavController().popBackStack(R.id.personalid_profile_fragment, false)
+        ) {
             requireActivity().finish()
         }
     }
