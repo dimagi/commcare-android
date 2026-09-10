@@ -263,8 +263,7 @@ class ConnectLearningProgressFragmentTest {
             MockResponse().setResponseCode(200).setBody("""{"completed_modules": [], "assessments": []}"""),
         )
         activity.runOnUiThread { syncCard.performClick() }
-        val request = mockApi.drainHttp()
-        ShadowLooper.idleMainLooper()
+        val request = mockApi.awaitRequest()
 
         assertEquals("/api/opportunity/${job.jobUUID}/learn_progress", request.path)
         assertEquals(
@@ -303,9 +302,9 @@ class ConnectLearningProgressFragmentTest {
             )
         }
         ShadowLooper.idleMainLooper()
-        // Drain the getLearningProgress request so it doesn't sit ahead of the claim request in the queue.
-        mockApi.drainHttp()
-        ShadowLooper.idleMainLooper()
+        // getLearningProgress finishes on ConnectRequestManager's background scope, so the result
+        // needs awaiting rather than a single drain; it also clears the request queue for the claim.
+        mockApi.awaitRequest()
         return navHostFragment.childFragmentManager.primaryNavigationFragment
             as ConnectLearningProgressFragment
     }
