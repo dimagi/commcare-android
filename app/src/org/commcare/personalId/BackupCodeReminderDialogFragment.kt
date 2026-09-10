@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.DialogFragment
 import org.commcare.android.database.connect.models.ConnectUserRecord
@@ -41,7 +42,7 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
         view: View,
         savedInstanceState: Bundle?,
     ) {
-        user = ConnectUserDatabaseUtil.getUser(requireContext())
+        user = ConnectUserDatabaseUtil.getUser()
         binding.forgotButton.visibility =
             if (user?.email != null) View.VISIBLE else View.GONE
         setupListeners()
@@ -63,6 +64,9 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
     private fun setupListeners() {
         binding.backupCodeView.setOnCodeChangedListener { code ->
             binding.confirmButton.isEnabled = code.length == 6
+            if (code.isNotEmpty() && binding.errorBanner.visibility == View.VISIBLE) {
+                clearErrorState()
+            }
         }
         binding.confirmButton.setOnClickListener { onConfirmClicked() }
         binding.skipButton.setOnClickListener { onSkipClicked() }
@@ -151,7 +155,19 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
                 HtmlCompat.FROM_HTML_MODE_LEGACY,
             )
         binding.backupCodeView.clearCode()
+        binding.backupCodeView.setErrorState(true)
+        binding.lockIconContainer.setBackgroundResource(R.drawable.connect_side_icon_error_bg)
+        binding.lockIcon.setColorFilter(
+            ContextCompat.getColor(requireContext(), R.color.connect_red),
+            android.graphics.PorterDuff.Mode.SRC_IN,
+        )
         binding.confirmButton.isEnabled = false
+    }
+
+    private fun clearErrorState() {
+        binding.errorBanner.visibility = View.GONE
+        binding.lockIconContainer.setBackgroundResource(R.drawable.connect_side_icon_bg)
+        binding.lockIcon.clearColorFilter()
     }
 
     private fun reportShown() {
