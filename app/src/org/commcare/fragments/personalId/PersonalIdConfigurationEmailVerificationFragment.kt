@@ -25,6 +25,8 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
 
     override fun displayEmail(): String = args().email
 
+    override fun emailForApiCall(): String? = if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY) null else super.emailForApiCall()
+
     override fun resolveWorkflow(): EmailWorkFlow = args().workflow
 
     override fun resolveEmailOtpRequestCount(): Int = args().emailOtpRequestCount

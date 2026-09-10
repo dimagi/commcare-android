@@ -68,7 +68,6 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         emailOtpTracker = AttemptTracker(initialRequestCount = resolveEmailOtpRequestCount())
     }
 
-
     abstract fun resolveEmail(): String
 
     abstract fun displayEmail(): String
@@ -135,7 +134,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
 
         EmailHelper.sendEmailOtp(
             activity = requireActivity(),
-            email = enteredEmail,
+            email = emailForApiCall(),
             workflow = workflow,
             sessionData = personalIdSessionData,
             tracker = emailOtpTracker,
@@ -188,7 +187,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
 
     protected fun onEmailVerificationFailure(
         failureCode: BaseApiHandler.PersonalIdOrConnectApiErrorCodes,
-        t: Throwable?
+        t: Throwable?,
     ) {
         if (!handleCommonSignupFailures(failureCode)) {
             showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
@@ -244,6 +243,8 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         commCareActivity.showAlertDialog(dialog)
     }
 
+    protected open fun emailForApiCall(): String? = enteredEmail
+
     protected open fun proceedWithoutEmail() {
         // Override in subclasses to handle proceeding without email verification
     }
@@ -266,7 +267,5 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         isCancellable: Boolean,
         phase: Int,
         buttonText: Int,
-    ) {
-        throw IllegalStateException("navigateToMessageDisplay should not have a call path in this fragment")
-    }
+    ): Unit = throw IllegalStateException("navigateToMessageDisplay should not have a call path in this fragment")
 }

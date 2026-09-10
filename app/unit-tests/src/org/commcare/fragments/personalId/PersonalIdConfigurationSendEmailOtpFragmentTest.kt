@@ -9,7 +9,9 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.dalvik.R
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -64,6 +66,17 @@ class PersonalIdConfigurationSendEmailOtpFragmentTest : BasePersonalIdConfigurat
         val request = mockWebServer.takeRequest()
         assertEquals("/users/send_email_otp", request.path)
         assertEquals("POST", request.method)
+    }
+
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY send omits email from request body`() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread { sendButton().performClick() }
+        ShadowLooper.idleMainLooper()
+
+        val request = mockWebServer.takeRequest()
+        val body = JSONObject(request.body.readUtf8())
+        assertFalse("FORGOT_BACKUP_CODE_RECOVERY send must not include email", body.has("email"))
     }
 
     @Test

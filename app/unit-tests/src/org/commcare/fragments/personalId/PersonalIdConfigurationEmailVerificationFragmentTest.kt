@@ -353,6 +353,45 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         assertEquals(activity.getString(R.string.personalid_email_otp_max_attempts_reached), args?.getString("message"))
     }
 
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY resend omits email from request body`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility = View.VISIBLE
+        }
+        ShadowLooper.idleMainLooper()
+
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        val request = takeRequestOrFail()
+        assertEquals("/users/send_email_otp", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertFalse("resend in FORGOT_BACKUP_CODE_RECOVERY must not include email", body.has("email"))
+    }
+
+    @Test
+    fun `REGISTRATION resend includes email in request body`() {
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility = View.VISIBLE
+        }
+        ShadowLooper.idleMainLooper()
+
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        val request = takeRequestOrFail()
+        assertEquals("/users/send_email_otp", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals(TEST_EMAIL, body.getString("email"))
+    }
+
     // ========== Helpers ==========
 
     private fun setUpForgotBackupCodeRecoveryFlow() {
