@@ -221,7 +221,9 @@
             app:destination="@id/personalid_message_display" />
         <action
             android:id="@+id/action_personalid_email_verification_to_set_new_backup_code"
-            app:destination="@id/personalid_account_config_set_new_backup_code_fragment" />
+            app:destination="@id/personalid_account_config_set_new_backup_code_fragment"
+            app:popUpTo="@id/personalid_phone_fragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
