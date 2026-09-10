@@ -216,6 +216,9 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun onStop() {
         super.onStop()
         unregisterNetworkCallback()
+        if (ownsAppInstall && installViewModel.installState.value == AppInstallState.Launching) {
+            installViewModel.clear()
+        }
     }
 
     override fun onDestroyView() {
@@ -456,13 +459,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     /**
      * Holds the busy state until the app is actually open, so the bar does not revert to its CTA
-     * while the launch dialog is still working through seating, sign-in and sync.
+     * while the launch dialog is still working through seating, sign-in and sync. A successful
+     * launch leaves it held: the launch dialog is dismissed before the app's activity is drawn, and
+     * [onStop] drops the state once this screen is off-screen and the revert cannot be seen.
      */
     private fun launchInstalledApp(target: AppInstallTarget) {
         ConnectAppLaunchController(this).launchApp(
             target.appId,
             target.isLearning,
-            { installViewModel.clear() },
+            null,
             { installViewModel.clear() },
         )
     }

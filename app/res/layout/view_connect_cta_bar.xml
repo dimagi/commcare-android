@@ -100,7 +100,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:progressBackgroundColor="?attr/connectOutlineVariant"
+                app:progressBackgroundColor="?attr/connectOutline"
                 app:progressColor="?attr/colorPrimary"
                 app:strokeWidth="4dp"
                 tools:visibility="visible" />
