@@ -53,7 +53,14 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
         object : PersonalIdApiHandler<PersonalIdSessionData>() {
             override fun onSuccess(sessionData: PersonalIdSessionData) {
                 if (!hasLiveView()) return
-                onEmailVerified()
+                if (sessionData.dbKey != null) {
+                    onEmailVerified()
+                } else {
+                    onEmailVerificationFailure(
+                        PersonalIdOrConnectApiErrorCodes.UNKNOWN_ERROR,
+                        null,
+                    )
+                }
             }
 
             override fun onFailure(
