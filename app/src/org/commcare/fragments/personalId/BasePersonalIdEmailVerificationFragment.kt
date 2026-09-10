@@ -266,5 +266,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         isCancellable: Boolean,
         phase: Int,
         buttonText: Int,
-    ) { /* no default message destination */ }
+    ) {
+        throw IllegalStateException("navigateToMessageDisplay should not have a call path in this fragment")
+    }
 }
