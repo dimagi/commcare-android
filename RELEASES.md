@@ -2,6 +2,14 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.65
+
+### Release Notes
+
+#### What's New
+
+- The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
+
 ## CommCare 2.63.5
 
 ### Release Notes
