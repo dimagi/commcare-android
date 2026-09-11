@@ -2,6 +2,19 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.65
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- The Connect opportunity list no longer appears blank after returning to it from another Connect screen.
+
+### QA Notes
+
+- From the Connect opportunity list, download an opportunity's delivery app, tap View Status, press back from the bottom navigation bar, then log out of the CommCare app: the opportunity list must show its opportunities and must never appear blank.
+- Returning to any Connect screen should show its content immediately and should not flash a "sync successful" banner for data that was already loaded.
+
 ## CommCare 2.63.5
 
 ### Release Notes
