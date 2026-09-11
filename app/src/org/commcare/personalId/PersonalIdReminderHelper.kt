@@ -1,6 +1,6 @@
 package org.commcare.personalId
 
-import androidx.fragment.app.FragmentActivity
+import org.commcare.activities.CommCareActivity
 import org.commcare.connect.PersonalIdManager
 
 object PersonalIdReminderHelper {
@@ -34,12 +34,10 @@ object PersonalIdReminderHelper {
     }
 
     @JvmStatic
-    fun checkAndShowReminder(activity: FragmentActivity) {
-        if (PersonalIdManager.getInstance().isloggedIn() && isDue()) {
-            if (activity.supportFragmentManager.findFragmentByTag(BackupCodeReminderDialogFragment.TAG) != null) return
-            BackupCodeReminderDialogFragment
-                .newInstance()
-                .show(activity.supportFragmentManager, BackupCodeReminderDialogFragment.TAG)
+    fun checkAndShowReminder(activity: CommCareActivity<*>) {
+        if (PersonalIdManager.getInstance().isloggedIn()) {
+//        if (PersonalIdManager.getInstance().isloggedIn() && isDue()) {
+            BackupCodeReminderDialog.show(activity)
         }
     }
 }

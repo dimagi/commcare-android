@@ -5,7 +5,6 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import org.commcare.CommCareTestApplication
-import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.personalId.profile.BasePersonalIdProfileTest
 import org.commcare.views.connect.NumericCodeView
@@ -16,7 +15,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import org.robolectric.shadows.ShadowToast
@@ -28,36 +26,28 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
     fun setUpDialog() {
         PersonalIdUserPreferences.clear()
         user.pin = "123456"
-        connectUserDatabaseUtilMock
-            .`when`<Any> { ConnectUserDatabaseUtil.getUser(any()) }
-            .thenReturn(user)
         showDialog()
     }
 
     private fun showDialog() {
         onUiThread {
-            BackupCodeReminderDialogFragment
-                .newInstance()
-                .show(activity.supportFragmentManager, BackupCodeReminderDialogFragment.TAG)
+            BackupCodeReminderDialog.show(activity)
         }
     }
 
-    private fun dialog(): BackupCodeReminderDialogFragment =
-        activity.supportFragmentManager
-            .findFragmentByTag(BackupCodeReminderDialogFragment.TAG)
-            as BackupCodeReminderDialogFragment
+    private fun dialogView() = activity.getCurrentAlertDialog()!!.dialog!!
 
-    private fun codeView(): NumericCodeView = dialog().requireView().findViewById(R.id.backup_code_view)
+    private fun codeView(): NumericCodeView = dialogView().findViewById(R.id.backup_code_view)
 
-    private fun confirmButton(): MaterialButton = dialog().requireView().findViewById(R.id.confirm_button)
+    private fun confirmButton(): MaterialButton = dialogView().findViewById(R.id.confirm_button)
 
-    private fun skipButton(): MaterialButton = dialog().requireView().findViewById(R.id.skip_button)
+    private fun skipButton(): MaterialButton = dialogView().findViewById(R.id.skip_button)
 
-    private fun forgotButton(): TextView = dialog().requireView().findViewById(R.id.forgot_button)
+    private fun forgotButton(): TextView = dialogView().findViewById(R.id.forgot_button)
 
-    private fun errorBanner(): View = dialog().requireView().findViewById(R.id.error_banner)
+    private fun errorBanner(): View = dialogView().findViewById(R.id.error_banner)
 
-    private fun errorMessage(): TextView = dialog().requireView().findViewById(R.id.error_message)
+    private fun errorMessage(): TextView = dialogView().findViewById(R.id.error_message)
 
     private fun enterCode(code: String) {
         onUiThread { codeView().setCode(code) }
@@ -89,7 +79,7 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
     fun `forgot button hidden when user has no email`() {
         user.email = null
         // re-show dialog with updated user
-        onUiThread { dialog().dismiss() }
+        onUiThread { activity.getCurrentAlertDialog()!!.dismiss() }
         ShadowLooper.idleMainLooper()
         showDialog()
 
@@ -117,7 +107,7 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
         enterCode("123456")
         clickConfirm()
 
-        assertNull(activity.supportFragmentManager.findFragmentByTag(BackupCodeReminderDialogFragment.TAG))
+        assertNull(activity.getCurrentAlertDialog())
         assertEquals(
             activity.getString(R.string.personalid_backup_code_reminder_success_toast),
             ShadowToast.getTextOfLatestToast(),
@@ -151,10 +141,7 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
         enterCode("000000")
         clickConfirm()
 
-        assertTrue(
-            activity.supportFragmentManager
-                .findFragmentByTag(BackupCodeReminderDialogFragment.TAG) != null,
-        )
+        assertTrue(activity.getCurrentAlertDialog() != null)
     }
 
     // ===== Max attempts =====
@@ -169,7 +156,7 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
         enterCode("000000")
         clickConfirm()
 
-        assertNull(activity.supportFragmentManager.findFragmentByTag(BackupCodeReminderDialogFragment.TAG))
+        assertNull(activity.getCurrentAlertDialog())
         assertEquals(
             activity.getString(R.string.personalid_backup_code_reminder_max_attempts_toast),
             ShadowToast.getTextOfLatestToast(),
@@ -182,7 +169,7 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
     fun `skip dismisses dialog without toast`() {
         onUiThread { skipButton().performClick() }
 
-        assertNull(activity.supportFragmentManager.findFragmentByTag(BackupCodeReminderDialogFragment.TAG))
+        assertNull(activity.getCurrentAlertDialog())
         assertNull(ShadowToast.getLatestToast())
     }
 
@@ -200,7 +187,7 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
     @Test
     fun `back-dismiss calls scheduleNext so dialog does not re-fire`() {
         PersonalIdReminderHelper.initialize()
-        onUiThread { dialog().dismiss() }
+        onUiThread { activity.getCurrentAlertDialog()!!.dismiss() }
         ShadowLooper.idleMainLooper()
 
         val nextDue = PersonalIdUserPreferences.getNextReminderDue()
