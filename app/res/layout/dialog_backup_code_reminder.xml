@@ -175,8 +175,10 @@
             style="@style/NegativeButtonStyle"
             android:layout_width="0dp"
             android:layout_height="52dp"
+            android:layout_margin="0dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
+            android:minWidth="0dp"
             android:text="@string/personalid_backup_code_reminder_skip" />
 
         <com.google.android.material.button.MaterialButton
@@ -184,8 +186,10 @@
             style="@style/CustomButtonStyle"
             android:layout_width="0dp"
             android:layout_height="52dp"
+            android:layout_margin="0dp"
             android:layout_weight="1"
             android:enabled="false"
+            android:minWidth="0dp"
             android:text="@string/personalid_backup_code_reminder_confirm" />
     </LinearLayout>
 
