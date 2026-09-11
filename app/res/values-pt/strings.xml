@@ -250,8 +250,11 @@
     <string name="personalid_login_via">Via PersonalId (ou pressione aqui)</string>
     <string name="personalid_welcome_user">Bemvindo %s!</string>
     <string name="personalid_choice_or">OU</string>
+    <string name="connect_download_delivery">Baixar entrega</string>
+    <string name="connect_app_install_setting_up">Configurando o aplicativo…</string>
+    <string name="connect_app_finishing_install">Concluindo a instalação…</string>
+    <string name="connect_app_launching">Download concluído, abrindo o aplicativo…</string>
     <string name="connect_button_logged_in">Vá para o Conectar menu</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Ocorreu um erro na configuração da aplicação, o que fez com que nem todos os marcadores no mapa fossem carregados corretamente</string>
     <string name="personalid_generic_error">Ocorreu um problema. Configure sua conta PersonalID novamente.</string>
     <string name="connect_registration_title">Comece a usar o PersonalID</string>
@@ -365,9 +368,10 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Complete as tarefas atribuídas para continuar a prestar serviços.</string>
     <string name="connect_open_conversation_button_text">Abrir conversa</string>
     <string name="connect_progress_relearn_tasks_completed">Todas as tarefas necessárias foram concluídas. Pode continuar com as atividades de entrega.</string>
-    <string name="connect_download_learn">Baixe o Aplicativo Aprenda</string>
-    <string name="connect_downloading_learn">Descarregamento da aplicação Learn</string>
-    <string name="connect_downloading_delivery">Baixando o aplicativo de entrega</string>
+    <string name="connect_download_learn">Baixar Aprendizagem</string>
+    <string name="connect_starting_learning">Iniciando o aprendizado</string>
+    <string name="connect_downloading_learn">Baixando Aprendizagem</string>
+    <string name="connect_downloading_delivery">Baixando Entrega</string>
     <string name="connect_results_summary_earned">Ganhos</string>
     <string name="connect_results_summary_transferred">Transferido</string>
     <string name="connect_results_summary_all">Todos</string>
@@ -451,7 +455,6 @@
     <string name="connect_job_info_visit_charge">Ganhe até %s por visita</string>
     <string name="connect_job_info_delivery_hours">Horário de entrega</string>
     <string name="connect_job_info_view_more">Ver mais</string>
-    <string name="connect_job_info_download_delivery">Baixar entrega</string>
     <string name="connect_job_info_view_info">Ver informações</string>
     <string name="connect_job_info_view_resume">Retomar</string>
     <string name="connect_job_info_view_review">Revisar</string>
@@ -736,7 +739,6 @@
         <item quantity="other">%d unidades de pagamento</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Começar a aprender</string>
-    <string name="connect_opportunity_footer_download_learn_app">Baixar Aprendizagem</string>
     <string name="connect_opportunity_modules_footer_note">Conclua os módulos, seja aprovado na avaliação e receba seu certificado</string>
     <string name="connect_opportunity_footer_download_app">Baixar app</string>
     <string name="microimage_saving_failed">Não foi possível salvar a imagem. Tente novamente</string>

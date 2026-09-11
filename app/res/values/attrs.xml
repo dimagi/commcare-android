@@ -19,6 +19,7 @@
     <attr name="connectOnSurfaceStrong" format="reference|color" />
     <attr name="connectOnSurfaceVariant" format="reference|color" />
     <attr name="connectOnSurfaceMuted" format="reference|color" />
+    <attr name="connectOutline" format="reference|color" />
     <attr name="connectOutlineVariant" format="reference|color" />
     <attr name="connectStatusPositive" format="reference|color" />
     <attr name="connectStatusPositiveContainer" format="reference|color" />

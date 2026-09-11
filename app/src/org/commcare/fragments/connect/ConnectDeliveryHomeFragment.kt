@@ -13,16 +13,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
-import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
@@ -90,16 +89,8 @@ class ConnectDeliveryHomeFragment :
             )[ConnectDeliveryHomeViewModel::class.java]
 
         setupTabViewPager()
-
-        binding.connectDeliveryCtaBar.apply {
-            buttonText =
-                if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
-                    context.getString(R.string.connect_delivery_start)
-                } else {
-                    context.getString(R.string.connect_opportunity_footer_download_app)
-                }
-            setOnCtaClickListener { launchApp(isLearning = false) }
-        }
+        binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
+        updateCtaBarButton()
 
         observeDeliveryAndLearningProgress()
         observeConnectivity()
@@ -142,10 +133,13 @@ class ConnectDeliveryHomeFragment :
 
     /**
      * The More tab makes its highest-priority task the primary action, so the shared launch bar gets
-     * out of its way.
+     * out of its way — unless it is reporting an install this screen started, which is the only sign
+     * the user has that their download is still running. An install the More tab started reports
+     * itself in a blocking dialog, so the bar stays hidden for that one.
      */
     private fun updateCtaBarVisibility() {
-        binding.connectDeliveryCtaBar.isVisible = currentTabPosition != moreTabPosition
+        binding.connectDeliveryCtaBar.isVisible =
+            currentTabPosition != moreTabPosition || ownsAppInstall
     }
 
     private fun updateMoreTabBadge() {
@@ -187,7 +181,21 @@ class ConnectDeliveryHomeFragment :
         }
     }
 
+    private fun updateCtaBarButton() {
+        val installed = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
+        binding.connectDeliveryCtaBar.apply {
+            if (installed) {
+                subtitleText = getString(R.string.connect_delivery_continue_visits_subtitle)
+                buttonText = getString(R.string.connect_delivery_start)
+            } else {
+                subtitleText = getString(R.string.connect_download_delivery)
+                buttonText = getString(R.string.connect_opportunity_footer_download_app)
+            }
+        }
+    }
+
     private fun refreshTabs() {
+        updateCtaBarButton()
         updateMoreTabBadge()
         childFragmentManager.fragments.forEach { fragment ->
             if (fragment.view != null && fragment is RefreshableTab) {
@@ -270,27 +278,13 @@ class ConnectDeliveryHomeFragment :
             .setActionBarTitle(job.title, getString(R.string.connect_progress_delivery))
     }
 
-    /**
-     * Launches the opportunity's learn or delivery app, sending the user to the download screen when
-     * it isn't installed yet. Tabs route their own launches through here so the install check and the
-     * download hand-off live in one place.
-     */
-    fun launchApp(isLearning: Boolean) {
-        val appId = if (isLearning) job.learnAppInfo.appId else job.deliveryAppInfo.appId
-        if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppLaunchController(this).launchApp(appId, isLearning, Runnable { popSelfOnceHidden() })
-            return
-        }
-
-        val downloadTitle =
-            if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
-        val directions =
-            ConnectDeliveryHomeFragmentDirections
-                .actionConnectDeliveryHomeFragmentToConnectDownloadingFragment(
-                    getString(downloadTitle),
-                    isLearning,
-                )
-        findNavController().navigate(directions)
+    /** A delivery app still being downloaded takes over the launch bar the user started it from. */
+    override fun onAppInstallStateChanged(
+        state: AppInstallState,
+        isLearning: Boolean,
+    ) {
+        binding.connectDeliveryCtaBar.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
+        updateCtaBarVisibility()
     }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.jobUUID

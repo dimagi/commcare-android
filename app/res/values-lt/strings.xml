@@ -130,9 +130,13 @@
     <string name="nav_drawer_open">Atidaryti navigacijos meniu</string>
     <string name="nav_drawer_close">Uždaryti navigacijos meniu</string>
     <string name="connect_message_you">Jūs</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_message_them">Jie</string>
     <string name="fcm_sync_failed_body_text">Norėdami sužinoti daugiau, spustelėkite čia</string>
+    <string name="connect_starting_learning">Pradedamas mokymasis</string>
+    <string name="connect_download_delivery">Atsisiųsti pristatymą</string>
+    <string name="connect_app_install_setting_up">Ruošiama programa…</string>
+    <string name="connect_app_finishing_install">Baigiamas diegimas…</string>
+    <string name="connect_app_launching">Atsisiuntimas baigtas, paleidžiama programa…</string>
     <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
     <string name="personalid_not_login_from_fcm_error">Norėdami peržiūrėti išsamią informaciją, prisijunkite prie „PersonalId“.</string>
     <string name="connect_messaging_resubscribe_dialog_title">Vėl užsiprenumeruoti %s</string>
@@ -423,7 +427,9 @@
     <string name="connect_learn_cta_take_assessment">Laikyti vertinimą</string>
     <string name="connect_learn_cta_start">Pradėti</string>
     <string name="connect_opportunity_footer_start_learning">Pradėti mokymąsi</string>
-    <string name="connect_opportunity_footer_download_learn_app">Atsisiųsti mokymąsi</string>
+    <string name="connect_download_learn">Atsisiųsti mokymąsi</string>
+    <string name="connect_downloading_learn">Atsisiunčiamas mokymasis</string>
+    <string name="connect_downloading_delivery">Atsisiunčiamas pristatymas</string>
     <string name="connect_opportunity_modules_footer_note">Užbaikite modulius, išlaikykite vertinimą ir gaukite savo pažymėjimą</string>
     <string name="connect_opportunity_footer_download_app">Atsisiųsti programą</string>
     <string name="recording_notification_save_action">Išsaugoti</string>

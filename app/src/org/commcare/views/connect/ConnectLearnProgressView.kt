@@ -8,6 +8,7 @@ import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord
 import org.commcare.connect.ConnectDateUtils
+import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectLearnProgressBinding
 import java.text.DateFormat
@@ -34,6 +35,12 @@ class ConnectLearnProgressView
         init {
             orientation = VERTICAL
         }
+
+        fun renderAppInstallState(
+            state: AppInstallState,
+            isLearning: Boolean,
+            onFailureDismissed: () -> Unit,
+        ) = binding.learnProgressCtaBar.renderAppInstallState(state, isLearning, onFailureDismissed)
 
         fun bind(
             job: ConnectJobRecord,
@@ -164,14 +171,15 @@ class ConnectLearnProgressView
             job: ConnectJobRecord,
             onCtaClick: OnClickListener,
         ) {
+            val installed = AppUtils.isAppInstalled(job.learnAppInfo.appId)
             binding.learnProgressCtaBar.apply {
-                buttonText =
-                    if (AppUtils.isAppInstalled(job.learnAppInfo.appId)) {
-                        context.getString(R.string.connect_learn_cta_start)
-                    } else {
-                        context.getString(R.string.connect_download_learn)
-                    }
-                subtitleText = ctaSubtitle(job)
+                if (installed) {
+                    subtitleText = ctaSubtitle(job)
+                    buttonText = context.getString(R.string.connect_learn_cta_start)
+                } else {
+                    subtitleText = context.getString(R.string.connect_download_learn)
+                    buttonText = context.getString(R.string.connect_opportunity_footer_download_app)
+                }
                 infoMessage =
                     if (job.isFinished) context.getString(R.string.connect_learn_warning_ended) else null
                 setOnCtaClickListener(onCtaClick)

@@ -1,6 +1,8 @@
 package org.commcare.fragments.base
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Build
@@ -12,24 +14,36 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
-import androidx.navigation.fragment.NavHostFragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
+import org.commcare.AppUtils
+import org.commcare.activities.CommCareVerificationActivity
 import org.commcare.activities.connect.ConnectActivity
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.personalId.TokenExceptionHandler.handleTokenDeniedException
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.AppInstallFailureRecovery
+import org.commcare.connect.viewmodel.AppInstallState
+import org.commcare.connect.viewmodel.AppInstallTarget
+import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.dalvik.databinding.NetworkStatusBarLayoutBinding
+import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.interfaces.base.BaseConnectView
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.NetworkStatusBarViewController
+import org.commcare.views.dialogs.CustomProgressDialog
+import org.javarosa.core.services.Logger
 import java.util.Date
 
 fun interface DataStateConsumer<T> {
@@ -51,6 +65,44 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var lastDataState: DataState<*>? = null
     private var wasOffline: Boolean = false
+
+    private var installDialog: CustomProgressDialog? = null
+
+    /**
+     * Shared with every other Connect screen in this activity, since only one app installs at a
+     * time. [installOwnerKey] is what distinguishes the screen driving the install from the ones
+     * merely watching it.
+     */
+    private val installViewModel: ConnectAppInstallViewModel by lazy {
+        ViewModelProvider(
+            requireActivity(),
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
+        )[ConnectAppInstallViewModel::class.java]
+    }
+
+    /** Stable across recreation, so a screen reclaims the install it started before a rotation. */
+    private val installOwnerKey get() = javaClass.name
+
+    private val ownedAppInstallTarget: AppInstallTarget?
+        get() = installViewModel.target?.takeIf { it.ownerKey == installOwnerKey }
+
+    /** True while the install in flight is one this screen started, rather than another screen's. */
+    protected val ownsAppInstall get() = ownedAppInstallTarget != null
+
+    private val verificationLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                ownedAppInstallTarget?.let {
+                    // Dispatched before the launch so a dialog-based screen closes its download
+                    // dialog rather than flashing it behind the launch dialog.
+                    installViewModel.markLaunching()
+                    launchInstalledApp(it)
+                }
+            } else {
+                // A canceled verification is a back-press, not a failure; the restored CTA is the retry.
+                installViewModel.clear()
+            }
+        }
 
     /**
      * Implement this method in child fragments to inflate their specific binding.
@@ -145,6 +197,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         return rootView
     }
 
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        installDialog = childFragmentManager.findFragmentByTag(INSTALL_DIALOG_TAG) as? CustomProgressDialog
+        installViewModel.installState.observe(viewLifecycleOwner) { onAppInstallState(it) }
+    }
+
     override fun onStart() {
         super.onStart()
         if (shouldMonitorNetwork()) {
@@ -155,6 +216,9 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun onStop() {
         super.onStop()
         unregisterNetworkCallback()
+        if (ownsAppInstall && installViewModel.installState.value == AppInstallState.Launching) {
+            installViewModel.clear()
+        }
     }
 
     override fun onDestroyView() {
@@ -304,24 +368,192 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     /**
-     * Pops this fragment off the navigation back stack the next time it is hidden (its [onStop]).
-     * A fragment that has launched another screen on top calls this so the user does not return to
-     * it on back; deferring to onStop keeps the pop from briefly flashing the destination beneath.
+     * Opens an opportunity's learn or delivery app, downloading and verifying it first when the
+     * device does not have it yet. The user stays on this screen throughout; progress and failures
+     * are rendered by [onAppInstallStateChanged].
      */
-    protected fun popSelfOnceHidden() {
-        lifecycle.addObserver(
-            object : DefaultLifecycleObserver {
-                override fun onStop(owner: LifecycleOwner) {
-                    owner.lifecycle.removeObserver(this)
-                    if (!parentFragmentManager.isStateSaved) {
-                        val popped =
-                            NavHostFragment.findNavController(this@BaseConnectFragment).popBackStack()
-                        if (!popped) {
-                            activity!!.finish()
-                        }
+    protected fun launchApp(
+        job: ConnectJobRecord,
+        isLearning: Boolean,
+    ) {
+        val app = if (isLearning) job.learnAppInfo else job.deliveryAppInfo
+        val target = AppInstallTarget(app.appId, isLearning, installOwnerKey)
+
+        if (AppUtils.isAppInstalled(app.appId)) {
+            launchInstalledApp(target)
+            return
+        }
+        if (!installViewModel.install(target, app.installUrl)) {
+            // Another screen's install is already running; it stays the one being reported.
+            Logger.exception(
+                "Ignored a Connect app launch for ${app.appId}",
+                Exception("An install is already running"),
+            )
+        }
+    }
+
+    /**
+     * Renders [state] for this screen. The default is a blocking progress dialog and a toast on
+     * failure, which suits screens with no action bar of their own; screens that own a
+     * [org.commcare.views.connect.ConnectCtaBar] render into it instead.
+     */
+    protected open fun onAppInstallStateChanged(
+        state: AppInstallState,
+        isLearning: Boolean,
+    ) {
+        when (state) {
+            is AppInstallState.Downloading -> {
+                showInstallDialog(isLearning, state.percent, state.status)
+            }
+
+            AppInstallState.Installed, AppInstallState.Verifying -> {
+                showInstallDialog(
+                    isLearning,
+                    INSTALL_PROGRESS_MAX,
+                    getString(R.string.connect_app_finishing_install),
+                )
+            }
+
+            is AppInstallState.Failed -> {
+                dismissInstallDialog()
+                Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+            }
+
+            AppInstallState.Launching, AppInstallState.Idle -> {
+                dismissInstallDialog()
+            }
+        }
+    }
+
+    /**
+     * Only the screen that started an install reports it or acts on its result, so a second screen
+     * observing the same install neither duplicates the launch nor shows a stray dialog.
+     */
+    private fun onAppInstallState(state: AppInstallState) {
+        // Re-applied on every state so a screen recreated mid-install locks itself down again, and
+        // any screen re-enables the action bar once the install that disabled it is over.
+        setBackButtonAndActionBarState(!installViewModel.isInstalling)
+
+        ownedAppInstallTarget?.let { target ->
+            onAppInstallStateChanged(state, target.isLearning)
+
+            when (state) {
+                AppInstallState.Installed -> {
+                    startAppVerification()
+                }
+
+                is AppInstallState.Failed -> {
+                    if (installViewModel.consumeFailure()) {
+                        recoverFromInstallFailure(state)
                     }
                 }
-            },
+
+                else -> {}
+            }
+            return
+        }
+        onAppInstallStateChanged(AppInstallState.Idle, false)
+    }
+
+    /** An installed app still needs its media verified before it can be seated and launched. */
+    private fun startAppVerification() {
+        installViewModel.markVerifying()
+        Toast.makeText(requireContext(), R.string.connect_app_installed, Toast.LENGTH_SHORT).show()
+        verificationLauncher.launch(
+            Intent(requireContext(), CommCareVerificationActivity::class.java)
+                .putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_CONNECT, true),
         )
+    }
+
+    /**
+     * Holds the busy state until the app is actually open, so the bar does not revert to its CTA
+     * while the launch dialog is still working through seating, sign-in and sync. A successful
+     * launch leaves it held: the launch dialog is dismissed before the app's activity is drawn, and
+     * [onStop] drops the state once this screen is off-screen and the revert cannot be seen.
+     */
+    private fun launchInstalledApp(target: AppInstallTarget) {
+        ConnectAppLaunchController(this).launchApp(
+            target.appId,
+            target.isLearning,
+            null,
+            { installViewModel.clear() },
+        )
+    }
+
+    /** The two install failures the user can only act on through a prompt of their own. */
+    private fun recoverFromInstallFailure(state: AppInstallState.Failed) {
+        when (val recovery = state.recovery) {
+            is AppInstallFailureRecovery.CommCareApkUpdate -> {
+                ResourceInstallUtils.showApkUpdatePrompt(
+                    activity,
+                    recovery.versionRequired,
+                    recovery.versionAvailable,
+                )
+            }
+
+            AppInstallFailureRecovery.TargetMismatch -> {
+                ResourceInstallUtils.showTargetMismatchError(activity)
+            }
+
+            AppInstallFailureRecovery.None -> {}
+        }
+    }
+
+    private fun showInstallDialog(
+        isLearning: Boolean,
+        percent: Int,
+        status: String?,
+    ) {
+        if (installDialog == null) {
+            // Showing a dialog after the fragment has saved its state would throw, so skip it.
+            if (childFragmentManager.isStateSaved) {
+                return
+            }
+            installDialog =
+                CustomProgressDialog
+                    .newInstance(
+                        getString(downloadingMessage(isLearning)),
+                        status ?: getString(R.string.connect_app_install_setting_up),
+                        INSTALL_DIALOG_TASK_ID,
+                    ).apply { addProgressBar() }
+            installDialog?.showNow(childFragmentManager, INSTALL_DIALOG_TAG)
+        }
+        installDialog?.updateMessage(status ?: getString(R.string.connect_app_install_setting_up))
+        installDialog?.updateProgressBar(percent, INSTALL_PROGRESS_MAX)
+    }
+
+    private fun dismissInstallDialog() {
+        installDialog?.let {
+            if (it.isAdded) {
+                it.dismissAllowingStateLoss()
+            }
+        }
+        installDialog = null
+    }
+
+    private fun setBackButtonAndActionBarState(enabled: Boolean) {
+        (activity as? ConnectActivity)?.setBackButtonAndActionBarState(enabled)
+    }
+
+    @StringRes
+    protected fun downloadingMessage(isLearning: Boolean): Int =
+        if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
+
+    /** True while any Connect screen in this activity has an app install in flight. */
+    protected val isInstallingApp get() = installViewModel.isInstalling
+
+    /** Drops a failure the user has dismissed, so re-rendering the screen does not bring it back. */
+    protected fun forgetInstallFailure() {
+        if (installViewModel.installState.value is AppInstallState.Failed) {
+            installViewModel.clear()
+        }
+    }
+
+    companion object {
+        private const val INSTALL_DIALOG_TAG = "connect_install_progress"
+
+        // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
+        private const val INSTALL_DIALOG_TASK_ID = -11
+        private const val INSTALL_PROGRESS_MAX = 100
     }
 }

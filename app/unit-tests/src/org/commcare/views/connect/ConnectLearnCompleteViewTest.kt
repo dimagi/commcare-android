@@ -47,7 +47,7 @@ class ConnectLearnCompleteViewTest {
         context =
             ContextThemeWrapper(
                 ApplicationProvider.getApplicationContext<CommCareTestApplication>(),
-                R.style.CommonTheme,
+                R.style.ConnectTheme,
             )
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
@@ -145,7 +145,7 @@ class ConnectLearnCompleteViewTest {
             view.text(R.id.cta_title_text),
         )
         assertEquals(
-            context.getString(R.string.connect_job_info_download_delivery).trim(),
+            context.getString(R.string.connect_download_delivery),
             view.text(R.id.cta_subtitle_text),
         )
         assertEquals(

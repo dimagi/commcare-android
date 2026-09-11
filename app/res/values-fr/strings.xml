@@ -247,8 +247,11 @@ License.
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
     <string name="personalid_welcome_user">Bienvenue %s !</string>
     <string name="personalid_choice_or">_____________    OU    _____________</string>
+    <string name="connect_download_delivery">Télécharger Livraison</string>
+    <string name="connect_app_install_setting_up">Configuration de l\'application…</string>
+    <string name="connect_app_finishing_install">Finalisation de l\'installation…</string>
+    <string name="connect_app_launching">Téléchargement terminé, lancement de l\'application…</string>
     <string name="connect_button_logged_in">Accéder au menu Connecter</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Une erreur s\'est produite dans la configuration de l\'application, ce qui a empêché le chargement correct de tous les marqueurs sur la carte</string>
     <string name="personalid_generic_error">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
     <string name="connect_registration_title">Démarrer avec PersonalID</string>
@@ -356,9 +359,10 @@ License.
     <string name="connect_progress_warning_relearn_tasks_pending">Complétez les tâches assignées pour continuer à fournir des services.</string>
     <string name="connect_open_conversation_button_text">Ouvrir la conversation</string>
     <string name="connect_progress_relearn_tasks_completed">Toutes les tâches requises ont été complétées. Vous pouvez continuer avec les activités de livraison.</string>
-    <string name="connect_download_learn">Téléchargez l\'application Apprendre</string>
-    <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
-    <string name="connect_downloading_delivery">Téléchargement de l\'application de livraison</string>
+    <string name="connect_download_learn">Télécharger Apprentissage</string>
+    <string name="connect_starting_learning">Démarrage de l\'apprentissage</string>
+    <string name="connect_downloading_learn">Téléchargement d\'Apprentissage</string>
+    <string name="connect_downloading_delivery">Téléchargement de Livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>
     <string name="connect_results_summary_transferred">Transféré</string>
     <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
@@ -433,7 +437,6 @@ License.
     <string name="connect_job_info_days">%d jours pour terminer</string>
     <string name="connect_job_info_max_visit">Nombre maximal de visites par jour %d</string>
     <string name="connect_job_info_visit_charge">Gagnez jusqu\'à %s par visite</string>
-    <string name="connect_job_info_download_delivery">Télécharger Livraison</string>
     <string name="connect_job_info_view_info">Voir les informations</string>
     <string name="connect_job_info_view_resume">Reprendre</string>
     <string name="connect_job_info_view_review">Réviser</string>
@@ -729,7 +732,6 @@ License.
         <item quantity="other">%d unités de paiement</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Commencer l\'apprentissage</string>
-    <string name="connect_opportunity_footer_download_learn_app">Télécharger Apprentissage</string>
     <string name="connect_opportunity_modules_footer_note">Terminez les modules, réussissez l\'évaluation et obtenez votre certificat</string>
     <string name="connect_opportunity_footer_download_app">Télécharger l\'app</string>
     <string name="microimage_saving_failed">Impossible d\'enregistrer l\'image. Veuillez réessayer</string>
