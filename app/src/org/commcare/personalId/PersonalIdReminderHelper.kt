@@ -36,6 +36,7 @@ object PersonalIdReminderHelper {
     @JvmStatic
     fun checkAndShowReminder(activity: FragmentActivity) {
         if (PersonalIdManager.getInstance().isloggedIn() && isDue()) {
+            if (activity.supportFragmentManager.findFragmentByTag(BackupCodeReminderDialogFragment.TAG) != null) return
             BackupCodeReminderDialogFragment
                 .newInstance()
                 .show(activity.supportFragmentManager, BackupCodeReminderDialogFragment.TAG)

@@ -2,6 +2,7 @@ package org.commcare.personalId.profile
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -9,16 +10,17 @@ import androidx.navigation.ui.NavigationUI
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.NavigationHostCommCareActivity
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.EmailWorkFlow
-import org.commcare.fragments.personalId.PersonalIdEmailVerificationFragmentArgs
+import org.commcare.fragments.personalId.PersonalIdProfileSendEmailOtpFragmentArgs
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.views.dialogs.CustomProgressDialog
 
 class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfileActivity>() {
     companion object {
         const val EXTRA_PENDING_BACKUP_CODE = "extra_pending_backup_code"
-        const val EXTRA_BACKUP_CODE_RECOVERY_EMAIL = "backup_code_recovery_email"
+        const val EXTRA_INITIATE_BACKUP_CODE_RECOVERY = "extra_initiate_backup_code_recovery"
     }
 
     override fun getLayoutResource(): Int = R.layout.activity_personalid_profile
@@ -33,13 +35,23 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
             checkForPendingBackupCode()
         }
 
-        val recoveryEmail = intent.getStringExtra(EXTRA_BACKUP_CODE_RECOVERY_EMAIL)
-        if (recoveryEmail != null) {
+        if (intent.getBooleanExtra(EXTRA_INITIATE_BACKUP_CODE_RECOVERY, false) && savedInstanceState == null) {
+            initiateBackupCodeRecoveryFlow()
+        }
+    }
+
+    private fun initiateBackupCodeRecoveryFlow() {
+        val email = ConnectUserDatabaseUtil.getUser()?.email
+        if (email != null) {
             val args =
-                PersonalIdEmailVerificationFragmentArgs
-                    .Builder(recoveryEmail, EmailWorkFlow.RECOVERY, 0)
+                PersonalIdProfileSendEmailOtpFragmentArgs
+                    .Builder(email, EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER)
+                    .setMasked(true)
                     .build()
-            navController.navigate(R.id.personalid_email_verification_fragment, args.toBundle())
+            navController.navigate(R.id.personalid_send_email_otp_fragment, args.toBundle())
+        } else {
+            Toast.makeText(this, R.string.personalid_no_email_forgot_backup_code_toast, Toast.LENGTH_LONG).show()
+            finish()
         }
     }
 

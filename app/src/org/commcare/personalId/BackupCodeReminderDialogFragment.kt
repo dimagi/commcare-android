@@ -27,6 +27,7 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         failedAttempts = savedInstanceState?.getInt(KEY_FAILED_ATTEMPTS) ?: 0
+        outcomeHandled = savedInstanceState?.getBoolean(KEY_OUTCOME_HANDLED) ?: false
     }
 
     override fun onCreateView(
@@ -52,6 +53,7 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_FAILED_ATTEMPTS, failedAttempts)
+        outState.putBoolean(KEY_OUTCOME_HANDLED, outcomeHandled)
     }
 
     override fun onDismiss(dialog: DialogInterface) {
@@ -89,16 +91,21 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
 
     private fun onConfirmClicked() {
         val entered = binding.backupCodeView.codeValue
-        val stored = user?.pin
+        val stored =
+            user?.pin ?: run {
+                dismiss()
+                return
+            }
         if (entered == stored) {
             reportAttempt(success = true)
             reportOutcome(AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT)
             outcomeHandled = true
             PersonalIdReminderHelper.scheduleNext()
+            val ctx = requireContext()
             dismiss()
             Toast
                 .makeText(
-                    requireContext(),
+                    ctx,
                     R.string.personalid_backup_code_reminder_success_toast,
                     Toast.LENGTH_SHORT,
                 ).show()
@@ -109,10 +116,11 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
                 reportOutcome("max_attempts")
                 outcomeHandled = true
                 PersonalIdReminderHelper.scheduleNext()
+                val ctx = requireContext()
                 dismiss()
                 Toast
                     .makeText(
-                        requireContext(),
+                        ctx,
                         R.string.personalid_backup_code_reminder_max_attempts_toast,
                         Toast.LENGTH_LONG,
                     ).show()
@@ -203,5 +211,6 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
 
         private const val MAX_ATTEMPTS = 3
         private const val KEY_FAILED_ATTEMPTS = "failed_attempts"
+        private const val KEY_OUTCOME_HANDLED = "outcome_handled"
     }
 }
