@@ -513,6 +513,7 @@
     <string name="connect_corrupt_job_text">No se pudo cargar esta oportunidad</string>
     <string name="personalid_login_via_connect">¡Listo para iniciar sesión!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos experimentando un error irrecuperable al iniciar sesión con tu PersonalId. Por favor, inicia sesión con tu contraseña o recupera tu PersonalId.</string>
+    <string name="personalid_name_appbar_title">Nombre</string>
     <string name="personalid_name_fragment_subtitle">Por favor, ingresa tu nombre tal como aparece en tu identificación emitida por el gobierno</string>
     <string name="personalid_configuration_process_failed_title">Proceso fallido</string>
     <string name="personalid_configuration_process_failed_subtitle">Lamentablemente, este dispositivo no pasó las comprobaciones de seguridad necesarias para registrarse en PersonalID. Por favor, inténtalo de nuevo en un dispositivo diferente.</string>

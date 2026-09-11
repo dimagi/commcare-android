@@ -519,6 +519,7 @@
     <string name="connect_results_summary_approved">Aprovado</string>
     <string name="personalid_login_via_connect">Pronto para fazer login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos a deparar-nos com um erro irrecuperável ao tentar fazer login usando o seu ID Pessoal. Faça login com a sua palavra-passe ou restaure o seu login com o ID Pessoal.</string>
+    <string name="personalid_name_appbar_title">Nome</string>
     <string name="personalid_name_fragment_subtitle">Por favor, insira o seu nome tal como aparece na sua identificação emitida pelo governo</string>
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_locked_account">A sua conta foi bloqueada. Entre em contacto com o suporte</string>

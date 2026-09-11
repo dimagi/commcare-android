@@ -504,6 +504,7 @@
     <string name="connect_results_summary_approved">ጸዲቑ</string>
     <string name="personalid_login_via_connect">ንምእታው ድሉው!\n</string>
     <string name="personalid_failed_to_login_with_connectid">ውልቃዊ መለለዪ መንነትካ ተጠቒምካ ንምእታው ኣብ እንኣስረሉ እዋን ዘይምለስ ጌጋ የጋጥመና ኣሎ። በጃኻ ብፓስዎርድካ እቶ ወይ ድማ ውልቃዊ መለለዪ መእተዊኻ ምምላስ</string>
+    <string name="personalid_name_appbar_title">ስም</string>
     <string name="personalid_name_fragment_subtitle">በጃኹም ኣብቲ ብመንግስቲ ዝተዋህበኩም መለለዪ መንነትኩም ከም ዝረአ ስምኩም ኣእትዉ</string>
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
