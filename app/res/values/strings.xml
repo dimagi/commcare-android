@@ -782,7 +782,7 @@
     <string name="connect_appbar_title_app_lock">App Lock</string>
     <string name="connect_in_progress">In Progress</string>
     <string name="connect_new_opportunities">New Opportunities</string>
-    <string name="connect_completed">Completed</string>
+    <string name="connect_completed_expired_label">Completed / Expired Opportunities</string>
 
     <!--    Entity List Progresss Indicators-->
 
@@ -909,6 +909,9 @@
     <string name="personalid_biometric_error_timeout">Biometric operation timed out. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_cannot_configure">We couldn’t configure biometrics on your device. Please contact customer support if the problem persists.</string>
 
+    <string name="connect_label_expiry">Expiry</string>
+    <string name="connect_label_completed_on">Completed on</string>
+    <string name="connect_label_expired_on">Expired on</string>
     <string name="connect_complete_by">Task ends on %s</string>
     <string name="connect_expired_on">Task ended on %s</string>
 

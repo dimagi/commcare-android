@@ -461,7 +461,7 @@
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_in_progress">ኣብ መስርሕ</string>
     <string name="connect_new_opportunities">ሓደስቲ ዕድላት</string>
-    <string name="connect_completed">ተዛዚሙ</string>
+    <string name="connect_completed_expired_label">ዝተዛዘሙ / ዝተወደኡ ዕድላት</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
     <string name="personalid_email_already_in_use">እዚ ኢመይል እዚ ምስ ካልእ ኣካውንት ተኣሳሲሩ ኣሎ። በጃኻ ካልእ ኣድራሻ ኢመይል ተጠቐም።</string>
@@ -590,6 +590,9 @@
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
+    <string name="connect_label_expiry">መወዳእታ</string>
+    <string name="connect_label_completed_on">ተዛዚሙ ኣብ</string>
+    <string name="connect_label_expired_on">ተወዲኡ ኣብ</string>
     <string name="connect_complete_by">ዕዮ ኣብ %s ይወዳእ</string>
     <string name="connect_expired_on">ዕዮ ኣብ %s ተወዲኡ</string>
     <string name="connect_dashboard">ዳሽቦርድ</string>

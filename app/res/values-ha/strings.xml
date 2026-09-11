@@ -294,7 +294,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_tile_daily_limit_description">An cimma Iyakar Kullum. Babu Biyan Kuɗi don ƙaddamar da fom ɗin</string>
     <string name="connect_in_progress">Ana kai</string>
     <string name="connect_new_opportunities">Sabbin Damammaki</string>
-    <string name="connect_completed">An kammala</string>
+    <string name="connect_completed_expired_label">Damammaki da Aka Kammala / Suka Ƙare</string>
     <string name="personalid_continue_label">Ci gaba</string>
     <string name="connect_verify_phone_resend_code">Sake aika lambar</string>
     <string name="connect_verify_skip_phone_number">Na ga kai mai amfani ne da demo, don haka za mu tsallake OTP</string>
@@ -433,6 +433,9 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_biometric_error_lockout_permanent">Gwaje-gwaje da yawa sun gaza. Da fatan za a buɗe na\'urarka ka sake gwadawa.</string>
     <string name="personalid_biometric_error_timeout">Aikin biometric ya ƙare. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba.</string>
     <string name="personalid_biometric_error_cannot_configure">Ba za mu iya saita yanayin halittu a na\'urarka ba. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba.</string>
+    <string name="connect_label_expiry">Ƙarewa</string>
+    <string name="connect_label_completed_on">An kammala a</string>
+    <string name="connect_label_expired_on">Ya ƙare a</string>
     <string name="connect_complete_by">Aiki yana ƙarewa akan %s</string>
     <string name="connect_expired_on">Aiki ya ƙare a kan %s</string>
     <string name="connect_dashboard">Dashboard</string>

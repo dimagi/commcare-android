@@ -475,7 +475,7 @@
     <string name="connect_job_tile_daily_limit_description">Limite diário atingido. Nenhum pagamento pelo envio de formulários</string>
     <string name="connect_in_progress">Em andamento</string>
     <string name="connect_new_opportunities">Novas oportunidades</string>
-    <string name="connect_completed">Concluído</string>
+    <string name="connect_completed_expired_label">Oportunidades concluídas / expiradas</string>
     <string name="connect_job_tile_daily_visits">Visitas diárias</string>
     <string name="connect_appbar_title_app_lock">Bloqueio de aplicação</string>
     <string name="personalid_incorrect_otp">Você digitou o código de 6 dígitos incorreto. Por favor, tente novamente.</string>
@@ -607,6 +607,9 @@
     <string name="personalid_biometric_error_timeout">A operação biométrica expirou. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_cannot_configure">Não foi possível configurar a biometria no seu dispositivo. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
 
+    <string name="connect_label_expiry">Validade</string>
+    <string name="connect_label_completed_on">Concluído em</string>
+    <string name="connect_label_expired_on">Expirado em</string>
     <string name="connect_complete_by">A tarefa termina em %s</string>
     <string name="connect_expired_on">A tarefa terminou em %s</string>
 
