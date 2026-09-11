@@ -131,15 +131,23 @@ class ConnectCtaBar
                     if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery,
                 )
             when (state) {
-                is AppInstallState.Downloading -> showInstallProgress(state.percent, state.status ?: downloading)
+                is AppInstallState.Downloading -> {
+                    showInstallProgress(state.percent, state.status ?: downloading)
+                }
+
                 // Verification and seating carry on after the download, so the bar stays busy through them.
-                AppInstallState.Installed, AppInstallState.Verifying ->
+                AppInstallState.Installed, AppInstallState.Verifying -> {
                     showInstallProgress(FULL_PROGRESS, context.getString(R.string.connect_app_finishing_install))
+                }
 
-                AppInstallState.Launching ->
+                AppInstallState.Launching -> {
                     showInstallProgress(FULL_PROGRESS, context.getString(R.string.connect_app_launching))
+                }
 
-                is AppInstallState.Failed -> showInstallFailure(state.message, onFailureDismissed)
+                is AppInstallState.Failed -> {
+                    showInstallFailure(state.message, onFailureDismissed)
+                }
+
                 AppInstallState.Idle -> {
                     clearInstallProgress()
                     hideInstallFailure()

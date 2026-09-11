@@ -402,22 +402,26 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         isLearning: Boolean,
     ) {
         when (state) {
-            is AppInstallState.Downloading ->
+            is AppInstallState.Downloading -> {
                 showInstallDialog(isLearning, state.percent, state.status)
+            }
 
-            AppInstallState.Installed, AppInstallState.Verifying ->
+            AppInstallState.Installed, AppInstallState.Verifying -> {
                 showInstallDialog(
                     isLearning,
                     INSTALL_PROGRESS_MAX,
                     getString(R.string.connect_app_finishing_install),
                 )
+            }
 
             is AppInstallState.Failed -> {
                 dismissInstallDialog()
                 Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
             }
 
-            AppInstallState.Launching, AppInstallState.Idle -> dismissInstallDialog()
+            AppInstallState.Launching, AppInstallState.Idle -> {
+                dismissInstallDialog()
+            }
         }
     }
 
@@ -434,13 +438,17 @@ abstract class BaseConnectFragment<B : ViewBinding> :
             onAppInstallStateChanged(state, target.isLearning)
 
             when (state) {
-                AppInstallState.Installed -> startAppVerification()
-                is AppInstallState.Failed ->
+                AppInstallState.Installed -> {
+                    startAppVerification()
+                }
+
+                is AppInstallState.Failed -> {
                     if (installViewModel.consumeFailure()) {
                         recoverFromInstallFailure(state)
                     }
+                }
 
-                else -> Unit
+                else -> {}
             }
             return
         }
@@ -475,15 +483,19 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     /** The two install failures the user can only act on through a prompt of their own. */
     private fun recoverFromInstallFailure(state: AppInstallState.Failed) {
         when (val recovery = state.recovery) {
-            is AppInstallFailureRecovery.CommCareApkUpdate ->
+            is AppInstallFailureRecovery.CommCareApkUpdate -> {
                 ResourceInstallUtils.showApkUpdatePrompt(
                     activity,
                     recovery.versionRequired,
                     recovery.versionAvailable,
                 )
+            }
 
-            AppInstallFailureRecovery.TargetMismatch -> ResourceInstallUtils.showTargetMismatchError(activity)
-            AppInstallFailureRecovery.None -> Unit
+            AppInstallFailureRecovery.TargetMismatch -> {
+                ResourceInstallUtils.showTargetMismatchError(activity)
+            }
+
+            AppInstallFailureRecovery.None -> {}
         }
     }
 
