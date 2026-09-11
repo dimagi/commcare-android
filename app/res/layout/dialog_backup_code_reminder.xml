@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="18dp"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:gravity="top"
         android:orientation="horizontal">
 
@@ -42,32 +42,22 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/reminder_title"
+                    style="@style/MaterialAlertDialog.MaterialComponents.Title.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/personalid_backup_code_reminder_title"
                     android:textColor="@color/connect_dark_blue_color"
-                    android:textSize="20sp"
                     android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
-                    android:layout_marginStart="6dp"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_info_outline_24"
-                    app:tint="@color/connect_subtext_color" />
 
             </LinearLayout>
 
             <TextView
+                style="@style/MaterialAlertDialog.MaterialComponents.Body.Text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:lineSpacingMultiplier="1.5"
+                android:layout_marginTop="8dp"
                 android:text="@string/personalid_backup_code_reminder_message"
-                android:textColor="@color/connect_subtext"
-                android:textSize="14sp" />
+                android:textColor="@color/connect_subtext" />
         </LinearLayout>
     </LinearLayout>
 
@@ -79,8 +69,8 @@
 
         <LinearLayout
             android:id="@+id/lock_icon_container"
-            android:layout_width="46dp"
-            android:layout_height="52dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/connect_side_icon_bg"
             android:gravity="center">
@@ -97,7 +87,7 @@
         <org.commcare.views.connect.NumericCodeView
             android:id="@+id/backup_code_view"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
             app:codeViewBorderColor="@color/connect_blue_color"
             app:codeViewBorderRadius="8dp"
@@ -152,17 +142,13 @@
     </LinearLayout>
 
     <TextView
+        style="@style/MaterialAlertDialog.MaterialComponents.Body.Text"
         android:id="@+id/forgot_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        android:clickable="true"
-        android:focusable="true"
         android:text="@string/personalid_forgot_backup_code"
-        android:textColor="@color/connect_dark_blue_color"
-        android:textSize="14sp"
-        android:textStyle="normal"
-        android:visibility="gone" />
+        android:textColor="@color/connect_dark_blue_color" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -175,22 +161,25 @@
             style="@style/NegativeButtonStyle"
             android:layout_width="0dp"
             android:layout_height="52dp"
-            android:layout_margin="0dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
+            android:padding="8dp"
             android:minWidth="0dp"
             android:text="@string/personalid_backup_code_reminder_skip" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/confirm_button"
+            app:strokeColor="@color/cc_brand_color"
             style="@style/CustomButtonStyle"
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_margin="0dp"
             android:layout_weight="1"
+            android:padding="8dp"
             android:enabled="false"
             android:minWidth="0dp"
             android:text="@string/personalid_backup_code_reminder_confirm" />
+
     </LinearLayout>
 
 </LinearLayout>
