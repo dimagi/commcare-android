@@ -352,6 +352,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_generic_error_title">An fita daga PersonalID</string>
     <string name="personalid_login_via_connect">A shirye don shiga!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Muna fuskantar kuskuren da ba za a iya gyarawa ba yayin da muke haɗa shiga ta amfani da ID ɗinka na Sirri. Da fatan za a shiga da kalmar sirri ko a dawo da shiga ID ɗinka na Sirri</string>
+    <string name="personalid_name_appbar_title">Suna</string>
     <string name="personalid_name_fragment_subtitle">Da fatan za a shigar da sunanka kamar yadda ya bayyana a katin shaidar da gwamnati ta bayar</string>
     <string name="personalid_configuration_process_failed_title">Tsarin aiki ya gaza</string>
     <string name="personalid_configuration_locked_account">An kulle asusunka. Da fatan za a tuntuɓi tallafi</string>

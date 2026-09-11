@@ -509,6 +509,7 @@ License.
     <string name="connect_corrupt_job_text">इस अवसर को लोड करने में असमर्थ</string>
     <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!\n</string>
     <string name="personalid_failed_to_login_with_connectid">आपके व्यक्तिगत आईडी से लॉग इन करते समय हमें एक अप्राप्य त्रुटि का सामना करना पड़ रहा है। कृपया अपने पासवर्ड से लॉग इन करें या अपनी व्यक्तिगत आईडी पुनर्स्थापित करें।</string>
+    <string name="personalid_name_appbar_title">नाम</string>
     <string name="personalid_name_fragment_subtitle">कृपया अपना नाम दर्ज करें जैसा कि आपके सरकार द्वारा जारी आईडी पर दिखाई देता है</string>
     <string name="personalid_configuration_process_failed_title">प्रक्रिया विफल</string>
     <string name="personalid_configuration_process_failed_subtitle">दुर्भाग्य से, यह डिवाइस PersonalID के लिए साइन अप करने हेतु आवश्यक सुरक्षा जांच में विफल रहा। कृपया किसी दूसरे डिवाइस पर पुनः प्रयास करें।</string>
