@@ -197,9 +197,11 @@ class ConnectDeliveryDashboardFragmentTest {
         val requestsBefore = deliveryProgressRequests
         deliveryProgressBody = progressResponse(deliveries = deliveriesToday(unit = 1, count = 3))
         activity.runOnUiThread { syncCard.performClick() }
-        // The response is applied on the IO dispatcher before it reaches the main looper, which is
-        // the hand-off awaitRequest covers and drainHttp does not.
-        mockApi.awaitRequest()
+        // The response is applied on the IO dispatcher before it reaches the main looper, so the
+        // refreshed figures are waited for rather than assumed to have landed.
+        idleUntil("The tapped sync never refreshed the delivery figures") {
+            view.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle).current == 3
+        }
 
         assertEquals("The tap asks for delivery progress", requestsBefore + 1, deliveryProgressRequests)
         assertEquals(
@@ -433,11 +435,22 @@ class ConnectDeliveryDashboardFragmentTest {
     private fun awaitDeliverySync() {
         val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
         val prefs = ConnectSyncPreferences.getInstance()
+        idleUntil("Delivery progress was never synced") { prefs.getLastSyncTime(syncKey) != null }
+    }
+
+    /**
+     * Drains the main looper until [condition] holds, bounded so a response that never arrives
+     * fails with [description] rather than hanging.
+     */
+    private fun idleUntil(
+        description: String,
+        condition: () -> Boolean,
+    ) {
         val deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS
 
-        while (prefs.getLastSyncTime(syncKey) == null) {
+        while (!condition()) {
             if (System.currentTimeMillis() > deadline) {
-                throw AssertionError("Delivery progress was never synced within ${SYNC_TIMEOUT_MS}ms")
+                throw AssertionError("$description within ${SYNC_TIMEOUT_MS}ms")
             }
             ShadowLooper.idleMainLooper()
             Thread.sleep(POLL_INTERVAL_MS)
