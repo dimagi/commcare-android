@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -54,6 +55,15 @@ class BackupCodeReminderDialogFragment : DialogFragment() {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_FAILED_ATTEMPTS, failedAttempts)
         outState.putBoolean(KEY_OUTCOME_HANDLED, outcomeHandled)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.apply {
+            val screenWidth = context.resources.displayMetrics.widthPixels
+            setLayout((screenWidth * 0.92).toInt(), WindowManager.LayoutParams.WRAP_CONTENT)
+            setBackgroundDrawableResource(android.R.color.transparent)
+        }
     }
 
     override fun onDismiss(dialog: DialogInterface) {
