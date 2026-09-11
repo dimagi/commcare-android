@@ -245,7 +245,7 @@
     <string name="failed_to_update_payment">Nepavyko atnaujinti mokėjimo</string>
     <string name="connect_in_progress">Vykdoma</string>
     <string name="connect_new_opportunities">Naujos galimybės</string>
-    <string name="connect_completed">Užbaigta</string>
+    <string name="connect_completed_expired_label">Užbaigtos / pasibaigusios galimybės</string>
 
     <string name="personalid_biometric_error_cancelled">Biometrinis nustatymas buvo atšauktas. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="personalid_biometric_error_lockout">Per daug bandymų. Palaukite ir bandykite dar kartą.</string>
@@ -256,6 +256,9 @@
     <string name="pn_no_notification_available">Pranešimų nėra</string>
     <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
 
+    <string name="connect_label_expiry">Pabaiga</string>
+    <string name="connect_label_completed_on">Užbaigta</string>
+    <string name="connect_label_expired_on">Baigėsi</string>
     <string name="connect_complete_by">Užduotis baigiasi %s</string>
     <string name="connect_expired_on">Užduotis baigėsi %s</string>
     <string name="connect_dashboard">Skydelis</string>
