@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Build
 import android.view.View
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
@@ -42,6 +41,7 @@ import org.commcare.views.connect.ConnectSuccessFailureCard
 import org.commcare.views.connect.ConnectSyncStatusCard
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -254,10 +254,7 @@ class ConnectLearningProgressFragmentTest {
         val syncCard = fragment.requireView().findViewById<ConnectSyncStatusCard>(R.id.learn_progress_sync_card)
 
         // The launch refresh fails, so the card starts out warning about the sync it could not make.
-        assertEquals(
-            ContextCompat.getColor(activity, R.color.burnt_amber),
-            syncCard.strokeColorStateList?.defaultColor,
-        )
+        assertTrue("a failed refresh leaves the card warning", syncCard.state.warning)
 
         mockApi.server.enqueue(
             MockResponse().setResponseCode(200).setBody("""{"completed_modules": [], "assessments": []}"""),
@@ -274,11 +271,7 @@ class ConnectLearningProgressFragmentTest {
             activity.getString(R.string.connect_sync_card_press_to_sync),
             syncCard.findViewById<TextView>(R.id.sync_card_text).text.toString(),
         )
-        assertEquals(
-            "a landed sync leaves no warning on the card",
-            ContextCompat.getColor(activity, R.color.connect_light_grey),
-            syncCard.strokeColorStateList?.defaultColor,
-        )
+        assertFalse("a landed sync leaves no warning on the card", syncCard.state.warning)
     }
 
     /**

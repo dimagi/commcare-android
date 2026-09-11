@@ -92,12 +92,12 @@ class ConnectLearningProgressFragment :
                 job,
                 job.latestLearningActivityDate ?: Date(),
                 ConnectUserDatabaseUtil.getUser().name,
-                View.OnClickListener { onDeliveryCtaClicked() },
+                { onDeliveryCtaClicked() },
             )
         } else {
             binding.learnProgressView.bind(
                 job,
-                View.OnClickListener { navigateToLearnAppHome() },
+                { navigateToLearnAppHome() },
                 { refresh(true) },
             )
         }

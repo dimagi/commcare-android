@@ -27,7 +27,6 @@ import java.text.DateFormat
 class ConnectDeliveryDashboardFragment :
     ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>(),
     RefreshableTab {
-    /** The tab has no endpoint of its own; delivery is synced by the host, which owns the status. */
     private val host get() = requireParentFragment() as ConnectDeliveryHomeFragment
 
     override fun onCreateView(

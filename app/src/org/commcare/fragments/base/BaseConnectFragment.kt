@@ -55,6 +55,17 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var _syncStatus: CharSequence? = null
 
     /**
+     * The sync status last reported through [informSyncStatus], falling back to the stored last sync
+     * time for a fragment that has not observed a sync yet.
+     */
+    val syncStatus: CharSequence
+        get() = _syncStatus ?: getString(R.string.connect_last_synced, getRelativeLastSyncTime())
+
+    /** Whether what is on screen came from a sync that has landed, rather than an older one. */
+    var isSynced: Boolean = false
+        private set
+
+    /**
      * Implement this method in child fragments to inflate their specific binding.
      */
     protected abstract fun inflateBinding(
@@ -83,19 +94,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     /**
-     * The sync status last reported through [informSyncStatus], falling back to the stored last sync
-     * time for a fragment that has not observed a sync yet.
-     */
-    val syncStatus: CharSequence
-        get() = _syncStatus ?: getString(R.string.connect_last_synced, getRelativeLastSyncTime())
-
-    /** Whether what is on screen came from a sync that has landed, rather than an older one. */
-    var isSynced: Boolean = false
-        private set
-
-    /**
-     * Reports this fragment's sync status once its view exists and again whenever a sync settles,
-     * so a screen showing it never has to work out for itself whether a sync is still in flight.
+     * Reports this fragment's sync status once its view exists and again whenever a sync settles.
      */
     protected open fun informSyncStatus(
         lastSyncStatus: CharSequence,
