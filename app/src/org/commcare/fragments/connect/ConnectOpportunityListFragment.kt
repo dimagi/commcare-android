@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.commcare.AppUtils
 import org.commcare.CommCareApplication
@@ -17,7 +17,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAI
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING
-import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.ConnectConstants.DELIVERY_APP
 import org.commcare.connect.ConnectConstants.LEARN_APP
 import org.commcare.connect.ConnectConstants.NEW_APP
@@ -99,12 +98,12 @@ class ConnectOpportunityListFragment :
 
     /** Whether a previous tap has already navigated away, so a second one must be ignored. */
     private fun hasLeftJobsList(): Boolean {
-        val destination = Navigation.findNavController(binding.root).currentDestination
+        val destination = binding.root.findNavController().currentDestination
         return destination == null || destination.id != R.id.connect_jobs_list_fragment
     }
 
     private fun navigateToJobIntro() {
-        Navigation.findNavController(binding.root).navigate(
+        binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
                 .actionConnectJobsListFragmentToConnectJobIntroFragment(),
         )
@@ -116,40 +115,22 @@ class ConnectOpportunityListFragment :
     ) {
         setActiveJob(job)
 
-        val appId = if (isLearning) job.learnAppInfo.appId else job.deliveryAppInfo.appId
-
-        if (job.deliveryComplete()) {
-            navigateToDeliveryProgress()
-        } else if (!job.passedAssessment() || isLearning) {
+        if (isLearning) {
             navigateToLearnProgress()
-        } else if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppLaunchController(this).launchApp(appId, isLearning)
         } else {
-            val textId =
-                if (isLearning) {
-                    R.string.connect_downloading_learn
-                } else {
-                    R.string.connect_downloading_delivery
-                }
-            Navigation.findNavController(binding.root).navigate(
-                ConnectOpportunityListFragmentDirections
-                    .actionConnectJobsListFragmentToConnectDownloadingFragment(
-                        getString(textId),
-                        isLearning,
-                    ),
-            )
+            navigateToDeliveryProgress()
         }
     }
 
     private fun navigateToDeliveryProgress() {
-        Navigation.findNavController(binding.root).navigate(
+        binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
                 .actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment(),
         )
     }
 
     private fun navigateToLearnProgress() {
-        Navigation.findNavController(binding.root).navigate(
+        binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
                 .actionConnectJobsListFragmentToConnectJobLearningProgressFragment(),
         )
@@ -157,7 +138,7 @@ class ConnectOpportunityListFragment :
 
     private fun setActiveJob(job: ConnectJobRecord) {
         CommCareApplication.instance().setConnectJobIdForAnalytics(job)
-        (requireActivity() as ConnectActivity).setActiveJob(job)
+        (requireActivity() as ConnectActivity).activeJob = job
     }
 
     private fun setJobListData(jobs: List<ConnectJobRecord>) {

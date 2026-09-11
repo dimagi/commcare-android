@@ -90,7 +90,16 @@ class ConnectDeliveryHomeFragment :
             )[ConnectDeliveryHomeViewModel::class.java]
 
         setupTabViewPager()
-        binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
+
+        binding.connectDeliveryCtaBar.apply {
+            buttonText =
+                if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
+                    context.getString(R.string.connect_delivery_start)
+                } else {
+                    context.getString(R.string.connect_opportunity_footer_download_app)
+                }
+            setOnCtaClickListener { launchApp(isLearning = false) }
+        }
 
         observeDeliveryAndLearningProgress()
         observeConnectivity()
