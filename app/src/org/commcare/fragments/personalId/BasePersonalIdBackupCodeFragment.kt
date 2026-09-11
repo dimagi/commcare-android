@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.navigation.NavDirections
+import androidx.navigation.findNavController
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding
 import org.commcare.views.connect.NumericCodeView
@@ -44,6 +46,8 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
     }
 
     abstract fun handleBackupCodeSubmission()
+
+    open fun handleForgotBackupCode() {}
 
     protected fun togglePasswordVisibility(
         codeView: NumericCodeView,
@@ -101,6 +105,7 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         binding.confirmCodeView.setOnCodeChangedListener { onCodeChanged() }
         binding.confirmCodeView.setOnEnterKeyPressedListener { submitIfEnabled() }
         binding.connectBackupCodeButton.setOnClickListener { handleBackupCodeSubmission() }
+        binding.personalidForgotBackupCode.setOnClickListener { handleForgotBackupCode() }
         binding.backupCodeVisibilityToggle.setOnClickListener {
             togglePasswordVisibility(binding.backupCodeView, binding.backupCodeVisibilityToggle)
         }
@@ -139,6 +144,8 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
     ) {
         // no default implementation
     }
+
+    protected fun navigate(directions: NavDirections) = binding.root.findNavController().navigate(directions)
 
     companion object {
         const val BACKUP_CODE_LENGTH = 6

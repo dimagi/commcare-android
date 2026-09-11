@@ -81,7 +81,7 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
 
         assertEquals(
             "Verified email in FORGOT_BACKUP_CODE_EXISTING_USER flow should navigate to set-new-backup-code",
-            R.id.personalid_set_new_backup_code_fragment,
+            R.id.personalid_profile_set_new_backup_code_fragment,
             testNavController.currentDestination!!.id,
         )
     }

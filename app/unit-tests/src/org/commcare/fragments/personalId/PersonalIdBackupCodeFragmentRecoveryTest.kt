@@ -72,6 +72,38 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     }
 
     @Test
+    fun `forgot backup code link is gone when no email is on file`() {
+        // Default setUp launches without an email — the link should be hidden.
+        val forgotLink = fragment.requireView().findViewById<android.view.View>(R.id.personalid_forgot_backup_code)
+        assertEquals(View.GONE, forgotLink.visibility)
+    }
+
+    @Test
+    fun `forgot backup code link is visible when masked email is set in session data`() {
+        launchBackupCodeFragment(buildSessionData(accountExists = true, maskedEmail = "u***@example.com"))
+        val forgotLink = fragment.requireView().findViewById<android.view.View>(R.id.personalid_forgot_backup_code)
+        assertEquals(View.VISIBLE, forgotLink.visibility)
+    }
+
+    @Test
+    fun `clicking forgot backup code link navigates to send email OTP with masked email`() {
+        val maskedEmail = "u***@example.com"
+        launchBackupCodeFragment(buildSessionData(accountExists = true, maskedEmail = maskedEmail))
+
+        val forgotLink = fragment.requireView().findViewById<View>(R.id.personalid_forgot_backup_code)
+        clickView(forgotLink)
+
+        assertEquals(R.id.personalid_send_email_otp_fragment, navController.currentDestination?.id)
+        assertEquals(
+            maskedEmail,
+            navController.backStack
+                .last()
+                .arguments
+                ?.getString("email"),
+        )
+    }
+
+    @Test
     fun `welcome back header greets the user by name`() {
         assertEquals(View.VISIBLE, welcomeBackLayout.visibility)
         assertEquals(

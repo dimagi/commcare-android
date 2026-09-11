@@ -289,6 +289,19 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
+    public void completeRecoveryWithEmailOtp(
+            Activity activity,
+            String otp,
+            PersonalIdSessionData sessionData
+    ) {
+        ApiPersonalId.completeRecoveryWithEmailOtp(
+                activity,
+                otp,
+                sessionData.getToken(),
+                createCallback(sessionData, new ConfirmBackupCodeResponseParser())
+        );
+    }
+
     public void completeProfile(
             Context context,
             String userName,
@@ -359,7 +372,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
      */
     public void sendEmailOtp(
             Activity activity,
-            String email,
+            @Nullable String email,
             String personalIdConfigurationToken,
             ConnectUserRecord user
     ) {

@@ -9,7 +9,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.dalvik.R
+import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.commcare.views.connect.NumericCodeView
 import org.json.JSONObject
 import org.junit.After
@@ -34,11 +36,17 @@ import org.robolectric.shadows.ShadowLooper
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
+class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmailVerificationFragmentTest() {
     @Before
     override fun setUp() {
         super.setUp()
         attachTestNavController()
+    }
+
+    @After
+    override fun tearDown() {
+        MockAndroidKeyStoreProvider.deregisterProvider()
+        super.tearDown()
     }
 
     private fun attachTestNavController() {
@@ -287,7 +295,145 @@ class PersonalIdEmailVerificationFragmentTest : BasePersonalIdEmailVerificationF
         )
     }
 
+    // ========== FORGOT_BACKUP_CODE_RECOVERY tests ==========
+
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY calls complete_recovery endpoint`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        mockCompleteRecovery(true)
+
+        enterCode("123456")
+        val request = takeRequestOrFail()
+
+        assertEquals("/users/recover/complete_recovery", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals("email_otp", body.getString("method"))
+        assertEquals("123456", body.getString("otp"))
+    }
+
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY success navigates to set new backup code fragment`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        mockCompleteRecovery(true)
+
+        enterCode("123456")
+        drainHttp()
+
+        assertEquals(R.id.personalid_account_config_set_new_backup_code_fragment, navController.currentDestination!!.id)
+    }
+
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY failure shows an error message`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        mockCompleteRecovery(false)
+
+        enterCode("000000")
+        drainHttp()
+
+        val errorText = fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(View.VISIBLE, errorText!!.visibility)
+        assertEquals(
+            activity.getString(R.string.personalid_incorrect_otp),
+            errorText.text.toString(),
+        )
+    }
+
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY three failures navigate to message screen`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        repeat(3) {
+            mockCompleteRecovery(false)
+            enterCode("000000")
+            drainHttp()
+        }
+
+        assertEquals(R.id.personalid_message_display, navController.currentDestination!!.id)
+        val args = navController.currentBackStackEntry?.arguments
+        assertEquals(activity.getString(R.string.connect_backup_fail_title), args?.getString("title"))
+        assertEquals(activity.getString(R.string.personalid_email_otp_max_attempts_reached), args?.getString("message"))
+    }
+
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY resend omits email from request body`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility = View.VISIBLE
+        }
+        ShadowLooper.idleMainLooper()
+
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        val request = takeRequestOrFail()
+        assertEquals("/users/send_email_otp", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertFalse("resend in FORGOT_BACKUP_CODE_RECOVERY must not include email", body.has("email"))
+    }
+
+    @Test
+    fun `REGISTRATION resend includes email in request body`() {
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility = View.VISIBLE
+        }
+        ShadowLooper.idleMainLooper()
+
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread {
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        val request = takeRequestOrFail()
+        assertEquals("/users/send_email_otp", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals(TEST_EMAIL, body.getString("email"))
+    }
+
     // ========== Helpers ==========
+
+    private fun setUpForgotBackupCodeRecoveryFlow() {
+        MockAndroidKeyStoreProvider.registerProvider()
+        val args =
+            Bundle().apply {
+                putString("email", TEST_EMAIL)
+                putSerializable("workflow", EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY)
+                putInt("emailOtpRequestCount", 0)
+            }
+        val sessionData =
+            PersonalIdSessionData(
+                token = "test-token",
+                userName = "test-user",
+                phoneNumber = "1234567890",
+                requiredLock = PersonalIdSessionData.PIN,
+                demoUser = false,
+            )
+        navigateToFragment(sessionData, R.id.personalid_email_verification, args)
+        activity.runOnUiThread {
+            installTestNavController(
+                fragment.requireView(),
+                R.id.personalid_email_verification,
+                args,
+            )
+        }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun mockCompleteRecovery(success: Boolean) {
+        if (success) {
+            mockWebServer.enqueue(
+                MockResponse().setResponseCode(200).setBody(
+                    """{"username":"u","password":"p","db_key":"dGVzdC1kYi1rZXk=","invited_user":false}""",
+                ),
+            )
+        } else {
+            mockWebServer.enqueue(
+                MockResponse().setResponseCode(401).setBody("""{"error_code":"INCORRECT_OTP"}"""),
+            )
+        }
+    }
 
     private fun enterCode(code: String) {
         val codeView = fragment.view?.findViewById<NumericCodeView>(R.id.otp_code_view)

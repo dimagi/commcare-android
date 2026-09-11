@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.findNavController
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidSendEmailOtpBinding
@@ -12,14 +12,14 @@ import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.fragments.personalId.EmailHelper.maskEmail
 
 /**
- * Screen that sends an email OTP to the user and navigates to the verification screen.
+ * Base fragment for screens that send an email OTP to the user
  */
-class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
-    private lateinit var binding: FragmentPersonalidSendEmailOtpBinding
-    private lateinit var email: String
-    private var masked: Boolean = true
-    private lateinit var workflow: EmailWorkFlow
-    private val emailOtpTracker = AttemptTracker()
+abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
+    protected lateinit var binding: FragmentPersonalidSendEmailOtpBinding
+    protected lateinit var email: String
+    protected var masked: Boolean = true
+    protected lateinit var workflow: EmailWorkFlow
+    protected val emailOtpTracker = AttemptTracker()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +37,9 @@ class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
     }
 
     private fun initArguments() {
-        val args = PersonalIdSendEmailOtpFragmentArgs.fromBundle(requireArguments())
-        email = args.email
-        masked = args.masked
-        workflow = args.workflow
+        email = requireArguments().getString("email")!!
+        masked = requireArguments().getBoolean("masked", true)
+        workflow = requireArguments().getSerializable("workflow") as EmailWorkFlow
     }
 
     private fun setUpView() {
@@ -55,9 +54,9 @@ class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
         clearError()
         EmailHelper.sendEmailOtp(
             activity = requireActivity(),
-            email = email,
+            email = emailForApiCall(),
             workflow = workflow,
-            null,
+            sessionData = getSessionData(),
             tracker = emailOtpTracker,
             onSuccess = {
                 if (!hasLiveView()) return@sendEmailOtp
@@ -71,22 +70,21 @@ class PersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
         )
     }
 
-    private fun navigateToVerification() {
-        val directions =
-            PersonalIdSendEmailOtpFragmentDirections
-                .actionPersonalidSendEmailOtpToEmailVerification(email, emailOtpTracker.requestCount)
-        binding.root.findNavController().navigate(directions)
-    }
-
-    private fun clearError() {
+    protected fun clearError() {
         binding.personalidSendEmailOtpError.visibility = View.GONE
         binding.personalidSendEmailOtpError.text = ""
     }
 
-    private fun showError(message: String) {
+    protected fun showError(message: String) {
         binding.personalidSendEmailOtpError.visibility = View.VISIBLE
         binding.personalidSendEmailOtpError.text = message
     }
+
+    abstract fun getSessionData(): PersonalIdSessionData?
+
+    abstract fun navigateToVerification()
+
+    open fun emailForApiCall(): String? = email
 
     override fun navigateToMessageDisplay(
         title: String,

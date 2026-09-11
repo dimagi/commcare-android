@@ -9,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.PersonalIdUserPreferences;
+import org.commcare.personalId.profile.PersonalIdProfileActivity;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -73,12 +76,15 @@ public class DispatchActivity extends AppCompatActivity {
      */
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
+    public static final int PERSONAL_ID_PENDING_BACKUP_CODE = 5;
+
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
     private boolean personalIdManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
+    private boolean backupCodePrompted = false;
     private boolean shortcutExtraWasConsumed;
     private boolean needToExecuteRecoveryMeasures = false;
 
@@ -86,6 +92,7 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
     private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+    private static final String KEY_PENDING_BACKUP_CODE_PROMPTED = "pending-backup-code-prompted";
 
     private boolean waitingForActivityResultFromLogin;
 
@@ -110,6 +117,7 @@ public class DispatchActivity extends AppCompatActivity {
                     KEY_WAITING_FOR_ACTIVITY_RESULT
             );
             userTriggeredLogout = savedInstanceState.getBoolean(KEY_USER_TRIGGERED_LOGOUT);
+            backupCodePrompted = savedInstanceState.getBoolean(KEY_PENDING_BACKUP_CODE_PROMPTED);
         } else {
             userTriggeredLogout = getIntent().getBooleanExtra(
                     LoginActivity.USER_TRIGGERED_LOGOUT,
@@ -159,6 +167,7 @@ public class DispatchActivity extends AppCompatActivity {
         outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
         outState.putBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT, waitingForActivityResultFromLogin);
         outState.putBoolean(KEY_USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+        outState.putBoolean(KEY_PENDING_BACKUP_CODE_PROMPTED, backupCodePrompted);
     }
 
     private void checkForChangedCCZ() {
@@ -168,6 +177,10 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void dispatch() {
+        if (!backupCodePrompted && PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdManager.getInstance().isloggedIn()) {
+            launchPersonalIdForPendingBackupCode();
+            return;
+        }
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
@@ -385,6 +398,13 @@ public class DispatchActivity extends AppCompatActivity {
         startActivityForResult(intent, HOME_SCREEN);
     }
 
+    private void launchPersonalIdForPendingBackupCode() {
+        backupCodePrompted = true;
+        Intent intent = new Intent(this, PersonalIdProfileActivity.class);
+        intent.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true);
+        startActivityForResult(intent, PERSONAL_ID_PENDING_BACKUP_CODE);
+    }
+
     public static boolean useRootMenuHomeActivity() {
         return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
                 CommCareApplication.instance().isConsumerApp();
@@ -564,6 +584,8 @@ public class DispatchActivity extends AppCompatActivity {
                 return;
             case RECOVERY_MEASURES:
                 RecoveryMeasuresHelper.handleExecutionActivityResult(this, intent);
+                return;
+            case PERSONAL_ID_PENDING_BACKUP_CODE:
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);

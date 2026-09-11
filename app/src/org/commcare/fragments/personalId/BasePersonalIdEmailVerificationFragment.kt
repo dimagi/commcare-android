@@ -8,13 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
 import org.commcare.activities.CommCareActivity
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.ConnectConstants
-import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
@@ -26,41 +22,22 @@ import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 
-open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
+abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     protected lateinit var binding: FragmentPersonalidEmailVerificationBinding
     private lateinit var activity: Activity
     private lateinit var emailOtpTracker: AttemptTracker
 
-    /**
-     * Activity-scoped session data populated by upstream PersonalID fragments
-     * (phone / biometric / OTP / name / backup-code).
-     * Null for the existing user flow.
-     */
     private var personalIdSessionData: PersonalIdSessionData? = null
 
-    private lateinit var enteredEmail: String
+    protected lateinit var enteredEmail: String
 
-    /**
-     * Launch context for this screen — distinguishes brand-new signup, account recovery,
-     * and the "existing user adding email" entry point. Read from a required nav arg.
-     */
-    private lateinit var workflow: EmailWorkFlow
-
-    private fun args() = PersonalIdEmailVerificationFragmentArgs.fromBundle(requireArguments())
-
-    protected open fun resolveEmail(): String = args().email
-
-    protected open fun displayEmail(): String = enteredEmail
-
-    protected open fun resolveWorkflow(): EmailWorkFlow = args().workflow
-
-    protected open fun resolveEmailOtpRequestCount(): Int = args().emailOtpRequestCount
+    protected lateinit var workflow: EmailWorkFlow
 
     private val resendHandler = Handler(Looper.getMainLooper())
     private var otpRequestTime: Long = 0L
     private val resendCooldownMillis = TimeUnit.MINUTES.toMillis(2)
-    private var failedOtpAttempts = 0
-    private val maxOtpAttempts = 3
+    protected var failedOtpAttempts = 0
+    protected val maxOtpAttempts = 3
 
     private val resendTimerRunnable =
         object : Runnable {
@@ -85,17 +62,21 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        personalIdSessionData =
-            ViewModelProvider(requireActivity())
-                .get(PersonalIdSessionDataViewModel::class.java)
-                .personalIdSessionData
+        personalIdSessionData = getSessionData()
         enteredEmail = resolveEmail()
         workflow = resolveWorkflow()
-        emailOtpTracker =
-            AttemptTracker(
-                initialRequestCount = resolveEmailOtpRequestCount(),
-            )
+        emailOtpTracker = AttemptTracker(initialRequestCount = resolveEmailOtpRequestCount())
     }
+
+    abstract fun resolveEmail(): String
+
+    abstract fun displayEmail(): String
+
+    abstract fun resolveWorkflow(): EmailWorkFlow
+
+    abstract fun resolveEmailOtpRequestCount(): Int
+
+    protected open fun getSessionData(): PersonalIdSessionData? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -129,7 +110,7 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         destroyKeyboardScrollListener(binding.personalidEmailVerificationScrollView)
     }
 
-    private fun enableVerifyButton(enabled: Boolean) {
+    protected fun enableVerifyButton(enabled: Boolean) {
         binding.personalidEmailVerifyButton.isEnabled = enabled
     }
 
@@ -153,7 +134,7 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
 
         EmailHelper.sendEmailOtp(
             activity = requireActivity(),
-            email = enteredEmail,
+            email = emailForApiCall(),
             workflow = workflow,
             sessionData = personalIdSessionData,
             tracker = emailOtpTracker,
@@ -182,6 +163,10 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         clearError()
         enableVerifyButton(false)
 
+        doVerifyOtpRequest(otp)
+    }
+
+    protected open fun doVerifyOtpRequest(otp: String) {
         EmailHelper.verifyEmailOtp(
             activity = requireActivity(),
             email = enteredEmail,
@@ -195,67 +180,37 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
             },
             onFailure = { failureCode, t ->
                 if (!hasLiveView()) return@verifyEmailOtp
-                if (!handleCommonSignupFailures(failureCode)) {
-                    showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
-                    failedOtpAttempts++
-                    if (failedOtpAttempts >= maxOtpAttempts) {
-                        if (canSkipEmailVerification()) {
-                            showProceedWithoutEmailDialog()
-                        } else {
-                            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
-                        }
-                    } else if (failureCode.shouldAllowRetry()) {
-                        enableVerifyButton(true)
-                    }
-                }
+                onEmailVerificationFailure(failureCode, t)
             },
         )
     }
 
-    open fun canSkipEmailVerification(): Boolean = true
-
-    open fun onEmailVerified() {
-        when (workflow) {
-            EmailWorkFlow.EXISTING_USER -> {
-                val user = ConnectUserDatabaseUtil.getUser()
-                user.email = enteredEmail
-                ConnectUserDatabaseUtil.storeUser(user)
-                showEmailAddedSuccessDialog()
-            }
-
-            EmailWorkFlow.RECOVERY -> {
-                personalIdSessionData!!.email = enteredEmail
-                finalizeRecoveryAndShowSuccess()
-            }
-
-            EmailWorkFlow.REGISTRATION -> {
-                personalIdSessionData!!.email = enteredEmail
-                navigateToPhotoCapture()
-            }
-
-            else -> {
-                throw IllegalStateException("Unexpected workflow: $workflow")
+    protected fun onEmailVerificationFailure(
+        failureCode: BaseApiHandler.PersonalIdOrConnectApiErrorCodes,
+        t: Throwable?,
+    ) {
+        if (!handleCommonSignupFailures(failureCode)) {
+            showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
+            failedOtpAttempts++
+            if (failedOtpAttempts >= maxOtpAttempts) {
+                onMaxingEmailVerificationAttempts()
+            } else if (failureCode.shouldAllowRetry()) {
+                enableVerifyButton(true)
             }
         }
     }
 
-    fun finalizeRecoveryAndShowSuccess() {
-        PersonalIdRecoveryCompleter.finalizeAccountRecovery(
-            requireActivity(),
-            personalIdSessionData!!,
-        )
-        navigateToRecoverySuccess()
+    protected open fun onMaxingEmailVerificationAttempts() {
+        if (canSkipEmailVerification()) {
+            showProceedWithoutEmailDialog()
+        } else {
+            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
+        }
     }
 
-    private fun navigateToRecoverySuccess() {
-        navigateToMessageDisplay(
-            getString(R.string.connect_recovery_success_title),
-            getString(R.string.connect_recovery_success_message),
-            isCancellable = false,
-            phase = ConnectConstants.PERSONALID_RECOVERY_SUCCESS,
-            buttonText = R.string.ok,
-        )
-    }
+    open fun canSkipEmailVerification(): Boolean = false
+
+    open fun onEmailVerified() {}
 
     private fun showProceedWithoutEmailDialog() {
         val commCareActivity = requireActivity() as CommCareActivity<*>
@@ -288,57 +243,19 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         commCareActivity.showAlertDialog(dialog)
     }
 
-    /**
-     * Confirms to the existing (already-logged-in) user that the email was saved. On acknowledge,
-     * return to the Profile screen when this flow is hosted there; otherwise close the activity.
-     * The dialog is non-cancellable so the user must press OK — the DB write already succeeded by
-     * the time we get here.
-     */
-    private fun showEmailAddedSuccessDialog() {
-        val commCareActivity = requireActivity() as CommCareActivity<*>
-        val dialog =
-            StandardAlertDialog(
-                getString(R.string.personalid_email_added_title),
-                getString(R.string.personalid_email_added_message),
-            )
-        dialog.setPositiveButton(getString(R.string.ok)) { _, _ ->
-            commCareActivity.dismissAlertDialog()
-            val returnedToProfile =
-                binding.root.findNavController().popBackStack(R.id.personalid_profile_fragment, false)
-            if (!returnedToProfile) {
-                requireActivity().finish()
-            }
-        }
-        commCareActivity.showAlertDialog(dialog)
+    protected open fun emailForApiCall(): String? = enteredEmail
+
+    protected open fun proceedWithoutEmail() {
+        // Override in subclasses to handle proceeding without email verification
     }
 
-    private fun proceedWithoutEmail() {
-        // No need to null out sessionData.email — only the OTP-verify success path writes it,
-        // and that path was not taken on this branch.
-        EmailHelper.routeAfterEmailDeclined(
-            fragment = this,
-            workflow = workflow,
-            onRegistration = { navigateToPhotoCapture() },
-            onRecoverySuccess = { finalizeRecoveryAndShowSuccess() },
-        )
-    }
-
-    private fun navigateToPhotoCapture() {
-        binding.root
-            .findNavController()
-            .navigate(
-                PersonalIdEmailVerificationFragmentDirections
-                    .actionPersonalidEmailVerificationToPersonalidPhotoCapture(),
-            )
-    }
-
-    private fun clearError() {
+    protected fun clearError() {
         binding.personalidEmailVerifyError.visibility = View.GONE
         binding.personalidEmailVerifyError.text = ""
         binding.otpCodeView.setErrorState(false)
     }
 
-    private fun showError(message: String) {
+    protected fun showError(message: String) {
         binding.personalidEmailVerifyError.visibility = View.VISIBLE
         binding.personalidEmailVerifyError.text = message
         binding.otpCodeView.setErrorState(true)
@@ -350,16 +267,5 @@ open class PersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
         isCancellable: Boolean,
         phase: Int,
         buttonText: Int,
-    ) {
-        val action =
-            PersonalIdEmailVerificationFragmentDirections
-                .actionPersonalidEmailVerificationToPersonalidMessage(
-                    title,
-                    message.orEmpty(),
-                    phase,
-                    getString(buttonText),
-                    null,
-                ).setIsCancellable(isCancellable)
-        binding.root.findNavController().navigate(action)
-    }
+    ): Unit = throw IllegalStateException("navigateToMessageDisplay should not have a call path in this fragment")
 }

@@ -3,6 +3,7 @@ package org.commcare.connect.network.personalId;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
@@ -187,6 +188,22 @@ public class ApiPersonalId {
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.setBackupCode(token, params);
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.SET_BACKUP_CODE);
+    }
+
+    public static void completeRecoveryWithEmailOtp(
+            Context context,
+            String otp,
+            String token,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        HashMap<String, String> params = new HashMap<>();
+        params.put("method", "email_otp");
+        params.put("otp", otp);
+        PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.completeRecovery(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.COMPLETE_RECOVERY);
     }
 
     public static void reportIntegrity(
@@ -384,7 +401,7 @@ public class ApiPersonalId {
      */
     public static void sendEmailOtp(
             Context context,
-            String email,
+            @Nullable String email,
             String personalIdConfigurationToken,
             ConnectUserRecord user,
             IApiCallback callback
@@ -396,7 +413,9 @@ public class ApiPersonalId {
         Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("email", email);
+        if (email != null) {
+            params.put("email", email);
+        }
 
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.sendEmailOtp(tokenAuth, params);
