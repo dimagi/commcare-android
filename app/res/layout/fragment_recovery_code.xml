@@ -14,16 +14,6 @@
             android:layout_width="match_parent"
             android:orientation="vertical">
 
-        <include layout="@layout/grid_header_top_banner"/>
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="40dp"
-            android:background="@android:color/darker_gray" />
-
         <LinearLayout
             android:id="@+id/welcome_back_layout"
             android:layout_width="match_parent"
