@@ -85,6 +85,13 @@
                 app:contentDisabledColor="?attr/connectOnSurfaceVariant"
                 app:contentPrimaryColor="?attr/connectOnSurfaceVariant" />
 
+            <org.commcare.views.connect.ConnectSyncStatusCard
+                android:id="@+id/delivery_sync_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/connect_space_sm"
+                android:layout_marginTop="@dimen/connect_space_md" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -69,7 +69,6 @@ class ConnectSyncStatusCard
             radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
             strokeWidth = resources.getDimensionPixelSize(R.dimen.connect_stroke_hairline)
-            useCompatPadding = true
             setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
 
             var initialState = State()
