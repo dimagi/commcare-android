@@ -60,6 +60,13 @@ class ConnectLearningProgressFragment :
         viewModel.loadLearningProgress(job, forceRefresh)
     }
 
+    override fun informSyncStatus(
+        lastSyncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
+    }
+
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
@@ -87,10 +94,14 @@ class ConnectLearningProgressFragment :
                 job,
                 job.latestLearningActivityDate ?: Date(),
                 ConnectUserDatabaseUtil.getUser().name,
-                View.OnClickListener { onDeliveryCtaClicked() },
+                { onDeliveryCtaClicked() },
             )
         } else {
-            binding.learnProgressView.bind(job, View.OnClickListener { launchApp(isLearning = true) })
+            binding.learnProgressView.bind(
+                job,
+                { launchApp(isLearning = true) },
+                { refresh(true) },
+            )
         }
     }
 

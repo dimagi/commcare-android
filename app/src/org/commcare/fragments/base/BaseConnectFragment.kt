@@ -39,6 +39,7 @@ import org.commcare.dalvik.databinding.LoadingBinding
 import org.commcare.dalvik.databinding.NetworkStatusBarLayoutBinding
 import org.commcare.engine.resource.ResourceInstallUtils
 import org.commcare.fragments.RefreshableFragment
+import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.interfaces.base.BaseConnectView
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.NetworkStatusBarViewController
@@ -65,6 +66,18 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var lastDataState: DataState<*>? = null
     private var wasOffline: Boolean = false
+    private var _syncStatus: CharSequence? = null
+
+    /**
+     * The sync status last reported through [informSyncStatus], falling back to the stored last sync
+     * time for a fragment that has not observed a sync yet.
+     */
+    val syncStatus: CharSequence
+        get() = _syncStatus ?: getString(R.string.connect_last_synced, getRelativeLastSyncTime())
+
+    /** Whether what is on screen came from a sync that has landed, rather than an older one. */
+    var isSynced: Boolean = false
+        private set
 
     private var installDialog: CustomProgressDialog? = null
 
@@ -130,6 +143,26 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     fun getLastSyncTime(): Date? {
         val endpoint = getEndpoint() ?: return null
         return ConnectSyncPreferences.getInstance().getLastSyncTime(endpoint)
+    }
+
+    /**
+     * Reports this fragment's sync status once its view exists and again whenever a sync settles.
+     */
+    protected open fun informSyncStatus(
+        lastSyncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+    }
+
+    private fun setSyncStatus(
+        lastSyncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        _syncStatus = lastSyncStatus
+        isSynced = synced
+        if (hasLiveView()) {
+            informSyncStatus(lastSyncStatus, synced)
+        }
     }
 
     override fun onCreateView(
@@ -204,6 +237,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         super.onViewCreated(view, savedInstanceState)
         installDialog = childFragmentManager.findFragmentByTag(INSTALL_DIALOG_TAG) as? CustomProgressDialog
         installViewModel.installState.observe(viewLifecycleOwner) { onAppInstallState(it) }
+        informSyncStatus(syncStatus, isSynced)
     }
 
     override fun onStart() {
@@ -228,6 +262,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         _binding = null
         progressBar.visibility = View.GONE
         lastDataState = null
+        _syncStatus = null
+        isSynced = false
     }
 
     override fun showLoading() {
@@ -286,6 +322,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
                 is DataState.Error -> {
                     hideLoading()
+                    setSyncStatus(getString(R.string.connect_last_synced, getRelativeLastSyncTime()), false)
                     if (state.errorCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.TOKEN_DENIED_ERROR) {
                         handleTokenDeniedException()
                     } else if (state.isNetworkError() &&
@@ -302,10 +339,12 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     private fun showSyncSuccess() {
+        setSyncStatus(getString(R.string.connect_sync_successful), true)
         mNetworkStatusBarViewController!!.showMessage(getString(R.string.connect_sync_successful))
     }
 
     private fun showBackOnline() {
+        setSyncStatus(getString(R.string.connect_sync_successful), true)
         mNetworkStatusBarViewController!!.showBackOnline(getString(R.string.connect_sync_successful))
     }
 
