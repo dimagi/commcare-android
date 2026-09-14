@@ -144,7 +144,7 @@ class ConnectLearnProgressViewTest {
         onCta: () -> Unit = {},
     ): ConnectLearnProgressView =
         ConnectLearnProgressView(context).also { view ->
-            view.bind(job) { onCta() }
+            view.bind(job, { onCta() }, {})
         }
 
     private fun ConnectLearnProgressView.text(id: Int) = findViewById<TextView>(id).text.toString()
@@ -364,7 +364,7 @@ class ConnectLearnProgressViewTest {
         val view = bind(inProgressJob(moduleOneId).withoutModuleIds())
         assertEquals(View.GONE, view.visibility(R.id.learn_progress_continue_card))
 
-        view.bind(inProgressJob(moduleOneId)) {}
+        view.bind(inProgressJob(moduleOneId), {}, {})
 
         assertEquals(View.VISIBLE, view.visibility(R.id.learn_progress_continue_heading))
         assertEquals(View.VISIBLE, view.visibility(R.id.learn_progress_continue_card))

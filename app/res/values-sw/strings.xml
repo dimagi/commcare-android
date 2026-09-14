@@ -690,6 +690,7 @@
     <string name="connect_last_synced">Ilisawazishwa mwisho: %s</string>
     <string name="connect_sync_successful">Ilisawazishwa mwisho: Sasa hivi</string>
     <string name="connect_sync_failed">Usawazishaji Umeshindwa, ilisawazishwa mwisho: %s</string>
+    <string name="connect_sync_card_press_to_sync">Bofya hapa kusawazisha</string>
     <string name="connect_offline">Nje ya mtandao</string>
     <string name="connect_back_online">Umerudi mtandaoni</string>
     <string name="connect_never">Kamwe</string>
