@@ -19,6 +19,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -29,6 +30,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -40,6 +42,7 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
+import org.robolectric.shadows.ShadowToast
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -126,6 +129,21 @@ class PersonalIdProfileActivityTest {
         launchWithPendingBackupCode()
         activityController.resume()
         ShadowLooper.idleMainLooper()
+        assertEquals(R.id.personalid_send_email_otp_fragment, navController.currentDestination!!.id)
+
+        mockApiServer.server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread {
+            currentFragment().requireView().findViewById<View>(R.id.personalid_send_email_otp_button).performClick()
+        }
+        mockApiServer.drainHttp()
+        assertEquals(R.id.personalid_email_verification_forgot_backup_code_fragment, navController.currentDestination!!.id)
+
+        mockApiServer.server.enqueue(MockResponse().setResponseCode(200).setBody("""{"status":"success"}"""))
+        activity.runOnUiThread {
+            currentFragment().requireView().findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+        }
+        mockApiServer.drainHttp()
+
         assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, navController.currentDestination!!.id)
     }
 
@@ -145,10 +163,10 @@ class PersonalIdProfileActivityTest {
     }
 
     @Test
-    fun `launched with EXTRA_PENDING_BACKUP_CODE navigates to set new backup code fragment`() {
+    fun `launched with EXTRA_PENDING_BACKUP_CODE navigates to send email otp fragment`() {
         launchWithPendingBackupCode()
         assertEquals(
-            R.id.personalid_profile_set_new_backup_code_fragment,
+            R.id.personalid_send_email_otp_fragment,
             navController.currentDestination!!.id,
         )
     }
@@ -194,9 +212,7 @@ class PersonalIdProfileActivityTest {
 
     @Test
     fun `abandon from set new backup code fragment finishes or has valid destination`() {
-        launchWithPendingBackupCode()
-        activityController.resume()
-        ShadowLooper.idleMainLooper()
+        launchAndResumeWithPendingBackupCode()
 
         activity.runOnUiThread { activity.onBackPressedDispatcher.onBackPressed() }
         ShadowLooper.idleMainLooper()

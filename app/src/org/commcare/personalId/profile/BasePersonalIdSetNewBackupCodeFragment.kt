@@ -48,13 +48,17 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
         }
         dialog.setNegativeButton(getString(R.string.personalid_set_new_backup_code_abandon_negative)) { d, _ ->
             d.dismiss()
-            findNavController().popBackStack()
-            if (findNavController().currentDestination == null) {
-                requireActivity().finish()
-            }
+            onAbandon()
         }
         dialog.makeCancelable()
         dialog.showNonPersistentDialog(requireActivity())
+    }
+
+    protected open fun onAbandon() {
+        findNavController().popBackStack()
+        if (findNavController().currentDestination == null) {
+            requireActivity().finish()
+        }
     }
 
     override fun onResume() {
@@ -109,7 +113,6 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
     ) {
         user.pin = backupCode
         ConnectUserDatabaseUtil.storeUser(user)
-        PersonalIdUserPreferences.setPendingBackupCode(false)
         showSuccess()
     }
 

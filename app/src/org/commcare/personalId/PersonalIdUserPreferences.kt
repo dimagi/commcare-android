@@ -98,6 +98,7 @@ object PersonalIdUserPreferences {
     @JvmStatic
     fun isPendingBackupCode(): Boolean = prefs().getBoolean(KEY_PENDING_BACKUP_CODE, false)
 
+    @JvmStatic
     fun setPendingBackupCode(value: Boolean) {
         prefs().edit { if (value) putBoolean(KEY_PENDING_BACKUP_CODE, true) else remove(KEY_PENDING_BACKUP_CODE) }
     }

@@ -84,7 +84,6 @@ public class DispatchActivity extends AppCompatActivity {
     private boolean personalIdManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
-    private boolean backupCodePrompted = false;
     private boolean shortcutExtraWasConsumed;
     private boolean needToExecuteRecoveryMeasures = false;
 
@@ -92,8 +91,6 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
     private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
-    private static final String KEY_PENDING_BACKUP_CODE_PROMPTED = "pending-backup-code-prompted";
-
     private boolean waitingForActivityResultFromLogin;
 
     boolean alreadyCheckedForAppFilesChange;
@@ -107,7 +104,6 @@ public class DispatchActivity extends AppCompatActivity {
         if (finishIfNotRoot()) {
             return;
         }
-
         if (savedInstanceState != null) {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
             alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(
@@ -117,7 +113,6 @@ public class DispatchActivity extends AppCompatActivity {
                     KEY_WAITING_FOR_ACTIVITY_RESULT
             );
             userTriggeredLogout = savedInstanceState.getBoolean(KEY_USER_TRIGGERED_LOGOUT);
-            backupCodePrompted = savedInstanceState.getBoolean(KEY_PENDING_BACKUP_CODE_PROMPTED);
         } else {
             userTriggeredLogout = getIntent().getBooleanExtra(
                     LoginActivity.USER_TRIGGERED_LOGOUT,
@@ -167,7 +162,6 @@ public class DispatchActivity extends AppCompatActivity {
         outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
         outState.putBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT, waitingForActivityResultFromLogin);
         outState.putBoolean(KEY_USER_TRIGGERED_LOGOUT, userTriggeredLogout);
-        outState.putBoolean(KEY_PENDING_BACKUP_CODE_PROMPTED, backupCodePrompted);
     }
 
     private void checkForChangedCCZ() {
@@ -177,7 +171,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void dispatch() {
-        if (!backupCodePrompted && PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdManager.getInstance().isloggedIn()) {
             launchPersonalIdForPendingBackupCode();
             return;
         }
@@ -399,7 +393,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void launchPersonalIdForPendingBackupCode() {
-        backupCodePrompted = true;
+        PersonalIdUserPreferences.setPendingBackupCode(false);
         Intent intent = new Intent(this, PersonalIdProfileActivity.class);
         intent.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true);
         startActivityForResult(intent, PERSONAL_ID_PENDING_BACKUP_CODE);
