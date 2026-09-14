@@ -36,6 +36,7 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.personalId.PersonalIdReminderHelper;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -108,6 +109,12 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     public void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         getSupportActionBar().setTitle(getString(R.string.connect_title));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PersonalIdReminderHelper.checkAndShowReminder(this);
     }
 
     @Override
