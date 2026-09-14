@@ -26,6 +26,7 @@ enum class PersonalIdWorkflow {
                 EmailWorkFlow.REGISTRATION, EmailWorkFlow.RECOVERY -> CONFIGURATION
                 EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY -> CONFIGURATION
                 EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER -> EDIT_PROFILE
+                EmailWorkFlow.PENDING_BACKUP_CODE -> EDIT_PROFILE
             }
     }
 }

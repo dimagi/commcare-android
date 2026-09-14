@@ -2,6 +2,7 @@ package org.commcare.personalId.profile
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -9,7 +10,9 @@ import androidx.navigation.ui.NavigationUI
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.NavigationHostCommCareActivity
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.views.dialogs.CustomProgressDialog
 
@@ -40,13 +43,23 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
 
     private fun checkForPendingBackupCode() {
         if (!intent.getBooleanExtra(EXTRA_PENDING_BACKUP_CODE, false)) return
-        navController.navigate(
-            R.id.personalid_profile_set_new_backup_code_fragment,
-            null,
-            NavOptions.Builder()
-                .setPopUpTo(R.id.personalid_profile_fragment, true)
-                .build()
-        )
+        val email = ConnectUserDatabaseUtil.getUser()?.email
+        if (email != null) {
+            navController.navigate(
+                R.id.personalid_send_email_otp_fragment,
+                Bundle().apply {
+                    putString("email", email)
+                    putBoolean("masked", true)
+                    putSerializable("workflow", EmailWorkFlow.PENDING_BACKUP_CODE)
+                },
+                NavOptions
+                    .Builder()
+                    .setPopUpTo(R.id.personalid_profile_fragment, true)
+                    .build(),
+            )
+        } else {
+            Toast.makeText(this, R.string.personalid_no_email_forgot_backup_code_toast, Toast.LENGTH_LONG).show()
+        }
     }
 
     fun forgetPersonalIdAccount() {

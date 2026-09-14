@@ -11,6 +11,7 @@ package org.commcare.fragments.personalId
  *    `complete_recovery` then routes to set-new-backup-code.
  *  - [FORGOT_BACKUP_CODE_EXISTING_USER]: profile graph — logged-in user forgot backup code,
  *    verifying via email OTP to be allowed to set a new backup code.
+ *  - [PENDING_BACKUP_CODE]: for the pending-backup-code flow — user has no backup code yet.
  */
 enum class EmailWorkFlow {
     REGISTRATION,
@@ -18,4 +19,5 @@ enum class EmailWorkFlow {
     EXISTING_USER,
     FORGOT_BACKUP_CODE_RECOVERY,
     FORGOT_BACKUP_CODE_EXISTING_USER,
+    PENDING_BACKUP_CODE,
 }

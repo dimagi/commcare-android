@@ -154,6 +154,31 @@ class PersonalIdProfileActivityTest {
     }
 
     @Test
+    fun `send email otp screen title is Set Backup Code in pending backup code flow`() {
+        launchWithPendingBackupCode()
+        activityController.resume()
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(R.id.personalid_send_email_otp_fragment, navController.currentDestination!!.id)
+        assertEquals(
+            activity.getString(R.string.personalid_send_email_otp_pending_backup_code_title),
+            activity.supportActionBar?.title,
+        )
+    }
+
+    @Test
+    fun `launched with EXTRA_PENDING_BACKUP_CODE and no email shows toast`() {
+        val user = ConnectUserDatabaseUtil.getUser()!!
+        user.email = null
+        ConnectDatabaseHelper.getConnectStorage(ConnectUserRecord::class.java).write(user)
+
+        launchWithPendingBackupCode()
+
+        assertEquals(R.id.personalid_profile_fragment, navController.currentDestination!!.id)
+        assertNotNull(ShadowToast.getLatestToast())
+    }
+
+    @Test
     fun `pressing back from set new backup code finishes the activity`() {
         launchAndResumeWithPendingBackupCode()
 

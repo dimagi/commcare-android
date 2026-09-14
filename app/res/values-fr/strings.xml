@@ -417,6 +417,8 @@ License.
     <string name="personalid_forgot_backup_code">Vous avez oublié votre code de sauvegarde ?</string>
     <string name="personalid_backup_code_too_many_attempts">Trop de tentatives. Veuillez réessayer plus tard.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Veuillez ajouter une adresse e-mail</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">Définir le code de secours</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">Votre compte n\'a pas encore de code de secours. Vérifiez votre adresse e-mail ci-dessous pour en créer un.</string>
     <string name="personalid_send_email_otp_title">Récupérer le code de sauvegarde</string>
     <string name="personalid_send_email_otp_description">Nous enverrons un code de vérification à :</string>
     <string name="personalid_send_email_otp_button">Envoyer le code</string>
