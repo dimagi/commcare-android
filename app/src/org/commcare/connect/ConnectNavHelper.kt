@@ -79,7 +79,17 @@ object ConnectNavHelper {
     }
 
     private fun goToProfile(context: Context) {
+        launchProfile(context)
+    }
+
+    fun launchProfile(context: Context) {
         val i = Intent(context, PersonalIdProfileActivity::class.java)
+        context.startActivity(i)
+    }
+
+    fun launchProfileForBackupCodeRecovery(context: Context) {
+        val i = Intent(context, PersonalIdProfileActivity::class.java)
+        i.putExtra(PersonalIdProfileActivity.EXTRA_INITIATE_BACKUP_CODE_RECOVERY, true)
         context.startActivity(i)
     }
 
