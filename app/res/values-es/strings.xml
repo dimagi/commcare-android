@@ -432,6 +432,8 @@
     <string name="personalid_set_new_backup_code_abandon_message">Volver cancelará el proceso de cambio del código de respaldo.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Establecer código de respaldo</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Salir</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">Establecer código de respaldo</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">Por favor, establezca un código de respaldo antes de salir</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
     <string name="connect_job_info_visit">%d visitas máximo</string>

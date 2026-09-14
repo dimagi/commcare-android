@@ -37,7 +37,7 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
         )
     }
 
-    private fun showAbandonDialog() {
+    protected open fun showAbandonDialog() {
         val dialog =
             StandardAlertDialog(
                 getString(R.string.personalid_set_new_backup_code_abandon_title),
