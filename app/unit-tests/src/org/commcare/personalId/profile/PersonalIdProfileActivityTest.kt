@@ -31,6 +31,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -42,7 +43,6 @@ import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
-import org.robolectric.shadows.ShadowToast
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -185,15 +185,14 @@ class PersonalIdProfileActivityTest {
     }
 
     @Test
-    fun `launched with EXTRA_PENDING_BACKUP_CODE and no email shows toast`() {
+    fun `launched with EXTRA_PENDING_BACKUP_CODE and no email throws`() {
         val user = ConnectUserDatabaseUtil.getUser()!!
         user.email = null
         ConnectDatabaseHelper.getConnectStorage(ConnectUserRecord::class.java).write(user)
 
-        launchWithPendingBackupCode()
-
-        assertEquals(R.id.personalid_profile_fragment, navController.currentDestination!!.id)
-        assertNotNull(ShadowToast.getLatestToast())
+        assertThrows(IllegalStateException::class.java) {
+            launchWithPendingBackupCode()
+        }
     }
 
     @Test

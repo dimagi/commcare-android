@@ -58,7 +58,7 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
                     .build(),
             )
         } else {
-            Toast.makeText(this, R.string.personalid_no_email_forgot_backup_code_toast, Toast.LENGTH_LONG).show()
+            throw IllegalStateException("EXTRA_PENDING_BACKUP_CODE launched but user has no email")
         }
     }
 
