@@ -74,12 +74,19 @@ object ConnectNavHelper {
         activity: CommCareActivity<*>,
         policy: UnlockPolicy = UnlockPolicy.ALWAYS,
         listener: ConnectActivityCompleteListener,
+        initiateBackupCodeRecovery: Boolean = false
     ) {
-        unlockAndGoTo(activity, policy, listener, ::goToProfile)
+        unlockAndGoTo(
+            activity,
+            policy,
+            listener,
+            { context -> goToProfile(context, initiateBackupCodeRecovery) })
     }
-
-    private fun goToProfile(context: Context) {
+    fun goToProfile(context: Context, initiateBackupCodeRecovery: Boolean = false) {
         val i = Intent(context, PersonalIdProfileActivity::class.java)
+        if (initiateBackupCodeRecovery) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_INITIATE_BACKUP_CODE_RECOVERY, true)
+        }
         context.startActivity(i)
     }
 
