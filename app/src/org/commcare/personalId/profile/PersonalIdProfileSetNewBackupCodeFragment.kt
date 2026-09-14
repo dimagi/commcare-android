@@ -22,6 +22,6 @@ class PersonalIdProfileSetNewBackupCodeFragment : BasePersonalIdSetNewBackupCode
     }
 
     override fun onAbandon() {
-      moveToProfileOrFinish()
+        moveToProfileOrFinish()
     }
 }

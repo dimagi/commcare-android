@@ -42,14 +42,14 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
         workflow = requireArguments().getSerializable("workflow") as EmailWorkFlow
     }
 
-     open fun setUpView() {
+    open fun setUpView() {
         setAppBarTitle()
         binding.personalidSendEmailOtpAddress.text = if (masked) maskEmail(email) else email
         binding.personalidSendEmailOtpButton.setOnClickListener { sendCode() }
         clearError()
     }
 
-     open fun setAppBarTitle() {
+    open fun setAppBarTitle() {
         setTitle(R.string.personalid_send_email_otp_title)
     }
 

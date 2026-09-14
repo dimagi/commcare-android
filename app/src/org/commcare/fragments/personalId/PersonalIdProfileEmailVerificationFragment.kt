@@ -10,7 +10,6 @@ import org.commcare.views.dialogs.StandardAlertDialog
  * Email verification fragment for the profile flow. This is used when an existing user adds an email to their profile.
  */
 class PersonalIdProfileEmailVerificationFragment : BasePersonalIdEmailVerificationFragment() {
-
     private fun args() = PersonalIdProfileEmailVerificationFragmentArgs.fromBundle(requireArguments())
 
     override fun resolveEmail(): String = args().email
