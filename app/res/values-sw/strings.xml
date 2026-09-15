@@ -421,8 +421,8 @@
     <string name="personalid_profile_edit_save_success">Wasifu wako umesasishwa kwa mafanikio.</string>
     <string name="personalid_profile_change_backup_code">Badilisha nambari ya hifadhi nakala</string>
     <string name="personalid_forgot_backup_code">Umesahau nambari yako ya hifadhi nakala?</string>
-        <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+        <string name="personalid_backup_code_too_many_attempts">Majaribio mengi sana. Tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_profile_add_email_toast">Tafadhali ongeza anwani ya barua pepe</string>
     <string name="personalid_send_email_otp_pending_backup_code_title">Weka Nambari ya Hifadhi</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">Akaunti yako bado haina nambari ya hifadhi. Thibitisha anwani yako ya barua pepe hapa chini ili kuunda moja.</string>
     <string name="personalid_send_email_otp_title">Rejesha msimbo wa hifadhi nakala</string>

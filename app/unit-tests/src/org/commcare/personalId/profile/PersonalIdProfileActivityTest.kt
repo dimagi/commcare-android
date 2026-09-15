@@ -237,21 +237,15 @@ class PersonalIdProfileActivityTest {
     }
 
     @Test
-    fun `successful backup code set after forgot backup code returns to profile fragment`() {
+    fun `successful backup code set after change backup code returns to profile fragment`() {
         launchActivity()
         activityController.resume()
         ShadowLooper.idleMainLooper()
 
-        // Click "Change Backup Code" on the profile fragment to navigate to the backup code screen.
+        // Click "Change Backup Code" — no local pin, so the confirmation screen is skipped and
+        // the user lands directly on the email OTP screen.
         activity.runOnUiThread {
             currentFragment().requireView().findViewById<View>(R.id.profile_change_backup_code).performClick()
-        }
-        ShadowLooper.idleMainLooper()
-        assertEquals(R.id.personalid_profile_backup_code_fragment, navController.currentDestination!!.id)
-
-        // Click "Forgot Backup Code" to start the email OTP recovery flow.
-        activity.runOnUiThread {
-            currentFragment().requireView().findViewById<View>(R.id.personalid_forgot_backup_code).performClick()
         }
         ShadowLooper.idleMainLooper()
         assertEquals(R.id.personalid_send_email_otp_fragment, navController.currentDestination!!.id)

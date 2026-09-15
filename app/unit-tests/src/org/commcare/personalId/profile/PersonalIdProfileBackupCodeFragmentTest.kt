@@ -212,7 +212,7 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         onUiThread { forgotButton().performClick() }
 
         assertEquals(
-            activity.getString(R.string.personalid_no_email_forgot_backup_code_toast),
+            activity.getString(R.string.personalid_profile_add_email_toast),
             ShadowToast.getTextOfLatestToast(),
         )
         assertEquals(R.id.personalid_profile_fragment, currentDestinationId())
