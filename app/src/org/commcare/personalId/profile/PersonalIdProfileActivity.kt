@@ -70,4 +70,13 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         startActivity(intent)
         finish()
     }
+
+    fun showAddEmailToast() {
+        Toast
+            .makeText(
+                this,
+                R.string.personalid_profile_add_email_toast,
+                Toast.LENGTH_LONG,
+            ).show()
+    }
 }
