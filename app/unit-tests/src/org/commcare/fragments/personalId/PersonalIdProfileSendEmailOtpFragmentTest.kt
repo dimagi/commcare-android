@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class PersonalIdSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
+class PersonalIdProfileSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
     private val fragmentArgs =
         Bundle().apply {
             putString("email", "user@example.com")
@@ -38,7 +38,7 @@ class PersonalIdSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
 
     private fun fragment() =
         navHostFragment.childFragmentManager
-            .primaryNavigationFragment as PersonalIdSendEmailOtpFragment
+            .primaryNavigationFragment as PersonalIdProfileSendEmailOtpFragment
 
     private fun sendButton(): MaterialButton = fragment().requireView().findViewById(R.id.personalid_send_email_otp_button)
 

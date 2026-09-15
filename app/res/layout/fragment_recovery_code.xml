@@ -231,6 +231,21 @@
                     android:visibility="gone"
                     android:textStyle="bold"/>
 
+                <TextView
+                    android:id="@+id/personalid_forgot_backup_code"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="@string/personalid_forgot_backup_code"
+                    android:textColor="@color/cc_brand_color"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_backup_code_button"
                     style="@style/CustomButtonStyle"

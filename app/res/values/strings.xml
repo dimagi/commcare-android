@@ -817,9 +817,13 @@
     <string name="personalid_set_new_backup_code_abandon_message">Going back will cancel the Backup Code change process.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Set Backup Code</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Exit</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">Set Backup Code</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">Please set a backup code before exiting</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
     <string name="personalid_send_email_otp_title">Recover backup code</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">Set Backup Code</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">Your account doesn\'t have a backup code yet. Verify your email address below to set one up.</string>
     <string name="personalid_send_email_otp_description">We\'ll send a verification code to:</string>
     <string name="personalid_send_email_otp_button">Send code</string>
     <string name="personalid_send_email_otp_address_label">Recovery email</string>

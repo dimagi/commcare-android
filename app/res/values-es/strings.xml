@@ -420,6 +420,8 @@
     <string name="personalid_forgot_backup_code">¿Olvidaste tu código de respaldo?</string>
     <string name="personalid_backup_code_too_many_attempts">Demasiados intentos. Por favor, inténtalo de nuevo más tarde.</string>
     <string name="personalid_no_email_forgot_backup_code_toast">Por favor, añade una dirección de correo electrónico</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">Establecer código de seguridad</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">Tu cuenta aún no tiene un código de seguridad. Verifica tu dirección de correo electrónico a continuación para configurar uno.</string>
     <string name="personalid_send_email_otp_title">Recuperar código de respaldo</string>
     <string name="personalid_send_email_otp_description">Enviaremos un código de verificación a:</string>
     <string name="personalid_send_email_otp_button">Enviar código</string>
@@ -430,6 +432,8 @@
     <string name="personalid_set_new_backup_code_abandon_message">Volver cancelará el proceso de cambio del código de respaldo.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Establecer código de respaldo</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Salir</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">Establecer código de respaldo</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">Por favor, establezca un código de respaldo antes de salir</string>
     <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
     <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
     <string name="connect_job_info_visit">%d visitas máximo</string>
