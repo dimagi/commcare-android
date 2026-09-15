@@ -14,10 +14,14 @@ object ConnectAppUtils {
     @Volatile
     private var isAppDownloading = false
 
+    /**
+     * Starts downloading an app, reporting to [listener]. Answers false when a download is already
+     * running, in which case [listener] is never called and the caller must not wait on it.
+     */
     fun downloadApp(
         installUrl: String?,
         listener: ResourceEngineListener?,
-    ) {
+    ): Boolean {
         if (!isAppDownloading) {
             isAppDownloading = true
             // Start a new download
@@ -53,7 +57,9 @@ object ConnectAppUtils {
                 },
                 installUrl,
             )
+            return true
         }
+        return false
     }
 
     fun updateLastAccessed(
