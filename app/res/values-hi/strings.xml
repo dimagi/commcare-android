@@ -419,8 +419,8 @@ License.
     <string name="personalid_profile_edit_save_success">आपकी प्रोफ़ाइल सफलतापूर्वक अपडेट कर दी गई है।</string>
     <string name="personalid_profile_change_backup_code">बैकअप कोड बदलें</string>
     <string name="personalid_forgot_backup_code">अपना बैकअप कोड भूल गए?</string>
-        <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+        <string name="personalid_backup_code_too_many_attempts">बहुत अधिक प्रयास। कृपया बाद में पुनः प्रयास करें।</string>
+    <string name="personalid_profile_add_email_toast">कृपया एक ईमेल पता जोड़ें</string>
     <string name="personalid_send_email_otp_pending_backup_code_title">बैकअप कोड सेट करें</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">आपके खाते में अभी तक कोई बैकअप कोड नहीं है। इसे सेट करने के लिए नीचे अपना ईमेल पता सत्यापित करें।</string>
     <string name="personalid_send_email_otp_title">बैकअप कोड पुनः प्राप्त करें</string>

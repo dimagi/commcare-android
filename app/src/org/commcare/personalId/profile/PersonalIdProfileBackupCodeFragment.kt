@@ -45,12 +45,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                     .setMasked(true)
             findNavController().navigate(directions)
         } else {
-            Toast
-                .makeText(
-                    requireContext(),
-                    R.string.personalid_no_email_forgot_backup_code_toast,
-                    Toast.LENGTH_LONG,
-                ).show()
+            (requireActivity() as PersonalIdProfileActivity).showAddEmailToast()
             findNavController().popBackStack()
         }
     }

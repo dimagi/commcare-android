@@ -15,6 +15,9 @@
         <action
             android:id="@+id/action_profile_to_profile_backup_code"
             app:destination="@id/personalid_profile_backup_code_fragment" />
+        <action
+            android:id="@+id/action_profile_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment" />
     </fragment>
 
     <fragment
