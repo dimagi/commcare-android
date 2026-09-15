@@ -172,11 +172,20 @@ Always do Task 7 (Update Monthly Activity Summary Issue) every run. In all comme
       - **Test refactoring**: Improve clarity, reduce brittleness, add helpers
       - **Flaky test fixes**: Stabilize unreliable tests
 
-   e. **Run all tests**: Ensure new tests pass and existing tests still pass.
+   e. **Run ktlint per `.kt` file**: After you finish editing each Kotlin file
+      (before moving on to the next), run
+      `./gradlew ktlintFile -PfilePath=<path/to/file.kt>` on that file. Don't
+      batch ktlint to a single end-of-work pass — fix violations per file
+      while the context is fresh. Re-run after manual fixes until the task
+      passes. Java files use checkstyle separately. See
+      [Running Gradle Tasks](#running-gradle-tasks) for the sandbox
+      `GRADLE_USER_HOME` setup.
 
-   f. **Measure impact**: Generate coverage report if relevant. Document before/after numbers.
+   f. **Run all tests**: Ensure new tests pass and existing tests still pass.
 
-   g. **If tests fail**: See "Test Failures Mean Potential Bugs" in Guidelines. Never modify tests just to force them to pass - investigate and file bug issues when appropriate.
+   g. **Measure impact**: Generate coverage report if relevant. Document before/after numbers.
+
+   h. **If tests fail**: See "Test Failures Mean Potential Bugs" in Guidelines. Never modify tests just to force them to pass - investigate and file bug issues when appropriate.
 
 6. **Finalize changes**:
    - Apply any automatic code formatting used in the repo
@@ -344,3 +353,23 @@ Maintain a single open issue titled `[Test Improver] Monthly Activity {YYYY}-{MM
 - If the test expectations are correct and the code fails them: **file an issue** describing the potential bug. Do not silently "fix" the test.
 - Only adjust test expectations when you have verified the original expectation was incorrect.
 - Document your reasoning in the PR or issue.
+
+## Running Gradle Tasks
+
+The sandbox has a read-only `$HOME`, so the Gradle wrapper's default
+`~/.gradle` location fails with a lock-file write error. Set
+`GRADLE_USER_HOME` **inline** on every `./gradlew` call — `export` does not
+carry between tool calls:
+
+```bash
+mkdir -p "$GITHUB_WORKSPACE/.gradle-home"
+GRADLE_USER_HOME="$GITHUB_WORKSPACE/.gradle-home" ./gradlew ktlintFile -PfilePath=app/path/to/File.kt
+```
+
+The `mkdir -p` runs once; the `GRADLE_USER_HOME=…` prefix is required on
+every invocation. Applies to any Gradle task (`ktlintFile`,
+`testCommcareDebug`, etc.).
+
+Heavy tasks may still hit other sandbox limits (no Android SDK, no signing
+keys, 30-minute timeout) — prefer lightweight lint/format tasks; report
+blockers rather than retrying broken builds.
