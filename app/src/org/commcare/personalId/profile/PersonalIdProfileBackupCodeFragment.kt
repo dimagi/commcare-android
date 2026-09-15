@@ -11,7 +11,6 @@ import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.PersonalIdUserPreferences
 
 class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
-    private val forgotBackupCodeButton get() = binding.notMeButton
     private var isLocked = false
 
     override fun onViewCreated(
@@ -29,20 +28,15 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             titleResId = R.string.connect_backup_code_title_confirm,
             showConfirmCode = false,
             subtitle = getString(R.string.connect_backup_code_message),
-            notMeButtonTextId = R.string.personalid_forgot_backup_code,
         )
+        binding.personalidForgotBackupCode.visibility = View.VISIBLE
     }
 
     override fun onCodeChanged() {
         if (!isLocked) validateBackupCodeAndEnableContinue()
     }
 
-    override fun setupListeners() {
-        super.setupListeners()
-        forgotBackupCodeButton.setOnClickListener { handleForgot() }
-    }
-
-    private fun handleForgot() {
+    override fun handleForgotBackupCode() {
         val email = ConnectUserDatabaseUtil.getUser()?.email
         if (email != null) {
             val directions =
@@ -51,12 +45,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                     .setMasked(true)
             findNavController().navigate(directions)
         } else {
-            Toast
-                .makeText(
-                    requireContext(),
-                    R.string.personalid_no_email_forgot_backup_code_toast,
-                    Toast.LENGTH_LONG,
-                ).show()
+            (requireActivity() as PersonalIdProfileActivity).showAddEmailToast()
             findNavController().popBackStack()
         }
     }

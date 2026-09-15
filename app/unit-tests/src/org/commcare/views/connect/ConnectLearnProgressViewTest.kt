@@ -258,8 +258,10 @@ class ConnectLearnProgressViewTest {
         assertEquals("1. Module 1", view.text(R.id.learn_progress_continue_title))
     }
 
+    /** The learning-state wording is the installed bar's; a missing app shows download wording instead. */
     @Test
     fun `cta subtitle tracks the learning state`() {
+        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.LEARN_APP_ID) } returns true
         assertEquals(
             context.resources.getQuantityString(
                 R.plurals.connect_opportunity_learn_modules_label,
@@ -286,11 +288,19 @@ class ConnectLearnProgressViewTest {
         )
         assertEquals(
             context.getString(R.string.connect_download_learn),
+            missing.text(R.id.cta_subtitle_text),
+        )
+        assertEquals(
+            context.getString(R.string.connect_opportunity_footer_download_app),
             missing.text(R.id.cta_button),
         )
 
         every { AppUtils.isAppInstalled(ConnectLearnJobTestData.LEARN_APP_ID) } returns true
         val installed = bind(inProgressJob(moduleOneId))
+        assertEquals(
+            context.getString(R.string.connect_learn_continue),
+            installed.text(R.id.cta_title_text),
+        )
         assertEquals(
             context.getString(R.string.connect_learn_cta_start),
             installed.text(R.id.cta_button),

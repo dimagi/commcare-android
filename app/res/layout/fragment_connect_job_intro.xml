@@ -255,6 +255,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:buttonText="@string/connect_opportunity_footer_download_app"
-        app:subtitleText="@string/connect_opportunity_footer_download_learn_app"
+        app:subtitleText="@string/connect_download_learn"
         app:titleText="@string/connect_opportunity_footer_start_learning" />
 </LinearLayout>
