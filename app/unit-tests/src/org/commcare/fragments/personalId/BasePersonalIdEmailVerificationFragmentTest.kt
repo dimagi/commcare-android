@@ -7,13 +7,14 @@ import org.commcare.dalvik.R
 import org.junit.Before
 
 /**
- * Base test class for PersonalIdEmailVerificationFragment tests.
+ * Base test class for PersonalIdConfigurationEmailVerificationFragment tests.
  * Inherits the integrity-token mock from [BasePersonalIdConfigurationTest] and adds
  * verification-fragment-specific setup: seeds session data and navigates the real
  * NavController to the email-verification destination with the mandatory `email` and
  * `workflow` arguments populated.
  */
-abstract class BasePersonalIdEmailVerificationFragmentTest : BasePersonalIdConfigurationTest<PersonalIdEmailVerificationFragment>() {
+abstract class BasePersonalIdEmailVerificationFragmentTest :
+    BasePersonalIdConfigurationTest<PersonalIdConfigurationEmailVerificationFragment>() {
     @Before
     @CallSuper
     override fun setUp() {
