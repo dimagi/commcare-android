@@ -548,6 +548,16 @@ android {
     }
 }
 
+// Ensure the release instrumentation test APK task exists regardless of TEST_BUILD_TYPE.
+// AGP 9.x only enables Android test tasks for the testBuildType variant by default,
+// but we run unit tests on debug (TEST_BUILD_TYPE=debug) while instrumentation tests
+// target release for BrowserStack.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) { variantBuilder ->
+        variantBuilder.enableAndroidTest = true
+    }
+}
+
 /**
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
