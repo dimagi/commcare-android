@@ -90,19 +90,15 @@ jobs:
           java-version: '17'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: List available test tasks
-        run: ./gradlew :app:tasks --all 2>&1 | grep -i "test" || true
-        working-directory: commcare-android
-        continue-on-error: true
       - name: Run Tests
-        run: ./gradlew testCommcareDebugUnitTest --no-build-cache
+        run: ./gradlew testCommcareReleaseUnitTest
         working-directory: commcare-android
       - name: Upload unit test report
         if: ${{ failure() }}
         uses: actions/upload-artifact@v6
         with:
           name: unit-test-report
-          path: commcare-android/app/build/reports/tests/testCommcareDebugUnitTest
+          path: commcare-android/app/build/reports/tests/testCommcareReleaseUnitTest
           if-no-files-found: warn
           retention-days: 14
       - name: Generate JaCoCo Report
