@@ -33,7 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * @author ctsims
  */
 
-@ManagedUi(R.layout.screen_multimedia_inflater)
+@ManagedUi("screen_multimedia_inflater")
 public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInflaterActivity> implements UnZipTaskListener {
 
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
@@ -44,19 +44,19 @@ public class MultimediaInflaterActivity extends CommCareActivity<MultimediaInfla
 
     public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
 
-    @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale = "mult.install.prompt")
+    @UiElement(value = "screen_multimedia_inflater_prompt", locale = "mult.install.prompt")
     TextView txtDisplayPrompt;
 
-    @UiElement(value = R.id.screen_multimedia_install_messages, locale = "mult.install.state.empty")
+    @UiElement(value = "screen_multimedia_install_messages", locale = "mult.install.state.empty")
     TextView txtInteractiveMessages;
 
-    @UiElement(R.id.screen_multimedia_inflater_location)
+    @UiElement("screen_multimedia_inflater_location")
     EditText editFileLocation;
 
-    @UiElement(R.id.screen_multimedia_inflater_filefetch)
+    @UiElement("screen_multimedia_inflater_filefetch")
     ImageButton btnFetchFiles;
 
-    @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "mult.install.button")
+    @UiElement(value = "screen_multimedia_inflater_install", locale = "mult.install.button")
     Button btnInstallMultimedia;
 
     private boolean done = false;
