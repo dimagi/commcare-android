@@ -91,7 +91,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run Tests
-        run: ./gradlew testCommcareDebugUnitTest
+        run: ./gradlew testCommcareDebugUnitTest --no-build-cache
         working-directory: commcare-android
       - name: Upload unit test report
         if: ${{ failure() }}
