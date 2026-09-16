@@ -327,6 +327,7 @@ android {
     }
 
     applicationVariants.all { variant ->
+        variant.buildConfigField('String', 'BUILD_VARIANT', "\"${variant.name}\"")
         if (variant.buildType.name in ['release', 'qaAutomation']) {
             variant.outputs.each { output ->
                 output.versionCodeOverride = computeVersionCode()
@@ -496,6 +497,9 @@ android {
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
             testProguardFiles 'test-proguard.cfg'
+
+            buildConfigField 'String', 'BUILD_DIR', fixEscaping("\"${buildDir}\"")
+            buildConfigField 'String', 'PROJECT_DIR', fixEscaping("\"${projectDir}\"")
 
             // enable crashlytics
             buildConfigField 'boolean', 'USE_CRASHLYTICS', 'true'
