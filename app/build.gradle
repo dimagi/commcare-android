@@ -11,7 +11,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 // these directories MUST be named like this, or it won't work
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 apply from: 'jacoco.gradle'
@@ -209,16 +208,15 @@ ext {
 }
 
 afterEvaluate {
-    // Hack to get assets to show up in robolectric tests; try to eventually remove this
-    preCommcareDebugUnitTestBuild.dependsOn mergeCommcareDebugAssets
-    processStandaloneDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
-    processStandaloneReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
-    processLtsDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
-    processLtsReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
-    processCommcareDebugGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
-    processCommcareReleaseGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
-    processCommcareQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
-    processCccStagingQaAutomationGoogleServices.dependsOn injectPropertiesIntoFirebaseConfigFile
+    tasks.findByName("preCommcareDebugUnitTestBuild")?.dependsOn("mergeCommcareDebugAssets")
+    tasks.findByName("processStandaloneDebugGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
+    tasks.findByName("processStandaloneReleaseGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
+    tasks.findByName("processLtsDebugGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
+    tasks.findByName("processLtsReleaseGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
+    tasks.findByName("processCommcareDebugGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
+    tasks.findByName("processCommcareReleaseGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
+    tasks.findByName("processCommcareQaAutomationGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
+    tasks.findByName("processCccStagingQaAutomationGoogleServices")?.dependsOn("injectPropertiesIntoFirebaseConfigFile")
 }
 
 /**
@@ -280,6 +278,7 @@ android {
     buildFeatures {
         buildConfig true
         dataBinding true
+        resValues true
     }
 
     defaultConfig {
@@ -329,24 +328,12 @@ android {
         dataBinding true
     }
 
-    applicationVariants.all { variant ->
-        if (variant.buildType.name in ['release', 'qaAutomation']) {
-            variant.outputs.each { output ->
-                output.versionCodeOverride = computeVersionCode()
-            }
-        }
-    }
-
     compileOptions {
         // Flag to enable support for API desugaring
         coreLibraryDesugaringEnabled true
 
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     signingConfigs {
@@ -365,6 +352,7 @@ android {
             jniLibs.srcDirs = ['libs']
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = sourceLocations
+            kotlin.srcDirs = sourceLocations
             resources.srcDirs = ['src']
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
@@ -391,6 +379,7 @@ android {
 
         test {
             java.srcDirs = ['unit-tests/src/']
+            kotlin.srcDirs = ['unit-tests/src/']
             resources.srcDirs = ['unit-tests/resources/']
             manifest.srcFile 'unit-tests/AndroidManifest.xml'
         }
@@ -398,6 +387,7 @@ android {
         androidTest {
             setRoot('instrumentation-tests/')
             java.srcDirs = ['instrumentation-tests/src/']
+            kotlin.srcDirs = ['instrumentation-tests/src/']
             resources.srcDirs = ['instrumentation-tests/resources']
         }
 
@@ -498,7 +488,7 @@ android {
         release {
             minifyEnabled true
             signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
             testProguardFiles 'test-proguard.cfg'
 
             // enable crashlytics
@@ -510,15 +500,6 @@ android {
             initWith release
             matchingFallbacks = ['release']
             buildConfigField 'boolean', 'IS_QA_AUTOMATION', 'true'
-        }
-    }
-
-    variantFilter { variant ->
-        if (variant.buildType.name == 'qaAutomation') {
-            def flavorName = variant.flavors.isEmpty() ? '' : variant.flavors[0].name
-            if (flavorName != 'commcare' && flavorName != 'cccStaging') {
-                variant.setIgnore(true)
-            }
         }
     }
 
@@ -560,6 +541,22 @@ android {
     lint {
         abortOnError false
         disable 'MissingTranslation', 'ResourceType'
+    }
+}
+
+androidComponents {
+    beforeVariants(selector().withBuildType('qaAutomation')) { variantBuilder ->
+        def flavorName = variantBuilder.productFlavors.isEmpty() ? '' : variantBuilder.productFlavors[0].second
+        if (flavorName != 'commcare' && flavorName != 'cccStaging') {
+            variantBuilder.enable = false
+        }
+    }
+    onVariants(selector().all()) { variant ->
+        if (variant.buildType in ['release', 'qaAutomation']) {
+            variant.outputs.each { output ->
+                output.versionCode.set(computeVersionCode())
+            }
+        }
     }
 }
 
@@ -716,10 +713,6 @@ def getConsumerAppPassword(isConsumerApp) {
     }
 }
 
-downloadLicenses {
-    includeProjectDependencies = true
-    dependencyConfiguration = 'compile'
-}
 
 static def isInstrumentationTestTask(task){
     def instrumentationTestTaskNamePattern = /^(assemble|connected).*AndroidTest/
