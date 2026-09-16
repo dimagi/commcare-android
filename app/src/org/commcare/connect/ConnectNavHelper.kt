@@ -13,6 +13,7 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.personalId.UnlockPolicy
 import org.commcare.personalId.profile.PersonalIdProfileActivity
 
@@ -74,20 +75,35 @@ object ConnectNavHelper {
         activity: CommCareActivity<*>,
         policy: UnlockPolicy = UnlockPolicy.ALWAYS,
         listener: ConnectActivityCompleteListener,
-        initiateBackupCodeRecovery: Boolean = false
+        initiateBackupCodeRecovery: Boolean = false,
     ) {
         unlockAndGoTo(
             activity,
             policy,
             listener,
-            { context -> goToProfile(context, initiateBackupCodeRecovery) })
+            { context -> goToProfile(context, initiateBackupCodeRecovery) },
+        )
     }
-    fun goToProfile(context: Context, initiateBackupCodeRecovery: Boolean = false) {
+
+    fun goToProfile(
+        context: Context,
+        initiateBackupCodeRecovery: Boolean = false,
+        pendingBackupCode: Boolean = false,
+    ) {
         val i = Intent(context, PersonalIdProfileActivity::class.java)
         if (initiateBackupCodeRecovery) {
             i.putExtra(PersonalIdProfileActivity.EXTRA_INITIATE_BACKUP_CODE_RECOVERY, true)
         }
+        if (pendingBackupCode) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true)
+        }
         context.startActivity(i)
+    }
+
+    @JvmStatic
+    fun goToProfileForPendingBackupCode(context: Context) {
+        PersonalIdUserPreferences.setPendingBackupCode(false)
+        goToProfile(context, pendingBackupCode = true)
     }
 
     fun unlockAndGoToConnectJobsList(
