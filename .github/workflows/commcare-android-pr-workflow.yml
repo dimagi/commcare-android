@@ -90,6 +90,10 @@ jobs:
           java-version: '17'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+      - name: List available test tasks
+        run: ./gradlew :app:tasks --all 2>&1 | grep -i "test" || true
+        working-directory: commcare-android
+        continue-on-error: true
       - name: Run Tests
         run: ./gradlew testCommcareDebugUnitTest --no-build-cache
         working-directory: commcare-android
