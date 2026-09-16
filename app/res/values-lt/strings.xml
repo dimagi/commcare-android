@@ -126,6 +126,8 @@
     <string name="personalid_set_new_backup_code_abandon_message">Grįžus atgal bus atšauktas atsarginio kodo keitimo procesas.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Nustatyti atsarginį kodą</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Išeiti</string>
+    <string name="personalid_set_backup_code_reminder_title">Nustatyti atsarginį kodą</string>
+    <string name="personalid_set_backup_code_reminder_message">Jūsų paskyroje nenustatytas atsarginis kodas. Spustelėkite Patvirtinti, kad nustatytumėte.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Nustatyti atsarginį kodą</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Prieš išeidami nustatykite atsarginį kodą</string>
     <string name="nav_drawer_signin_register">Prisijungti / Registruotis</string>

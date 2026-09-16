@@ -16,13 +16,14 @@ import org.commcare.dalvik.databinding.DialogBackupCodeReminderBinding
 import org.commcare.fragments.personalId.BasePersonalIdBackupCodeFragment.Companion.BACKUP_CODE_LENGTH
 import org.commcare.views.connect.toggleVisibility
 import org.commcare.views.dialogs.CustomViewAlertDialog
+import org.commcare.views.dialogs.StandardAlertDialog
 
 class BackupCodeReminderDialog private constructor(
     private val binding: DialogBackupCodeReminderBinding,
     private val context: Context,
+    private val user: ConnectUserRecord,
 ) : CustomViewAlertDialog(binding.root) {
     private var failedAttempts = 0
-    private val user: ConnectUserRecord = ConnectUserDatabaseUtil.getUser()
 
     init {
         makeCancelable()
@@ -91,12 +92,33 @@ class BackupCodeReminderDialog private constructor(
     }
 
     companion object {
-        private  const val MAX_ATTEMPTS = 3
+        private const val MAX_ATTEMPTS = 3
 
         @JvmStatic
         fun show(activity: CommCareActivity<*>) {
-            val binding = DialogBackupCodeReminderBinding.inflate(LayoutInflater.from(activity))
-            activity.showAlertDialog(BackupCodeReminderDialog(binding, activity))
+            val user = ConnectUserDatabaseUtil.getUser()
+            if (user.pin == null) {
+                showSetBackupCodePrompt(activity)
+            } else {
+                val binding = DialogBackupCodeReminderBinding.inflate(LayoutInflater.from(activity))
+                activity.showAlertDialog(BackupCodeReminderDialog(binding, activity, user))
+            }
+        }
+
+        private fun showSetBackupCodePrompt(activity: CommCareActivity<*>) {
+            val dialog =
+                StandardAlertDialog(
+                    activity.getString(R.string.personalid_set_backup_code_reminder_title),
+                    activity.getString(R.string.personalid_set_backup_code_reminder_message),
+                )
+            dialog.setPositiveButton(activity.getString(R.string.personalid_backup_code_reminder_confirm)) { _, _ ->
+                activity.dismissAlertDialog()
+                ConnectNavHelper.goToProfileForPendingBackupCode(activity)
+            }
+            dialog.setNegativeButton(activity.getString(R.string.personalid_backup_code_reminder_skip)) { _, _ ->
+                activity.dismissAlertDialog()
+            }
+            activity.showAlertDialog(dialog)
         }
     }
 }

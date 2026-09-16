@@ -440,6 +440,8 @@ License.
     <string name="personalid_set_new_backup_code_abandon_message">वापस जाने पर बैकअप कोड बदलने की प्रक्रिया रद्द हो जाएगी।</string>
     <string name="personalid_set_new_backup_code_abandon_positive">बैकअप कोड सेट करें</string>
     <string name="personalid_set_new_backup_code_abandon_negative">बाहर निकलें</string>
+    <string name="personalid_set_backup_code_reminder_title">बैकअप कोड सेट करें</string>
+    <string name="personalid_set_backup_code_reminder_message">आपके खाते पर कोई बैकअप कोड सेट नहीं है। एक सेट करने के लिए पुष्टि करें पर क्लिक करें।</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">बैकअप कोड सेट करें</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">बाहर निकलने से पहले कृपया बैकअप कोड सेट करें</string>
     <string name="connect_job_info_delivery_detail">वितरण विवरण</string>

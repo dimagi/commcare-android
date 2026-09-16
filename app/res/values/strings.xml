@@ -387,6 +387,8 @@
     <string name="personalid_backup_code_reminder_max_attempts_toast">You have exceeded the maximum number of attempts.</string>
     <string name="personalid_backup_code_reminder_skip">Skip</string>
     <string name="personalid_backup_code_reminder_confirm">Confirm</string>
+    <string name="personalid_set_backup_code_reminder_title">Set Backup Code</string>
+    <string name="personalid_set_backup_code_reminder_message">You don\'t have a backup code set on your account. Click Confirm to set one.</string>
 
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
     <string name="personalid_network_response_parsing_error">Error parsing data from server. Please contact customer support.</string>

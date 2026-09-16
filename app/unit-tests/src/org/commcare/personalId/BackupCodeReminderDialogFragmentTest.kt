@@ -12,6 +12,7 @@ import org.commcare.personalId.profile.PersonalIdProfileActivity
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -168,5 +169,40 @@ class BackupCodeReminderDialogFragmentTest : BasePersonalIdProfileTest() {
 
         assertNull(activity.getCurrentAlertDialog())
         assertNull(ShadowToast.getLatestToast())
+    }
+
+    // ===== No pin =====
+
+    private fun showNoPinDialog() {
+        onUiThread { activity.dismissAlertDialog() }
+        user.pin = null
+        showDialog()
+    }
+
+    private fun noPinDialogView() = activity.getCurrentAlertDialog()!!.dialog!!
+
+    @Test
+    fun `no pin shows set backup code prompt`() {
+        showNoPinDialog()
+        assertNotNull(activity.getCurrentAlertDialog())
+    }
+
+    @Test
+    fun `confirm on set backup code prompt starts profile activity with pending backup code flag`() {
+        showNoPinDialog()
+        onUiThread { noPinDialogView().findViewById<View>(R.id.positive_button).performClick() }
+
+        assertNull(activity.getCurrentAlertDialog())
+        val startedIntent = shadowOf(activity).nextStartedActivity
+        assertEquals(PersonalIdProfileActivity::class.java.name, startedIntent.component?.className)
+        assertTrue(startedIntent.getBooleanExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, false))
+    }
+
+    @Test
+    fun `skip on set backup code prompt dismisses dialog`() {
+        showNoPinDialog()
+        onUiThread { noPinDialogView().findViewById<View>(R.id.negative_button).performClick() }
+
+        assertNull(activity.getCurrentAlertDialog())
     }
 }

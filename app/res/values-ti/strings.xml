@@ -443,6 +443,8 @@
     <string name="personalid_set_new_backup_code_abandon_message">ምምላስ ናብ ድሕሪት ን ምቕያር ናይ ምትካእ ኮድ ሃለዋት ይስርዝ።</string>
     <string name="personalid_set_new_backup_code_abandon_positive">ናይ ምትካእ ኮድ ኣቐምጥ</string>
     <string name="personalid_set_new_backup_code_abandon_negative">ውጻእ</string>
+    <string name="personalid_set_backup_code_reminder_title">ናይ ምትካእ ኮድ ኣቐምጥ</string>
+    <string name="personalid_set_backup_code_reminder_message">ኣብ ሕሳብካ ዝቐረበ ናይ ምትካእ ኮድ የብልካን። ሓደ ንምቕማጥ ኣረጋጽ ጠውቕ።</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">ናይ ምትካእ ኮድ ኣቐምጥ</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">በጃኻ ቅድሚ ምውጻእካ ናይ ምትካእ ኮድ ኣቐምጥ</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>

@@ -442,6 +442,8 @@
     <string name="personalid_set_new_backup_code_abandon_message">Kurudi nyuma kutabatilisha mchakato wa kubadilisha nambari ya hifadhi.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Weka Nambari ya Hifadhi</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Toka</string>
+    <string name="personalid_set_backup_code_reminder_title">Weka Nambari ya Hifadhi</string>
+    <string name="personalid_set_backup_code_reminder_message">Huna nambari ya hifadhi iliyowekwa kwenye akaunti yako. Bonyeza Thibitisha ili uweke moja.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Weka Nambari ya Hifadhi</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Tafadhali weka nambari ya hifadhi kabla ya kutoka</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>

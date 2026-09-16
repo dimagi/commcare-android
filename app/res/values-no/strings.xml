@@ -126,6 +126,8 @@
     <string name="personalid_set_new_backup_code_abandon_message">Å gå tilbake vil avbryte prosessen med å endre sikkerhetskoden.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Angi sikkerhetskode</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Avslutt</string>
+    <string name="personalid_set_backup_code_reminder_title">Angi sikkerhetskode</string>
+    <string name="personalid_set_backup_code_reminder_message">Du har ikke en sikkerhetskode registrert på kontoen din. Klikk Bekreft for å angi en.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Angi sikkerhetskode</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Vennligst angi en sikkerhetskode før du avslutter</string>
     <string name="nav_drawer_signin_register">Logg inn / Registrer deg</string>
