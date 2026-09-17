@@ -10,6 +10,13 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - When too many incorrect email or phone OTP codes are entered, the OTP code is now reported as no longer usable and the user is prompted to request a new one, instead of showing a generic error. The wait before a new OTP code can be requested is now shown accurately.
 
+### QA Notes
+
+- After too many wrong email or phone OTP codes, the field clears, the message explains the OTP code can no longer be used, and Resend is offered straight away.
+- Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
+- A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
+- In the forgot-backup-code recovery flow, running out of attempts keeps the user on the verification screen instead of ending the flow.
+
 ## CommCare 2.63.5
 
 ### Release Notes
