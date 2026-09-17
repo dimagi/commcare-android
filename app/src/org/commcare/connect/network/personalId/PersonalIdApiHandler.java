@@ -302,6 +302,19 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
+    public void completeRecoveryWithBackupCode(
+            Activity activity,
+            String backupCode,
+            PersonalIdSessionData sessionData
+    ) {
+        ApiPersonalId.completeRecoveryWithBackupCode(
+                activity,
+                backupCode,
+                sessionData.getToken(),
+                createCallback(sessionData, new ConfirmBackupCodeResponseParser())
+        );
+    }
+
     public void completeProfile(
             Context context,
             String userName,

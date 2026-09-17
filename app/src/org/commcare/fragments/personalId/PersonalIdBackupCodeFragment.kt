@@ -132,7 +132,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                     enableContinueButton(true)
                 }
             }
-        }.confirmBackupCode(activity, backupCode, personalIdSessionData)
+        }.completeRecoveryWithBackupCode(activity, backupCode, personalIdSessionData)
     }
 
     private fun handleConfirmBackupCodeSuccess() {

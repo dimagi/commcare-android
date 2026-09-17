@@ -196,11 +196,32 @@ public class ApiPersonalId {
             String token,
             IApiCallback callback
     ) {
-        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
-        String tokenAuth = HttpUtils.getCredential(authInfo);
         HashMap<String, String> params = new HashMap<>();
         params.put("method", "email_otp");
         params.put("otp", otp);
+        completeRecovery(context, params, token, callback);
+    }
+
+    public static void completeRecoveryWithBackupCode(
+            Context context,
+            String backupCode,
+            String token,
+            IApiCallback callback
+    ) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("method", "backup_code");
+        params.put("recovery_pin", backupCode);
+        completeRecovery(context, params, token, callback);
+    }
+
+    private static void completeRecovery(
+            Context context,
+            HashMap<String, String> params,
+            String token,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.completeRecovery(tokenAuth, params);
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.COMPLETE_RECOVERY);

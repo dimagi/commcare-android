@@ -145,14 +145,16 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     // ========== Request ==========
 
     @Test
-    fun `a complete code posts it to the confirm endpoint and disables continue while in flight`() {
+    fun `a complete code posts it to the complete_recovery endpoint and disables continue while in flight`() {
         // No response is enqueued so the request stays in flight, making the disabled assertion deterministic.
         enterBackupCode(TEST_BACKUP_CODE)
 
         val request = takeRequestOrFail()
-        assertEquals("/users/recover/confirm_backup_code", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals("/users/recover/complete_recovery", request.path)
         assertEquals("POST", request.method)
-        assertEquals(TEST_BACKUP_CODE, JSONObject(request.body.readUtf8()).getString("recovery_pin"))
+        assertEquals("backup_code", body.getString("method"))
+        assertEquals(TEST_BACKUP_CODE, body.getString("recovery_pin"))
 
         val authHeader = request.headers["Authorization"]
         assertNotNull("Authorization header should be present", authHeader)
