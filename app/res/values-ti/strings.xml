@@ -277,6 +277,21 @@
     <string name="personalid_email_otp_failed_retry">ከም ብሓዱሽ ፈትን</string>
     <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
     <string name="personalid_email_otp_max_attempts_reached">ዝለዓለ ቁጽሪ ምርግጋጽ ፈቲኖ ኣኺሉ። በጃኹም ድሒሩ ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_otp_limit_exceeded">ንዚ ኮድ እዚ ኩሉ ፈተነታት ተጠቒምኩምሉ ኢኹም፣ ስለዚ ደጊም ኣይሰርሕን እዩ። ንምቕጻል ሓድሽ ኮድ ሕተቱ።</string>
+    <string name="personalid_rate_limited_retry_after">ብዙሕ ፈተነታት። በጃኹም ድሕሪ %1$s ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_otp_resend_wait">ኮድኩም ኣይበጽሐኩምን ድዩ? ድሕሪ %1$s ደጊምኩም ስደዱ</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">%d ካልኢት</item>
+        <item quantity="other">%d ካልኢታት</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">%d ደቒቕ</item>
+        <item quantity="other">%d ደቓይቕ</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">%d ሰዓት</item>
+        <item quantity="other">%d ሰዓታት</item>
+    </plurals>
     <string name="personalid_email_added_title">ኢመይል ተወሲኹ</string>
     <string name="personalid_email_added_message">ኢመይልካ ብዓወት ተወሲኹ።</string>
     <string name="personalId_email_otp_sent">ናብ ኢመይል ኣድራሻኻ ናይ 6 ኣሃዝ መሕለፊ ቓል ተላኢኹ ኣሎ።</string>
