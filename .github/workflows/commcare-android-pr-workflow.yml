@@ -70,7 +70,7 @@ jobs:
           cat > ~/.gradle/gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.parallel=false
-          TEST_BUILD_TYPE=debug
+          TEST_BUILD_TYPE=release
           RELEASE_STORE_FILE=/home/runner/.gradle/commcare-odk-keys.keystore
           RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}

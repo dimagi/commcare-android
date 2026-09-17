@@ -548,13 +548,13 @@ android {
     }
 }
 
-// Ensure the release instrumentation test APK task exists regardless of TEST_BUILD_TYPE.
-// AGP 9.x only enables Android test tasks for the testBuildType variant by default,
-// but we run unit tests on debug (TEST_BUILD_TYPE=debug) while instrumentation tests
-// target release for BrowserStack.
+// AGP 9.x only enables unit tests for the TEST_BUILD_TYPE variant and Android tests for
+// the same variant by default. We set TEST_BUILD_TYPE=release (so instrumentation tests
+// target release for BrowserStack) and explicitly enable unit tests for debug here so
+// testCommcareDebugUnitTest is also registered.
 androidComponents {
-    beforeVariants(selector().withBuildType("release")) { variantBuilder ->
-        variantBuilder.enableAndroidTest = true
+    beforeVariants(selector().withBuildType("debug")) { variantBuilder ->
+        variantBuilder.enableUnitTest = true
     }
 }
 

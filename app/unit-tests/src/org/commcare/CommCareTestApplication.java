@@ -35,6 +35,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
+import org.commcare.utils.CrashUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -79,6 +80,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void onCreate() {
+        CrashUtil.disableForTests();
+
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
 
@@ -97,6 +100,10 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     protected void attachISRGCert() {
         //overrule this custom loader due to issues with bootstrapping the library
+    }
+
+    @Override
+    protected void initFirebasePerformance() {
     }
 
     @Override
