@@ -101,6 +101,9 @@ abstract class BaseApiHandler<T>(
         // The OTP the user entered is incorrect.
         INCORRECT_OTP_ERROR,
 
+        // The user ran out of guesses on an OTP, so the server discarded it.
+        OTP_LIMIT_EXCEEDED_ERROR,
+
         // The photo uploaded for the user is too large for server to handle. Note that, currently,
         // the user does not have much control over the photo size.
         FILE_TOO_LARGE_ERROR,

@@ -283,7 +283,6 @@ License.
     <string name="personalid_email_otp_failed_message">Il semble que vous ayez du mal à vérifier votre adresse e-mail. Vous pouvez ignorer cette étape pour le moment et réessayer plus tard, ou continuer d\'essayer.</string>
     <string name="personalid_email_otp_failed_retry">Réessayer</string>
     <string name="personalid_email_otp_failed_skip">Continuer sans e-mail</string>
-    <string name="personalid_email_otp_max_attempts_reached">Nombre maximum de tentatives de vérification atteint. Veuillez réessayer plus tard.</string>
     <string name="personalid_otp_limit_exceeded">Vous avez utilisé toutes les tentatives pour ce code, il n\'est donc plus valide. Demandez un nouveau code pour continuer.</string>
     <string name="personalid_rate_limited_retry_after">Trop de tentatives. Veuillez réessayer dans %1$s.</string>
     <string name="personalid_otp_resend_wait">Vous n\'avez pas reçu votre code ? Renvoyer dans %1$s</string>

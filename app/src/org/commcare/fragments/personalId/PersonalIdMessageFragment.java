@@ -143,9 +143,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 GeoUtils.goToProperLocationSettingsScreen(activity);
                 activity.finish();
                 break;
-            case ConnectConstants.PERSONALID_RECOVERY_EMAIL_OTP_FAILED:
-                directions = navigateToBackupCode();
-                break;
             default:
                 NavHostFragment.findNavController(this).navigateUp();
                 break;

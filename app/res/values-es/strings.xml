@@ -221,7 +221,6 @@
     <string name="personalid_email_otp_failed_message">Parece que tienes problemas para verificar tu correo electrónico. Puedes omitir esto por ahora e intentarlo de nuevo más tarde, o seguir intentándolo.</string>
     <string name="personalid_email_otp_failed_retry">Intentar de nuevo</string>
     <string name="personalid_email_otp_failed_skip">Continuar sin correo</string>
-    <string name="personalid_email_otp_max_attempts_reached">Se ha alcanzado el número máximo de intentos de verificación. Por favor, inténtelo de nuevo más tarde.</string>
     <string name="personalid_otp_limit_exceeded">Ha utilizado todos los intentos para este código, por lo que ya no es válido. Solicite un código nuevo para continuar.</string>
     <string name="personalid_rate_limited_retry_after">Demasiados intentos. Vuelva a intentarlo en %1$s.</string>
     <string name="personalid_otp_resend_wait">¿No recibió su código? Reenviar en %1$s</string>

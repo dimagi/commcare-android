@@ -284,7 +284,6 @@
     <string name="personalid_email_otp_failed_message">Inaonekana una matatizo katika kuthibitisha barua pepe yako. Unaweza kuruka hatua hii kwa sasa na kujaribu tena baadaye, au uendelee kujaribu.</string>
     <string name="personalid_email_otp_failed_retry">Jaribu tena</string>
     <string name="personalid_email_otp_failed_skip">Endelea bila barua pepe</string>
-    <string name="personalid_email_otp_max_attempts_reached">Imefikiwa idadi ya juu ya majaribio ya uthibitishaji. Tafadhali jaribu tena baadaye.</string>
     <string name="personalid_otp_limit_exceeded">Umetumia majaribio yote ya msimbo huu, kwa hivyo hauna tena uhalali. Omba msimbo mpya ili kuendelea.</string>
     <string name="personalid_rate_limited_retry_after">Majaribio mengi mno. Tafadhali jaribu tena baada ya %1$s.</string>
     <string name="personalid_otp_resend_wait">Hukupokea msimbo wako? Tuma tena baada ya %1$s</string>

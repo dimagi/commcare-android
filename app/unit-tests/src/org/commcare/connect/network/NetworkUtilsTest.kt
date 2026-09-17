@@ -6,6 +6,7 @@ import io.mockk.mockk
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.network.base.NetworkUtils
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -83,6 +84,35 @@ class NetworkUtilsTest {
         val result = NetworkUtils.getErrorCodes("not valid json")
         assertEquals("", result.first)
         assertEquals("", result.second)
+    }
+
+    // ── getRetryAfterSeconds ─────────────────────────────────────────────────
+
+    @Test
+    fun `getRetryAfterSeconds returns the value from a rate-limited response`() {
+        val json = """{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""
+        assertEquals(7200, NetworkUtils.getRetryAfterSeconds(json))
+    }
+
+    @Test
+    fun `getRetryAfterSeconds returns null when the field is absent`() {
+        assertNull(NetworkUtils.getRetryAfterSeconds("""{"error_code":"RATE_LIMITED"}"""))
+    }
+
+    @Test
+    fun `getRetryAfterSeconds returns null for an empty body`() {
+        assertNull(NetworkUtils.getRetryAfterSeconds(""))
+    }
+
+    @Test
+    fun `getRetryAfterSeconds returns null for a non-JSON body`() {
+        assertNull(NetworkUtils.getRetryAfterSeconds("<html>429</html>"))
+    }
+
+    @Test
+    fun `getRetryAfterSeconds treats a non-positive wait as no wait at all`() {
+        assertNull(NetworkUtils.getRetryAfterSeconds("""{"retry_after_seconds":0}"""))
+        assertNull(NetworkUtils.getRetryAfterSeconds("""{"retry_after_seconds":-30}"""))
     }
 
     // ── logFailedResponse ────────────────────────────────────────────────────

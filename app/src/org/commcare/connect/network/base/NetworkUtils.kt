@@ -54,6 +54,31 @@ object NetworkUtils {
         return Pair(errorCode, errorSubCode)
     }
 
+    /**
+     * Extracts retry_after_seconds from a RATE_LIMITED error response body, or null when the
+     * server did not supply one.
+     */
+    @JvmStatic
+    fun getRetryAfterSeconds(errorBody: String): Int? {
+        if (errorBody.isEmpty()) {
+            return null
+        }
+
+        return try {
+            val retryAfterSeconds = JSONObject(errorBody).optInt("retry_after_seconds", -1)
+
+            if (retryAfterSeconds > 0) {
+                retryAfterSeconds
+            } else {
+                null
+            }
+        } catch (_: JSONException) {
+            // This runs against every error body, not just JSON ones, and getErrorCodes() has
+            // already reported the bodies that fail to parse.
+            null
+        }
+    }
+
     @JvmStatic
     fun logFailedResponse(
         responseMessage: String,

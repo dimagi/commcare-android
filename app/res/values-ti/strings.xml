@@ -276,7 +276,6 @@
     <string name="personalid_email_otp_failed_message">ኢመይል ምርግጋጽ ጸገም የጋጥመካ ኣሎ ዝመስል። ንሕጂ ነዚ ክትሓልፎ እሞ ድሕሪ ቑሩብ ግዜ ክትፍትን፣ ወይ ምፍታን ክትቕጽል ትኽእል ኢኻ።</string>
     <string name="personalid_email_otp_failed_retry">ከም ብሓዱሽ ፈትን</string>
     <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
-    <string name="personalid_email_otp_max_attempts_reached">ዝለዓለ ቁጽሪ ምርግጋጽ ፈቲኖ ኣኺሉ። በጃኹም ድሒሩ ደጊምኩም ፈትኑ።</string>
     <string name="personalid_otp_limit_exceeded">ንዚ ኮድ እዚ ኩሉ ፈተነታት ተጠቒምኩምሉ ኢኹም፣ ስለዚ ደጊም ኣይሰርሕን እዩ። ንምቕጻል ሓድሽ ኮድ ሕተቱ።</string>
     <string name="personalid_rate_limited_retry_after">ብዙሕ ፈተነታት። በጃኹም ድሕሪ %1$s ደጊምኩም ፈትኑ።</string>
     <string name="personalid_otp_resend_wait">ኮድኩም ኣይበጽሐኩምን ድዩ? ድሕሪ %1$s ደጊምኩም ስደዱ</string>
