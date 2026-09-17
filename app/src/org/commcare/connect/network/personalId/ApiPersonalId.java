@@ -157,23 +157,6 @@ public class ApiPersonalId {
         makePostRequestWithUrl(context, url, null, params, headers, true, callback);
     }
 
-    public static void confirmBackupCode(
-            Context context,
-            String backupCode,
-            String token,
-            IApiCallback callback
-    ) {
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", backupCode);
-
-        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
-        String tokenAuth = HttpUtils.getCredential(authInfo);
-        PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
-        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.CONFIRM_BACKUP_CODE);
-    }
-
     public static void setBackupCode(
             Context context,
             String userId,

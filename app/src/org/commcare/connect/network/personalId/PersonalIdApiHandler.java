@@ -266,19 +266,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void confirmBackupCode(
-            Activity activity,
-            String backupCode,
-            PersonalIdSessionData sessionData
-    ) {
-        ApiPersonalId.confirmBackupCode(
-                activity,
-                backupCode,
-                sessionData.getToken(),
-                createCallback(sessionData, new ConfirmBackupCodeResponseParser())
-        );
-    }
-
     public void setBackupCode(Context context, String userId, String password, String newPin) {
         ApiPersonalId.setBackupCode(
                 context,
