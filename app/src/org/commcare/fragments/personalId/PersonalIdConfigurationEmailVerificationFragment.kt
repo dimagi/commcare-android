@@ -10,6 +10,7 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.fragments.extensions.hasLiveView
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.personalId.PersonalIdUserPreferences
 
@@ -145,9 +146,16 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
     }
 
     private fun finalizeRecovery() {
+        val recoveryMethod =
+            if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY) {
+                AnalyticsParamValue.CCC_RECOVERY_METHOD_EMAIL_OTP
+            } else {
+                AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE
+            }
         PersonalIdRecoveryCompleter.finalizeAccountRecovery(
             requireActivity(),
             personalIdSessionData!!,
+            recoveryMethod
         )
     }
 

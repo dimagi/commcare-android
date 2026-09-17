@@ -12,6 +12,8 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.json.JSONObject
 import org.junit.After
@@ -24,6 +26,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mockStatic
+import org.mockito.kotlin.eq
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
@@ -227,6 +231,21 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
             message = fragment.getString(R.string.connect_recovery_success_message),
             phase = ConnectConstants.PERSONALID_RECOVERY_SUCCESS,
         )
+    }
+
+    @Test
+    fun `a confirmed code passes backup_code as the recovery method`() {
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            mockWebServer.enqueue(successResponse())
+            enterBackupCode(TEST_BACKUP_CODE)
+            drainHttp()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
+                )
+            }
+        }
     }
 
     // ========== Failure ==========

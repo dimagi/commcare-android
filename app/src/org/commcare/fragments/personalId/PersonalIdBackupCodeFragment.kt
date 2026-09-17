@@ -141,7 +141,11 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         ) {
             navigateToEmail()
         } else {
-            PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
+            PersonalIdRecoveryCompleter.finalizeAccountRecovery(
+                requireActivity(),
+                personalIdSessionData,
+                AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE,
+            )
             navigateToSuccess()
         }
     }
