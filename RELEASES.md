@@ -38,6 +38,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Confirm that entering an incorrect verification code still displays the "incorrect code" error and does not silently trigger a new OTP.
 - On the QA automation build, the photo step of PersonalID sign-up should open with a placeholder photo already shown and Save Photo enabled, and saving it should create the account without the camera ever opening.
 - On a normal build, the photo step should be unchanged: Save Photo stays disabled until a photo is actually taken.
+- Verify that on the PersonalID email verification screen, entering a complete 6-digit code does not submit automatically — the Verify button must be tapped to trigger submission.
 
 ## CommCare 2.63.4
 
