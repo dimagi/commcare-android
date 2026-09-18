@@ -3,6 +3,7 @@ package org.commcare.fragments.connect
 import android.content.Context
 import android.os.Build
 import android.view.View
+import android.widget.TextView
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
@@ -15,6 +16,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -24,6 +26,7 @@ import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectLearnJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
@@ -37,8 +40,10 @@ import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectSuccessFailureCard
+import org.commcare.views.connect.ConnectSyncStatusCard
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -90,6 +95,9 @@ class ConnectLearningProgressFragmentTest {
 
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
+
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
 
         // Pre-enqueue a response so the getOpportunities request made by the start destination
         // does not hang, then drain it so it doesn't sit ahead of later requests in the queue.
@@ -147,7 +155,7 @@ class ConnectLearningProgressFragmentTest {
     }
 
     @Test
-    fun `tapping the progress cta routes to the learn download when the learn app is missing`() {
+    fun `tapping the progress cta downloads the learn app without leaving the screen`() {
         val fragment =
             launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
 
@@ -156,21 +164,17 @@ class ConnectLearningProgressFragmentTest {
         activity.runOnUiThread { ctaButton.performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
-
-        // The delivery download reaches the same destination, so the arguments are what distinguish
-        // the two: this path must ask for the learn app.
-        val args = navController.currentBackStackEntry?.arguments
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
         assertEquals(
-            activity.getString(R.string.connect_downloading_learn),
-            args?.getString("title"),
+            R.id.connect_job_learning_progress_fragment,
+            navController.currentDestination?.id,
         )
-        assertTrue("Should download the learn app, not the delivery app", args!!.getBoolean("learning"))
+        assertCtaBarShowsDownload(fragment, R.id.learnProgressView, R.string.connect_downloading_learn)
         assertEquals("Progress CTA should not claim the job", requestsBefore, mockApi.server.requestCount)
     }
 
     @Test
-    fun `tapping the cta claims the job and navigates to the delivery download`() {
+    fun `tapping the cta claims the job and downloads the delivery app in place`() {
         val job = ConnectLearnJobTestData.job()
         val fragment = launch(job)
 
@@ -184,7 +188,12 @@ class ConnectLearningProgressFragmentTest {
             ConnectJobRecord.STATUS_DELIVERING,
             ConnectJobUtils.getCompositeJob(job.jobUUID)?.status,
         )
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        assertEquals(
+            R.id.connect_job_learning_progress_fragment,
+            navController.currentDestination?.id,
+        )
+        assertCtaBarShowsDownload(fragment, R.id.learnCompleteView, R.string.connect_downloading_delivery)
     }
 
     @Test
@@ -209,7 +218,11 @@ class ConnectLearningProgressFragmentTest {
         clickCta(fragment)
 
         assertEquals("No claim request should be sent", requestsBefore, mockApi.server.requestCount)
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        assertEquals(
+            R.id.connect_job_learning_progress_fragment,
+            navController.currentDestination?.id,
+        )
     }
 
     @Test
@@ -240,6 +253,47 @@ class ConnectLearningProgressFragmentTest {
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
     }
 
+    /**
+     * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
+     * same learn-progress call and leave the card reporting the sync that landed.
+     */
+    @Test
+    fun `tapping the sync card reloads learning progress and clears the warning`() {
+        val job = seedLearningJob()
+        val fragment = launch(job)
+        val syncCard = fragment.requireView().findViewById<ConnectSyncStatusCard>(R.id.learn_progress_sync_card)
+
+        // The launch refresh fails, so the card starts out warning about the sync it could not make.
+        assertTrue("a failed refresh leaves the card warning", syncCard.state.warning)
+
+        mockApi.server.enqueue(
+            MockResponse().setResponseCode(200).setBody("""{"completed_modules": [], "assessments": []}"""),
+        )
+        activity.runOnUiThread { syncCard.performClick() }
+        val request = mockApi.awaitRequest()
+
+        assertEquals("/api/opportunity/${job.jobUUID}/learn_progress", request.path)
+        assertEquals(
+            activity.getString(R.string.connect_sync_successful),
+            syncCard.findViewById<TextView>(R.id.sync_card_subtext).text.toString(),
+        )
+        assertEquals(
+            activity.getString(R.string.connect_sync_card_press_to_sync),
+            syncCard.findViewById<TextView>(R.id.sync_card_text).text.toString(),
+        )
+        assertFalse("a landed sync leaves no warning on the card", syncCard.state.warning)
+    }
+
+    /**
+     * A successful learn-progress sync writes the opportunity and reads it back, so unlike the
+     * failure the other tests drive, the job has to exist in the database.
+     */
+    private fun seedLearningJob(): ConnectJobRecord {
+        val seeded = ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null)
+        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), listOf(seeded), true)
+        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+    }
+
     private fun launch(job: ConnectJobRecord): ConnectLearningProgressFragment {
         activity.setActiveJob(job)
         // Pre-enqueue a 400 for getLearningProgress so it doesn't hang; a 400 error leaves the
@@ -251,9 +305,9 @@ class ConnectLearningProgressFragmentTest {
             )
         }
         ShadowLooper.idleMainLooper()
-        // Drain the getLearningProgress request so it doesn't sit ahead of the claim request in the queue.
-        mockApi.drainHttp()
-        ShadowLooper.idleMainLooper()
+        // getLearningProgress finishes on ConnectRequestManager's background scope, so the result
+        // needs awaiting rather than a single drain; it also clears the request queue for the claim.
+        mockApi.awaitRequest()
         return navHostFragment.childFragmentManager.primaryNavigationFragment
             as ConnectLearningProgressFragment
     }
@@ -280,6 +334,24 @@ class ConnectLearningProgressFragmentTest {
             .requireView()
             .findViewById<View>(R.id.learnProgressView)
             .findViewById(R.id.cta_button)
+
+    /**
+     * Asserts the action bar inside [learnViewId] has swapped its CTA for a running download
+     * labelled [downloadingLabelResId].
+     */
+    private fun assertCtaBarShowsDownload(
+        fragment: ConnectLearningProgressFragment,
+        learnViewId: Int,
+        downloadingLabelResId: Int,
+    ) {
+        val learnView = fragment.requireView().findViewById<View>(learnViewId)
+        assertEquals(View.VISIBLE, learnView.findViewById<View>(R.id.cta_progress_ring).visibility)
+        assertEquals(View.GONE, learnView.findViewById<View>(R.id.cta_button).visibility)
+        assertEquals(
+            activity.getString(downloadingLabelResId),
+            learnView.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
+        )
+    }
 
     /**
      * Answers the pending claim request with [responseCode] and drains the response callback,

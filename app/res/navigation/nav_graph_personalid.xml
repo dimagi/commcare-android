@@ -111,6 +111,9 @@
             android:id="@+id/action_personalid_backupcode_to_personalid_email"
             app:destination="@id/personalid_email"
             app:popUpTo="@id/personalid_backup_code" />
+        <action
+            android:id="@+id/action_personalid_backup_code_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment" />
     </fragment>
 
     <fragment
@@ -178,8 +181,27 @@
     </fragment>
 
     <fragment
+        android:id="@+id/personalid_send_email_otp_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdConfigurationSendEmailOtpFragment"
+        android:label="@string/personalid_send_email_otp_title">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="masked"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <action
+            android:id="@+id/action_personalid_send_email_otp_to_email_verification"
+            app:destination="@id/personalid_email_verification" />
+    </fragment>
+
+    <fragment
         android:id="@+id/personalid_email_verification"
-        android:name="org.commcare.fragments.personalId.PersonalIdEmailVerificationFragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdConfigurationEmailVerificationFragment"
         android:label="fragment_personalid_email_verification"
         tools:layout="@layout/fragment_personalid_email_verification">
         <argument
@@ -197,5 +219,21 @@
         <action
             android:id="@+id/action_personalid_email_verification_to_personalid_message"
             app:destination="@id/personalid_message_display" />
+        <action
+            android:id="@+id/action_personalid_email_verification_to_set_new_backup_code"
+            app:destination="@id/personalid_account_config_set_new_backup_code_fragment"
+            app:popUpTo="@id/personalid_phone_fragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_account_config_set_new_backup_code_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdAccountConfigSetNewBackupCodeFragment"
+        android:label="@string/personalid_set_new_backup_code_title">
+        <action
+            android:id="@+id/action_set_new_backup_code_to_personalid_message"
+            app:destination="@id/personalid_message_display"
+            app:popUpTo="@id/personalid_phone_fragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

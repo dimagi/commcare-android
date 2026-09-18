@@ -35,6 +35,8 @@ data class PersonalIdSessionData(
     var userName: String? = null,
     // email of the user; non-null means the address has been verified server-side or via OTP this session
     var email: String? = null,
+    // masked email shown to user for identification (e.g. "u***@example.com")
+    var maskedEmail: String? = null,
     // phone number of the user
     var phoneNumber: String? = null,
     // recovery code of the user

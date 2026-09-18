@@ -86,6 +86,13 @@
                 android:layout_marginTop="@dimen/standard_title_margin_bottom"
                 tools:linearProgressLabel="@string/connect_learn_modules_completed_label" />
 
+            <org.commcare.views.connect.ConnectSyncStatusCard
+                android:id="@+id/learn_progress_sync_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/standard_title_margin_bottom" />
+
             <TextView
                 android:id="@+id/learn_progress_continue_heading"
                 android:layout_width="match_parent"

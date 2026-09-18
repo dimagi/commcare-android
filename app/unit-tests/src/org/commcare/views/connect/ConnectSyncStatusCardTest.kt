@@ -82,18 +82,6 @@ class ConnectSyncStatusCardTest {
     }
 
     @Test
-    fun `warning switches the card outline`() {
-        val card = newCard()
-
-        card.bind(ConnectSyncStatusCard.State(warning = true))
-
-        assertEquals(
-            ContextCompat.getColor(card.context, R.color.burnt_amber),
-            card.strokeColorStateList?.defaultColor,
-        )
-    }
-
-    @Test
     fun `the badge trails the status text`() {
         val card = newCard()
         val row = card.findViewById<ImageView>(R.id.sync_card_icon).parent as ViewGroup

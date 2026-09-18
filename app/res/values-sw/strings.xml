@@ -248,8 +248,11 @@
     <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
     <string name="personalid_welcome_user">Karibu %s!</string>
     <string name="personalid_choice_or">____________ AU _____________</string>
+    <string name="connect_download_delivery">Pakua Uwasilishaji</string>
+    <string name="connect_app_install_setting_up">Inasanidi programu…</string>
+    <string name="connect_app_finishing_install">Inakamilisha usakinishaji…</string>
+    <string name="connect_app_launching">Upakuaji umekamilika, inafungua programu…</string>
     <string name="connect_button_logged_in">Nenda kwenye menyu ya Unganisha</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Kulikuwa na hitilafu katika usanidi wa programu kutokana na ambayo si alama zote kwenye ramani zimepakiwa ipasavyo</string>
     <string name="personalid_generic_error">Tatizo limetokea, tafadhali sanidi akaunti yako ya PersonalID tena.</string>
     <string name="connect_registration_title">Usajili wa PersonalId</string>
@@ -358,9 +361,10 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Kamilisha kazi zilizopewa ili kuendelea kutoa huduma.</string>
     <string name="connect_open_conversation_button_text">Fungua Mazungumzo</string>
     <string name="connect_progress_relearn_tasks_completed">Kazi zote zinazohitajika zimekamilika. Unaweza kuendelea na shughuli za uwasilishaji.</string>
-    <string name="connect_download_learn">Pakua Programu ya Jifunze</string>
-    <string name="connect_downloading_learn">Inapakua Programu ya Jifunze</string>
-    <string name="connect_downloading_delivery">Inapakua Programu ya Uwasilishaji</string>
+    <string name="connect_download_learn">Pakua Kujifunza</string>
+    <string name="connect_starting_learning">Kuanza kujifunza</string>
+    <string name="connect_downloading_learn">Inapakua Kujifunza</string>
+    <string name="connect_downloading_delivery">Inapakua Uwasilishaji</string>
     <string name="connect_results_summary_earned">Imelipwa</string>
     <string name="connect_results_summary_transferred">Imehamishwa</string>
     <string name="connect_payment_confirm_text">Je, umelipwa %d %s kwa ajili ya fursa ya %s?</string>
@@ -417,8 +421,10 @@
     <string name="personalid_profile_edit_save_success">Wasifu wako umesasishwa kwa mafanikio.</string>
     <string name="personalid_profile_change_backup_code">Badilisha nambari ya hifadhi nakala</string>
     <string name="personalid_forgot_backup_code">Umesahau nambari yako ya hifadhi nakala?</string>
-        <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+        <string name="personalid_backup_code_too_many_attempts">Majaribio mengi sana. Tafadhali jaribu tena baadaye.</string>
+    <string name="personalid_profile_add_email_toast">Tafadhali ongeza anwani ya barua pepe</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">Weka Nambari ya Hifadhi</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">Akaunti yako bado haina nambari ya hifadhi. Thibitisha anwani yako ya barua pepe hapa chini ili kuunda moja.</string>
     <string name="personalid_send_email_otp_title">Rejesha msimbo wa hifadhi nakala</string>
     <string name="personalid_send_email_otp_description">Tutatuma msimbo wa uthibitisho kwa:</string>
     <string name="personalid_send_email_otp_button">Tuma msimbo</string>
@@ -429,13 +435,14 @@
     <string name="personalid_set_new_backup_code_abandon_message">Kurudi nyuma kutabatilisha mchakato wa kubadilisha nambari ya hifadhi.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Weka Nambari ya Hifadhi</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Toka</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">Weka Nambari ya Hifadhi</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">Tafadhali weka nambari ya hifadhi kabla ya kutoka</string>
     <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
     <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
     <string name="connect_job_info_visit">%d upeo wa Ziara</string>
     <string name="connect_job_info_days">Siku %d kukamilika</string>
     <string name="connect_job_info_max_visit">Upeo wa juu wa kutembelewa kwa siku %d</string>
     <string name="connect_job_info_visit_charge">Pata hadi %s kwa kutembelewa</string>
-    <string name="connect_job_info_download_delivery">Pakua Uwasilishaji</string>
     <string name="connect_job_info_view_info">Angalia Taarifa</string>
     <string name="connect_job_info_view_resume">Endelea</string>
     <string name="connect_job_info_view_review">Revisar</string>
@@ -455,7 +462,7 @@
     <string name="connect_job_tile_daily_limit_description">Kikomo cha Kila siku kimefikiwa. Hakuna Malipo ya kuwasilisha fomu</string>
     <string name="connect_in_progress">Inaendelea</string>
     <string name="connect_new_opportunities">Fursa Mpya</string>
-    <string name="connect_completed">Imekamilika</string>
+    <string name="connect_completed_expired_label">Fursa Zilizokamilika / Zilizoisha</string>
     <string name="personalid_continue_label">Endelea</string>
     <string name="connect_verify_phone_resend_code">Tuma tena Msimbo</string>
     <string name="connect_verify_skip_phone_number">Ninaona wewe ni mtumiaji wa onyesho kwa hivyo tutaruka OTP</string>
@@ -518,6 +525,7 @@
     <string name="connect_corrupt_job_text">Imeshindwa kupakia fursa hii</string>
     <string name="personalid_login_via_connect">Tayari kuingia!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Tunakabiliwa na hitilafu isiyoweza kurekebishwa wakati wa kuunganisha kuingia kwa kutumia Kitambulisho chako cha Kibinafsi. Tafadhali ingia na nenosiri lako au urejeshe kuingia kwa Kitambulisho chako cha Kibinafsi</string>
+    <string name="personalid_name_appbar_title">Jina</string>
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
@@ -603,6 +611,9 @@
     <string name="personalid_biometric_error_timeout">Muda wa utendakazi wa kibayometri umekwisha. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
 
+    <string name="connect_label_expiry">Inaisha</string>
+    <string name="connect_label_completed_on">Ilikamilika</string>
+    <string name="connect_label_expired_on">Iliisha</string>
     <string name="connect_complete_by">Kazi inaisha tarehe %s</string>
     <string name="connect_expired_on">Kazi iliisha tarehe %s</string>
     <string name="connect_dashboard">Dashibodi</string>
@@ -687,6 +698,7 @@
     <string name="connect_last_synced">Ilisawazishwa mwisho: %s</string>
     <string name="connect_sync_successful">Ilisawazishwa mwisho: Sasa hivi</string>
     <string name="connect_sync_failed">Usawazishaji Umeshindwa, ilisawazishwa mwisho: %s</string>
+    <string name="connect_sync_card_press_to_sync">Bofya hapa kusawazisha</string>
     <string name="connect_offline">Nje ya mtandao</string>
     <string name="connect_back_online">Umerudi mtandaoni</string>
     <string name="connect_never">Kamwe</string>
@@ -731,7 +743,6 @@
         <item quantity="other">Vipimo %d vya malipo</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Anza kujifunza</string>
-    <string name="connect_opportunity_footer_download_learn_app">Pakua Kujifunza</string>
     <string name="connect_opportunity_modules_footer_note">Kamilisha moduli, ufaulu tathmini, na upate cheti chako</string>
     <string name="connect_opportunity_footer_download_app">Pakua programu</string>
     <string name="microimage_saving_failed">Picha haikuweza kuhifadhiwa. Tafadhali jaribu tena</string>

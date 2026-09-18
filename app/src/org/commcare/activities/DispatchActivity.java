@@ -9,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.PersonalIdUserPreferences;
+import org.commcare.personalId.profile.PersonalIdProfileActivity;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -73,6 +76,8 @@ public class DispatchActivity extends AppCompatActivity {
      */
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
+    public static final int PERSONAL_ID_PENDING_BACKUP_CODE = 5;
+
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
@@ -86,7 +91,6 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
     private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
-
     private boolean waitingForActivityResultFromLogin;
 
     boolean alreadyCheckedForAppFilesChange;
@@ -100,7 +104,6 @@ public class DispatchActivity extends AppCompatActivity {
         if (finishIfNotRoot()) {
             return;
         }
-
         if (savedInstanceState != null) {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
             alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(
@@ -168,6 +171,10 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void dispatch() {
+        if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdManager.getInstance().isloggedIn()) {
+            launchPersonalIdForPendingBackupCode();
+            return;
+        }
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
@@ -385,6 +392,13 @@ public class DispatchActivity extends AppCompatActivity {
         startActivityForResult(intent, HOME_SCREEN);
     }
 
+    private void launchPersonalIdForPendingBackupCode() {
+        PersonalIdUserPreferences.setPendingBackupCode(false);
+        Intent intent = new Intent(this, PersonalIdProfileActivity.class);
+        intent.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true);
+        startActivityForResult(intent, PERSONAL_ID_PENDING_BACKUP_CODE);
+    }
+
     public static boolean useRootMenuHomeActivity() {
         return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
                 CommCareApplication.instance().isConsumerApp();
@@ -564,6 +578,8 @@ public class DispatchActivity extends AppCompatActivity {
                 return;
             case RECOVERY_MEASURES:
                 RecoveryMeasuresHelper.handleExecutionActivityResult(this, intent);
+                return;
+            case PERSONAL_ID_PENDING_BACKUP_CODE:
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);

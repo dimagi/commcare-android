@@ -19,6 +19,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.personalId.PersonalIdApiHandler;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
@@ -41,6 +42,7 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
 
         activity = requireActivity();
+        activity.setTitle(R.string.personalid_name_appbar_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
         setUpEnterKeyAction(binding.nameTextValue);

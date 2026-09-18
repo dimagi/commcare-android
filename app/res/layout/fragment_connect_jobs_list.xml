@@ -5,8 +5,9 @@
     android:id="@+id/connect_fragment_jobs_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/connect_background_color"
-    tools:context="org.commcare.fragments.connect.ConnectJobsListsFragment">
+    android:background="?attr/connectBackground"
+    tools:context="org.commcare.fragments.connect.ConnectOpportunityListFragment"
+    tools:theme="@style/ConnectTheme">
 
     <TextView
         android:id="@+id/connect_no_jobs_text"
@@ -14,9 +15,9 @@
         android:layout_height="wrap_content"
         android:text="@string/connect_no_jobs"
         android:textAlignment="center"
-        android:textColor="@color/sonic_silver"
-        android:textSize="18sp"
-        android:layout_marginHorizontal="10dp"
+        android:textColor="?attr/connectOnSurfaceVariant"
+        android:textSize="@dimen/connect_text_title"
+        android:layout_marginHorizontal="@dimen/connect_space_lg"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,8 +28,10 @@
         android:id="@+id/rvJobList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/connect_space_md"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:itemCount="4"
+        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/connect_job_list_item" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -60,6 +60,7 @@ class AddOrVerifyNameParserTest {
         // Assert
         assertEquals(false, sessionData.accountExists)
         assertNull(sessionData.photoBase64)
+        assertNull(sessionData.email)
     }
 
     @Test
@@ -77,6 +78,21 @@ class AddOrVerifyNameParserTest {
         // Assert
         assertEquals(true, sessionData.accountExists)
         assertNull(sessionData.photoBase64)
+        assertNull(sessionData.email)
+    }
+
+    @Test
+    fun testParseWithMaskedEmail() {
+        val json =
+            JSONObject().apply {
+                put("account_exists", true)
+                put("masked_email", "u***@example.com")
+            }
+
+        parser.parse(json, sessionData)
+
+        assertEquals(true, sessionData.accountExists)
+        assertEquals("u***@example.com", sessionData.maskedEmail)
     }
 
     @Test
@@ -85,6 +101,7 @@ class AddOrVerifyNameParserTest {
         val json =
             JSONObject().apply {
                 put("photo", "")
+                put("masked_email", "")
             }
 
         // Act
@@ -93,6 +110,7 @@ class AddOrVerifyNameParserTest {
         // Assert
         assertEquals("", sessionData.photoBase64)
         assertEquals(false, sessionData.accountExists)
+        assertEquals("", sessionData.maskedEmail)
     }
 
     @Test
@@ -102,6 +120,7 @@ class AddOrVerifyNameParserTest {
             JSONObject().apply {
                 put("account_exists", JSONObject.NULL)
                 put("photo", JSONObject.NULL)
+                put("masked_email", JSONObject.NULL)
             }
 
         // Act
@@ -110,6 +129,7 @@ class AddOrVerifyNameParserTest {
         // Assert
         assertEquals(false, sessionData.accountExists) // optBoolean returns false for null
         assertNull(sessionData.photoBase64)
+        assertNull(sessionData.maskedEmail)
     }
 
     @Test

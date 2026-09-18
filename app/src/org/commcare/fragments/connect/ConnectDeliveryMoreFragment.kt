@@ -187,11 +187,6 @@ class ConnectDeliveryMoreFragment :
         binding.revisitLearningCertificate.root.isVisible = certificateExpanded
     }
 
-    /** Launching is the host's job, so the install check and download screen stay in one place. */
-    private fun launchApp(isLearning: Boolean) {
-        (parentFragment as? ConnectDeliveryHomeFragment)?.launchApp(isLearning)
-    }
-
     override fun inflateBinding(
         inflater: LayoutInflater,
         container: ViewGroup?,
