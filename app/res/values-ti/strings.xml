@@ -325,7 +325,6 @@
     <string name="connect_verify_phone_resend">ኮድካ ኣይተቐበልካን ዲኻ? ዳግማይ ስደድ</string>
     <string name="connect_verify_phone_resend_code">ዳግማይ ምልኣኽ ኮድ</string>
     <string name="connect_verify_skip_phone_number">ዲሞ ተጠቃሚ ምዃንካ ይርእየካ ኣለኹ ስለዚ OTP ክንዝልፎ ኢና።</string>
-    <string name="connect_verify_phone_resend_wait">ኮድካ ኣይተቐበልካን ዲኻ? ኣብ %d s ዳግማይ ስደድ</string>
     <string name="connect_verify_phone_change">ቁጽሪ ቐይር</string>
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
     <string name="connect_last_update">ዝተመሓየሸ: %s</string>

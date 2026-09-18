@@ -329,7 +329,6 @@ License.
     <string name="connect_verify_phone_title">Le code de vérification</string>
     <string name="connect_verify_phone_label">Nous avons tenté d\'envoyer un SMS à votre numéro de téléphone se terminant par %s.</string>
     <string name="connect_verify_phone_resend">Vous n\'avez pas reçu votre code? Renvoyer</string>
-    <string name="connect_verify_phone_resend_wait">Vous n\'avez pas reçu votre code? Veuillez le renvoyer dans%ds.</string>
     <string name="connect_verify_phone_change">Changer de numéro</string>
     <string name="connect_verify_phone_verify">Vérifier le code</string>
     <string name="connect_last_update">Mis à jour: %s</string>

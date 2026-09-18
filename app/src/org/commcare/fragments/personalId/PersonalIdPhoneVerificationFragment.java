@@ -39,6 +39,7 @@ import org.commcare.utils.OtpAnalyticsMapper;
 import org.commcare.utils.OtpErrorType;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
+import org.commcare.utils.OtpWaitFormatter;
 import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
@@ -446,7 +447,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         binding.connectResendButton.setVisibility(canResend ? View.VISIBLE : View.GONE);
         String label = canResend
                 ? getString(R.string.connect_verify_phone_resend)
-                : getString(R.string.connect_verify_phone_resend_wait, secondsRemaining);
+                : getString(R.string.personalid_otp_resend_wait,
+                        OtpWaitFormatter.format(requireContext(), secondsRemaining));
         binding.connectPhoneVerifyResend.setText(label);
     }
 

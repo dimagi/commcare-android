@@ -331,7 +331,6 @@
     <string name="connect_verify_phone_title">Nambari ya Uthibitishaji</string>
     <string name="connect_verify_phone_label">Tulijaribu kutuma SMS kwa nambari yako ya simu inayoishia na %s.</string>
     <string name="connect_verify_phone_resend">Hukupokea nambari yako ya kuthibitisha? Tuma tena</string>
-    <string name="connect_verify_phone_resend_wait">Hukupokea nambari yako ya kuthibitisha? Tuma tena baada ya %d s</string>
     <string name="connect_verify_phone_change">Badilisha nambari</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
     <string name="connect_last_update">Imesasishwa: %s</string>

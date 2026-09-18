@@ -267,7 +267,6 @@
     <string name="connect_verify_phone_title">El código de verificación</string>
     <string name="connect_verify_phone_label">Intentamos enviar un SMS a su número de teléfono que termina en %s.</string>
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
-    <string name="connect_verify_phone_resend_wait">¿No recibiste tu código? Reenvíalo en %ds.</string>
     <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
     <string name="connect_last_update">Actualizado: %s</string>

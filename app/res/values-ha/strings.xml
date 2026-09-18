@@ -167,7 +167,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_verify_phone_title">Lambar tabbaci</string>
     <string name="connect_verify_phone_label">Mun yi ƙoƙarin aika SMS zuwa lambar wayar ku da ta ƙare da %s.</string>
     <string name="connect_verify_phone_resend">Ba ku karɓi lambar ku ba? Sake aika</string>
-    <string name="connect_verify_phone_resend_wait">Ba ka karɓi lambar ka ba? Sake aika a cikin %d s</string>
     <string name="connect_verify_phone_change">Canja lamba</string>
     <string name="connect_verify_phone_verify">Tabbatar da lambar</string>
     <string name="connect_last_update">An sabunta: %s</string>
