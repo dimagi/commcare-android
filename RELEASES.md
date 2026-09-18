@@ -6,12 +6,20 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 ### Release Notes
 
+#### What's New
+
+- The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
+
 #### Important Bug Fixes
 
+- Backing out of the PersonalID phone number screen while the app is contacting the server no longer crashes the app.
 - When too many incorrect email or phone OTP codes are entered, the OTP code is now reported as no longer usable and the user is prompted to request a new one, instead of showing a generic error. The wait before a new OTP code can be requested is now shown accurately.
 
 ### QA Notes
 
+- Step through PersonalID sign-up and account recovery and verify the CommCare logo shows only on the phone number screen.
+  - Confirm the name screen's app bar title reads "Name" and not "App Lock".
+- On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
 - After too many wrong email or phone OTP codes, the field clears, the message explains the OTP code can no longer be used, and Resend is offered straight away.
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
 - A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
