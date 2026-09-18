@@ -140,7 +140,9 @@ class PersonalIdProfileActivityTest {
 
         mockApiServer.server.enqueue(MockResponse().setResponseCode(200).setBody("""{"status":"success"}"""))
         activity.runOnUiThread {
-            currentFragment().requireView().findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+            val view = currentFragment().requireView()
+            view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+            view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
         }
         mockApiServer.drainHttp()
 
@@ -258,10 +260,12 @@ class PersonalIdProfileActivityTest {
         mockApiServer.drainHttp()
         assertEquals(R.id.personalid_email_verification_forgot_backup_code_fragment, navController.currentDestination!!.id)
 
-        // Enter a complete OTP code — the auto-submit listener fires and navigates to set-new-backup-code.
+        // Enter a complete OTP code and press verify to navigate to set-new-backup-code.
         mockApiServer.server.enqueue(MockResponse().setResponseCode(200).setBody("""{"status":"success"}"""))
         activity.runOnUiThread {
-            currentFragment().requireView().findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+            val view = currentFragment().requireView()
+            view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+            view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
         }
         mockApiServer.drainHttp()
 

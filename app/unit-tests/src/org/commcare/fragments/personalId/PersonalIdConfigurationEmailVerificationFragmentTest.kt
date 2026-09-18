@@ -111,6 +111,20 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         )
     }
 
+    @Test
+    fun `complete 6-digit code does not auto-submit without pressing the verify button`() {
+        val codeView = fragment.view?.findViewById<NumericCodeView>(R.id.otp_code_view)
+
+        activity.runOnUiThread { codeView?.setCode("123456") }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(
+            "Entering 6 digits must not trigger an API call — user must press the verify button",
+            0,
+            mockWebServer.requestCount,
+        )
+    }
+
     // ========== API-Backed OTP Submission Tests ==========
 
     @Test
@@ -162,8 +176,8 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         )
         // INCORRECT_OTP_ERROR is not in the shouldAllowRetry() allow-list (only NETWORK / SERVER /
         // INTEGRITY / TOKEN_UNAVAILABLE / UNKNOWN), so the verify button stays disabled — the user
-        // retries by re-typing the OTP, which re-fires the auto-submit chain via
-        // setOnCodeCompleteListener.
+        // must re-type the OTP (re-enabling the button via the code-changed listener) and then
+        // press the verify button manually.
         val verifyButton =
             fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_verify_button)
         assertFalse(
@@ -622,7 +636,11 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
 
     private fun enterCode(code: String) {
         val codeView = fragment.view?.findViewById<NumericCodeView>(R.id.otp_code_view)
-        activity.runOnUiThread { codeView?.setCode(code) }
+        val verifyButton = fragment.view?.findViewById<View>(R.id.personalid_email_verify_button)
+        activity.runOnUiThread {
+            codeView?.setCode(code)
+            verifyButton?.performClick()
+        }
         ShadowLooper.idleMainLooper()
     }
 

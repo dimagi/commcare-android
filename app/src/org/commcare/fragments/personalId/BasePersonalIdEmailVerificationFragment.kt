@@ -137,7 +137,6 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
             getString(R.string.personalid_email_verification_description, displayEmail())
 
         binding.otpCodeView.setOnCodeChangedListener { code -> enableVerifyButton(code.length == 6) }
-        binding.otpCodeView.setCodeCompleteListener { _ -> submitOtp() }
         binding.otpCodeView.setOnEnterKeyPressedListener { submitOtp() }
         binding.personalidEmailVerifyButton.setOnClickListener { submitOtp() }
         binding.personalidEmailResendButton.setOnClickListener { requestOtp() }
