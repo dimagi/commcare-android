@@ -42,10 +42,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import kotlin.Pair;
-
-import static org.commcare.connect.network.base.NetworkUtils.getErrorCodes;
-
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     public PersonalIdApiHandler() {
@@ -88,14 +84,8 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                     String errorBody,
                     Throwable t
             ) {
-                Pair<String, String> errorCodes = getErrorCodes(errorBody);
-                Integer retryAfterSeconds = NetworkUtils.getRetryAfterSeconds(errorBody);
-                if (!handleErrorCodeIfPresent(
-                        errorCodes.getFirst(),
-                        errorCodes.getSecond(),
-                        retryAfterSeconds,
-                        sessionData
-                )) {
+                PersonalIdApiErrorBody parsedError = NetworkUtils.parseErrorBody(errorBody);
+                if (!handleErrorCodeIfPresent(parsedError, sessionData)) {
                     super.processFailure(responseCode, url, errorBody, t);
                 }
             }
@@ -104,27 +94,24 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
     /**
      * Returns false when the code is unrecognized, so the caller can fall back to the HTTP status.
-     * {@code sessionData} is null for calls with no configuration session to record the failure on,
-     * and {@code retryAfterSeconds} is null unless the server sent a wait with a rate-limit response.
+     * {@code sessionData} is null for calls with no configuration session to record the failure on.
      */
     private boolean handleErrorCodeIfPresent(
-            String errorCode,
-            String errorSubCode,
-            @Nullable Integer retryAfterSeconds,
+            PersonalIdApiErrorBody error,
             @Nullable PersonalIdSessionData sessionData
     ) {
         if (sessionData != null) {
-            sessionData.setSessionFailureCode(errorCode);
-            sessionData.setSessionFailureSubcode(errorSubCode);
+            sessionData.setSessionFailureCode(error.getErrorCode());
+            sessionData.setSessionFailureSubcode(error.getErrorSubCode());
         }
-        switch (errorCode) {
+        switch (error.getErrorCode()) {
             case "LOCKED_ACCOUNT":
                 onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
                 return true;
             case "INTEGRITY_ERROR":
                 Logger.log(
                         LogTypes.TYPE_MAINTENANCE,
-                        "Integrity error with subcode " + errorSubCode
+                        "Integrity error with subcode " + error.getErrorSubCode()
                 );
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
@@ -164,7 +151,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         PersonalIdOrConnectApiErrorCodes.MISSING_DATA_ERROR,
                         new Throwable(
                                 "API call failed due to missing data with error subcode: "
-                                        + errorSubCode
+                                        + error.getErrorSubCode()
                         )
                 );
                 return true;
@@ -201,7 +188,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "RATE_LIMITED":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
-                        new RateLimitedException(retryAfterSeconds)
+                        new RateLimitedException(error.getRetryAfterSeconds())
                 );
                 return true;
             case "EMAIL_ALREADY_IN_USE":

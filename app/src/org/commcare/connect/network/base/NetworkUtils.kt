@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.commcare.connect.network.personalId.PersonalIdApiErrorBody
 import org.commcare.core.network.ModernHttpRequester
 import org.commcare.util.LogTypes
 import org.commcare.utils.GlobalErrorUtil
@@ -34,48 +35,28 @@ object NetworkUtils {
     }
 
     /**
-     * Extracts error_code and error_sub_code from a JSON error response body.
-     * If the stream is null or parsing fails, returns empty strings for both codes.
+     * Reads the client-relevant fields out of a JSON error response body. An empty, malformed, or
+     * incomplete body yields empty codes and a null wait rather than an error.
      *
      * @param errorBody The JSON error response body as a string.
-     * @return Pair of error_code and error_sub_code
      */
     @JvmStatic
-    fun getErrorCodes(errorBody: String): Pair<String, String> {
-        var errorCode = ""
-        var errorSubCode = ""
-        try {
-            val json = JSONObject(errorBody)
-            errorCode = json.optString("error_code", "")
-            errorSubCode = json.optString("error_sub_code", "")
-        } catch (e: Exception) {
-            Logger.exception("Error parsing error_code", e)
-        }
-        return Pair(errorCode, errorSubCode)
-    }
-
-    /**
-     * Extracts retry_after_seconds from a RATE_LIMITED error response body, or null when the
-     * server did not supply one.
-     */
-    @JvmStatic
-    fun getRetryAfterSeconds(errorBody: String): Int? {
+    fun parseErrorBody(errorBody: String): PersonalIdApiErrorBody {
+        val emptyErrorBody = PersonalIdApiErrorBody(errorCode = "", errorSubCode = "", retryAfterSeconds = null)
         if (errorBody.isEmpty()) {
-            return null
+            return emptyErrorBody
         }
 
         return try {
-            val retryAfterSeconds = JSONObject(errorBody).optInt("retry_after_seconds", -1)
-
-            if (retryAfterSeconds > 0) {
-                retryAfterSeconds
-            } else {
-                null
-            }
-        } catch (_: JSONException) {
-            // This runs against every error body, not just JSON ones, and getErrorCodes() has
-            // already reported the bodies that fail to parse.
-            null
+            val json = JSONObject(errorBody)
+            PersonalIdApiErrorBody(
+                errorCode = json.optString("error_code", ""),
+                errorSubCode = json.optString("error_sub_code", ""),
+                retryAfterSeconds = json.optInt("retry_after_seconds", -1).takeIf { it > 0 },
+            )
+        } catch (e: Exception) {
+            Logger.exception("Error parsing API error body", e)
+            emptyErrorBody
         }
     }
 

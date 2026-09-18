@@ -5,6 +5,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.network.base.NetworkUtils
+import org.commcare.connect.network.personalId.PersonalIdApiErrorBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -39,80 +40,57 @@ class NetworkUtilsTest {
         assertEquals(content, NetworkUtils.getErrorBody(stream))
     }
 
-    // ── getErrorCodes ────────────────────────────────────────────────────────
+    // ── parseErrorBody ───────────────────────────────────────────────────────
 
     @Test
-    fun `getErrorCodes returns both codes when the JSON contains error_code and error_sub_code`() {
-        val json = """{"error_code":"invalid_token","error_sub_code":"expired"}"""
-        val result = NetworkUtils.getErrorCodes(json)
-        assertEquals("invalid_token", result.first)
-        assertEquals("expired", result.second)
+    fun `parseErrorBody reads every field the client cares about`() {
+        val json =
+            """{"error_code":"RATE_LIMITED","error_sub_code":"expired","retry_after_seconds":7200}"""
+        val result = NetworkUtils.parseErrorBody(json)
+        assertEquals("RATE_LIMITED", result.errorCode)
+        assertEquals("expired", result.errorSubCode)
+        assertEquals(7200, result.retryAfterSeconds)
     }
 
     @Test
-    fun `getErrorCodes returns the code and an empty sub-code when the sub-code is missing`() {
-        val json = """{"error_code":"auth_error"}"""
-        val result = NetworkUtils.getErrorCodes(json)
-        assertEquals("auth_error", result.first)
-        assertEquals("", result.second)
+    fun `parseErrorBody returns the code and an empty sub-code when the sub-code is missing`() {
+        val result = NetworkUtils.parseErrorBody("""{"error_code":"auth_error"}""")
+        assertEquals("auth_error", result.errorCode)
+        assertEquals("", result.errorSubCode)
     }
 
     @Test
-    fun `getErrorCodes returns an empty code and the sub-code when error_code is missing`() {
-        val json = """{"error_sub_code":"expired"}"""
-        val result = NetworkUtils.getErrorCodes(json)
-        assertEquals("", result.first)
-        assertEquals("expired", result.second)
+    fun `parseErrorBody returns an empty code and the sub-code when error_code is missing`() {
+        val result = NetworkUtils.parseErrorBody("""{"error_sub_code":"expired"}""")
+        assertEquals("", result.errorCode)
+        assertEquals("expired", result.errorSubCode)
     }
 
     @Test
-    fun `getErrorCodes returns both codes empty for an empty JSON object`() {
-        val result = NetworkUtils.getErrorCodes("{}")
-        assertEquals("", result.first)
-        assertEquals("", result.second)
+    fun `parseErrorBody returns a null wait when the server did not supply one`() {
+        assertNull(NetworkUtils.parseErrorBody("""{"error_code":"RATE_LIMITED"}""").retryAfterSeconds)
     }
 
     @Test
-    fun `getErrorCodes returns both codes empty for an empty input string`() {
-        val result = NetworkUtils.getErrorCodes("")
-        assertEquals("", result.first)
-        assertEquals("", result.second)
+    fun `parseErrorBody treats a non-positive wait as no wait at all`() {
+        assertNull(NetworkUtils.parseErrorBody("""{"retry_after_seconds":0}""").retryAfterSeconds)
+        assertNull(NetworkUtils.parseErrorBody("""{"retry_after_seconds":-30}""").retryAfterSeconds)
     }
 
     @Test
-    fun `getErrorCodes returns both codes empty for invalid JSON`() {
-        val result = NetworkUtils.getErrorCodes("not valid json")
-        assertEquals("", result.first)
-        assertEquals("", result.second)
-    }
-
-    // ── getRetryAfterSeconds ─────────────────────────────────────────────────
-
-    @Test
-    fun `getRetryAfterSeconds returns the value from a rate-limited response`() {
-        val json = """{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""
-        assertEquals(7200, NetworkUtils.getRetryAfterSeconds(json))
+    fun `parseErrorBody returns empty fields for an empty JSON object`() {
+        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody("{}"))
     }
 
     @Test
-    fun `getRetryAfterSeconds returns null when the field is absent`() {
-        assertNull(NetworkUtils.getRetryAfterSeconds("""{"error_code":"RATE_LIMITED"}"""))
+    fun `parseErrorBody returns empty fields for an empty input string`() {
+        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody(""))
     }
 
     @Test
-    fun `getRetryAfterSeconds returns null for an empty body`() {
-        assertNull(NetworkUtils.getRetryAfterSeconds(""))
-    }
-
-    @Test
-    fun `getRetryAfterSeconds returns null for a non-JSON body`() {
-        assertNull(NetworkUtils.getRetryAfterSeconds("<html>429</html>"))
-    }
-
-    @Test
-    fun `getRetryAfterSeconds treats a non-positive wait as no wait at all`() {
-        assertNull(NetworkUtils.getRetryAfterSeconds("""{"retry_after_seconds":0}"""))
-        assertNull(NetworkUtils.getRetryAfterSeconds("""{"retry_after_seconds":-30}"""))
+    fun `parseErrorBody returns empty fields for invalid JSON`() {
+        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody("not valid json"))
+        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody("<html>429</html>"))
     }
 
     // ── logFailedResponse ────────────────────────────────────────────────────
