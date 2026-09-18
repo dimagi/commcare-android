@@ -567,7 +567,15 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.barcode_scan_action_bar) {
+            barcodeScanOnClickListener.onClick(null);
+            return true;
+        } else if (itemId == R.id.menu_settings) {
+            HomeScreenBaseActivity.createPreferencesMenu(this);
+            return true;
+        }
+        switch (itemId) {
             case DOWNLOAD_FORMS_FROM_SERVER:
                 String source = DeveloperPreferences.getRemoteFormPayloadUrl();
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
@@ -577,12 +585,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 ArchivedFormRemoteRestore.pullArchivedFormsFromFile(sourceFile, this, platform);
             case MENU_SUBMIT_QUARANTINE_REPORT:
                 generateQuarantineReport();
-                return true;
-            case R.id.barcode_scan_action_bar:
-                barcodeScanOnClickListener.onClick(null);
-                return true;
-            case R.id.menu_settings:
-                HomeScreenBaseActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
