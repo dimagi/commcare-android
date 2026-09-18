@@ -9,9 +9,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.personalId.PersonalIdUserPreferences;
-import org.commcare.personalId.profile.PersonalIdProfileActivity;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -393,10 +394,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void launchPersonalIdForPendingBackupCode() {
-        PersonalIdUserPreferences.setPendingBackupCode(false);
-        Intent intent = new Intent(this, PersonalIdProfileActivity.class);
-        intent.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true);
-        startActivityForResult(intent, PERSONAL_ID_PENDING_BACKUP_CODE);
+        ConnectNavHelper.goToProfileForPendingBackupCode(this);
     }
 
     public static boolean useRootMenuHomeActivity() {
