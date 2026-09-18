@@ -165,6 +165,7 @@ public class AnalyticsParamValue {
 
     // Param values for connect recovery
     public static final String CCC_RECOVERY_METHOD_BACKUPCODE = "backup_code";
+    public static final String CCC_RECOVERY_METHOD_EMAIL_OTP = "email_otp";
 
     // Param values for Form Submission Event
     public static final String USER_TRIGGERED = "user_triggered";
