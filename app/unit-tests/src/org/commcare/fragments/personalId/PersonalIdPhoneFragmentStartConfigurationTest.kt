@@ -254,7 +254,55 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         )
     }
 
+    @Test
+    fun `success response arriving after the fragment view is destroyed is dropped`() {
+        setupFragmentForRequest()
+        mockWebServer.enqueue(createSuccessResponse())
+
+        clickContinueButton()
+        destroyFragmentView()
+
+        drainHttp()
+
+        assertEquals(
+            "Navigation should be skipped once the fragment view is gone",
+            R.id.personalid_phone_fragment,
+            navController.currentDestination!!.id,
+        )
+    }
+
+    @Test
+    fun `error response arriving after the fragment view is destroyed is dropped`() {
+        setupFragmentForRequest()
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(403)
+                .setBody("""{"error_code": "PHONE_NOT_VALIDATED"}"""),
+        )
+
+        clickContinueButton()
+        destroyFragmentView()
+
+        drainHttp()
+
+        assertEquals(
+            "Navigation should be skipped once the fragment view is gone",
+            R.id.personalid_phone_fragment,
+            navController.currentDestination!!.id,
+        )
+    }
+
     // ========== Helper Methods ==========
+
+    private fun destroyFragmentView() {
+        activity.runOnUiThread {
+            navHostFragment.childFragmentManager
+                .beginTransaction()
+                .remove(fragment)
+                .commitNow()
+        }
+        ShadowLooper.idleMainLooper()
+    }
 
     private fun setupFragmentForRequest() {
         val phoneInput = fragment.view!!.findViewById<EditText>(R.id.connect_primary_phone_input)

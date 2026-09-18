@@ -2,6 +2,18 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.65
+
+### Release Notes
+
+#### Important Bug Fixes
+
+- Backing out of the PersonalID phone number screen while the app is contacting the server no longer crashes the app.
+
+### QA Notes
+
+- On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
+
 ## CommCare 2.63.5
 
 ### Release Notes
