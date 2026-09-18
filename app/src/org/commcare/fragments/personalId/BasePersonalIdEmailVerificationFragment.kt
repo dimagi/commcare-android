@@ -12,12 +12,13 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.base.RateLimitedException
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBinding
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.PersonalIdRecoveryCompleter
+import org.commcare.utils.OtpWaitFormatter
 import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
@@ -35,15 +36,19 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
 
     private val resendHandler = Handler(Looper.getMainLooper())
     private var otpRequestTime: Long = 0L
-    private val resendCooldownMillis = TimeUnit.MINUTES.toMillis(2)
-    protected var failedOtpAttempts = 0
-    protected val maxOtpAttempts = 3
+    private var resendCooldownMillis = DEFAULT_RESEND_COOLDOWN_MILLIS
+
+    /**
+     * Set once the server has thrown the OTP code away after too many wrong guesses. Even the right
+     * OTP code could be rejected, so the user is offered resend without waiting out the countdown.
+     */
+    private var resendCooldownSkipped = false
 
     private val resendTimerRunnable =
         object : Runnable {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - otpRequestTime
-                val remaining = resendCooldownMillis - elapsed
+                val remaining = if (resendCooldownSkipped) 0 else resendCooldownMillis - elapsed
                 updateResendButtonState(remaining)
                 if (remaining > 0) {
                     resendHandler.postDelayed(this, 1000)
@@ -51,8 +56,21 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
             }
         }
 
-    private fun startResendTimer() {
+    private fun beginResendCooldown(cooldownMillis: Long = DEFAULT_RESEND_COOLDOWN_MILLIS) {
+        resendCooldownSkipped = false
+        resendCooldownMillis = cooldownMillis
         otpRequestTime = System.currentTimeMillis()
+        resumeResendTimer()
+    }
+
+    private fun allowResendNow() {
+        resendCooldownSkipped = true
+        stopResendTimer()
+        updateResendButtonState(0)
+    }
+
+    private fun resumeResendTimer() {
+        stopResendTimer()
         resendHandler.postDelayed(resendTimerRunnable, 100)
     }
 
@@ -66,6 +84,33 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         enteredEmail = resolveEmail()
         workflow = resolveWorkflow()
         emailOtpTracker = AttemptTracker(initialRequestCount = resolveEmailOtpRequestCount())
+        savedInstanceState?.let {
+            otpRequestTime = it.getLong(KEY_OTP_REQUEST_TIME)
+            resendCooldownMillis = it.getLong(KEY_RESEND_COOLDOWN_MILLIS, DEFAULT_RESEND_COOLDOWN_MILLIS)
+            resendCooldownSkipped = it.getBoolean(KEY_RESEND_COOLDOWN_SKIPPED)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putLong(KEY_OTP_REQUEST_TIME, otpRequestTime)
+        outState.putLong(KEY_RESEND_COOLDOWN_MILLIS, resendCooldownMillis)
+        outState.putBoolean(KEY_RESEND_COOLDOWN_SKIPPED, resendCooldownSkipped)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (resendCooldownSkipped) {
+            updateResendButtonState(0)
+        } else {
+            resumeResendTimer()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopResendTimer()
     }
 
     abstract fun resolveEmail(): String
@@ -97,7 +142,9 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         binding.personalidEmailResendButton.setOnClickListener { requestOtp() }
 
         enableVerifyButton(false)
-        startResendTimer()
+        if (savedInstanceState == null) {
+            beginResendCooldown()
+        }
 
         setupKeyboardScrollListener(binding.personalidEmailVerificationScrollView)
         return binding.root
@@ -122,12 +169,15 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
             binding.personalidResendCountdownText.visibility = View.VISIBLE
             val seconds = TimeUnit.MILLISECONDS.toSeconds(remaining).toInt()
             binding.personalidResendCountdownText.text =
-                getString(R.string.connect_verify_phone_resend_wait, seconds)
+                getString(
+                    R.string.personalid_otp_resend_wait,
+                    OtpWaitFormatter.format(requireContext(), seconds),
+                )
         }
     }
 
     private fun requestOtp() {
-        otpRequestTime = System.currentTimeMillis()
+        beginResendCooldown()
         binding.otpCodeView.clearCode()
         clearError()
 
@@ -139,11 +189,14 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
             tracker = emailOtpTracker,
             onSuccess = {
                 if (!hasLiveView()) return@sendEmailOtp
-                startResendTimer()
+                beginResendCooldown()
             },
-            onFailure = { failureCode, t ->
+            onFailure = { failureCode, throwable ->
                 if (!hasLiveView()) return@sendEmailOtp
-                showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
+                showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, throwable))
+                (throwable as? RateLimitedException)?.retryAfterSeconds?.let { retryAfterSeconds ->
+                    beginResendCooldown(TimeUnit.SECONDS.toMillis(retryAfterSeconds.toLong()))
+                }
             },
         )
     }
@@ -186,24 +239,33 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
 
     protected fun onEmailVerificationFailure(
         failureCode: BaseApiHandler.PersonalIdOrConnectApiErrorCodes,
-        t: Throwable?,
+        throwable: Throwable?,
     ) {
-        if (!handleCommonSignupFailures(failureCode)) {
-            showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
-            failedOtpAttempts++
-            if (failedOtpAttempts >= maxOtpAttempts) {
-                onMaxingEmailVerificationAttempts()
-            } else if (failureCode.shouldAllowRetry()) {
+        if (handleCommonSignupFailures(failureCode)) return
+
+        if (failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR) {
+            onOtpLimitExceeded(throwable)
+        } else {
+            showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, throwable))
+            if (failureCode.shouldAllowRetry()) {
                 enableVerifyButton(true)
             }
         }
     }
 
-    protected open fun onMaxingEmailVerificationAttempts() {
+    private fun onOtpLimitExceeded(throwable: Throwable?) {
+        binding.otpCodeView.clearCode()
+        enableVerifyButton(false)
+        allowResendNow()
+        showError(
+            PersonalIdOrConnectApiErrorHandler.handle(
+                requireActivity(),
+                BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR,
+                throwable,
+            ),
+        )
         if (canSkipEmailVerification()) {
             showProceedWithoutEmailDialog()
-        } else {
-            showError(getString(R.string.personalid_email_otp_max_attempts_reached))
         }
     }
 
@@ -225,10 +287,6 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
                 AnalyticsParamValue.USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY,
             )
             commCareActivity.dismissAlertDialog()
-            failedOtpAttempts = 0
-            binding.otpCodeView.clearCode()
-            clearError()
-            enableVerifyButton(false)
         }
         dialog.setNegativeButton(getString(R.string.personalid_email_otp_failed_skip)) { _, _ ->
             FirebaseAnalyticsUtil.reportUserPromptEvent(
@@ -267,4 +325,11 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         phase: Int,
         buttonText: Int,
     ): Unit = throw IllegalStateException("navigateToMessageDisplay should not have a call path in this fragment")
+
+    companion object {
+        private val DEFAULT_RESEND_COOLDOWN_MILLIS = TimeUnit.MINUTES.toMillis(2)
+        private const val KEY_OTP_REQUEST_TIME = "KEY_OTP_REQUEST_TIME"
+        private const val KEY_RESEND_COOLDOWN_MILLIS = "KEY_RESEND_COOLDOWN_MILLIS"
+        private const val KEY_RESEND_COOLDOWN_SKIPPED = "KEY_RESEND_COOLDOWN_SKIPPED"
+    }
 }

@@ -400,7 +400,21 @@
     <string name="personalid_email_otp_failed_message">Looks like you\'re having trouble verifying your email. You can skip this for now and try again later, or keep trying.</string>
     <string name="personalid_email_otp_failed_retry">Try again</string>
     <string name="personalid_email_otp_failed_skip">Proceed without email</string>
-    <string name="personalid_email_otp_max_attempts_reached">Maximum verification attempts reached. Please try again later.</string>
+    <string name="personalid_otp_limit_exceeded">You have used all the attempts for this code, so it is no longer valid. Request a new code to continue.</string>
+    <string name="personalid_rate_limited_retry_after">Too many attempts. Please try again in %1$s.</string>
+    <string name="personalid_otp_resend_wait">Didn\'t receive your code? Resend in %1$s</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
     <string name="personalid_email_added_title">Email Added</string>
     <string name="personalid_email_added_message">Your email has been added successfully.</string>
     <string name="personalId_email_otp_sent">A 6-digit passcode has been sent to your email address.</string>
@@ -441,7 +455,6 @@
     <string name="connect_verify_phone_resend_code">Resend Code</string>
     <string name="connect_verify_skip_phone_number">I see you\'re a demo user, so we\'ll skip the OTP</string>
 
-    <string name="connect_verify_phone_resend_wait">Didn\'t receive your code? Resend in %d s</string>
     <string name="connect_verify_phone_change">Change Number</string>
 
     <string name="connect_verify_phone_verify">Verify code</string>

@@ -39,6 +39,7 @@ import org.commcare.utils.OtpAnalyticsMapper;
 import org.commcare.utils.OtpErrorType;
 import org.commcare.utils.OtpManager;
 import org.commcare.utils.OtpVerificationCallback;
+import org.commcare.utils.OtpWaitFormatter;
 import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
@@ -54,6 +55,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private static final String KEY_LAST_OTP_METHOD = "KEY_LAST_OTP_METHOD";
     private static final String KEY_VERIFY_BUTTON_ENABLED = "KEY_VERIFY_BUTTON_ENABLED";
     private static final String KEY_OTP_REQUEST_TIME_STRING = "KEY_OTP_REQUEST_TIME_STRING";
+    private static final String KEY_RESEND_COOLDOWN_SKIPPED = "KEY_RESEND_COOLDOWN_SKIPPED";
 
 
     private Activity activity;
@@ -68,6 +70,11 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     OtpVerificationCallback otpCallback;
     private ActivityResultLauncher<Intent> smsConsentLauncher;
     private String lastOtpMethod;
+    /**
+     * Set once the server has thrown the OTP code away after too many wrong guesses. Even the right
+     * OTP code could be rejected, so the user is offered resend without waiting out the countdown.
+     */
+    private boolean resendCooldownSkipped;
 
     private final Runnable resendTimerRunnable = new Runnable() {
         @Override
@@ -164,6 +171,10 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
+                if (failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR) {
+                    onOtpLimitExceeded(t);
+                    return;
+                }
                 String error = PersonalIdOrConnectApiErrorHandler.handle(activity, failureCode, t);
                 if (failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
                     error = getString(R.string.personalid_incorrect_otp);
@@ -222,6 +233,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     private void restoreState(Bundle savedInstanceState) {
         boolean verifyButtonEnabled = savedInstanceState.getBoolean(KEY_VERIFY_BUTTON_ENABLED);
         String otpRequestTimeString = savedInstanceState.getString(KEY_OTP_REQUEST_TIME_STRING);
+        resendCooldownSkipped = savedInstanceState.getBoolean(KEY_RESEND_COOLDOWN_SKIPPED);
 
         if (otpRequestTimeString != null) {
             otpRequestTime = DateTime.parse(otpRequestTimeString);
@@ -260,6 +272,20 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
     private void toggleVerifyButton(String otp) {
         binding.connectPhoneVerifyButton.setEnabled(otp.length() == 6);
+    }
+
+    private void onOtpLimitExceeded(Throwable throwable) {
+        binding.customOtpView.clearCode();
+        binding.connectPhoneVerifyButton.setEnabled(false);
+        resendCooldownSkipped = true;
+        updateResendButtonState();
+        displayOtpError(
+                PersonalIdOrConnectApiErrorHandler.handle(
+                        activity,
+                        BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR,
+                        throwable
+                )
+        );
     }
 
     private void clearOtpError() {
@@ -341,6 +367,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         outState.putString(KEY_LAST_OTP_METHOD, lastOtpMethod);
         outState.putBoolean(KEY_VERIFY_BUTTON_ENABLED, binding.connectPhoneVerifyButton.isEnabled());
         outState.putString(KEY_OTP_REQUEST_TIME_STRING, otpRequestTime.toString());
+        outState.putBoolean(KEY_RESEND_COOLDOWN_SKIPPED, resendCooldownSkipped);
     }
 
     private void updateVerificationMessage() {
@@ -371,6 +398,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
 
     private void requestOtp() {
         clearOtpError();
+        resendCooldownSkipped = false;
         otpRequestTime = new DateTime();
         currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST_PHONE;
         otpManager.requestOtp(primaryPhone);
@@ -393,6 +421,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
     }
 
     private void startResendTimer() {
+        // Settle the button before the first tick, so a restored screen does not briefly show the
+        // state it had before the cooldown was skipped.
+        updateResendButtonState();
         resendTimerHandler.postDelayed(resendTimerRunnable, 100);
     }
 
@@ -404,7 +435,7 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         boolean canResend = true;
         int secondsRemaining = 0;
 
-        if (otpRequestTime != null) {
+        if (!resendCooldownSkipped && otpRequestTime != null) {
             double minutesElapsed = (new DateTime().getMillis() - otpRequestTime.getMillis()) / 60000.0;
             double minutesRemaining = 2 - minutesElapsed;
             if (minutesRemaining > 0) {
@@ -416,7 +447,8 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
         binding.connectResendButton.setVisibility(canResend ? View.VISIBLE : View.GONE);
         String label = canResend
                 ? getString(R.string.connect_verify_phone_resend)
-                : getString(R.string.connect_verify_phone_resend_wait, secondsRemaining);
+                : getString(R.string.personalid_otp_resend_wait,
+                        OtpWaitFormatter.format(requireContext(), secondsRemaining));
         binding.connectPhoneVerifyResend.setText(label);
     }
 
