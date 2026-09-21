@@ -77,7 +77,7 @@ class BackupCodeReminderDialog private constructor(
         binding.errorMessage.text = context.getString(R.string.personalid_backup_code_reminder_incorrect, attemptsRemaining)
         binding.backupCodeView.clearCode()
         binding.backupCodeView.setErrorState(true)
-        binding.lockIconContainer.setBackgroundResource(R.drawable.connect_side_icon_error_bg)
+        binding.lockIconContainer.isActivated = true
         binding.lockIcon.setColorFilter(
             ContextCompat.getColor(context, R.color.connect_red),
             PorterDuff.Mode.SRC_IN,
@@ -87,7 +87,7 @@ class BackupCodeReminderDialog private constructor(
 
     private fun clearErrorState() {
         binding.errorBanner.visibility = View.GONE
-        binding.lockIconContainer.setBackgroundResource(R.drawable.connect_side_icon_bg)
+        binding.lockIconContainer.isActivated = false
         binding.lockIcon.clearColorFilter()
     }
 
