@@ -9,20 +9,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -173,7 +171,7 @@ public class DispatchActivity extends AppCompatActivity {
 
     private void dispatch() {
         if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdManager.getInstance().isloggedIn()) {
-            launchPersonalIdForPendingBackupCode();
+            ConnectNavHelper.goToProfileForPendingBackupCode(this);
             return;
         }
         if (isDbInBadState()) {
@@ -391,10 +389,6 @@ public class DispatchActivity extends AppCompatActivity {
         startFromLogin = false;
         clearSessionEndpointIntentExtras();
         startActivityForResult(intent, HOME_SCREEN);
-    }
-
-    private void launchPersonalIdForPendingBackupCode() {
-        ConnectNavHelper.goToProfileForPendingBackupCode(this);
     }
 
     public static boolean useRootMenuHomeActivity() {
