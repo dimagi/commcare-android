@@ -14,7 +14,7 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.DialogBackupCodeReminderBinding
 import org.commcare.fragments.personalId.BasePersonalIdBackupCodeFragment.Companion.BACKUP_CODE_LENGTH
-import org.commcare.views.connect.toggleVisibility
+import org.commcare.views.connect.bindVisibilityToggle
 import org.commcare.views.dialogs.CustomViewAlertDialog
 import org.commcare.views.dialogs.StandardAlertDialog
 
@@ -35,9 +35,7 @@ class BackupCodeReminderDialog private constructor(
         binding.confirmButton.setOnClickListener { onConfirmClicked() }
         binding.skipButton.setOnClickListener { onSkipClicked() }
         binding.forgotButton.setOnClickListener { onForgotClicked() }
-        binding.backupCodeVisibilityToggle.setOnClickListener {
-            binding.backupCodeView.toggleVisibility(binding.backupCodeVisibilityToggle)
-        }
+        binding.backupCodeView.bindVisibilityToggle(binding.backupCodeVisibilityToggle)
     }
 
     private fun onCodeChanged(code: String) {

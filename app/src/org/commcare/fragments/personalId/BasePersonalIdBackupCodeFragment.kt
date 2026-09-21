@@ -8,7 +8,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding
-import org.commcare.views.connect.toggleVisibility
+import org.commcare.views.connect.bindVisibilityToggle
 
 abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
     companion object {
@@ -99,12 +99,8 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         binding.confirmCodeView.setOnEnterKeyPressedListener { submitIfEnabled() }
         binding.connectBackupCodeButton.setOnClickListener { handleBackupCodeSubmission() }
         binding.personalidForgotBackupCode.setOnClickListener { handleForgotBackupCode() }
-        binding.backupCodeVisibilityToggle.setOnClickListener {
-            binding.backupCodeView.toggleVisibility(binding.backupCodeVisibilityToggle)
-        }
-        binding.confirmCodeVisibilityToggle.setOnClickListener {
-            binding.confirmCodeView.toggleVisibility(binding.confirmCodeVisibilityToggle)
-        }
+        binding.backupCodeView.bindVisibilityToggle(binding.backupCodeVisibilityToggle)
+        binding.confirmCodeView.bindVisibilityToggle(binding.confirmCodeVisibilityToggle)
     }
 
     protected fun validateBackupCodeAndEnableContinue() {
