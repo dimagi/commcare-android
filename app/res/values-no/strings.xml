@@ -115,7 +115,7 @@
     <string name="personalid_send_email_otp_address_label">Gjenopprettings-e-post</string>
     <string name="personalid_set_new_backup_code_title">Angi ny sikkerhetskode</string>
     <string name="personalid_backup_code_reminder_title">Bekreft sikkerhetskode</string>
-    <string name="personalid_backup_code_reminder_message">Skriv inn sikkerhetskoden din for å bekrefte at du fortsatt har den.</string>
+    <string name="personalid_backup_code_reminder_message">Skriv inn sikkerhetskoden din for å bekrefte at du fortsatt husker den.</string>
     <string name="personalid_backup_code_reminder_incorrect">Feil sikkerhetskode. Prøv igjen. %d forsøk gjenstår.</string>
     <string name="personalid_backup_code_reminder_success_toast">Flott, du er klar!</string>
     <string name="personalid_backup_code_reminder_max_attempts_toast">Du har overskredet maksimalt antall forsøk.</string>

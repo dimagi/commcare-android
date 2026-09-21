@@ -429,7 +429,7 @@ License.
     <string name="personalid_send_email_otp_address_label">रिकवरी ईमेल</string>
     <string name="personalid_set_new_backup_code_title">नया बैकअप कोड सेट करें</string>
     <string name="personalid_backup_code_reminder_title">बैकअप कोड की पुष्टि करें</string>
-    <string name="personalid_backup_code_reminder_message">अपना बैकअप कोड दर्ज करें और पुष्टि करें कि यह अभी भी आपके पास है।</string>
+    <string name="personalid_backup_code_reminder_message">अपना बैकअप कोड दर्ज करें और पुष्टि करें कि आपको अभी भी यह याद है।</string>
     <string name="personalid_backup_code_reminder_incorrect">गलत बैकअप कोड। कृपया पुनः प्रयास करें। %d प्रयास शेष हैं।</string>
     <string name="personalid_backup_code_reminder_success_toast">बढ़िया, आप तैयार हैं!</string>
     <string name="personalid_backup_code_reminder_max_attempts_toast">आपने अधिकतम प्रयासों की सीमा पार कर ली है।</string>

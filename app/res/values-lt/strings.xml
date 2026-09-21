@@ -115,7 +115,7 @@
     <string name="personalid_send_email_otp_address_label">Atkūrimo el. paštas</string>
     <string name="personalid_set_new_backup_code_title">Nustatyti naują atsarginį kodą</string>
     <string name="personalid_backup_code_reminder_title">Patvirtinti atsarginį kodą</string>
-    <string name="personalid_backup_code_reminder_message">Įveskite atsarginį kodą, kad patvirtintumėte, jog jis vis dar yra jūsų.</string>
+    <string name="personalid_backup_code_reminder_message">Įveskite atsarginį kodą, kad patvirtintumėte, jog vis dar jį prisimenate.</string>
     <string name="personalid_backup_code_reminder_incorrect">Neteisingas atsarginis kodas. Bandykite dar kartą. Liko %d bandymų.</string>
     <string name="personalid_backup_code_reminder_success_toast">Puiku, viskas tvarkoje!</string>
     <string name="personalid_backup_code_reminder_max_attempts_toast">Viršijote maksimalų bandymų skaičių.</string>

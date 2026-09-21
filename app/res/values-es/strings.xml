@@ -432,7 +432,7 @@
     <string name="personalid_send_email_otp_address_label">Correo de recuperación</string>
     <string name="personalid_set_new_backup_code_title">Establecer nuevo código de respaldo</string>
     <string name="personalid_backup_code_reminder_title">Confirmar código de respaldo</string>
-    <string name="personalid_backup_code_reminder_message">Ingresa tu código de respaldo para confirmar que aún lo tienes.</string>
+    <string name="personalid_backup_code_reminder_message">Ingresa tu código de respaldo para confirmar que aún lo recuerdas.</string>
     <string name="personalid_backup_code_reminder_incorrect">Código de respaldo incorrecto. Inténtalo de nuevo. %d intentos restantes.</string>
     <string name="personalid_backup_code_reminder_success_toast">¡Todo listo!</string>
     <string name="personalid_backup_code_reminder_max_attempts_toast">Has superado el número máximo de intentos.</string>

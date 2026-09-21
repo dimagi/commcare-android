@@ -267,7 +267,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_send_email_otp_address_label">Imel na farfado</string>
     <string name="personalid_set_new_backup_code_title">Saita sabuwar lambar sirrin ajiyar bayanai</string>
     <string name="personalid_backup_code_reminder_title">Tabbatar da Lambar Ajiyar</string>
-    <string name="personalid_backup_code_reminder_message">Shigar da lambar ajiyar ka don tabbatar da cewa kana da ita.</string>
+    <string name="personalid_backup_code_reminder_message">Shigar da lambar ajiyar ka don tabbatar da cewa kana tuna da ita.</string>
     <string name="personalid_backup_code_reminder_incorrect">Lambar ajiyar ba daidai ba ce. Da fatan a sake gwadawa. Gwaje-gwaje %d suka rage.</string>
     <string name="personalid_backup_code_reminder_success_toast">Kyau, komai yana da kyau!</string>
     <string name="personalid_backup_code_reminder_max_attempts_toast">Kun wuce yawan gwaje-gwaje da aka yarda da su.</string>
