@@ -57,13 +57,13 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
             navController.navigate(
                 R.id.personalid_send_email_otp_fragment,
                 args.toBundle(),
-                navOptions.build()
+                navOptions.build(),
             )
         } else {
             if (workflow == EmailWorkFlow.PENDING_BACKUP_CODE) {
                 throw IllegalStateException("EXTRA_PENDING_BACKUP_CODE launched but user has no email")
             }
-            showAddEmailToast();
+            showAddEmailToast()
         }
     }
 

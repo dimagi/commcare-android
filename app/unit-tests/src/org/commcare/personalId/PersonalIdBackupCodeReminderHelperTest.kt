@@ -66,7 +66,10 @@ class PersonalIdBackupCodeReminderHelperTest {
         assertTimeRange(nextDue, 7.days.inWholeMilliseconds)
     }
 
-    private fun assertTimeRange(nextDue: Long, duration: Long) {
+    private fun assertTimeRange(
+        nextDue: Long,
+        duration: Long,
+    ) {
         assertTrue(nextDue >= System.currentTimeMillis() + duration - 5000L)
         assertTrue(nextDue <= System.currentTimeMillis() + duration + 5000L)
     }
