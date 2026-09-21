@@ -338,6 +338,34 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     }
 
     @Test
+    fun `a rate-limited request holds resend for the wait the server reported`() {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(429)
+                .setBody("""{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""),
+        )
+        launchWith(OtpManager.SMS_METHOD_PERSONAL_ID, otpFallback = false)
+        drainHttp()
+
+        assertEquals(
+            "Resend must stay hidden for the server's wait, not the local two minutes",
+            View.GONE,
+            resendButton().visibility,
+        )
+        assertEquals(
+            activity.getString(
+                R.string.personalid_otp_resend_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 2, 2),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.connect_phone_verify_resend)
+                .text
+                .toString(),
+        )
+    }
+
+    @Test
     fun `a skipped cooldown survives a configuration change`() {
         launchOnPersonalIdPath()
         submitCodeAgainst(otpLimitExceededResponse())
