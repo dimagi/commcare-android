@@ -26,6 +26,8 @@ import org.commcare.dalvik.R
 import org.commcare.utils.OtpManager
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -164,7 +166,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     private fun otpLimitExceededResponse(): MockResponse =
         MockResponse()
             .setResponseCode(401)
-            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED"}""")
+            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED","retry_after_seconds":120}""")
 
     @Test
     fun `session sms method of personal_id is tracked as personal_id not firebase`() {
@@ -313,15 +315,28 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     }
 
     @Test
-    fun `a code that has run out of attempts is cleared and resend is offered straight away`() {
+    fun `a code that has run out of attempts closes the screen for the server's wait`() {
         launchOnPersonalIdPath()
         submitCodeAgainst(otpLimitExceededResponse())
 
         assertEquals("The dead code should not be left in the field", "", codeView().codeValue)
+        assertFalse("Nothing can be typed until a new code is requested", codeView().isEnabled)
         assertEquals(
-            "Resend should be offered without waiting out the two-minute cooldown",
-            View.VISIBLE,
+            "No new code can be requested until the server's wait elapses",
+            View.GONE,
             resendButton().visibility,
+        )
+        assertEquals(
+            "The wording should be about requesting a new code, not resending",
+            activity.getString(
+                R.string.personalid_otp_request_new_code_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_minutes, 2, 2),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.connect_phone_verify_resend)
+                .text
+                .toString(),
         )
     }
 
@@ -366,15 +381,15 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     }
 
     @Test
-    fun `a skipped cooldown survives a configuration change`() {
+    fun `the wait after running out of attempts survives a configuration change`() {
         launchOnPersonalIdPath()
         submitCodeAgainst(otpLimitExceededResponse())
 
         recreateFragment()
 
         assertEquals(
-            "Running out of attempts must not put the user back behind the two-minute cooldown",
-            View.VISIBLE,
+            "A rotation must not shortcut the server's wait",
+            View.GONE,
             resendButton().visibility,
         )
     }
@@ -393,7 +408,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     }
 
     @Test
-    fun `resending after running out of attempts puts the cooldown back`() {
+    fun `requesting a new code reopens the screen and restores the resend wording`() {
         launchOnPersonalIdPath()
         submitCodeAgainst(otpLimitExceededResponse())
 
@@ -401,10 +416,23 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         activity.runOnUiThread { resendButton().performClick() }
         drainHttp()
 
+        assertTrue("A new code on its way means the field is usable again", codeView().isEnabled)
         assertEquals(
-            "A fresh code restarts the wait, so resend hides again",
+            "A fresh code restarts the ordinary wait, so resend hides again",
             View.GONE,
             resendButton().visibility,
+        )
+        assertEquals(
+            "Back to ordinary resend wording once a code is on its way",
+            activity.getString(
+                R.string.personalid_otp_resend_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_minutes, 2, 2),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.connect_phone_verify_resend)
+                .text
+                .toString(),
         )
     }
 

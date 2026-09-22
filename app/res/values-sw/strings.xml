@@ -287,6 +287,8 @@
     <string name="personalid_otp_limit_exceeded">Umetumia majaribio yote ya msimbo huu, kwa hivyo hauna tena uhalali. Omba msimbo mpya ili kuendelea.</string>
     <string name="personalid_rate_limited_retry_after">Majaribio mengi mno. Tafadhali jaribu tena baada ya %1$s.</string>
     <string name="personalid_otp_resend_wait">Hukupokea msimbo wako? Tuma tena baada ya %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Subiri %1$s ili kuomba msimbo mpya</string>
+    <string name="personalid_otp_request_code">Omba msimbo</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">sekunde %d</item>
         <item quantity="other">sekunde %d</item>

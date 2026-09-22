@@ -403,6 +403,8 @@
     <string name="personalid_otp_limit_exceeded">You have used all the attempts for this code, so it is no longer valid. Request a new code to continue.</string>
     <string name="personalid_rate_limited_retry_after">Too many attempts. Please try again in %1$s.</string>
     <string name="personalid_otp_resend_wait">Didn\'t receive your code? Resend in %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Wait %1$s to request a new code</string>
+    <string name="personalid_otp_request_code">Request Code</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">%d second</item>
         <item quantity="other">%d seconds</item>

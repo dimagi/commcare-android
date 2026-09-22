@@ -127,7 +127,10 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 onFailure(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, null);
                 return true;
             case "OTP_LIMIT_EXCEEDED":
-                onFailure(PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR, null);
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR,
+                        new RateLimitedException(error.getRetryAfterSeconds())
+                );
                 return true;
             case "NO_RECOVERY_PIN_SET":
                 onFailure(

@@ -279,6 +279,8 @@
     <string name="personalid_otp_limit_exceeded">ንዚ ኮድ እዚ ኩሉ ፈተነታት ተጠቒምኩምሉ ኢኹም፣ ስለዚ ደጊም ኣይሰርሕን እዩ። ንምቕጻል ሓድሽ ኮድ ሕተቱ።</string>
     <string name="personalid_rate_limited_retry_after">ብዙሕ ፈተነታት። በጃኹም ድሕሪ %1$s ደጊምኩም ፈትኑ።</string>
     <string name="personalid_otp_resend_wait">ኮድኩም ኣይበጽሐኩምን ድዩ? ድሕሪ %1$s ደጊምኩም ስደዱ</string>
+    <string name="personalid_otp_request_new_code_wait">ሓድሽ ኮድ ንምሕታት %1$s ተጸበዩ</string>
+    <string name="personalid_otp_request_code">ኮድ ሕተቱ</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">%d ካልኢት</item>
         <item quantity="other">%d ካልኢታት</item>

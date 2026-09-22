@@ -260,7 +260,7 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     @Test
-    fun `a code that has run out of attempts is cleared and resend is offered straight away`() {
+    fun `a code that has run out of attempts closes the screen for the server's wait`() {
         mockWebServer.enqueue(otpLimitExceededResponse())
 
         enterCode("123456")
@@ -273,20 +273,39 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
             fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_verify_button)
 
         assertTrue("The dead code should not be left in the field", codeView!!.codeValue.isEmpty())
+        assertFalse("Nothing can be typed until a new code is requested", codeView.isEnabled)
         assertEquals(
             activity.getString(R.string.personalid_otp_limit_exceeded),
             errorText!!.text.toString(),
         )
-        assertFalse("No code is entered, so verify stays disabled", verifyButton!!.isEnabled)
+        assertFalse("Nothing to verify, so verify stays disabled", verifyButton!!.isEnabled)
         assertEquals(
-            "Resend should be offered without waiting out the cooldown",
-            View.VISIBLE,
+            "No new code can be requested until the server's wait elapses",
+            View.GONE,
             fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
         )
     }
 
     @Test
-    fun `retry CTA on verification-unsuccessful dialog leaves the screen ready for a new code`() {
+    fun `running out of attempts counts down to requesting a new code rather than resending`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        val countdown = fragment.requireView().findViewById<TextView>(R.id.personalid_resend_countdown_text)
+        assertEquals(View.VISIBLE, countdown.visibility)
+        assertEquals(
+            activity.getString(
+                R.string.personalid_otp_request_new_code_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 1, 1),
+            ),
+            countdown.text.toString(),
+        )
+    }
+
+    @Test
+    fun `retry CTA on verification-unsuccessful dialog leaves the countdown running`() {
         mockWebServer.enqueue(otpLimitExceededResponse())
         enterCode("123456")
         drainHttp()
@@ -302,13 +321,13 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         val errorText =
             fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
         assertEquals(
-            "The reason should survive the dialog, since it is what tells the user to resend",
+            "The reason should survive the dialog, since it is what explains the wait",
             activity.getString(R.string.personalid_otp_limit_exceeded),
             errorText!!.text.toString(),
         )
         assertEquals(
-            "Resend should still be offered after dismissing the dialog",
-            View.VISIBLE,
+            "Dismissing the dialog must not shortcut the server's wait",
+            View.GONE,
             fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
         )
     }
@@ -401,7 +420,7 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     // ========== Saved State Tests ==========
 
     @Test
-    fun `a skipped cooldown survives a configuration change`() {
+    fun `the wait after running out of attempts survives a configuration change`() {
         mockWebServer.enqueue(otpLimitExceededResponse())
         enterCode("123456")
         drainHttp()
@@ -409,9 +428,21 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         recreateFragment()
 
         assertEquals(
-            "Running out of attempts must not put the user back behind a two-minute cooldown",
-            View.VISIBLE,
+            "A rotation must not shortcut the server's wait",
+            View.GONE,
             fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
+        )
+        assertEquals(
+            "The wording must still be about requesting a new code, not resending",
+            activity.getString(
+                R.string.personalid_otp_request_new_code_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 1, 1),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.personalid_resend_countdown_text)
+                .text
+                .toString(),
         )
     }
 
@@ -668,7 +699,7 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     private fun otpLimitExceededResponse(): MockResponse =
         MockResponse()
             .setResponseCode(401)
-            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED"}""")
+            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED","retry_after_seconds":3600}""")
 
     private fun emailAlreadyInUseResponse(): MockResponse =
         MockResponse()

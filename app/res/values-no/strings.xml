@@ -216,6 +216,8 @@
     <string name="personalid_otp_limit_exceeded">Du har brukt alle forsøkene for denne koden, så den er ikke lenger gyldig. Be om en ny kode for å fortsette.</string>
     <string name="personalid_rate_limited_retry_after">For mange forsøk. Prøv igjen om %1$s.</string>
     <string name="personalid_otp_resend_wait">Fikk du ikke koden? Send på nytt om %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Vent %1$s for å be om en ny kode</string>
+    <string name="personalid_otp_request_code">Be om kode</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">%d sekund</item>
         <item quantity="other">%d sekunder</item>

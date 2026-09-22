@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.annotation.StringRes
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.base.BaseApiHandler
@@ -38,17 +39,13 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
     private var otpRequestTime: Long = 0L
     private var resendCooldownMillis = DEFAULT_RESEND_COOLDOWN_MILLIS
 
-    /**
-     * Set once the server has thrown the OTP code away after too many wrong guesses. Even the right
-     * OTP code could be rejected, so the user is offered resend without waiting out the countdown.
-     */
-    private var resendCooldownSkipped = false
+    private var otpLimitExceeded = false
 
     private val resendTimerRunnable =
         object : Runnable {
             override fun run() {
                 val elapsed = System.currentTimeMillis() - otpRequestTime
-                val remaining = if (resendCooldownSkipped) 0 else resendCooldownMillis - elapsed
+                val remaining = resendCooldownMillis - elapsed
                 updateResendButtonState(remaining)
                 if (remaining > 0) {
                     resendHandler.postDelayed(this, 1000)
@@ -57,16 +54,9 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         }
 
     private fun beginResendCooldown(cooldownMillis: Long = DEFAULT_RESEND_COOLDOWN_MILLIS) {
-        resendCooldownSkipped = false
         resendCooldownMillis = cooldownMillis
         otpRequestTime = System.currentTimeMillis()
         resumeResendTimer()
-    }
-
-    private fun allowResendNow() {
-        resendCooldownSkipped = true
-        stopResendTimer()
-        updateResendButtonState(0)
     }
 
     private fun resumeResendTimer() {
@@ -87,7 +77,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         savedInstanceState?.let {
             otpRequestTime = it.getLong(KEY_OTP_REQUEST_TIME)
             resendCooldownMillis = it.getLong(KEY_RESEND_COOLDOWN_MILLIS, DEFAULT_RESEND_COOLDOWN_MILLIS)
-            resendCooldownSkipped = it.getBoolean(KEY_RESEND_COOLDOWN_SKIPPED)
+            otpLimitExceeded = it.getBoolean(KEY_OTP_LIMIT_EXCEEDED)
         }
     }
 
@@ -95,17 +85,12 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         super.onSaveInstanceState(outState)
         outState.putLong(KEY_OTP_REQUEST_TIME, otpRequestTime)
         outState.putLong(KEY_RESEND_COOLDOWN_MILLIS, resendCooldownMillis)
-        outState.putBoolean(KEY_RESEND_COOLDOWN_SKIPPED, resendCooldownSkipped)
+        outState.putBoolean(KEY_OTP_LIMIT_EXCEEDED, otpLimitExceeded)
     }
 
     override fun onResume() {
         super.onResume()
-
-        if (resendCooldownSkipped) {
-            updateResendButtonState(0)
-        } else {
-            resumeResendTimer()
-        }
+        resumeResendTimer()
     }
 
     override fun onPause() {
@@ -161,22 +146,37 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
     }
 
     private fun updateResendButtonState(remaining: Long) {
+        @StringRes val resendButtonLabel =
+            if (otpLimitExceeded) {
+                R.string.personalid_otp_request_code
+            } else {
+                R.string.connect_verify_phone_resend_code
+            }
+
+        @StringRes val countdownMessage =
+            if (otpLimitExceeded) {
+                R.string.personalid_otp_request_new_code_wait
+            } else {
+                R.string.personalid_otp_resend_wait
+            }
+
+        binding.personalidEmailResendButton.setText(resendButtonLabel)
+
         if (remaining <= 0) {
             binding.personalidResendCountdownText.visibility = View.GONE
             binding.personalidEmailResendButton.visibility = View.VISIBLE
         } else {
             binding.personalidEmailResendButton.visibility = View.GONE
             binding.personalidResendCountdownText.visibility = View.VISIBLE
-            val seconds = TimeUnit.MILLISECONDS.toSeconds(remaining).toInt()
+            val secondsRemaining = TimeUnit.MILLISECONDS.toSeconds(remaining).toInt()
             binding.personalidResendCountdownText.text =
-                getString(
-                    R.string.personalid_otp_resend_wait,
-                    OtpWaitFormatter.format(requireContext(), seconds),
-                )
+                getString(countdownMessage, OtpWaitFormatter.format(requireContext(), secondsRemaining))
         }
     }
 
     private fun requestOtp() {
+        otpLimitExceeded = false
+        binding.otpCodeView.isEnabled = true
         beginResendCooldown()
         binding.otpCodeView.clearCode()
         clearError()
@@ -254,9 +254,15 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
     }
 
     private fun onOtpLimitExceeded(throwable: Throwable?) {
+        otpLimitExceeded = true
         binding.otpCodeView.clearCode()
+        binding.otpCodeView.isEnabled = false
         enableVerifyButton(false)
-        allowResendNow()
+        val cooldownMillis =
+            TimeUnit.SECONDS.toMillis(
+                ((throwable as? RateLimitedException)?.retryAfterSeconds ?: 0).toLong(),
+            )
+        beginResendCooldown(cooldownMillis)
         showError(
             PersonalIdOrConnectApiErrorHandler.handle(
                 requireActivity(),
@@ -330,6 +336,6 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         private val DEFAULT_RESEND_COOLDOWN_MILLIS = TimeUnit.MINUTES.toMillis(2)
         private const val KEY_OTP_REQUEST_TIME = "KEY_OTP_REQUEST_TIME"
         private const val KEY_RESEND_COOLDOWN_MILLIS = "KEY_RESEND_COOLDOWN_MILLIS"
-        private const val KEY_RESEND_COOLDOWN_SKIPPED = "KEY_RESEND_COOLDOWN_SKIPPED"
+        private const val KEY_OTP_LIMIT_EXCEEDED = "KEY_OTP_LIMIT_EXCEEDED"
     }
 }

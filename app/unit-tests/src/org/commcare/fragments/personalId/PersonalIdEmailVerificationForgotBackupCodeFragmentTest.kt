@@ -112,16 +112,17 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
     }
 
     @Test
-    fun `a code that has run out of attempts is cleared and resend is offered straight away`() {
+    fun `a code that has run out of attempts closes the screen for the server's wait`() {
         mockWebServer.enqueue(otpLimitExceededResponse())
 
         enterCode()
 
         val codeView = fragment().requireView().findViewById<NumericCodeView>(R.id.otp_code_view)
         assertEquals("The dead code should not be left in the field", "", codeView.codeValue)
+        assertFalse("Nothing can be typed until a new code is requested", codeView.isEnabled)
         assertEquals(
-            "Resend should be offered without waiting out the cooldown",
-            View.VISIBLE,
+            "No new code can be requested until the server's wait elapses",
+            View.GONE,
             fragment().requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
         )
     }
@@ -164,7 +165,7 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
     private fun otpLimitExceededResponse(): MockResponse =
         MockResponse()
             .setResponseCode(401)
-            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED"}""")
+            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED","retry_after_seconds":3600}""")
 
     companion object {
         private const val TEST_EMAIL = "user@example.com"

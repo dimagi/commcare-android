@@ -286,6 +286,8 @@ License.
     <string name="personalid_otp_limit_exceeded">Vous avez utilisé toutes les tentatives pour ce code, il n\'est donc plus valide. Demandez un nouveau code pour continuer.</string>
     <string name="personalid_rate_limited_retry_after">Trop de tentatives. Veuillez réessayer dans %1$s.</string>
     <string name="personalid_otp_resend_wait">Vous n\'avez pas reçu votre code ? Renvoyer dans %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Attendez %1$s pour demander un nouveau code</string>
+    <string name="personalid_otp_request_code">Demander un code</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">%d seconde</item>
         <item quantity="other">%d secondes</item>

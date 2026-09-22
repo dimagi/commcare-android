@@ -124,6 +124,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_otp_limit_exceeded">Ka yi amfani da dukkan yunƙurin wannan lambar, don haka ba ta da inganci. Nemi sabuwar lamba don ci gaba.</string>
     <string name="personalid_rate_limited_retry_after">Yunƙuri da yawa. Don Allah sake gwadawa cikin %1$s.</string>
     <string name="personalid_otp_resend_wait">Ba ka karɓi lambarka ba? Sake aikawa cikin %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Jira %1$s don neman sabuwar lamba</string>
+    <string name="personalid_otp_request_code">Nemi lamba</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">daƙiƙa %d</item>
         <item quantity="other">daƙiƙa %d</item>

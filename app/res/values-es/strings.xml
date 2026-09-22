@@ -224,6 +224,8 @@
     <string name="personalid_otp_limit_exceeded">Ha utilizado todos los intentos para este código, por lo que ya no es válido. Solicite un código nuevo para continuar.</string>
     <string name="personalid_rate_limited_retry_after">Demasiados intentos. Vuelva a intentarlo en %1$s.</string>
     <string name="personalid_otp_resend_wait">¿No recibió su código? Reenviar en %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Espere %1$s para solicitar un código nuevo</string>
+    <string name="personalid_otp_request_code">Solicitar código</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">%d segundo</item>
         <item quantity="other">%d segundos</item>

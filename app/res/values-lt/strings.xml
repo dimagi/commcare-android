@@ -216,6 +216,8 @@
     <string name="personalid_otp_limit_exceeded">Išnaudojote visus šio kodo bandymus, todėl jis nebegalioja. Norėdami tęsti, užsisakykite naują kodą.</string>
     <string name="personalid_rate_limited_retry_after">Per daug bandymų. Bandykite dar kartą po %1$s.</string>
     <string name="personalid_otp_resend_wait">Negavote kodo? Siųsti iš naujo po %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Palaukite %1$s, kad galėtumėte užsisakyti naują kodą</string>
+    <string name="personalid_otp_request_code">Užsisakyti kodą</string>
     <plurals name="personalid_otp_retry_after_seconds">
         <item quantity="one">%d sekundės</item>
         <item quantity="few">%d sekundžių</item>
