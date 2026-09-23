@@ -67,7 +67,10 @@ class PersonalIdProfileFragment : BasePersonalIdProfileFragment() {
     }
 
     private fun navigateToProfileBackupCode() {
-        findNavController().navigate(PersonalIdProfileFragmentDirections.actionProfileToProfileBackupCode())
+        findNavController().navigate(
+            PersonalIdProfileFragmentDirections
+                .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER)
+        )
     }
 
     private fun navigateToSendEmailOtp(

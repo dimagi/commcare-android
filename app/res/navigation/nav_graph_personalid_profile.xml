@@ -73,8 +73,7 @@
             android:defaultValue="" />
         <argument
             android:name="emailWorkflow"
-            app:argType="org.commcare.fragments.personalId.EmailWorkFlow"
-            android:defaultValue="EXISTING_USER" />
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
         <action
             android:id="@+id/action_profile_backup_code_to_set_new_backup_code"
             app:destination="@id/personalid_profile_set_new_backup_code_fragment" />
