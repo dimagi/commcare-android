@@ -25,9 +25,6 @@
         android:name="org.commcare.personalId.profile.PersonalIdProfileEditFragment"
         android:label="@string/personalid_profile_edit_title">
         <action
-            android:id="@+id/action_profile_edit_to_email_verification"
-            app:destination="@id/personalid_email_verification_fragment" />
-        <action
             android:id="@+id/action_profile_edit_to_backup_code"
             app:destination="@id/personalid_profile_backup_code_fragment" />
     </fragment>

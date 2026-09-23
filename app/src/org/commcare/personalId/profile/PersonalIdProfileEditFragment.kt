@@ -14,7 +14,6 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
-import org.commcare.fragments.personalId.EmailHelper
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -140,20 +139,12 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         }
 
     private fun onSaveClicked() {
-        when {
-            viewModel.isEmailModified() && viewModel.user.email != null -> {
-                navigateToBackupCodeForEmailChange()
-            }
-
-            viewModel.isEmailModified() -> {
-                showEmailOtpConfirmationDialog()
-            }
-
-            else -> {
-                saveProfileDetails {
-                    showSuccess()
-                    findNavController().popBackStack()
-                }
+        if (viewModel.isEmailModified()) {
+            navigateToBackupCodeForEmailChange()
+        } else {
+            saveProfileDetails {
+                showSuccess()
+                findNavController().popBackStack()
             }
         }
     }
@@ -207,67 +198,6 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 outcome,
             )
         }
-    }
-
-    private fun showEmailOtpConfirmationDialog() {
-        val newEmail = viewModel.currentEmail
-        showConfirmationDialog(
-            title = getString(R.string.personalid_profile_edit_otp_confirm_title),
-            message = getString(R.string.personalid_profile_edit_otp_confirm_message, newEmail),
-            positiveText = getString(R.string.personalid_profile_edit_otp_confirm_positive),
-            negativeText = getString(R.string.personalid_profile_edit_otp_confirm_negative),
-            onNegative = {
-                FirebaseAnalyticsUtil.reportUserPromptEvent(
-                    AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
-                    AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL,
-                    AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
-                )
-            },
-        ) {
-            FirebaseAnalyticsUtil.reportUserPromptEvent(
-                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
-                AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT,
-                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
-            )
-            binding.btnSave.isEnabled = false
-            if (viewModel.isNameModified()) {
-                saveProfileDetails { sendEmailOtpAndNavigate(newEmail) }
-            } else {
-                sendEmailOtpAndNavigate(newEmail)
-            }
-        }
-    }
-
-    private fun sendEmailOtpAndNavigate(newEmail: String) {
-        EmailHelper.sendEmailOtp(
-            activity = requireActivity(),
-            email = newEmail,
-            workflow = EmailWorkFlow.EXISTING_USER,
-            sessionData = null,
-            tracker = viewModel.emailOtpTracker,
-            onSuccess = {
-                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
-                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
-                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
-                )
-                _binding ?: return@sendEmailOtp
-                findNavController().navigate(
-                    PersonalIdProfileEditFragmentDirections.actionProfileEditToEmailVerification(
-                        newEmail,
-                        EmailWorkFlow.EXISTING_USER,
-                        viewModel.emailOtpTracker.requestCount,
-                    ),
-                )
-            },
-            onFailure = { errorCode, throwable ->
-                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
-                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
-                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
-                )
-                _binding ?: return@sendEmailOtp
-                onSaveFailed(errorCode, throwable)
-            },
-        )
     }
 
     private fun onSaveFailed(

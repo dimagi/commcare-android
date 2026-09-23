@@ -224,13 +224,11 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
     }
 
     @Test
-    fun `editing the email when user has no existing email still shows otp confirmation dialog`() {
+    fun `editing the email when user has no existing email navigates to backup code confirmation`() {
         user.email = null
         setText(emailField(), "grace@example.com")
         clickSave()
-        val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
-        assertNotNull(dialog)
-        assertTrue(dialog!!.isShowing)
+        assertEquals(R.id.personalid_profile_backup_code_fragment, currentDestinationId())
     }
 
     @Test
