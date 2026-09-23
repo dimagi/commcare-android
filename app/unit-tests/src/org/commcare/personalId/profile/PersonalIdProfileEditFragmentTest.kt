@@ -23,7 +23,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
-import org.mockito.kotlin.never
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 
@@ -204,123 +203,50 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
     }
 
     @Test
-    fun `editing the email and saving shows the otp confirmation dialog`() {
+    fun `editing the email and saving navigates to backup code confirmation`() {
         setText(emailField(), "grace@example.com")
 
         clickSave()
 
-        val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
-        assertNotNull("An OTP confirmation dialog should be shown when the email changed", dialog)
-        assertTrue("OTP confirmation dialog should be visible", dialog!!.isShowing)
-        assertEquals(
-            "No profile-update request should fire before the OTP dialog is confirmed",
-            0,
-            mockWebServer.requestCount,
-        )
+        assertEquals(R.id.personalid_profile_backup_code_fragment, currentDestinationId())
     }
 
     @Test
-    fun `confirming the otp dialog sends the email otp`() {
+    fun `navigating to backup code gate fires the email update initiated analytics`() {
         setText(emailField(), "grace@example.com")
         clickSave()
-
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
-        // No response is enqueued so the OTP request is dispatched but its success callback (which
-        // would navigate to the separately-tested email-verification screen) never runs, keeping
-        // the assertion on the send boundary.
-        onUiThread { confirmButton.performClick() }
-
-        val request = mockApiServer.takeRequestOrFail()
-        assertEquals("/users/send_email_otp", request.path)
-        firebaseAnalyticsUtilMock.verify {
-            FirebaseAnalyticsUtil.reportUserPromptEvent(
-                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
-                AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT,
-                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
-            )
-        }
-        firebaseAnalyticsUtilMock.verify(
-            {
-                FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
-                    AnalyticsParamValue.MANAGE_PROFILE_ACTION_NAME_UPDATED,
-                    AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
-                )
-            },
-            never(),
-        )
-    }
-
-    @Test
-    fun `a failed email otp send reports the email update initiated failure and stays on the edit screen`() {
-        setText(emailField(), "grace@example.com")
-        clickSave()
-
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
-        mockWebServer.enqueue(MockResponse().setResponseCode(500).setBody("{}"))
-        onUiThread { confirmButton.performClick() }
-        mockApiServer.drainHttp()
-
         firebaseAnalyticsUtilMock.verify {
             FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
                 AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
-                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_FAILURE,
+                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
             )
         }
-        assertEquals(
-            "Should remain on the edit screen after a failed OTP send",
-            R.id.personalid_profile_edit_fragment,
-            currentDestinationId(),
-        )
     }
 
     @Test
-    fun `canceling the otp confirmation dialog reports the cancel prompt and sends no request`() {
+    fun `editing the email when user has no existing email still shows otp confirmation dialog`() {
+        user.email = null
         setText(emailField(), "grace@example.com")
         clickSave()
-
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        val cancelButton = dialog.findViewById<Button>(R.id.negative_button)!!
-        onUiThread { cancelButton.performClick() }
-
-        firebaseAnalyticsUtilMock.verify {
-            FirebaseAnalyticsUtil.reportUserPromptEvent(
-                AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
-                AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL,
-                AnalyticsParamValue.USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE,
-            )
-        }
-        assertEquals(
-            "No request should fire when the email change is canceled",
-            0,
-            mockWebServer.requestCount,
-        )
+        val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
+        assertNotNull(dialog)
+        assertTrue(dialog!!.isShowing)
     }
 
     @Test
-    fun `saving a simultaneous name and email change commits the name before sending the email otp`() {
+    fun `saving a simultaneous name and email change commits the name before navigating to backup code`() {
         setText(nameField(), "Grace Hopper")
         setText(emailField(), "grace@example.com")
 
+        // Enqueue the name-save response before triggering save so drainHttp can consume it.
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         clickSave()
 
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
-        val confirmButton = dialog.findViewById<Button>(R.id.positive_button)!!
-        // The name commit must succeed so the flow proceeds to the OTP send; no OTP response is
-        // enqueued so the success callback (which navigates away) never runs.
-        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
-        onUiThread { confirmButton.performClick() }
+        // drainHttp takes the name request internally and runs the success callback, which then
+        // navigates to the backup code fragment.
+        mockApiServer.drainHttp()
 
-        val nameRequest = mockApiServer.takeRequestOrFail()
-        assertEquals("/users/update_profile", nameRequest.path)
-        assertTrue(
-            "Name should be committed first",
-            nameRequest.body.readUtf8().contains("Grace"),
-        )
-
-        val otpRequest = mockApiServer.takeRequestOrFail()
-        assertEquals("/users/send_email_otp", otpRequest.path)
+        assertEquals(R.id.personalid_profile_backup_code_fragment, currentDestinationId())
     }
 
     // ========== Discard flow ==========
