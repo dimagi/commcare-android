@@ -35,8 +35,25 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
 
     override fun navigateToVerification() {
         val directions =
-            PersonalIdProfileSendEmailOtpFragmentDirections
-                .actionPersonalidSendEmailOtpToEmailVerification(email, emailOtpTracker.requestCount)
+            when (workflow) {
+                EmailWorkFlow.EXISTING_USER -> {
+                    PersonalIdProfileSendEmailOtpFragmentDirections
+                        .actionPersonalidSendEmailOtpToProfileEmailVerification(
+                            email,
+                            EmailWorkFlow.EXISTING_USER,
+                            emailOtpTracker.requestCount,
+                        )
+                }
+
+                EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER, EmailWorkFlow.PENDING_BACKUP_CODE -> {
+                    PersonalIdProfileSendEmailOtpFragmentDirections
+                        .actionPersonalidSendEmailOtpToEmailVerificationForgotBackupCode(email, emailOtpTracker.requestCount)
+                }
+
+                else -> {
+                    throw IllegalStateException("Unexpected workflow in PersonalIdProfileSendEmailOtpFragment: $workflow")
+                }
+            }
         binding.root.findNavController().navigate(directions)
     }
 }
