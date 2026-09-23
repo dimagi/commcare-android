@@ -34,6 +34,7 @@ When planning or writing a spec for a new feature, consult [`docs/common-edge-ca
 - Any new classes should be written in Kotlin
 - Old classes can remain in Java unless it affects new code architecture significantly
 - Use standard Android APIs where applicable
+- Before creating a new resource (layout, drawable, image, icon, color, style, etc.), search all modules for an existing one that matches or can be reused, to avoid duplicates
 - Do not add any in-code comments unless explicitly requested.
 
 ## Testing
