@@ -219,8 +219,8 @@
     <string name="personalid_email_verification_description">Įveskite 6 skaitmenų kodą, išsiųstą į %1$s</string>
     <string name="personalid_email_verify_button">Patvirtinti</string>
     <string name="personalid_email_otp_failed_title">Patvirtinimas nepavyko</string>
-    <string name="personalid_email_otp_failed_message">Atrodo, kad turite problemų patvirtindami savo el. paštą. Galite šį žingsnį dabar praleisti ir pabandyti vėliau, arba bandyti toliau.</string>
-    <string name="personalid_email_otp_failed_retry">Bandyti dar kartą</string>
+    <string name="personalid_email_otp_failed_message">Išnaudojote visus šio kodo bandymus. Naują kodą galėsite užsisakyti po %1$s arba dabar praleisti el. pašto žingsnį.</string>
+    <string name="personalid_email_otp_failed_wait">Palaukti</string>
     <string name="personalid_email_otp_failed_skip">Tęsti be el. pašto</string>
     <string name="personalid_otp_limit_exceeded">Išnaudojote visus šio kodo bandymus, todėl jis nebegalioja. Norėdami tęsti, užsisakykite naują kodą.</string>
     <string name="personalid_rate_limited_retry_after">Per daug bandymų. Bandykite dar kartą po %1$s.</string>

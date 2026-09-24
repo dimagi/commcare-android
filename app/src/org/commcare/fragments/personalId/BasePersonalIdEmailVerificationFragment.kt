@@ -258,11 +258,9 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         binding.otpCodeView.clearCode()
         binding.otpCodeView.isEnabled = false
         enableVerifyButton(false)
-        val cooldownMillis =
-            TimeUnit.SECONDS.toMillis(
-                ((throwable as? RateLimitedException)?.retryAfterSeconds ?: 0).toLong(),
-            )
-        beginResendCooldown(cooldownMillis)
+        val waitSeconds = (throwable as? RateLimitedException)?.retryAfterSeconds ?: 0
+        val waitMillis = TimeUnit.SECONDS.toMillis(waitSeconds.toLong())
+        beginResendCooldown(waitMillis)
         showError(
             PersonalIdOrConnectApiErrorHandler.handle(
                 requireActivity(),
@@ -271,7 +269,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
             ),
         )
         if (canSkipEmailVerification()) {
-            showProceedWithoutEmailDialog()
+            showProceedWithoutEmailDialog(waitSeconds)
         }
     }
 
@@ -279,14 +277,15 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
 
     open fun onEmailVerified() {}
 
-    private fun showProceedWithoutEmailDialog() {
+    private fun showProceedWithoutEmailDialog(waitSeconds: Int) {
         val commCareActivity = requireActivity() as CommCareActivity<*>
+        val waitText = OtpWaitFormatter.format(requireContext(), waitSeconds)
         val dialog =
             StandardAlertDialog(
                 getString(R.string.personalid_email_otp_failed_title),
-                getString(R.string.personalid_email_otp_failed_message),
+                getString(R.string.personalid_email_otp_failed_message, waitText),
             )
-        dialog.setPositiveButton(getString(R.string.personalid_email_otp_failed_retry)) { _, _ ->
+        dialog.setPositiveButton(getString(R.string.personalid_email_otp_failed_wait)) { _, _ ->
             FirebaseAnalyticsUtil.reportUserPromptEvent(
                 AnalyticsParamValue.USER_PROMPT_TYPE_EMAIL,
                 AnalyticsParamValue.USER_PROMPT_ACTION_RETRY,

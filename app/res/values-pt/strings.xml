@@ -285,8 +285,8 @@
     <string name="personalid_email_verification_description">Digite o código de 6 dígitos enviado para %1$s</string>
     <string name="personalid_email_verify_button">Verificar</string>
     <string name="personalid_email_otp_failed_title">Falha na verificação</string>
-    <string name="personalid_email_otp_failed_message">Parece que você está tendo dificuldade para verificar seu e-mail. Você pode pular esta etapa por agora e tentar novamente mais tarde, ou continuar tentando.</string>
-    <string name="personalid_email_otp_failed_retry">Tentar novamente</string>
+    <string name="personalid_email_otp_failed_message">Você usou todas as tentativas deste código. Pode solicitar um novo em %1$s, ou pular o e-mail por agora.</string>
+    <string name="personalid_email_otp_failed_wait">Aguardar</string>
     <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
     <string name="personalid_otp_limit_exceeded">Você usou todas as tentativas deste código, por isso ele não é mais válido. Solicite um novo código para continuar.</string>
     <string name="personalid_rate_limited_retry_after">Muitas tentativas. Tente novamente em %1$s.</string>

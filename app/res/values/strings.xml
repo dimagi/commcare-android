@@ -407,8 +407,8 @@
     <string name="personalid_email_verification_description">Enter the 6-digit code sent to %1$s</string>
     <string name="personalid_email_verify_button">Verify</string>
     <string name="personalid_email_otp_failed_title">Verification unsuccessful</string>
-    <string name="personalid_email_otp_failed_message">Looks like you\'re having trouble verifying your email. You can skip this for now and try again later, or keep trying.</string>
-    <string name="personalid_email_otp_failed_retry">Try again</string>
+    <string name="personalid_email_otp_failed_message">You have used all the attempts for this code. You can request a new one in %1$s, or skip email for now.</string>
+    <string name="personalid_email_otp_failed_wait">Wait</string>
     <string name="personalid_email_otp_failed_skip">Proceed without email</string>
     <string name="personalid_otp_limit_exceeded">You have used all the attempts for this code, so it is no longer valid. Request a new code to continue.</string>
     <string name="personalid_rate_limited_retry_after">Too many attempts. Please try again in %1$s.</string>
