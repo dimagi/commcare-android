@@ -78,6 +78,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         binding.profileNameEditText.setText(viewModel.currentName)
         binding.profileEmailEditText.setText(viewModel.currentEmail)
 
+        binding.profileHeader.profileUserImageCameraOverlay.visibility = View.VISIBLE
         binding.profileHeader.profileUserImageCard.setOnClickListener {
             photoUpdater.initiatePhotoUpdate()
         }
