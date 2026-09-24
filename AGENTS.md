@@ -56,7 +56,7 @@ screens, running on the JVM).
 
 ## Workflow After Code Changes
 All the changes below should be part of a separate commit after the main code changes:
-- Clean up any unused code and imports
+- Clean up any unused code, imports, and resources
 - Verify Java code with `checkstyle.xml` and make changes as applicable
 - Run ktlint per the "AI Workflow: ktlint" rules below
 - Run relevant unit tests to ensure no regressions
