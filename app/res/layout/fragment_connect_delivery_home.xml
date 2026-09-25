@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/connect_background_color"
+    android:background="?attr/connectBackground"
     android:orientation="vertical"
     tools:theme="@style/ConnectTheme">
 
@@ -41,7 +41,7 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/connect_divider_color" />
+        android:background="?attr/connectOutlineVariant" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/connect_delivery_home_view_pager"

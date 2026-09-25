@@ -11,12 +11,12 @@
 
     <TextView
         android:id="@+id/connect_no_jobs_text"
+        style="@style/TextStyle.Connect.BodyLg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/connect_no_jobs"
         android:textAlignment="center"
         android:textColor="?attr/connectOnSurfaceVariant"
-        android:textSize="@dimen/connect_text_title"
         android:layout_marginHorizontal="@dimen/connect_space_lg"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"

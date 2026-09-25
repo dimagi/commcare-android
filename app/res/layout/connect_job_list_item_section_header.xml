@@ -8,12 +8,12 @@
 
     <TextView
         android:id="@+id/tv_section_header"
+        style="@style/TextStyle.Connect.TitleM"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_marginTop="@dimen/connect_space_xs"
         android:layout_marginBottom="@dimen/connect_space_md"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="@dimen/text_large"
         tools:text="In Progress" />
 
 </LinearLayout>

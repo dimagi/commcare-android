@@ -1,11 +1,13 @@
 package org.commcare.views.connect
 
 import android.content.Context
+import android.graphics.Color
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.dalvik.R
@@ -46,7 +48,7 @@ private fun scoreText(
 
     return SpannableString(full).apply {
         setSpan(
-            ForegroundColorSpan(ContextCompat.getColor(context, R.color.white)),
+            ForegroundColorSpan(MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnPrimary, Color.WHITE)),
             valueStart,
             length,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,

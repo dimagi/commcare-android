@@ -36,44 +36,43 @@
 
                 <TextView
                     android:id="@+id/delivery_chip_label"
+                    style="@style/TextStyle.Connect.LabelM"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/connect_space_xs"
                     android:text="@string/connect_progress_delivery"
-                    android:textColor="?attr/connectStatusPositive"
-                    android:textSize="@dimen/connect_text_caption"
-                    />
+                    android:textColor="?attr/connectStatusPositive" />
 
             </LinearLayout>
 
             <TextView
                 android:id="@+id/delivery_job_title"
+                style="@style/TextStyle.Connect.TitleXl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
                 android:layout_marginTop="@dimen/connect_space_sm"
                 android:includeFontPadding="false"
                 android:textColor="?attr/connectOnSurfaceStrong"
-                android:textSize="@dimen/connect_text_metric"
                 tools:text="Infant Vaccination" />
 
             <TextView
+                style="@style/TextStyle.Connect.LabelS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
                 android:layout_marginTop="@dimen/connect_space_sm"
                 android:text="@string/connect_opportunity_expiry_label"
-                android:textColor="?attr/connectOnSurfaceMuted"
-                android:textSize="@dimen/connect_text_caption" />
+                android:textColor="?attr/connectOnSurfaceMuted" />
 
             <TextView
                 android:id="@+id/delivery_expiry_value"
+                style="@style/TextStyle.Connect.BodyLg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
                 android:layout_marginTop="@dimen/connect_space_xs"
                 android:textColor="?attr/connectOnSurfaceEmphasis"
-                android:textSize="@dimen/connect_text_title"
                 tools:text="01/31/27" />
 
             <org.commcare.views.connect.ConnectProgressCard
@@ -93,15 +92,13 @@
                 android:layout_marginTop="@dimen/connect_space_md" />
 
             <TextView
+                style="@style/TextStyle.Connect.TitleM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
                 android:layout_marginTop="@dimen/connect_space_lg"
                 android:text="@string/connect_delivery_your_progress"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="@dimen/connect_text_title"
-                />
+                android:textColor="?attr/colorOnSurface" />
 
             <GridLayout
                 android:id="@+id/delivery_progress_grid"

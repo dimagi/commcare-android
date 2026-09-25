@@ -1,10 +1,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <ScrollView
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:theme="@style/ConnectTheme">
+    <ScrollView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/connect_background_color"
+    android:background="?attr/connectBackground"
     android:fillViewport="true">
 
     <RelativeLayout
@@ -21,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/connect_space_lg"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -33,13 +34,13 @@
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="10dp"
-                    app:cardElevation="0dp">
+                    app:cardElevation="@dimen/connect_info_card_elevation">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@color/connect_blue_color"
-                        android:padding="16dp">
+                        android:padding="@dimen/connect_space_lg">
 
                         <ImageView
                             android:id="@+id/imageView"
@@ -50,32 +51,31 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/connect_light_grey" />
+                            app:tint="?attr/connectOutlineVariant" />
 
                         <TextView
                             android:id="@+id/payment_earned_label"
+                            style="@style/TextStyle.Connect.LabelS"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="@string/connect_results_summary_earned"
                             android:textColor="@color/connect_light_grey"
-                            android:textSize="14sp"
                             app:layout_constraintBottom_toTopOf="@+id/payment_earned_amount"
                             app:layout_constraintStart_toEndOf="@+id/imageView"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/payment_earned_amount"
+                            style="@style/TextStyle.Connect.BodyLg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/imageView"
                             app:layout_constraintTop_toBottomOf="@+id/payment_earned_label"
-                            tools:text="$800"
-                            android:textStyle="bold"/>
+                            tools:text="$800" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -87,13 +87,13 @@
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     app:cardCornerRadius="10dp"
-                    app:cardElevation="0dp">
+                    app:cardElevation="@dimen/connect_info_card_elevation">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/connect_green"
-                        android:padding="16dp">
+                        android:background="?attr/connectStatusPositive"
+                        android:padding="@dimen/connect_space_lg">
 
                         <ImageView
                             android:id="@+id/imgTransffed"
@@ -104,32 +104,31 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/connect_light_grey" />
+                            app:tint="?attr/connectOutlineVariant" />
 
                         <TextView
                             android:id="@+id/payment_transferred_label"
+                            style="@style/TextStyle.Connect.LabelS"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="@string/connect_results_summary_transferred"
                             android:textColor="@color/connect_light_grey"
-                            android:textSize="14sp"
                             app:layout_constraintBottom_toTopOf="@+id/payment_transferred_amount"
                             app:layout_constraintStart_toEndOf="@+id/imgTransffed"
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
                             android:id="@+id/payment_transferred_amount"
+                            style="@style/TextStyle.Connect.BodyLg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toEndOf="@+id/imgTransffed"
                             app:layout_constraintTop_toBottomOf="@+id/payment_transferred_label"
-                            tools:text="$800"
-                            android:textStyle="bold"/>
+                            tools:text="$800" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -141,7 +140,7 @@
                 android:id="@+id/results_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="@dimen/connect_space_xl"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
                 tools:itemCount="5"
                 tools:listitem="@layout/connect_payment_item" />

@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/connect_background_color"
+    android:background="?attr/connectBackground"
     android:orientation="vertical"
-    tools:context="org.commcare.fragments.connect.ConnectJobIntroFragment">
+    tools:context="org.commcare.fragments.connect.ConnectJobIntroFragment"
+    tools:theme="@style/ConnectTheme">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/connect_background_color"
+        android:background="?attr/connectBackground"
         android:clipToPadding="false">
 
         <LinearLayout
@@ -25,7 +26,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="?attr/colorSurface"
                 android:orientation="vertical"
                 android:padding="@dimen/standard_spacer_double">
 
@@ -46,32 +47,31 @@
 
                     <TextView
                         android:id="@+id/tv_opportunity_badge"
+                        style="@style/TextStyle.Connect.LabelS"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/standard_spacer"
                         android:text="@string/connect_opportunity_badge_new"
-                        android:textColor="@color/orange"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/orange" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_job_title"
+                    style="@style/TextStyle.Connect.TitleXl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standard_spacer"
                     android:includeFontPadding="false"
-                    android:textColor="@color/connect_text_color"
-                    android:textSize="22sp"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
                     tools:text="Infant Vaccination" />
 
                 <TextView
                     android:id="@+id/tv_job_description"
+                    style="@style/TextStyle.Connect.BodyM"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standard_spacer_half"
-                    android:textColor="@color/connect_dark_grey"
-                    android:textSize="14sp"
+                    android:textColor="?attr/colorOnSurface"
                     tools:text="One line description about the opportunity." />
 
                 <LinearLayout
@@ -89,17 +89,17 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            style="@style/TextStyle.Connect.LabelS"
                             android:text="@string/connect_opportunity_expiry_label"
-                            android:textColor="@color/connect_grey"
-                            android:textSize="11sp" />
+                            android:textColor="?attr/connectOnSurfaceMuted" />
 
                         <TextView
                             android:id="@+id/tv_expiry_value"
+                            style="@style/TextStyle.Connect.BodyLg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/standard_spacer_half"
-                            android:textColor="@color/connect_text_color"
-                            android:textSize="16sp"
+                            android:textColor="?attr/connectOnSurfaceEmphasis"
                             tools:text="01/31/27" />
                     </LinearLayout>
 
@@ -107,7 +107,7 @@
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
                         android:layout_marginHorizontal="@dimen/standard_spacer_double"
-                        android:background="@color/connect_divider_color" />
+                        android:background="?attr/connectOutlineVariant" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -118,17 +118,17 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            style="@style/TextStyle.Connect.LabelS"
                             android:text="@string/connect_opportunity_max_earnings_label"
-                            android:textColor="@color/connect_grey"
-                            android:textSize="11sp" />
+                            android:textColor="?attr/connectOnSurfaceMuted" />
 
                         <TextView
                             android:id="@+id/tv_max_earnings_value"
+                            style="@style/TextStyle.Connect.BodyLg"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/standard_spacer_half"
-                            android:textColor="@color/connect_text_color"
-                            android:textSize="16sp"
+                            android:textColor="?attr/connectOnSurfaceEmphasis"
                             tools:text="₹2500" />
                     </LinearLayout>
                 </LinearLayout>
@@ -166,18 +166,17 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            style="@style/TextStyle.Connect.TitleM"
                             android:text="@string/connect_opportunity_learn_section_title"
-                            android:textColor="@color/neon_blue"
-                            android:textSize="16sp"
-                            />
+                            android:textColor="?attr/colorPrimary" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/standard_spacer_half"
+                            style="@style/TextStyle.Connect.BodyS"
                             android:text="@string/connect_opportunity_learn_section_subtitle"
-                            android:textColor="@color/connect_dark_grey"
-                            android:textSize="11sp" />
+                            android:textColor="?attr/colorOnSurface" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -210,18 +209,17 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            style="@style/TextStyle.Connect.TitleM"
                             android:text="@string/connect_opportunity_delivery_section_title"
-                            android:textColor="@color/neon_blue"
-                            android:textSize="16sp"
-                             />
+                            android:textColor="?attr/colorPrimary" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/standard_spacer_half"
+                            style="@style/TextStyle.Connect.BodyS"
                             android:text="@string/connect_opportunity_delivery_section_subtitle"
-                            android:textColor="@color/connect_dark_grey"
-                            android:textSize="11sp" />
+                            android:textColor="?attr/colorOnSurface" />
                     </LinearLayout>
                 </LinearLayout>
 

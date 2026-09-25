@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.widget.ImageViewCompat
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectSyncStatusCardBinding
 import org.commcare.views.extensions.bindOptional
@@ -69,7 +70,7 @@ class ConnectSyncStatusCard
             radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
             strokeWidth = resources.getDimensionPixelSize(R.dimen.connect_stroke_hairline)
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
+            setCardBackgroundColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface))
 
             var initialState = State()
 

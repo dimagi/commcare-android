@@ -42,39 +42,38 @@
                         android:src="@drawable/ic_connect_learn_app" />
 
                     <TextView
+                        style="@style/TextStyle.Connect.LabelM"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/standard_spacer_half"
                         android:text="@string/connect_opportunity_learn_section_title"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="@dimen/connect_text_caption"
-                        />
+                        android:textColor="?attr/colorPrimary" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/learn_progress_job_title"
+                    style="@style/TextStyle.Connect.TitleXl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standard_spacer"
                     android:includeFontPadding="false"
                     android:textColor="?attr/connectOnSurfaceStrong"
-                    android:textSize="@dimen/connect_text_metric"
                     tools:text="Infant Vaccination" />
 
                 <TextView
+                    style="@style/TextStyle.Connect.LabelS"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/standard_spacer_half"
                     android:text="@string/connect_opportunity_expiry_label"
-                    android:textColor="?attr/connectOnSurfaceMuted"
-                    android:textSize="@dimen/connect_text_caption" />
+                    android:textColor="?attr/connectOnSurfaceMuted" />
 
                 <TextView
                     android:id="@+id/learn_progress_expiry_value"
+                    style="@style/TextStyle.Connect.BodyLg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="?attr/connectOnSurfaceEmphasis"
-                    android:textSize="@dimen/connect_text_title"
                     tools:text="01/31/27" />
             </LinearLayout>
 
@@ -95,14 +94,13 @@
 
             <TextView
                 android:id="@+id/learn_progress_continue_heading"
+                style="@style/TextStyle.Connect.TitleM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/standard_spacer_double"
                 android:layout_marginTop="@dimen/standard_title_margin_bottom"
                 android:text="@string/connect_learn_continue"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="@dimen/connect_text_title"
-                />
+                android:textColor="?attr/colorOnSurface" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/learn_progress_continue_card"
@@ -112,7 +110,7 @@
                 android:layout_marginTop="@dimen/standard_spacer_one_and_half"
                 app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
-                app:cardElevation="0dp"
+                app:cardElevation="@dimen/connect_info_card_elevation"
                 app:strokeColor="?attr/connectOutlineVariant"
                 app:strokeWidth="1dp">
 
@@ -124,28 +122,28 @@
 
                     <TextView
                         android:id="@+id/learn_progress_continue_label"
+                        style="@style/TextStyle.Connect.TitleS"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="@dimen/connect_text_body"
                         tools:text="Up Next" />
 
                     <TextView
                         android:id="@+id/learn_progress_continue_title"
+                        style="@style/TextStyle.Connect.BodyLg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/standard_spacer_double"
                         android:textColor="?attr/connectOnSurfaceStrong"
-                        android:textSize="@dimen/connect_text_title"
                         tools:text="3. Malawian Vaccine Schedule" />
 
                     <TextView
                         android:id="@+id/learn_progress_continue_subtitle"
+                        style="@style/TextStyle.Connect.BodyS"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/standard_spacer_half"
                         android:textColor="?attr/connectOnSurfaceMuted"
-                        android:textSize="@dimen/connect_text_caption"
                         tools:text="Estimated time: 1 hour" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

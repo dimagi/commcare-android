@@ -4,7 +4,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:theme="@style/ConnectTheme">
 
     <TextView
         android:id="@android:id/text1"
@@ -12,7 +13,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="@style/TabTextStyle"
+        android:textAllCaps="false"
         android:textColor="?attr/colorOnPrimary"
         android:textSize="@dimen/connect_text_tab"
         tools:text="More" />
