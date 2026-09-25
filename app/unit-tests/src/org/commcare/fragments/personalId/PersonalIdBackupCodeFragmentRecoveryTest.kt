@@ -12,6 +12,8 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.json.JSONObject
 import org.junit.After
@@ -24,6 +26,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mockStatic
+import org.mockito.kotlin.eq
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
@@ -145,14 +149,16 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     // ========== Request ==========
 
     @Test
-    fun `a complete code posts it to the confirm endpoint and disables continue while in flight`() {
+    fun `a complete code posts it to the complete_recovery endpoint and disables continue while in flight`() {
         // No response is enqueued so the request stays in flight, making the disabled assertion deterministic.
         enterBackupCode(TEST_BACKUP_CODE)
 
         val request = takeRequestOrFail()
-        assertEquals("/users/recover/confirm_backup_code", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals("/users/recover/complete_recovery", request.path)
         assertEquals("POST", request.method)
-        assertEquals(TEST_BACKUP_CODE, JSONObject(request.body.readUtf8()).getString("recovery_pin"))
+        assertEquals("backup_code", body.getString("method"))
+        assertEquals(TEST_BACKUP_CODE, body.getString("backup_code"))
 
         val authHeader = request.headers["Authorization"]
         assertNotNull("Authorization header should be present", authHeader)
@@ -225,6 +231,21 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
             message = fragment.getString(R.string.connect_recovery_success_message),
             phase = ConnectConstants.PERSONALID_RECOVERY_SUCCESS,
         )
+    }
+
+    @Test
+    fun `a confirmed code passes backup_code as the recovery method`() {
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            mockWebServer.enqueue(successResponse())
+            enterBackupCode(TEST_BACKUP_CODE)
+            drainHttp()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
+                )
+            }
+        }
     }
 
     // ========== Failure ==========

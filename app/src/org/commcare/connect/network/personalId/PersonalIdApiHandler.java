@@ -20,7 +20,7 @@ import org.commcare.connect.network.base.RateLimitedException;
 import org.commcare.connect.network.connect.parser.ConnectReleaseTogglesParser;
 import org.commcare.connect.network.personalId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.personalId.parser.CompleteProfileResponseParser;
-import org.commcare.connect.network.personalId.parser.ConfirmBackupCodeResponseParser;
+import org.commcare.connect.network.personalId.parser.CompleteRecoveryParser;
 import org.commcare.connect.network.personalId.parser.ConnectTokenResponseParser;
 import org.commcare.connect.network.personalId.parser.LinkHqWorkerResponseParser;
 import org.commcare.connect.network.personalId.parser.PersonalIdApiResponseParser;
@@ -268,19 +268,6 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void confirmBackupCode(
-            Activity activity,
-            String backupCode,
-            PersonalIdSessionData sessionData
-    ) {
-        ApiPersonalId.confirmBackupCode(
-                activity,
-                backupCode,
-                sessionData.getToken(),
-                createCallback(sessionData, new ConfirmBackupCodeResponseParser())
-        );
-    }
-
     public void setBackupCode(Context context, String userId, String password, String newPin) {
         ApiPersonalId.setBackupCode(
                 context,
@@ -300,7 +287,20 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 activity,
                 otp,
                 sessionData.getToken(),
-                createCallback(sessionData, new ConfirmBackupCodeResponseParser())
+                createCallback(sessionData, new CompleteRecoveryParser())
+        );
+    }
+
+    public void completeRecoveryWithBackupCode(
+            Activity activity,
+            String backupCode,
+            PersonalIdSessionData sessionData
+    ) {
+        ApiPersonalId.completeRecoveryWithBackupCode(
+                activity,
+                backupCode,
+                sessionData.getToken(),
+                createCallback(sessionData, new CompleteRecoveryParser())
         );
     }
 
