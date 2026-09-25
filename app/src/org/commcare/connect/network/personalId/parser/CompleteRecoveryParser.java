@@ -13,10 +13,10 @@ import org.json.JSONObject;
 import java.util.Objects;
 
 /**
- * Parses a JSON response from the confirm backup code API call
+ * Parses a JSON response from the complete_recovery API call
  * and populates a PersonalIdSessionData instance.
  */
-public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponseParser {
+public class CompleteRecoveryParser implements PersonalIdApiResponseParser {
     /**
      * Parses and sets values on the given PersonalIdSessionData instance.
      *
@@ -60,9 +60,9 @@ public class ConfirmBackupCodeResponseParser implements PersonalIdApiResponsePar
             String email = JsonExtensions.optNonBlankStringSafe(json, "email");
             boolean isValidEmail = StringUtils.isValidEmail(email);
             if (json.has("email") && !isValidEmail) {
-                Logger.exception("Invalid email address present in confirm backup code response",
+                Logger.exception("Invalid email address present in complete_recovery response",
                         new IllegalArgumentException(
-                                "Email key present in confirm backup code response but value is not a valid email"));
+                                "Email key present in complete_recovery response but value is not a valid email"));
             }
             sessionData.setEmail(isValidEmail ? email.trim() : null);
         }
