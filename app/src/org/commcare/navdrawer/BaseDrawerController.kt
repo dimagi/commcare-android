@@ -5,7 +5,9 @@ import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -88,6 +90,13 @@ class BaseDrawerController(
         binding.drawerLayout.addDrawerListener(drawerToggle)
         (activity as? AppCompatActivity)?.apply {
             drawerToggle.drawerArrowDrawable.color = Color.WHITE
+            // The toolbar has no up icon yet, so supply the back arrow shown when the sidebar icon is off.
+            drawerToggle.setHomeAsUpIndicator(
+                DrawerArrowDrawable(activity).apply {
+                    color = Color.WHITE
+                    progress = 1f
+                },
+            )
             drawerToggle.syncState()
         }
     }
@@ -288,6 +297,13 @@ class BaseDrawerController(
 
     fun openDrawer() {
         binding.drawerLayout.openDrawer(GravityCompat.START)
+    }
+
+    // Screens nested inside a section show back and can't swipe the sidebar open.
+    fun setTopLevel(isTopLevel: Boolean) {
+        drawerToggle.isDrawerIndicatorEnabled = isTopLevel
+        val lockMode = if (isTopLevel) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        binding.drawerLayout.setDrawerLockMode(lockMode)
     }
 
     fun isShowingError(): Boolean = showingError

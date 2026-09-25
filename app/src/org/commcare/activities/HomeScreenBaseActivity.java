@@ -614,18 +614,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         finish();
     }
 
-    protected boolean isBlockedByActiveSync() {
-        if (CommCareSessionService.sessionAliveLock.isLocked()) {
-            Toast.makeText(
-                    this,
-                    Localization.get("background.sync.logout.attempt.during.sync"),
-                    Toast.LENGTH_LONG
-            ).show();
-            return true;
-        }
-        return false;
-    }
-
     protected void userPressedOpportunityStatus() {
         // Launch the seated app's job status page on top of this (still-live) Home so the app
         // session is preserved and backing out of the status page returns here.
