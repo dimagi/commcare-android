@@ -27,37 +27,35 @@
 
     <TextView
         android:id="@+id/delivery_item_name"
+        style="@style/TextStyle.Connect.TitleS"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/delivery_item_reason"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/deliveryStatus"
-        app:layout_constraintTop_toTopOf="parent"
-        android:textStyle="bold"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
         android:id="@+id/delivery_item_reason"
+        style="@style/TextStyle.Connect.LabelM"
         android:layout_width="0dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="@dimen/connect_space_sm"
         android:layout_height="wrap_content"
         android:textColor="@color/connect_yellowish_orange_color"
-        android:textSize="12sp"
         android:layout_marginTop="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/delivery_item_date"
         app:layout_constraintStart_toStartOf="@+id/delivery_item_name"
-        app:layout_constraintTop_toBottomOf="@+id/delivery_item_name"
-        android:textStyle="bold"/>
+        app:layout_constraintTop_toBottomOf="@+id/delivery_item_name" />
 
 
     <TextView
         android:id="@+id/delivery_item_date"
+        style="@style/TextStyle.Connect.LabelM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/delivery_item_reason"
         app:layout_constraintEnd_toEndOf="parent" />
 

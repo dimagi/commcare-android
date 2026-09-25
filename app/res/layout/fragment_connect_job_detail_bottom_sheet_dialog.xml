@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:theme="@style/ConnectTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +20,7 @@
             android:layout_width="32dp"
             android:layout_height="4dp"
             android:layout_gravity="center"
-            app:cardBackgroundColor="@color/connect_divider_color" />
+            app:cardBackgroundColor="?attr/connectOutlineVariant" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,13 +30,12 @@
 
             <TextView
                 android:id="@+id/tv_opportunity_name"
+                style="@style/TextStyle.Connect.TitleM"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/connect_job_info_delivery_detail"
                 android:textColor="@color/black"
-                android:textSize="17sp"
-                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -52,11 +53,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="11dp"
             android:orientation="horizontal"
-            android:paddingStart="4dp"
-            android:paddingTop="4dp"
+            android:paddingStart="@dimen/connect_space_xs"
+            android:paddingTop="@dimen/connect_space_xs"
             android:paddingEnd="10dp"
             android:layout_marginEnd="3dp"
-            android:paddingBottom="4dp">
+            android:paddingBottom="@dimen/connect_space_xs">
 
             <ImageView
                 android:id="@+id/iv_info"
@@ -67,11 +68,10 @@
 
             <TextView
                 android:id="@+id/tvDate"
+                style="@style/TextStyle.Connect.BodyS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp"
-                android:fontFamily="sans-serif" />
+                android:layout_marginStart="@dimen/connect_space_xs" />
         </LinearLayout>
 
         <include
@@ -84,37 +84,35 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/connect_space_lg"
             android:paddingBottom="20dp"
             app:cardCornerRadius="10dp"
-            app:cardElevation="5dp">
+            app:cardElevation="@dimen/connect_card_elevation_medium">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/connect_delivery_details_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/connect_dark_blue_color"
-                android:padding="16dp">
+                android:background="?attr/colorPrimary"
+                android:padding="@dimen/connect_space_lg">
 
                 <TextView
                     android:id="@+id/connect_delivery_title"
+                    style="@style/TextStyle.Connect.TitleM"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/connect_job_info_delivery_detail"
                     android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/connect_review"
+                    style="@style/TextStyle.Connect.TitleS"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/connect_job_info_review_delivery"
                     android:textColor="@color/grey"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/connect_delivery_title" />
 
@@ -130,11 +128,11 @@
 
                 <TextView
                     android:id="@+id/connect_delivery_total_visits_text"
+                    style="@style/TextStyle.Connect.BodyM"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_visits_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_visits_icon"
@@ -152,11 +150,11 @@
 
                 <TextView
                     android:id="@+id/connect_delivery_days_text"
+                    style="@style/TextStyle.Connect.BodyM"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_days_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_days_icon"
@@ -174,11 +172,11 @@
 
                 <TextView
                     android:id="@+id/connect_delivery_max_daily_text"
+                    style="@style/TextStyle.Connect.BodyM"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_max_daily_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_max_daily_icon"
@@ -196,11 +194,11 @@
 
                 <TextView
                     android:id="@+id/connect_delivery_budget_text"
+                    style="@style/TextStyle.Connect.BodyM"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
                     app:layout_constraintBottom_toBottomOf="@id/connect_delivery_budget_icon"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/connect_delivery_budget_icon"

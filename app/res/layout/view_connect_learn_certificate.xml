@@ -5,9 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/standard_spacer_extra_large"
-    android:backgroundTint="@color/connect_dark_blue_color"
+    android:backgroundTint="?attr/colorPrimary"
     app:cardCornerRadius="@dimen/connect_radius_lg"
-    app:cardElevation="@dimen/connect_info_card_elevation">
+    app:cardElevation="@dimen/connect_info_card_elevation"
+    tools:theme="@style/ConnectTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,31 +18,30 @@
         android:paddingVertical="@dimen/connect_space_md">
 
         <TextView
+            style="@style/TextStyle.Connect.TitleS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/connect_learn_certificate"
             android:textAlignment="center"
-            android:textColor="@color/connect_aqua"
-            android:textSize="@dimen/connect_text_body" />
+            android:textColor="?attr/colorOnPrimary" />
 
         <TextView
             android:id="@+id/cert_subject_text"
+            style="@style/TextStyle.Connect.TitleS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/connect_space_xs"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="@dimen/connect_text_body"
-            android:textStyle="bold"
+            android:textColor="?attr/colorOnPrimary"
             tools:text="Infant Vaccine Check" />
 
         <TextView
             android:id="@+id/cert_person_text"
+            style="@style/TextStyle.Connect.BodyS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="@dimen/connect_text_caption"
+            android:textColor="?attr/colorOnPrimary"
             tools:text="Person Name" />
 
         <LinearLayout
@@ -53,24 +53,24 @@
 
             <TextView
                 android:id="@+id/cert_score_text"
+                style="@style/TextStyle.Connect.LabelM"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:textColor="@color/connect_subtext_color"
-                android:textSize="11sp"
+                android:textColor="?attr/connectOnSurfaceMuted"
                 tools:text="Score: 100" />
 
             <TextView
                 android:id="@+id/cert_date_text"
+                style="@style/TextStyle.Connect.BodyXs"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
-                android:textColor="@color/connect_subtext_color"
-                android:textSize="11sp"
+                android:textColor="?attr/connectOnSurfaceMuted"
                 tools:text="Completed on\n21/02/2024" />
         </LinearLayout>
 

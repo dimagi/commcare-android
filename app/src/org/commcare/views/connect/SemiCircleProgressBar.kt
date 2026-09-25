@@ -6,6 +6,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewSemiCircleProgressBarBinding
 import org.commcare.utils.ProgressUtils
@@ -91,22 +92,22 @@ class SemiCircleProgressBar
                     progressColor =
                         getColor(
                             R.styleable.SemiCircleProgressBar_progressColor,
-                            ContextCompat.getColor(context, R.color.connect_dark_blue_color),
+                            MaterialColors.getColor(this@SemiCircleProgressBar, com.google.android.material.R.attr.colorPrimary),
                         )
                     trackColor =
                         getColor(
                             R.styleable.SemiCircleProgressBar_trackColor,
-                            ContextCompat.getColor(context, R.color.connect_light_grey),
+                            MaterialColors.getColor(this@SemiCircleProgressBar, R.attr.connectOutlineVariant),
                         )
                     valueTextColor =
                         getColor(
                             R.styleable.SemiCircleProgressBar_valueTextColor,
-                            ContextCompat.getColor(context, R.color.connect_dark_blue_color),
+                            MaterialColors.getColor(this@SemiCircleProgressBar, com.google.android.material.R.attr.colorPrimary),
                         )
                     descriptionTextColor =
                         getColor(
                             R.styleable.SemiCircleProgressBar_descriptionTextColor,
-                            ContextCompat.getColor(context, R.color.connect_text_color),
+                            MaterialColors.getColor(this@SemiCircleProgressBar, com.google.android.material.R.attr.colorOnSurface),
                         )
                     getDimension(R.styleable.SemiCircleProgressBar_valueTextSize, -1f).let {
                         if (it >= 0) binding.semiCircleValueText.setTextSize(TypedValue.COMPLEX_UNIT_PX, it)

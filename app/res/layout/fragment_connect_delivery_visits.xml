@@ -4,7 +4,8 @@
     android:id="@+id/rvPaymentUnits"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/connect_background_color"
+    android:background="?attr/connectBackground"
     android:clipToPadding="false"
     android:paddingVertical="6dp"
-    tools:listitem="@layout/connect_delivery_progress_item" />
+    tools:listitem="@layout/connect_delivery_progress_item"
+    tools:theme="@style/ConnectTheme" />

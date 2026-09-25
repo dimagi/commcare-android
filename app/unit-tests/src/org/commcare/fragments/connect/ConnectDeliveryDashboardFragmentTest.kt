@@ -11,6 +11,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
@@ -467,7 +468,8 @@ class ConnectDeliveryDashboardFragmentTest {
 
     private fun ConnectInfoHalfCard.valueTextColor(): Int = findViewById<TextView>(R.id.info_card_value_text).currentTextColor
 
-    private fun accentColor(): Int = ContextCompat.getColor(activity, R.color.connect_dark_blue_color)
+    private fun accentColor(): Int =
+        MaterialColors.getColor(activity.findViewById(android.R.id.content), com.google.android.material.R.attr.colorPrimary)
 
     private fun disabledColor(): Int = ContextCompat.getColor(activity, R.color.connect_dark_grey)
 
