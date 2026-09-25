@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.CallSuper
+import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseException
@@ -16,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GetTokenResult
+import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.shadows.ShadowPhoneAuthProvider
@@ -24,6 +26,8 @@ import org.commcare.dalvik.R
 import org.commcare.utils.OtpManager
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -121,6 +125,48 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     private fun errorView() = fragment.requireView().findViewById<TextView>(R.id.connect_phone_verify_error)
 
     private fun resendButton() = fragment.requireView().findViewById<View>(R.id.connect_resend_button)
+
+    /**
+     * Launches on the PersonalID (Twilio) path, which is the only one that talks to
+     * confirm_session_otp. The launch-time send_session_otp call needs its own queued response or
+     * the mock server leaves it hanging.
+     */
+    private fun launchOnPersonalIdPath() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        launchWith(OtpManager.SMS_METHOD_PERSONAL_ID, otpFallback = false)
+        drainHttp()
+    }
+
+    /** Rebuilds the activity from saved state, as a rotation would, and re-resolves the fragment. */
+    private fun recreateFragment() {
+        activityController.recreate()
+        activity = activityController.get()
+        navHostFragment =
+            activity.supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
+        captureNavFragment()
+        ShadowLooper.idleMainLooper()
+    }
+
+    /** Types a code, hits Verify, and lets [response] come back from confirm_session_otp. */
+    private fun submitCodeAgainst(response: MockResponse) {
+        mockWebServer.enqueue(response)
+        activity.runOnUiThread {
+            codeView().setCode("123456")
+            verifyButton().performClick()
+        }
+        drainHttp()
+    }
+
+    private fun incorrectOtpResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error":"INCORRECT_OTP"}""")
+
+    private fun otpLimitExceededResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED","retry_after_seconds":120}""")
 
     @Test
     fun `session sms method of personal_id is tracked as personal_id not firebase`() {
@@ -247,6 +293,146 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         assertEquals(
             activity.getString(R.string.connect_otp_verified),
             ShadowToast.getTextOfLatestToast(),
+        )
+    }
+
+    // ========== OTP_LIMIT_EXCEEDED ==========
+
+    /**
+     * Only the PersonalID (Twilio) path talks to confirm_session_otp, so OTP_LIMIT_EXCEEDED can
+     * only reach this screen there; the Firebase path never sees it.
+     */
+    @Test
+    fun `running out of attempts tells the user to request a new code rather than reporting a wrong one`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(otpLimitExceededResponse())
+
+        assertEquals(View.VISIBLE, errorView().visibility)
+        assertEquals(
+            activity.getString(R.string.personalid_otp_limit_exceeded),
+            errorView().text.toString(),
+        )
+    }
+
+    @Test
+    fun `a code that has run out of attempts closes the screen for the server's wait`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(otpLimitExceededResponse())
+
+        assertEquals("The dead code should not be left in the field", "", codeView().codeValue)
+        assertFalse("Nothing can be typed until a new code is requested", codeView().isEnabled)
+        assertEquals(
+            "No new code can be requested until the server's wait elapses",
+            View.GONE,
+            resendButton().visibility,
+        )
+        assertEquals(
+            "The wording should be about requesting a new code, not resending",
+            activity.getString(
+                R.string.personalid_otp_request_new_code_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_minutes, 2, 2),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.connect_phone_verify_resend)
+                .text
+                .toString(),
+        )
+    }
+
+    @Test
+    fun `a wrong code is still reported as a wrong code and holds the resend cooldown`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(incorrectOtpResponse())
+
+        assertEquals(
+            activity.getString(R.string.personalid_incorrect_otp),
+            errorView().text.toString(),
+        )
+        assertEquals(View.GONE, resendButton().visibility)
+    }
+
+    @Test
+    fun `a rate-limited request holds resend for the wait the server reported`() {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(429)
+                .setBody("""{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""),
+        )
+        launchWith(OtpManager.SMS_METHOD_PERSONAL_ID, otpFallback = false)
+        drainHttp()
+
+        assertEquals(
+            "Resend must stay hidden for the server's wait, not the local two minutes",
+            View.GONE,
+            resendButton().visibility,
+        )
+        assertEquals(
+            activity.getString(
+                R.string.personalid_otp_resend_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 2, 2),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.connect_phone_verify_resend)
+                .text
+                .toString(),
+        )
+    }
+
+    @Test
+    fun `the wait after running out of attempts survives a configuration change`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(otpLimitExceededResponse())
+
+        recreateFragment()
+
+        assertEquals(
+            "A rotation must not shortcut the server's wait",
+            View.GONE,
+            resendButton().visibility,
+        )
+    }
+
+    @Test
+    fun `a running cooldown survives a configuration change`() {
+        launchOnPersonalIdPath()
+
+        recreateFragment()
+
+        assertEquals(
+            "The cooldown from the launch-time request should still be running",
+            View.GONE,
+            resendButton().visibility,
+        )
+    }
+
+    @Test
+    fun `requesting a new code reopens the screen and restores the resend wording`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(otpLimitExceededResponse())
+
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        activity.runOnUiThread { resendButton().performClick() }
+        drainHttp()
+
+        assertTrue("A new code on its way means the field is usable again", codeView().isEnabled)
+        assertEquals(
+            "A fresh code restarts the ordinary wait, so resend hides again",
+            View.GONE,
+            resendButton().visibility,
+        )
+        assertEquals(
+            "Back to ordinary resend wording once a code is on its way",
+            activity.getString(
+                R.string.personalid_otp_resend_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_minutes, 2, 2),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.connect_phone_verify_resend)
+                .text
+                .toString(),
         )
     }
 

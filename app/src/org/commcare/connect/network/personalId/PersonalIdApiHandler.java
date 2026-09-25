@@ -15,6 +15,8 @@ import org.commcare.connect.network.base.NoParsingResponseParser;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.base.BaseApiResponseParser;
+import org.commcare.connect.network.base.NetworkUtils;
+import org.commcare.connect.network.base.RateLimitedException;
 import org.commcare.connect.network.connect.parser.ConnectReleaseTogglesParser;
 import org.commcare.connect.network.personalId.parser.AddOrVerifyNameParser;
 import org.commcare.connect.network.personalId.parser.CompleteProfileResponseParser;
@@ -39,10 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import kotlin.Pair;
-
-import static org.commcare.connect.network.base.NetworkUtils.getErrorCodes;
 
 public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
 
@@ -86,12 +84,8 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                     String errorBody,
                     Throwable t
             ) {
-                Pair<String, String> errorCodes = getErrorCodes(errorBody);
-                if (!handleErrorCodeIfPresent(
-                        errorCodes.getFirst(),
-                        errorCodes.getSecond(),
-                        sessionData
-                )) {
+                PersonalIdApiErrorBody parsedError = NetworkUtils.parseErrorBody(errorBody);
+                if (!handleErrorCodeIfPresent(parsedError, sessionData)) {
                     super.processFailure(responseCode, url, errorBody, t);
                 }
             }
@@ -103,22 +97,21 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
      * {@code sessionData} is null for calls with no configuration session to record the failure on.
      */
     private boolean handleErrorCodeIfPresent(
-            String errorCode,
-            String errorSubCode,
+            PersonalIdApiErrorBody error,
             @Nullable PersonalIdSessionData sessionData
     ) {
         if (sessionData != null) {
-            sessionData.setSessionFailureCode(errorCode);
-            sessionData.setSessionFailureSubcode(errorSubCode);
+            sessionData.setSessionFailureCode(error.getErrorCode());
+            sessionData.setSessionFailureSubcode(error.getErrorSubCode());
         }
-        switch (errorCode) {
+        switch (error.getErrorCode()) {
             case "LOCKED_ACCOUNT":
                 onFailure(PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR, null);
                 return true;
             case "INTEGRITY_ERROR":
                 Logger.log(
                         LogTypes.TYPE_MAINTENANCE,
-                        "Integrity error with subcode " + errorSubCode
+                        "Integrity error with subcode " + error.getErrorSubCode()
                 );
                 onFailure(PersonalIdOrConnectApiErrorCodes.INTEGRITY_ERROR, null);
                 return true;
@@ -132,6 +125,12 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 return true;
             case "INCORRECT_OTP":
                 onFailure(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, null);
+                return true;
+            case "OTP_LIMIT_EXCEEDED":
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR,
+                        new RateLimitedException(error.getRetryAfterSeconds())
+                );
                 return true;
             case "NO_RECOVERY_PIN_SET":
                 onFailure(
@@ -155,7 +154,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                         PersonalIdOrConnectApiErrorCodes.MISSING_DATA_ERROR,
                         new Throwable(
                                 "API call failed due to missing data with error subcode: "
-                                        + errorSubCode
+                                        + error.getErrorSubCode()
                         )
                 );
                 return true;
@@ -190,7 +189,10 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 onFailure(PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR, null);
                 return true;
             case "RATE_LIMITED":
-                onFailure(PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR, null);
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.RATE_LIMIT_EXCEEDED_ERROR,
+                        new RateLimitedException(error.getRetryAfterSeconds())
+                );
                 return true;
             case "EMAIL_ALREADY_IN_USE":
                 onFailure(PersonalIdOrConnectApiErrorCodes.EMAIL_ALREADY_IN_USE_ERROR, null);
