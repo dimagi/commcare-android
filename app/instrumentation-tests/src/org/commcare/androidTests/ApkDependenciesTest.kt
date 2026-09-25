@@ -34,13 +34,6 @@ class ApkDependenciesTest : BaseTest() {
     }
 
     @Test
-    fun keepConcurrentHashMapConstructor() {
-        // This constructor is used by a Google Location API, but R8 was stripping it from the instrumentation
-        // tests APK, which caused some tests to fail. This dummy test is to force R8 to retain the constructor
-        ConcurrentHashMap<Any, Any>(1, 1.00f, 1)
-    }
-
-    @Test
     fun testAppDependenciesCheck() {
         installApp(APP_NAME, CCZ_NAME)
         val unstatisfiedDependencies = ImmutableList.of("Reminders", "Test")
