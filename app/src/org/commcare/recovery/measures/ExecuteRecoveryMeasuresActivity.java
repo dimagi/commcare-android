@@ -34,7 +34,7 @@ import static org.commcare.recovery.measures.ExecuteRecoveryMeasuresPresenter.RE
  * Created by amstone326 on 5/22/18.
  */
 
-@ManagedUi(R.layout.execute_recovery_measures)
+@ManagedUi("execute_recovery_measures")
 public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRecoveryMeasuresActivity> implements ResourceEngineListener, UnZipTaskListener {
 
     protected static final int PROMPT_APK_UPDATE = 1;
@@ -44,22 +44,22 @@ public class ExecuteRecoveryMeasuresActivity extends CommCareActivity<ExecuteRec
 
     private ExecuteRecoveryMeasuresPresenter mPresenter;
 
-    @UiElement(value = R.id.status_tv)
+    @UiElement(value = "status_tv")
     private TextView statusTv;
 
-    @UiElement(value = R.id.detail)
+    @UiElement(value = "detail")
     private TextView detailTv;
 
-    @UiElement(value = R.id.retry_button)
+    @UiElement(value = "retry_button")
     private Button retryBt;
 
-    @UiElement(value = R.id.reinstall_button)
+    @UiElement(value = "reinstall_button")
     private Button reinstallBt;
 
-    @UiElement(value = R.id.select_ccz_button)
+    @UiElement(value = "select_ccz_button")
     private Button selectCczBt;
 
-    @UiElement(value = R.id.progress_bar)
+    @UiElement(value = "progress_bar")
     private ProgressBar progressBar;
 
     @Override
