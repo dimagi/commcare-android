@@ -155,7 +155,7 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
         PersonalIdRecoveryCompleter.finalizeAccountRecovery(
             requireActivity(),
             personalIdSessionData!!,
-            recoveryMethod
+            recoveryMethod,
         )
     }
 
