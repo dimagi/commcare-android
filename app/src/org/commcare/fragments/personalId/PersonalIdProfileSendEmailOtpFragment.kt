@@ -20,6 +20,8 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
             binding.personalidSendEmailOtpTitle.setText(R.string.personalid_send_email_otp_pending_backup_code_title)
             binding.personalidSendEmailOtpSubtitle.setText(R.string.personalid_send_email_otp_pending_backup_code_subtitle)
             binding.personalidSendEmailOtpSubtitle.visibility = View.VISIBLE
+        } else if (workflow == EmailWorkFlow.EXISTING_USER) {
+            binding.personalidSendEmailOtpTitle.setText(R.string.personalid_email_verification_title)
         }
     }
 
@@ -27,16 +29,38 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
         val titleRes =
             if (workflow == EmailWorkFlow.PENDING_BACKUP_CODE) {
                 R.string.personalid_send_email_otp_pending_backup_code_title
-            } else {
+            } else  if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER) {
                 R.string.personalid_send_email_otp_title
+            } else {
+                R.string.personalid_email_verification_title
             }
         setTitle(titleRes)
     }
 
     override fun navigateToVerification() {
         val directions =
-            PersonalIdProfileSendEmailOtpFragmentDirections
-                .actionPersonalidSendEmailOtpToEmailVerification(email, emailOtpTracker.requestCount)
+            when (workflow) {
+                EmailWorkFlow.EXISTING_USER -> {
+                    PersonalIdProfileSendEmailOtpFragmentDirections
+                        .actionPersonalidSendEmailOtpToProfileEmailVerification(
+                            email,
+                            EmailWorkFlow.EXISTING_USER,
+                            emailOtpTracker.requestCount,
+                        )
+                }
+
+                EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER, EmailWorkFlow.PENDING_BACKUP_CODE -> {
+                    PersonalIdProfileSendEmailOtpFragmentDirections
+                        .actionPersonalidSendEmailOtpToEmailVerificationForgotBackupCode(
+                            email,
+                            emailOtpTracker.requestCount
+                        )
+                }
+
+                else -> {
+                    throw IllegalStateException("Unexpected workflow in PersonalIdProfileSendEmailOtpFragment: $workflow")
+                }
+            }
         binding.root.findNavController().navigate(directions)
     }
 }
