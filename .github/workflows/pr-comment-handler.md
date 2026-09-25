@@ -152,7 +152,11 @@ For each unresolved comment (no bot reply, not resolved):
 When implementing a clear change:
 1. Fetch only the specific file(s) needed via `get_file_contents`.
 2. Make the change, matching existing code style exactly.
-3. Run linter/formatter if configured (check repo memory).
+3. Run linter/formatter if configured. For Kotlin (`.kt`) files only, run
+   `./gradlew ktlintFile -PfilePath=<path>` per changed file — see
+   [Running Gradle Tasks](#running-gradle-tasks) below for sandbox setup.
+   Java files are verified against `.github/linters/checkstyle.xml` separately;
+   do not pass them to `ktlintFile`.
 4. Run relevant tests. If tests fail due to your change, fix your implementation.
    Never silently suppress failures.
 5. Batch all changes for a PR into a single commit:
@@ -196,3 +200,23 @@ Do NOT store individual PR comment details.
 - Process at most 3 PRs per run, oldest first.
 - One push per PR per run
 - Read `AGENTS.md` before touching any code.
+
+## Running Gradle Tasks
+
+The sandbox has a read-only `$HOME`, so the Gradle wrapper's default
+`~/.gradle` location fails with a lock-file write error. Set
+`GRADLE_USER_HOME` **inline** on every `./gradlew` call — `export` does not
+carry between tool calls:
+
+```bash
+mkdir -p "$GITHUB_WORKSPACE/.gradle-home"
+GRADLE_USER_HOME="$GITHUB_WORKSPACE/.gradle-home" ./gradlew ktlintFile -PfilePath=app/path/to/File.kt
+```
+
+The `mkdir -p` runs once; the `GRADLE_USER_HOME=…` prefix is required on
+every invocation. Applies to any Gradle task (`ktlintFile`,
+`testCommcareDebug`, etc.).
+
+Heavy tasks may still hit other sandbox limits (no Android SDK, no signing
+keys, 30-minute timeout) — prefer lightweight lint/format tasks; report
+blockers rather than retrying broken builds.
