@@ -878,6 +878,8 @@
     <string name="nav_drawer_commcare_apps">CommCare Apps</string>
     <string name="nav_drawer_switch_app_dialog_title">Log out of this app?</string>
     <string name="nav_drawer_switch_app_dialog_message">You\'ll be logged out of this app and returned to the login screen, where you can choose another app.</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">Log out and switch apps?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">You\'ll be logged out of the CommCare app you\'re signed in to and returned to the login screen, where you can choose another app.</string>
     <string name="nav_drawer_switch_app_dialog_confirm">Continue</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Cancel</string>
 

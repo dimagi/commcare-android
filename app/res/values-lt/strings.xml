@@ -137,6 +137,8 @@
     <string name="nav_drawer_commcare_apps">„CommCare“ programėlės</string>
     <string name="nav_drawer_switch_app_dialog_title">Atsijungti nuo šios programėlės?</string>
     <string name="nav_drawer_switch_app_dialog_message">Būsite atjungti nuo šios programėlės ir grąžinti į prisijungimo langą, kuriame galėsite pasirinkti kitą programėlę.</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">Atsijungti ir pakeisti programėlę?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">Būsite atjungti nuo CommCare programėlės, prie kurios esate prisijungę, ir grąžinti į prisijungimo langą, kuriame galėsite pasirinkti kitą programėlę.</string>
     <string name="nav_drawer_switch_app_dialog_confirm">Tęsti</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Atšaukti</string>
     <string name="play_service_update_error">Norint naudoti „PersonalID“, reikia atnaujinti „Google Play“ paslaugas. Palieskite čia, kad pereitumėte į „Google Play“ parduotuvę ir patikrintumėte, ar yra naujinių</string>
