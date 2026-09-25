@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.commcare.views.connect.ConnectProgressCard.State
@@ -27,7 +28,7 @@ class ConnectProgressCardTest {
         ConnectProgressCard(
             ContextThemeWrapper(
                 ApplicationProvider.getApplicationContext(),
-                R.style.CommonTheme,
+                R.style.ConnectTheme,
             ),
         )
 
@@ -178,7 +179,7 @@ class ConnectProgressCardTest {
         val semi = card.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle)
 
         val grey = ContextCompat.getColor(card.context, R.color.connect_grey)
-        val accent = ContextCompat.getColor(card.context, R.color.connect_dark_blue_color)
+        val accent = MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary)
         val primary = ContextCompat.getColor(card.context, R.color.connect_text_color)
 
         val content =
@@ -244,7 +245,7 @@ class ConnectProgressCardTest {
         card.bind(State(info = State.Info(message = "Complete assigned tasks")))
 
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_blue_color),
+            MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary),
             box.cardBackgroundColor.defaultColor,
         )
         assertEquals(ContextCompat.getColor(card.context, R.color.white), text.currentTextColor)
@@ -258,7 +259,7 @@ class ConnectProgressCardTest {
         val text = card.findViewById<TextView>(R.id.progress_card_info_text)
         val icon = card.findViewById<ImageView>(R.id.progress_card_info_icon)
 
-        val blue = ContextCompat.getColor(card.context, R.color.connect_dark_blue_color)
+        val blue = MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary)
 
         card.bind(
             State(
@@ -320,7 +321,7 @@ class ConnectProgressCardTest {
 
         val card =
             ConnectProgressCard(
-                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.CommonTheme),
+                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme),
                 attrs,
             )
 
@@ -353,7 +354,7 @@ class ConnectProgressCardTest {
 
         val card =
             ConnectProgressCard(
-                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.CommonTheme),
+                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme),
                 attrs,
             )
 

@@ -1,6 +1,8 @@
 package org.commcare.views.connect
 
 import android.content.Context
+import android.graphics.Color
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -8,6 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.ImageViewCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.junit.Assert.assertEquals
@@ -20,9 +23,10 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class ConnectSuccessFailureCardTest {
-    private val context: Context = ApplicationProvider.getApplicationContext()
+    private val context: Context =
+        ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
 
-    private fun successColor() = context.getColor(R.color.connect_green)
+    private fun successColor() = MaterialColors.getColor(context, R.attr.connectStatusPositive, Color.TRANSPARENT)
 
     private fun failureColor() = context.getColor(R.color.connect_red)
 
