@@ -18,6 +18,10 @@ class HomeActivityCoordinator(
 ) : DefaultLifecycleObserver {
     private var restored = false
 
+    /** Registers crash-reporting app data. Session-independent; built in [onCreate]. */
+    lateinit var crashRecovery: CrashRecoveryDelegate
+        private set
+
     private var externalLaunch = false
     private var loginExtraConsumed = false
     private var endpointNavPendingAfterSync = false
@@ -61,6 +65,9 @@ class HomeActivityCoordinator(
 
     override fun onCreate(owner: LifecycleOwner) {
         ensureRestored()
+        // Added mid-dispatch, so the lifecycle brings it up to ON_CREATE itself.
+        crashRecovery = CrashRecoveryDelegate()
+        host.lifecycle.addObserver(crashRecovery)
     }
 
     /**
