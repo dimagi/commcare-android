@@ -24,6 +24,8 @@ commcare-odk-test/gen/*
 .gitignore~
 .idea/*
 app/.settings/*
+app/.classpath
+app/.project
 app/app.iml
 out/
 test-app/test-app.iml
