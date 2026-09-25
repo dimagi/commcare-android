@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.navdrawer.BaseDrawerActivity
 
-abstract class NavigationHostCommCareActivity<T> : CommCareActivity<T>() {
+abstract class NavigationHostCommCareActivity<T> : BaseDrawerActivity<T>() {
     private var destinationListener: NavController.OnDestinationChangedListener? = null
 
     protected lateinit var navController: NavController
