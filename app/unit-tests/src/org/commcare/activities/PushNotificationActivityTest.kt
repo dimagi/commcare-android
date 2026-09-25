@@ -98,7 +98,7 @@ class PushNotificationActivityTest {
         val user =
             ConnectUserRecord("", "test_user", "test_password", "", "", Date(), "", false, "", true)
         mockkStatic(ConnectUserDatabaseUtil::class)
-        every { ConnectUserDatabaseUtil.getUser(any()) } returns user
+        every { ConnectUserDatabaseUtil.getUser() } returns user
 
         mockkStatic(ConnectMessagingDatabaseHelper::class)
         every { ConnectMessagingDatabaseHelper.getMessagingChannels(any()) } returns emptyList()

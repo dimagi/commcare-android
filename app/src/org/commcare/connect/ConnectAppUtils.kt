@@ -14,10 +14,14 @@ object ConnectAppUtils {
     @Volatile
     private var isAppDownloading = false
 
+    /**
+     * Starts downloading an app, reporting to [listener]. Answers false when a download is already
+     * running, in which case [listener] is never called and the caller must not wait on it.
+     */
     fun downloadApp(
         installUrl: String?,
         listener: ResourceEngineListener?,
-    ) {
+    ): Boolean {
         if (!isAppDownloading) {
             isAppDownloading = true
             // Start a new download
@@ -53,7 +57,9 @@ object ConnectAppUtils {
                 },
                 installUrl,
             )
+            return true
         }
+        return false
     }
 
     fun updateLastAccessed(
@@ -61,10 +67,10 @@ object ConnectAppUtils {
         appId: String,
         username: String,
     ) {
-        val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, username)
+        val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, username)
         if (record != null) {
             record.lastAccessed = Date()
-            ConnectAppDatabaseUtil.storeApp(context, record)
+            ConnectAppDatabaseUtil.storeApp(record)
         }
     }
 }

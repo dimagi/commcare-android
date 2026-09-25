@@ -14,9 +14,6 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.PersonalIdManager
-import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
@@ -36,14 +33,8 @@ import org.robolectric.shadows.ShadowLooper
 abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurationTest<TestablePersonalIdPhotoCaptureFragment>() {
     protected lateinit var mocksCloseable: AutoCloseable
 
-    protected lateinit var personalIdManagerMock: MockedStatic<PersonalIdManager>
-    protected lateinit var connectDatabaseHelperMock: MockedStatic<ConnectDatabaseHelper>
-    protected lateinit var connectUserDatabaseUtilMock: MockedStatic<ConnectUserDatabaseUtil>
     protected lateinit var firebaseAnalyticsUtilMock: MockedStatic<FirebaseAnalyticsUtil>
     protected lateinit var mediaUtilMock: MockedStatic<MediaUtil>
-
-    @Mock
-    protected lateinit var mockPersonalIdManager: PersonalIdManager
 
     @Mock
     protected lateinit var mockBitmap: Bitmap
@@ -73,13 +64,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
     }
 
     private fun openStaticMocks() {
-        personalIdManagerMock = Mockito.mockStatic(PersonalIdManager::class.java)
-        personalIdManagerMock
-            .`when`<PersonalIdManager> { PersonalIdManager.getInstance() }
-            .thenReturn(mockPersonalIdManager)
-
-        connectDatabaseHelperMock = Mockito.mockStatic(ConnectDatabaseHelper::class.java)
-        connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
         firebaseAnalyticsUtilMock = Mockito.mockStatic(FirebaseAnalyticsUtil::class.java)
         firebaseAnalyticsUtilMock
             .`when`<NavController.OnDestinationChangedListener> {
@@ -130,7 +114,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
 
     protected fun enqueueCompleteProfileSuccess(
         personalId: String = "test-personal-id",
-        dbKey: String = "test-db-key",
+        dbKey: String = "dGVzdC1kYi1rZXk=",
         oauthPassword: String = "test-oauth-pwd",
     ) {
         mockWebServer.enqueue(
@@ -168,9 +152,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
             { Intents.release() },
             { mediaUtilMock.close() },
             { firebaseAnalyticsUtilMock.close() },
-            { connectUserDatabaseUtilMock.close() },
-            { connectDatabaseHelperMock.close() },
-            { personalIdManagerMock.close() },
             { mocksCloseable.close() },
             { MockAndroidKeyStoreProvider.deregisterProvider() },
             { super.tearDown() },

@@ -8,7 +8,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.ApiPersonalId
+import org.commcare.connect.network.personalId.ApiPersonalId
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -95,7 +95,7 @@ class EmailHelperTest {
 
         mockStatic(ConnectUserDatabaseUtil::class.java).use { mockedDb ->
             mockedDb
-                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(activity) }
+                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
                 .thenReturn(user)
 
             mockStatic(ApiPersonalId::class.java).use { mockApi ->
@@ -191,7 +191,7 @@ class EmailHelperTest {
 
         mockStatic(ConnectUserDatabaseUtil::class.java).use { mockedDb ->
             mockedDb
-                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser(activity) }
+                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
                 .thenReturn(user)
 
             mockStatic(ApiPersonalId::class.java).use { mockApi ->

@@ -1,20 +1,31 @@
 package org.commcare.connect.repository
 
-import android.content.Context
 import androidx.annotation.VisibleForTesting
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJob
 import org.commcare.connect.database.ConnectJobUtils.getCompositeJobs
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.connect.ConnectNetworkClient
+import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
 import org.commcare.connect.network.connect.models.LearningAppProgressResponseModel
 import org.commcare.connect.network.connect.models.applyToJob
+import org.commcare.google.services.analytics.AnalyticsParamValue.FINISH_DELIVERY
+import org.commcare.google.services.analytics.AnalyticsParamValue.PAID_DELIVERY
+import org.commcare.google.services.analytics.AnalyticsParamValue.START_DELIVERY
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.coroutines.DispatcherProvider
 
 class ConnectRepository
     @VisibleForTesting
@@ -30,13 +41,19 @@ class ConnectRepository
             @Volatile
             private var instance: ConnectRepository? = null
 
-            fun getInstance(context: Context): ConnectRepository =
+            @JvmStatic
+            fun getInstance(): ConnectRepository =
                 instance ?: synchronized(this) {
                     instance ?: ConnectRepository(
-                        ConnectSyncPreferences.getInstance(context),
+                        ConnectSyncPreferences.getInstance(),
                         ConnectNetworkClient.getInstance(),
                     ).also { instance = it }
                 }
+
+            @VisibleForTesting
+            internal fun resetInstance() {
+                instance = null
+            }
         }
 
         fun getOpportunities(
@@ -49,7 +66,6 @@ class ConnectRepository
                 policy = policy,
                 loadCache = {
                     getCompositeJobs(
-                        CommCareApplication.instance(),
                         ConnectJobRecord.STATUS_ALL_JOBS,
                         null,
                     )
@@ -68,12 +84,16 @@ class ConnectRepository
                 syncKey = SYNC_KEY_LEARNING_PREFIX + job.jobUUID,
                 forceRefresh = forceRefresh,
                 policy = policy,
-                loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                loadCache = { getCompositeJob(job.jobUUID) },
                 networkCall = { fetchLearningProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
                     responseModel.applyToJob(job, CommCareApplication.instance())
+                    if (job.passedAssessment()) {
+                        FirebaseAnalyticsUtil.reportCccApiLearnProgress(true)
+                    }
                 },
-                mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                onNetworkFailure = { FirebaseAnalyticsUtil.reportCccApiLearnProgress(false) },
+                mapToEmit = { _ -> getCompositeJob(job.jobUUID) },
             )
 
         fun getDeliveryProgress(
@@ -85,17 +105,58 @@ class ConnectRepository
                 syncKey = SYNC_KEY_DELIVERY_PREFIX + job.jobUUID,
                 forceRefresh = forceRefresh,
                 policy = policy,
-                loadCache = { getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                loadCache = { getCompositeJob(job.jobUUID) },
                 networkCall = { fetchDeliveryProgressFromNetwork(job) },
                 onNetworkSuccess = { responseModel ->
+                    val events = mutableSetOf<String?>()
+                    if (responseModel.updatedJob) events.add(START_DELIVERY)
+                    if (responseModel.hasDeliveries && job.getDeliveryProgressPercentage() == 100) events.add(FINISH_DELIVERY)
+                    if (responseModel.hasPayment && job.payments.isNotEmpty()) events.add(PAID_DELIVERY)
                     responseModel.applyToJob(job, CommCareApplication.instance())
+                    events.forEach { event -> FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(true, event) }
                 },
-                mapToEmit = { _ -> getCompositeJob(CommCareApplication.instance(), job.jobUUID) },
+                onNetworkFailure = { FirebaseAnalyticsUtil.reportCccApiDeliveryProgress(false, null) },
+                mapToEmit = { _ -> getCompositeJob(job.jobUUID) },
             )
+
+        fun startLearning(jobUUID: String): Flow<DataState<Unit>> =
+            networkOnlyFlow(networkCall = { networkClient.startLearnApp(getConnectUser(), jobUUID) })
+
+        fun claimJob(job: ConnectJobRecord): Flow<DataState<Unit>> =
+            networkOnlyFlow(
+                networkCall = { networkClient.claimJob(getConnectUser(), job.jobUUID) },
+                onNetworkSuccess = {
+                    job.status = ConnectJobRecord.STATUS_DELIVERING
+                    ConnectJobUtils.upsertJob(job)
+                },
+            )
+
+        fun confirmPayments(paymentConfirmations: List<ConnectPaymentConfirmationModel>): Flow<DataState<Unit>> =
+            networkOnlyFlow(
+                networkCall = { networkClient.confirmPayments(getConnectUser(), paymentConfirmations) },
+                onNetworkSuccess = {
+                    for (paymentConfirmation in paymentConfirmations) {
+                        paymentConfirmation.payment.confirmed = paymentConfirmation.toConfirm
+                        ConnectJobUtils.storePayment(paymentConfirmation.payment)
+                    }
+                    FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(true)
+                },
+                onNetworkFailure = { FirebaseAnalyticsUtil.reportCccApiPaymentConfirmation(false) },
+            )
+
+        fun syncJobProgress(job: ConnectJobRecord): Flow<DataState<ConnectJobRecord>> =
+            when (job.status) {
+                ConnectJobRecord.STATUS_LEARNING -> getLearningProgress(job)
+                ConnectJobRecord.STATUS_DELIVERING -> getDeliveryProgress(job)
+                else -> flow { emit(DataState.Success(job)) }
+            }
 
         /**
          * Emits Cached first,then Loading, then Success or Error after network call.
          * DB writes go in [onNetworkSuccess], re-read in [mapToEmit].
+         *
+         * Used for GET requests that have a cached value to emit first, then make a network call to update the cache and emit the updated value.
+         * Uses ConnectRequestManager to deduplicate requests for the same syncKey.
          */
         private fun <C, N> offlineFirstFlow(
             syncKey: String,
@@ -104,6 +165,7 @@ class ConnectRepository
             loadCache: () -> C?,
             networkCall: suspend () -> Result<N>,
             onNetworkSuccess: suspend (N) -> Unit,
+            onNetworkFailure: suspend (Throwable) -> Unit = {},
             mapToEmit: suspend (N) -> C,
         ): Flow<DataState<C>> =
             flow {
@@ -128,21 +190,88 @@ class ConnectRepository
                     }
                 result
                     .onSuccess { data -> emit(DataState.Success(mapToEmit(data))) }
-                    .onFailure { throwable -> emit(DataState.Error.from(throwable)) }
-            }.flowOn(Dispatchers.IO)
+                    .onFailure { throwable ->
+                        onNetworkFailure(throwable)
+                        emit(DataState.Error.from(throwable))
+                    }
+            }.flowOn(DispatcherProvider.io())
 
-        private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
-            return networkClient.getConnectOpportunities(user)
-        }
+        /**
+         * Emits Loading, then Success or Error after network call.
+         * No cached emission, always make requests to network unlike [offlineFirstFlow].
+         * Doesn't use ConnectRequestManager to deduplicate requests.
+         *
+         * Used for one-time actions, mostly POST requests, that don't have a cached value to emit first.
+         */
+        private fun <T> networkOnlyFlow(
+            networkCall: suspend () -> Result<T>,
+            onNetworkSuccess: suspend (T) -> Unit = {},
+            onNetworkFailure: suspend (Throwable) -> Unit = {},
+        ): Flow<DataState<T>> =
+            flow {
+                emit(DataState.Loading)
+                networkCall()
+                    .onSuccess { data ->
+                        onNetworkSuccess(data)
+                        emit(DataState.Success(data))
+                    }.onFailure {
+                        onNetworkFailure(it)
+                        emit(DataState.Error.from(it))
+                    }
+            }.flowOn(DispatcherProvider.io())
 
-        private suspend fun fetchLearningProgressFromNetwork(job: ConnectJobRecord): Result<LearningAppProgressResponseModel> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
-            return networkClient.getLearningProgress(user, job)
-        }
+        private fun getConnectUser(): ConnectUserRecord = requireNotNull(ConnectUserDatabaseUtil.getUser()) { "No Connect user found" }
 
-        private suspend fun fetchDeliveryProgressFromNetwork(job: ConnectJobRecord): Result<DeliveryAppProgressResponseModel> {
-            val user = requireNotNull(ConnectUserDatabaseUtil.getUser(CommCareApplication.instance())) { "No Connect user found" }
-            return networkClient.getDeliveryProgress(user, job)
+        private suspend fun fetchOpportunitiesFromNetwork(): Result<List<ConnectJobRecord>> =
+            networkClient.getConnectOpportunities(getConnectUser())
+
+        private suspend fun fetchLearningProgressFromNetwork(job: ConnectJobRecord): Result<LearningAppProgressResponseModel> =
+            networkClient.getLearningProgress(getConnectUser(), job)
+
+        private suspend fun fetchDeliveryProgressFromNetwork(job: ConnectJobRecord): Result<DeliveryAppProgressResponseModel> =
+            networkClient.getDeliveryProgress(getConnectUser(), job)
+
+        // Java interop — use the Flow-returning equivalents from Kotlin.
+
+        fun retrieveOpportunitiesForJava(listener: ConnectActivityCompleteListener) =
+            getOpportunities(forceRefresh = true).launchForJava(listener)
+
+        fun updateDeliveryProgressForJava(
+            job: ConnectJobRecord,
+            listener: ConnectActivityCompleteListener,
+        ) = getDeliveryProgress(job).launchForJava(listener)
+
+        fun updatePaymentsConfirmedForJava(
+            paymentConfirmations: List<ConnectPaymentConfirmationModel>,
+            listener: ConnectActivityCompleteListener,
+        ) = confirmPayments(paymentConfirmations).launchForJava(listener)
+
+        private fun <T> Flow<DataState<T>>.launchForJava(listener: ConnectActivityCompleteListener) {
+            CoroutineScope(DispatcherProvider.io()).launch {
+                collect { state ->
+                    when (state) {
+                        is DataState.Success -> {
+                            withContext(DispatcherProvider.main()) {
+                                listener.connectActivityComplete(true)
+                            }
+                        }
+
+                        is DataState.Error -> {
+                            withContext(DispatcherProvider.main()) {
+                                listener.connectActivityComplete(
+                                    false,
+                                    PersonalIdOrConnectApiErrorHandler.handle(
+                                        CommCareApplication.instance(),
+                                        state.errorCode,
+                                        state.throwable,
+                                    ),
+                                )
+                            }
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
         }
     }

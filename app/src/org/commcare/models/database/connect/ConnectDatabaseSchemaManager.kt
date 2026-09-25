@@ -53,8 +53,9 @@ object ConnectDatabaseSchemaManager {
      * V.26 - Added email to ConnectUserRecord
      * V.27 - Added connect_tasks table (ConnectTaskRecord) for DB-persisted task tracking
      * V.28 - Added channel_name to ConnectMessagingChannelRecord
+     * V.29 - Added module_id (server id) to ConnectLearnModuleSummaryRecord
      */
-    const val DB_VERSION_CONNECT = 28
+    const val DB_VERSION_CONNECT = 29
 
     @JvmStatic
     fun initializeSchema(database: IDatabase) {

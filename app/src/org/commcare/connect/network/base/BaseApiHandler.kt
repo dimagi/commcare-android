@@ -1,6 +1,5 @@
 package org.commcare.connect.network.base
 
-import org.commcare.connect.network.IApiCallback
 import org.commcare.interfaces.base.BaseConnectView
 import org.javarosa.core.services.Logger
 import org.json.JSONException

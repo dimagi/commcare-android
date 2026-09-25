@@ -40,12 +40,13 @@ import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.base.BaseApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.fragments.extensions.FragmentExtensionsKt;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.location.CommCareLocationController;
@@ -501,6 +502,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
+                if (!hasLiveView()) {
+                    return;
+                }
                 setRequestProgressState(false);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
@@ -528,6 +532,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     @NonNull PersonalIdOrConnectApiErrorCodes failureCode,
                     @Nullable Throwable t
             ) {
+                if (!hasLiveView()) {
+                    return;
+                }
                 setRequestProgressState(false);
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
@@ -569,6 +576,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                 }
             }
         }.makeStartConfigurationCall(requireActivity(), body, token, requestHash, newSessionData);
+    }
+
+    private boolean hasLiveView() {
+        return FragmentExtensionsKt.hasLiveView(this);
     }
 
     private void setRequestProgressState(boolean inProgress) {

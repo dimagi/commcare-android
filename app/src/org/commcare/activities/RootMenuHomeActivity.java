@@ -84,8 +84,12 @@ public class RootMenuHomeActivity extends HomeScreenBaseActivity<RootMenuHomeAct
         // empty intentionally
     }
 
+    /**
+     * The home actions live in the nav drawer here rather than the options menu, and only when this
+     * is genuinely being used as the home screen; a consumer app shows no user actions at all.
+     */
     @Override
-    void refreshCCUpdateOption() {
+    public void refreshActionSurface() {
         if (usingNavDrawer()) {
             navDrawerController.refreshItems();
         }

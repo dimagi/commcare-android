@@ -23,14 +23,14 @@ import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 public class ConnectMessagingDatabaseHelper {
     public static List<ConnectMessagingChannelRecord> getMessagingChannels(Context context) {
         List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingChannelRecord.class)
+                .getConnectStorage(ConnectMessagingChannelRecord.class)
                 .getRecordsForValues(new String[]{}, new Object[]{});
 
         Map<String, ConnectMessagingChannelRecord> channelMap = new HashMap<>();
         for (ConnectMessagingChannelRecord c : channels) {
             channelMap.put(c.getChannelId(), c);
         }
-        for (ConnectMessagingMessageRecord connectMessagingMessageRecord : getMessagingMessagesAll(context)) {
+        for (ConnectMessagingMessageRecord connectMessagingMessageRecord : getMessagingMessagesAll()) {
             ConnectMessagingChannelRecord connectMessagingChannelRecord =
                     channelMap.get(connectMessagingMessageRecord.getChannelId());
             connectMessagingChannelRecord.getMessages().add(connectMessagingMessageRecord);
@@ -77,11 +77,10 @@ public class ConnectMessagingDatabaseHelper {
     }
 
     public static ConnectMessagingChannelRecord getMessagingChannel(
-            Context context,
             String channelId
     ) {
         List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingChannelRecord.class)
+                .getConnectStorage(ConnectMessagingChannelRecord.class)
                 .getRecordsForValues(
                         new String[]{ConnectMessagingChannelRecord.META_CHANNEL_ID},
                         new Object[]{channelId}
@@ -99,13 +98,13 @@ public class ConnectMessagingDatabaseHelper {
             ConnectMessagingChannelRecord channel
     ) {
         ConnectMessagingChannelRecord existing =
-                getMessagingChannel(context, channel.getChannelId());
+                getMessagingChannel(channel.getChannelId());
         if (existing != null) {
             channel.setID(existing.getID());
         }
 
         ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingChannelRecord.class)
+                .getConnectStorage(ConnectMessagingChannelRecord.class)
                 .write(channel);
     }
 
@@ -115,7 +114,6 @@ public class ConnectMessagingDatabaseHelper {
             boolean pruneMissing
     ) {
         SqlStorage<ConnectMessagingChannelRecord> storage = ConnectDatabaseHelper.getConnectStorage(
-                context,
                 ConnectMessagingChannelRecord.class
         );
 
@@ -160,27 +158,26 @@ public class ConnectMessagingDatabaseHelper {
         }
     }
 
-    public static List<ConnectMessagingMessageRecord> getMessagingMessagesAll(Context context) {
+    public static List<ConnectMessagingMessageRecord> getMessagingMessagesAll() {
         return ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingMessageRecord.class)
+                .getConnectStorage(ConnectMessagingMessageRecord.class)
                 .getRecordsForValues(new String[]{}, new Object[]{});
     }
 
     public static List<ConnectMessagingMessageRecord> getMessagingMessagesForChannel(
-            Context context,
             String channelId
     ) {
         return ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingMessageRecord.class)
+                .getConnectStorage(ConnectMessagingMessageRecord.class)
                 .getRecordsForValues(
                         new String[]{ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID},
                         new Object[]{channelId}
                 );
     }
 
-    public static List<ConnectMessagingMessageRecord> getUnviewedMessages(Context context) {
+    public static List<ConnectMessagingMessageRecord> getUnviewedMessages() {
         return ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingMessageRecord.class)
+                .getConnectStorage(ConnectMessagingMessageRecord.class)
                 .getRecordsForValues(
                         new String[]{ConnectMessagingMessageRecord.META_MESSAGE_USER_VIEWED},
                         new Object[]{false}
@@ -192,12 +189,11 @@ public class ConnectMessagingDatabaseHelper {
             ConnectMessagingMessageRecord message
     ) {
         SqlStorage<ConnectMessagingMessageRecord> storage = ConnectDatabaseHelper.getConnectStorage(
-                context,
                 ConnectMessagingMessageRecord.class
         );
 
         List<ConnectMessagingMessageRecord> existingList =
-                getMessagingMessagesForChannel(context, message.getChannelId());
+                getMessagingMessagesForChannel(message.getChannelId());
         for (ConnectMessagingMessageRecord existing : existingList) {
             if (existing.getMessageId().equals(message.getMessageId())) {
                 message.setID(existing.getID());
@@ -214,11 +210,10 @@ public class ConnectMessagingDatabaseHelper {
             boolean pruneMissing
     ) {
         SqlStorage<ConnectMessagingMessageRecord> storage = ConnectDatabaseHelper.getConnectStorage(
-                context,
                 ConnectMessagingMessageRecord.class
         );
 
-        List<ConnectMessagingMessageRecord> existingList = getMessagingMessagesAll(context);
+        List<ConnectMessagingMessageRecord> existingList = getMessagingMessagesAll();
 
         //Delete payments that are no longer available
         Vector<Integer> recordIdsToDelete = new Vector<>();

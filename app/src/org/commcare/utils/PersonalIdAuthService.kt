@@ -2,7 +2,7 @@ package org.commcare.utils
 
 import android.app.Activity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 
 class PersonalIdAuthService(
     private val activity: Activity,

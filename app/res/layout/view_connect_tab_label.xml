@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TabTextStyle"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="@dimen/connect_text_tab"
+        tools:text="More" />
+
+    <TextView
+        android:id="@+id/tab_badge"
+        android:layout_width="@dimen/connect_tab_badge_size"
+        android:layout_height="@dimen/connect_tab_badge_size"
+        android:layout_marginStart="@dimen/connect_space_sm"
+        android:background="@drawable/bg_connect_circle"
+        android:backgroundTint="?attr/connectStatusNegative"
+        android:gravity="center"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="@dimen/connect_text_badge"
+        android:visibility="gone"
+        tools:text="1"
+        tools:visibility="visible" />
+
+</LinearLayout>

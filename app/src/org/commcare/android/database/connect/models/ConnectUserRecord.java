@@ -89,7 +89,7 @@ public class ConnectUserRecord extends Persisted {
     private String email;
 
     public ConnectUserRecord() {
-        registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
+        registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;

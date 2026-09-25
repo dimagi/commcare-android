@@ -8,7 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.logging.ReportingUtils
-import org.commcare.connect.network.connectId.PersonalIdApiClient
+import org.commcare.connect.network.personalId.PersonalIdApiClient
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.utils.HashUtils
@@ -254,7 +254,55 @@ class PersonalIdPhoneFragmentStartConfigurationTest : BasePersonalIdPhoneFragmen
         )
     }
 
+    @Test
+    fun `success response arriving after the fragment view is destroyed is dropped`() {
+        setupFragmentForRequest()
+        mockWebServer.enqueue(createSuccessResponse())
+
+        clickContinueButton()
+        destroyFragmentView()
+
+        drainHttp()
+
+        assertEquals(
+            "Navigation should be skipped once the fragment view is gone",
+            R.id.personalid_phone_fragment,
+            navController.currentDestination!!.id,
+        )
+    }
+
+    @Test
+    fun `error response arriving after the fragment view is destroyed is dropped`() {
+        setupFragmentForRequest()
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(403)
+                .setBody("""{"error_code": "PHONE_NOT_VALIDATED"}"""),
+        )
+
+        clickContinueButton()
+        destroyFragmentView()
+
+        drainHttp()
+
+        assertEquals(
+            "Navigation should be skipped once the fragment view is gone",
+            R.id.personalid_phone_fragment,
+            navController.currentDestination!!.id,
+        )
+    }
+
     // ========== Helper Methods ==========
+
+    private fun destroyFragmentView() {
+        activity.runOnUiThread {
+            navHostFragment.childFragmentManager
+                .beginTransaction()
+                .remove(fragment)
+                .commitNow()
+        }
+        ShadowLooper.idleMainLooper()
+    }
 
     private fun setupFragmentForRequest() {
         val phoneInput = fragment.view!!.findViewById<EditText>(R.id.connect_primary_phone_input)

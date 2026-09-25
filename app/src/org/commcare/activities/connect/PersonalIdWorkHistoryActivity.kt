@@ -9,7 +9,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdWorkHistoryBinding
 import org.commcare.views.dialogs.CustomProgressDialog
@@ -97,7 +97,9 @@ class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActi
                 true
             }
 
-            else -> super.onOptionsItemSelected(item)
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
         }
 
     override fun generateProgressDialog(taskId: Int): CustomProgressDialog =

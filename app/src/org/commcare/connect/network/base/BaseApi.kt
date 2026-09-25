@@ -5,11 +5,6 @@ import android.os.Handler
 import okhttp3.ResponseBody
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.network.IApiCallback
-import org.commcare.connect.network.NetworkUtils
-import org.commcare.connect.network.NetworkUtils.getErrorCodes
-import org.commcare.connect.network.NetworkUtils.logFailedResponse
-import org.commcare.connect.network.NetworkUtils.logNetworkError
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.services.Logger
 import retrofit2.Call
@@ -55,7 +50,7 @@ class BaseApi {
                                 }
                             try {
                                 val errorBody = NetworkUtils.getErrorBody(stream)
-                                logFailedResponse(response.message(), response.code(), endPoint, errorBody)
+                                NetworkUtils.logFailedResponse(response.message(), response.code(), endPoint, errorBody)
                                 callback.processFailure(
                                     response.code(),
                                     endPoint,
@@ -74,7 +69,7 @@ class BaseApi {
                     ) {
                         dismissProgressDialog(context)
                         // Handle network errors, etc.
-                        logNetworkError(t, endPoint)
+                        NetworkUtils.logNetworkError(t, endPoint)
                         callback.processNetworkFailure(t)
                     }
                 },

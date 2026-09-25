@@ -9,17 +9,17 @@ import org.commcare.util.Base64DecoderException;
 import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.EncryptionKeyProvider;
-import org.jetbrains.annotations.NotNull;
 
 public class ConnectDatabaseUtils {
     // the value of the key should not be renamed due to backward compatibility
     private static final String SECRET_NAME = "secret";
-    public static void storeConnectDbPassphrase(@NotNull Context context, byte[] passphrase) {
+    public static void storeConnectDbPassphrase(byte[] passphrase) {
         try {
             if (passphrase == null || passphrase.length == 0) {
                 throw new IllegalArgumentException("Passphrase must not be null or empty");
             }
 
+            Context context = CommCareApplication.instance().getApplicationContext();
             EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false, SECRET_NAME);
             EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForEncryption();
             String encoded = EncryptionUtils.encrypt(passphrase, keyAndTransform.getKey(),
@@ -48,16 +48,16 @@ public class ConnectDatabaseUtils {
         return null;
     }
 
-    public static void storeConnectDbPassphrase(Context context, String base64EncodedPassphrase) {
+    public static void storeConnectDbPassphrase(String base64EncodedPassphrase) {
         try {
             byte[] bytes = Base64.decode(base64EncodedPassphrase);
-            storeConnectDbPassphrase(context, bytes);
+            storeConnectDbPassphrase(bytes);
         } catch (Base64DecoderException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static byte[] getConnectDbPassphrase(Context context) {
+    public static byte[] getConnectDbPassphrase() {
         try {
             ConnectKeyRecord record = ConnectDatabaseUtils.getKeyRecord();
             if (record == null) {
@@ -65,7 +65,7 @@ public class ConnectDatabaseUtils {
             }
 
             byte[] encrypted = Base64.decode(record.getEncryptedPassphrase());
-
+            Context context = CommCareApplication.instance().getApplicationContext();
             EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(context, false,
                     SECRET_NAME);
             EncryptionKeyAndTransform keyAndTransform = encryptionKeyProvider.getKeyForDecryption();

@@ -3,7 +3,6 @@ package org.commcare.connect.database
 import android.content.Context
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
-import org.commcare.connect.ConnectJobHelper.getJobForSeatedApp
 import org.commcare.models.database.SqlStorage
 import org.commcare.preferences.ConnectJobPreferences
 import org.commcare.utils.SyncDetailCalculations
@@ -27,7 +26,7 @@ object ConnectTaskUtils {
         incoming: List<ConnectTaskRecord>,
         jobUUID: String,
     ) {
-        val storage = ConnectDatabaseHelper.getConnectStorage(context, ConnectTaskRecord::class.java)
+        val storage = ConnectDatabaseHelper.getConnectStorage(ConnectTaskRecord::class.java)
         val existing = getTasksForJob(context, jobUUID, storage)
         var changed = false
 
@@ -75,6 +74,19 @@ object ConnectTaskUtils {
         return ConnectJobUtils.getJobPreferences(jobUUID).isRelearnTaskPending()
     }
 
+    /**
+     * The job's outstanding tasks, soonest expiry first, as the server itself orders them. A task
+     * without a due date sorts last; the API always sends one, so that is defensive only.
+     */
+    @JvmStatic
+    fun getPendingTasksForJob(
+        context: Context,
+        jobUUID: String,
+    ): List<ConnectTaskRecord> =
+        getTasksForJob(context, jobUUID, null)
+            .filter { it.status == ConnectTaskRecord.STATUS_ASSIGNED }
+            .sortedWith(compareBy(nullsLast()) { it.dueDate })
+
     @JvmStatic
     fun hasPendingTaskOfMode(
         context: Context,
@@ -120,7 +132,7 @@ object ConnectTaskUtils {
 
     @JvmStatic
     fun isLastTaskUpdateLaterThanLastSync(context: Context): Boolean {
-        val job = getJobForSeatedApp(context)
+        val job = ConnectJobUtils.getJobForSeatedApp(context)
         if (job == null || job.status != ConnectJobRecord.STATUS_DELIVERING) {
             return false
         }
@@ -155,7 +167,7 @@ object ConnectTaskUtils {
         jobUUID: String,
         storage: SqlStorage<ConnectTaskRecord>?,
     ): List<ConnectTaskRecord> {
-        val taskStorage = storage ?: ConnectDatabaseHelper.getConnectStorage(context, ConnectTaskRecord::class.java)
+        val taskStorage = storage ?: ConnectDatabaseHelper.getConnectStorage(ConnectTaskRecord::class.java)
         return taskStorage
             .getRecordsForValues(
                 arrayOf(ConnectTaskRecord.META_JOB_UUID),

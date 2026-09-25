@@ -1,0 +1,395 @@
+package org.commcare.fragments.connect
+
+import android.content.Context
+import android.os.Build
+import android.view.View
+import android.widget.TextView
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.button.MaterialButton
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.mockkStatic
+import io.mockk.unmockkAll
+import io.mockk.verify
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.RecordedRequest
+import org.commcare.AppUtils
+import org.commcare.CommCareTestApplication
+import org.commcare.activities.connect.ConnectActivity
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectAppUtils
+import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.MessageManager
+import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.ConnectRequestManager
+import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.coroutines.DispatcherProvider
+import org.commcare.views.connect.ConnectSuccessFailureCard
+import org.commcare.views.connect.ConnectSyncStatusCard
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Robolectric
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
+import java.util.Calendar
+import java.util.Date
+
+/**
+ * Robolectric tests for [ConnectLearningProgressFragment]: verifies which state the screen renders
+ * before any refresh lands, and drives the delivery CTA through a real click so the claim call,
+ * local status update and navigation are all covered end to end.
+ *
+ * The claim request goes through the real networking stack against [ConnectMockApiServer]; the
+ * seeded user carries a live Connect token so the call skips the SSO round-trip.
+ */
+@Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
+@RunWith(AndroidJUnit4::class)
+class ConnectLearningProgressFragmentTest {
+    private lateinit var activity: ConnectActivity
+    private lateinit var navHostFragment: NavHostFragment
+    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private val mockApi = ConnectMockApiServer()
+
+    private val navController: NavController get() = navHostFragment.navController
+
+    @Before
+    fun setUp() {
+        savedStatus = PersonalIdManager.getInstance().status
+        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        seedConnectUser(ApplicationProvider.getApplicationContext())
+
+        mockApi.start()
+        ConnectRepository.resetInstance()
+        ConnectRequestManager.cancelAll()
+
+        mockkObject(DispatcherProvider)
+        every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
+
+        mockkStatic(MessageManager::class)
+        every { MessageManager.retrieveMessages(any(), any()) } returns Unit
+
+        mockkStatic(FirebaseAnalyticsUtil::class)
+        every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns mockk(relaxed = true)
+        every { FirebaseAnalyticsUtil.reportCccApiClaimJob(any()) } just Runs
+        every { FirebaseAnalyticsUtil.reportCccApiLearnProgress(any()) } just Runs
+
+        mockkStatic(AppUtils::class)
+        every { AppUtils.isAppInstalled(any()) } returns false
+
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+
+        // Pre-enqueue a response so the getOpportunities request made by the start destination
+        // does not hang, then drain it so it doesn't sit ahead of later requests in the queue.
+        mockApi.server.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
+
+        activity =
+            Robolectric
+                .buildActivity(ConnectActivity::class.java)
+                .create()
+                .postCreate(null)
+                .start()
+                .resume()
+                .get()
+        navHostFragment =
+            activity.supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
+
+        mockApi.drainHttp()
+        ShadowLooper.idleMainLooper()
+    }
+
+    @After
+    fun tearDown() {
+        PersonalIdManager.getInstance().status = savedStatus
+        mockApi.shutdown()
+        unmockkAll()
+    }
+
+    @Test
+    fun `learn complete state is shown before any refresh emission`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        val view = fragment.requireView()
+
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnCompleteView).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.learnProgressView).visibility)
+    }
+
+    @Test
+    fun `progress state is shown while learning is incomplete`() {
+        val fragment =
+            launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
+        val view = fragment.requireView()
+
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnProgressView).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.learnCompleteView).visibility)
+    }
+
+    @Test
+    fun `progress state is shown when the assessment was failed`() {
+        val fragment = launch(ConnectLearnJobTestData.job(assessmentScore = 10))
+        val view = fragment.requireView()
+
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnProgressView).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.learnCompleteView).visibility)
+    }
+
+    @Test
+    fun `tapping the progress cta downloads the learn app without leaving the screen`() {
+        val fragment =
+            launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
+
+        val requestsBefore = mockApi.server.requestCount
+        val ctaButton = learnProgressCta(fragment)
+        activity.runOnUiThread { ctaButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
+        assertEquals(
+            R.id.connect_job_learning_progress_fragment,
+            navController.currentDestination?.id,
+        )
+        assertCtaBarShowsDownload(fragment, R.id.learnProgressView, R.string.connect_downloading_learn)
+        assertEquals("Progress CTA should not claim the job", requestsBefore, mockApi.server.requestCount)
+    }
+
+    @Test
+    fun `tapping the cta claims the job and downloads the delivery app in place`() {
+        val job = ConnectLearnJobTestData.job()
+        val fragment = launch(job)
+
+        clickCta(fragment)
+        val request = respondToClaim(responseCode = 200)
+
+        assertEquals("POST", request.method)
+        assertEquals("/api/opportunity/${job.jobUUID}/claim", request.path)
+        assertEquals(ConnectJobRecord.STATUS_DELIVERING, job.status)
+        assertEquals(
+            ConnectJobRecord.STATUS_DELIVERING,
+            ConnectJobUtils.getCompositeJob(job.jobUUID)?.status,
+        )
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        assertEquals(
+            R.id.connect_job_learning_progress_fragment,
+            navController.currentDestination?.id,
+        )
+        assertCtaBarShowsDownload(fragment, R.id.learnCompleteView, R.string.connect_downloading_delivery)
+    }
+
+    @Test
+    fun `tapping the cta navigates to delivery home when the delivery app is installed`() {
+        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
+        val job = ConnectLearnJobTestData.job()
+        val fragment = launch(job)
+
+        clickCta(fragment)
+        respondToClaim(responseCode = 200)
+
+        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+    }
+
+    @Test
+    fun `an already claimed job skips the claim call and navigates straight on`() {
+        val job = ConnectLearnJobTestData.job()
+        job.status = ConnectJobRecord.STATUS_DELIVERING
+        val fragment = launch(job)
+        val requestsBefore = mockApi.server.requestCount
+
+        clickCta(fragment)
+
+        assertEquals("No claim request should be sent", requestsBefore, mockApi.server.requestCount)
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        assertEquals(
+            R.id.connect_job_learning_progress_fragment,
+            navController.currentDestination?.id,
+        )
+    }
+
+    @Test
+    fun `a failed claim shows the failure card, re-enables the cta and stays on the screen`() {
+        val job = ConnectLearnJobTestData.job()
+        val fragment = launch(job)
+        val ctaButton = learnCompleteCta(fragment)
+
+        clickCta(fragment)
+        assertEquals("CTA should be disabled while claiming", false, ctaButton.isEnabled)
+
+        respondToClaim(responseCode = 400)
+
+        val failureCard =
+            fragment.requireView().findViewById<ConnectSuccessFailureCard>(
+                R.id.learn_complete_failure_card,
+            )
+        assertEquals(View.VISIBLE, failureCard.visibility)
+        assertEquals(
+            activity.getString(R.string.recovery_unable_to_claim_opportunity),
+            failureCard.messageText.toString(),
+        )
+        assertTrue("CTA should be re-enabled after a failure", ctaButton.isEnabled)
+        assertEquals(
+            R.id.connect_job_learning_progress_fragment,
+            navController.currentDestination?.id,
+        )
+        assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
+    }
+
+    /**
+     * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
+     * same learn-progress call and leave the card reporting the sync that landed.
+     */
+    @Test
+    fun `tapping the sync card reloads learning progress and clears the warning`() {
+        val job = seedLearningJob()
+        val fragment = launch(job)
+        val syncCard = fragment.requireView().findViewById<ConnectSyncStatusCard>(R.id.learn_progress_sync_card)
+
+        // The launch refresh fails, so the card starts out warning about the sync it could not make.
+        assertTrue("a failed refresh leaves the card warning", syncCard.state.warning)
+
+        mockApi.server.enqueue(
+            MockResponse().setResponseCode(200).setBody("""{"completed_modules": [], "assessments": []}"""),
+        )
+        activity.runOnUiThread { syncCard.performClick() }
+        val request = mockApi.awaitRequest()
+
+        assertEquals("/api/opportunity/${job.jobUUID}/learn_progress", request.path)
+        assertEquals(
+            activity.getString(R.string.connect_sync_successful),
+            syncCard.findViewById<TextView>(R.id.sync_card_subtext).text.toString(),
+        )
+        assertEquals(
+            activity.getString(R.string.connect_sync_card_press_to_sync),
+            syncCard.findViewById<TextView>(R.id.sync_card_text).text.toString(),
+        )
+        assertFalse("a landed sync leaves no warning on the card", syncCard.state.warning)
+    }
+
+    /**
+     * A successful learn-progress sync writes the opportunity and reads it back, so unlike the
+     * failure the other tests drive, the job has to exist in the database.
+     */
+    private fun seedLearningJob(): ConnectJobRecord {
+        val seeded = ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null)
+        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), listOf(seeded), true)
+        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+    }
+
+    private fun launch(job: ConnectJobRecord): ConnectLearningProgressFragment {
+        activity.setActiveJob(job)
+        // Pre-enqueue a 400 for getLearningProgress so it doesn't hang; a 400 error leaves the
+        // seeded job state intact (the observer ignores DataState.Error updates to the job field).
+        mockApi.server.enqueue(MockResponse().setResponseCode(400).setBody("{}"))
+        activity.runOnUiThread {
+            navController.navigate(
+                R.id.action_connect_jobs_list_fragment_to_connect_job_learning_progress_fragment,
+            )
+        }
+        ShadowLooper.idleMainLooper()
+        // getLearningProgress finishes on ConnectRequestManager's background scope, so the result
+        // needs awaiting rather than a single drain; it also clears the request queue for the claim.
+        mockApi.awaitRequest()
+        return navHostFragment.childFragmentManager.primaryNavigationFragment
+            as ConnectLearningProgressFragment
+    }
+
+    private fun clickCta(fragment: ConnectLearningProgressFragment) {
+        val ctaButton = learnCompleteCta(fragment)
+        activity.runOnUiThread { ctaButton.performClick() }
+        ShadowLooper.idleMainLooper()
+    }
+
+    /**
+     * Both the progress and the complete view carry a [org.commcare.views.connect.ConnectCtaBar], so
+     * the lookup is scoped to the complete view rather than resolved from the fragment root.
+     */
+    private fun learnCompleteCta(fragment: ConnectLearningProgressFragment): MaterialButton =
+        fragment
+            .requireView()
+            .findViewById<View>(R.id.learnCompleteView)
+            .findViewById(R.id.cta_button)
+
+    /** The progress view's own CTA, scoped for the same reason as [learnCompleteCta]. */
+    private fun learnProgressCta(fragment: ConnectLearningProgressFragment): MaterialButton =
+        fragment
+            .requireView()
+            .findViewById<View>(R.id.learnProgressView)
+            .findViewById(R.id.cta_button)
+
+    /**
+     * Asserts the action bar inside [learnViewId] has swapped its CTA for a running download
+     * labelled [downloadingLabelResId].
+     */
+    private fun assertCtaBarShowsDownload(
+        fragment: ConnectLearningProgressFragment,
+        learnViewId: Int,
+        downloadingLabelResId: Int,
+    ) {
+        val learnView = fragment.requireView().findViewById<View>(learnViewId)
+        assertEquals(View.VISIBLE, learnView.findViewById<View>(R.id.cta_progress_ring).visibility)
+        assertEquals(View.GONE, learnView.findViewById<View>(R.id.cta_button).visibility)
+        assertEquals(
+            activity.getString(downloadingLabelResId),
+            learnView.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
+        )
+    }
+
+    /**
+     * Answers the pending claim request with [responseCode] and drains the response callback,
+     * returning the request the fragment actually sent.
+     */
+    private fun respondToClaim(responseCode: Int): RecordedRequest {
+        mockApi.server.enqueue(MockResponse().setResponseCode(responseCode).setBody("{}"))
+        val request = mockApi.drainHttp()
+        ShadowLooper.idleMainLooper()
+        return request
+    }
+
+    /**
+     * Writes a real user through the Connect storage layer so the learn-complete view can read the
+     * learner name and the claim call finds a live token instead of making an SSO round-trip.
+     * [ConnectDatabaseHelper.dbExists] has to be stubbed because it probes for the on-disk connect
+     * db, which never exists under the in-memory test open helper.
+     */
+    private fun seedConnectUser(context: Context = activity) {
+        mockkStatic(ConnectDatabaseHelper::class)
+        every { ConnectDatabaseHelper.dbExists() } returns true
+
+        val user =
+            ConnectUserRecord(
+                "1234567890",
+                "test-user-id",
+                "password",
+                "Test User",
+                "1234",
+                Date(),
+                null,
+                false,
+                PersonalIdSessionData.PIN,
+                true,
+            )
+        user.updateConnectToken("test-token", tomorrow())
+        ConnectUserDatabaseUtil.storeUser(user)
+    }
+
+    private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time
+}

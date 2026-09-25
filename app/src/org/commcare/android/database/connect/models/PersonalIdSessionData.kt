@@ -12,7 +12,7 @@ data class PersonalIdSessionData(
     // Tells which device auth is required for the given user
     @DeviceAuthType var requiredLock: String? = null,
     // states whether it is a demo user or normal user
-    var demoUser: Boolean? = null,
+    var demoUser: Boolean = false,
     // session token
     var token: String? = null,
     // Reason code to tell why user is not allowed to move forward with the flow
@@ -35,6 +35,8 @@ data class PersonalIdSessionData(
     var userName: String? = null,
     // email of the user; non-null means the address has been verified server-side or via OTP this session
     var email: String? = null,
+    // masked email shown to user for identification (e.g. "u***@example.com")
+    var maskedEmail: String? = null,
     // phone number of the user
     var phoneNumber: String? = null,
     // recovery code of the user

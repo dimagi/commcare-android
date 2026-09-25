@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -21,14 +20,12 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.commcare.AppUtils;
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
-import org.commcare.connect.ConnectAppLaunchController;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.network.connect.models.ConnectPaymentConfirmationModel;
 import org.commcare.connect.repository.ConnectRepository;
-import org.commcare.connect.viewmodel.ConnectDeliveryProgressViewModel;
+import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryProgressBinding;
 import org.commcare.dalvik.databinding.ViewJobCardBinding;
@@ -55,7 +52,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     private final ArrayList<ConnectPaymentConfirmationModel> paymentsToConfirm = new ArrayList<>();
     private int initialTabPosition = 0;
     private boolean isProgrammaticTabChange = false;
-    private ConnectDeliveryProgressViewModel viewModel;
+    private ConnectDeliveryHomeViewModel viewModel;
 
     public static ConnectDeliveryProgressFragment newInstance() {
         return new ConnectDeliveryProgressFragment();
@@ -78,7 +75,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         viewModel = new ViewModelProvider(
                 this,
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication())
-        ).get(ConnectDeliveryProgressViewModel.class);
+        ).get(ConnectDeliveryHomeViewModel.class);
 
         setupTabViewPager();
         setupJobCard();
@@ -196,8 +193,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
         }
 
         FirebaseAnalyticsUtil.reportCccPaymentConfirmationInteraction(true);
-        ConnectJobHelper.INSTANCE.updatePaymentsConfirmed(
-                requireContext(),
+        ConnectRepository.getInstance().updatePaymentsConfirmedForJava(
                 paymentsToConfirm,
                 (success, error) -> {
                     if (isAdded()) {
@@ -337,18 +333,7 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
     }
 
     private void navigateToDeliverAppHome() {
-        String appId = job.getDeliveryAppInfo().getAppId();
-
-        if (AppUtils.isAppInstalled(appId)) {
-            new ConnectAppLaunchController(this).launchApp(appId, false, this::popSelfOnceHidden);
-        } else {
-            NavDirections navDirections = ConnectDeliveryProgressFragmentDirections
-                    .actionConnectJobDeliveryProgressFragmentToConnectDownloadingFragment(
-                            getString(R.string.connect_downloading_delivery),
-                            false
-                    );
-            Navigation.findNavController(getBinding().getRoot()).navigate(navDirections);
-        }
+        launchApp(false);
     }
 
     @Override
@@ -372,8 +357,8 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
             super(fm, lifecycle);
             fragmentManager = fm;
             fragments = new ArrayList<>();
-            fragments.add(ConnectDeliveryProgressDeliveryFragment.newInstance());
-            fragments.add(ConnectResultsSummaryListFragment.newInstance());
+            fragments.add(ConnectDeliveryDashboardFragment.newInstance());
+            fragments.add(ConnectDeliveryPaymentFragment.newInstance());
         }
 
         @NonNull
@@ -389,10 +374,10 @@ public class ConnectDeliveryProgressFragment extends ConnectJobFragment<Fragment
 
         public void refresh() {
             for (Fragment fragment : fragmentManager.getFragments()) {
-                if (fragment instanceof ConnectDeliveryProgressDeliveryFragment deliveryFragment
+                if (fragment instanceof ConnectDeliveryDashboardFragment deliveryFragment
                         && deliveryFragment.getView() != null) {
-                    deliveryFragment.updateProgressSummary();
-                } else if (fragment instanceof ConnectResultsSummaryListFragment summaryFragment
+                    deliveryFragment.updateView();
+                } else if (fragment instanceof ConnectDeliveryPaymentFragment summaryFragment
                         && summaryFragment.getView() != null) {
                     summaryFragment.updateView();
                 }

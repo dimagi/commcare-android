@@ -25,7 +25,6 @@ import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummar
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectTaskRecord;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectTaskUtils;
@@ -67,7 +66,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         activity.setContentView(R.layout.home_screen);
 
         setupConnectJobTile();
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
         setupGridView();
         activity.toggleDrawerSetUp(true);
         activity.checkForDrawerSetUp();
@@ -165,7 +164,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private void updateConnectJobMessage() {
         String messageText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
+        ConnectAppRecord record = ConnectJobUtils.getAppRecord(appId);
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {
@@ -262,7 +261,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectJobHelper.INSTANCE.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+        if (!ConnectJobUtils.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
         return hiddenButtons;

@@ -15,6 +15,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.fakes.RoboMenuItem
 import org.robolectric.shadows.ShadowDialog
+import org.robolectric.shadows.ShadowToast
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -70,5 +71,39 @@ class PersonalIdProfileFragmentTest : BasePersonalIdProfileTest() {
         val dialog = ShadowDialog.getLatestDialog()
         assertNotNull("Forget PersonalID should show a confirmation dialog", dialog)
         assertTrue("The confirmation dialog should be visible", dialog.isShowing)
+    }
+
+    private fun changeBackupCodeRow() = fragment().requireView().findViewById<TextView>(R.id.profile_change_backup_code)
+
+    // ===== Change backup code =====
+
+    @Test
+    fun `tapping change backup code with a pin navigates to backup code screen`() {
+        user.pin = "123456"
+
+        onUiThread { changeBackupCodeRow().performClick() }
+
+        assertEquals(R.id.personalid_profile_backup_code_fragment, currentDestinationId())
+    }
+
+    @Test
+    fun `tapping change backup code with no pin navigates to send email otp`() {
+        // user.pin is null by default in BasePersonalIdProfileTest
+        onUiThread { changeBackupCodeRow().performClick() }
+
+        assertEquals(R.id.personalid_send_email_otp_fragment, currentDestinationId())
+    }
+
+    @Test
+    fun `tapping change backup code with no pin and no email shows a toast`() {
+        user.email = null
+
+        onUiThread { changeBackupCodeRow().performClick() }
+
+        assertEquals(
+            activity.getString(R.string.personalid_profile_add_email_toast),
+            ShadowToast.getTextOfLatestToast(),
+        )
+        assertEquals(R.id.personalid_profile_fragment, currentDestinationId())
     }
 }

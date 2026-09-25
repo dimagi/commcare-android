@@ -37,13 +37,21 @@ When planning or writing a spec for a new feature, consult [`docs/common-edge-ca
 - Do not add any in-code comments unless explicitly requested.
 
 ## Testing
-- Use unit tests for logic verification
-- Use unit tests with Robolectric for user interface verification
-- Use Android Instrumentation tests for end-to-end integration testing
-- Mock external dependencies when needed
-- Ensure test compiles and passes before committing code changes
-- When adding tests, ensure comprehensive coverage of all public methods in the class
-- When appropriate, assert specific expected values rather than just non-null or truthy checks
+
+Two layers apply to your changes: **unit tests** (JUnit, plus Robolectric where an
+Android component is involved) and **Robolectric UI tests** (functional tests over
+screens, running on the JVM).
+
+### What to write
+
+- New screen, fragment or activity → a Robolectric UI test driving the real flow.
+- New business logic or utility class → unit tests covering the input space.
+
+### Mocking
+
+- Do not mock our own code in a Robolectric test. Mock only the outside world: the
+  server and network, hardware and system boundaries, clocks and randomness.
+- Mock freely in unit tests — anything not directly under test.
 
 ## Workflow After Code Changes
 All the changes below should be part of a separate commit after the main code changes:

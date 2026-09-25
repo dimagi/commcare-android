@@ -35,4 +35,7 @@ build/
 **/*~
 app/google-services.json
 app/fabric.properties
+.worktrees/
 CLAUDE.md
+.claude/worktrees/
+.claude/settings.local.json

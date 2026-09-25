@@ -9,9 +9,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import org.commcare.activities.CommCareActivity
 import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.dialogs.StandardAlertDialog
@@ -90,11 +90,11 @@ class PersonalIdPhotoUpdater(
     }
 
     private fun uploadUserPhoto(photoBase64: String) {
-        val user = ConnectUserDatabaseUtil.getUser(activity)
+        val user = ConnectUserDatabaseUtil.getUser()
         object : PersonalIdApiHandler<Boolean>() {
             override fun onSuccess(success: Boolean) {
                 user.photo = photoBase64
-                ConnectUserDatabaseUtil.storeUser(activity, user)
+                ConnectUserDatabaseUtil.storeUser(user)
                 val toastMessage = activity.getString(R.string.personalid_user_photo_update_success)
                 Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show()
                 this@PersonalIdPhotoUpdater.onSuccess(photoBase64)

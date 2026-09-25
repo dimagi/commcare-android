@@ -31,9 +31,9 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import org.commcare.connect.network.connectId.parser.NotificationParseResult
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
+import org.commcare.connect.network.personalId.parser.NotificationParseResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.NotificationPrefs
@@ -72,7 +72,7 @@ object PushNotificationApiHelper {
     }
 
     private suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
         return suspendCoroutine { continuation ->
 
             object : PersonalIdApiHandler<NotificationParseResult>() {
@@ -165,7 +165,7 @@ object PushNotificationApiHelper {
         if (savedNotificationIds.isEmpty()) {
             return true
         }
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
                 override fun onSuccess(result: Boolean) {

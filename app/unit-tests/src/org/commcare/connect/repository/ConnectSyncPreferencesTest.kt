@@ -23,8 +23,7 @@ class ConnectSyncPreferencesTest {
 
     @Before
     fun setup() {
-        context = ApplicationProvider.getApplicationContext()
-        syncPrefs = ConnectSyncPreferences.getInstance(context)
+        syncPrefs = ConnectSyncPreferences.getInstance()
         syncPrefs.clearAll()
     }
 

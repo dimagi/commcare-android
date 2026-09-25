@@ -13,6 +13,7 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.personalId.UnlockPolicy
 import org.commcare.personalId.profile.PersonalIdProfileActivity
 
@@ -74,13 +75,35 @@ object ConnectNavHelper {
         activity: CommCareActivity<*>,
         policy: UnlockPolicy = UnlockPolicy.ALWAYS,
         listener: ConnectActivityCompleteListener,
+        initiateBackupCodeRecovery: Boolean = false,
     ) {
-        unlockAndGoTo(activity, policy, listener, ::goToProfile)
+        unlockAndGoTo(
+            activity,
+            policy,
+            listener,
+            { context -> goToProfile(context, initiateBackupCodeRecovery) },
+        )
     }
 
-    private fun goToProfile(context: Context) {
+    fun goToProfile(
+        context: Context,
+        initiateBackupCodeRecovery: Boolean = false,
+        pendingBackupCode: Boolean = false,
+    ) {
         val i = Intent(context, PersonalIdProfileActivity::class.java)
+        if (initiateBackupCodeRecovery) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_INITIATE_BACKUP_CODE_RECOVERY, true)
+        }
+        if (pendingBackupCode) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true)
+        }
         context.startActivity(i)
+    }
+
+    @JvmStatic
+    fun goToProfileForPendingBackupCode(context: Context) {
+        PersonalIdUserPreferences.setPendingBackupCode(false)
+        goToProfile(context, pendingBackupCode = true)
     }
 
     fun unlockAndGoToConnectJobsList(
@@ -106,13 +129,13 @@ object ConnectNavHelper {
     }
 
     private fun checkConnectAccess(context: Context) {
-        if (!ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+        if (!ConnectUserDatabaseUtil.hasConnectAccess()) {
             throw IllegalStateException("Cannot navigate to Connect Jobs List without access")
         }
     }
 
     fun goToConnectJobsListChecked(context: Context) {
-        if (ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+        if (ConnectUserDatabaseUtil.hasConnectAccess()) {
             goToConnectJobsList(context)
         }
     }

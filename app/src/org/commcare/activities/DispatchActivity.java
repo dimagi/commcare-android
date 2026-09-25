@@ -13,12 +13,14 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
@@ -73,6 +75,8 @@ public class DispatchActivity extends AppCompatActivity {
      */
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
+    public static final int PERSONAL_ID_PENDING_BACKUP_CODE = 5;
+
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
@@ -86,7 +90,6 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
     private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
-
     private boolean waitingForActivityResultFromLogin;
 
     boolean alreadyCheckedForAppFilesChange;
@@ -100,7 +103,6 @@ public class DispatchActivity extends AppCompatActivity {
         if (finishIfNotRoot()) {
             return;
         }
-
         if (savedInstanceState != null) {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
             alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(
@@ -168,6 +170,10 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void dispatch() {
+        if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdManager.getInstance().isloggedIn()) {
+            ConnectNavHelper.goToProfileForPendingBackupCode(this);
+            return;
+        }
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
@@ -247,7 +253,7 @@ public class DispatchActivity extends AppCompatActivity {
                     handleShortcutLaunch();
                 } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+                    ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
                 } else {
                     launchHomeScreen();
@@ -564,6 +570,8 @@ public class DispatchActivity extends AppCompatActivity {
                 return;
             case RECOVERY_MEASURES:
                 RecoveryMeasuresHelper.handleExecutionActivityResult(this, intent);
+                return;
+            case PERSONAL_ID_PENDING_BACKUP_CODE:
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);

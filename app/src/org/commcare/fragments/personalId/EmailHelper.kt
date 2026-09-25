@@ -7,11 +7,10 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.StringUtils
 
@@ -24,19 +23,25 @@ object EmailHelper {
 
     /**
      * Picks the right auth pair for an email OTP API call based on [workflow]:
-     *  - [EmailWorkFlow.EXISTING_USER]: the user is already signed up so authenticate with the persisted [ConnectUserRecord]'s
-     *    basic-auth credentials.
-     *  - [EmailWorkFlow.REGISTRATION] / [EmailWorkFlow.RECOVERY]: the user has a fresh session
-     *    token from /users/start_configuration API call.
+     *  - [EmailWorkFlow.EXISTING_USER] / [EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER] / [EmailWorkFlow.PENDING_BACKUP_CODE]: the user is already signed up
+     *    so authenticate with the persisted [ConnectUserRecord]'s basic-auth credentials.
+     *  - [EmailWorkFlow.REGISTRATION] / [EmailWorkFlow.RECOVERY] / [EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY]:
+     *    the user has a fresh session token from /users/start_configuration API call.
      */
     private fun buildAuthArgs(
-        activity: Activity,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
     ): Pair<String?, ConnectUserRecord?> =
         when (workflow) {
-            EmailWorkFlow.EXISTING_USER -> null to ConnectUserDatabaseUtil.getUser(activity)
-            EmailWorkFlow.REGISTRATION, EmailWorkFlow.RECOVERY -> sessionData?.token to null
+            EmailWorkFlow.EXISTING_USER,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+            EmailWorkFlow.PENDING_BACKUP_CODE,
+            -> null to ConnectUserDatabaseUtil.getUser()
+
+            EmailWorkFlow.REGISTRATION,
+            EmailWorkFlow.RECOVERY,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
+            -> sessionData?.token to null
         }
 
     // ---------- API calls ----------------------------------------------------------------
@@ -46,14 +51,14 @@ object EmailHelper {
      */
     fun sendEmailOtp(
         activity: Activity,
-        email: String,
+        email: String?,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
         tracker: AttemptTracker = AttemptTracker(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
-        val (token, user) = buildAuthArgs(activity, workflow, sessionData)
+        val (token, user) = buildAuthArgs(workflow, sessionData)
         tracker.recordRequest()
         object : PersonalIdApiHandler<Any?>() {
             override fun onSuccess(data: Any?) {
@@ -106,7 +111,7 @@ object EmailHelper {
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
-        val (token, user) = buildAuthArgs(activity, workflow, sessionData)
+        val (token, user) = buildAuthArgs(workflow, sessionData)
         object : PersonalIdApiHandler<Any?>() {
             override fun onSuccess(data: Any?) {
                 FirebaseAnalyticsUtil.reportOtpEvent(
@@ -171,8 +176,18 @@ object EmailHelper {
             EmailWorkFlow.REGISTRATION -> {
                 onRegistration()
             }
+
+            else -> {
+                throw IllegalArgumentException("Unexpected workflow: $workflow")
+            }
         }
     }
 
     fun isValidEmail(email: String?) = StringUtils.isValidEmail(email)
+
+    fun maskEmail(email: String): String {
+        val atIndex = email.indexOf('@')
+        if (atIndex < 2) return email
+        return "${email.first()}***${email[atIndex - 1]}${email.substring(atIndex)}"
+    }
 }

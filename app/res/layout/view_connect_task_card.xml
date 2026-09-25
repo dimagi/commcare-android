@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/connect_space_md"
+    tools:theme="@style/ConnectTheme">
+
+    <ImageView
+        android:id="@+id/task_card_icon"
+        android:layout_width="@dimen/connect_icon_circle_lg"
+        android:layout_height="@dimen/connect_icon_circle_lg"
+        android:background="@drawable/bg_connect_circle"
+        android:contentDescription="@null"
+        android:padding="@dimen/connect_icon_circle_padding_lg"
+        android:scaleType="fitCenter"
+        tools:src="@drawable/ic_connect_learn_app" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/connect_space_sm"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/task_card_expiry"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/connect_text_label"
+            android:visibility="gone"
+            tools:text="Expires on 24 July 2027"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/task_card_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/connect_text_title"
+            tools:text="Nutrition Coaching Check-in" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/task_card_chevron"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/connect_space_sm"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_chevron_right" />
+
+</LinearLayout>

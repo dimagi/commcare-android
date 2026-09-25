@@ -64,7 +64,7 @@ public class ConnectUserRecordV14 extends Persisted {
     private boolean isDemo;
 
     public ConnectUserRecordV14() {
-        registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
+        registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;

@@ -1,9 +1,7 @@
 package org.commcare.connect.database;
 
 import android.content.Context;
-import android.text.TextUtils;
 
-import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobAssessmentRecord;
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord;
@@ -25,11 +23,11 @@ public class JobStoreManager {
     private final SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage;
     private final SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage;
 
-    public JobStoreManager(Context context) {
-        this.jobStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectJobRecord.class);
-        this.appInfoStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectAppRecord.class);
-        this.moduleStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectLearnModuleSummaryRecord.class);
-        this.paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(context, ConnectPaymentUnitRecord.class);
+    public JobStoreManager() {
+        this.jobStorage = ConnectDatabaseHelper.getConnectStorage(ConnectJobRecord.class);
+        this.appInfoStorage = ConnectDatabaseHelper.getConnectStorage(ConnectAppRecord.class);
+        this.moduleStorage = ConnectDatabaseHelper.getConnectStorage(ConnectLearnModuleSummaryRecord.class);
+        this.paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(ConnectPaymentUnitRecord.class);
     }
 
     public int storeJobs(Context context, List<ConnectJobRecord> jobs, boolean pruneMissing) {
@@ -150,7 +148,8 @@ public class JobStoreManager {
         try {
             ConnectDatabaseHelper.connectDatabase.beginTransaction();
 
-            SqlStorage<ConnectJobRecord> connectJobStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobRecord.class);
+            SqlStorage<ConnectJobRecord> connectJobStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectJobRecord.class);
             Vector<ConnectJobRecord> connectJobRecords = connectJobStorage.getRecordsForValues(
                     new String[]{ConnectJobRecord.META_JOB_ID},
                     new Object[]{jobId});
@@ -158,42 +157,50 @@ public class JobStoreManager {
                 return; // UUID already up-to-date, no migration needed
             }
 
-            SqlStorage<ConnectAppRecord> appInfoStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectAppRecord.class);
+            SqlStorage<ConnectAppRecord> appInfoStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectAppRecord.class);
             Vector<ConnectAppRecord> existingAppInfos = appInfoStorage.getRecordsForValues(
                     new String[]{ConnectAppRecord.META_JOB_ID},
                     new Object[]{jobId});
 
-            SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectLearnModuleSummaryRecord.class);
+            SqlStorage<ConnectLearnModuleSummaryRecord> moduleStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectLearnModuleSummaryRecord.class);
             Vector<ConnectLearnModuleSummaryRecord> connectLearnModuleSummaryRecords = moduleStorage.getRecordsForValues(
                     new String[]{ConnectLearnModuleSummaryRecord.META_JOB_ID},
                     new Object[]{jobId});
 
-            SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobDeliveryRecord.class);
+            SqlStorage<ConnectJobDeliveryRecord> deliveryStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectJobDeliveryRecord.class);
             Vector<ConnectJobDeliveryRecord> deliveries = deliveryStorage.getRecordsForValues(
                     new String[]{ConnectJobDeliveryRecord.META_JOB_ID},
                     new Object[]{jobId});
 
-            SqlStorage<ConnectJobLearningRecord> learningStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobLearningRecord.class);
+            SqlStorage<ConnectJobLearningRecord> learningStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectJobLearningRecord.class);
             Vector<ConnectJobLearningRecord> learnings = learningStorage.getRecordsForValues(
                     new String[]{ConnectJobLearningRecord.META_JOB_ID},
                     new Object[]{jobId});
 
-            SqlStorage<ConnectJobPaymentRecord> paymentStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobPaymentRecord.class);
+            SqlStorage<ConnectJobPaymentRecord> paymentStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectJobPaymentRecord.class);
             Vector<ConnectJobPaymentRecord> payments = paymentStorage.getRecordsForValues(
                     new String[]{ConnectJobPaymentRecord.META_JOB_ID},
                     new Object[]{jobId});
 
-            SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectJobAssessmentRecord.class);
+            SqlStorage<ConnectJobAssessmentRecord> assessmentStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectJobAssessmentRecord.class);
             Vector<ConnectJobAssessmentRecord> assessments = assessmentStorage.getRecordsForValues(
                     new String[]{ConnectJobAssessmentRecord.META_JOB_ID},
                     new Object[]{jobId});
 
-            SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), ConnectPaymentUnitRecord.class);
+            SqlStorage<ConnectPaymentUnitRecord> paymentUnitStorage = ConnectDatabaseHelper.getConnectStorage(
+                    ConnectPaymentUnitRecord.class);
             Vector<ConnectPaymentUnitRecord> paymentUnitRecords = paymentUnitStorage.getRecordsForValues(
                     new String[]{ConnectPaymentUnitRecord.META_JOB_ID},
                     new Object[]{jobId});
 
-            SqlStorage<PushNotificationRecord> notificationStorage = ConnectDatabaseHelper.getConnectStorage(CommCareApplication.instance(), PushNotificationRecord.class);
+            SqlStorage<PushNotificationRecord> notificationStorage = ConnectDatabaseHelper.getConnectStorage(
+                    PushNotificationRecord.class);
             Vector<PushNotificationRecord> pushNotificationRecords = notificationStorage.getRecordsForValues(
                     new String[]{PushNotificationRecord.META_OPPORTUNITY_ID},
                     new Object[]{Integer.toString(jobId)});
@@ -349,6 +356,6 @@ public class JobStoreManager {
 
     private List<ConnectJobRecord> getCompositeJobs(Context context, int limit, SqlStorage<ConnectJobRecord> jobStorage) {
         // Placeholder for job retrieval logic
-        return ConnectJobUtils.getCompositeJobs(context, ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
+        return ConnectJobUtils.getCompositeJobs(ConnectJobRecord.STATUS_ALL_JOBS, jobStorage);
     }
 }

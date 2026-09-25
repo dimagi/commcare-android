@@ -7,11 +7,14 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileScreenBinding
+import org.commcare.fragments.personalId.EmailWorkFlow
 
 class PersonalIdProfileFragment : BasePersonalIdProfileFragment() {
     private var _binding: PersonalidProfileScreenBinding? = null
@@ -41,11 +44,41 @@ class PersonalIdProfileFragment : BasePersonalIdProfileFragment() {
         viewModel = ViewModelProvider(this)[PersonalIdProfileViewModel::class.java]
         viewModel.profileDisplayModel.observe(viewLifecycleOwner) { displayProfileDetails(it) }
         binding.profileBtnForgetPersonalid.setOnClickListener { showForgetPersonalIdDialog() }
+        binding.profileChangeBackupCode.setOnClickListener { onChangeBackupCodeClicked() }
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.loadProfile()
+    }
+
+    private fun onChangeBackupCodeClicked() {
+        val user = ConnectUserDatabaseUtil.getUser()!!
+        if (user.pin.isNullOrEmpty()) {
+            val email = user.email
+            if (email != null) {
+                navigateToSendEmailOtp(email, EmailWorkFlow.PENDING_BACKUP_CODE)
+            } else {
+                (requireActivity() as PersonalIdProfileActivity).showAddEmailToast()
+            }
+        } else {
+            navigateToProfileBackupCode()
+        }
+    }
+
+    private fun navigateToProfileBackupCode() {
+        findNavController().navigate(PersonalIdProfileFragmentDirections.actionProfileToProfileBackupCode())
+    }
+
+    private fun navigateToSendEmailOtp(
+        email: String,
+        workFlow: EmailWorkFlow,
+    ) {
+        val directions =
+            PersonalIdProfileFragmentDirections
+                .actionProfileToSendEmailOtp(email, workFlow)
+                .setMasked(true)
+        findNavController().navigate(directions)
     }
 
     private fun showForgetPersonalIdDialog() {
