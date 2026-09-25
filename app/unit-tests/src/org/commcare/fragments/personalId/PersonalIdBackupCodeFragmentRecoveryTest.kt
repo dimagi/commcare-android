@@ -158,7 +158,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
         assertEquals("/users/recover/complete_recovery", request.path)
         assertEquals("POST", request.method)
         assertEquals("backup_code", body.getString("method"))
-        assertEquals(TEST_BACKUP_CODE, body.getString("recovery_pin"))
+        assertEquals(TEST_BACKUP_CODE, body.getString("backup_code"))
 
         val authHeader = request.headers["Authorization"]
         assertNotNull("Authorization header should be present", authHeader)

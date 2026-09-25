@@ -193,7 +193,7 @@ public class ApiPersonalId {
     ) {
         HashMap<String, String> params = new HashMap<>();
         params.put("method", "backup_code");
-        params.put("recovery_pin", backupCode);
+        params.put("backup_code", backupCode);
         completeRecovery(context, params, token, callback);
     }
 
