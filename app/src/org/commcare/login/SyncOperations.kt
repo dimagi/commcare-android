@@ -135,7 +135,10 @@ internal open class SyncOperations(
                     }
                 }
 
-            continuation.invokeOnCancellation { task.cancel(true) }
+            continuation.invokeOnCancellation {
+                task.cancel(true)
+                task.tryAbort()
+            }
             task.connect(HeadlessTaskConnector(receiver))
             task.executeParallel()
         }

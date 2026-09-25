@@ -373,7 +373,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
      */
     public int getLearningPercentComplete(boolean includeAssessmentModule) {
         int totalModules = numLearningModules;
-        int modulesCompleted = learningModulesCompleted;
+        int modulesCompleted = Math.min(learningModulesCompleted, numLearningModules);
 
         if (includeAssessmentModule) {
             // Add 1 to the calculation to represent the assessment module.
@@ -648,6 +648,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 || getAssessmentScore() >= getLearnAppInfo().getPassingScore();
     }
 
+    /**
+     * Whether the user has finished everything required before claiming the job:
+     * every learn module submitted, and a passing assessment score
+     */
+    public boolean isLearningComplete() {
+        return getLearningPercentComplete(true) >= 100;
+    }
+
     public int getAssessmentScore() {
         int mostRecentFailingScore = 0;
         int firstPassingScore = -1;
@@ -751,7 +759,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean readyToTransitionToDelivery() {
-        return status == STATUS_LEARNING && passedAssessment();
+        return status == STATUS_LEARNING && isLearningComplete();
     }
 
     @Nullable

@@ -1,6 +1,7 @@
 package org.commcare.activities.camera
 
 import android.app.Activity
+import android.content.Context
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
@@ -14,6 +15,7 @@ import org.commcare.utils.StringUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
@@ -25,11 +27,18 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowToast
+import java.io.ByteArrayOutputStream
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class CameraOverlayActivityTest {
     private val outputUri = "content://org.commcare.dalvik.fileprovider/external/output.jpg"
+
+    @Before
+    fun registerOutputStream() {
+        shadowOf(ApplicationProvider.getApplicationContext<Context>().contentResolver)
+            .registerOutputStreamSupplier(Uri.parse(outputUri)) { ByteArrayOutputStream() }
+    }
 
     private fun buildActivity(withOutputUri: Boolean = true): CameraOverlayActivity {
         val builder =

@@ -58,6 +58,9 @@ public class NumericCodeView extends LinearLayout {
 
         // Read attributes from XML
         if (attrs != null) {
+            // Deliberately not try-with-resources: that needs TypedArray.close() (API 31), which leaves this
+            // view uninflatable under Robolectric's default SDK. recycle() is equivalent and available everywhere.
+            @SuppressWarnings("resource")
             TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NumericCodeView);
             try {
                 digitCount = typedArray.getInt(R.styleable.NumericCodeView_codeViewDigitCount, digitCount);
