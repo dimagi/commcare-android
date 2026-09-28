@@ -737,7 +737,6 @@
     <string name="connect_opportunity_modules_footer_note">Complete the modules, pass the assessment, and earn your certificate</string>
     <string name="connect_opportunity_footer_download_app">Download App</string>
 
-    <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
     <string name="connect_dashboard">Dashboard</string>
     <string name="connect_visits">Visits</string>

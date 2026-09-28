@@ -44,14 +44,6 @@ class ConnectJobPreferences(
 
     fun getTaskModifiedTime(): Long = prefs.getLong(KEY_TASK_LAST_MODIFIED_TIME, TIMESTAMP_NOT_SET)
 
-    fun getPaymentConfirmationHiddenSinceTime(): Long =
-        prefs.getLong(
-            PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME,
-            TIMESTAMP_NOT_SET,
-        )
-
-    fun paymentConfirmationHiddenSinceTimeNotSet(): Boolean = getPaymentConfirmationHiddenSinceTime() == TIMESTAMP_NOT_SET
-
     fun setPaymentConfirmationHiddenSinceTime(hiddenSinceTimeMs: Long) {
         prefs.edit { putLong(PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME, hiddenSinceTimeMs) }
     }
