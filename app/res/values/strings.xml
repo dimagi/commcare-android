@@ -399,8 +399,10 @@
     <string name="personalid_email_description">Your email helps you recover your account if you lose access to your phone.</string>
     <string name="personalid_email_hint">Email address</string>
     <string name="personalid_email_skip">Skip for now</string>
-    <string name="personalid_email_skip_confirm_title">Skip email?</string>
-    <string name="personalid_email_skip_confirm_message">Are you sure you want to skip?</string>
+    <string name="personalid_email_skip_confirm_title">Protect your account</string>
+    <string name="personalid_email_skip_confirm_message">Adding an email strengthens your account security. It helps verify important account changes, prevents unauthorized recovery attempts, and gives you a secure way to regain access if you lose your device.</string>
+    <string name="personalid_email_skip_confirm_skip">Skip</string>
+    <string name="personalid_email_skip_confirm_add">Add Email</string>
     <string name="personalid_email_invalid_format">Please enter a valid email address.</string>
     <string name="personalid_email_verification_appbar_title">Verify Email</string>
     <string name="personalid_email_verification_title">Verify your email</string>

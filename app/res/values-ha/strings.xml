@@ -110,8 +110,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_email_description">Imel ɗinka yana taimaka maka dawo da asusunka idan ka rasa damar shiga wayarka.</string>
     <string name="personalid_email_hint">Adireshin imel</string>
     <string name="personalid_email_skip">Tsallake yanzu</string>
-    <string name="personalid_email_skip_confirm_title">A tsallake imel?</string>
-    <string name="personalid_email_skip_confirm_message">Tabbas kuna so ku tsallake?</string>
+    <string name="personalid_email_skip_confirm_title">Kare asusunku</string>
+    <string name="personalid_email_skip_confirm_message">Ƙara imel yana ƙarfafa tsaron asusunku. Yana taimakawa tabbatar da muhimman canje-canje na asusu, yana hana yunƙurin dawo da asusu ba tare da izini ba, kuma yana ba ka hanya mai aminci ta dawo da damar shiga idan ka rasa na\'urarka.</string>
+    <string name="personalid_email_skip_confirm_skip">Tsallake</string>
+    <string name="personalid_email_skip_confirm_add">Ƙara Imel</string>
     <string name="personalid_email_invalid_format">Da fatan za a shigar da ingantaccen adireshin imel.</string>
     <string name="personalid_email_verification_appbar_title">Tabbatar da imel</string>
     <string name="personalid_email_verification_title">Tabbatar da imel ɗinka</string>

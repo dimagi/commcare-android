@@ -277,8 +277,10 @@
     <string name="personalid_email_description">Seu e-mail ajuda a recuperar sua conta caso você perca o acesso ao telefone.</string>
     <string name="personalid_email_hint">Endereço de e-mail</string>
     <string name="personalid_email_skip">Pular por agora</string>
-    <string name="personalid_email_skip_confirm_title">Pular e-mail?</string>
-    <string name="personalid_email_skip_confirm_message">Tem certeza de que deseja pular?</string>
+    <string name="personalid_email_skip_confirm_title">Proteja sua conta</string>
+    <string name="personalid_email_skip_confirm_message">Adicionar um e-mail fortalece a segurança da sua conta. Isso ajuda a verificar alterações importantes na conta, evita tentativas de recuperação não autorizadas e oferece uma forma segura de recuperar o acesso caso você perca seu dispositivo.</string>
+    <string name="personalid_email_skip_confirm_skip">Pular</string>
+    <string name="personalid_email_skip_confirm_add">Adicionar e-mail</string>
     <string name="personalid_email_invalid_format">Por favor, insira um endereço de e-mail válido.</string>
     <string name="personalid_email_verification_appbar_title">Verificar e-mail</string>
     <string name="personalid_email_verification_title">Verifique seu e-mail</string>

@@ -5,6 +5,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -143,7 +150,7 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
         )
     }
 
-    // ========== RECOVERY workflow tests ==========
+    // ========== Skip-email dialog ==========
 
     @Test
     fun `skip in RECOVERY workflow passes backup_code as the recovery method`() {
@@ -169,11 +176,7 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
         }
         ShadowLooper.idleMainLooper()
 
-        val skipButton = fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_skip_button)
-        activity.runOnUiThread { skipButton?.performClick() }
-        ShadowLooper.idleMainLooper()
-
-        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val dialog = openSkipDialog()
         val yesButton = dialog.findViewById<Button>(R.id.positive_button)!!
 
         mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
@@ -186,5 +189,54 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
                 )
             }
         }
+    }
+
+    private fun openSkipDialog(): AlertDialog {
+        val skipButton = fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_skip_button)
+        activity.runOnUiThread { skipButton?.performClick() }
+        ShadowLooper.idleMainLooper()
+        return ShadowDialog.getLatestDialog() as AlertDialog
+    }
+
+    @Test
+    fun `skip dialog shows the right UI`() {
+        openSkipDialog()
+
+        onView(withText(R.string.personalid_email_skip_confirm_title))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withText(R.string.personalid_email_skip_confirm_message))
+            .inRoot(isDialog())
+            .check(matches(isDisplayed()))
+        onView(withId(R.id.positive_button))
+            .inRoot(isDialog())
+            .check(matches(withText(R.string.personalid_email_skip_confirm_skip)))
+        onView(withId(R.id.negative_button))
+            .inRoot(isDialog())
+            .check(matches(withText(R.string.personalid_email_skip_confirm_add)))
+    }
+
+    @Test
+    fun `add email keeps the user on the email screen`() {
+        val dialog = openSkipDialog()
+
+        activity.runOnUiThread { dialog.findViewById<Button>(R.id.negative_button)!!.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        assertTrue(fragment.isResumed)
+    }
+
+    @Test
+    fun `skip in REGISTRATION workflow navigates to photo capture`() {
+        activity.runOnUiThread {
+            installTestNavController(fragment.requireView(), R.id.personalid_email)
+        }
+        ShadowLooper.idleMainLooper()
+        openSkipDialog()
+
+        onView(withId(R.id.positive_button)).inRoot(isDialog()).perform(click())
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)
     }
 }

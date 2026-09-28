@@ -211,8 +211,10 @@
     <string name="personalid_email_description">Jūsų el. paštas padės atkurti paskyrą, jei prarasite prieigą prie telefono.</string>
     <string name="personalid_email_hint">El. pašto adresas</string>
     <string name="personalid_email_skip">Praleisti kol kas</string>
-    <string name="personalid_email_skip_confirm_title">Praleisti el. paštą?</string>
-    <string name="personalid_email_skip_confirm_message">Ar tikrai norite praleisti?</string>
+    <string name="personalid_email_skip_confirm_title">Apsaugokite savo paskyrą</string>
+    <string name="personalid_email_skip_confirm_message">Pridėjus el. paštą sustiprinama jūsų paskyros sauga. Tai padeda patvirtinti svarbius paskyros pakeitimus, apsaugo nuo neteisėtų bandymų atkurti paskyrą ir suteikia saugų būdą atgauti prieigą, jei prarandate įrenginį.</string>
+    <string name="personalid_email_skip_confirm_skip">Praleisti</string>
+    <string name="personalid_email_skip_confirm_add">Pridėti el. paštą</string>
     <string name="personalid_email_invalid_format">Įveskite galiojantį el. pašto adresą.</string>
     <string name="personalid_email_verification_appbar_title">Patvirtinti el. paštą</string>
     <string name="personalid_email_verification_title">Patvirtinkite savo el. paštą</string>
