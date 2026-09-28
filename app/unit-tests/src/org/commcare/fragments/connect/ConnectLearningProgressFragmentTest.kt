@@ -36,7 +36,6 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
-import org.commcare.connect.opportunity.OpportunityHomeFragment
 import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectRequestManager
@@ -57,6 +56,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.util.Calendar
@@ -73,6 +73,7 @@ import java.util.Date
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
 @RunWith(AndroidJUnit4::class)
 class ConnectLearningProgressFragmentTest {
+    private lateinit var activityController: ActivityController<ConnectActivity>
     private lateinit var activity: ConnectActivity
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
@@ -111,14 +112,14 @@ class ConnectLearningProgressFragmentTest {
         // does not hang, then drain it so it doesn't sit ahead of later requests in the queue.
         mockApi.server.enqueue(MockResponse().setResponseCode(200).setBody("[]"))
 
-        activity =
+        activityController =
             Robolectric
                 .buildActivity(ConnectActivity::class.java)
                 .create()
                 .postCreate(null)
                 .start()
                 .resume()
-                .get()
+        activity = activityController.get()
         navHostFragment =
             activity.supportFragmentManager
                 .findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
@@ -252,9 +253,16 @@ class ConnectLearningProgressFragmentTest {
         // The install finished, the worker went into the delivery app and came back out.
         every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
         installViewModel().clear()
-        activity.runOnUiThread { opportunityPage().onPhaseChanged() }
+        activity.runOnUiThread {
+            activityController
+                .pause()
+                .stop()
+                .start()
+                .resume()
+        }
         ShadowLooper.idleMainLooper()
 
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
         navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
     }
 
@@ -360,11 +368,6 @@ class ConnectLearningProgressFragmentTest {
         // all - goes through the network stack the rest of this suite drives.
         learningViewModel(fragment).repository = ConnectRepository.getInstance()
     }
-
-    private fun opportunityPage(): OpportunityHomeFragment =
-        navHostFragment.childFragmentManager.fragments
-            .filterIsInstance<OpportunityHomeFragment>()
-            .first()
 
     private fun installViewModel(): ConnectAppInstallViewModel =
         ViewModelProvider(

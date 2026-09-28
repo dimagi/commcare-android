@@ -14,6 +14,7 @@ import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 /** Per-opportunity page that shows the status surface for the opportunity's current phase. */
 class OpportunityHomeFragment :
@@ -57,10 +58,12 @@ class OpportunityHomeFragment :
         if (childFragmentManager.findFragmentByTag(state.name) != null) {
             return
         }
+        val surface = surfaceFor(state)
         childFragmentManager
             .beginTransaction()
-            .replace(R.id.opportunity_home_container, surfaceFor(state), state.name)
+            .replace(R.id.opportunity_home_container, surface, state.name)
             .commit()
+        FirebaseAnalyticsUtil.reportScreenView(screenNameFor(state), surface.javaClass.name)
     }
 
     /** Ignored while the page cannot swap surfaces; the next resume re-resolves instead. */
@@ -87,6 +90,14 @@ class OpportunityHomeFragment :
             OpportunityHomeState.JOB_INTRO -> ConnectJobIntroFragment()
             OpportunityHomeState.LEARNING -> ConnectLearningProgressFragment()
             OpportunityHomeState.DELIVERY -> deliverySurface()
+        }
+
+    /** The screen name each surface reported back when it was its own destination. */
+    private fun screenNameFor(state: OpportunityHomeState): String =
+        when (state) {
+            OpportunityHomeState.JOB_INTRO -> "fragment_connect_job_intro"
+            OpportunityHomeState.LEARNING -> "fragment_connect_learning_progress"
+            OpportunityHomeState.DELIVERY -> "fragment_connect_delivery_home"
         }
 
     /** Passes a link's requested tab through to the delivery surface. */

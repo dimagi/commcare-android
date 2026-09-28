@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.verify
+import io.mockk.verifyOrder
 import kotlinx.coroutines.flow.emptyFlow
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -14,6 +15,7 @@ import org.commcare.fragments.connect.BaseConnectJobIntroTest
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -88,6 +90,44 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
         assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(1, page.childFragmentManager.fragments.size)
+    }
+
+    @Test
+    fun `opening a learning opportunity reports the learn progress screen`() {
+        job.status = ConnectJobRecord.STATUS_LEARNING
+
+        openPage()
+
+        verify(exactly = 1) {
+            FirebaseAnalyticsUtil.reportScreenView(
+                "fragment_connect_learning_progress",
+                ConnectLearningProgressFragment::class.java.name,
+            )
+        }
+    }
+
+    @Test
+    fun `a phase change reports each surface once`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        val page = openPage()
+
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        activity.runOnUiThread { page.onPhaseChanged() }
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 1) {
+            FirebaseAnalyticsUtil.reportScreenView("fragment_connect_job_intro", ConnectJobIntroFragment::class.java.name)
+        }
+        verify(exactly = 1) {
+            FirebaseAnalyticsUtil.reportScreenView(
+                "fragment_connect_learning_progress",
+                ConnectLearningProgressFragment::class.java.name,
+            )
+        }
+        verifyOrder {
+            FirebaseAnalyticsUtil.reportScreenView("fragment_connect_job_intro", any())
+            FirebaseAnalyticsUtil.reportScreenView("fragment_connect_learning_progress", any())
+        }
     }
 
     @Test

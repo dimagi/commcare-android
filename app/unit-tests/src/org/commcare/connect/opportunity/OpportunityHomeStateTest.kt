@@ -7,7 +7,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class OpportunityHomeStateTest {
-    private fun jobWithStatus(jobStatus: Int): ConnectJobRecord = mockk { every { status } returns jobStatus }
+    private fun jobWithStatus(
+        jobStatus: Int,
+        finished: Boolean = false,
+    ): ConnectJobRecord =
+        mockk {
+            every { status } returns jobStatus
+            every { isFinished } returns finished
+        }
 
     @Test
     fun `both available statuses are the available phase`() {
@@ -25,6 +32,18 @@ class OpportunityHomeStateTest {
     @Test
     fun `an unrecognised status falls back to the available phase`() {
         assertEquals(OpportunityPhase.AVAILABLE, OpportunityPhase.of(jobWithStatus(ConnectJobRecord.STATUS_ALL_JOBS)))
+    }
+
+    @Test
+    fun `a finished opportunity is the delivery phase whatever its status`() {
+        for (status in listOf(
+            ConnectJobRecord.STATUS_AVAILABLE_NEW,
+            ConnectJobRecord.STATUS_AVAILABLE,
+            ConnectJobRecord.STATUS_LEARNING,
+            ConnectJobRecord.STATUS_DELIVERING,
+        )) {
+            assertEquals(OpportunityPhase.DELIVERY, OpportunityPhase.of(jobWithStatus(status, finished = true)))
+        }
     }
 
     @Test

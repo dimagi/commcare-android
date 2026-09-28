@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -31,6 +32,7 @@ import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectRequestManager
 import org.commcare.connect.repository.ConnectSyncPreferences
@@ -237,13 +239,20 @@ class ConnectOpportunityListFragmentTest {
      * phase, so the list no longer decides between the intro, learn progress and delivery home.
      */
     @Test
-    fun `tapping a new opportunity opens opportunity home`() = assertRowOpensOpportunityHome(NEW_UUID)
+    fun `tapping a new opportunity opens opportunity home`() = assertRowOpensOpportunityHome<ConnectJobIntroFragment>(NEW_UUID)
 
     @Test
-    fun `tapping a learning opportunity opens opportunity home`() = assertRowOpensOpportunityHome(LEARNING_UUID)
+    fun `tapping a learning opportunity opens opportunity home`() =
+        assertRowOpensOpportunityHome<ConnectLearningProgressFragment>(LEARNING_UUID)
 
     @Test
-    fun `tapping a delivering opportunity opens opportunity home`() = assertRowOpensOpportunityHome(EXPIRING_SOON_UUID)
+    fun `tapping a delivering opportunity opens opportunity home`() =
+        assertRowOpensOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRING_SOON_UUID)
+
+    /** The expired fixture is still learning, so only the finished rule can resolve it to delivery. */
+    @Test
+    fun `tapping a finished opportunity opens the delivery surface`() =
+        assertRowOpensOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRED_UUID)
 
     /**
      * Taps [uuid]'s row, checks where it landed, then returns to the list.
@@ -251,12 +260,13 @@ class ConnectOpportunityListFragmentTest {
      * Going back matters: Opportunity Home resolves a surface that fetches for itself, and leaving
      * it mounted lets that work run on past the database teardown in [tearDown].
      */
-    private fun assertRowOpensOpportunityHome(uuid: String) {
+    private inline fun <reified T : Fragment> assertRowOpensOpportunityHome(uuid: String) {
         activity.runOnUiThread { getRowForJobUuid(uuid).performClick() }
         ShadowLooper.idleMainLooper()
 
         assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(uuid, activity.activeJob?.jobUUID)
+        navHostFragment.opportunityHomeSurface<T>()
 
         activity.runOnUiThread { navController.popBackStack() }
         ShadowLooper.idleMainLooper()
@@ -301,7 +311,7 @@ class ConnectOpportunityListFragmentTest {
                     ConnectJobRecord.STATUS_DELIVERING,
                     PAST_DATE,
                 ).apply { completedVisits = ConnectLearnJobTestData.MAX_VISITS },
-                opportunity(EXPIRED_UUID, 5, "Expired Opportunity", ConnectJobRecord.STATUS_DELIVERING, PAST_DATE),
+                opportunity(EXPIRED_UUID, 5, "Expired Opportunity", ConnectJobRecord.STATUS_LEARNING, PAST_DATE),
             )
         ConnectJobUtils.storeJobs(appContext, jobs, true)
     }

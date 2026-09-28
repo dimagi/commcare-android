@@ -25,7 +25,7 @@
     <fragment
         android:id="@+id/opportunity_home_fragment"
         android:name="org.commcare.connect.opportunity.OpportunityHomeFragment"
-        android:label="@string/connect_title"
+        android:label="fragment_opportunity_home"
         tools:layout="@layout/fragment_opportunity_home">
         <action
             android:id="@+id/action_opportunity_home_fragment_to_connect_delivery_visits_detail_fragment"

@@ -714,15 +714,20 @@ public class FirebaseAnalyticsUtil {
                         ((FragmentNavigator.Destination)destination).getClassName();
             }
 
-            Bundle bundle = new Bundle();
             CharSequence label = navDestination.getLabel();
-            bundle.putString(
-                    FirebaseAnalytics.Param.SCREEN_NAME,
-                    label != null ? label.toString() : currentFragmentClassName
+            reportScreenView(
+                    label != null ? label.toString() : currentFragmentClassName,
+                    currentFragmentClassName
             );
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
-            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
         };
+    }
+
+    /** Reports a screen view, including for a screen that is not its own navigation destination. */
+    public static void reportScreenView(String screenName, String screenClass) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, screenClass);
+        reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
     }
 
     public static void reportConnectTabChange(String tabName) {

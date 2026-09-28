@@ -10,14 +10,18 @@ enum class OpportunityPhase {
     ;
 
     companion object {
-        /** An unrecognised status falls back to [AVAILABLE], the one phase that never needs an app. */
+        /** A finished opportunity is always [DELIVERY]; an unrecognised status falls back to [AVAILABLE]. */
         @JvmStatic
-        fun of(job: ConnectJobRecord): OpportunityPhase =
-            when (job.status) {
+        fun of(job: ConnectJobRecord): OpportunityPhase {
+            if (job.isFinished) {
+                return DELIVERY
+            }
+            return when (job.status) {
                 ConnectJobRecord.STATUS_LEARNING -> LEARNING
                 ConnectJobRecord.STATUS_DELIVERING -> DELIVERY
                 else -> AVAILABLE
             }
+        }
     }
 }
 
