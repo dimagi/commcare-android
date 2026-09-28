@@ -113,7 +113,7 @@ class ConnectDeliveryHomeFragment :
             currentTabPosition = initialTabPosition
             viewPager.setCurrentItem(initialTabPosition, false)
         }
-        updateCtaBarVisibility()
+        updateCtaBarEnabled()
 
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
@@ -122,7 +122,6 @@ class ConnectDeliveryHomeFragment :
                         return
                     }
                     currentTabPosition = position
-                    updateCtaBarVisibility()
                     tabLayout.getTabAt(position)?.text?.let {
                         FirebaseAnalyticsUtil.reportConnectTabChange(it.toString())
                     }
@@ -132,14 +131,15 @@ class ConnectDeliveryHomeFragment :
     }
 
     /**
-     * The More tab makes its highest-priority task the primary action, so the shared launch bar gets
-     * out of its way — unless it is reporting an install this screen started, which is the only sign
-     * the user has that their download is still running. An install the More tab started reports
-     * itself in a blocking dialog, so the bar stays hidden for that one.
+     * A pending task has to be cleared in the delivery app, so the launch bar stands down while one
+     * is outstanding. Without the app installed there is nothing to clear it with, so the bar stays
+     * live until the download finishes and the user is not left stranded.
      */
-    private fun updateCtaBarVisibility() {
-        binding.connectDeliveryCtaBar.isVisible =
-            currentTabPosition != moreTabPosition || ownsAppInstall
+    private fun updateCtaBarEnabled() {
+        val appInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
+        val hasPendingTask =
+            ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID).isNotEmpty()
+        binding.connectDeliveryCtaBar.isCtaEnabled = !appInstalled || !hasPendingTask
     }
 
     private fun updateMoreTabBadge() {
@@ -196,6 +196,7 @@ class ConnectDeliveryHomeFragment :
 
     private fun refreshTabs() {
         updateCtaBarButton()
+        updateCtaBarEnabled()
         updateMoreTabBadge()
         childFragmentManager.fragments.forEach { fragment ->
             if (fragment.view != null && fragment is RefreshableTab) {
@@ -296,7 +297,7 @@ class ConnectDeliveryHomeFragment :
         isLearning: Boolean,
     ) {
         binding.connectDeliveryCtaBar.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
-        updateCtaBarVisibility()
+        updateCtaBarEnabled()
     }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.jobUUID

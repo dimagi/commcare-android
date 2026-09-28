@@ -11,6 +11,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoHalfCardBinding
 import org.commcare.views.extensions.bindOptional
 import org.commcare.views.extensions.bindReservingSpace
+import org.commcare.views.extensions.themeColor
 
 /**
  * Reusable half-width Connect info card.
@@ -46,10 +47,11 @@ class ConnectInfoHalfCard
             set(value) {
                 field = value
                 binding.infoCardValueText.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        if (value) R.color.connect_dark_blue_color else R.color.connect_dark_grey,
-                    ),
+                    if (value) {
+                        ContextCompat.getColor(context, R.color.connect_dark_blue_color)
+                    } else {
+                        context.themeColor(R.attr.connectOnSurfaceDisabled)
+                    },
                 )
             }
 
