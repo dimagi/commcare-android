@@ -10,8 +10,8 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
-import org.commcare.dalvik.R
 import org.commcare.connect.database.ConnectDatabaseUtils
+import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
@@ -198,7 +198,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     }
 
     @Test
-    fun `a confirmed code routes to the email screen when the toggle is active and no email is on file`() {
+    fun `a confirmed code finalizes recovery and routes to the email screen when the toggle is active and no email is on file`() {
         activateEmailOtpToggle()
         mockWebServer.enqueue(successResponse())
 
@@ -214,7 +214,24 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
                 .arguments
                 ?.getSerializable("workflow"),
         )
-        assertNull("User should not be stored before email verification completes", storedUser())
+        assertNotNull("User should be stored before navigating to the email screen", storedUser())
+    }
+
+    @Test
+    fun `a confirmed code reports recovery before routing to the email screen`() {
+        activateEmailOtpToggle()
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            mockWebServer.enqueue(successResponse())
+            enterBackupCode(TEST_BACKUP_CODE)
+            drainHttp()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
+                )
+            }
+        }
+        assertEquals(R.id.personalid_email, navController.currentDestination?.id)
     }
 
     @Test
