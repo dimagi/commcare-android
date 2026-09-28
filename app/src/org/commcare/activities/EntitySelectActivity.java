@@ -717,7 +717,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         } else if (identityProvider.contentEquals(IdentityCalloutHandler.GENERALIZED_IDENTITY_PROVIDER)) {
             guidToMatchConfidenceMap = IdentityCalloutHandler.getConfidenceMatchesFromCalloutResponse(intent);
         }
-        adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
+        if (adapter != null) {
+            adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
+        } else if (guidToMatchConfidenceMap != null) {
+            EntityListAdapter.saveCalloutDataToSession(guidToMatchConfidenceMap);
+        }
         refreshView();
     }
 
@@ -945,6 +949,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         entitySelectSearchUI.restoreSearchString();
 
         adapter.loadCalloutDataFromSession();
+        if (adapter.hasCalloutResponseData()) {
+            rebuildHeaders();
+        }
     }
 
     private void updateSelectedItem(boolean forceMove) {
