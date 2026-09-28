@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:orientation="vertical"
-    tools:parentTag="android.widget.LinearLayout">
+    tools:parentTag="android.widget.LinearLayout"
+    tools:theme="@style/ConnectTheme">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -14,15 +15,15 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/standard_spacer_double">
+            android:paddingBottom="@dimen/connect_space_lg">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/learn_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/standard_spacer_double"
-                android:background="@color/white"
-                android:padding="@dimen/standard_spacer_double"
+                android:layout_margin="@dimen/connect_space_lg"
+                android:background="?attr/colorSurface"
+                android:padding="@dimen/connect_space_lg"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -38,24 +39,24 @@
 
                 <TextView
                     android:id="@+id/learn_complete_title"
+                    style="@style/TextStyle.Connect.TitleM"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/standard_spacer_half"
-                    android:layout_marginEnd="@dimen/standard_spacer_half"
+                    android:layout_marginStart="@dimen/connect_space_xs"
+                    android:layout_marginEnd="@dimen/connect_space_xs"
                     android:text="@string/connect_opportunity_learn_section_title"
-                    android:textColor="@color/neon_blue"
-                    android:textSize="@dimen/connect_text_title"
+                    android:textColor="?attr/colorPrimary"
                     app:layout_constraintEnd_toStartOf="@id/learn_complete_check"
                     app:layout_constraintStart_toEndOf="@id/learn_complete_icon"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/learn_complete_completed_on"
+                    style="@style/TextStyle.Connect.BodyS"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/standard_spacer_half"
-                    android:textColor="@color/connect_secondary_text"
-                    android:textSize="@dimen/connect_text_caption"
+                    android:layout_marginTop="@dimen/connect_space_xs"
+                    android:textColor="?attr/connectOnSurfaceVariant"
                     app:layout_constraintEnd_toEndOf="@id/learn_complete_title"
                     app:layout_constraintStart_toStartOf="@id/learn_complete_title"
                     app:layout_constraintTop_toBottomOf="@id/learn_complete_title"
@@ -69,13 +70,13 @@
                     android:src="@drawable/ic_connect_delivery_check_circle"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/connect_green" />
+                    app:tint="?attr/connectStatusPositive" />
 
                 <LinearLayout
                     android:id="@+id/certificate_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/standard_spacer_double"
+                    android:layout_marginTop="@dimen/connect_space_lg"
                     android:background="@drawable/connect_view_info_card_border"
                     android:orientation="vertical"
                     android:paddingBottom="@dimen/connect_space_lg"
@@ -93,12 +94,12 @@
                         android:padding="@dimen/connect_space_md">
 
                         <TextView
+                            style="@style/TextStyle.Connect.LabelM"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/connect_learn_certificate"
-                            android:textColor="@color/connect_text_color"
-                            android:textSize="@dimen/connect_text_caption" />
+                            android:textColor="?attr/colorOnSurface" />
 
                         <ImageView
                             android:id="@+id/certificate_chevron"
@@ -107,7 +108,7 @@
                             android:contentDescription="@null"
                             android:rotation="180"
                             android:src="@drawable/nav_drawer_arrow_down"
-                            app:tint="@color/connect_dark_grey" />
+                            app:tint="?attr/connectOnSurfaceVariant" />
                     </LinearLayout>
 
                     <include
@@ -120,7 +121,7 @@
                 android:id="@+id/delivery_icon"
                 android:layout_width="@dimen/standard_spacer_large"
                 android:layout_height="@dimen/standard_spacer_large"
-                android:layout_marginStart="@dimen/standard_spacer_double"
+                android:layout_marginStart="@dimen/connect_space_lg"
                 android:contentDescription="@null"
                 android:layout_marginTop="1dp"
                 android:src="@drawable/ic_connect_delivery_app"
@@ -129,26 +130,26 @@
 
             <TextView
                 android:id="@+id/delivery_title"
+                style="@style/TextStyle.Connect.TitleM"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/standard_spacer"
-                android:layout_marginEnd="@dimen/standard_spacer_double"
+                android:layout_marginStart="@dimen/connect_space_sm"
+                android:layout_marginEnd="@dimen/connect_space_lg"
                 android:text="@string/connect_opportunity_delivery_section_title"
-                android:textColor="@color/neon_blue"
-                android:textSize="@dimen/connect_text_title"
+                android:textColor="?attr/colorPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="@dimen/standard_spacer_double"
+                android:layout_marginTop="@dimen/connect_space_lg"
                 app:layout_constraintStart_toEndOf="@id/delivery_icon"
                 app:layout_constraintTop_toBottomOf="@id/learn_card" />
 
             <TextView
                 android:id="@+id/delivery_subtitle"
+                style="@style/TextStyle.Connect.BodyS"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/standard_spacer_half"
+                android:layout_marginTop="@dimen/connect_space_xs"
                 android:text="@string/connect_opportunity_delivery_section_subtitle"
-                android:textColor="@color/connect_dark_grey"
-                android:textSize="@dimen/connect_text_caption"
+                android:textColor="?attr/connectOnSurfaceVariant"
                 app:layout_constraintEnd_toEndOf="@id/delivery_title"
                 app:layout_constraintStart_toStartOf="@id/delivery_title"
                 app:layout_constraintTop_toBottomOf="@id/delivery_title" />
@@ -157,8 +158,8 @@
                 android:id="@+id/card_total_visits"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/standard_spacer_double"
-                android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                android:layout_marginHorizontal="@dimen/connect_space_lg"
+                android:layout_marginTop="@dimen/connect_space_md"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/delivery_subtitle"
@@ -168,8 +169,8 @@
                 android:id="@+id/card_days_to_complete"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/standard_spacer_double"
-                android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                android:layout_marginHorizontal="@dimen/connect_space_lg"
+                android:layout_marginTop="@dimen/connect_space_md"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/card_total_visits"
@@ -179,8 +180,8 @@
                 android:id="@+id/card_max_earnings"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/standard_spacer_double"
-                android:layout_marginTop="@dimen/standard_spacer_one_and_half"
+                android:layout_marginHorizontal="@dimen/connect_space_lg"
+                android:layout_marginTop="@dimen/connect_space_md"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/card_days_to_complete"
@@ -192,8 +193,8 @@
         android:id="@+id/learn_complete_failure_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/standard_spacer_double"
-        android:layout_marginBottom="@dimen/standard_spacer_double" />
+        android:layout_marginHorizontal="@dimen/connect_space_lg"
+        android:layout_marginBottom="@dimen/connect_space_lg" />
 
     <org.commcare.views.connect.ConnectCtaBar
         android:id="@+id/learn_complete_cta_bar"

@@ -24,7 +24,7 @@ class ConnectSyncStatusCardTest {
         ConnectSyncStatusCard(
             ContextThemeWrapper(
                 ApplicationProvider.getApplicationContext(),
-                R.style.CommonTheme,
+                R.style.ConnectTheme,
             ),
         )
 
@@ -123,7 +123,7 @@ class ConnectSyncStatusCardTest {
 
         val card =
             ConnectSyncStatusCard(
-                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.CommonTheme),
+                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme),
                 attrs,
             )
 
@@ -143,7 +143,7 @@ class ConnectSyncStatusCardTest {
 
         val card =
             ConnectSyncStatusCard(
-                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.CommonTheme),
+                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme),
                 attrs,
             )
 

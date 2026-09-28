@@ -6,7 +6,8 @@
     android:id="@+id/rootJobCardView"
     android:layout_height="wrap_content"
     app:cardCornerRadius="15dp"
-    app:cardElevation="10dp">
+    app:cardElevation="10dp"
+    tools:theme="@style/ConnectTheme">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -55,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/connect_job_info_view_more"
-            android:textColor="@color/connect_dark_blue_color"
+            android:textColor="?attr/colorPrimary"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_job_description"
@@ -138,7 +139,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             tools:text="8:00 AM - 5:00 PM"
-            android:textColor="@color/connect_dark_blue_color"
+            android:textColor="?attr/colorPrimary"
             android:textSize="16sp"
             android:layout_marginStart="5dp"
             android:gravity="end"

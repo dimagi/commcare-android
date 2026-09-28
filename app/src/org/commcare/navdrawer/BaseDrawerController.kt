@@ -298,6 +298,8 @@ class BaseDrawerController(
     }
 
     fun openDrawer() {
+        refreshDrawerContent()
+        hasRefreshed = true
         binding.drawerLayout.openDrawer(GravityCompat.START)
     }
 
