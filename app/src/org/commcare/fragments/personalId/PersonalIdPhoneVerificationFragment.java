@@ -176,7 +176,9 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
                     onOtpLimitExceeded(t);
                     return;
                 }
-                holdResendForServerWait(t);
+                if (t instanceof RateLimitedException) {
+                    holdResendForServerWait((RateLimitedException) t);
+                }
                 String error = PersonalIdOrConnectApiErrorHandler.handle(activity, failureCode, t);
                 if (failureCode == BaseApiHandler.PersonalIdOrConnectApiErrorCodes.FAILED_AUTH_ERROR) {
                     error = getString(R.string.personalid_incorrect_otp);
@@ -282,13 +284,12 @@ public class PersonalIdPhoneVerificationFragment extends BasePersonalIdFragment 
      * Holds the resend button for the wait a rate-limited request reported, so it does not come
      * back before the server will accept another send.
      */
-    private void holdResendForServerWait(Throwable throwable) {
-        if (currentOtpOp != OtpAnalyticsMapper.OtpOp.REQUEST_PHONE
-                || !(throwable instanceof RateLimitedException)) {
+    private void holdResendForServerWait(RateLimitedException rateLimitedException) {
+        if (currentOtpOp != OtpAnalyticsMapper.OtpOp.REQUEST_PHONE) {
             return;
         }
 
-        Integer retryAfterSeconds = ((RateLimitedException) throwable).getRetryAfterSeconds();
+        Integer retryAfterSeconds = rateLimitedException.getRetryAfterSeconds();
         if (retryAfterSeconds == null) {
             return;
         }
