@@ -58,7 +58,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun shouldShowDrawer(): Boolean = false
 
-    protected open val drawerSection: NavItemType? = null
+    protected open val currentDrawerSection: NavItemType? = null
 
     fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
@@ -81,7 +81,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     protected open fun handleDrawerItemClick(itemType: NavItemType) {
-        if (itemType == drawerSection) {
+        if (itemType == currentDrawerSection) {
             closeDrawer()
             return
         }
@@ -94,7 +94,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             NavItemType.COMMCARE_APPS -> {
                 closeDrawer()
                 // Screens that aren't sections (Login, Setup) already are the CommCare Apps landing.
-                if (drawerSection != null) {
+                if (currentDrawerSection != null) {
                     promptToReturnToLogin()
                 }
             }
@@ -140,7 +140,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 if (success) {
                     closeDrawer()
                     // A section is replaced by the one just opened rather than stacked beneath it.
-                    if (drawerSection != null) {
+                    if (currentDrawerSection != null) {
                         finish()
                     }
                 }

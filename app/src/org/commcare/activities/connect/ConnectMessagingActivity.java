@@ -74,7 +74,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     @Override
-    protected BaseDrawerController.NavItemType getDrawerSection() {
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
         return BaseDrawerController.NavItemType.MESSAGING;
     }
 

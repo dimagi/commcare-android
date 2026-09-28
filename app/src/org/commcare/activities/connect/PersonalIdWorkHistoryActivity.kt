@@ -20,7 +20,7 @@ class PersonalIdWorkHistoryActivity : BaseDrawerActivity<PersonalIdWorkHistoryAc
         ActivityPersonalIdWorkHistoryBinding.inflate(layoutInflater)
     }
 
-    override val drawerSection = NavItemType.WORK_HISTORY
+    override val currentDrawerSection = NavItemType.WORK_HISTORY
     private var contentViewSet = false
 
     private lateinit var workHistoryViewPagerAdapter: WorkHistoryViewPagerAdapter
