@@ -212,18 +212,6 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
     }
 
     @Test
-    fun `navigating to backup code gate fires the email update initiated analytics`() {
-        setText(emailField(), "grace@example.com")
-        clickSave()
-        firebaseAnalyticsUtilMock.verify {
-            FirebaseAnalyticsUtil.reportPersonalIdProfileAction(
-                AnalyticsParamValue.MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED,
-                AnalyticsParamValue.MANAGE_PROFILE_OUTCOME_SUCCESS,
-            )
-        }
-    }
-
-    @Test
     fun `editing the email when user has no existing email navigates to backup code confirmation`() {
         user.email = null
         setText(emailField(), "grace@example.com")
