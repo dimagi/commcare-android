@@ -13,7 +13,6 @@ object PersonalIdApiEndpoints {
     const val VERIFY_EMAIL_OTP = "/users/verify_email_otp"
     const val UPDATE_PROFILE = "/users/update_profile"
     const val COMPLETE_PROFILE = "/users/complete_profile"
-    const val CONFIRM_BACKUP_CODE = "/users/recover/confirm_backup_code"
     const val SET_BACKUP_CODE = "/users/set_recovery_pin"
     const val COMPLETE_RECOVERY = "/users/recover/complete_recovery"
     const val CREDENTIALS = "/users/credentials"

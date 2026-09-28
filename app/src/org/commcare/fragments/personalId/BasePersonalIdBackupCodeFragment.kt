@@ -4,14 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentRecoveryCodeBinding
-import org.commcare.views.connect.NumericCodeView
+import org.commcare.views.connect.bindVisibilityToggle
 
 abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
+    companion object {
+        const val BACKUP_CODE_LENGTH = 6
+    }
+
     protected lateinit var binding: FragmentRecoveryCodeBinding
 
     override fun onCreateView(
@@ -48,16 +51,6 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
     abstract fun handleBackupCodeSubmission()
 
     open fun handleForgotBackupCode() {}
-
-    protected fun togglePasswordVisibility(
-        codeView: NumericCodeView,
-        toggle: ImageView,
-    ) {
-        codeView.isPasswordVisible = !codeView.isPasswordVisible
-        toggle.setImageResource(
-            if (codeView.isPasswordVisible) R.drawable.ic_visibility_off_24 else R.drawable.ic_visibility_24,
-        )
-    }
 
     protected fun clearError() {
         binding.connectBackupCodeErrorMessage.visibility = View.GONE
@@ -106,12 +99,8 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
         binding.confirmCodeView.setOnEnterKeyPressedListener { submitIfEnabled() }
         binding.connectBackupCodeButton.setOnClickListener { handleBackupCodeSubmission() }
         binding.personalidForgotBackupCode.setOnClickListener { handleForgotBackupCode() }
-        binding.backupCodeVisibilityToggle.setOnClickListener {
-            togglePasswordVisibility(binding.backupCodeView, binding.backupCodeVisibilityToggle)
-        }
-        binding.confirmCodeVisibilityToggle.setOnClickListener {
-            togglePasswordVisibility(binding.confirmCodeView, binding.confirmCodeVisibilityToggle)
-        }
+        binding.backupCodeView.bindVisibilityToggle(binding.backupCodeVisibilityToggle)
+        binding.confirmCodeView.bindVisibilityToggle(binding.confirmCodeVisibilityToggle)
     }
 
     protected fun validateBackupCodeAndEnableContinue() {
@@ -146,8 +135,4 @@ abstract class BasePersonalIdBackupCodeFragment : BasePersonalIdFragment() {
     }
 
     protected fun navigate(directions: NavDirections) = binding.root.findNavController().navigate(directions)
-
-    companion object {
-        const val BACKUP_CODE_LENGTH = 6
-    }
 }

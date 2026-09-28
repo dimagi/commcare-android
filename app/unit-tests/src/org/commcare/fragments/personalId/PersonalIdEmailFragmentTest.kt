@@ -1,18 +1,28 @@
 package org.commcare.fragments.personalId
 
+import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mockStatic
+import org.mockito.kotlin.eq
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
 
 /**
@@ -131,5 +141,50 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
             "Continue button should be disabled once email becomes invalid",
             continueButton.isEnabled,
         )
+    }
+
+    // ========== RECOVERY workflow tests ==========
+
+    @Test
+    fun `skip in RECOVERY workflow passes backup_code as the recovery method`() {
+        MockAndroidKeyStoreProvider.registerProvider()
+        val args =
+            Bundle().apply {
+                putSerializable(PersonalIdEmailFragment.ARG_EMAIL_WORKFLOW, EmailWorkFlow.RECOVERY)
+            }
+        val sessionData =
+            PersonalIdSessionData(
+                token = "test-token",
+                userName = "test-user",
+                phoneNumber = "1234567890",
+                requiredLock = PersonalIdSessionData.PIN,
+                demoUser = false,
+                dbKey = "dGVzdC1kYi1rZXk=",
+                personalId = "test-personal-id",
+                oauthPassword = "test-oauth-pwd",
+            )
+        navigateToFragment(sessionData, R.id.personalid_email, args)
+        activity.runOnUiThread {
+            installTestNavController(fragment.requireView(), R.id.personalid_email)
+        }
+        ShadowLooper.idleMainLooper()
+
+        val skipButton = fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_skip_button)
+        activity.runOnUiThread { skipButton?.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        val dialog = ShadowDialog.getLatestDialog() as AlertDialog
+        val yesButton = dialog.findViewById<Button>(R.id.positive_button)!!
+
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            activity.runOnUiThread { yesButton.performClick() }
+            ShadowLooper.idleMainLooper()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
+                )
+            }
+        }
     }
 }
