@@ -42,6 +42,7 @@ import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.views.connect.ConnectCtaBar
 import org.commcare.views.connect.ConnectTaskCard
 import org.commcare.views.dialogs.CustomProgressDialog
 import org.json.JSONObject
@@ -393,16 +394,13 @@ class ConnectDeliveryMoreFragmentTest {
         )
     }
 
-    /** The launch bar is the only sign of an install, so the More tab stops hiding it during one. */
+    /** Without the app there is nothing to clear a task with, so the bar stays live to download it. */
     @Test
-    fun `the launch bar stays visible on the More tab while an install runs`() {
-        openMoreTab(deliveryProgressJson(tasks = emptyList()))
-        assertEquals(View.GONE, getDeliveryCtaBar().visibility)
-
-        startInstallFromDashboard()
-        selectTabForPosition(ConnectDeliveryHomeFragment.TAB_MORE)
+    fun `the launch bar stays enabled with a task pending while the app is missing`() {
+        openMoreTab(deliveryProgressJson(tasks = listOf(taskJson())))
 
         assertEquals(View.VISIBLE, getDeliveryCtaBar().visibility)
+        assertTrue(getDeliveryCtaBar().isCtaEnabled)
     }
 
     @Test
@@ -454,23 +452,27 @@ class ConnectDeliveryMoreFragmentTest {
         )
     }
 
+    /** A pending task has to be cleared in the delivery app, so the launch bar stands down. */
     @Test
-    fun `the shared launch bar hides on the more tab and returns with the dashboard`() {
+    fun `an installed app with a task pending disables the launch bar on every tab`() {
+        every { AppUtils.isAppInstalled(any()) } returns true
+        openMoreTab(deliveryProgressJson(tasks = listOf(taskJson())))
+
+        assertEquals(View.VISIBLE, getDeliveryCtaBar().visibility)
+        assertFalse(getDeliveryCtaBar().isCtaEnabled)
+
+        selectTabForPosition(ConnectDeliveryHomeFragment.TAB_DASHBOARD)
+
+        assertEquals(View.VISIBLE, getDeliveryCtaBar().visibility)
+        assertFalse(getDeliveryCtaBar().isCtaEnabled)
+    }
+
+    @Test
+    fun `an installed app with nothing pending leaves the launch bar enabled`() {
+        every { AppUtils.isAppInstalled(any()) } returns true
         openMoreTab(deliveryProgressJson(tasks = emptyList()))
-        val home = getHomeFragment()
-        val ctaBar = home.requireView().findViewById<View>(R.id.connect_delivery_cta_bar)
 
-        assertEquals(View.GONE, ctaBar.visibility)
-
-        activity.runOnUiThread {
-            home
-                .requireView()
-                .findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.connect_delivery_home_view_pager)
-                .setCurrentItem(ConnectDeliveryHomeFragment.TAB_DASHBOARD, false)
-        }
-        ShadowLooper.idleMainLooper()
-
-        assertEquals(View.VISIBLE, ctaBar.visibility)
+        assertTrue(getDeliveryCtaBar().isCtaEnabled)
     }
 
     /**
@@ -529,7 +531,7 @@ class ConnectDeliveryMoreFragmentTest {
             .filterIsInstance<ConnectDeliveryMoreFragment>()
             .first()
 
-    private fun getDeliveryCtaBar(): View = getHomeFragment().requireView().findViewById(R.id.connect_delivery_cta_bar)
+    private fun getDeliveryCtaBar(): ConnectCtaBar = getHomeFragment().requireView().findViewById(R.id.connect_delivery_cta_bar)
 
     private fun selectTabForPosition(position: Int) {
         val tabs =
