@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/standard_title_margin_bottom"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="?attr/colorSurface"
     app:cardCornerRadius="@dimen/connect_info_card_corner_radius"
-    app:cardElevation="0dp"
-    app:strokeColor="@color/connect_divider_color"
-    app:strokeWidth="1dp">
+    app:cardElevation="@dimen/connect_info_card_elevation"
+    app:strokeColor="?attr/connectOutlineVariant"
+    app:strokeWidth="1dp"
+    tools:theme="@style/ConnectTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,19 +20,19 @@
 
         <TextView
             android:id="@+id/tv_module_name"
+            style="@style/TextStyle.Connect.BodyLg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/connect_text_color"
-            android:textSize="16sp"
+            android:textColor="?attr/colorOnSurface"
             tools:text="1. Infant Vaccination" />
 
         <TextView
             android:id="@+id/tv_module_estimate"
+            style="@style/TextStyle.Connect.BodyS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/standard_spacer"
-            android:textColor="@color/connect_grey"
-            android:textSize="11sp"
+            android:textColor="?attr/connectOutline"
             tools:text="Estimated time: 1 hour" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

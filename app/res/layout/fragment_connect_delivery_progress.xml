@@ -1,9 +1,11 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:theme="@style/ConnectTheme">
     <androidx.core.widget.NestedScrollView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/connect_background_color"
+    android:background="?attr/connectBackground"
     android:fillViewport="true">
 
     <LinearLayout
@@ -13,7 +15,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/connect_background_color"
+            android:background="?attr/connectBackground"
             android:orientation="vertical">
 
             <ImageView
@@ -41,9 +43,9 @@
                 android:layout_marginBottom="2dp"
                 android:clickable="true"
                 android:focusable="true"
-                app:cardBackgroundColor="@color/white"
+                app:cardBackgroundColor="?attr/colorSurface"
                 app:cardCornerRadius="10dp"
-                app:cardElevation="5dp">
+                app:cardElevation="@dimen/connect_card_elevation_medium">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -109,7 +111,7 @@
                     android:layout_marginBottom="15dp"
                     app:cardBackgroundColor="@color/connect_light_orange_color"
                     app:cardCornerRadius="15dp"
-                    app:cardElevation="10dp">
+                    app:cardElevation="@dimen/connect_card_elevation_high">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -162,7 +164,7 @@
             android:id="@+id/connect_delivery_progress_tabs"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:background="@color/connect_background_color"
+            android:background="?attr/connectBackground"
             app:tabGravity="fill"
             app:tabIndicator="@drawable/ic_connect_pager_indicator"
             app:tabIndicatorColor="@color/connect_blue_color"
@@ -176,7 +178,7 @@
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/connect_divider_color" />
+            android:background="?attr/connectOutlineVariant" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/connect_delivery_progress_view_pager"

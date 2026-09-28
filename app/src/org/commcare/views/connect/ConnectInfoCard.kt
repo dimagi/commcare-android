@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updateLayoutParams
+import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoCardBinding
 import org.commcare.views.extensions.bindOptional
@@ -69,7 +70,7 @@ class ConnectInfoCard
             radius = resources.getDimension(R.dimen.connect_radius_card)
             cardElevation = resources.getDimension(R.dimen.connect_info_card_elevation)
             useCompatPadding = false
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
+            setCardBackgroundColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface))
 
             context.withStyledAttributes(attrs, R.styleable.ConnectInfoCard) {
                 valueText = getString(R.styleable.ConnectInfoCard_valueText)

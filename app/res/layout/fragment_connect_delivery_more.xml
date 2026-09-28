@@ -21,21 +21,20 @@
             android:paddingBottom="@dimen/connect_space_lg">
 
             <TextView
+                style="@style/TextStyle.Connect.TitleM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/connect_delivery_tasks_title"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="@dimen/connect_text_title"
-                android:textStyle="bold" />
+                android:textColor="?attr/colorOnSurface" />
 
             <TextView
                 android:id="@+id/delivery_tasks_empty"
+                style="@style/TextStyle.Connect.BodyS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_lg"
                 android:text="@string/connect_delivery_tasks_empty"
                 android:textColor="?attr/connectOnSurfaceVariant"
-                android:textSize="@dimen/connect_text_caption"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
@@ -48,19 +47,18 @@
                 android:orientation="vertical">
 
                 <TextView
+                    style="@style/TextStyle.Connect.TitleS"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/connect_delivery_tasks_mandatory_title"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/connect_text_body"
-                    android:textStyle="bold" />
+                    android:textColor="?attr/colorOnSurface" />
 
                 <TextView
+                    style="@style/TextStyle.Connect.BodyS"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/connect_delivery_tasks_mandatory_subtitle"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="@dimen/connect_text_caption" />
+                    android:textColor="?attr/colorOnSurface" />
 
                 <LinearLayout
                     android:id="@+id/delivery_tasks_mandatory_list"
@@ -81,12 +79,11 @@
                 android:orientation="vertical">
 
             <TextView
+                style="@style/TextStyle.Connect.TitleM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/connect_delivery_revisit_learning_title"
-                android:textColor="?attr/colorOnSurface"
-                android:textSize="@dimen/connect_text_title"
-                android:textStyle="bold" />
+                android:textColor="?attr/colorOnSurface" />
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
@@ -122,13 +119,12 @@
 
                         <TextView
                             android:id="@+id/revisit_learning_title"
+                            style="@style/TextStyle.Connect.TitleS"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/connect_space_sm"
                             android:layout_weight="1"
                             android:textColor="?attr/connectOnSurfaceStrong"
-                            android:textSize="@dimen/connect_text_body"
-                            android:textStyle="bold"
                             tools:text="Infant Vaccination" />
 
                         <ProgressBar
@@ -145,11 +141,11 @@
 
                     <TextView
                         android:id="@+id/revisit_learning_completed"
+                        style="@style/TextStyle.Connect.BodyS"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/connect_space_xs"
                         android:textColor="?attr/connectOnSurfaceVariant"
-                        android:textSize="@dimen/connect_text_label"
                         tools:text="Completed 24 July 2024" />
 
                     <LinearLayout
@@ -160,6 +156,7 @@
 
                         <TextView
                             android:id="@+id/revisit_learning_certificate_button"
+                            style="@style/TextStyle.Connect.LabelM"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="?attr/selectableItemBackground"
@@ -169,12 +166,11 @@
                             android:minWidth="@dimen/connect_text_button_min_width"
                             android:paddingHorizontal="@dimen/connect_space_sm"
                             android:text="@string/connect_learn_certificate"
-                            android:textColor="?attr/colorPrimary"
-                            android:textSize="@dimen/connect_text_caption"
-                            android:textStyle="bold" />
+                            android:textColor="?attr/colorPrimary" />
 
                         <TextView
                             android:id="@+id/revisit_learning_view_button"
+                            style="@style/TextStyle.Connect.LabelM"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/connect_space_sm"
@@ -185,9 +181,7 @@
                             android:minWidth="@dimen/connect_text_button_min_width"
                             android:paddingHorizontal="@dimen/connect_space_sm"
                             android:text="@string/connect_delivery_revisit_learning_view"
-                            android:textColor="?attr/colorPrimary"
-                            android:textSize="@dimen/connect_text_caption"
-                            android:textStyle="bold" />
+                            android:textColor="?attr/colorPrimary" />
 
                     </LinearLayout>
 
@@ -196,7 +190,6 @@
                         layout="@layout/view_connect_learn_certificate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="0dp"
                         android:layout_marginTop="@dimen/connect_space_lg"
                         android:visibility="gone"
                         tools:visibility="visible" />

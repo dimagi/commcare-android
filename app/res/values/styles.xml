@@ -202,7 +202,6 @@
     <style name="TabTextStyle">
         <item name="android:textAllCaps">false</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="AlertDialogButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
@@ -302,24 +301,145 @@
         <item name="reticleOutlineWidth">@dimen/reticle_outline_width</item>
     </style>
 
+    <!--
+        Connect type scale - mirrors Figma "Design System Mobile".
+        Pick by role:
+          TitleXl   22 medium   metric, amount, screen title
+          TitleM    16 medium   section and bottom-sheet heading
+          TitleS    14 medium   card heading, CTA title
+          LabelM    12 medium   chip, badge, status, button
+          LabelS    11 medium   field label sitting above a value
+          BodyLg    16 regular  the value under a LabelS
+          BodyM     14 regular  descriptive paragraph
+          BodyS     12 regular  secondary line, date, subtitle
+          BodyXs    11 regular  smallest metadata
+        Figma aliases: Button/s = LabelM; Button/m and Label/lg = TitleS.
+    -->
+    <style name="TextAppearance.Connect" parent="">
+        <item name="android:textSize">@dimen/connect_text_body</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.Connect.TitleXl">
+        <item name="android:textSize">@dimen/connect_text_headline</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="TextAppearance.Connect.TitleM">
+        <item name="android:textSize">@dimen/connect_text_title</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.0094</item>
+    </style>
+
+    <style name="TextAppearance.Connect.TitleS">
+        <item name="android:textSize">@dimen/connect_text_body</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.0071</item>
+    </style>
+
+    <style name="TextAppearance.Connect.LabelM">
+        <item name="android:textSize">@dimen/connect_text_caption</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.0417</item>
+    </style>
+
+    <style name="TextAppearance.Connect.LabelS">
+        <item name="android:textSize">@dimen/connect_text_label</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.0455</item>
+    </style>
+
+    <style name="TextAppearance.Connect.BodyLg">
+        <item name="android:textSize">@dimen/connect_text_title</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.0313</item>
+    </style>
+
+    <style name="TextAppearance.Connect.BodyM">
+        <item name="android:textSize">@dimen/connect_text_body</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.0179</item>
+    </style>
+
+    <style name="TextAppearance.Connect.BodyS">
+        <item name="android:textSize">@dimen/connect_text_caption</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.0333</item>
+    </style>
+
+    <style name="TextAppearance.Connect.BodyXs">
+        <item name="android:textSize">@dimen/connect_text_label</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.0364</item>
+    </style>
+
+    <!-- Apply these with style="..."; they add Figma line height on top of the
+         matching text appearance. app:lineHeight is resolved against the real font
+         at runtime, so a font change needs no recalculation. -->
+    <style name="TextStyle.Connect.TitleXl" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.TitleXl</item>
+        <item name="lineHeight">28sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.TitleM" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.TitleM</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.TitleS" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.TitleS</item>
+        <item name="lineHeight">20sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.LabelM" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.LabelM</item>
+        <item name="lineHeight">16sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.LabelS" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.LabelS</item>
+        <item name="lineHeight">16sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.BodyLg" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.BodyLg</item>
+        <item name="lineHeight">24sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.BodyM" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.BodyM</item>
+        <item name="lineHeight">20sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.BodyS" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.BodyS</item>
+        <item name="lineHeight">16sp</item>
+    </style>
+
+    <style name="TextStyle.Connect.BodyXs" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.Connect.BodyXs</item>
+        <item name="lineHeight">16sp</item>
+    </style>
+
     <style name="Widget.CommCare.SemiCircleProgressBar" parent="">
-        <item name="progressColor">@color/connect_dark_blue_color</item>
-        <item name="trackColor">@color/connect_light_grey</item>
-        <item name="valueTextColor">@color/connect_dark_blue_color</item>
-        <item name="descriptionTextColor">@color/connect_text_color</item>
+        <item name="progressColor">?attr/colorPrimary</item>
+        <item name="trackColor">?attr/connectOutlineVariant</item>
+        <item name="valueTextColor">?attr/colorPrimary</item>
+        <item name="descriptionTextColor">?attr/colorOnSurface</item>
     </style>
 
     <style name="Widget.CommCare.ConnectProgressCard" parent="">
-        <item name="contentPrimaryColor">@color/connect_text_color</item>
-        <item name="contentAccentColor">@color/connect_dark_blue_color</item>
-        <item name="contentDisabledColor">@color/connect_grey</item>
+        <item name="contentPrimaryColor">?attr/colorOnSurface</item>
+        <item name="contentAccentColor">?attr/colorPrimary</item>
+        <item name="contentDisabledColor">?attr/connectOutline</item>
     </style>
 
     <style name="Widget.CommCare.ConnectSuccessFailureCard" parent="">
         <item name="cardCornerRadius">@dimen/connect_radius_card</item>
         <item name="cardElevation">6dp</item>
-        <item name="successBackgroundColor">@color/connect_light_green</item>
-        <item name="successAccentColor">@color/connect_green</item>
+        <item name="successBackgroundColor">?attr/connectStatusPositiveContainer</item>
+        <item name="successAccentColor">?attr/connectStatusPositive</item>
         <item name="failureBackgroundColor">@color/pale_coral</item>
         <item name="failureAccentColor">@color/connect_red</item>
     </style>
@@ -332,12 +452,12 @@
     </style>
 
     <style name="Widget.CommCare.ConnectSyncStatusCard" parent="Widget.MaterialComponents.CardView">
-        <item name="syncOkBadgeColor">@color/connect_light_green</item>
-        <item name="syncOkIconColor">@color/connect_green</item>
-        <item name="syncOkStrokeColor">@color/connect_light_grey</item>
+        <item name="syncOkBadgeColor">?attr/connectStatusPositiveContainer</item>
+        <item name="syncOkIconColor">?attr/connectStatusPositive</item>
+        <item name="syncOkStrokeColor">?attr/connectOutlineVariant</item>
         <item name="syncWarningBadgeColor">@color/pale_buttery_cream</item>
         <item name="syncWarningIconColor">@color/burnt_amber</item>
-        <item name="syncWarningStrokeColor">@color/connect_light_grey</item>
+        <item name="syncWarningStrokeColor">?attr/connectOutlineVariant</item>
         <item name="syncOkIcon">@drawable/check_update</item>
         <item name="syncWarningIcon">@drawable/ic_connect_directory_sync</item>
     </style>
