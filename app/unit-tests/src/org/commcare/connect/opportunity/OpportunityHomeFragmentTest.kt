@@ -87,6 +87,48 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
 
         navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
         assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(1, page.childFragmentManager.fragments.size)
+    }
+
+    @Test
+    fun `a phase change while the page is stopped waits for the next resume`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        val page = openPage()
+
+        activity.runOnUiThread { activityController.pause().stop() }
+        ShadowLooper.idleMainLooper()
+
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        activity.runOnUiThread { page.onPhaseChanged() }
+        ShadowLooper.idleMainLooper()
+
+        activity.runOnUiThread { activityController.start().resume() }
+        ShadowLooper.idleMainLooper()
+
+        navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+    }
+
+    @Test
+    fun `returning from a sub-destination restores the surface`() {
+        job.status = ConnectJobRecord.STATUS_DELIVERING
+        val page = openPage()
+
+        activity.runOnUiThread {
+            page.navigateFromPage(
+                OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
+                    "unit-1",
+                ),
+            )
+        }
+        ShadowLooper.idleMainLooper()
+
+        activity.runOnUiThread { navController.popBackStack() }
+        ShadowLooper.idleMainLooper()
+
+        val deliveryFragments =
+            page.childFragmentManager.fragments.filterIsInstance<ConnectDeliveryHomeFragment>()
+        assertEquals(1, deliveryFragments.size)
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
     }
 
     @Test

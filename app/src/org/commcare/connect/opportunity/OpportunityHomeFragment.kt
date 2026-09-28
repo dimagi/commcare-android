@@ -63,11 +63,18 @@ class OpportunityHomeFragment :
             .commit()
     }
 
+    /** Ignored while the page cannot swap surfaces; the next resume re-resolves instead. */
     override fun onPhaseChanged() {
+        if (view == null || childFragmentManager.isStateSaved) {
+            return
+        }
         stateController.reResolveState()
     }
 
     override fun navigateFromPage(directions: NavDirections) {
+        if (!isAdded) {
+            return
+        }
         val navController = findNavController()
         if (navController.currentDestination?.id != R.id.opportunity_home_fragment) {
             return
