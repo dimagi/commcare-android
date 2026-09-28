@@ -133,7 +133,7 @@ public class ConnectJobDetailBottomSheetDialogFragment extends BottomSheetDialog
                 R.drawable.ic_disabled_learn
         );
 
-        boolean reviewEnabled = job.passedAssessment();
+        boolean reviewEnabled = job.isLearningComplete();
         setProgressIconState(
                 binding.includeJobProgress.pbReview,
                 binding.includeJobProgress.ivReview,

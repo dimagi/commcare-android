@@ -2,15 +2,16 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="android.widget.LinearLayout">
+    tools:parentTag="android.widget.LinearLayout"
+    tools:theme="@style/ConnectTheme">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/progress_card_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="@color/white"
+        app:cardBackgroundColor="?attr/colorSurface"
         app:cardCornerRadius="@dimen/connect_radius_card"
-        app:cardElevation="0dp">
+        app:cardElevation="@dimen/connect_info_card_elevation">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,11 +21,10 @@
 
             <TextView
                 android:id="@+id/progress_card_title"
+                style="@style/TextStyle.Connect.TitleS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/connect_text_color"
-                android:textSize="@dimen/connect_text_body"
-                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
                 android:visibility="gone"
                 tools:text="Delivery Progress"
                 tools:visibility="visible" />
@@ -51,22 +51,22 @@
 
                 <TextView
                     android:id="@+id/progress_card_bar_label"
+                    style="@style/TextStyle.Connect.BodyLg"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/connect_text_color"
-                    android:textSize="@dimen/connect_text_body"
+                    android:textColor="?attr/colorOnSurface"
                     android:visibility="gone"
                     tools:text="Learning Progress"
                     tools:visibility="visible" />
 
                 <TextView
                     android:id="@+id/progress_card_bar_count"
+                    style="@style/TextStyle.Connect.TitleXl"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/connect_space_sm"
-                    android:textColor="@color/connect_dark_blue_color"
-                    android:textSize="@dimen/connect_text_metric"
+                    android:textColor="?attr/colorPrimary"
                     android:visibility="gone"
                     tools:text="2 of 5"
                     tools:visibility="visible" />
@@ -81,11 +81,11 @@
 
             <TextView
                 android:id="@+id/progress_card_bar_caption"
+                style="@style/TextStyle.Connect.LabelS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_xs"
-                android:textColor="@color/connect_dark_blue_color"
-                android:textSize="@dimen/connect_text_caption"
+                android:textColor="?attr/colorPrimary"
                 android:visibility="gone"
                 tools:text="You're almost there!"
                 tools:visibility="visible" />
@@ -105,9 +105,9 @@
         android:layout_marginTop="@dimen/connect_progress_card_info_overlap"
         android:translationZ="-1dp"
         android:visibility="gone"
-        app:cardBackgroundColor="@color/connect_dark_blue_color"
+        app:cardBackgroundColor="?attr/colorPrimary"
         app:cardCornerRadius="@dimen/connect_radius_card"
-        app:cardElevation="0dp"
+        app:cardElevation="@dimen/connect_info_card_elevation"
         tools:visibility="visible">
 
         <LinearLayout
@@ -132,11 +132,11 @@
 
             <TextView
                 android:id="@+id/progress_card_info_text"
+                style="@style/TextStyle.Connect.TitleS"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/white"
-                android:textSize="@dimen/connect_text_body"
+                android:textColor="?attr/colorOnPrimary"
                 tools:text="Complete assigned tasks to continue delivering services" />
 
             <com.google.android.material.button.MaterialButton
@@ -146,7 +146,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/connect_space_sm"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
+                android:textAppearance="@style/TextAppearance.Connect.TitleS"
+                android:textColor="?attr/colorOnPrimary"
                 android:visibility="gone"
                 tools:text="More Info"
                 tools:visibility="visible" />

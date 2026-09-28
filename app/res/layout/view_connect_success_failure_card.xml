@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp">
+    android:padding="@dimen/connect_space_lg"
+    tools:theme="@style/ConnectTheme">
 
     <ImageView
         android:id="@+id/success_failure_card_icon"
@@ -18,17 +19,17 @@
 
     <TextView
         android:id="@+id/success_failure_card_text"
+        style="@style/TextStyle.Connect.BodyM"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginEnd="12dp"
-        android:textSize="14sp"
+        android:layout_marginStart="@dimen/connect_space_md"
+        android:layout_marginEnd="@dimen/connect_space_md"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/success_failure_card_close"
         app:layout_constraintStart_toEndOf="@id/success_failure_card_icon"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="All required tasks have been completed."
-        tools:textColor="@color/connect_green" />
+        tools:textColor="?attr/connectStatusPositive" />
 
     <ImageView
         android:id="@+id/success_failure_card_close"

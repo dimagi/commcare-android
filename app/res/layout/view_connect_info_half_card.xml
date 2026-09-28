@@ -6,15 +6,16 @@
     android:layout_height="wrap_content"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:padding="@dimen/connect_space_lg">
+    android:padding="@dimen/connect_space_lg"
+    tools:theme="@style/ConnectTheme">
 
     <TextView
         android:id="@+id/info_card_value_text"
+        style="@style/TextStyle.Connect.TitleXl"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/connect_space_sm"
-        android:textColor="@color/connect_dark_blue_color"
-        android:textSize="@dimen/connect_text_headline"
+        android:textColor="?attr/colorPrimary"
         app:layout_constraintEnd_toStartOf="@id/info_card_icon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -34,11 +35,11 @@
 
     <TextView
         android:id="@+id/info_card_title_text"
+        style="@style/TextStyle.Connect.BodyM"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/connect_space_sm"
-        android:textColor="@color/connect_text_color"
-        android:textSize="@dimen/connect_text_body"
+        android:textColor="?attr/colorOnSurface"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_card_value_text"
@@ -46,11 +47,11 @@
 
     <TextView
         android:id="@+id/info_card_subtitle_text"
+        style="@style/TextStyle.Connect.LabelS"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/connect_space_xs"
-        android:textColor="@color/connect_grey"
-        android:textSize="@dimen/connect_text_caption"
+        android:textColor="?attr/connectOutline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/info_card_title_text"
