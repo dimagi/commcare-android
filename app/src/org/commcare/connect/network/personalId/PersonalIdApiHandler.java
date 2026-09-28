@@ -30,6 +30,7 @@ import org.commcare.connect.network.personalId.parser.RetrieveHqTokenResponsePar
 import org.commcare.connect.network.personalId.parser.RetrieveNotificationsResponseParser;
 import org.commcare.connect.network.personalId.parser.RetrieveWorkHistoryResponseParser;
 import org.commcare.connect.network.personalId.parser.StartConfigurationResponseParser;
+import org.commcare.core.network.AuthInfo;
 import org.commcare.interfaces.base.BaseConnectView;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
@@ -245,10 +246,11 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     public void validateFirebaseIdToken(
             Activity activity,
             String firebaseIdToken,
-            PersonalIdSessionData sessionData
+            AuthInfo authInfo,
+            @Nullable PersonalIdSessionData sessionData
     ) {
         ApiPersonalId.validateFirebaseIdToken(
-                sessionData.getToken(),
+                authInfo,
                 activity,
                 firebaseIdToken,
                 createCallback(sessionData, null)
@@ -350,18 +352,23 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void sendPhoneOtp(Activity activity, PersonalIdSessionData sessionData) {
+    public void sendPhoneOtp(Activity activity, AuthInfo authInfo, @Nullable PersonalIdSessionData sessionData) {
         ApiPersonalId.sendPhoneOtp(
                 activity,
-                sessionData.getToken(),
+                authInfo,
                 createCallback(sessionData, null)
         );
     }
 
-    public void validatePhoneOtp(Activity activity, String otp, PersonalIdSessionData sessionData) {
+    public void validatePhoneOtp(
+            Activity activity,
+            String otp,
+            AuthInfo authInfo,
+            @Nullable PersonalIdSessionData sessionData
+    ) {
         ApiPersonalId.validatePhoneOtp(
                 activity,
-                sessionData.getToken(),
+                authInfo,
                 otp,
                 createCallback(sessionData, null)
         );

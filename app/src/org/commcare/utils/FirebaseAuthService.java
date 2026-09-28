@@ -16,10 +16,12 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.network.personalId.PersonalIdApiHandler;
+import org.commcare.core.network.AuthInfo;
 import org.javarosa.core.services.Logger;
 
 public class FirebaseAuthService implements OtpAuthService {
@@ -27,15 +29,19 @@ public class FirebaseAuthService implements OtpAuthService {
     private final FirebaseAuth firebaseAuth;
     private final OtpVerificationCallback callback;
     private final Activity activity;
+    private final AuthInfo authInfo;
+    @Nullable
     private final PersonalIdSessionData personalIdSessionData;
     private PhoneAuthOptions.Builder optionsBuilder;
     private String verificationId;
 
-    public FirebaseAuthService(@NonNull Activity activity, @NonNull PersonalIdSessionData sessionData,
+    public FirebaseAuthService(@NonNull Activity activity, @NonNull AuthInfo authInfo,
+            @Nullable PersonalIdSessionData sessionData,
             @NonNull OtpVerificationCallback callback) {
         this.callback = callback;
         this.firebaseAuth = FirebaseAuth.getInstance();
         this.activity = activity;
+        this.authInfo = authInfo;
         this.personalIdSessionData = sessionData;
 
         PhoneAuthProvider.OnVerificationStateChangedCallbacks verificationCallbacks =
@@ -95,7 +101,7 @@ public class FirebaseAuthService implements OtpAuthService {
                 callback.onPersonalIdApiFailure(failureCode, t);
             }
 
-        }.validateFirebaseIdToken(activity, code, personalIdSessionData);
+        }.validateFirebaseIdToken(activity, code, authInfo, personalIdSessionData);
     }
 
     private void firebaseAuthenticator(PhoneAuthCredential credential) {

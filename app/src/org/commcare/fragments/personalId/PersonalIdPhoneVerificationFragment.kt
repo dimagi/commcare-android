@@ -26,6 +26,7 @@ import org.commcare.connect.SMSBroadcastReceiver
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.base.RateLimitedException
+import org.commcare.core.network.AuthInfo
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
@@ -511,25 +512,24 @@ class PersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
      *         the session's own SMS method may already be PersonalID.
      */
     private fun setupOtpManager(useOtpFallback: Boolean): Boolean {
-        // Check if using the OTP fallback is allowed for the current user.
-        val allowedToFallback = personalIdSessionData.otpFallback
+        val authInfo = AuthInfo.TokenAuth(personalIdSessionData.token)
 
         // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase.
-        if (useOtpFallback && allowedToFallback) {
-            otpManager = OtpManager(requireActivity(), personalIdSessionData, otpCallback, SMS_METHOD_PERSONAL_ID)
+        if (useOtpFallback && personalIdSessionData.otpFallback) {
+            otpManager = OtpManager(requireActivity(), authInfo, personalIdSessionData, otpCallback, SMS_METHOD_PERSONAL_ID)
             lastOtpMethod = SMS_METHOD_PERSONAL_ID
             return true
         }
 
-        // This constructor derives the method from the session data, which may itself be
-        // PersonalID, so track whatever it resolved rather than assuming Firebase.
-        otpManager = OtpManager(requireActivity(), personalIdSessionData, otpCallback)
-        lastOtpMethod =
+        // The session's own SMS method may already be PersonalID; anything else means Firebase.
+        val method =
             if (SMS_METHOD_PERSONAL_ID.equals(personalIdSessionData.smsMethod, ignoreCase = true)) {
                 SMS_METHOD_PERSONAL_ID
             } else {
                 SMS_METHOD_FIREBASE
             }
+        otpManager = OtpManager(requireActivity(), authInfo, personalIdSessionData, otpCallback, method)
+        lastOtpMethod = method
         return false
     }
 
