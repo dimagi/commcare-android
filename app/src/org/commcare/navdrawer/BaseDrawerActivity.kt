@@ -89,7 +89,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
             NavItemType.COMMCARE_APPS -> {
                 closeDrawer()
-                // Screens that aren't sections (Login, Setup) already are the CommCare Apps landing.
+                // Only Login and Setup reach here without a section. They already are the CommCare Apps
+                // screen, so returning to login would just relaunch Dispatch and rebuild the same screen.
                 if (currentDrawerSection != null) {
                     AppLogoutHelper.promptToReturnToLogin(
                         this,
