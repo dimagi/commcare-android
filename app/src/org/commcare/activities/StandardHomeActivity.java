@@ -26,9 +26,9 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ApkDependenciesUtils;
+import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
@@ -247,7 +247,11 @@ public class StandardHomeActivity
         switch (itemType) {
             case COMMCARE_APPS -> {
                 closeDrawer();
-                promptToReturnToLogin();
+                AppLogoutHelper.promptToReturnToLogin(
+                        this,
+                        R.string.nav_drawer_switch_app_dialog_title,
+                        R.string.nav_drawer_switch_app_dialog_message
+                );
             }
             case OPPORTUNITIES -> {
                 if(personalIdManagedLogin) {
@@ -274,38 +278,6 @@ public class StandardHomeActivity
                 }
             }
         }
-    }
-
-    private void promptToReturnToLogin() {
-        StandardAlertDialog dialog = new StandardAlertDialog(
-                getString(R.string.nav_drawer_switch_app_dialog_title),
-                getString(R.string.nav_drawer_switch_app_dialog_message)
-        );
-        dialog.setPositiveButton(
-                getString(R.string.nav_drawer_switch_app_dialog_confirm),
-                (d, which) -> {
-                    dismissAlertDialog();
-                    returnToLogin();
-                }
-        );
-        dialog.setNegativeButton(
-                getString(R.string.nav_drawer_switch_app_dialog_cancel),
-                (d, which) -> dismissAlertDialog()
-        );
-        showAlertDialog(dialog);
-    }
-
-    // Unlike HomeScreenBaseActivity.userTriggeredLogout(), goes through Dispatch so this lands on
-    // the login screen even when Home was launched from Connect and nothing would read the result.
-    private void returnToLogin() {
-        if (isBlockedByActiveSync()) {
-            return;
-        }
-        CommCareApplication.instance().closeUserSession();
-        Intent intent = new Intent(this, DispatchActivity.class);
-        intent.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
-        startActivity(intent);
-        finish();
     }
 
     @Override

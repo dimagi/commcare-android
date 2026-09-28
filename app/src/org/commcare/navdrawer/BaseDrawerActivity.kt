@@ -1,14 +1,9 @@
 package org.commcare.navdrawer
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
-import org.commcare.CommCareApplication
 import org.commcare.activities.CommCareActivity
-import org.commcare.activities.DispatchActivity
-import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
@@ -20,10 +15,8 @@ import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
 import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.pn.helper.NotificationBroadcastHelper
-import org.commcare.services.CommCareSessionService
-import org.commcare.views.dialogs.StandardAlertDialog
+import org.commcare.utils.AppLogoutHelper
 import org.javarosa.core.services.Logger
-import org.javarosa.core.services.locale.Localization
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private var drawerController: BaseDrawerController? = null
@@ -98,7 +91,11 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 closeDrawer()
                 // Screens that aren't sections (Login, Setup) already are the CommCare Apps landing.
                 if (currentDrawerSection != null) {
-                    promptToReturnToLogin()
+                    AppLogoutHelper.promptToReturnToLogin(
+                        this,
+                        R.string.nav_drawer_switch_app_from_section_dialog_title,
+                        R.string.nav_drawer_switch_app_from_section_dialog_message,
+                    )
                 }
             }
 
@@ -149,52 +146,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 }
             }
         }
-
-    private fun promptToReturnToLogin() {
-        if (!CommCareApplication.isSessionActive()) {
-            returnToLogin()
-            return
-        }
-
-        val dialog =
-            StandardAlertDialog(
-                getString(R.string.nav_drawer_switch_app_from_section_dialog_title),
-                getString(R.string.nav_drawer_switch_app_from_section_dialog_message),
-            )
-        dialog.setPositiveButton(getString(R.string.nav_drawer_switch_app_dialog_confirm)) { _, _ ->
-            dismissAlertDialog()
-            if (!isBlockedByActiveSync()) {
-                CommCareApplication.instance().closeUserSession()
-                returnToLogin()
-            }
-        }
-        dialog.setNegativeButton(getString(R.string.nav_drawer_switch_app_dialog_cancel)) { _, _ ->
-            dismissAlertDialog()
-        }
-        showAlertDialog(dialog)
-    }
-
-    private fun returnToLogin() {
-        val intent =
-            Intent(this, DispatchActivity::class.java)
-                .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivity(intent)
-        finish()
-    }
-
-    protected fun isBlockedByActiveSync(): Boolean {
-        if (CommCareSessionService.sessionAliveLock.isLocked) {
-            Toast
-                .makeText(
-                    this,
-                    Localization.get("background.sync.logout.attempt.during.sync"),
-                    Toast.LENGTH_LONG,
-                ).show()
-            return true
-        }
-        return false
-    }
 
     protected fun closeDrawer() {
         if (drawerController == null) {
