@@ -22,6 +22,7 @@ import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
+import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
 import org.commcare.utils.NotificationUtil.getNotificationIcon
@@ -166,6 +167,7 @@ class BaseDrawerController(
                     },
             )
         }
+        NotificationBroadcastHelper.registerForNotifications(activity, activity) { refreshDrawerContent() }
     }
 
     fun onPhotoUpdateSuccess(photoBase64: String) {
