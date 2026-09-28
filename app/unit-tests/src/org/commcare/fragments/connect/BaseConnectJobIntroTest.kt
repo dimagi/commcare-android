@@ -12,8 +12,13 @@ import io.mockk.unmockkAll
 import kotlinx.coroutines.flow.emptyFlow
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -24,6 +29,7 @@ import org.junit.Before
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
+import java.util.Date
 
 /**
  * Boots a real [ConnectActivity] so [ConnectJobFragment] can read the active job from it, and
@@ -89,17 +95,39 @@ abstract class BaseConnectJobIntroTest {
     }
 
     /**
-     * Drives the real nav controller from the jobs-list start destination to the intro fragment
-     * (which reads the seeded active job) and returns the hosted fragment instance.
+     * Drives the real nav controller from the jobs-list start destination to Opportunity Home, whose
+     * state resolves to the intro surface for the seeded job, and returns that surface.
      */
     protected fun navigateToIntroFragment(): ConnectJobIntroFragment {
         activity.runOnUiThread {
-            navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_job_intro_fragment,
-            )
+            navController.navigate(R.id.opportunity_home_fragment)
         }
         ShadowLooper.idleMainLooper()
-        return navHostFragment.childFragmentManager.primaryNavigationFragment as ConnectJobIntroFragment
+        return navHostFragment.opportunityHomeSurface()
+    }
+
+    /**
+     * Writes a real user through the Connect storage layer so [ConnectUserDatabaseUtil.getUser]
+     * returns it. [ConnectDatabaseHelper.dbExists] has to be stubbed because it probes for the
+     * on-disk connect db, which never exists under the in-memory test open helper.
+     */
+    protected fun seedConnectUser() {
+        mockkStatic(ConnectDatabaseHelper::class)
+        every { ConnectDatabaseHelper.dbExists() } returns true
+        ConnectUserDatabaseUtil.storeUser(
+            ConnectUserRecord(
+                "1234567890",
+                "test-user-id",
+                "password",
+                "Test User",
+                "1234",
+                Date(),
+                null,
+                false,
+                PersonalIdSessionData.PIN,
+                true,
+            ),
+        )
     }
 
     protected fun showBottomSheet(fragment: androidx.fragment.app.DialogFragment) {

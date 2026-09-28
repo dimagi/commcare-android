@@ -5,13 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import org.commcare.AppUtils
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.opportunity.OpportunityNavigator
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
@@ -67,15 +66,20 @@ class ConnectLearningProgressFragment :
         binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
     }
 
+    /**
+     * The repository hands back a fresh instance on every sync, and Opportunity Home resolves which
+     * surface to show from the record its host holds, so a refreshed job has to be published there
+     * and not just kept here - otherwise claiming the opportunity moves a copy the page never sees.
+     */
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
             { cached ->
-                job = cached
+                setActiveJob(cached)
                 updateLearningUI()
             },
             { success ->
-                job = success
+                setActiveJob(success)
                 updateLearningUI()
             },
         )
@@ -118,8 +122,14 @@ class ConnectLearningProgressFragment :
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
                         if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
-                            Navigation.findNavController(requireView()).navigate(navigateToDeliveryProgress())
+                            // The opportunity just moved from learning to delivery; the page showing
+                            // this surface re-resolves to the delivery one.
+                            OpportunityNavigator
+                                .hostOf(this@ConnectLearningProgressFragment)
+                                ?.onPhaseChanged()
                         } else {
+                            // Installs on this screen and opens the delivery app when it lands; the
+                            // delivery surface is resolved on the way back.
                             launchApp(isLearning = false)
                         }
                     }
@@ -146,10 +156,6 @@ class ConnectLearningProgressFragment :
         } else {
             PersonalIdOrConnectApiErrorHandler.handle(requireContext(), error.errorCode, error.throwable)
         }
-
-    private fun navigateToDeliveryProgress(): NavDirections =
-        ConnectLearningProgressFragmentDirections
-            .actionConnectJobLearningProgressFragmentToConnectDeliveryHomeFragment()
 
     override fun onAppInstallStateChanged(
         state: AppInstallState,

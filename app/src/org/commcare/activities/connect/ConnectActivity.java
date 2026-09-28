@@ -128,7 +128,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private int getStartDestinationId(Bundle startArgs) {
         int startDestinationId = R.id.connect_jobs_list_fragment;
         if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
-            startDestinationId = handleInfoRedirect(startArgs);
+            startDestinationId = handleInfoRedirect();
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             startDestinationId = handleSecureRedirect(startArgs);
         }
@@ -143,14 +143,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
     }
 
-    private int handleInfoRedirect(Bundle startArgs) {
+    private int handleInfoRedirect() {
         Objects.requireNonNull(job);
-
-        startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
-
-        return job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
-                ? R.id.connect_delivery_home_fragment
-                : R.id.connect_job_learning_progress_fragment;
+        return R.id.opportunity_home_fragment;
     }
 
     private int handleSecureRedirect(Bundle startArgs) {

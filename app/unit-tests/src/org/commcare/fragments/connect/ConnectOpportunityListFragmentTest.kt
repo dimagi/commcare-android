@@ -61,7 +61,7 @@ import java.util.Locale
  */
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
 @RunWith(AndroidJUnit4::class)
-class ConnectJobsListsFragmentTest {
+class ConnectOpportunityListFragmentTest {
     private lateinit var activity: ConnectActivity
     private lateinit var navHostFragment: NavHostFragment
     private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
@@ -232,12 +232,34 @@ class ConnectJobsListsFragmentTest {
 
     // ---------- Card ----------
 
+    /**
+     * Every row goes to the same place now: Opportunity Home resolves the surface from the job's
+     * phase, so the list no longer decides between the intro, learn progress and delivery home.
+     */
     @Test
-    fun `tapping a new opportunity opens the opportunity intro`() {
-        activity.runOnUiThread { getRowForJobUuid(NEW_UUID).performClick() }
+    fun `tapping a new opportunity opens opportunity home`() = assertRowOpensOpportunityHome(NEW_UUID)
+
+    @Test
+    fun `tapping a learning opportunity opens opportunity home`() = assertRowOpensOpportunityHome(LEARNING_UUID)
+
+    @Test
+    fun `tapping a delivering opportunity opens opportunity home`() = assertRowOpensOpportunityHome(EXPIRING_SOON_UUID)
+
+    /**
+     * Taps [uuid]'s row, checks where it landed, then returns to the list.
+     *
+     * Going back matters: Opportunity Home resolves a surface that fetches for itself, and leaving
+     * it mounted lets that work run on past the database teardown in [tearDown].
+     */
+    private fun assertRowOpensOpportunityHome(uuid: String) {
+        activity.runOnUiThread { getRowForJobUuid(uuid).performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_job_intro_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(uuid, activity.activeJob?.jobUUID)
+
+        activity.runOnUiThread { navController.popBackStack() }
+        ShadowLooper.idleMainLooper()
     }
 
     @Test

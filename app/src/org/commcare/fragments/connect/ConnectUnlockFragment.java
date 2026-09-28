@@ -2,7 +2,6 @@ package org.commcare.fragments.connect;
 
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,7 +35,6 @@ import org.javarosa.core.services.Logger;
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
-    private boolean buttons = false;
     private boolean fromOppInviteLink = false;
     private String requestedOpportunityUuid = null;
 
@@ -56,7 +54,7 @@ public class ConnectUnlockFragment extends Fragment {
 
         if(getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
-            buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
+
             fromOppInviteLink = getArguments().getBoolean(
                     ConnectConstants.FROM_SMS_INVITE_LINK, false);
             requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
@@ -143,21 +141,19 @@ public class ConnectUnlockFragment extends Fragment {
     private void setFragmentRedirection() {
         Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
         Bundle bundle = new Bundle();
-        bundle.putBoolean(SHOW_LAUNCH_BUTTON, buttons);
 
+        // Every opportunity destination is now the same page: Opportunity Home resolves the summary,
+        // learn and delivery surfaces from the job's own phase, so a link that names one of them only
+        // has to say which tab it wants once it gets there.
         int fragmentId;
-        if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)) {
-            fragmentId = R.id.connect_job_intro_fragment;
-        } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)) {
-            fragmentId = R.id.connect_job_learning_progress_fragment;
-        } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
-            fragmentId = R.id.connect_delivery_home_fragment;
-            // Set the tab position in the bundle based on the redirection action
+        if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)
+                || redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)
+                || redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
+            fragmentId = R.id.opportunity_home_fragment;
             bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
                     ConnectDeliveryHomeFragment.TAB_DASHBOARD);
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
-            fragmentId = R.id.connect_delivery_home_fragment;
-            // Set the tab position in the bundle based on the redirection action
+            fragmentId = R.id.opportunity_home_fragment;
             bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
                     ConnectDeliveryHomeFragment.TAB_PAYMENT);
         } else {

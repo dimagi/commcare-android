@@ -6,13 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.NavDirections
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.opportunity.OpportunityHomeFragmentDirections
+import org.commcare.connect.opportunity.OpportunityNavigator
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.ConnectJobIntroViewModel
@@ -29,12 +30,9 @@ import java.text.DateFormat
 class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
     private lateinit var viewModel: ConnectJobIntroViewModel
 
-    /** Learning has started by the time the app launches, so back belongs on learn progress. */
+    /** Learning has started by the time the app launches, so the page moves on to learn progress. */
     override fun onAppLaunched() {
-        findNavController().navigate(
-            ConnectJobIntroFragmentDirections
-                .actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(),
-        )
+        OpportunityNavigator.hostOf(this)?.onPhaseChanged()
     }
 
     override fun onCreateView(
@@ -148,9 +146,9 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                 totalHours,
             )
         binding.cardLearnModules.onCardClick = {
-            NavHostFragment.findNavController(this).navigate(
-                ConnectJobIntroFragmentDirections
-                    .actionConnectJobIntroFragmentToConnectLearnModulesBottomSheet(),
+            navigateFromPage(
+                OpportunityHomeFragmentDirections
+                    .actionOpportunityHomeFragmentToConnectLearnModulesBottomSheet(),
             )
         }
     }
@@ -197,14 +195,22 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         isCancellable: Boolean,
         buttonText: Int,
     ) {
-        val navDirections =
-            ConnectJobIntroFragmentDirections
-                .actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
+        navigateFromPage(
+            OpportunityHomeFragmentDirections
+                .actionOpportunityHomeFragmentToPersonalidMessageDisplayDialog(
                     title,
                     message,
                     getString(buttonText),
                     null,
-                ).setIsCancellable(isCancellable)
-        NavHostFragment.findNavController(this).navigate(navDirections)
+                ).setIsCancellable(isCancellable),
+        )
+    }
+
+    /**
+     * The actions leave `opportunity_home_fragment`, which is the destination this surface is a
+     * child of; the page runs them so the already-navigated-away guard stays in one place.
+     */
+    private fun navigateFromPage(directions: NavDirections) {
+        OpportunityNavigator.hostOf(this)?.navigateFromPage(directions)
     }
 }

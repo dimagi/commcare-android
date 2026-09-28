@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.view.View
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
@@ -17,6 +18,7 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -34,8 +36,13 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunity.OpportunityHomeFragment
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectRequestManager
+import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
+import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.coroutines.DispatcherProvider
@@ -44,6 +51,7 @@ import org.commcare.views.connect.ConnectSyncStatusCard
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -166,7 +174,8 @@ class ConnectLearningProgressFragmentTest {
 
         verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
         assertEquals(
-            R.id.connect_job_learning_progress_fragment,
+            "The install runs on the page, which does not navigate away",
+            R.id.opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertCtaBarShowsDownload(fragment, R.id.learnProgressView, R.string.connect_downloading_learn)
@@ -190,14 +199,15 @@ class ConnectLearningProgressFragmentTest {
         )
         verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
         assertEquals(
-            R.id.connect_job_learning_progress_fragment,
+            "The install runs on the page, which does not navigate away",
+            R.id.opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertCtaBarShowsDownload(fragment, R.id.learnCompleteView, R.string.connect_downloading_delivery)
     }
 
     @Test
-    fun `tapping the cta navigates to delivery home when the delivery app is installed`() {
+    fun `claiming swaps the page to the delivery surface when the delivery app is installed`() {
         every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
         val job = ConnectLearnJobTestData.job()
         val fragment = launch(job)
@@ -205,24 +215,47 @@ class ConnectLearningProgressFragmentTest {
         clickCta(fragment)
         respondToClaim(responseCode = 200)
 
-        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        // The claim moves the opportunity into delivery, which the page re-resolves in place rather
+        // than navigating to a delivery destination of its own.
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(ConnectJobRecord.STATUS_DELIVERING, job.status)
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
     }
 
     @Test
-    fun `an already claimed job skips the claim call and navigates straight on`() {
-        val job = ConnectLearnJobTestData.job()
-        job.status = ConnectJobRecord.STATUS_DELIVERING
-        val fragment = launch(job)
-        val requestsBefore = mockApi.server.requestCount
+    fun `a refreshed opportunity is published to the page, not kept on this screen`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        // The repository re-reads the record on every sync, so what a refresh hands back is never
+        // the instance the page is holding. Opportunity Home resolves its surface from the page's
+        // record, so a refresh kept on this screen leaves the page resolving a stale phase - and a
+        // claim applied to the screen's copy never reaches it.
+        val refreshed = ConnectLearnJobTestData.job()
+        refreshFrom(fragment, refreshed)
+
+        assertSame(
+            "the refreshed opportunity has to reach the page that resolves the surface",
+            refreshed,
+            activity.activeJob,
+        )
+    }
+
+    @Test
+    fun `coming back once the delivery app has installed shows the delivery surface`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        // A refresh lands first, as it does in the field, so the screen is working from the record
+        // the repository handed back rather than the one it was opened with.
+        refreshFrom(fragment, ConnectLearnJobTestData.job())
 
         clickCta(fragment)
+        respondToClaim(responseCode = 200)
 
-        assertEquals("No claim request should be sent", requestsBefore, mockApi.server.requestCount)
-        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
-        assertEquals(
-            R.id.connect_job_learning_progress_fragment,
-            navController.currentDestination?.id,
-        )
+        // The install finished, the worker went into the delivery app and came back out.
+        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
+        installViewModel().clear()
+        activity.runOnUiThread { opportunityPage().onPhaseChanged() }
+        ShadowLooper.idleMainLooper()
+
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
     }
 
     @Test
@@ -247,7 +280,8 @@ class ConnectLearningProgressFragmentTest {
         )
         assertTrue("CTA should be re-enabled after a failure", ctaButton.isEnabled)
         assertEquals(
-            R.id.connect_job_learning_progress_fragment,
+            "The install runs on the page, which does not navigate away",
+            R.id.opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
@@ -300,17 +334,50 @@ class ConnectLearningProgressFragmentTest {
         // seeded job state intact (the observer ignores DataState.Error updates to the job field).
         mockApi.server.enqueue(MockResponse().setResponseCode(400).setBody("{}"))
         activity.runOnUiThread {
-            navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_job_learning_progress_fragment,
-            )
+            navController.navigate(R.id.opportunity_home_fragment)
         }
         ShadowLooper.idleMainLooper()
         // getLearningProgress finishes on ConnectRequestManager's background scope, so the result
         // needs awaiting rather than a single drain; it also clears the request queue for the claim.
         mockApi.awaitRequest()
-        return navHostFragment.childFragmentManager.primaryNavigationFragment
-            as ConnectLearningProgressFragment
+        ShadowLooper.idleMainLooper()
+        return navHostFragment.opportunityHomeSurface()
     }
+
+    /** Drive one successful refresh emission carrying [refreshed], the way the repository does. */
+    private fun refreshFrom(
+        fragment: ConnectLearningProgressFragment,
+        refreshed: ConnectJobRecord,
+    ) {
+        val repository = mockk<ConnectRepository>(relaxed = true)
+        every { repository.getLearningProgress(any(), any(), any()) } returns
+            flowOf(DataState.Loading, DataState.Success(refreshed))
+        learningViewModel(fragment).repository = repository
+
+        activity.runOnUiThread { fragment.refresh(true) }
+        ShadowLooper.idleMainLooper()
+        // Hand the screen back the real repository, so anything it does next - claiming, above
+        // all - goes through the network stack the rest of this suite drives.
+        learningViewModel(fragment).repository = ConnectRepository.getInstance()
+    }
+
+    private fun opportunityPage(): OpportunityHomeFragment =
+        navHostFragment.childFragmentManager.fragments
+            .filterIsInstance<OpportunityHomeFragment>()
+            .first()
+
+    private fun installViewModel(): ConnectAppInstallViewModel =
+        ViewModelProvider(
+            activity,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
+        )[ConnectAppInstallViewModel::class.java]
+
+    /** The screen's own view model, so a test can swap the repository behind its refresh. */
+    private fun learningViewModel(fragment: ConnectLearningProgressFragment): ConnectLearningProgressViewModel =
+        ViewModelProvider(
+            fragment,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
+        )[ConnectLearningProgressViewModel::class.java]
 
     private fun clickCta(fragment: ConnectLearningProgressFragment) {
         val ctaButton = learnCompleteCta(fragment)

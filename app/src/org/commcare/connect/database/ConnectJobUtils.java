@@ -3,8 +3,6 @@ package org.commcare.connect.database;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN;
 import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
 
 import android.content.Context;
@@ -578,6 +576,16 @@ public class ConnectJobUtils {
         return !record.getIsLearning() || job.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
     }
 
+    /**
+     * Resolve a link that names an opportunity without saying where in it to go.
+     *
+     * The job's phase used to pick between the summary, learn and delivery screens. Those are
+     * surfaces of Opportunity Home now, resolved there from the same phase, so naming one here would
+     * only be answering the question twice. What the phase still decides is whether there is a
+     * payment to open, which is the one distinction that survives as a tab.
+     *
+     * An unrecognised status resolves to nothing, leaving the caller on the opportunities list.
+     */
     public static String resolveGenericOpportunityDestination(
             String currentAction,
             ConnectJobRecord job,
@@ -590,10 +598,9 @@ public class ConnectJobUtils {
         if (status == ConnectJobRecord.STATUS_DELIVERING) {
             return (paymentUuid != null && !paymentUuid.isEmpty())
                     ? CCC_DEST_PAYMENTS
-                    : CCC_DEST_DELIVERY_PROGRESS;
-        } else if (status == ConnectJobRecord.STATUS_LEARNING) {
-            return CCC_DEST_LEARN_PROGRESS;
-        } else if (status == ConnectJobRecord.STATUS_AVAILABLE
+                    : CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
+        } else if (status == ConnectJobRecord.STATUS_LEARNING
+                || status == ConnectJobRecord.STATUS_AVAILABLE
                 || status == ConnectJobRecord.STATUS_AVAILABLE_NEW) {
             return CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
         } else {
