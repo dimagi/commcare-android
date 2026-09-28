@@ -17,6 +17,7 @@ import org.commcare.DiskUtils;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.opportunity.OpportunityHomeFragment;
 import org.commcare.fragments.personalId.PersonalIdWorkflow;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -704,7 +705,7 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING, bundle);
     }
 
-    // logs screen view events when set to a navigation controller
+    /** Logs a screen view per destination, except Opportunity Home, which reports its own surfaces. */
     public static NavController.OnDestinationChangedListener getNavControllerPageChangeLoggingListener() {
         return (navController, navDestination, args) -> {
             String currentFragmentClassName = "UnknownDestination";
@@ -712,6 +713,9 @@ public class FirebaseAnalyticsUtil {
             if (destination instanceof FragmentNavigator.Destination) {
                 currentFragmentClassName =
                         ((FragmentNavigator.Destination)destination).getClassName();
+            }
+            if (OpportunityHomeFragment.class.getName().equals(currentFragmentClassName)) {
+                return;
             }
 
             CharSequence label = navDestination.getLabel();

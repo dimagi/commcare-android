@@ -249,10 +249,10 @@ class ConnectOpportunityListFragmentTest {
     fun `tapping a delivering opportunity opens opportunity home`() =
         assertRowOpensOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRING_SOON_UUID)
 
-    /** The expired fixture is still learning, so only the finished rule can resolve it to delivery. */
+    /** This fixture is still learning, so only the finished rule can resolve it to delivery. */
     @Test
     fun `tapping a finished opportunity opens the delivery surface`() =
-        assertRowOpensOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRED_UUID)
+        assertRowOpensOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRED_LEARNING_UUID)
 
     /**
      * Taps [uuid]'s row, checks where it landed, then returns to the list.
@@ -311,7 +311,14 @@ class ConnectOpportunityListFragmentTest {
                     ConnectJobRecord.STATUS_DELIVERING,
                     PAST_DATE,
                 ).apply { completedVisits = ConnectLearnJobTestData.MAX_VISITS },
-                opportunity(EXPIRED_UUID, 5, "Expired Opportunity", ConnectJobRecord.STATUS_LEARNING, PAST_DATE),
+                opportunity(EXPIRED_UUID, 5, "Expired Opportunity", ConnectJobRecord.STATUS_DELIVERING, PAST_DATE),
+                opportunity(
+                    EXPIRED_LEARNING_UUID,
+                    6,
+                    "Expired Learning Opportunity",
+                    ConnectJobRecord.STATUS_LEARNING,
+                    PAST_DATE,
+                ),
             )
         ConnectJobUtils.storeJobs(appContext, jobs, true)
     }
@@ -393,6 +400,7 @@ class ConnectOpportunityListFragmentTest {
         const val NEW_UUID = "job-uuid-new"
         const val COMPLETED_UUID = "job-uuid-completed"
         const val EXPIRED_UUID = "job-uuid-expired"
+        const val EXPIRED_LEARNING_UUID = "job-uuid-expired-learning"
 
         const val FUTURE_DATE = "2030-12-31"
         const val PAST_DATE = "2025-06-01"

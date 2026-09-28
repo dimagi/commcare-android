@@ -131,6 +131,67 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
     }
 
     @Test
+    fun `resuming the activity reports the current surface again`() {
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        openPage()
+
+        activity.runOnUiThread { activityController.pause().stop() }
+        ShadowLooper.idleMainLooper()
+        activity.runOnUiThread { activityController.start().resume() }
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 2) {
+            FirebaseAnalyticsUtil.reportScreenView(
+                "fragment_connect_learning_progress",
+                ConnectLearningProgressFragment::class.java.name,
+            )
+        }
+    }
+
+    @Test
+    fun `returning from a sub-destination reports the surface again`() {
+        job.status = ConnectJobRecord.STATUS_DELIVERING
+        openVisitsDetailAndReturn(openPage())
+
+        verify(exactly = 2) {
+            FirebaseAnalyticsUtil.reportScreenView(
+                "fragment_connect_delivery_home",
+                ConnectDeliveryHomeFragment::class.java.name,
+            )
+        }
+    }
+
+    @Test
+    fun `the page never reports itself as a screen`() {
+        job.status = ConnectJobRecord.STATUS_DELIVERING
+        openVisitsDetailAndReturn(openPage())
+        activity.runOnUiThread {
+            activityController
+                .pause()
+                .stop()
+                .start()
+                .resume()
+        }
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 0) { FirebaseAnalyticsUtil.reportScreenView("fragment_opportunity_home", any()) }
+        verify(exactly = 0) { FirebaseAnalyticsUtil.reportScreenView(any(), OpportunityHomeFragment::class.java.name) }
+    }
+
+    private fun openVisitsDetailAndReturn(page: OpportunityHomeFragment) {
+        activity.runOnUiThread {
+            page.navigateFromPage(
+                OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
+                    "unit-1",
+                ),
+            )
+        }
+        ShadowLooper.idleMainLooper()
+        activity.runOnUiThread { navController.popBackStack() }
+        ShadowLooper.idleMainLooper()
+    }
+
+    @Test
     fun `a phase change while the page is stopped waits for the next resume`() {
         job.status = ConnectJobRecord.STATUS_AVAILABLE
         val page = openPage()

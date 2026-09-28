@@ -14,6 +14,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
@@ -31,6 +32,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -84,6 +86,7 @@ class ConnectUnlockFragmentTest {
             firstArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
         every { repository.getDeliveryProgress(any(), any(), any()) } returns flowOf(DataState.Loading)
+        every { repository.getOpportunities(any(), any()) } returns emptyFlow()
         mockkObject(ConnectRepository.Companion)
         every { ConnectRepository.getInstance() } returns repository
 
@@ -125,10 +128,32 @@ class ConnectUnlockFragmentTest {
             ConnectDeliveryHomeFragment.TAB_PAYMENT,
         )
 
+    @Test
+    fun `an unrecognised action falls back to the opportunities list`() {
+        val navController = unlockWith("not_a_destination")
+
+        assertEquals(R.id.connect_jobs_list_fragment, navController.currentDestination?.id)
+        assertNull(navController.previousBackStackEntry)
+    }
+
     private fun assertUnlockOpensOpportunityHome(
         redirectAction: String,
         expectedTab: Int,
     ) {
+        val navController = unlockWith(redirectAction)
+
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(
+            expectedTab,
+            navController.currentBackStackEntry
+                ?.arguments
+                ?.getInt(ConnectDeliveryHomeFragment.TAB_POSITION, -1),
+        )
+        assertNull(navController.previousBackStackEntry)
+    }
+
+    /** Opens ConnectActivity on [redirectAction] and returns its nav controller once unlock has routed. */
+    private fun unlockWith(redirectAction: String): NavController {
         val intent =
             Intent(app, ConnectActivity::class.java).apply {
                 putExtra(ConnectConstants.REDIRECT_ACTION, redirectAction)
@@ -137,15 +162,7 @@ class ConnectUnlockFragmentTest {
         val activity = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
         shadowOf(Looper.getMainLooper()).idle()
 
-        val navController =
-            (activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment)
-                .navController
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
-        assertEquals(
-            expectedTab,
-            navController.currentBackStackEntry
-                ?.arguments
-                ?.getInt(ConnectDeliveryHomeFragment.TAB_POSITION, -1),
-        )
+        return (activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment)
+            .navController
     }
 }
