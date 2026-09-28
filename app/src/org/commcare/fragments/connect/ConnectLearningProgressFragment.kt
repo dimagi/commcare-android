@@ -66,11 +66,7 @@ class ConnectLearningProgressFragment :
         binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
     }
 
-    /**
-     * The repository hands back a fresh instance on every sync, and Opportunity Home resolves which
-     * surface to show from the record its host holds, so a refreshed job has to be published there
-     * and not just kept here - otherwise claiming the opportunity moves a copy the page never sees.
-     */
+    /** Publishes the refreshed job to the host so Opportunity Home resolves against current data. */
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
@@ -122,14 +118,10 @@ class ConnectLearningProgressFragment :
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
                         if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
-                            // The opportunity just moved from learning to delivery; the page showing
-                            // this surface re-resolves to the delivery one.
                             OpportunityNavigator
                                 .hostOf(this@ConnectLearningProgressFragment)
                                 ?.onPhaseChanged()
                         } else {
-                            // Installs on this screen and opens the delivery app when it lands; the
-                            // delivery surface is resolved on the way back.
                             launchApp(isLearning = false)
                         }
                     }

@@ -305,8 +305,6 @@ class ConnectDeliveryVisitsFragmentTest {
         awaitDeliverySync()
         layOutHierarchy()
 
-        // Opportunity Home shows this surface for every delivery state, so no session is needed to
-        // reach it - only the phase the seeded job is already in.
         val home = navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
         home
             .requireView()

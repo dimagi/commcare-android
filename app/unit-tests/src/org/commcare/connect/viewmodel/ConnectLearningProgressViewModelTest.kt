@@ -96,11 +96,7 @@ class ConnectLearningProgressViewModelTest {
         assertEquals(secondJob, (results.last() as DataState.Success).data)
     }
 
-    /**
-     * Claiming a job that is already in delivery is what the delivery CTA does when a claim
-     * succeeded but the screen has not moved on yet, so it answers from memory instead of asking
-     * the server to claim something it already owns.
-     */
+    /** Claiming an already-delivering job succeeds from memory, without calling the repository. */
     @Test
     fun testClaimJob_alreadyDelivering_succeedsWithoutCallingTheRepository() {
         every { mockJob.status } returns ConnectJobRecord.STATUS_DELIVERING

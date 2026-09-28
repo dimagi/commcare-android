@@ -98,15 +98,7 @@ class ConnectOpportunityListFragment :
         return destination == null || destination.id != R.id.connect_jobs_list_fragment
     }
 
-    /**
-     * Open the opportunity's home page and let it decide what to show.
-     *
-     * This used to fan out here: a new opportunity to the job intro, a learning one to learn
-     * progress and a delivering one to delivery home. Each of those is a state
-     * [org.commcare.connect.opportunity.OpportunityHomeState] resolves from the job's phase, whether
-     * the app is installed and whether a session is attached - so the branching moves there and this
-     * becomes one navigation.
-     */
+    /** Opens the opportunity's page, which picks the surface from the job's phase. */
     private fun navigateToOpportunityHome() {
         binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
@@ -152,7 +144,6 @@ class ConnectOpportunityListFragment :
                         createJobModel(
                             compositeJob,
                             JobListEntryType.NEW_OPPORTUNITY,
-                            // Nothing to install yet, and the card offers no launch either way.
                             isAppInstalled = true,
                         ),
                     )
@@ -197,12 +188,7 @@ class ConnectOpportunityListFragment :
         initRecyclerView()
     }
 
-    /**
-     * Build a row for [job] as [jobType].
-     *
-     * The app type and the three which-kind-of-row flags are all restatements of [jobType], so they
-     * are derived here rather than repeated at every call site, where they could disagree with it.
-     */
+    /** Builds a row for [job] as [jobType]; the app type and row-kind flags are derived from it. */
     private fun createJobModel(
         job: ConnectJobRecord,
         jobType: JobListEntryType,

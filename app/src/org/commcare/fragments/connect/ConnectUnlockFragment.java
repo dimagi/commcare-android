@@ -54,7 +54,6 @@ public class ConnectUnlockFragment extends Fragment {
 
         if(getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
-
             fromOppInviteLink = getArguments().getBoolean(
                     ConnectConstants.FROM_SMS_INVITE_LINK, false);
             requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
@@ -133,18 +132,11 @@ public class ConnectUnlockFragment extends Fragment {
                 AnalyticsParamValue.OPP_INVITE_PUSH_NOTIFICATION;
     }
 
-    /**
-     * Sets the fragment redirection based on the redirection action.
-     * This method determines the fragment to be displayed using the getFragmentId() method,
-     * prepares a bundle with additional data, and navigates to the appropriate fragment.
-     */
+    /** Resolves the redirection action to a destination fragment and navigates to it. */
     private void setFragmentRedirection() {
         Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
         Bundle bundle = new Bundle();
 
-        // Every opportunity destination is now the same page: Opportunity Home resolves the summary,
-        // learn and delivery surfaces from the job's own phase, so a link that names one of them only
-        // has to say which tab it wants once it gets there.
         int fragmentId;
         if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)
                 || redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)

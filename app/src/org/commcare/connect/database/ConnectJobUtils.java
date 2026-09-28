@@ -577,14 +577,8 @@ public class ConnectJobUtils {
     }
 
     /**
-     * Resolve a link that names an opportunity without saying where in it to go.
-     *
-     * The job's phase used to pick between the summary, learn and delivery screens. Those are
-     * surfaces of Opportunity Home now, resolved there from the same phase, so naming one here would
-     * only be answering the question twice. What the phase still decides is whether there is a
-     * payment to open, which is the one distinction that survives as a tab.
-     *
-     * An unrecognised status resolves to nothing, leaving the caller on the opportunities list.
+     * Resolves a link that names only an opportunity: a payment when delivering with a payment id,
+     * otherwise the opportunity page; an unrecognised status keeps {@code currentAction}.
      */
     public static String resolveGenericOpportunityDestination(
             String currentAction,

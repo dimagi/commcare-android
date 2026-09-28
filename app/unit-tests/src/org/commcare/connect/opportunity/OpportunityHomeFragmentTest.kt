@@ -161,8 +161,9 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         }
     }
 
+    /** The nav listener's own skip is stubbed out in [BaseConnectJobIntroTest.setUp]; this covers only the page's own reporting. */
     @Test
-    fun `the page never reports itself as a screen`() {
+    fun `the page's own reporting never includes itself as a screen`() {
         job.status = ConnectJobRecord.STATUS_DELIVERING
         openVisitsDetailAndReturn(openPage())
         activity.runOnUiThread {

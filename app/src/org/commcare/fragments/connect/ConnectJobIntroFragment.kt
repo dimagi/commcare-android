@@ -30,7 +30,7 @@ import java.text.DateFormat
 class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
     private lateinit var viewModel: ConnectJobIntroViewModel
 
-    /** Learning has started by the time the app launches, so the page moves on to learn progress. */
+    /** Best effort: the page also re-resolves on resume, which is what reliably moves it to learn progress. */
     override fun onAppLaunched() {
         OpportunityNavigator.hostOf(this)?.onPhaseChanged()
     }
@@ -206,10 +206,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         )
     }
 
-    /**
-     * The actions leave `opportunity_home_fragment`, which is the destination this surface is a
-     * child of; the page runs them so the already-navigated-away guard stays in one place.
-     */
+    /** Runs [directions] through the host page, so its already-navigated-away guard applies. */
     private fun navigateFromPage(directions: NavDirections) {
         OpportunityNavigator.hostOf(this)?.navigateFromPage(directions)
     }

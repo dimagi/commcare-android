@@ -216,8 +216,6 @@ class ConnectLearningProgressFragmentTest {
         clickCta(fragment)
         respondToClaim(responseCode = 200)
 
-        // The claim moves the opportunity into delivery, which the page re-resolves in place rather
-        // than navigating to a delivery destination of its own.
         assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(ConnectJobRecord.STATUS_DELIVERING, job.status)
         navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
@@ -226,10 +224,6 @@ class ConnectLearningProgressFragmentTest {
     @Test
     fun `a refreshed opportunity is published to the page, not kept on this screen`() {
         val fragment = launch(ConnectLearnJobTestData.job())
-        // The repository re-reads the record on every sync, so what a refresh hands back is never
-        // the instance the page is holding. Opportunity Home resolves its surface from the page's
-        // record, so a refresh kept on this screen leaves the page resolving a stale phase - and a
-        // claim applied to the screen's copy never reaches it.
         val refreshed = ConnectLearnJobTestData.job()
         refreshFrom(fragment, refreshed)
 
@@ -243,14 +237,11 @@ class ConnectLearningProgressFragmentTest {
     @Test
     fun `coming back once the delivery app has installed shows the delivery surface`() {
         val fragment = launch(ConnectLearnJobTestData.job())
-        // A refresh lands first, as it does in the field, so the screen is working from the record
-        // the repository handed back rather than the one it was opened with.
         refreshFrom(fragment, ConnectLearnJobTestData.job())
 
         clickCta(fragment)
         respondToClaim(responseCode = 200)
 
-        // The install finished, the worker went into the delivery app and came back out.
         every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
         installViewModel().clear()
         activity.runOnUiThread {
@@ -364,8 +355,6 @@ class ConnectLearningProgressFragmentTest {
 
         activity.runOnUiThread { fragment.refresh(true) }
         ShadowLooper.idleMainLooper()
-        // Hand the screen back the real repository, so anything it does next - claiming, above
-        // all - goes through the network stack the rest of this suite drives.
         learningViewModel(fragment).repository = ConnectRepository.getInstance()
     }
 

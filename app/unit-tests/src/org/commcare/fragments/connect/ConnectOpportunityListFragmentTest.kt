@@ -254,12 +254,7 @@ class ConnectOpportunityListFragmentTest {
     fun `tapping a finished opportunity opens the delivery surface`() =
         assertRowOpensOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRED_LEARNING_UUID)
 
-    /**
-     * Taps [uuid]'s row, checks where it landed, then returns to the list.
-     *
-     * Going back matters: Opportunity Home resolves a surface that fetches for itself, and leaving
-     * it mounted lets that work run on past the database teardown in [tearDown].
-     */
+    /** Taps [uuid]'s row, checks where it landed, then navigates back so nothing is left mounted. */
     private inline fun <reified T : Fragment> assertRowOpensOpportunityHome(uuid: String) {
         activity.runOnUiThread { getRowForJobUuid(uuid).performClick() }
         ShadowLooper.idleMainLooper()

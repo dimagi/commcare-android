@@ -8,14 +8,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Pins what a generic opportunity link resolves to.
- *
- * The phase no longer selects a destination - Opportunity Home resolves the summary, learn and
- * delivery surfaces from that same phase once it is open - so the only question left here is
- * whether the link named a payment, which is what opens the payments tab rather than the dashboard.
- *
- * The routing these values drive is covered from the other end in
- * [org.commcare.connect.SmsInviteLinkFlowTest].
+ * Pins what a generic opportunity link resolves to: a payment when delivering with a payment id,
+ * otherwise the opportunity page; an unrecognised status is left unresolved.
  */
 class ConnectJobUtilsDestinationTest {
     private fun jobWithStatus(status: Int): ConnectJobRecord = mockk<ConnectJobRecord>().also { every { it.status } returns status }
@@ -25,8 +19,6 @@ class ConnectJobUtilsDestinationTest {
         paymentUuid: String? = null,
         action: String = ConnectConstants.CCC_GENERIC_OPPORTUNITY,
     ): String? = ConnectJobUtils.resolveGenericOpportunityDestination(action, job, paymentUuid)
-
-    // ---- the one distinction that survives ----
 
     @Test
     fun `a delivering job with a payment opens the payments tab`() {
@@ -60,8 +52,6 @@ class ConnectJobUtilsDestinationTest {
         )
     }
 
-    // ---- phase no longer picks a destination ----
-
     @Test
     fun `every active phase resolves to the same opportunity page`() {
         listOf(
@@ -77,8 +67,6 @@ class ConnectJobUtilsDestinationTest {
             )
         }
     }
-
-    // ---- everything else is left alone ----
 
     @Test
     fun `an unrecognised status is left unresolved so the caller falls back to the jobs list`() {

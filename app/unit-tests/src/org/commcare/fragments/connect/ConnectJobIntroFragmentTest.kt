@@ -220,9 +220,6 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
             navController.currentDestination?.id,
         )
 
-        // fromBundle() throws on any required argument the caller left out, so reading the args back
-        // through the generated class is what proves the whole set was supplied - button2Text
-        // included, which is required despite being nullable.
         val dialog =
             navHostFragment.childFragmentManager.fragments
                 .filterIsInstance<PersonalIdMessageFragment>()

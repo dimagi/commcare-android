@@ -59,12 +59,7 @@ class ConnectDeliveryVisitsFragment :
         }
     }
 
-    /**
-     * Opens the visits detail through the page hosting this tab.
-     *
-     * The action leaves `opportunity_home_fragment` rather than this tab, which sits two levels
-     * below it - inside the delivery surface, inside the page.
-     */
+    /** Opens the visits detail through the page hosting this tab. */
     private fun navigateToDeliveries(unitUuid: String) {
         OpportunityNavigator.hostOf(this)?.navigateFromPage(
             OpportunityHomeFragmentDirections
