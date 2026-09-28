@@ -29,6 +29,22 @@
     </fragment>
 
     <fragment
+        android:id="@+id/opportunity_home_fragment"
+        android:name="org.commcare.connect.opportunity.OpportunityHomeFragment"
+        android:label="@string/connect_title"
+        tools:layout="@layout/fragment_opportunity_home">
+        <action
+            android:id="@+id/action_opportunity_home_fragment_to_connect_delivery_visits_detail_fragment"
+            app:destination="@id/connect_delivery_visits_detail_fragment" />
+        <action
+            android:id="@+id/action_opportunity_home_fragment_to_connect_learn_modules_bottom_sheet"
+            app:destination="@id/connect_learn_modules_bottom_sheet" />
+        <action
+            android:id="@+id/action_opportunity_home_fragment_to_personalid_message_display_dialog"
+            app:destination="@id/personalid_message_display_dialog" />
+    </fragment>
+
+    <fragment
         android:id="@+id/connect_job_intro_fragment"
         android:name="org.commcare.fragments.connect.ConnectJobIntroFragment"
         android:label="fragment_connect_job_intro"
