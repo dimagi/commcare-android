@@ -1,10 +1,7 @@
 package org.commcare.fragments.personalId
 
-import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDirections
-import androidx.navigation.findNavController
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
@@ -132,7 +129,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                     enableContinueButton(true)
                 }
             }
-        }.confirmBackupCode(activity, backupCode, personalIdSessionData)
+        }.completeRecoveryWithBackupCode(activity, backupCode, personalIdSessionData)
     }
 
     private fun handleConfirmBackupCodeSuccess() {
@@ -141,7 +138,11 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         ) {
             navigateToEmail()
         } else {
-            PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
+            PersonalIdRecoveryCompleter.finalizeAccountRecovery(
+                requireActivity(),
+                personalIdSessionData,
+                AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE,
+            )
             navigateToSuccess()
         }
     }

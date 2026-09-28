@@ -72,10 +72,9 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
             testNavController.setGraph(R.navigation.nav_graph_personalid_profile)
             testNavController.setCurrentDestination(R.id.personalid_email_verification_forgot_backup_code_fragment, fragmentArgs)
             Navigation.setViewNavController(fragment().requireView(), testNavController)
-            fragment()
-                .requireView()
-                .findViewById<NumericCodeView>(R.id.otp_code_view)
-                .setCode("123456")
+            val view = fragment().requireView()
+            view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+            view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
         }
         mockApiServer.drainHttp()
 
@@ -96,10 +95,9 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
 
         repeat(3) {
             onUiThread {
-                fragment()
-                    .requireView()
-                    .findViewById<NumericCodeView>(R.id.otp_code_view)
-                    .setCode("123456")
+                val view = fragment().requireView()
+                view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+                view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
             }
             mockApiServer.drainHttp()
         }

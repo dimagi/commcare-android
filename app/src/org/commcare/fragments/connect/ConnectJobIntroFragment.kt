@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
@@ -27,6 +28,14 @@ import java.text.DateFormat
  */
 class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
     private lateinit var viewModel: ConnectJobIntroViewModel
+
+    /** Learning has started by the time the app launches, so back belongs on learn progress. */
+    override fun onAppLaunched() {
+        findNavController().navigate(
+            ConnectJobIntroFragmentDirections
+                .actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(),
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

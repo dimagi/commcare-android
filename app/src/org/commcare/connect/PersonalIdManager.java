@@ -39,6 +39,7 @@ import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.personalId.PersonalIdBackupCodeReminderHelper;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.personalId.UnlockPolicy;
@@ -86,6 +87,7 @@ public class PersonalIdManager {
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
+    private static final int MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID = 600;
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
@@ -491,6 +493,7 @@ public class PersonalIdManager {
 
     public void onAccountConfigurationSuccess(PersonalIdSessionData sessionData) {
         createAndSaveConnectUser(sessionData);
+        PersonalIdBackupCodeReminderHelper.initialize();
         setStatus(PersonalIdStatus.LoggedIn);
         List<ConnectReleaseToggleRecord> toggles = sessionData.getFeatureReleaseToggles();
         if (toggles != null) {
@@ -657,7 +660,8 @@ public class PersonalIdManager {
     }
 
     public boolean checkDeviceCompability() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P;
+        int smallestWidthDp = CommCareApplication.instance().getResources().getConfiguration().smallestScreenWidthDp;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && smallestWidthDp < MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID;
     }
 
     public int getFailureAttempt() {
