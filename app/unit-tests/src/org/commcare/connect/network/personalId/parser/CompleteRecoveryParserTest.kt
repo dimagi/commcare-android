@@ -16,13 +16,13 @@ import org.robolectric.annotation.Config
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class ConfirmBackupCodeResponseParserTest {
-    private lateinit var parser: ConfirmBackupCodeResponseParser
+class CompleteRecoveryParserTest {
+    private lateinit var parser: CompleteRecoveryParser
     private lateinit var sessionData: PersonalIdSessionData
 
     @Before
     fun setUp() {
-        parser = ConfirmBackupCodeResponseParser()
+        parser = CompleteRecoveryParser()
         sessionData = PersonalIdSessionData()
     }
 

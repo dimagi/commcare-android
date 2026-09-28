@@ -11,6 +11,8 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.commcare.views.connect.NumericCodeView
 import org.json.JSONObject
@@ -23,6 +25,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mockStatic
+import org.mockito.kotlin.eq
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
@@ -368,6 +372,22 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY success passes email_otp as the recovery method`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            mockCompleteRecovery(true)
+            enterCode("123456")
+            drainHttp()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_EMAIL_OTP),
+                )
+            }
+        }
+    }
+
+    @Test
     fun `FORGOT_BACKUP_CODE_RECOVERY resend omits email from request body`() {
         setUpForgotBackupCodeRecoveryFlow()
         activity.runOnUiThread {
@@ -406,6 +426,24 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         assertEquals(TEST_EMAIL, body.getString("email"))
     }
 
+    // ========== RECOVERY workflow tests ==========
+
+    @Test
+    fun `RECOVERY workflow email verification success passes backup_code as the recovery method`() {
+        setUpRecoveryFlow()
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            mockWebServer.enqueue(successResponse())
+            enterCode("123456")
+            drainHttp()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
+                )
+            }
+        }
+    }
+
     // ========== Helpers ==========
 
     private fun setUpForgotBackupCodeRecoveryFlow() {
@@ -423,6 +461,36 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
                 phoneNumber = "1234567890",
                 requiredLock = PersonalIdSessionData.PIN,
                 demoUser = false,
+            )
+        navigateToFragment(sessionData, R.id.personalid_email_verification, args)
+        activity.runOnUiThread {
+            installTestNavController(
+                fragment.requireView(),
+                R.id.personalid_email_verification,
+                args,
+            )
+        }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun setUpRecoveryFlow() {
+        MockAndroidKeyStoreProvider.registerProvider()
+        val args =
+            Bundle().apply {
+                putString("email", TEST_EMAIL)
+                putSerializable("workflow", EmailWorkFlow.RECOVERY)
+                putInt("emailOtpRequestCount", 0)
+            }
+        val sessionData =
+            PersonalIdSessionData(
+                token = "test-token",
+                userName = "test-user",
+                phoneNumber = "1234567890",
+                requiredLock = PersonalIdSessionData.PIN,
+                demoUser = false,
+                dbKey = "dGVzdC1kYi1rZXk=",
+                personalId = "test-personal-id",
+                oauthPassword = "test-oauth-pwd",
             )
         navigateToFragment(sessionData, R.id.personalid_email_verification, args)
         activity.runOnUiThread {

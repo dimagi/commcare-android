@@ -22,16 +22,17 @@ object PersonalIdRecoveryCompleter {
     fun finalizeAccountRecovery(
         activity: Activity,
         sessionData: PersonalIdSessionData,
+        recoveryMethod: String,
     ) {
         PersonalIdManager.getInstance().onAccountConfigurationSuccess(sessionData)
-        logRecoverySuccessResult()
+        logRecoverySuccessResult(recoveryMethod)
         notifySecondDeviceLoginIfApplicable(activity, sessionData)
     }
 
-    private fun logRecoverySuccessResult() {
+    private fun logRecoverySuccessResult(recoveryMethod: String) {
         FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
             true,
-            AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE,
+            recoveryMethod,
         )
     }
 
