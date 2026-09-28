@@ -647,6 +647,8 @@
     <string name="connect_delivery_revisit_learning_offline">Maelezo ya cheti yatapakia utakaporejea mtandaoni</string>
     <string name="connect_delivery_revisit_learning_view">Tazama</string>
     <string name="connect_task_expires_on">Inaisha %1$s</string>
+    <string name="connect_task_pending_chip">Kazi inayosubiri</string>
+    <string name="connect_task_blocking_subtitle">Ikamilishe ili kuendelea na utoaji.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">ziara %1$d imesalia leo</item>
         <item quantity="other">ziara %1$d zimesalia leo</item>

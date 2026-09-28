@@ -642,6 +642,8 @@ License.
     <string name="connect_delivery_revisit_learning_offline">Les détails du certificat se chargeront lorsque vous serez de nouveau en ligne</string>
     <string name="connect_delivery_revisit_learning_view">Voir</string>
     <string name="connect_task_expires_on">Expire le %1$s</string>
+    <string name="connect_task_pending_chip">Tâche en attente</string>
+    <string name="connect_task_blocking_subtitle">Terminez-la pour continuer la livraison.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visite restante aujourd\'hui</item>
         <item quantity="other">%1$d visites restantes aujourd\'hui</item>

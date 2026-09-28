@@ -7,14 +7,19 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import org.commcare.activities.CommCareActivity
+import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
+import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding
 import org.commcare.fragments.RefreshableTab
 import org.commcare.views.connect.ConnectInfoHalfCard
 import org.commcare.views.connect.ConnectProgressCard
 import org.commcare.views.connect.ConnectSyncStatusCard
+import org.commcare.views.connect.ConnectTaskPresenter
 import java.text.DateFormat
 
 /**
@@ -41,9 +46,13 @@ class ConnectDeliveryDashboardFragment :
 
     override fun updateView() {
         reloadActiveJob()
-        val contentEnabled = !job.isFurtherWorkBlocked
+        val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
+        // An outstanding task earns nothing until it is cleared, so the figures stand down with it,
+        // the same as an opportunity that has finished or run out of visits.
+        val contentEnabled = !job.isFurtherWorkBlocked && pendingTasks.isEmpty()
         bindHeader()
         bindVisitProgress(contentEnabled)
+        bindBlockingTask(pendingTasks.firstOrNull())
         bindSyncCard(host.syncStatus, host.isSynced)
         bindProgressGrid(contentEnabled)
     }
@@ -90,6 +99,33 @@ class ConnectDeliveryDashboardFragment :
             ),
         )
     }
+
+    /**
+     * Only the task falling due first is shown here; the rest stay on the More tab, so the dashboard
+     * asks for one thing at a time.
+     */
+    private fun bindBlockingTask(task: ConnectTaskRecord?) {
+        binding.deliveryTaskCard.isVisible = task != null
+        if (task == null) return
+
+        binding.deliveryTaskCard.bind(
+            ConnectTaskPresenter.state(
+                context = requireContext(),
+                task = task,
+                highlighted = true,
+                showExpiry = false,
+                chipLabel = getString(R.string.connect_task_pending_chip),
+                subtitle = getString(R.string.connect_task_blocking_subtitle),
+                iconOnCircle = false,
+                onClick = { openTask(task) },
+            ),
+        )
+    }
+
+    private fun openTask(task: ConnectTaskRecord) =
+        ConnectTaskPresenter.open(requireActivity() as CommCareActivity<*>, task) {
+            launchApp(isLearning = false)
+        }
 
     /** Called by the host, which owns the delivery sync and so learns its status first. */
     fun updateSyncStatus(

@@ -474,6 +474,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_delivery_revisit_learning_offline">Bayanan takardar shaida za su ɗauko sa\'ad da ka dawo kan layi</string>
     <string name="connect_delivery_revisit_learning_view">Duba</string>
     <string name="connect_task_expires_on">Wa\'adi ya ƙare a %1$s</string>
+    <string name="connect_task_pending_chip">Aikin da ke jira</string>
+    <string name="connect_task_blocking_subtitle">Kammala shi don ci gaba da isarwa.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">ziyara %1$d ta rage yau</item>
         <item quantity="other">ziyara %1$d suka rage yau</item>

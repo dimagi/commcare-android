@@ -649,6 +649,8 @@
     <string name="connect_delivery_revisit_learning_offline">Os detalhes do certificado serão carregados quando estiver online novamente</string>
     <string name="connect_delivery_revisit_learning_view">Ver</string>
     <string name="connect_task_expires_on">Expira em %1$s</string>
+    <string name="connect_task_pending_chip">Tarefa pendente</string>
+    <string name="connect_task_blocking_subtitle">Conclua-a para continuar a entrega.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visita restante hoje</item>
         <item quantity="other">%1$d visitas restantes hoje</item>

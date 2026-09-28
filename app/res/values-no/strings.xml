@@ -291,6 +291,8 @@
     <string name="connect_delivery_revisit_learning_offline">Sertifikatdetaljene lastes inn når du er tilkoblet igjen</string>
     <string name="connect_delivery_revisit_learning_view">Vis</string>
     <string name="connect_task_expires_on">Utløper %1$s</string>
+    <string name="connect_task_pending_chip">Ventende oppgave</string>
+    <string name="connect_task_blocking_subtitle">Fullfør den for å fortsette leveringen.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d besøk gjenstår i dag</item>
         <item quantity="other">%1$d besøk gjenstår i dag</item>
