@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:orientation="vertical"
-    tools:parentTag="android.widget.LinearLayout">
+    tools:parentTag="android.widget.LinearLayout"
+    tools:theme="@style/ConnectTheme">
     <org.commcare.views.connect.ConnectSuccessFailureCard
         android:id="@+id/cta_failure_card"
         android:layout_width="match_parent"
@@ -42,11 +43,11 @@
 
             <TextView
                 android:id="@+id/cta_title_text"
+                style="@style/TextStyle.Connect.TitleS"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/connect_space_sm"
                 android:textColor="?attr/colorPrimary"
-                android:textSize="@dimen/connect_text_title"
                 app:layout_constraintBottom_toTopOf="@id/cta_subtitle_text"
                 app:layout_constraintEnd_toStartOf="@id/cta_end_barrier"
                 app:layout_constraintStart_toStartOf="parent"
@@ -56,12 +57,12 @@
 
             <TextView
                 android:id="@+id/cta_subtitle_text"
+                style="@style/TextStyle.Connect.BodyS"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_xs"
                 android:layout_marginEnd="@dimen/connect_space_sm"
                 android:textColor="?attr/connectOnSurfaceVariant"
-                android:textSize="@dimen/connect_text_body"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/cta_end_barrier"
@@ -74,14 +75,13 @@
                 android:id="@+id/cta_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:elevation="3dp"
-                android:fontFamily="sans-serif"
+                android:elevation="@dimen/connect_button_elevation"
                 android:paddingStart="40dp"
                 android:paddingEnd="40dp"
                 android:stateListAnimator="@null"
                 android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Connect.LabelM"
                 android:textColor="?attr/colorOnPrimary"
-                android:textStyle="normal"
                 app:backgroundTint="?attr/colorPrimary"
                 app:cornerRadius="@dimen/connect_radius_pill"
                 app:icon="@drawable/ic_connect_arrow_forward"

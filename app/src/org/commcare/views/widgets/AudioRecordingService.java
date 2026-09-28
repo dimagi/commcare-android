@@ -11,6 +11,7 @@ import android.media.MediaRecorder;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.SystemClock;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -20,6 +21,7 @@ import org.commcare.CommCareNoficationManager;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -28,11 +30,22 @@ import static org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_
 /**
  * A foreground service intended to be bound to the RecordingFragment for managing audio recording
  * operations. Due to its persistent notification, the system treats it with higher importance, reducing the
- * likelihood of interruptions during recordings.
+ * likelihood of interruptions during recordings. This service owns the authoritative recording state.
  *
  * @author avazirna
  **/
 public class AudioRecordingService extends Service {
+
+    /**
+     * The lifecycle of a single recording session, from the service's point of view.
+     */
+    public enum RecordingState {
+        IDLE,
+        RECORDING,
+        PAUSED,
+        STOPPED
+    }
+
     private MediaRecorder recorder;
     private final IBinder binder = new AudioRecorderBinder();
     public static final String RECORDING_FILENAME_EXTRA_KEY = "recording-filename-extra-key";
@@ -40,10 +53,23 @@ public class AudioRecordingService extends Service {
     public static final String ACTION_SAVE_RECORDING = "action-save-recording";
     public static final String ACTION_PAUSE_RECORDING = "action-pause-recording";
     public static final String ACTION_RESUME_RECORDING = "action-resume-recording";
+    public static final String ACTION_RECORDING_FAILED = "action-recording-failed";
     private NotificationManager notificationManager;
     private AudioRecordingHelper audioRecordingHelper = new AudioRecordingHelper();
     private RecordingActionListener actionListener;
+    private String pendingAction;
     private boolean pauseSupported;
+
+    /**
+     * Base for the elapsed recording time, in the {@link SystemClock#elapsedRealtime()} timebase and in
+     * the form a Chronometer expects: the recording has been running for
+     * {@code elapsedRealtime() - chronometerBase} ms. Pausing advances it by the length of the pause.
+     */
+    private long chronometerBase;
+    /** When elapsed time last stopped advancing, i.e. when the recording was paused or stopped. */
+    private long mLastStopTime;
+    private String fileName;
+    private RecordingState state = RecordingState.IDLE;
 
     /**
      * Callback used to relay notification action button presses back to the bound
@@ -53,10 +79,33 @@ public class AudioRecordingService extends Service {
         void onSaveRequested();
         void onPauseRequested();
         void onResumeRequested();
+
+        /** The recorder could not take the microphone, so this session never started. */
+        void onRecordingFailed();
     }
 
     public void setRecordingActionListener(RecordingActionListener actionListener) {
         this.actionListener = actionListener;
+        if (actionListener != null && pendingAction != null) {
+            String action = pendingAction;
+            pendingAction = null;
+            dispatchAction(action);
+        }
+    }
+
+    private void dispatchAction(String action) {
+        if (actionListener == null) {
+            // Nothing is bound, which on a configuration change means the UI is mid-rebuild. Hold the
+            // action so it isn't lost, and replay it when the new UI binds.
+            pendingAction = action;
+            return;
+        }
+        switch (action) {
+            case ACTION_SAVE_RECORDING -> actionListener.onSaveRequested();
+            case ACTION_PAUSE_RECORDING -> actionListener.onPauseRequested();
+            case ACTION_RESUME_RECORDING -> actionListener.onResumeRequested();
+            case ACTION_RECORDING_FAILED -> actionListener.onRecordingFailed();
+        }
     }
 
 
@@ -78,23 +127,34 @@ public class AudioRecordingService extends Service {
         // relay them to the bound fragment instead of (re)starting the recorder.
         String action = intent.getAction();
         if (action != null) {
-            if (actionListener != null) {
-                switch (action) {
-                    case ACTION_SAVE_RECORDING -> actionListener.onSaveRequested();
-                    case ACTION_PAUSE_RECORDING -> actionListener.onPauseRequested();
-                    case ACTION_RESUME_RECORDING -> actionListener.onResumeRequested();
-                }
-            }
+            dispatchAction(action);
             return START_NOT_STICKY;
         }
 
-        String fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
+        // A rebinding UI or second start intent for a session that is already under way must not restart the
+        // recorder
+        if (state != RecordingState.IDLE) {
+            return START_NOT_STICKY;
+        }
+
+        fileName = intent.getExtras().getString(RECORDING_FILENAME_EXTRA_KEY);
         pauseSupported = intent.getBooleanExtra(PAUSE_SUPPORTED_EXTRA_KEY, false);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                MediaUtil.isRecordingActive(this)) {
+            resetRecorder();
+            state = RecordingState.IDLE;
+            dispatchAction(ACTION_RECORDING_FAILED);
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         if (recorder == null) {
             recorder = audioRecordingHelper.setupRecorder(fileName,
                     DeveloperPreferences.getAudioQualityProfile());
         }
         recorder.start();
+        chronometerBase = SystemClock.elapsedRealtime();
+        state = RecordingState.RECORDING;
         // Re-post so the notification reflects pauseSupported, which is only known here (the
         // initial notification is built in onCreate, before this intent is delivered).
         notificationManager.notify(RECORDING_NOTIFICATION_ID, createNotification(true));
@@ -108,10 +168,14 @@ public class AudioRecordingService extends Service {
     }
 
     private void resetRecorder() {
-        if (recorder != null) {
-            recorder.release();
-            recorder = null;
+        if (recorder == null) {
+            return;
         }
+        if (state == RecordingState.RECORDING || state == RecordingState.PAUSED) {
+            stopRecording();
+        }
+        recorder.release();
+        recorder = null;
     }
 
     private Notification createNotification(boolean recordingRunning) {
@@ -177,9 +241,40 @@ public class AudioRecordingService extends Service {
         return recorder != null;
     }
 
+    public RecordingState getState() {
+        return state;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    /**
+     * The value to hand to {@link android.widget.Chronometer#setBase(long)} so that it displays the
+     * elapsed recording time, excluding any time spent paused. Safe to call in any state; before the
+     * recording starts it reads as zero elapsed time.
+     */
+    public long getChronometerBase() {
+        switch (state) {
+            case IDLE:
+                return SystemClock.elapsedRealtime();
+            case PAUSED:
+            case STOPPED:
+                // Keep the display frozen at the moment elapsed time stopped advancing.
+                return chronometerBase + (SystemClock.elapsedRealtime() - mLastStopTime);
+            default:
+                return chronometerBase;
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseRecording() {
+        if (state != RecordingState.RECORDING) {
+            return;
+        }
         recorder.pause();
+        mLastStopTime = SystemClock.elapsedRealtime();
+        state = RecordingState.PAUSED;
         notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(false));
     }
@@ -187,11 +282,25 @@ public class AudioRecordingService extends Service {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
         recorder.resume();
+        chronometerBase += SystemClock.elapsedRealtime() - mLastStopTime;
+        state = RecordingState.RECORDING;
         notificationManager.notify(RECORDING_NOTIFICATION_ID,
                 createNotification(true));
     }
 
     public void stopRecording() {
+        if (state == RecordingState.RECORDING) {
+            mLastStopTime = SystemClock.elapsedRealtime();
+        }
+        state = RecordingState.STOPPED;
         recorder.stop();
+    }
+
+    /**
+     * Ends the session: finalizes the audio file and releases it. Only for terminal actions (save, discard,
+     * cancel) - a UI that is merely being torn down and recreated should unbind and leave the recording running.
+     */
+    public void finishAndRelease() {
+        resetRecorder();
     }
 }
