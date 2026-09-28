@@ -164,7 +164,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         findNavController().navigate(
             PersonalIdProfileEditFragmentDirections
                 .actionProfileEditToBackupCode(EmailWorkFlow.EXISTING_USER)
-                .setPendingEmail(pendingEmail)
+                .setPendingEmail(pendingEmail),
         )
     }
 

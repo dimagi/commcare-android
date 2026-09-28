@@ -29,7 +29,7 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
         val titleRes =
             if (workflow == EmailWorkFlow.PENDING_BACKUP_CODE) {
                 R.string.personalid_send_email_otp_pending_backup_code_title
-            } else  if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER) {
+            } else if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER) {
                 R.string.personalid_send_email_otp_title
             } else {
                 R.string.personalid_email_verification_title
@@ -53,7 +53,7 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
                     PersonalIdProfileSendEmailOtpFragmentDirections
                         .actionPersonalidSendEmailOtpToEmailVerificationForgotBackupCode(
                             email,
-                            emailOtpTracker.requestCount
+                            emailOtpTracker.requestCount,
                         )
                 }
 
