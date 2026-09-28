@@ -34,7 +34,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     public static final String CHANNEL_ID = "channel_id";
     private static final String KEY_PROGRESS_DIALOG_FRAGMENT = "progress_dialog_fragment";
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
-    private boolean contentViewSet = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +44,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         personalIdManager.init(this);
 
         if (personalIdManager.isloggedIn()) {
-            contentViewSet = true;
-            checkForDrawerSetUp();
             handleRedirectIfAny();
         } else {
             Toast.makeText(
@@ -70,7 +67,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
 
     @Override
     protected boolean shouldShowDrawer() {
-        return contentViewSet && shouldShowDrawerAfterCheck(true);
+        return shouldShowDrawerAfterCheck(true);
     }
 
     @Override

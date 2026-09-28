@@ -27,21 +27,24 @@ import org.javarosa.core.services.locale.Localization
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private var drawerController: BaseDrawerController? = null
-    private lateinit var photoUpdater: PersonalIdPhotoUpdater
+    private val photoUpdater =
+        PersonalIdPhotoUpdater(
+            this,
+            this,
+            onSuccess = { photoBase64 -> drawerController!!.onPhotoUpdateSuccess(photoBase64) },
+            onFailure = { _, _ -> drawerController!!.onPhotoUpdateFailure() },
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        photoUpdater =
-            PersonalIdPhotoUpdater(
-                this,
-                this,
-                onSuccess = { photoBase64 -> drawerController!!.onPhotoUpdateSuccess(photoBase64) },
-                onFailure = { _, _ -> drawerController!!.onPhotoUpdateFailure() },
-            )
-        checkForDrawerSetUp()
         NotificationBroadcastHelper.registerForNotifications(this, this) {
             drawerController?.refreshDrawerContent()
         }
+    }
+
+    override fun onContentChanged() {
+        super.onContentChanged()
+        checkForDrawerSetUp()
     }
 
     override fun onResume() {
@@ -60,7 +63,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open val currentDrawerSection: NavItemType? = null
 
-    fun checkForDrawerSetUp() {
+    private fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
             setupDrawerController()
         }

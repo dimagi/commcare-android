@@ -21,7 +21,6 @@ class PersonalIdWorkHistoryActivity : BaseDrawerActivity<PersonalIdWorkHistoryAc
     }
 
     override val currentDrawerSection = NavItemType.WORK_HISTORY
-    private var contentViewSet = false
 
     private lateinit var workHistoryViewPagerAdapter: WorkHistoryViewPagerAdapter
     private lateinit var personalIdWorkHistoryViewModel: PersonalIdWorkHistoryViewModel
@@ -34,8 +33,6 @@ class PersonalIdWorkHistoryActivity : BaseDrawerActivity<PersonalIdWorkHistoryAc
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        contentViewSet = true
-        checkForDrawerSetUp()
         personalIdWorkHistoryViewModel =
             ViewModelProvider(
                 this,
@@ -54,7 +51,7 @@ class PersonalIdWorkHistoryActivity : BaseDrawerActivity<PersonalIdWorkHistoryAc
         setUpUi()
     }
 
-    override fun shouldShowDrawer(): Boolean = contentViewSet && shouldShowDrawerAfterCheck(true)
+    override fun shouldShowDrawer(): Boolean = shouldShowDrawerAfterCheck(true)
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
