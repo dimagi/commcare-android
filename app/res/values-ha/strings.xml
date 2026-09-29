@@ -140,14 +140,14 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_register_success_title">An ƙirƙiri Asusu</string>
     <string name="connect_register_success_message">An ƙirƙiri asusunka, kuma a shirye yake don amfani!</string>
     <string name="connect_register_success_button">KO</string>
-    <string name="connect_verify_title">Zaɓuɓɓukan Buɗewa</string>
+    <string name="connect_verify_title">Zaɓuɓɓukan buɗewa</string>
     <string name="connect_verify_message">Da fatan za a saita wata hanya da ke ƙasa don buɗe na\'urarka da asusun PersonalID</string>
     <string name="connect_verify_message_pin">Da fatan za a saita PIN ko tsari a ƙasa don buɗe na\'urarka da asusun PersonalID ɗinka</string>
     <string name="connect_verify_message_fingerprint">Da fatan za a saita sawun yatsanka a ƙasa don buɗe na\'urarka da asusunka na PersonalID</string>
-    <string name="connect_verify_use_fingerprint_long">Yi amfani da Yatsa don Haɗawa</string>
+    <string name="connect_verify_use_fingerprint_long">Yi amfani da yatsa don haɗawa</string>
     <string name="connect_verify_fingerprint_configured">An riga an saita sawun yatsanka kuma za a yi amfani da shi don buɗe PersonalID.</string>
     <string name="connect_verify_configure_fingerprint">Saita Zane-zanen Yatsa</string>
-    <string name="connect_verify_use_pin_long">Yi amfani da PIN don Haɗawa</string>
+    <string name="connect_verify_use_pin_long">Yi amfani da PIN don haɗawa</string>
     <string name="connect_verify_configure_pin">Saita PIN</string>
     <string name="connect_verify_agree">Yarda &amp; Ci gaba</string>
     <string name="connect_verify_phone_title">Lambar tabbaci</string>

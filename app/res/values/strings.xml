@@ -433,14 +433,14 @@
 
     <string name="connect_register_success_message">Your account has been created, and is ready for you to use!</string>
     <string name="connect_register_success_button">OK</string>
-    <string name="connect_verify_title">Unlock Options</string>
+    <string name="connect_verify_title">Unlock options</string>
     <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_message_pin">Please configure a PIN or pattern below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_message_fingerprint">Please configure your fingerprint below to unlock both your device and PersonalID account</string>
-    <string name="connect_verify_use_fingerprint_long">Use Fingerprint to Connect</string>
+    <string name="connect_verify_use_fingerprint_long">Use fingerprint to connect</string>
     <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock PersonalID.</string>
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
-    <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
+    <string name="connect_verify_use_pin_long">Use PIN to connect</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
