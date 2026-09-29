@@ -19,6 +19,10 @@ public class CrashUtil {
 
     private static boolean crashlyticsEnabled = BuildConfig.USE_CRASHLYTICS;
 
+    public static void disableForTests() {
+        crashlyticsEnabled = false;
+    }
+
     public static void reportException(Throwable e) {
         if (crashlyticsEnabled) {
             FirebaseCrashlytics.getInstance().recordException(e);

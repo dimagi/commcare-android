@@ -791,23 +791,21 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (item.getGroupId() == MENU_ACTION_GROUP) {
             triggerDetailAction(item.getItemId() - MENU_ACTION);
         }
-        switch (item.getItemId()) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.barcode_scan_action_bar) {
+            barcodeScanOnClickListener.onClick(null);
+            return true;
+        } else if (itemId == R.id.menu_settings) {
+            HomeScreenBaseActivity.createPreferencesMenu(this);
+            return true;
+        }
+        switch (itemId) {
             case MENU_SORT:
                 createSortMenu();
                 return true;
             case MENU_MAP:
                 Intent intent = new Intent(this, EntityMapActivity.class);
                 this.startActivityForResult(intent, MAP_SELECT);
-                return true;
-            // handling click on the barcode scanner's actionbar
-            // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work
-            // because it returns null
-            case R.id.barcode_scan_action_bar:
-                barcodeScanOnClickListener.onClick(null);
-                return true;
-            // this is needed because superclasses do not implement the menu_settings click
-            case R.id.menu_settings:
-                HomeScreenBaseActivity.createPreferencesMenu(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);

@@ -86,7 +86,7 @@ import androidx.lifecycle.ViewModelProvider;
  *
  * @author ctsims
  */
-@ManagedUi(R.layout.first_start_screen_modern)
+@ManagedUi("first_start_screen_modern")
 public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
         InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,

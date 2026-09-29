@@ -56,58 +56,58 @@ import androidx.preference.PreferenceManager;
  *
  * @author Aliza Stone (astone@dimagi.com)
  */
-@ManagedUi(R.layout.screen_login)
+@ManagedUi("screen_login")
 public class LoginActivityUIController implements CommCareActivityUIController {
 
-    @UiElement(value = R.id.screen_login_error_view)
+    @UiElement(value = "screen_login_error_view")
     private View errorContainer;
 
-    @UiElement(value = R.id.btn_view_errors_container)
+    @UiElement(value = "btn_view_errors_container")
     private View notificationButtonView;
 
-    @UiElement(value = R.id.screen_login_bad_password)
+    @UiElement(value = "screen_login_bad_password")
     private TextView errorTextView;
 
-    @UiElement(value = R.id.btn_view_notifications)
+    @UiElement(value = "btn_view_notifications")
     private RectangleButtonWithText notificationButton;
 
-    @UiElement(value = R.id.connect_login_button)
+    @UiElement(value = "connect_login_button")
     private Button connectLoginButton;
 
-    @UiElement(value = R.id.edit_username, locale = "login.username")
+    @UiElement(value = "edit_username", locale = "login.username")
     private AutoCompleteTextView username;
 
-    @UiElement(value = R.id.edit_password)
+    @UiElement(value = "edit_password")
     private EditText passwordOrPin;
 
-    @UiElement(value = R.id.show_password)
+    @UiElement(value = "show_password")
     private Button showPasswordButton;
 
-    @UiElement(R.id.screen_login_banner_pane)
+    @UiElement("screen_login_banner_pane")
     private View banner;
 
-    @UiElement(value = R.id.login_button, locale = "login.button")
+    @UiElement(value = "login_button", locale = "login.button")
     private Button loginButton;
 
-    @UiElement(value = R.id.restore_session_checkbox)
+    @UiElement(value = "restore_session_checkbox")
     private CheckBox restoreSessionCheckbox;
 
-    @UiElement(R.id.app_selection_spinner)
+    @UiElement("app_selection_spinner")
     private Spinner spinner;
 
-    @UiElement(R.id.welcome_msg)
+    @UiElement("welcome_msg")
     private TextView welcomeMessage;
 
-    @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
+    @UiElement(value = "primed_password_message", locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
 
-    @UiElement(value = R.id.login_or)
+    @UiElement(value = "login_or")
     private TextView orLabel;
 
-    @UiElement(value = R.id.login_via_connect)
+    @UiElement(value = "login_via_connect")
     private TextView loginViaConnectLabel;
 
-    @UiElement(value = R.id.password_wrapper)
+    @UiElement(value = "password_wrapper")
     private RelativeLayout passwordWrapper;
 
     protected final LoginActivity activity;

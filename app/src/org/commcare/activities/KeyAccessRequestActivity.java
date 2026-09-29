@@ -16,16 +16,16 @@ import androidx.appcompat.app.AppCompatActivity;
 /**
  * @author ctsims
  */
-@ManagedUi(R.layout.screen_permission_request)
+@ManagedUi("screen_permission_request")
 public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestActivity> {
 
-    @UiElement(value = R.id.screen_permission_grant_text_message, locale = "app.key.request.message")
+    @UiElement(value = "screen_permission_grant_text_message", locale = "app.key.request.message")
     TextView message;
 
-    @UiElement(value = R.id.screen_permission_request_button_grant, locale = "app.key.request.grant")
+    @UiElement(value = "screen_permission_request_button_grant", locale = "app.key.request.grant")
     Button grantButton;
 
-    @UiElement(value = R.id.screen_permission_request_button_deny, locale = "app.key.request.deny")
+    @UiElement(value = "screen_permission_request_button_deny", locale = "app.key.request.deny")
     Button denyButton;
 
     @Override

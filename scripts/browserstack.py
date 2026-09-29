@@ -28,20 +28,18 @@ def buildTestCommand(appToken, testToken, classes=None):
     test["disableAnimations"] = True
     test["testSuite"] = testToken
     test["networkLogs"] = True
-    test["annotation"] = ["org.commcare.annotations.BrowserstackTests"]
-
-    if classes:
-        test["class"] = classes
-        classSize = len(classes)
-        if classSize > 5:
-            test["shards"] = { "numberOfShards": 5 }
-        else:
-            mapping = []
-            for index, name in enumerate(classes, start=1):
-                mapping.append({"name" : "Shard " + str(index), "strategy": "class", "values": [name]})
-            test["shards"] = { "numberOfShards": classSize, "mapping": mapping }
-    else:
+    # TODO: Switch back to annotation filter once BrowserStack annotation scanning is confirmed
+    # working with AGP 9.x. For now, use explicit class list to bypass server-side annotation scan.
+    browserstackClasses = classes if classes else ["org.commcare.androidTests.ApkDependenciesTest"]
+    test["class"] = browserstackClasses
+    classSize = len(browserstackClasses)
+    if classSize > 5:
         test["shards"] = { "numberOfShards": 5 }
+    else:
+        mapping = []
+        for index, name in enumerate(browserstackClasses, start=1):
+            mapping.append({"name" : "Shard " + str(index), "strategy": "class", "values": [name]})
+        test["shards"] = { "numberOfShards": classSize, "mapping": mapping }
 
     return json.dumps(json.dumps(test))
 
