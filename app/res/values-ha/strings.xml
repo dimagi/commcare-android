@@ -337,7 +337,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_otp_verification_failed">Akwai matsala. Da fatan za a sake gwadawa.</string>
     <string name="personalid_location_permission_error">PersonalID yana buƙatar na\'urarka ta sami damar kunna Ayyukan Wuri. Da fatan za a kunna wannan a saitunan wayarka kafin a ci gaba.</string>
     <string name="personalid_sync_menu_title">Daidaita</string>
-    <string name="connect_registration_subtitle">Shigar da Lambar Wayarku</string>
+    <string name="connect_registration_subtitle">Shigar da lambar wayarku</string>
     <string name="connect_backup_code_message_title">Lambar Ajiyayyen Sirri ta PersonalID</string>
     <string name="connect_backup_code_message">Shigar da Lambar Ajiyar Kuɗi Mai Lambobi 6</string>
     <string name="connect_messaging_send_message_fail_msg">An kasa aika saƙo</string>

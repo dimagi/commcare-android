@@ -358,7 +358,7 @@
     <string name="connect_button_logged_in">Go to Connect menu</string>
 
     <string name="connect_registration_title">Get Started with PersonalID</string>
-    <string name="connect_registration_subtitle">Enter your Phone Number</string>
+    <string name="connect_registration_subtitle">Enter your phone number</string>
 
     <string name="personalid_welcome_user">Welcome %s!</string>
     <string name="personalid_choice_or">___________    OR    ___________</string>

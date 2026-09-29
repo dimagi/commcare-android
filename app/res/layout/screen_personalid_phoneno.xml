@@ -6,7 +6,7 @@
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="?attr/colorSurface"
         android:orientation="vertical"
         android:fillViewport="true"
         tools:context="org.commcare.fragments.personalId.PersonalIdPhoneFragment">
@@ -17,46 +17,32 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/grid_header_top_banner" />
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="40dp"
-                android:background="@color/connect_light_grey" />
-
             <TextView
                 android:id="@+id/backup_code_subtitle"
+                style="@style/TextStyle.PersonalId.Heading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/connect_registration_subtitle"
-                android:textColor="@color/connect_dark_blue_color"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="@dimen/connect_space_lg"
+                android:layout_marginTop="@dimen/connect_space_xl"
+                android:layout_marginEnd="@dimen/connect_space_lg"
+                android:text="@string/connect_registration_subtitle" />
 
             <TextView
                 android:id="@+id/phone_sub_text"
+                style="@style/TextStyle.PersonalId.Body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:text="@string/connect_registration_title"
-                android:textColor="@color/connect_subtext"
-                android:textSize="12sp"
-                android:textStyle="normal" />
+                android:layout_marginStart="@dimen/connect_space_lg"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                android:layout_marginEnd="@dimen/connect_space_lg"
+                android:text="@string/connect_registration_title" />
 
             <LinearLayout
                 android:id="@+id/phone_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="@dimen/connect_space_lg"
+                android:layout_marginTop="@dimen/connect_space_xl"
                 android:orientation="horizontal">
 
                 <LinearLayout
@@ -82,7 +68,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="@dimen/connect_space_lg"
                         android:background="@drawable/connect_edit_text_bg"
                         android:padding="0dp">
 
@@ -99,7 +85,7 @@
                         <View
                             android:layout_width="1dp"
                             android:layout_height="match_parent"
-                            android:layout_marginVertical="10dp"
+                            android:layout_marginVertical="@dimen/connect_space_md"
                             android:background="@color/connect_blue_color_10" />
 
                         <AutoCompleteTextView
@@ -112,20 +98,18 @@
                             android:focusableInTouchMode="true"
                             android:hint="@string/connect_phone_number_hint"
                             android:inputType="numberDecimal"
-                            android:paddingStart="16dp"
+                            android:paddingStart="@dimen/connect_space_lg"
                             android:textAlignment="textStart"
                             android:textColorHint="@color/connect_grey" />
                     </LinearLayout>
 
                     <TextView
                         android:id="@+id/personalid_phone_error"
+                        style="@style/TextStyle.PersonalId.Error"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingStart="16dp"
-                        android:paddingTop="4dp"
-                        android:textColor="@android:color/holo_red_light"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
+                        android:paddingStart="@dimen/connect_space_lg"
+                        android:paddingTop="@dimen/connect_space_xs"
                         android:visibility="gone" />
                 </LinearLayout>
 
@@ -137,7 +121,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="13dp"
+                android:layout_marginTop="@dimen/connect_space_md"
                 android:gravity="center"
                 android:orientation="horizontal">
 
@@ -145,20 +129,19 @@
                     android:id="@+id/iv_location"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginEnd="@dimen/spacer_small"
                     android:src="@drawable/ic_place"
                     app:layout_constraintEnd_toStartOf="@+id/tv_location"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tv_location"
+                    style="@style/TextStyle.PersonalId.Helper"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="5dp"
+                    android:layout_marginHorizontal="@dimen/spacer_small"
                     android:clickable="true"
                     android:focusable="true"
-                    android:textColor="@color/connect_grey"
-                    android:textSize="16sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -168,7 +151,7 @@
                     android:id="@+id/iv_location_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
+                    android:layout_marginStart="@dimen/spacer_small"
                     android:src="@drawable/ic_location_info"
                     app:layout_constraintStart_toEndOf="@+id/tv_location"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -185,8 +168,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="55dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="@dimen/connect_space_lg"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
                     android:gravity="start"
                     android:orientation="horizontal"
                     app:layout_constraintTop_toBottomOf="@+id/iv_location_info">
@@ -195,29 +178,28 @@
                         android:id="@+id/connect_consent_check"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginBottom="16dp"
-                        android:buttonTint="@color/connect_blue_color"
+                        android:layout_marginStart="@dimen/connect_space_lg"
+                        android:layout_marginBottom="@dimen/connect_space_lg"
+                        android:buttonTint="?attr/colorPrimary"
                         android:padding="1dp"
                         android:textColor="@color/connect_subtext"
                         android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/checkText"
+                        style="@style/TextStyle.PersonalId.Body"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
+                        android:layout_marginBottom="@dimen/connect_space_lg"
                         android:text="@string/connect_consent_message_1"
-                        android:textColor="@color/connect_grey"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textColorLink="?attr/colorPrimary" />
                 </LinearLayout>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/iv_triangle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
+                    android:layout_marginTop="@dimen/connect_space_xs"
                     android:rotation="360"
                     android:src="@drawable/ic_blue_triangle"
                     app:layout_constraintEnd_toEndOf="@id/iv_location_info"
@@ -228,13 +210,13 @@
                     android:id="@+id/tooltipText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10dp"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginHorizontal="@dimen/connect_space_md"
+                    android:layout_marginTop="@dimen/connect_space_lg"
                     android:background="@drawable/bg_location_tooltip"
                     android:clickable="true"
                     android:focusable="true"
                     android:linksClickable="true"
-                    android:padding="10dp"
+                    android:padding="@dimen/connect_space_md"
                     android:textColor="@android:color/white"
                     android:textColorLink="@color/white"
                     android:textSize="14sp"
@@ -251,12 +233,12 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/personalid_phone_continue_button"
-                    style="@style/CustomButtonStyle"
+                    style="@style/PersonalIdPrimaryButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="@dimen/connect_space_lg"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
                     android:drawableEnd="@drawable/connect_right_arrow"
                     android:gravity="start|center"
                     android:text="@string/personalid_continue_label"

@@ -505,7 +505,7 @@
     <string name="personalid_otp_verification_failed">Kitu kilienda vibaya. Tafadhali jaribu tena.</string>
     <string name="personalid_location_permission_error">PersonalID inahitaji kifaa chako kiwe na Huduma za Mahali zimewashwa. Tafadhali wezesha hii katika mipangilio ya simu yako kabla ya kuendelea.</string>
     <string name="personalid_sync_menu_title">Sawazisha</string>
-    <string name="connect_registration_subtitle">Weka Nambari yako ya Simu</string>
+    <string name="connect_registration_subtitle">Weka nambari yako ya simu</string>
     <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya PersonalID</string>
     <string name="connect_backup_code_message">Weka Nambari yako ya Hifadhi Nakala yenye tarakimu 6</string>
     <string name="connect_messaging_send_message_fail_msg">Imeshindwa kutuma ujumbe</string>
