@@ -17,8 +17,9 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 ### QA Notes
 
-- Step through PersonalID sign-up and account recovery and verify the CommCare logo shows only on the phone number screen.
+- Step through PersonalID sign-up and account recovery and verify the CommCare logo no longer appears, including on the phone number screen.
   - Confirm the name screen's app bar title reads "Name" and not "App Lock".
+- On every PersonalID sign-up, recovery and profile screen, including any message sheets that appear, confirm each screen has a heading and no text is oversized or clipped.
 - On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
 
 ## CommCare 2.64.1
