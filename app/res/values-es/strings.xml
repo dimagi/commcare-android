@@ -543,7 +543,7 @@
     <string name="personalid_configuration_process_failed_temporary_unavailable">Error temporal al verificar la elegibilidad de tu dispositivo. Por favor, inténtalo de nuevo después de un día.</string>
     <string name="personalid_configuration_process_failed_network_error">Error de red al verificar la elegibilidad de tu dispositivo. Asegúrate de tener una buena conexión de red e inténtalo de nuevo.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">No se pudo verificar la elegibilidad del dispositivo debido a un error inesperado. Por favor, contacta al soporte al cliente si el problema persiste.</string>
-    <string name="personalid_photo_capture_title">Bienvenido %1$s</string>
+    <string name="personalid_photo_capture_title">Bienvenido, %1$s</string>
     <string name="personalid_photo_capture_subtitle">Por favor, toma una foto tuya para completar la configuración de tu cuenta</string>
     <string name="personalid_photo_capture_take_photo_button">Tomar foto</string>
     <string name="personalid_photo_capture_save_photo_button">Guardar foto</string>

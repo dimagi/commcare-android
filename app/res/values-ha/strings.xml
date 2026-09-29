@@ -383,7 +383,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_configuration_process_failed_temporary_unavailable">Kuskuren wucin gadi wajen tabbatar da cancantar na\'urarka. Da fatan za a sake gwadawa bayan kwana ɗaya.</string>
     <string name="personalid_configuration_process_failed_network_error">Kuskuren hanyar sadarwa wajen tabbatar da cancantar na\'urarka. Da fatan za a tabbatar kana da kyakkyawar haɗin hanyar sadarwa sannan a sake gwadawa.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">Ba a iya tabbatar da cancantar na\'urar ba saboda kuskuren da ba a zata ba. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba</string>
-    <string name="personalid_photo_capture_title">Barka da zuwa %1$s</string>
+    <string name="personalid_photo_capture_title">Barka da zuwa, %1$s</string>
     <string name="personalid_photo_capture_subtitle">Da fatan za a ɗauki hoton kanka don kammala saitin asusunka</string>
     <string name="personalid_photo_capture_take_photo_button">Ɗauki Hoto</string>
     <string name="personalid_photo_capture_save_photo_button">Ajiye Hoto</string>

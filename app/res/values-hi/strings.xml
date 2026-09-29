@@ -539,7 +539,7 @@ License.
     <string name="personalid_configuration_process_failed_temporary_unavailable">आपके डिवाइस की पात्रता की जांच करते समय अस्थायी त्रुटि। कृपया एक दिन बाद पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_network_error">आपके डिवाइस की पात्रता की जांच करते समय नेटवर्क त्रुटि। कृपया सुनिश्चित करें कि आपके पास एक अच्छा नेटवर्क कनेक्शन है और पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_unexpected_error">अप्रत्याशित त्रुटि के कारण डिवाइस की पात्रता की जांच करने में असमर्थ। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
-    <string name="personalid_photo_capture_title">स्वागत है %1$s</string>
+    <string name="personalid_photo_capture_title">स्वागत है, %1$s</string>
     <string name="personalid_photo_capture_subtitle">कृपया अपने खाते का सेटअप पूरा करने के लिए अपनी एक तस्वीर लें</string>
     <string name="personalid_photo_capture_take_photo_button">तस्वीर लें</string>
     <string name="personalid_photo_capture_save_photo_button">तस्वीर सहेजें</string>

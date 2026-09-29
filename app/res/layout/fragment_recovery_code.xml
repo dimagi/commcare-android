@@ -27,7 +27,7 @@
                 android:layout_height="100dp"
                 android:contentDescription="@null"
                 android:scaleType="centerCrop"
-                android:src="@drawable/baseline_person_24"
+                android:src="@drawable/ic_personalid_avatar_placeholder"
                 app:shapeAppearanceOverlay="@style/CircularImageView" />
             <TextView
                 android:id="@+id/welcome_back"

@@ -6,76 +6,76 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
+        android:background="?attr/colorSurface"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/title"
+            style="@style/TextStyle.PersonalId.Heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:text="@string/personalid_photo_capture_title"
-            android:textColor="@color/connect_blue_color"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+            android:layout_marginHorizontal="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:text="@string/personalid_photo_capture_title" />
 
         <TextView
             android:id="@+id/subtitle"
+            style="@style/TextStyle.PersonalId.Body"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start"
-            android:layout_margin="@dimen/activity_horizontal_margin"
-            android:text="@string/personalid_photo_capture_subtitle"
-            android:textColor="@color/connect_subtext"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:layout_marginHorizontal="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:text="@string/personalid_photo_capture_subtitle" />
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/photo_image_view"
             android:layout_width="160dp"
             android:layout_height="160dp"
             android:layout_gravity="center"
-            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_margin="@dimen/connect_space_xl"
             android:contentDescription="@null"
-            android:src="@drawable/baseline_person_24" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_personalid_avatar_placeholder"
+            app:shapeAppearanceOverlay="@style/CircularImageView" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_horizontal"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:layout_marginStart="@dimen/connect_space_lg"
             >
         <com.google.android.material.button.MaterialButton
             android:id="@+id/take_photo_button"
+            style="@style/PersonalIdPrimaryButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginEnd="5dp"
+            android:layout_marginEnd="@dimen/spacer_small"
             android:text="@string/personalid_photo_capture_take_photo_button" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_photo_button"
+            style="@style/PersonalIdPrimaryButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:enabled="false"
-            android:layout_marginStart="5dp"
+            android:layout_marginStart="@dimen/spacer_small"
             android:text="@string/personalid_photo_capture_save_photo_button" />
         </LinearLayout>
         <TextView
             android:id="@+id/errorTextView"
+            style="@style/TextStyle.PersonalId.Error"
             tools:text="Error uploading photo"
-            android:textStyle="bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:layout_margin="@dimen/connect_space_lg"
             android:layout_gravity="center_horizontal"
-            android:textColor="@android:color/holo_red_light"
-            android:visibility="gone"
-            android:textSize="14sp" />
+            android:visibility="gone" />
     </LinearLayout>
 
 </layout>
