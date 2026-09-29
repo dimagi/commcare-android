@@ -504,7 +504,7 @@
     <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_location_permission_error">PersonalID requiere que su dispositivo tenga los Servicios de ubicación habilitados. Por favor, actívelos en la configuración de su teléfono antes de continuar.</string>
     <string name="connect_registration_subtitle">Ingresa tu número de teléfono</string>
-    <string name="connect_backup_code_message_title">Código de respaldo de PersonalId</string>
+    <string name="connect_backup_code_message_title">Código de respaldo de PersonalID</string>
     <string name="connect_backup_code_message">Ingresa tu código de respaldo de 6 dígitos</string>
     <string name="connect_messaging_send_message_fail_msg">Error al enviar el mensaje</string>
     <string name="connect_messaging_retrieve_messages_fail">Error al recuperar mensajes</string>
@@ -548,7 +548,7 @@
     <string name="personalid_photo_capture_take_photo_button">Tomar foto</string>
     <string name="personalid_photo_capture_save_photo_button">Guardar foto</string>
     <string name="personalid_this_is_not_me"><u>Este no soy yo</u></string>
-    <string name="personalid_welcome_back_msg">Bienvenido de nuevo %s</string>
+    <string name="personalid_welcome_back_msg">Bienvenido de nuevo, %s</string>
     <string name="personalid_wrong_backup_message">Ha introducido el código de seguridad incorrecto. Inténtelo de nuevo. Su cuenta se bloqueará después de %d intentos incorrectos más.</string>
     <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
     <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>

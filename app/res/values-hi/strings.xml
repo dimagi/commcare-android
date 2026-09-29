@@ -500,7 +500,7 @@ License.
     <string name="personalid_otp_verification_failed">कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
     <string name="personalid_location_permission_error">PersonalID के लिए आवश्यक है कि आपके डिवाइस पर लोकेशन सेवाएं सक्षम हों। कृपया आगे बढ़ने से पहले इसे अपने फ़ोन की सेटिंग में सक्षम करें।</string>
     <string name="connect_registration_subtitle">अपना फ़ोन नंबर दर्ज करें</string>
-    <string name="connect_backup_code_message_title">PersonalId बैकअप कोड</string>
+    <string name="connect_backup_code_message_title">PersonalID बैकअप कोड</string>
     <string name="connect_backup_code_message">अपना 6 अंकों का बैकअप कोड दर्ज करें</string>
     <string name="connect_messaging_send_message_fail_msg">संदेश भेजने में विफल</string>
     <string name="connect_messaging_retrieve_messages_fail">संदेश पुनर्प्राप्त करने में विफल</string>
@@ -544,7 +544,7 @@ License.
     <string name="personalid_photo_capture_take_photo_button">तस्वीर लें</string>
     <string name="personalid_photo_capture_save_photo_button">तस्वीर सहेजें</string>
     <string name="personalid_this_is_not_me"><u>यह मैं नहीं हूँ</u></string>
-    <string name="personalid_welcome_back_msg">वापसी पर स्वागत है %s</string>
+    <string name="personalid_welcome_back_msg">वापसी पर स्वागत है, %s</string>
     <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड डाला है। कृपया फिर से कोशिश करें। %d और गलत कोशिशों के बाद आपका अकाउंट लॉक हो जाएगा।</string>
     <string name="personalid_second_device_login_title">दूसरे डिवाइस पर लॉग इन करें</string>
     <string name="personalid_second_device_login_message">%s से लॉग आउट किया गया, आखिरी बार %s इस्तेमाल किया गया था। PersonalID से एक समय में सिर्फ़ एक डिवाइस पर लॉग इन किया जा सकता है।</string>

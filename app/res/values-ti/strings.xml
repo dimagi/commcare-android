@@ -254,7 +254,7 @@
     <string name="connect_enter_otp">በጃኻ ናብ ቁጽሪ ስልክኻ ዝተላእኸ ናይ 6 ኣሃዛት መሕለፊ ኮድ ኣእቱ።</string>
     <string name="connect_backup_code_title_set">ናይ ምሕዋይ ሕጊ</string>
     <string name="connect_backup_code_title_confirm">ናይ ምሕዋይ ኮድ ኣረጋግጽ</string>
-    <string name="connect_backup_code_message_title">PersonalId ናይ ምሕዋይ ኮድ</string>
+    <string name="connect_backup_code_message_title">PersonalID ናይ ምሕዋይ ኮድ</string>
     <string name="connect_backup_code_message">6 ኣሃዝ ዘለዎ ናይ ምሕዋይ ኮድካ ኣእቱ</string>
     <string name="connect_backup_code_remember">በጃኻ ነቲ ናይ መተካእታ ኮድካ ምዝካርካ ኣረጋግጽ! %d ኣሃዛት ክኸውን ኣለዎ። እንደገና ናብ ሕሳብካ ንምእታው ስለ ዘድልየካ፡ ኣብ ውሑስ ቦታ ኣቐምጦ።</string>
     <string name="connect_backup_code_mismatch">እቲ እተእትዎ ናይ መተካእታ ኮዳት ክመሳሰል ኣለዎ።</string>

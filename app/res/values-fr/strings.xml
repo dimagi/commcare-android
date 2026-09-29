@@ -500,7 +500,7 @@ License.
     <string name="personalid_location_permission_error">PersonalID nécessite que les services de localisation soient activés sur votre appareil. Veuillez les activer dans les paramètres de votre téléphone avant de continuer.</string>
     <string name="personalid_sync_menu_title">Synchroniser</string>
     <string name="connect_registration_subtitle">Entrez votre numéro de téléphone</string>
-    <string name="connect_backup_code_message_title">Code de sauvegarde PersonalId</string>
+    <string name="connect_backup_code_message_title">Code de sauvegarde PersonalID</string>
     <string name="connect_backup_code_message">Entrez votre code de sauvegarde à 6 chiffres</string>
     <string name="connect_messaging_send_message_fail_msg">Échec de l\'envoi du message</string>
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
@@ -548,7 +548,7 @@ License.
     <string name="personalid_photo_capture_take_photo_button">Prendre une photo</string>
     <string name="personalid_photo_capture_save_photo_button">Enregistrer la photo</string>
     <string name="personalid_this_is_not_me"><u>Ce n\'est pas moi</u></string>
-    <string name="personalid_welcome_back_msg">Bon retour %s</string>
+    <string name="personalid_welcome_back_msg">Bon retour, %s</string>
     <string name="personalid_wrong_backup_message">Vous avez saisi un code de sauvegarde incorrect. Veuillez réessayer. Votre compte sera bloqué après %d tentatives incorrectes supplémentaires.</string>
     <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
     <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>

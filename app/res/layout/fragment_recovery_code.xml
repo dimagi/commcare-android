@@ -3,13 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ScrollView
-        android:background="@color/white"
+        android:background="?attr/colorSurface"
         android:fillViewport="true"
         android:layout_height="match_parent"
         android:layout_width="match_parent">
 
         <LinearLayout
-            android:background="@color/white"
+            android:background="?attr/colorSurface"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:orientation="vertical">
@@ -19,67 +19,61 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp">
-            <ImageView
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl">
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/user_photo"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:contentDescription="@null"
-                android:src="@drawable/baseline_person_24" />
+                android:scaleType="centerCrop"
+                android:src="@drawable/baseline_person_24"
+                app:shapeAppearanceOverlay="@style/CircularImageView" />
             <TextView
                 android:id="@+id/welcome_back"
+                style="@style/TextStyle.PersonalId.Value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/connect_space_lg"
                 android:layout_gravity="center"
-                android:layout_marginEnd="16dp"
-                android:textColor="@color/connect_dark_blue_color"
-                android:textSize="18sp" />
+                android:layout_marginEnd="@dimen/connect_space_lg" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/recovery_code_tilte"
+            style="@style/TextStyle.PersonalId.Heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/create_a_new_recovery_code"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="18sp" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:text="@string/create_a_new_recovery_code" />
 
         <TextView
-            android:textStyle="bold"
             android:id="@+id/backup_code_subtitle"
+            style="@style/TextStyle.PersonalId.Body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:text="@string/choose_a_6_digit_recovery_code"
-            android:textColor="@color/connect_subtext"
-            android:textSize="12sp" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:text="@string/choose_a_6_digit_recovery_code" />
 
         <TextView
+            style="@style/TextStyle.PersonalId.Label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="@string/code"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="14sp" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:text="@string/code" />
 
         <LinearLayout
             android:id="@+id/backup_code_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:gravity="center_vertical">
 
             <LinearLayout
@@ -103,7 +97,7 @@
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/connect_space_lg"
                 app:codeViewDigitCount="6"
                 app:codeViewTextColor="@color/connect_blue_color"
                 app:codeViewBorderColor="@color/connect_blue_color"
@@ -118,9 +112,9 @@
                 android:id="@+id/backup_code_visibility_toggle"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="@dimen/connect_space_sm"
                 android:contentDescription="@null"
-                android:padding="4dp"
+                android:padding="@dimen/connect_space_xs"
                 android:src="@drawable/ic_visibility_24"
                 android:background="?attr/selectableItemBackgroundBorderless" />
 
@@ -128,21 +122,20 @@
 
         <TextView
             android:id="@+id/confirm_code_label"
+            style="@style/TextStyle.PersonalId.Label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:text="@string/confirm_code"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="14sp" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/confirm_code" />
 
         <LinearLayout
             android:id="@+id/confirm_code_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:gravity="center_vertical">
 
             <LinearLayout
@@ -166,7 +159,7 @@
                 android:layout_width="0dp"
                 android:layout_height="55dp"
                 android:layout_weight="1"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/connect_space_lg"
                 app:codeViewDigitCount="6"
                 app:codeViewTextColor="@color/connect_blue_color"
                 app:codeViewBorderColor="@color/connect_blue_color"
@@ -181,25 +174,23 @@
                 android:id="@+id/confirm_code_visibility_toggle"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="@dimen/connect_space_sm"
                 android:contentDescription="@null"
-                android:padding="4dp"
+                android:padding="@dimen/connect_space_xs"
                 android:src="@drawable/ic_visibility_24"
                 android:background="?attr/selectableItemBackgroundBorderless" />
 
         </LinearLayout>
 
         <TextView
-            android:textStyle="bold"
             android:id="@+id/connect_backup_code_error_message"
+            style="@style/TextStyle.PersonalId.Error"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xs"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:gravity="start"
-            android:textColor="@color/red"
-            android:textSize="16sp"
             android:visibility="gone"/>
 
             <LinearLayout
@@ -209,42 +200,38 @@
 
                 <TextView
                     android:id="@+id/not_me_button"
+                    style="@style/TextStyle.PersonalId.Link"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/personalid_this_is_not_me"
-                    android:textColor="@color/cc_brand_color"
-                    android:textSize="14sp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="@dimen/connect_space_lg"
+                    android:layout_marginTop="@dimen/connect_space_lg"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
                     android:clickable="true"
-                    android:visibility="gone"
-                    android:textStyle="bold"/>
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/personalid_forgot_backup_code"
+                    style="@style/TextStyle.PersonalId.Link"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="@dimen/connect_space_lg"
+                    android:layout_marginTop="@dimen/connect_space_sm"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
                     android:clickable="true"
                     android:focusable="true"
                     android:text="@string/personalid_forgot_backup_code"
-                    android:textColor="@color/cc_brand_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
                     android:visibility="gone" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_backup_code_button"
-                    style="@style/CustomButtonStyle"
+                    style="@style/PersonalIdPrimaryButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginTop="32dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="@dimen/connect_space_lg"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
+                    android:layout_marginBottom="@dimen/connect_space_lg"
                     android:text="@string/personalid_continue_label"
                     android:drawableRight="@drawable/connect_right_arrow"/>
             </LinearLayout>

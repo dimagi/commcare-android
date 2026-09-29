@@ -220,7 +220,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="app_with_id_not_found">Ba a shigar da Manhajar CommCare da ake buƙata a kan na\'urar ba</string>
     <string name="user_suspended">An dakatar da mai amfani. Da fatan za a tuntuɓi admin.</string>
     <string name="enter_otp">Shigar da kalmar sirri ta lokaci ɗaya</string>
-    <string name="create_a_new_recovery_code">Ƙirƙiri sabuwar Lambar Ajiyar Kuɗi</string>
+    <string name="create_a_new_recovery_code">Ƙirƙiri sabuwar lambar ajiyar kuɗi</string>
     <string name="confirm_code">Tabbatar da Lambar</string>
     <string name="code">Lambobin sirri</string>
     <string name="choose_a_6_digit_recovery_code">Zaɓi Lambar Ajiyar Bayanai Mai Lambobi 6</string>
@@ -338,7 +338,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_location_permission_error">PersonalID yana buƙatar na\'urarka ta sami damar kunna Ayyukan Wuri. Da fatan za a kunna wannan a saitunan wayarka kafin a ci gaba.</string>
     <string name="personalid_sync_menu_title">Daidaita</string>
     <string name="connect_registration_subtitle">Shigar da lambar wayarku</string>
-    <string name="connect_backup_code_message_title">Lambar Ajiyayyen Sirri ta PersonalID</string>
+    <string name="connect_backup_code_message_title">Lambar ajiyayyen sirri ta PersonalID</string>
     <string name="connect_backup_code_message">Shigar da Lambar Ajiyar Kuɗi Mai Lambobi 6</string>
     <string name="connect_messaging_send_message_fail_msg">An kasa aika saƙo</string>
     <string name="connect_messaging_retrieve_messages_fail">An kasa dawo da saƙonni</string>
@@ -388,7 +388,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_photo_capture_take_photo_button">Ɗauki Hoto</string>
     <string name="personalid_photo_capture_save_photo_button">Ajiye Hoto</string>
     <string name="personalid_this_is_not_me">&lt;u>Wannan ba ni ba ne&lt;/u></string>
-    <string name="personalid_welcome_back_msg">Barka da dawowa %s</string>
+    <string name="personalid_welcome_back_msg">Barka da dawowa, %s</string>
     <string name="personalid_wrong_backup_message">Kun shigar da Lambar Ajiyayyen da ba daidai ba. Da fatan za a sake gwadawa. Za a kulle asusunku bayan ƙarin yunƙurin da ba daidai ba %d.</string>
     <string name="personalid_second_device_login_title">Shiga a Na\'ura ta Biyu</string>
     <string name="personalid_second_device_login_message">An fita daga %s, an yi amfani da %s na ƙarshe. PersonalID za a iya shiga kawai akan na\'ura ɗaya a lokaci guda.</string>

@@ -384,7 +384,7 @@
     <string name="app_with_id_not_found">Programu ya CommCare Inayohitajika haijasakinishwa kwenye kifaa</string>
     <string name="user_suspended">Mtumiaji Amesimamishwa. Tafadhali wasiliana na msimamizi.</string>
     <string name="enter_otp">Weka msimbo wa SMS</string>
-    <string name="create_a_new_recovery_code">Unda Nambari mpya ya Urejeshaji</string>
+    <string name="create_a_new_recovery_code">Unda nambari mpya ya urejeshaji</string>
     <string name="confirm_code">Thibitisha Msimbo</string>
     <string name="code">Kanuni</string>
     <string name="choose_a_6_digit_recovery_code">Chagua Msimbo wa Urejeshaji wa Dijiti 6</string>
@@ -506,7 +506,7 @@
     <string name="personalid_location_permission_error">PersonalID inahitaji kifaa chako kiwe na Huduma za Mahali zimewashwa. Tafadhali wezesha hii katika mipangilio ya simu yako kabla ya kuendelea.</string>
     <string name="personalid_sync_menu_title">Sawazisha</string>
     <string name="connect_registration_subtitle">Weka nambari yako ya simu</string>
-    <string name="connect_backup_code_message_title">Nambari ya Hifadhi Nakala ya PersonalID</string>
+    <string name="connect_backup_code_message_title">Nambari ya hifadhi nakala ya PersonalID</string>
     <string name="connect_backup_code_message">Weka Nambari yako ya Hifadhi Nakala yenye tarakimu 6</string>
     <string name="connect_messaging_send_message_fail_msg">Imeshindwa kutuma ujumbe</string>
     <string name="connect_messaging_retrieve_messages_fail">Imeshindwa kurejesha ujumbe</string>
@@ -554,7 +554,7 @@
     <string name="personalid_photo_capture_take_photo_button">Piga Picha</string>
     <string name="personalid_photo_capture_save_photo_button">Hifadhi Picha</string>
     <string name="personalid_this_is_not_me"><u>Huyu si mimi</u></string>
-    <string name="personalid_welcome_back_msg">Karibu tena %s</string>
+    <string name="personalid_welcome_back_msg">Karibu tena, %s</string>
     <string name="personalid_wrong_backup_message">Umeingiza Nambari ya Kuhifadhi Nakala Isiyo sahihi. Tafadhali jaribu tena. Akaunti yako itafungwa baada ya majaribio %d zaidi yasiyo sahihi.</string>
     <string name="personalid_second_device_login_title">Ingia kwenye Kifaa cha Pili</string>
     <string name="personalid_second_device_login_message">Imetoka kwenye %s, imetumika mara ya mwisho %s. PersonalID kinaweza kuingia kwenye kifaa kimoja tu kwa wakati mmoja.</string>
