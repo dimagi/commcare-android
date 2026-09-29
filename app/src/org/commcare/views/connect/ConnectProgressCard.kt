@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.ImageViewCompat
+import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectProgressCardBinding
 import org.commcare.util.LogTypes
@@ -85,9 +86,9 @@ class ConnectProgressCard
         init {
             orientation = VERTICAL
 
-            var primary = ContextCompat.getColor(context, R.color.connect_text_color)
-            var accent = ContextCompat.getColor(context, R.color.connect_dark_blue_color)
-            var disabled = ContextCompat.getColor(context, R.color.connect_grey)
+            var primary = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface)
+            var accent = MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary)
+            var disabled = MaterialColors.getColor(this, R.attr.connectOutline)
             var initialState = State()
 
             context.withStyledAttributes(
@@ -191,14 +192,14 @@ class ConnectProgressCard
         private fun applyInfoAppearance(appearance: State.Info.Appearance) {
             val isWarning = appearance == State.Info.Appearance.WARNING
             val background =
-                ContextCompat.getColor(
-                    context,
-                    if (isWarning) R.color.connect_light_grey else R.color.connect_dark_blue_color,
+                MaterialColors.getColor(
+                    this,
+                    if (isWarning) R.attr.connectOutlineVariant else com.google.android.material.R.attr.colorPrimary,
                 )
             val foreground =
-                ContextCompat.getColor(
-                    context,
-                    if (isWarning) R.color.connect_dark_blue_color else R.color.white,
+                MaterialColors.getColor(
+                    this,
+                    if (isWarning) com.google.android.material.R.attr.colorPrimary else com.google.android.material.R.attr.colorOnPrimary,
                 )
 
             binding.progressCardInfoMessage.setCardBackgroundColor(background)

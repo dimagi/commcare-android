@@ -10,6 +10,10 @@ import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.android.util.ConnectTestUtils
+import org.commcare.connect.ConnectConstants
+import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -26,6 +30,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mockStatic
+import org.mockito.Mockito.never
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
@@ -429,18 +435,60 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     // ========== RECOVERY workflow tests ==========
 
     @Test
-    fun `RECOVERY workflow email verification success passes backup_code as the recovery method`() {
+    fun `RECOVERY workflow verifies OTP with the stored user credentials`() {
+        setUpRecoveryFlow()
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+        val request = takeRequestOrFail()
+
+        assertEquals("/users/verify_email_otp", request.path)
+        val authHeader = request.headers["Authorization"]
+        assertNotNull("Authorization header should be present", authHeader)
+        assertTrue(
+            "RECOVERY should use basic auth from the stored user, not the session token",
+            authHeader!!.startsWith("Basic "),
+        )
+    }
+
+    @Test
+    fun `RECOVERY workflow email verification success navigates to recovery success screen`() {
+        setUpRecoveryFlow()
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        assertEquals(R.id.personalid_message_display, navController.currentDestination!!.id)
+        val args = navController.currentBackStackEntry?.arguments
+        assertEquals(activity.getString(R.string.connect_recovery_success_title), args?.getString("title"))
+        assertEquals(ConnectConstants.PERSONALID_RECOVERY_SUCCESS, args?.getInt("callingClass"))
+    }
+
+    @Test
+    fun `RECOVERY workflow email verification success persists email to stored user`() {
+        setUpRecoveryFlow()
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        assertEquals(TEST_EMAIL, ConnectUserDatabaseUtil.getUser().email)
+    }
+
+    @Test
+    fun `RECOVERY workflow email verification success does not report recovery again`() {
         setUpRecoveryFlow()
         mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
             mockWebServer.enqueue(successResponse())
             enterCode("123456")
             drainHttp()
-            mockAnalytics.verify {
-                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
-                    eq(true),
-                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
-                )
-            }
+            mockAnalytics.verify(
+                {
+                    FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(any(), any())
+                },
+                never(),
+            )
         }
     }
 
@@ -492,6 +540,8 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
                 personalId = "test-personal-id",
                 oauthPassword = "test-oauth-pwd",
             )
+        ConnectTestUtils.createConnectDbFile()
+        PersonalIdManager.getInstance().onAccountConfigurationSuccess(sessionData)
         navigateToFragment(sessionData, R.id.personalid_email_verification, args)
         activity.runOnUiThread {
             installTestNavController(

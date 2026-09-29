@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.commcare.views.extensions.themeColor
@@ -119,7 +120,7 @@ class ConnectInfoHalfCardTest {
 
         card.contentEnabled = true
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_blue_color),
+            MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary),
             value.currentTextColor,
         )
     }
@@ -130,7 +131,7 @@ class ConnectInfoHalfCardTest {
 
         assertEquals(true, card.contentEnabled)
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_blue_color),
+            MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary),
             card.findViewById<TextView>(R.id.info_card_value_text).currentTextColor,
         )
     }
