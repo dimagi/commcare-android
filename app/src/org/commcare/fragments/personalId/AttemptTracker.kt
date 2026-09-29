@@ -9,19 +9,19 @@ package org.commcare.fragments.personalId
 class AttemptTracker(
     initialRequestCount: Int = 0,
     initialFailedAttempts: Int = 0,
-) {
-    var requestCount: Int = initialRequestCount
+) : AttemptCounter {
+    override var requestCount: Int = initialRequestCount
         private set
-    var failedAttempts: Int = initialFailedAttempts
+    override var failedAttempts: Int = initialFailedAttempts
         private set
 
     /** Records one request, regardless of outcome. */
-    fun recordRequest() {
+    override fun recordRequest() {
         requestCount++
     }
 
     /** Records one failed attempt. */
-    fun recordFailedAttempt() {
+    override fun recordFailedAttempt() {
         failedAttempts++
     }
 

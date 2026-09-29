@@ -17,10 +17,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
 import com.google.android.gms.auth.api.phone.SmsRetriever
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.SMSBroadcastReceiver
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
@@ -43,15 +40,19 @@ import org.commcare.utils.OtpWaitFormatter
 import org.javarosa.core.services.Logger
 import org.joda.time.DateTime
 
-open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
+/**
+ * Phone OTP entry screen shared by signup and Manage Profile. Owns the UI, the resend timer, SMS
+ * autofill, and the OTP method strategy: start with [defaultSmsMethod], switch to PersonalID SMS on
+ * a non-recoverable Firebase error or on the first resend, when [isFallbackAllowed].
+ */
+abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
     private var primaryPhone: String? = null
     private var otpRequestTime: DateTime? = null
     private var smsBroadcastReceiver: SMSBroadcastReceiver? = null
-    private lateinit var binding: ScreenPersonalidPhoneVerifyBinding
+    protected lateinit var binding: ScreenPersonalidPhoneVerifyBinding
     private val resendTimerHandler = Handler(Looper.getMainLooper())
     private var currentOtpOp: OtpAnalyticsMapper.OtpOp? = null
     private lateinit var otpManager: OtpManager
-    private lateinit var personalIdSessionData: PersonalIdSessionData
     private var otpCallback: OtpVerificationCallback? = null
     private lateinit var smsConsentLauncher: ActivityResultLauncher<Intent>
     private var lastOtpMethod: String? = null
@@ -66,16 +67,42 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
             }
         }
 
+    /** Phone number the OTP is sent to, in E.164 format. */
+    protected abstract fun getPhoneNumber(): String?
+
+    /** Credentials for the PersonalID OTP calls. */
+    protected abstract fun buildAuthInfo(): AuthInfo
+
+    /** Session the PersonalID responses are parsed into, or null outside the signup flow. */
+    protected abstract fun sessionDataOrNull(): PersonalIdSessionData?
+
+    /** SMS method to start with; anything other than PersonalID means Firebase. */
+    protected abstract fun defaultSmsMethod(): String?
+
+    protected abstract fun isFallbackAllowed(): Boolean
+
+    protected abstract fun attemptCounter(): AttemptCounter
+
+    protected abstract fun analyticsWorkflow(): EmailWorkFlow
+
+    protected abstract fun continueClickedWorkflow(): PersonalIdWorkflow
+
+    protected abstract fun onOtpVerified()
+
+    /** @return true when the failure was fully handled and no inline error should be shown. */
+    protected open fun handleApiFailure(failureCode: PersonalIdOrConnectApiErrorCodes): Boolean = false
+
+    protected open fun showChangeNumberLink(): Boolean = true
+
+    protected open fun onChangeNumberClicked() = Unit
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        personalIdSessionData =
-            ViewModelProvider(requireActivity())[PersonalIdSessionDataViewModel::class.java]
-                .personalIdSessionData
         if (savedInstanceState != null) {
             primaryPhone = savedInstanceState.getString(KEY_PHONE)
             lastOtpMethod = savedInstanceState.getString(KEY_LAST_OTP_METHOD)
         } else {
-            primaryPhone = personalIdSessionData.phoneNumber
+            primaryPhone = getPhoneNumber()
         }
         smsConsentLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -109,7 +136,7 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
             override fun onSuccess() {
                 if (otpCallback == null) return
                 reportOtpAnalytics(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, null)
-                navigateToNameEntry()
+                onOtpVerified()
             }
 
             override fun onFailure(
@@ -173,7 +200,7 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
                     OtpAnalyticsMapper.reasonFrom(failureCode),
                 )
 
-                if (handleCommonSignupFailures(failureCode)) {
+                if (handleApiFailure(failureCode)) {
                     return
                 }
                 if (failureCode == PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR) {
@@ -197,7 +224,7 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
      * Only switches from Firebase to PersonalId, never the reverse.
      */
     private fun shouldAutoSwitchToPersonalIdAuth(errorType: OtpErrorType): Boolean {
-        if (SMS_METHOD_PERSONAL_ID.equals(personalIdSessionData.smsMethod, ignoreCase = true)) {
+        if (SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true)) {
             return false
         }
         return errorType.isNonRecoverable
@@ -247,13 +274,17 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
     private fun setupListeners() {
         binding.connectResendButton.setOnClickListener {
             // Always fallback to Twilio (via PersonalID) if this is the first time the user reattempts to send the OTP.
-            val useOtpFallback = personalIdSessionData.otpAttempts == 1
+            val useOtpFallback = attemptCounter().requestCount == 1
             setupOtpManager(useOtpFallback)
             requestOtp()
         }
-        binding.connectPhoneVerifyChange.paintFlags =
-            binding.connectPhoneVerifyChange.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-        binding.connectPhoneVerifyChange.setOnClickListener { navigateToPhoneEntry() }
+        if (showChangeNumberLink()) {
+            binding.connectPhoneVerifyChange.paintFlags =
+                binding.connectPhoneVerifyChange.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+            binding.connectPhoneVerifyChange.setOnClickListener { onChangeNumberClicked() }
+        } else {
+            binding.connectPhoneVerifyChange.visibility = View.GONE
+        }
         binding.connectPhoneVerifyButton.setOnClickListener { verifyOtp() }
         binding.customOtpView.setOnCodeChangedListener { otp ->
             clearOtpError()
@@ -303,7 +334,7 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
         binding.customOtpView.setErrorState(false)
     }
 
-    private fun displayOtpError(message: String?) {
+    protected fun displayOtpError(message: String?) {
         if (!message.isNullOrEmpty()) {
             binding.connectPhoneVerifyError.visibility = View.VISIBLE
             binding.connectPhoneVerifyError.text = message
@@ -366,7 +397,7 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
         outState.putString(KEY_PHONE, primaryPhone)
         outState.putString(KEY_LAST_OTP_METHOD, lastOtpMethod)
         outState.putBoolean(KEY_VERIFY_BUTTON_ENABLED, binding.connectPhoneVerifyButton.isEnabled)
-        outState.putString(KEY_OTP_REQUEST_TIME_STRING, otpRequestTime.toString())
+        outState.putString(KEY_OTP_REQUEST_TIME_STRING, otpRequestTime?.toString())
         outState.putBoolean(KEY_OTP_LIMIT_EXCEEDED, otpLimitExceeded)
         outState.putInt(KEY_RESEND_COOLDOWN_SECONDS, resendCooldownSeconds)
     }
@@ -381,8 +412,7 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
 
     private fun recordFailedVerificationAttempt() {
         if (currentOtpOp == OtpAnalyticsMapper.OtpOp.VERIFY_PHONE) {
-            personalIdSessionData.otpVerificationFailedAttempts =
-                personalIdSessionData.otpVerificationFailedAttempts + 1
+            attemptCounter().recordFailedAttempt()
         }
     }
 
@@ -396,9 +426,9 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
             outcome,
             method,
             reason,
-            personalIdSessionData.otpAttempts,
-            personalIdSessionData.otpVerificationFailedAttempts,
-            OtpAnalyticsMapper.workflowParam(EmailWorkFlow.REGISTRATION),
+            attemptCounter().requestCount,
+            attemptCounter().failedAttempts,
+            OtpAnalyticsMapper.workflowParam(analyticsWorkflow()),
         )
     }
 
@@ -410,14 +440,14 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
         otpRequestTime = DateTime()
         currentOtpOp = OtpAnalyticsMapper.OtpOp.REQUEST_PHONE
         otpManager.requestOtp(primaryPhone)
-        personalIdSessionData.otpAttempts = personalIdSessionData.otpAttempts + 1
+        attemptCounter().recordRequest()
     }
 
     private fun verifyOtp() {
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
             javaClass.simpleName,
             null,
-            PersonalIdWorkflow.CONFIGURATION,
+            continueClickedWorkflow(),
         )
         binding.connectPhoneVerifyButton.isEnabled = false
         clearOtpError()
@@ -481,54 +511,29 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
         binding.connectPhoneVerifyResend.text = resendStatusText
     }
 
-    private fun navigateToPhoneEntry() {
-        Navigation
-            .findNavController(binding.connectResendButton)
-            .popBackStack(R.id.personalid_phone_fragment, false)
-    }
-
-    private fun navigateToNameEntry() {
-        val directions = PersonalIdPhoneVerificationFragmentDirections.actionPersonalidOtpPageToPersonalidName()
-        Navigation.findNavController(binding.connectResendButton).navigate(directions)
-    }
-
-    override fun navigateToMessageDisplay(
-        title: String,
-        message: String?,
-        isCancellable: Boolean,
-        phase: Int,
-        buttonText: Int,
-    ) {
-        val directions =
-            PersonalIdPhoneVerificationFragmentDirections
-                .actionPersonalidOtpPageToPersonalidMessage(title, message.orEmpty(), phase, getString(buttonText), null)
-                .setIsCancellable(isCancellable)
-        Navigation.findNavController(binding.root).navigate(directions)
-    }
-
     /**
      * @return true if the PersonalID fallback was explicitly applied, false if it was not
-     *         requested or is not allowed for this user. Note that false does not imply Firebase:
-     *         the session's own SMS method may already be PersonalID.
+     *         requested or is not allowed. False does not imply Firebase: [defaultSmsMethod] may
+     *         already be PersonalID.
      */
     private fun setupOtpManager(useOtpFallback: Boolean): Boolean {
-        val authInfo = AuthInfo.TokenAuth(personalIdSessionData.token)
+        val authInfo = buildAuthInfo()
 
         // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase.
-        if (useOtpFallback && personalIdSessionData.otpFallback) {
-            otpManager = OtpManager(requireActivity(), authInfo, personalIdSessionData, otpCallback, SMS_METHOD_PERSONAL_ID)
+        if (useOtpFallback && isFallbackAllowed()) {
+            otpManager = OtpManager(requireActivity(), authInfo, sessionDataOrNull(), otpCallback, SMS_METHOD_PERSONAL_ID)
             lastOtpMethod = SMS_METHOD_PERSONAL_ID
             return true
         }
 
-        // The session's own SMS method may already be PersonalID; anything else means Firebase.
+        // The default SMS method may already be PersonalID; anything else means Firebase.
         val method =
-            if (SMS_METHOD_PERSONAL_ID.equals(personalIdSessionData.smsMethod, ignoreCase = true)) {
+            if (SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true)) {
                 SMS_METHOD_PERSONAL_ID
             } else {
                 SMS_METHOD_FIREBASE
             }
-        otpManager = OtpManager(requireActivity(), authInfo, personalIdSessionData, otpCallback, method)
+        otpManager = OtpManager(requireActivity(), authInfo, sessionDataOrNull(), otpCallback, method)
         lastOtpMethod = method
         return false
     }
@@ -552,5 +557,3 @@ open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
         private val OTP_PATTERN = Regex("\\b\\d{6}\\b")
     }
 }
-
-class PersonalIdPhoneVerificationFragment : BasePersonalIdPhoneVerificationFragment()
