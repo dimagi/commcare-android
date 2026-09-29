@@ -9,7 +9,6 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.personalId.ApiPersonalId
-import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -61,29 +60,36 @@ class EmailHelperTest {
     }
 
     @Test
-    fun `sendEmailOtp uses session token for RECOVERY workflow`() {
+    fun `sendEmailOtp uses ConnectUserRecord for RECOVERY workflow`() {
         val activity = mock(Activity::class.java)
         val sessionData = PersonalIdSessionData(token = "session-token-456")
+        val user = mock(ConnectUserRecord::class.java)
 
-        mockStatic(ApiPersonalId::class.java).use { mockApi ->
-            EmailHelper.sendEmailOtp(
-                activity = activity,
-                email = "user@example.com",
-                workflow = EmailWorkFlow.RECOVERY,
-                sessionData = sessionData,
-                tracker = AttemptTracker(),
-                onSuccess = {},
-                onFailure = { _, _ -> },
-            )
+        mockStatic(ConnectUserDatabaseUtil::class.java).use { mockedDb ->
+            mockedDb
+                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
+                .thenReturn(user)
 
-            mockApi.verify {
-                ApiPersonalId.sendEmailOtp(
-                    eq(activity),
-                    eq("user@example.com"),
-                    eq("session-token-456"),
-                    eq(null),
-                    any(),
+            mockStatic(ApiPersonalId::class.java).use { mockApi ->
+                EmailHelper.sendEmailOtp(
+                    activity = activity,
+                    email = "user@example.com",
+                    workflow = EmailWorkFlow.RECOVERY,
+                    sessionData = sessionData,
+                    tracker = AttemptTracker(),
+                    onSuccess = {},
+                    onFailure = { _, _ -> },
                 )
+
+                mockApi.verify {
+                    ApiPersonalId.sendEmailOtp(
+                        eq(activity),
+                        eq("user@example.com"),
+                        eq(null),
+                        eq(user),
+                        any(),
+                    )
+                }
             }
         }
     }
@@ -155,31 +161,38 @@ class EmailHelperTest {
     }
 
     @Test
-    fun `verifyEmailOtp uses session token for RECOVERY workflow`() {
+    fun `verifyEmailOtp uses ConnectUserRecord for RECOVERY workflow`() {
         val activity = mock(Activity::class.java)
         val sessionData = PersonalIdSessionData(token = "session-token-456")
+        val user = mock(ConnectUserRecord::class.java)
 
-        mockStatic(ApiPersonalId::class.java).use { mockApi ->
-            EmailHelper.verifyEmailOtp(
-                activity = activity,
-                email = "user@example.com",
-                otp = "654321",
-                workflow = EmailWorkFlow.RECOVERY,
-                sessionData = sessionData,
-                tracker = AttemptTracker(),
-                onSuccess = {},
-                onFailure = { _, _ -> },
-            )
+        mockStatic(ConnectUserDatabaseUtil::class.java).use { mockedDb ->
+            mockedDb
+                .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
+                .thenReturn(user)
 
-            mockApi.verify {
-                ApiPersonalId.verifyEmailOtp(
-                    eq(activity),
-                    eq("user@example.com"),
-                    eq("654321"),
-                    eq("session-token-456"),
-                    eq(null),
-                    any(),
+            mockStatic(ApiPersonalId::class.java).use { mockApi ->
+                EmailHelper.verifyEmailOtp(
+                    activity = activity,
+                    email = "user@example.com",
+                    otp = "654321",
+                    workflow = EmailWorkFlow.RECOVERY,
+                    sessionData = sessionData,
+                    tracker = AttemptTracker(),
+                    onSuccess = {},
+                    onFailure = { _, _ -> },
                 )
+
+                mockApi.verify {
+                    ApiPersonalId.verifyEmailOtp(
+                        eq(activity),
+                        eq("user@example.com"),
+                        eq("654321"),
+                        eq(null),
+                        eq(user),
+                        any(),
+                    )
+                }
             }
         }
     }
@@ -268,20 +281,17 @@ class EmailHelperTest {
     fun `routeAfterEmailDeclined invokes onRecoverySuccess for RECOVERY`() {
         val activity = mock(FragmentActivity::class.java)
         val fragment = mock(Fragment::class.java)
-        val sessionData = PersonalIdSessionData(token = "tok")
         whenever(fragment.requireActivity()).thenReturn(activity)
 
         var registrationCalled = false
         var recoverySuccessCalled = false
 
-        mockStatic(PersonalIdRecoveryCompleter::class.java).use { mockCompleter ->
-            EmailHelper.routeAfterEmailDeclined(
-                fragment = fragment,
-                workflow = EmailWorkFlow.RECOVERY,
-                onRegistration = { registrationCalled = true },
-                onRecoverySuccess = { recoverySuccessCalled = true },
-            )
-        }
+        EmailHelper.routeAfterEmailDeclined(
+            fragment = fragment,
+            workflow = EmailWorkFlow.RECOVERY,
+            onRegistration = { registrationCalled = true },
+            onRecoverySuccess = { recoverySuccessCalled = true },
+        )
 
         assertFalse(registrationCalled)
         assertTrue(recoverySuccessCalled)

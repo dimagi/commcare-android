@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectConstants
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
@@ -80,7 +82,10 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
         when (workflow) {
             EmailWorkFlow.RECOVERY -> {
                 personalIdSessionData!!.email = enteredEmail
-                finalizeRecoveryAndShowSuccess()
+                val user = ConnectUserDatabaseUtil.getUser()
+                user.email = enteredEmail
+                ConnectUserDatabaseUtil.storeUser(user)
+                navigateToRecoverySuccess()
             }
 
             EmailWorkFlow.REGISTRATION -> {
@@ -106,7 +111,7 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
     override fun proceedWithoutEmail() {
         when (workflow) {
             EmailWorkFlow.RECOVERY -> {
-                finalizeRecoveryAndShowSuccess()
+                navigateToRecoverySuccess()
             }
 
             EmailWorkFlow.REGISTRATION -> {
@@ -124,11 +129,6 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
             PersonalIdConfigurationEmailVerificationFragmentDirections
                 .actionPersonalidEmailVerificationToPersonalidPhotoCapture(),
         )
-    }
-
-    private fun finalizeRecoveryAndShowSuccess() {
-        finalizeRecovery()
-        navigateToRecoverySuccess()
     }
 
     private fun finalizeRecovery() {
