@@ -18,8 +18,6 @@ class HomeActivityCoordinator(
 ) : DefaultLifecycleObserver {
     private var restored = false
 
-    private val crashRecovery = CrashRecoveryDelegate()
-
     private var externalLaunch = false
     private var loginExtraConsumed = false
     private var endpointNavPendingAfterSync = false
@@ -63,14 +61,6 @@ class HomeActivityCoordinator(
 
     override fun onCreate(owner: LifecycleOwner) {
         ensureRestored()
-    }
-
-    /**
-     * Must be the host's first step in `onCreateSessionSafe`, so that crashes from the rest of its
-     * startup work are reported with the app's identifying data.
-     */
-    fun onSessionSafeCreate() {
-        crashRecovery.register()
     }
 
     /**
