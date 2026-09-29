@@ -206,6 +206,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
+        coordinator.onSessionSafeCreate();
 
         updateLastSuccessfulCommCareVersion();
         sessionNavigator = new SessionNavigator(this);
