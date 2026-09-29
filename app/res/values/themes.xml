@@ -66,7 +66,7 @@
         <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
         <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
         <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
-        <item name="connectDisabledContainer">@color/cool_gray_300</item>
+        <item name="connectDisabledContainer">@color/cool_gray_100</item>
         <item name="connectOnDisabledContainer">@color/connect_subtext_color</item>
         <item name="connectCtaButtonBackground">@color/connect_cta_button_background</item>
         <item name="connectCtaButtonForeground">@color/connect_cta_button_foreground</item>

@@ -10,7 +10,6 @@ import org.commcare.dalvik.databinding.ViewConnectCtaBarBinding
 import org.commcare.views.extensions.bindOptional
 import org.commcare.views.extensions.themeColor
 import androidx.appcompat.R as AppCompatR
-import com.google.android.material.R as MaterialR
 
 /**
  * Reusable Connect bottom action bar.
@@ -73,7 +72,7 @@ class ConnectCtaBar
                 binding.ctaButton.isEnabled = value
                 binding.ctaTitleText.setTextColor(
                     context.themeColor(
-                        if (value) AppCompatR.attr.colorPrimary else MaterialR.attr.colorOnSurface,
+                        if (value) AppCompatR.attr.colorPrimary else R.attr.connectOnSurfaceEmphasis,
                     ),
                 )
             }
