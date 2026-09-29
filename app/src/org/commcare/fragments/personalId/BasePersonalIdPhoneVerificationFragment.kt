@@ -43,7 +43,7 @@ import org.commcare.utils.OtpWaitFormatter
 import org.javarosa.core.services.Logger
 import org.joda.time.DateTime
 
-class PersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
+open class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
     private var primaryPhone: String? = null
     private var otpRequestTime: DateTime? = null
     private var smsBroadcastReceiver: SMSBroadcastReceiver? = null
@@ -552,3 +552,5 @@ class PersonalIdPhoneVerificationFragment : BasePersonalIdFragment() {
         private val OTP_PATTERN = Regex("\\b\\d{6}\\b")
     }
 }
+
+class PersonalIdPhoneVerificationFragment : BasePersonalIdPhoneVerificationFragment()
