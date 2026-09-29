@@ -65,6 +65,7 @@
         <item name="connectOnSurfaceEmphasis">@color/cool_gray_900</item>
         <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
         <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
+        <item name="connectOnSurfaceSubtle">@color/connect_secondary_text</item>
         <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
         <item name="connectOutline">@color/connect_grey</item>
         <item name="connectOutlineVariant">@color/connect_light_grey</item>

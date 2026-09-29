@@ -227,6 +227,17 @@
         <item name="android:layout_margin">@dimen/spacer_small</item>
     </style>
 
+    <style name="PersonalIdPrimaryButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/personalid_primary_button_background</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">@dimen/connect_space_md</item>
+        <item name="height">40dp</item>
+        <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
+        <item name="iconPadding">@dimen/connect_space_sm</item>
+    </style>
+
     <style name="CustomSecondaryCtaButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">@color/secondary_cta_btn_background</item>
         <item name="android:textColor">@color/secondary_cta_btn_text_color</item>
@@ -420,6 +431,46 @@
     <style name="TextStyle.Connect.BodyXs" parent="">
         <item name="android:textAppearance">@style/TextAppearance.Connect.BodyXs</item>
         <item name="lineHeight">16sp</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.Heading" parent="TextStyle.Connect.TitleXl">
+        <item name="android:textSize">@dimen/connect_text_headline</item>
+        <item name="android:textColor">?attr/connectOnSurfaceEmphasis</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.SectionHeading" parent="TextStyle.Connect.TitleS">
+        <item name="android:textSize">@dimen/connect_text_body</item>
+        <item name="android:textColor">?attr/connectOnSurfaceVariant</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.Body" parent="TextStyle.Connect.BodyM">
+        <item name="android:textSize">@dimen/connect_text_body</item>
+        <item name="android:textColor">?attr/connectOnSurfaceVariant</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.Label" parent="TextStyle.Connect.TitleS">
+        <item name="android:textSize">@dimen/connect_text_body</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.Value" parent="TextStyle.Connect.BodyLg">
+        <item name="android:textSize">@dimen/connect_text_title</item>
+        <item name="android:textColor">?attr/connectOnSurfaceEmphasis</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.Helper" parent="TextStyle.Connect.BodyS">
+        <item name="android:textSize">@dimen/connect_text_caption</item>
+        <item name="android:textColor">?attr/connectOnSurfaceSubtle</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.Error" parent="TextStyle.Connect.BodyS">
+        <item name="android:textSize">@dimen/connect_text_caption</item>
+        <item name="android:textColor">?attr/connectStatusNegative</item>
+    </style>
+
+    <style name="TextStyle.PersonalId.Link" parent="TextStyle.Connect.TitleS">
+        <item name="android:textSize">@dimen/connect_text_body</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="Widget.CommCare.SemiCircleProgressBar" parent="">
