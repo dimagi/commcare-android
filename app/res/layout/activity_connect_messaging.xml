@@ -7,33 +7,27 @@
     android:layout_height="match_parent"
     tools:context="org.commcare.activities.connect.ConnectMessagingActivity">
 
-    <FrameLayout
-        android:id="@+id/nav_drawer_frame"
+    <LinearLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/main"
+        <include
+            android:id="@+id/include_tool_bar"
+            layout="@layout/appbar_layout"
+            android:theme="@style/ToolbarThemeOverlay"/>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/nav_host_fragment_connect_messaging"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/nav_graph_connect_messaging" />
 
-            <include
-                android:id="@+id/include_tool_bar"
-                layout="@layout/appbar_layout"
-                android:theme="@style/ToolbarThemeOverlay"/>
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/nav_host_fragment_connect_messaging"
-                android:name="androidx.navigation.fragment.NavHostFragment"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:defaultNavHost="true"
-                app:navGraph="@navigation/nav_graph_connect_messaging" />
-
-        </LinearLayout>
-    </FrameLayout>
+    </LinearLayout>
 
     <include layout="@layout/nav_drawer_base"/>
 </androidx.drawerlayout.widget.DrawerLayout>
