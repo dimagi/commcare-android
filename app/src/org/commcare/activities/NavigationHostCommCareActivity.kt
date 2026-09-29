@@ -8,6 +8,10 @@ import org.commcare.navdrawer.BaseDrawerActivity
 
 abstract class NavigationHostCommCareActivity<T> : BaseDrawerActivity<T>() {
     private var destinationListener: NavController.OnDestinationChangedListener? = null
+    private val topLevelListener =
+        NavController.OnDestinationChangedListener { controller, destination, _ ->
+            setDrawerTopLevel(destination.id == controller.graph.startDestinationId)
+        }
 
     protected lateinit var navController: NavController
 
@@ -21,11 +25,13 @@ abstract class NavigationHostCommCareActivity<T> : BaseDrawerActivity<T>() {
     override fun onResume() {
         super.onResume()
         destinationListener?.let { navController.addOnDestinationChangedListener(it) }
+        navController.addOnDestinationChangedListener(topLevelListener)
     }
 
     override fun onPause() {
         super.onPause()
         destinationListener?.let { navController.removeOnDestinationChangedListener(it) }
+        navController.removeOnDestinationChangedListener(topLevelListener)
     }
 
     override fun onDestroy() {

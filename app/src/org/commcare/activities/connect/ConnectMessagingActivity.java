@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -54,15 +53,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
             personalIdManager.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
-    }
-
-    @Override
-    public void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        navController.addOnDestinationChangedListener(
-                (controller, destination, arguments) ->
-                        setDrawerTopLevel(destination.getId() == R.id.channelListFragment)
-        );
     }
 
     @Override
