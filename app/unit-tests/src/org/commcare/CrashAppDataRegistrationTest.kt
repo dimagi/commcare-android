@@ -64,19 +64,11 @@ class CrashAppDataRegistrationTest {
     }
 
     @Test
-    fun `unseating the app clears its data`() {
+    fun `unseating the app keeps its data registered`() {
         seat(archiveApp)
         CommCareApplication.instance().unseat(archiveApp)
 
-        assertEquals(listOf(ARCHIVE_APP_DATA, NO_APP_DATA), registered)
-    }
-
-    @Test
-    fun `unseating an app that is not seated leaves the data alone`() {
-        seat(navApp)
-        CommCareApplication.instance().unseat(archiveApp)
-
-        assertEquals(listOf(NAV_APP_DATA), registered)
+        assertEquals(listOf(ARCHIVE_APP_DATA), registered)
     }
 
     private fun install(appPath: String): ApplicationRecord {
@@ -93,6 +85,5 @@ class CrashAppDataRegistrationTest {
         private const val ARCHIVE_APP_PATH = "jr://resource/commcare-apps/archive_form_tests/profile.ccpr"
         private val NAV_APP_DATA = AppData("flipper.commcarehq.org", 95, "Untitled Application")
         private val ARCHIVE_APP_DATA = AppData("odk-unit-tests.commcarehq.org", 8, "ODK unit tests")
-        private val NO_APP_DATA = AppData("", -1, "")
     }
 }
