@@ -31,9 +31,11 @@
 Observed results from the audit window on `<firebase_project_id>`. For the configuration itself and
 how to change it, see [reCAPTCHA SMS Defense for Firebase Phone OTP](recaptcha_sms_defense.md).
 
-All timestamps are **UTC**, and every table covers `2026-08-31T00:00:00Z` onwards, so 2026-09-18 is a
-partial day. Every section was read at `2026-09-18T12:12:19Z`, so the counts are directly comparable
-across them.
+All timestamps are **UTC**. Sections up to and including *Send Verification Code Status* cover
+`2026-08-31T00:00:00Z` onwards and were all read at `2026-09-18T12:12:19Z`, so 2026-09-18 is a
+partial day and the counts are directly comparable across them. A second window follows in
+[After adding CommCare LTS to the key](#after-adding-commcare-lts-to-the-key--24-september-onwards),
+covering `2026-09-24` onwards — the two are kept separate because the key changed between them.
 
 ## Token and verdict counts
 
@@ -248,26 +250,138 @@ The overall success rate is unchanged at 80%, but the composition has shifted:
 `TOO_MANY_ATTEMPTS_TRY_LATER` has moved from sixth place to third, growing eightfold (9 → 72) against
 a 4.8× growth in volume.
 
+## After adding CommCare LTS to the key — 24 September onwards
+
+`org.commcare.lts` was added to the reCAPTCHA key on **2026-09-24**. This section is a second,
+separate window — `2026-09-24T00:00:00Z` to `2026-09-29T11:36:28Z`, read at that end time, so
+2026-09-29 is a partial day. It is deliberately not merged into the tables above: those describe the
+state *before* the key change, and blending the two would hide the effect.
+
+The commands are identical to the ones above with the interval moved forward.
+
+### Configuration at the time of reading
+
+The key wired into `recaptchaConfig` is `6Le4epkt…` — *Android - CommCare reCAPTCHA Key*:
+
+```json
+"androidSettings": {
+  "allowAllPackageNames": false,
+  "allowedPackageNames": ["org.commcare.dalvik", "org.commcare.lts"]
+}
+```
+
+`phoneEnforcementState` is still `AUDIT`, `useSmsTollFraudProtection` is `true`, and
+`tollFraudManagedRules[0].startScore` is still `0.8` — so the only variable that moved between the
+two windows is the package list.
+
+> [!NOTE]
+> Three further keys named *Key for Identity Platform reCAPTCHA integration* (web, iOS, Android) were
+> auto-provisioned on 2026-08-27. The Android one carries `allowAllPackageNames: true`, but it is
+> **not** the key referenced by `recaptchaConfig`, so it has no bearing on these numbers. The 2022
+> web checkbox key for commcarehq.org is likewise unrelated.
+
+### Token Result
+
+| Day | Total | `valid` | `missing` | `invalid` | `expired` | Success |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-24 | 111 | 103 | 8 | — | — | 93% |
+| 2026-09-25 | 100 | 79 | 19 | 2 | — | 79% |
+| 2026-09-26 | 34 | 29 | 4 | 1 | — | 85% |
+| 2026-09-27 | 63 | 59 | 4 | — | — | 94% |
+| 2026-09-28 | 105 | 93 | 11 | — | 1 | 89% |
+| 2026-09-29 (partial) | 64 | 44 | 16 | 3 | 1 | 69% |
+| **Total** | **477** | **407** | **62** | **6** | **2** | **85%** |
+
+### Before and after
+
+| | 2026-08-31 → 09-18 | 2026-09-24 → 09-29 |
+| --- | --- | --- |
+| Requests | 1680 | 477 |
+| `valid` | 1286 — 77% | 407 — **85%** |
+| `missing` | 384 — **23%** | 62 — **13%** |
+| `invalid` | 7 — 0.4% | 6 — **1.3%** |
+| `expired` | 3 — 0.2% | 2 — 0.4% |
+
+**Missing tokens are still present.** The `missing` share roughly halved, from 23% to 13%, which is
+the largest single improvement this work has produced. But 62 requests in five and a half days still
+fail to carry a token, so **the LTS package name was not the only cause**. `invalid` moved the other
+way — six occurrences against seven across a window three and a half times longer, so it roughly
+tripled as a share.
+
+Two caveats on how far this can be pushed. The window is 5.5 days against 18.5, so day-to-day noise
+carries more weight; 2026-09-29 alone contributes 16 of the 62. And **package attribution is still
+unavailable** — `SendVerificationCode` log entries carry only `callerIp` and a device user agent
+(`Dalvik/2.1.0 (Linux; U; Android 12; …)`), with no package anywhere in the payload. So the residual
+`missing` cannot be attributed to LTS, to CommCare, or to anything else from the server side.
+
+### Score Result (SMS Fraud)
+
+| Day | `0.0`–`0.1` | `0.1`–`0.2` | `0.2`–`0.3` | `0.3`–`0.4` | `0.4`–`0.5` | `0.5`–`0.6` | `0.6`–`0.7` | `0.7`–`0.8` | **`≥ 0.8`** | Samples |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2026-09-24 | 50 | 46 | — | — | 1 | 4 | — | 2 | **0** | 103 |
+| 2026-09-25 | 42 | 33 | — | 2 | — | — | 2 | — | **0** | 79 |
+| 2026-09-26 | 9 | 19 | — | — | — | — | — | 1 | **0** | 29 |
+| 2026-09-27 | 26 | 33 | — | — | — | — | — | — | **0** | 59 |
+| 2026-09-28 | 31 | 52 | — | — | 5 | 3 | 1 | 1 | **0** | 93 |
+| 2026-09-29 (partial) | 19 | 10 | 1 | 3 | — | — | 11 | — | **0** | 44 |
+| **Total** | **177** | **193** | **1** | **5** | **6** | **7** | **14** | **4** | **0** | **407** |
+
+**The threshold has not fired again.** The longest `bucketCounts` array in this window is 9 entries,
+so the highest band reached is `0.7`–`0.8`. `passed` (407) equals `valid` (407) exactly, and
+`failed_in_audit` (70) equals `missing` + `invalid` + `expired` (62 + 6 + 2), so not one valid token
+was rejected on risk grounds. The two `0.8`–`0.9` samples on 2026-09-10 remain the only ones on
+record.
+
+91% of scored traffic sits below `0.2`, against 94% before — the small shift comes from
+2026-09-29's eleven samples in the `0.6`–`0.7` band, which is the single most unusual day in either
+window.
+
+### Send Verification Code Status
+
+`SendVerificationCode`, 520 calls in the window. Shares are of this window, not comparable in
+absolute count to the 1890-call window above.
+
+| Outcome | Count | Share | Was |
+| --- | --- | --- | --- |
+| `SUCCESS` | 449 | **86.3%** | 80.5% |
+| `OPERATION_NOT_ALLOWED` — region not enabled | 36 | 6.9% | 5.7% |
+| `INVALID_APP_CREDENTIAL` (all three variants) | 12 | 2.3% | 3.3% |
+| `Error code: 39` | 7 | **1.3%** | 2.8% |
+| `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` — invalid Play Integrity token | 7 | 1.3% | 2.3% |
+| `MISSING_RECAPTCHA_TOKEN` | 5 | 1.0% | 1.1% |
+| `TOO_MANY_ATTEMPTS_TRY_LATER` | 3 | **0.6%** | 3.8% |
+| `INVALID_PHONE_NUMBER` | 1 | 0.2% | 0.6% |
+
+Success is up nearly six points. **Error 39 is down but not gone** — 7 events against a background
+rate of roughly three a day previously, so it has fallen by more than the drop in volume alone
+explains. `TOO_MANY_ATTEMPTS_TRY_LATER`, which had grown eightfold and was the headline regression in
+the previous read, has collapsed back to 3. Region rejections are unchanged in character and remain
+the largest failure category, and they have nothing to do with reCAPTCHA.
+
 ## Before Enabling ENFORCE Mode
 
-**Enabling `ENFORCE` while CommCare LTS is absent from the reCAPTCHA key would stop OTP delivery for
-those users entirely.** `org.commcare.lts` is not in the key's `allowedPackageNames` and
-`allowAllPackageNames` is `false`, so the LTS app cannot mint a token at all — every LTS phone-auth
-request necessarily lands in `missing`. Today that is survivable because `AUDIT` falls back to a
-silent push and then a visual reCAPTCHA, and the OTP still arrives. Under `ENFORCE` there is no
-fallback: the request is blocked and the client gets `onVerificationFailed` immediately.
+> [!IMPORTANT]
+> **Resolved on 2026-09-24, but only partly.** `org.commcare.lts` is now in the key's
+> `allowedPackageNames`, so LTS can mint a token and the blanket failure described below no longer
+> applies. The `missing` share fell from 23% to 13% — it did not fall to zero. See
+> [After adding CommCare LTS to the key](#after-adding-commcare-lts-to-the-key--24-september-onwards).
 
-This is a change in kind, not degree — LTS users would lose phone verification outright rather than
-see it slow down. And because package attribution is not available, the size of the affected
-population cannot be measured from the logs; the `missing` share (23% of requests in this window) is
-the upper bound of what could break. Add the LTS package names to the key, or confirm those users do
-not need phone verification, before flipping.
+**Any request without a valid token is blocked outright under `ENFORCE`.** Under `AUDIT` a missing
+token is survivable: the flow falls back to a silent push and then a visual reCAPTCHA, and the OTP
+still arrives. Under `ENFORCE` there is no fallback — the request is blocked and the client gets
+`onVerificationFailed` immediately. That is a change in kind, not degree: affected users lose phone
+verification outright rather than see it slow down.
+
+The residual 13% is therefore still the blast radius, and because package attribution is not
+available it cannot be narrowed further from the logs. Whatever is producing those 62 requests has to
+be identified before flipping, since adding LTS to the key has now been ruled out as the whole
+explanation.
 
 | Scenario | reCAPTCHA Token Status | App Mode | User Experience | Will OTP Send? |
 | --- | --- | --- | --- | --- |
-| **Current State** (`CommCare LTS` unlisted) | **Failed / Missing** | `AUDIT` | Falls back to Silent Push / Visual Web reCAPTCHA. | **Yes** (if fallback completes) |
-| **Current State** (`CommCare LTS` unlisted) | **Failed / Missing** | `ENFORCE` | Client receives instant error (`onVerificationFailed`). No fallback used. | **No** |
-| **Fixed State** (Add CommCare LTS package names to key) | **Valid** | `AUDIT / ENFORCE (Score <= 0.8)` | Background Play Integrity check (Silent, no visual reCAPTCHA). | **Yes** |
+| **Before 2026-09-24** (`CommCare LTS` unlisted) | **Failed / Missing** | `AUDIT` | Falls back to Silent Push / Visual Web reCAPTCHA. | **Yes** (if fallback completes) |
+| **Before 2026-09-24** (`CommCare LTS` unlisted) | **Failed / Missing** | `ENFORCE` | Client receives instant error (`onVerificationFailed`). No fallback used. | **No** |
+| **Since 2026-09-24** (LTS added to key) | **Valid** | `AUDIT / ENFORCE (Score <= 0.8)` | Background Play Integrity check (Silent, no visual reCAPTCHA). | **Yes** |
 
 **Error 39 has not stopped.** 52 events in the window, spread across 15 of the 19 days rather than
 clustered — the earlier read's "seven on 2026-09-03" was not a one-off spike but the start of a
@@ -324,8 +438,8 @@ What this does and does not change for `ENFORCE`:
 
 | Point | Description | Action |
 | --- | --- | --- |
-| **#1** Missing / invalid reCAPTCHA token | Hypothesis: users on CommCare LTS are trying to sign up and hitting this, because the current reCAPTCHA key does not carry the CommCare LTS package name. It may go away once CommCare LTS is added to the key. | Team decision needed to move ahead. |
-| **#2** Enabling reCAPTCHA on CommCare LTS | Adding the CommCare LTS package names to the key brings LTS into the reCAPTCHA path, which changes behaviour for those users. | Approval needed from higher ups. |
+| **#1** Missing / invalid reCAPTCHA token | **Still open, hypothesis partly refuted.** LTS was added to the key on 2026-09-24 and `missing` fell from 23% to 13% — a real improvement, but 62 requests in five and a half days still carry no token, and `invalid` tripled as a share. Package attribution is unavailable, so the remaining source is unidentified. | Find what else produces `missing` before `ENFORCE`. |
+| **#2** Enabling reCAPTCHA on CommCare LTS | **Done 2026-09-24.** `org.commcare.lts` is in `allowedPackageNames` on the key referenced by `recaptchaConfig`; no regression visible in the window since — success rate rose from 80.5% to 86.3%. | Closed. |
 
 
 
