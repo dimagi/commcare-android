@@ -8,7 +8,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 #### What's New
 
-- The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
+- The CommCare logo no longer appears on any PersonalID sign-up or account recovery screen.
+- PersonalID sign-up, account recovery and profile screens now share consistent headings, text styles, spacing and colors.
 
 #### Important Bug Fixes
 
