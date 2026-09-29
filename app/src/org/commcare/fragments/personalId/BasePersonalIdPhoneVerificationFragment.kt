@@ -193,13 +193,12 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
-                if (otpCallback == null) return
-
                 recordFailedVerificationAttempt()
                 reportOtpAnalytics(
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                     OtpAnalyticsMapper.reasonFrom(failureCode),
                 )
+                if (otpCallback == null) return
 
                 if (handleApiFailure(failureCode)) {
                     return
