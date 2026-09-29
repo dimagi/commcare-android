@@ -447,7 +447,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_biometric_error_lockout_permanent">Gwaje-gwaje da yawa sun gaza. Da fatan za a buɗe na\'urarka ka sake gwadawa.</string>
     <string name="personalid_biometric_error_timeout">Aikin biometric ya ƙare. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba.</string>
     <string name="personalid_biometric_error_cannot_configure">Ba za mu iya saita yanayin halittu a na\'urarka ba. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba.</string>
-    <string name="connect_label_expiry">Ƙarewa</string>
+    <string name="connect_label_expires_on">Zai ƙare a</string>
     <string name="connect_label_completed_on">An kammala a</string>
     <string name="connect_label_expired_on">Ya ƙare a</string>
     <string name="connect_complete_by">Aiki yana ƙarewa akan %s</string>

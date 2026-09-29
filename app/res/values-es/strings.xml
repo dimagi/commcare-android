@@ -616,7 +616,7 @@
     <string name="personalid_biometric_error_timeout">La operación biométrica ha expirado. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
 
-    <string name="connect_label_expiry">Vencimiento</string>
+    <string name="connect_label_expires_on">Vence el</string>
     <string name="connect_label_completed_on">Completado el</string>
     <string name="connect_label_expired_on">Vencido el</string>
     <string name="connect_complete_by">La tarea termina el %s</string>

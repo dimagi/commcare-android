@@ -604,7 +604,7 @@
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
-    <string name="connect_label_expiry">መወዳእታ</string>
+    <string name="connect_label_expires_on">ይውዳእ ኣብ</string>
     <string name="connect_label_completed_on">ተዛዚሙ ኣብ</string>
     <string name="connect_label_expired_on">ተወዲኡ ኣብ</string>
     <string name="connect_complete_by">ዕዮ ኣብ %s ይወዳእ</string>

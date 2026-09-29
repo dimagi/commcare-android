@@ -612,7 +612,7 @@ License.
     <string name="personalid_biometric_error_timeout">बायोमेट्रिक ऑपरेशन का समय समाप्त हो गया। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
     <string name="personalid_biometric_error_cannot_configure">हम आपके डिवाइस पर बायोमेट्रिक्स कॉन्फ़िगर नहीं कर सके। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
 
-    <string name="connect_label_expiry">समाप्ति</string>
+    <string name="connect_label_expires_on">समाप्त होगा</string>
     <string name="connect_label_completed_on">पूरा हुआ</string>
     <string name="connect_label_expired_on">समाप्त हुआ</string>
     <string name="connect_complete_by">कार्य %s को समाप्त होती है</string>
