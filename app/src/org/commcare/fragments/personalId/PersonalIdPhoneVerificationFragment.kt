@@ -7,6 +7,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.core.network.AuthInfo
 import org.commcare.dalvik.R
+import org.commcare.utils.AttemptCounter
 
 /**
  * Phone OTP screen in the PersonalID signup / recovery configuration flow. Authenticates with the

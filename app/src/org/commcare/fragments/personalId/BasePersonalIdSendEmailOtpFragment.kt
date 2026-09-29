@@ -10,6 +10,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidSendEmailOtpBinding
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.fragments.personalId.EmailHelper.maskEmail
+import org.commcare.utils.CommCareAttemptCounter
 
 /**
  * Base fragment for screens that send an email OTP to the user
@@ -19,7 +20,7 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
     protected lateinit var email: String
     protected var masked: Boolean = true
     protected lateinit var workflow: EmailWorkFlow
-    protected val emailOtpTracker = AttemptTracker()
+    protected val emailOtpTracker = CommCareAttemptCounter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

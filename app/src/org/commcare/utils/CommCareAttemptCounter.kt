@@ -1,4 +1,4 @@
-package org.commcare.fragments.personalId
+package org.commcare.utils
 
 /**
  * Counters for request/failure attempts during a session
@@ -6,7 +6,7 @@ package org.commcare.fragments.personalId
  *  - [requestCount]: total request calls made this session.
  *  - [failedAttempts]: number of failed attempts this session.
  */
-class AttemptTracker(
+class CommCareAttemptCounter(
     initialRequestCount: Int = 0,
     initialFailedAttempts: Int = 0,
 ) : AttemptCounter {

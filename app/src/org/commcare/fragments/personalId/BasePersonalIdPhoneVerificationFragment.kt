@@ -29,6 +29,7 @@ import org.commcare.dalvik.databinding.ScreenPersonalidPhoneVerifyBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.util.LogTypes
+import org.commcare.utils.AttemptCounter
 import org.commcare.utils.KeyboardHelper
 import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.OtpErrorType

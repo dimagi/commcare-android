@@ -1,4 +1,4 @@
-package org.commcare.fragments.personalId
+package org.commcare.utils
 
 /**
  * Request / failed-verification counters an OTP screen reports to analytics and uses to decide

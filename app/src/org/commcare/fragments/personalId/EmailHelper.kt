@@ -11,6 +11,7 @@ import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.CommCareAttemptCounter
 import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.StringUtils
 
@@ -50,7 +51,7 @@ object EmailHelper {
         email: String?,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
-        tracker: AttemptTracker = AttemptTracker(),
+        tracker: CommCareAttemptCounter = CommCareAttemptCounter(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
@@ -103,7 +104,7 @@ object EmailHelper {
         otp: String,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
-        tracker: AttemptTracker = AttemptTracker(),
+        tracker: CommCareAttemptCounter = CommCareAttemptCounter(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
