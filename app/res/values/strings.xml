@@ -683,7 +683,7 @@
     <string name="personalid_manage_profile"><u>Manage Profile</u></string>
     <string name="personalid_profile_title">Profile</string>
     <string name="personalid_profile_edit_title">Edit Profile</string>
-    <string name="personalid_profile_section_personal_information">Personal Information</string>
+    <string name="personalid_profile_section_personal_information">Personal information</string>
     <string name="personalid_profile_field_name">Name</string>
     <string name="personalid_profile_field_phone">Phone Number</string>
     <string name="personalid_profile_field_email">Email Address</string>

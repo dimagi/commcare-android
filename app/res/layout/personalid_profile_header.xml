@@ -13,7 +13,7 @@
         android:layout_gravity="center_horizontal"
         app:cardCornerRadius="64dp"
         app:cardElevation="0dp"
-        app:strokeColor="@color/cc_brand_color"
+        app:strokeColor="?attr/colorPrimary"
         app:strokeWidth="4dp">
 
         <ImageView
@@ -43,22 +43,20 @@
 
     <TextView
         android:id="@+id/profile_name"
+        style="@style/TextStyle.PersonalId.Heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="@dimen/connect_space_lg"
         android:gravity="center"
-        android:textColor="@color/connect_text_color"
-        android:textSize="22sp"
         tools:text="John Doe"/>
 
     <TextView
         android:id="@+id/profile_phone_subtitle"
+        style="@style/TextStyle.PersonalId.Body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/connect_space_xs"
         android:gravity="center"
-        android:textColor="@color/connect_subtext_color"
-        android:textSize="14sp"
         tools:text="+1 321-012-0123"/>
 
 </LinearLayout>
