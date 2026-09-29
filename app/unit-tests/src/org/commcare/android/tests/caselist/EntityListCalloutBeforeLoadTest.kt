@@ -1,11 +1,15 @@
 package org.commcare.android.tests.caselist
 
+import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.simprints.libsimprints.Constants
+import com.simprints.libsimprints.Identification
+import com.simprints.libsimprints.Tier
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.EntitySelectActivity
@@ -28,6 +32,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.android.util.concurrent.PausedExecutorService
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
@@ -78,15 +83,7 @@ class EntityListCalloutBeforeLoadTest {
 
     @Test
     fun calloutResultOnRecreatedActivity_isAppliedWhenListLoads() {
-        val entitySelectIntent =
-            ActivityLaunchUtils
-                .buildHomeActivityForFormEntryLaunch("m1-f0")
-                .nextStartedActivity
-        val controller =
-            Robolectric
-                .buildActivity(EntitySelectActivity::class.java, entitySelectIntent)
-                .create()
-                .start()
+        val controller = startEntitySelectActivity()
         val activity = controller.get()
         assertNull(ReflectionHelpers.getField<EntityLoaderTask>(activity, "loader"))
         assertNull(adapterOf(activity))
@@ -102,6 +99,51 @@ class EntityListCalloutBeforeLoadTest {
         assertListFilteredByCallout(finishLoading(activity), activity)
     }
 
+    @Test
+    fun calloutResultOnLoadedList_replacesStoredResultsForRecreatedActivity() {
+        val activity = ActivityLaunchUtils.launchEntitySelectActivity("m1-f0")
+        EntityListCalloutDataTest.performFingerprintCallout(activity)
+        val adapter = finishLoading(activity)
+        assertEquals(5, adapter.currentCount)
+
+        Shadows.shadowOf(activity).callOnActivityResult(
+            EntitySelectActivity.CALLOUT,
+            AppCompatActivity.RESULT_OK,
+            buildTwoMatchResultIntent(),
+        )
+        awaitCalloutFilter(adapter)
+        ShadowLooper.idleMainLooper()
+        assertEquals(2, adapter.currentCount)
+        assertEquals(2, storedCalloutData()?.size)
+
+        val recreated =
+            Robolectric
+                .buildActivity(EntitySelectActivity::class.java, activity.intent)
+                .setup()
+                .get()
+        assertListFilteredByCallout(finishLoading(recreated), recreated, 2)
+    }
+
+    private fun startEntitySelectActivity(): ActivityController<EntitySelectActivity> {
+        val entitySelectIntent =
+            ActivityLaunchUtils
+                .buildHomeActivityForFormEntryLaunch("m1-f0")
+                .nextStartedActivity
+        return Robolectric
+            .buildActivity(EntitySelectActivity::class.java, entitySelectIntent)
+            .create()
+            .start()
+    }
+
+    private fun buildTwoMatchResultIntent(): Intent {
+        val matches =
+            arrayListOf(
+                Identification("b319e951-03f1-4172-b662-4fb3964a0be7", 99, Tier.TIER_1),
+                Identification("8e011880-602f-4017-b9d6-ed9dcbba7516", 55, Tier.TIER_3),
+            )
+        return Intent().putParcelableArrayListExtra(Constants.SIMPRINTS_IDENTIFICATIONS, matches)
+    }
+
     private fun finishLoading(activity: EntitySelectActivity): EntityListAdapter {
         loaderExecutor.runAll()
         ShadowLooper.idleMainLooper()
@@ -114,8 +156,9 @@ class EntityListCalloutBeforeLoadTest {
     private fun assertListFilteredByCallout(
         adapter: EntityListAdapter,
         activity: EntitySelectActivity,
+        expectedCount: Int = 5,
     ) {
-        assertEquals(5, adapter.currentCount)
+        assertEquals(expectedCount, adapter.currentCount)
 
         val row = adapter.getView(0, null, null) as ViewGroup
         val headerContainer = activity.findViewById<View>(R.id.entity_select_header) as LinearLayout
