@@ -379,7 +379,14 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
 
     override fun onStop() {
         super.onStop()
-        requireContext().unregisterReceiver(smsBroadcastReceiver)
+        smsBroadcastReceiver?.let {
+            try {
+                requireActivity().unregisterReceiver(it)
+            } catch (e: IllegalArgumentException) {
+                Logger.exception("SMS receiver was not registered", e)
+            }
+        }
+        smsBroadcastReceiver = null
     }
 
     override fun onPause() {
