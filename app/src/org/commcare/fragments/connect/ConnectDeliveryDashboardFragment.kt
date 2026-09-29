@@ -47,8 +47,6 @@ class ConnectDeliveryDashboardFragment :
     override fun updateView() {
         reloadActiveJob()
         val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
-        // An outstanding task earns nothing until it is cleared, so the figures stand down with it,
-        // the same as an opportunity that has finished or run out of visits.
         val contentEnabled = !job.isFurtherWorkBlocked && pendingTasks.isEmpty()
         bindHeader()
         bindVisitProgress(contentEnabled)

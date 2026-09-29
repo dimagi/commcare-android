@@ -131,7 +131,7 @@ class ConnectDeliveryHomeFragment :
     }
 
     /**
-     * A pending task has to be cleared in the delivery app, so the launch bar stands down while one
+     * A pending task has to be cleared in the delivery app, so the launch bar is disabled while one
      * is outstanding. Without the app installed there is nothing to clear it with, so the bar stays
      * live until the download finishes and the user is not left stranded.
      */
