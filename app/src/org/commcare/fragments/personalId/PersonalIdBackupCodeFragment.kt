@@ -133,16 +133,16 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     }
 
     private fun handleConfirmBackupCodeSuccess() {
+        PersonalIdRecoveryCompleter.finalizeAccountRecovery(
+            requireActivity(),
+            personalIdSessionData,
+            AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE,
+        )
         if (personalIdSessionData.email == null &&
             ReleaseToggleHelper.isEmailOtpVerificationActive(personalIdSessionData)
         ) {
             navigateToEmail()
         } else {
-            PersonalIdRecoveryCompleter.finalizeAccountRecovery(
-                requireActivity(),
-                personalIdSessionData,
-                AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE,
-            )
             navigateToSuccess()
         }
     }
