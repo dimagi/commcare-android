@@ -597,7 +597,7 @@
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
 
 
-    <string name="enter_otp">Enter One Time Password</string>
+    <string name="enter_otp">Enter one-time password</string>
     <string name="create_a_new_recovery_code">Create a new Backup Code</string>
     <string name="confirm_code">Confirm Code</string>
     <string name="code">Code</string>

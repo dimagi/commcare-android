@@ -6,50 +6,45 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:background="@color/white"
+        android:background="?attr/colorSurface"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/connect_phone_verify_title"
+            style="@style/TextStyle.PersonalId.Heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/enter_otp"
-            android:textStyle="bold"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="16sp" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:text="@string/enter_otp" />
 
         <TextView
             android:id="@+id/connect_phone_verify_label"
+            style="@style/TextStyle.PersonalId.Value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:textColor="@color/connect_secondary_text"
-            android:textSize="16sp"
-            tools:text="+91 7748962888"
-            android:textStyle="normal"/>
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            tools:text="+91 7748962888" />
 
         <TextView
             android:id="@+id/connect_phone_verify_change"
+            style="@style/TextStyle.PersonalId.Link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xs"
             android:text="@string/connect_verify_phone_change"
-            android:textColor="@color/connect_blue_color"
-            android:textSize="16sp"
-            android:visibility="visible"
-            android:textStyle="bold"/>
+            android:visibility="visible" />
 
         <LinearLayout
             android:id="@+id/otp_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:gravity="start"
             android:orientation="horizontal">
 
@@ -73,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 app:codeViewDigitCount="6"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/connect_space_lg"
                 app:codeViewTextColor="@color/connect_blue_color"
                 app:codeViewBorderColor="@color/connect_blue_color"
                 app:codeViewBorderRadius="4dp"
@@ -85,34 +80,31 @@
         </LinearLayout>
 
         <TextView
-            android:textStyle="bold"
             android:id="@+id/connect_phone_verify_error"
+            style="@style/TextStyle.PersonalId.Error"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
+            android:layout_marginHorizontal="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xs"
             android:gravity="start"
-            android:textColor="@color/red"
-            android:textSize="14sp"
             android:visibility="gone" />
 
         <TextView
-            android:textStyle="bold"
             android:id="@+id/connect_phone_verify_resend"
+            style="@style/TextStyle.PersonalId.Helper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"
-            android:layout_marginTop="16dp"
-            android:text="Resend OTP in 60s"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="12sp" />
+            android:layout_marginTop="@dimen/connect_space_xs"
+            tools:text="Resend OTP in 60s" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:layout_marginBottom="@dimen/connect_space_lg"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -136,7 +128,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_phone_verify_button"
-                style="@style/CustomButtonStyle"
+                style="@style/PersonalIdPrimaryButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"

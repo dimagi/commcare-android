@@ -383,7 +383,7 @@
     <string name="connect_app_installed">Programu imesakinishwa</string>
     <string name="app_with_id_not_found">Programu ya CommCare Inayohitajika haijasakinishwa kwenye kifaa</string>
     <string name="user_suspended">Mtumiaji Amesimamishwa. Tafadhali wasiliana na msimamizi.</string>
-    <string name="enter_otp">Weka Msimbo wa SMS</string>
+    <string name="enter_otp">Weka msimbo wa SMS</string>
     <string name="create_a_new_recovery_code">Unda Nambari mpya ya Urejeshaji</string>
     <string name="confirm_code">Thibitisha Msimbo</string>
     <string name="code">Kanuni</string>
