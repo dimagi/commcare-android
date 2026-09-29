@@ -610,7 +610,6 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         if (isSeated(record)) {
             this.currentApp.teardownSandbox();
             this.currentApp = null;
-            CrashUtil.registerAppData();
         }
     }
 
