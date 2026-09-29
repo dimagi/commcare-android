@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
@@ -27,7 +28,10 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         PersonalIdUserPreferences.clearBackupCodeLockout()
         user.pin = "123456" // override to 6 digits so the code view can hold it
         onUiThread {
-            navController.navigate(R.id.action_profile_to_profile_backup_code)
+            navController.navigate(
+                PersonalIdProfileFragmentDirections
+                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+            )
         }
     }
 
@@ -164,7 +168,12 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         // Navigate back to profile, then forward again so the fragment is recreated
         onUiThread { navController.popBackStack() }
         ShadowLooper.idleMainLooper()
-        onUiThread { navController.navigate(R.id.action_profile_to_profile_backup_code) }
+        onUiThread {
+            navController.navigate(
+                PersonalIdProfileFragmentDirections
+                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+            )
+        }
         ShadowLooper.idleMainLooper()
 
         assertFalse(backupCodeView().isEnabled)
