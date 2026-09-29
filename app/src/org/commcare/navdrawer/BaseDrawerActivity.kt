@@ -1,5 +1,6 @@
 package org.commcare.navdrawer
 
+import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import org.commcare.activities.CommCareActivity
@@ -13,6 +14,7 @@ import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
 import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
+import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.utils.AppLogoutHelper
 import org.javarosa.core.services.Logger
 
@@ -29,6 +31,15 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     override fun onContentChanged() {
         super.onContentChanged()
         checkForDrawerSetUp()
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
+        if (drawerController != null) {
+            NotificationBroadcastHelper.registerForNotifications(this, this) {
+                refreshDrawer()
+            }
+        }
     }
 
     override fun onResume() {
