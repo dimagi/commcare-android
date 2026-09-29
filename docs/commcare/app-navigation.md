@@ -4,7 +4,7 @@ How users move between CommCare's top-level screens.
 
 ## Sidebar sections
 
-Messaging and Work History are **sidebar sections**: screens the user moves between from the sidebar. Each one declares itself via `BaseDrawerActivity.currentDrawerSection`. Whether the sidebar appears follows `shouldShowDrawerAfterCheck`.
+Messaging and Work History are **sidebar sections**: screens the user moves between from the sidebar. Each drawer screen names the sidebar item it corresponds to via `BaseDrawerActivity.currentDrawerSection`, and sections also set `isSidebarSection`. Whether the sidebar appears follows `shouldShowDrawerAfterCheck`.
 
 - **Sections replace each other.** Opening Messaging, Work History or Opportunities from a section's sidebar replaces the current section, so back returns to wherever the user was working before, not to the previous section.
 - **Tapping the open section** just closes the sidebar.

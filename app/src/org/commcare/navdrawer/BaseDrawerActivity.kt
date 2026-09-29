@@ -47,6 +47,8 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open val currentDrawerSection: NavItemType? = null
 
+    protected open val isSidebarSection: Boolean = false
+
     private fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
             setupDrawerController()
@@ -80,15 +82,11 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
             NavItemType.COMMCARE_APPS -> {
                 closeDrawer()
-                // Only Login and Setup reach here without a section. They already are the CommCare Apps
-                // screen, so returning to login would just relaunch Dispatch and rebuild the same screen.
-                if (currentDrawerSection != null) {
-                    AppLogoutHelper.promptToReturnToLogin(
-                        this,
-                        R.string.nav_drawer_switch_app_from_section_dialog_title,
-                        R.string.nav_drawer_switch_app_from_section_dialog_message,
-                    )
-                }
+                AppLogoutHelper.promptToReturnToLogin(
+                    this,
+                    R.string.nav_drawer_switch_app_from_section_dialog_title,
+                    R.string.nav_drawer_switch_app_from_section_dialog_message,
+                )
             }
 
             NavItemType.PAYMENTS -> {}
@@ -132,7 +130,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
                 if (success) {
                     closeDrawer()
                     // A section is replaced by the one just opened rather than stacked beneath it.
-                    if (currentDrawerSection != null) {
+                    if (isSidebarSection) {
                         finish()
                     }
                 }

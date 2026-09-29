@@ -21,6 +21,7 @@ class PersonalIdWorkHistoryActivity : BaseDrawerActivity<PersonalIdWorkHistoryAc
     }
 
     override val currentDrawerSection = NavItemType.WORK_HISTORY
+    override val isSidebarSection = true
 
     private lateinit var workHistoryViewPagerAdapter: WorkHistoryViewPagerAdapter
     private lateinit var personalIdWorkHistoryViewModel: PersonalIdWorkHistoryViewModel

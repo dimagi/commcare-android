@@ -76,6 +76,11 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     @Override
+    protected boolean isSidebarSection() {
+        return true;
+    }
+
+    @Override
     protected int getLayoutResource() {
         return R.layout.activity_connect_messaging;
     }
