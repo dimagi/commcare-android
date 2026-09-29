@@ -66,6 +66,7 @@
         <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
         <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
         <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
+        <item name="connectOutline">@color/connect_grey</item>
         <item name="connectOutlineVariant">@color/connect_light_grey</item>
         <item name="connectStatusPositive">@color/connect_green</item>
         <item name="connectStatusPositiveContainer">@color/connect_light_green</item>

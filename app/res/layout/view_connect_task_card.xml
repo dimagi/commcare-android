@@ -28,18 +28,18 @@
 
         <TextView
             android:id="@+id/task_card_expiry"
+            style="@style/TextStyle.Connect.LabelM"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/connect_text_label"
             android:visibility="gone"
             tools:text="Expires on 24 July 2027"
             tools:visibility="visible" />
 
         <TextView
             android:id="@+id/task_card_title"
+            style="@style/TextStyle.Connect.BodyLg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/connect_text_title"
             tools:text="Nutrition Coaching Check-in" />
 
     </LinearLayout>

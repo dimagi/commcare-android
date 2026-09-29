@@ -72,16 +72,15 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
             testNavController.setGraph(R.navigation.nav_graph_personalid_profile)
             testNavController.setCurrentDestination(R.id.personalid_email_verification_forgot_backup_code_fragment, fragmentArgs)
             Navigation.setViewNavController(fragment().requireView(), testNavController)
-            fragment()
-                .requireView()
-                .findViewById<NumericCodeView>(R.id.otp_code_view)
-                .setCode("123456")
+            val view = fragment().requireView()
+            view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+            view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
         }
         mockApiServer.drainHttp()
 
         assertEquals(
             "Verified email in FORGOT_BACKUP_CODE_EXISTING_USER flow should navigate to set-new-backup-code",
-            R.id.personalid_set_new_backup_code_fragment,
+            R.id.personalid_profile_set_new_backup_code_fragment,
             testNavController.currentDestination!!.id,
         )
     }
@@ -96,10 +95,9 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
 
         repeat(3) {
             onUiThread {
-                fragment()
-                    .requireView()
-                    .findViewById<NumericCodeView>(R.id.otp_code_view)
-                    .setCode("123456")
+                val view = fragment().requireView()
+                view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
+                view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
             }
             mockApiServer.drainHttp()
         }

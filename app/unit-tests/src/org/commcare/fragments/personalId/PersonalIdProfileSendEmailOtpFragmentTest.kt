@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class PersonalIdSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
+class PersonalIdProfileSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
     private val fragmentArgs =
         Bundle().apply {
             putString("email", "user@example.com")
@@ -38,7 +38,7 @@ class PersonalIdSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
 
     private fun fragment() =
         navHostFragment.childFragmentManager
-            .primaryNavigationFragment as PersonalIdSendEmailOtpFragment
+            .primaryNavigationFragment as PersonalIdProfileSendEmailOtpFragment
 
     private fun sendButton(): MaterialButton = fragment().requireView().findViewById(R.id.personalid_send_email_otp_button)
 
@@ -84,6 +84,32 @@ class PersonalIdSendEmailOtpFragmentTest : BasePersonalIdProfileTest() {
         mockApiServer.drainHttp()
 
         assertEquals(R.id.personalid_email_verification_forgot_backup_code_fragment, testNavController.currentDestination!!.id)
+    }
+
+    @Test
+    fun `successful send with EXISTING_USER workflow navigates to profile email verification`() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
+        val existingUserArgs =
+            Bundle().apply {
+                putString("email", "user@example.com")
+                putBoolean("masked", true)
+                putSerializable("workflow", EmailWorkFlow.EXISTING_USER)
+            }
+        // Pop the FORGOT_BACKUP_CODE instance and push a fresh EXISTING_USER instance
+        onUiThread {
+            navController.popBackStack()
+            navController.navigate(R.id.personalid_send_email_otp_fragment, existingUserArgs)
+        }
+        val testNavController = TestNavHostController(ApplicationProvider.getApplicationContext())
+        onUiThread {
+            testNavController.setGraph(R.navigation.nav_graph_personalid_profile)
+            testNavController.setCurrentDestination(R.id.personalid_send_email_otp_fragment, existingUserArgs)
+            Navigation.setViewNavController(fragment().requireView(), testNavController)
+            sendButton().performClick()
+        }
+        mockApiServer.drainHttp()
+
+        assertEquals(R.id.personalid_email_verification_fragment, testNavController.currentDestination!!.id)
     }
 
     @Test

@@ -3,6 +3,7 @@ package org.commcare.connect.network.personalId;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
@@ -156,23 +157,6 @@ public class ApiPersonalId {
         makePostRequestWithUrl(context, url, null, params, headers, true, callback);
     }
 
-    public static void confirmBackupCode(
-            Context context,
-            String backupCode,
-            String token,
-            IApiCallback callback
-    ) {
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("recovery_pin", backupCode);
-
-        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
-        String tokenAuth = HttpUtils.getCredential(authInfo);
-        PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.confirmBackupCode(tokenAuth, params);
-        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.CONFIRM_BACKUP_CODE);
-    }
-
     public static void setBackupCode(
             Context context,
             String userId,
@@ -187,6 +171,43 @@ public class ApiPersonalId {
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.setBackupCode(token, params);
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.SET_BACKUP_CODE);
+    }
+
+    public static void completeRecoveryWithEmailOtp(
+            Context context,
+            String otp,
+            String token,
+            IApiCallback callback
+    ) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("method", "email_otp");
+        params.put("otp", otp);
+        completeRecovery(context, params, token, callback);
+    }
+
+    public static void completeRecoveryWithBackupCode(
+            Context context,
+            String backupCode,
+            String token,
+            IApiCallback callback
+    ) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("method", "backup_code");
+        params.put("backup_code", backupCode);
+        completeRecovery(context, params, token, callback);
+    }
+
+    private static void completeRecovery(
+            Context context,
+            HashMap<String, String> params,
+            String token,
+            IApiCallback callback
+    ) {
+        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
+        Call<ResponseBody> call = apiService.completeRecovery(tokenAuth, params);
+        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.COMPLETE_RECOVERY);
     }
 
     public static void reportIntegrity(
@@ -384,7 +405,7 @@ public class ApiPersonalId {
      */
     public static void sendEmailOtp(
             Context context,
-            String email,
+            @Nullable String email,
             String personalIdConfigurationToken,
             ConnectUserRecord user,
             IApiCallback callback
@@ -396,7 +417,9 @@ public class ApiPersonalId {
         Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("email", email);
+        if (email != null) {
+            params.put("email", email);
+        }
 
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
         Call<ResponseBody> call = apiService.sendEmailOtp(tokenAuth, params);

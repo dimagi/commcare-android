@@ -83,6 +83,7 @@ abstract class BasePersonalIdProfileTest {
         activity =
             activityController
                 .create()
+                .postCreate(null)
                 .start()
                 .resume()
                 .get()

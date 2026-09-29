@@ -12,6 +12,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.connect.NumericCodeView
@@ -28,7 +29,7 @@ import org.robolectric.shadows.ShadowToast
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
+class BasePersonalIdSetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     @Before
     fun navigateToSetNewBackupCodeScreen() {
         mockkObject(PersonalIdUnlocker)
@@ -39,7 +40,12 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         // Prevent SharedPreferences lockout state from a previous test blocking navigation
         PersonalIdUserPreferences.clearBackupCodeLockout()
         user.pin = "123456" // 6-digit pin so ProfileBackupCode accepts it
-        onUiThread { navController.navigate(R.id.action_profile_to_profile_backup_code) }
+        onUiThread {
+            navController.navigate(
+                PersonalIdProfileFragmentDirections
+                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+            )
+        }
         // Enter the current backup code on the confirm screen and click continue
         onUiThread { backupCodeViewOnConfirmScreen().setCode("123456") }
         onUiThread { continueButtonOnConfirmScreen().performClick() }
@@ -51,7 +57,7 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         unmockkObject(PersonalIdUnlocker)
     }
 
-    private fun fragment() = navHostFragment.childFragmentManager.primaryNavigationFragment as SetNewBackupCodeFragment
+    private fun fragment() = navHostFragment.childFragmentManager.primaryNavigationFragment as BasePersonalIdSetNewBackupCodeFragment
 
     private fun backupCodeViewOnConfirmScreen(): NumericCodeView {
         val confirmFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
@@ -208,7 +214,7 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
 
         setCodesAndContinue("654321")
 
-        assertEquals(R.id.personalid_set_new_backup_code_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, currentDestinationId())
         assertEquals(0, mockWebServer.requestCount)
     }
 
@@ -220,7 +226,7 @@ class SetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
 
         mockApiServer.drainHttp()
 
-        assertEquals(R.id.personalid_set_new_backup_code_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, currentDestinationId())
         assertEquals(View.VISIBLE, errorMessage().visibility)
         assertTrue(continueButton().isEnabled)
     }

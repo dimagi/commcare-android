@@ -22,23 +22,22 @@ object EmailHelper {
     // ---------- Auth-arg selection -------------------------------------------------------
 
     /**
-     * Picks the right auth pair for an email OTP API call based on [workflow]:
-     *  - [EmailWorkFlow.EXISTING_USER] / [EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER]: the user is already signed up
-     *    so authenticate with the persisted [ConnectUserRecord]'s basic-auth credentials.
-     *  - [EmailWorkFlow.REGISTRATION] / [EmailWorkFlow.RECOVERY]: the user has a fresh session
-     *    token from /users/start_configuration API call.
+     * Picks the right auth pair for an email OTP API call based on [workflow]
      */
     private fun buildAuthArgs(
-        activity: Activity,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
     ): Pair<String?, ConnectUserRecord?> =
         when (workflow) {
             EmailWorkFlow.EXISTING_USER,
             EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+            EmailWorkFlow.PENDING_BACKUP_CODE,
+            EmailWorkFlow.RECOVERY,
             -> null to ConnectUserDatabaseUtil.getUser()
 
-            EmailWorkFlow.REGISTRATION, EmailWorkFlow.RECOVERY -> sessionData?.token to null
+            EmailWorkFlow.REGISTRATION,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
+            -> sessionData?.token to null
         }
 
     // ---------- API calls ----------------------------------------------------------------
@@ -48,14 +47,14 @@ object EmailHelper {
      */
     fun sendEmailOtp(
         activity: Activity,
-        email: String,
+        email: String?,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
         tracker: AttemptTracker = AttemptTracker(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
-        val (token, user) = buildAuthArgs(activity, workflow, sessionData)
+        val (token, user) = buildAuthArgs(workflow, sessionData)
         tracker.recordRequest()
         object : PersonalIdApiHandler<Any?>() {
             override fun onSuccess(data: Any?) {
@@ -108,7 +107,7 @@ object EmailHelper {
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
-        val (token, user) = buildAuthArgs(activity, workflow, sessionData)
+        val (token, user) = buildAuthArgs(workflow, sessionData)
         object : PersonalIdApiHandler<Any?>() {
             override fun onSuccess(data: Any?) {
                 FirebaseAnalyticsUtil.reportOtpEvent(
@@ -146,14 +145,6 @@ object EmailHelper {
 
     /**
      * Dispatches the next step after the user skips / declines the email step.
-     *  - [EmailWorkFlow.EXISTING_USER]: finish the host activity.
-     *  - [EmailWorkFlow.RECOVERY]: finalize account recovery, then call [onRecoverySuccess]
-     *    to navigate to the success message screen.
-     *  - [EmailWorkFlow.REGISTRATION]: call [onRegistration] to continue to the next signup
-     *    step (Photo Capture).
-     *
-     * The two navigation lambdas live with the caller because each fragment owns its own
-     * Safe Args Directions class.
      */
     fun routeAfterEmailDeclined(
         fragment: Fragment,
@@ -174,7 +165,7 @@ object EmailHelper {
                 onRegistration()
             }
 
-            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER -> {
+            else -> {
                 throw IllegalArgumentException("Unexpected workflow: $workflow")
             }
         }

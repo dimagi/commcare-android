@@ -356,7 +356,7 @@
     <!-- PersonalID strings -->
     <string name="personalid_login_via">Via PersonalID (or press here)</string>
     <string name="connect_button_logged_in">Go to Connect menu</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
+
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your Phone Number</string>
 
@@ -379,6 +379,16 @@
     <string name="connect_backup_code_remember">Please be sure to remember your backup code! It must be %d digits. Keep it in a safe place as you will need it to access your account again.</string>
     <string name="connect_backup_code_mismatch">The backup codes you enter must match.</string>
     <string name="personalid_set_new_backup_code_title">Set New Backup Code</string>
+
+    <string name="personalid_backup_code_reminder_title">Confirm backup code</string>
+    <string name="personalid_backup_code_reminder_message">Enter your backup code to confirm you still remember it.</string>
+    <string name="personalid_backup_code_reminder_incorrect">Incorrect backup code. Please try again. %d attempts remaining.</string>
+    <string name="personalid_backup_code_reminder_success_toast">Great, you\'re all set!</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">You have exceeded the maximum number of attempts.</string>
+    <string name="personalid_backup_code_reminder_skip">Skip</string>
+    <string name="personalid_backup_code_reminder_confirm">Confirm</string>
+    <string name="personalid_set_backup_code_reminder_title">Set Backup Code</string>
+    <string name="personalid_set_backup_code_reminder_message">You don\'t have a backup code set on your account. Click Confirm to set one.</string>
 
     <string name="connect_backup_fail_title">Wrong Backup Code</string>
     <string name="personalid_network_response_parsing_error">Error parsing data from server. Please contact customer support.</string>
@@ -481,6 +491,7 @@
     <string name="connect_last_synced">Last synced: %s</string>
     <string name="connect_sync_successful">Last synced: Just Now</string>
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
+    <string name="connect_sync_card_press_to_sync">Press here to sync</string>
     <string name="connect_app_launch_dialog_title">Launching App</string>
     <string name="connect_app_launch_dialog_seating_message">Loading your app…</string>
     <string name="connect_app_launch_dialog_signing_in_message">Logging in…</string>
@@ -544,9 +555,14 @@
     <string name="connect_progress_warning_relearn_tasks_pending">Complete assigned tasks to continue delivering services.</string>
     <string name="connect_open_conversation_button_text">Open Conversation</string>
     <string name="connect_progress_relearn_tasks_completed">All required tasks have been completed. You may continue with delivery activities.</string>
-    <string name="connect_download_learn">Download Learn App</string>
-    <string name="connect_downloading_learn">Downloading Learn App</string>
-    <string name="connect_downloading_delivery">Downloading Delivery App</string>
+    <string name="connect_download_learn">Download Learn</string>
+    <string name="connect_starting_learning">Starting Learning</string>
+    <string name="connect_download_delivery">Download Delivery</string>
+    <string name="connect_app_install_setting_up">Setting up app…</string>
+    <string name="connect_app_finishing_install">Finishing installation…</string>
+    <string name="connect_app_launching">Download complete, launching app…</string>
+    <string name="connect_downloading_learn">Downloading Learn</string>
+    <string name="connect_downloading_delivery">Downloading Delivery</string>
     <string name="connect_results_summary_all">All</string>
     <string name="connect_results_summary_pending">Pending</string>
     <string name="connect_results_summary_rejected">Rejected</string>
@@ -697,7 +713,6 @@
     <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
     <string name="connect_job_info_delivery_hours">Delivery Hours</string>
     <string name="connect_job_info_view_more">View More</string>
-    <string name="connect_job_info_download_delivery">Download Delivery </string>
     <string name="connect_job_info_view_opportunity">View Opportunity</string>
     <string name="connect_job_info_view_info">View Info</string>
     <string name="connect_job_info_view_resume">Resume</string>
@@ -728,7 +743,6 @@
         <item quantity="other">%d payment units</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Start Learning</string>
-    <string name="connect_opportunity_footer_download_learn_app">Download Learn</string>
     <string name="connect_opportunity_modules_footer_note">Complete the modules, pass the assessment, and earn your certificate</string>
     <string name="connect_opportunity_footer_download_app">Download App</string>
 
@@ -791,6 +805,7 @@
     <string name="personalid_generic_error_title">Logged out of PersonalID</string>
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
+    <string name="personalid_name_appbar_title">Name</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
@@ -816,9 +831,13 @@
     <string name="personalid_set_new_backup_code_abandon_message">Going back will cancel the Backup Code change process.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Set Backup Code</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Exit</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">Set Backup Code</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">Please set a backup code before exiting</string>
         <string name="personalid_backup_code_too_many_attempts">Too many attempts. Please try again later.</string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Please add an email address</string>
+    <string name="personalid_profile_add_email_toast">Please add an email address</string>
     <string name="personalid_send_email_otp_title">Recover backup code</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">Set Backup Code</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">Your account doesn\'t have a backup code yet. Verify your email address below to set one up.</string>
     <string name="personalid_send_email_otp_description">We\'ll send a verification code to:</string>
     <string name="personalid_send_email_otp_button">Send code</string>
     <string name="personalid_send_email_otp_address_label">Recovery email</string>
