@@ -4,10 +4,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
@@ -21,6 +19,7 @@ import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
 
@@ -34,7 +33,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     public static final String CHANNEL_ID = "channel_id";
     private static final String KEY_PROGRESS_DIALOG_FRAGMENT = "progress_dialog_fragment";
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +56,18 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     @Override
-    public void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        NavigationUI.setupActionBarWithNavController(this, navController);
+    protected boolean shouldShowDrawer() {
+        return shouldShowDrawerAfterCheck(true);
+    }
+
+    @Override
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
+        return BaseDrawerController.NavItemType.MESSAGING;
+    }
+
+    @Override
+    protected boolean isSidebarSection() {
+        return true;
     }
 
     @Override

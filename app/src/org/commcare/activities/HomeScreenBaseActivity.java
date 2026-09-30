@@ -69,6 +69,7 @@ import org.commcare.util.DatumUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
+import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.EntityDetailUtils;
@@ -589,24 +590,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     protected void userTriggeredLogout() {
-        if (isBlockedByActiveSync()) {
+        if (AppLogoutHelper.isBlockedByActiveSync(this)) {
             return;
         }
         CommCareApplication.instance().closeUserSession();
         setResult(RESULT_OK);
         finish();
-    }
-
-    protected boolean isBlockedByActiveSync() {
-        if (CommCareSessionService.sessionAliveLock.isLocked()) {
-            Toast.makeText(
-                    this,
-                    Localization.get("background.sync.logout.attempt.during.sync"),
-                    Toast.LENGTH_LONG
-            ).show();
-            return true;
-        }
-        return false;
     }
 
     protected void userPressedOpportunityStatus() {
