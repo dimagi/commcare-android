@@ -63,7 +63,7 @@ public class PersonalIdOrConnectApiErrorHandler {
             case UNKNOWN_ERROR:
                 return context.getString(R.string.recovery_network_unknown);
             case INCORRECT_OTP_ERROR:
-                return context.getString(R.string.personalid_incorrect_otp);
+                return getIncorrectOtpMessage(context, t);
             case OTP_LIMIT_EXCEEDED_ERROR:
                 return context.getString(R.string.personalid_otp_limit_exceeded);
             case JSON_PARSING_ERROR:
@@ -79,6 +79,25 @@ public class PersonalIdOrConnectApiErrorHandler {
                     return context.getString(R.string.recovery_network_unknown);
                 }
         }
+    }
+
+    private static String getIncorrectOtpMessage(
+            Context context,
+            @Nullable Throwable throwable
+    ) {
+        Integer attemptsLeft = throwable instanceof IncorrectOtpException
+                ? ((IncorrectOtpException) throwable).getAttemptsLeft()
+                : null;
+
+        if (attemptsLeft == null) {
+            return context.getString(R.string.personalid_incorrect_otp);
+        }
+
+        return context.getResources().getQuantityString(
+                R.plurals.personalid_incorrect_otp_attempts_remaining,
+                attemptsLeft,
+                attemptsLeft
+        );
     }
 
     private static String getRateLimitExceededMessage(

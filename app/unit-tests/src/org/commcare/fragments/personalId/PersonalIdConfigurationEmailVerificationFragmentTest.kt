@@ -197,6 +197,21 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     @Test
+    fun `a wrong code reports how many attempts the code has left`() {
+        mockWebServer.enqueue(incorrectOtpResponse(attemptsLeft = 2))
+
+        enterCode("123456")
+        drainHttp()
+
+        val errorText = fragment.requireView().findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(View.VISIBLE, errorText.visibility)
+        assertEquals(
+            activity.resources.getQuantityString(R.plurals.personalid_incorrect_otp_attempts_remaining, 2, 2),
+            errorText.text.toString(),
+        )
+    }
+
+    @Test
     fun `email already in use response shows the email-in-use error instead of crashing`() {
         mockWebServer.enqueue(emailAlreadyInUseResponse())
 
@@ -569,6 +584,37 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY counts down the attempts left and then asks for a new code`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        val errorText = fragment.requireView().findViewById<TextView>(R.id.personalid_email_verify_error)
+
+        listOf(2, 1).forEach { attemptsLeft ->
+            mockWebServer.enqueue(incorrectOtpResponse(attemptsLeft))
+            enterCode("000000")
+            drainHttp()
+            assertEquals(
+                activity.resources.getQuantityString(
+                    R.plurals.personalid_incorrect_otp_attempts_remaining,
+                    attemptsLeft,
+                    attemptsLeft,
+                ),
+                errorText.text.toString(),
+            )
+        }
+
+        mockWebServer.enqueue(otpLimitExceededResponse())
+        enterCode("000000")
+        drainHttp()
+
+        assertEquals(
+            "The last wrong guess hands off to the out-of-attempts handling, not a lockout",
+            activity.getString(R.string.personalid_otp_limit_exceeded),
+            errorText.text.toString(),
+        )
+        assertEquals(R.id.personalid_email_verification, navController.currentDestination!!.id)
+    }
+
+    @Test
     fun `FORGOT_BACKUP_CODE_RECOVERY success passes email_otp as the recovery method`() {
         setUpForgotBackupCodeRecoveryFlow()
         mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
@@ -813,6 +859,11 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         MockResponse()
             .setResponseCode(401)
             .setBody("""{"error_code":"INCORRECT_OTP"}""")
+
+    private fun incorrectOtpResponse(attemptsLeft: Int): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error_code":"INCORRECT_OTP","attempts_left":$attemptsLeft}""")
 
     private fun otpLimitExceededResponse(): MockResponse =
         MockResponse()
