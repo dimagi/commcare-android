@@ -280,7 +280,6 @@ public class ConnectMessageFragment extends Fragment {
             } else {
                 chat.setMessageRead(success);
                 adapter.updateMessageReadStatus(chat);
-                scrollToLatestMessage();
                 FirebaseAnalyticsUtil.reportPersonalIDMessageSent();
             }
         });
@@ -309,10 +308,24 @@ public class ConnectMessageFragment extends Fragment {
                 }
             }
 
-            adapter.updateData(chats);
-            scrollToLatestMessage();
+            boolean initialLoad = adapter.getItemCount() == 0;
+            boolean wasNearBottom = isNearBottom();
+            boolean hasNewMessages = adapter.updateData(chats);
 
+            if (initialLoad) {
+                scrollToLatestMessage();
+            } else if (hasNewMessages && wasNearBottom) {
+                binding.rvChat.smoothScrollToPosition(adapter.getItemCount() - 1);
+            }
         }
+    }
+
+    private boolean isNearBottom() {
+        RecyclerView chatView = binding.rvChat;
+        int distanceFromBottom = chatView.computeVerticalScrollRange()
+                - chatView.computeVerticalScrollOffset()
+                - chatView.computeVerticalScrollExtent();
+        return distanceFromBottom <= getResources().getDimensionPixelSize(R.dimen.dp60);
     }
 
     private ConnectMessageChatData fromMessage(ConnectMessagingMessageRecord message) {
