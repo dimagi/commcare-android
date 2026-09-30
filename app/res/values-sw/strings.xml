@@ -585,6 +585,8 @@
     <string name="nav_drawer_commcare_apps">Programu za CommCare</string>
     <string name="nav_drawer_switch_app_dialog_title">Ondoka kwenye programu hii?</string>
     <string name="nav_drawer_switch_app_dialog_message">Utatolewa kwenye programu hii na kurudishwa kwenye skrini ya kuingia, ambapo unaweza kuchagua programu nyingine.</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">Toka na ubadilishe programu?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">Utatolewa kwenye programu ya CommCare uliyoingia na kurudishwa kwenye skrini ya kuingia, ambapo unaweza kuchagua programu nyingine.</string>
     <string name="nav_drawer_switch_app_dialog_confirm">Endelea</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Ghairi</string>
     <string name="play_service_update_error">Ili kutumia PersonalID, unahitaji kusasisha Huduma za Google Play. Gusa hapa ili uende kwenye Duka la Google Play uangalie masasisho.</string>
