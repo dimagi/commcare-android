@@ -19,6 +19,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Step through PersonalID sign-up and account recovery and verify the CommCare logo shows only on the phone number screen.
   - Confirm the name screen's app bar title reads "Name" and not "App Lock".
 - On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
+- Regression check on app updates from the home screen: the Update menu item still opens the update screen, and when a newer CommCare version is on the Play Store, the in-app update prompt, download and restart dialog still work, including the "Update CommCare" menu item after declining the prompt several times.
 
 ## CommCare 2.64.1
 
