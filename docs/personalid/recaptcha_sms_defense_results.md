@@ -352,11 +352,101 @@ absolute count to the 1890-call window above.
 | `TOO_MANY_ATTEMPTS_TRY_LATER` | 3 | **0.6%** | 3.8% |
 | `INVALID_PHONE_NUMBER` | 1 | 0.2% | 0.6% |
 
+> [!IMPORTANT]
+> **`MISSING_RECAPTCHA_TOKEN` at 1.0% does not mean missing tokens affect 1% of sends.** The metric
+> counts 62 for the same traffic. Most missing-token requests surface in the
+> `INVALID_APP_CREDENTIAL` and `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` rows, or succeed outright via
+> the `AUDIT` fallback and appear as `SUCCESS`. See
+> [What produces a missing token](#what-produces-a-missing-token--controlled-test-30-september).
+
 Success is up nearly six points. **Error 39 is down but not gone** — 7 events against a background
 rate of roughly three a day previously, so it has fallen by more than the drop in volume alone
 explains. `TOO_MANY_ATTEMPTS_TRY_LATER`, which had grown eightfold and was the headline regression in
 the previous read, has collapsed back to 3. Region rejections are unchanged in character and remain
 the largest failure category, and they have nothing to do with reCAPTCHA.
+
+## What produces a missing token — controlled test, 30 September
+
+Adding CommCare LTS to the key halved the `missing` rate but did not clear it. This section records a
+deliberate experiment to identify one of the remaining sources.
+
+**Method.** Read the token counter on an idle project, have a developer sign in from a locally built
+**debug** APK, then read the counter again and reconcile against the audit log.
+
+### Result
+
+| `token_state` | Baseline `06:07:05Z` | After `06:23:04Z` | Delta |
+| --- | --- | --- | --- |
+| `valid` | 9 | 9 | **+0** |
+| `missing` | 0 | 2 | **+2** |
+| `invalid` | 0 | 0 | +0 |
+| `expired` | 0 | 0 | +0 |
+
+The attribution is certain rather than correlational: across the whole project between
+`06:00Z` and `06:30Z` there were **exactly two** `SendVerificationCode` calls, both from the test
+device, and all five identitytoolkit entries in the window came from its IP. The counter recorded two
+`missing` tokens in the one-minute bucket ending `06:23:01Z`, which spans both calls. No other request
+existed for them to belong to.
+
+The device's full sequence:
+
+```
+06:21:59  GetRecaptchaConfig     SUCCESS
+06:22:00  GetRecaptchaParam      SUCCESS
+06:22:02  SendVerificationCode   ALTERNATE_CLIENT_IDENTIFIER_REQUIRED
+                                 "Invalid PlayIntegrity token; app not Recognized by Play Store"
+06:22:03  GetProjectConfig       INVALID_CERT_HASH
+06:22:04  SendVerificationCode   INVALID_APP_CREDENTIAL
+```
+
+### Why a debug build cannot mint a token
+
+It fails app verification on both available paths, and the package allow-list is not the reason:
+
+1. **Play Integrity fails** — a locally built APK is not distributed through the Play Store, so it
+   cannot attest. This is the `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` line.
+2. **reCAPTCHA fails** — `INVALID_CERT_HASH` on `GetProjectConfig` says the debug signing certificate
+   is not registered on the Firebase project.
+
+Separately, `applicationIdSuffix '.debug'` makes the package `org.commcare.dalvik.debug`, which is not
+in the key's `allowedPackageNames` either. But that is not what this test exercised: the build fails
+earlier, on app identity. **Adding LTS to the key was never going to help debug builds**, and adding
+the `.debug` package names alone would not fix them either while the certificate hash is unregistered.
+
+### How much of the residual this accounts for
+
+Unresolved. The test proves debug builds contribute; it does not size the contribution. At roughly two
+missing tokens per sign-in attempt, the 62 in the 24–29 September window would correspond to about 31
+attempts, which is plausibly the whole developer and QA population — but that is arithmetic, not
+evidence. Package attribution is still unavailable, so a developer's debug build cannot be separated
+from a field user whose Play Integrity failed for an unrelated reason.
+
+The `SendVerificationCode` log does carry `jsonPayload.request.phoneNumber` on every entry. Since
+developers and testers reuse known numbers and field users do not, matching the failing requests
+against a supplied list of team test numbers would bound the developer share without exposing any
+field user's number. That is the cheapest way to close this.
+
+> [!IMPORTANT]
+> **`token_state=missing` and the `MISSING_RECAPTCHA_TOKEN` status are different measurements.**
+> In the 24–29 September window they differ twelvefold — **62** against **5** — over the same traffic.
+>
+> `token_state` is an input condition, recorded by the reCAPTCHA subsystem for every request it
+> evaluates: what token arrived. `status.message` is the outcome of the whole call. Because
+> `phoneEnforcementState` is `AUDIT`, a missing token does not deny the request; it falls through to
+> Play Integrity, and the status then names *that* result instead. The test above demonstrates it
+> directly — two requests with no token, reported as `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` and
+> `INVALID_APP_CREDENTIAL`, neither of which mentions a token.
+>
+> Approximately 24 of the 62 are visible as failures — the `INVALID_APP_CREDENTIAL` (12),
+> `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` (7) and `MISSING_RECAPTCHA_TOKEN` (5) rows. The other ~38
+> **succeeded**: the token was missing, Play Integrity passed, and the OTP was delivered with the user
+> noticing nothing. The split is approximate because the denominators differ (477 token evaluations
+> against 520 sends; the ~36 region rejections fail before reCAPTCHA evaluates, which roughly accounts
+> for the gap).
+>
+> **Consequence for `ENFORCE`:** the status table suggests missing tokens affect 1% of sends. The
+> metric says 13%. `ENFORCE` removes the fallback that currently rescues the difference, so the
+> population at risk is the full 62 — plan against the metric, not the status table.
 
 ## Before Enabling ENFORCE Mode
 
@@ -372,10 +462,10 @@ still arrives. Under `ENFORCE` there is no fallback — the request is blocked a
 `onVerificationFailed` immediately. That is a change in kind, not degree: affected users lose phone
 verification outright rather than see it slow down.
 
-The residual 13% is therefore still the blast radius, and because package attribution is not
-available it cannot be narrowed further from the logs. Whatever is producing those 62 requests has to
-be identified before flipping, since adding LTS to the key has now been ruled out as the whole
-explanation.
+The residual 13% is therefore still the blast radius. Debug builds are now confirmed as one
+contributor, but the share is unmeasured and package attribution remains unavailable, so the split
+between developers (harmless) and field users (blocking) is still unknown. That split is what has to
+be settled before flipping.
 
 | Scenario | reCAPTCHA Token Status | App Mode | User Experience | Will OTP Send? |
 | --- | --- | --- | --- | --- |
@@ -438,7 +528,7 @@ What this does and does not change for `ENFORCE`:
 
 | Point | Description | Action |
 | --- | --- | --- |
-| **#1** Missing / invalid reCAPTCHA token | **Still open, hypothesis partly refuted.** LTS was added to the key on 2026-09-24 and `missing` fell from 23% to 13% — a real improvement, but 62 requests in five and a half days still carry no token, and `invalid` tripled as a share. Package attribution is unavailable, so the remaining source is unidentified. | Find what else produces `missing` before `ENFORCE`. |
+| **#1** Missing / invalid reCAPTCHA token | **Still open, one source identified.** LTS was added to the key on 2026-09-24 and `missing` fell from 23% to 13%, but 62 requests in five and a half days still carry no token. A [controlled test on 2026-09-30](#what-produces-a-missing-token--controlled-test-30-september) confirmed debug builds as one source — they fail Play Integrity *and* carry an unregistered signing cert, so they can never mint a token. The share they account for is unmeasured. | Bound the developer share by matching failing requests against known team test numbers. |
 | **#2** Enabling reCAPTCHA on CommCare LTS | **Done 2026-09-24.** `org.commcare.lts` is in `allowedPackageNames` on the key referenced by `recaptchaConfig`; no regression visible in the window since — success rate rose from 80.5% to 86.3%. | Closed. |
 
 
