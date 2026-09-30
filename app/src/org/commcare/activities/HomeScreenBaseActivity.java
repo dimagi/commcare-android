@@ -1653,6 +1653,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return this;
     }
 
+    @NonNull
+    @Override
+    public AppCompatActivity getHostActivity() {
+        return this;
+    }
+
     @Override
     public void refreshHostUi() {
         refreshUI();

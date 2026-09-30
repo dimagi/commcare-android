@@ -3,12 +3,14 @@ package org.commcare.home
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.test.core.app.ApplicationProvider
 import org.commcare.views.dialogs.CommCareAlertDialog
+import org.robolectric.Robolectric
 
 /**
  * Activity-free [HomeActivityHost] for coordinator unit tests.
@@ -35,6 +37,11 @@ class FakeHomeActivityHost : HomeActivityHost {
     override val lifecycle: Lifecycle get() = lifecycleRegistry
     override val savedStateRegistry: SavedStateRegistry get() = savedStateController.savedStateRegistry
     override val hostContext: Context get() = ApplicationProvider.getApplicationContext()
+
+    /** Built lazily so only tests exercising the update flows pay for a real activity. */
+    private val activityController by lazy { Robolectric.buildActivity(AppCompatActivity::class.java).setup() }
+
+    override val hostActivity: AppCompatActivity get() = activityController.get()
 
     override fun startActivityForResult(
         intent: Intent,
@@ -67,6 +74,11 @@ class FakeHomeActivityHost : HomeActivityHost {
     /** `ComponentActivity.onCreate` step 2, dispatched only after `Activity.onCreate` returns. */
     fun dispatchOnCreate() {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    /** `ComponentActivity.onDestroy`, so delegates can be observed tearing down. */
+    fun dispatchOnDestroy() {
+        lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     }
 
     /** `ComponentActivity.onSaveInstanceState`: collect every registered provider's state. */
