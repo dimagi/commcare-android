@@ -43,7 +43,8 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
 
     override fun getSessionData(): PersonalIdSessionData? = personalIdSessionData
 
-    override fun canSkipEmailVerification(): Boolean = true
+    // Only offer to skip where we have somewhere to send the user next.
+    override fun canSkipEmailVerification(): Boolean = workflow == EmailWorkFlow.REGISTRATION || workflow == EmailWorkFlow.RECOVERY
 
     override fun doVerifyOtpRequest(otp: String) {
         if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY) {
@@ -75,20 +76,6 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
                 onEmailVerificationFailure(errorCode, t)
             }
         }.completeRecoveryWithEmailOtp(requireActivity(), otp, personalIdSessionData!!)
-    }
-
-    override fun onMaxingEmailVerificationAttempts() {
-        if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY) {
-            navigateToMessageDisplay(
-                getString(R.string.connect_backup_fail_title),
-                getString(R.string.personalid_email_otp_max_attempts_reached),
-                isCancellable = false,
-                phase = ConnectConstants.PERSONALID_RECOVERY_EMAIL_OTP_FAILED,
-                buttonText = R.string.ok,
-            )
-        } else {
-            super.onMaxingEmailVerificationAttempts()
-        }
     }
 
     override fun onEmailVerified() {

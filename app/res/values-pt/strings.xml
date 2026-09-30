@@ -285,10 +285,26 @@
     <string name="personalid_email_verification_description">Digite o código de 6 dígitos enviado para %1$s</string>
     <string name="personalid_email_verify_button">Verificar</string>
     <string name="personalid_email_otp_failed_title">Falha na verificação</string>
-    <string name="personalid_email_otp_failed_message">Parece que você está tendo dificuldade para verificar seu e-mail. Você pode pular esta etapa por agora e tentar novamente mais tarde, ou continuar tentando.</string>
-    <string name="personalid_email_otp_failed_retry">Tentar novamente</string>
+    <string name="personalid_email_otp_failed_message">Você usou todas as tentativas deste código. Pode solicitar um novo em %1$s, ou pular o e-mail por agora.</string>
+    <string name="personalid_email_otp_failed_wait">Aguardar</string>
     <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
-    <string name="personalid_email_otp_max_attempts_reached">Número máximo de tentativas de verificação atingido. Tente novamente mais tarde.</string>
+    <string name="personalid_otp_limit_exceeded">Você usou todas as tentativas deste código, por isso ele não é mais válido. Solicite um novo código para continuar.</string>
+    <string name="personalid_rate_limited_retry_after">Muitas tentativas. Tente novamente em %1$s.</string>
+    <string name="personalid_otp_resend_wait">Não recebeu seu código? Reenviar em %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Aguarde %1$s para solicitar um novo código</string>
+    <string name="personalid_otp_request_code">Solicitar código</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">%d segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">%d minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
     <string name="personalid_email_added_title">E-mail adicionado</string>
     <string name="personalid_email_added_message">Seu e-mail foi adicionado com sucesso.</string>
     <string name="personalId_email_otp_sent">Um código de 6 dígitos foi enviado para o seu endereço de e-mail.</string>
@@ -323,7 +339,6 @@
     <string name="connect_verify_phone_resend">Não recebeu o seu código? Reenviar</string>
     <string name="connect_verify_phone_resend_code">Reenviar código</string>
     <string name="connect_verify_skip_phone_number">Vejo que é um utilizador de demonstração, por isso vamos saltar o OTP</string>
-    <string name="connect_verify_phone_resend_wait">Não recebeu o seu código? Reenviar em %d s</string>
     <string name="connect_verify_phone_change">Alterar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
     <string name="connect_last_update">Atualizado: %s</string>
