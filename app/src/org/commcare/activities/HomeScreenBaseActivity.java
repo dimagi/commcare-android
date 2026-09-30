@@ -77,7 +77,6 @@ import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.utils.CrashUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -208,7 +207,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        CrashUtil.registerAppData();
 
         updateLastSuccessfulCommCareVersion();
         sessionNavigator = new SessionNavigator(this);

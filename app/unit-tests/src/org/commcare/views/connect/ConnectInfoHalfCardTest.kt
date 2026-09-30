@@ -9,6 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.color.MaterialColors
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
+import org.commcare.views.extensions.themeColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -113,7 +114,7 @@ class ConnectInfoHalfCardTest {
 
         card.contentEnabled = false
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_grey),
+            card.context.themeColor(R.attr.connectOnSurfaceDisabled),
             value.currentTextColor,
         )
 
@@ -157,7 +158,7 @@ class ConnectInfoHalfCardTest {
         assertEquals("100 each", card.subtitleText.toString())
         assertEquals(false, card.contentEnabled)
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_grey),
+            card.context.themeColor(R.attr.connectOnSurfaceDisabled),
             card.findViewById<TextView>(R.id.info_card_value_text).currentTextColor,
         )
     }
