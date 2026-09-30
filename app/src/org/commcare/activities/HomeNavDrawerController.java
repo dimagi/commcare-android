@@ -106,19 +106,21 @@ public class HomeNavDrawerController {
         boolean hideChangeLanguageItem = ChangeLocaleUtil.getLocaleNames().length <= 1;
         boolean hideTrainingItem = !CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent();
         boolean hideIncompleteFormsItem = !HiddenPreferences.isIncompleteFormsEnabled();
+        boolean hideCCUpdateItem =
+                !activity.getCoordinator().getAppUpdate().getShowCommCareUpdateMenu();
         int numItemsToInclude = allDrawerItems.size()
                 - (hideChangeLanguageItem ? 1 : 0)
                 - (hideSavedFormsItem ? 1 : 0)
                 - (hideTrainingItem ? 1 : 0)
                 - (hideIncompleteFormsItem ? 1 : 0)
-                - (activity.showCommCareUpdateMenu ? 0 : 1);
+                - (hideCCUpdateItem ? 1 : 0);
 
         drawerItemsShowing = new NavDrawerItem[numItemsToInclude];
         int index = 0;
         for (String id : getAllItemIdsInOrder()) {
             NavDrawerItem item = allDrawerItems.get(id);
             if (!excludeItem(id, hideChangeLanguageItem, hideSavedFormsItem, hideTrainingItem,
-                    !activity.showCommCareUpdateMenu, hideIncompleteFormsItem)) {
+                    hideCCUpdateItem, hideIncompleteFormsItem)) {
                 drawerItemsShowing[index] = item;
                 index++;
             }
@@ -146,7 +148,7 @@ public class HomeNavDrawerController {
                     activity.goToFormArchive(false);
                     break;
                 case UPDATE_DRAWER_ITEM_ID:
-                    activity.launchUpdateActivity(false);
+                    activity.getCoordinator().getAppUpdate().launchUpdateActivity(false);
                     break;
                 case ABOUT_CC_DRAWER_ITEM_ID:
                     activity.showAboutCommCareDialog();
@@ -167,7 +169,7 @@ public class HomeNavDrawerController {
                     activity.enterTrainingModule();
                     break;
                 case UPDATE_CC_DRAWER_ITEM_ID:
-                    activity.startCommCareUpdate();
+                    activity.getCoordinator().getAppUpdate().startCommCareUpdate();
                     break;
                 case INCOMPLETE_FORMS_ITEM_ID:
                     activity.goToFormArchive(true);

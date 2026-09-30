@@ -19,12 +19,12 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 class HomeActivityCoordinatorTest {
     @Test
-    fun `coordinator registers itself on the host lifecycle during construction`() {
+    fun `coordinator registers itself and its app-update delegate on the host lifecycle during construction`() {
         val host = FakeHomeActivityHost()
 
         HomeActivityCoordinator(host)
 
-        assertEquals(1, host.observerCount)
+        assertEquals(2, host.observerCount)
     }
 
     @Test

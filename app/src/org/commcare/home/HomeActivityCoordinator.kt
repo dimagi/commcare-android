@@ -21,6 +21,10 @@ class HomeActivityCoordinator(
     private var externalLaunch = false
     private var loginExtraConsumed = false
     private var endpointNavPendingAfterSync = false
+    private var attachedSession: SeatedAppSession? = null
+
+    /** Owns the binary and content app updates. Session-independent, registered on the host lifecycle. */
+    val appUpdate = AppUpdateDelegate(host = host, session = { attachedSession })
 
     /** Activity was launched by an external app, so form submission may redispatch back to it. */
     var wasExternal: Boolean
@@ -57,10 +61,16 @@ class HomeActivityCoordinator(
 
     init {
         host.lifecycle.addObserver(this)
+        host.lifecycle.addObserver(appUpdate)
     }
 
     override fun onCreate(owner: LifecycleOwner) {
         ensureRestored()
+    }
+
+    /** Bind [session] as the live session the delegates read. */
+    fun attachSession(session: SeatedAppSession) {
+        attachedSession = session
     }
 
     /**
@@ -71,7 +81,7 @@ class HomeActivityCoordinator(
         resultCode: Int,
         intent: Intent?,
     ) {
-        // Intentionally empty: delegates arrive in later slices.
+        appUpdate.onActivityResult(requestCode, resultCode)
     }
 
     /**
