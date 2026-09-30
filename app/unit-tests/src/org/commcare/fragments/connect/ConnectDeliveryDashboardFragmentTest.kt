@@ -41,6 +41,7 @@ import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectInfoHalfCard
 import org.commcare.views.connect.ConnectSyncStatusCard
 import org.commcare.views.connect.SemiCircleProgressBar
+import org.commcare.views.extensions.themeColor
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -471,7 +472,7 @@ class ConnectDeliveryDashboardFragmentTest {
     private fun accentColor(): Int =
         MaterialColors.getColor(activity.findViewById(android.R.id.content), com.google.android.material.R.attr.colorPrimary)
 
-    private fun disabledColor(): Int = ContextCompat.getColor(activity, R.color.connect_dark_grey)
+    private fun disabledColor(): Int = activity.themeColor(R.attr.connectOnSurfaceDisabled)
 
     private fun progressResponse(
         deliveries: List<String> = emptyList(),

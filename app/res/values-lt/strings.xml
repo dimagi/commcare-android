@@ -296,7 +296,7 @@
     <string name="pn_no_notification_available">Pranešimų nėra</string>
     <string name="connect_no_jobs">Jūs dar nebuvote pakviestas į jokias galimybes. Kai būsite pakviestas į galimybę, ji atsiras šiame sąraše.</string>
 
-    <string name="connect_label_expiry">Pabaiga</string>
+    <string name="connect_label_expires_on">Baigiasi</string>
     <string name="connect_label_completed_on">Užbaigta</string>
     <string name="connect_label_expired_on">Baigėsi</string>
     <string name="connect_complete_by">Užduotis baigiasi %s</string>
@@ -323,6 +323,8 @@
     <string name="connect_delivery_revisit_learning_offline">Pažymėjimo duomenys bus įkelti, kai vėl prisijungsite prie interneto</string>
     <string name="connect_delivery_revisit_learning_view">Peržiūrėti</string>
     <string name="connect_task_expires_on">Terminas – %1$s</string>
+    <string name="connect_task_pending_chip">Laukianti užduotis</string>
+    <string name="connect_task_blocking_subtitle">Atlikite ją, kad tęstumėte pristatymą.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">šiandien liko %1$d vizitas</item>
         <item quantity="few">šiandien liko %1$d vizitai</item>

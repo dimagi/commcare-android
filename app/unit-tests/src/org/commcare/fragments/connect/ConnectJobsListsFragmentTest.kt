@@ -157,7 +157,7 @@ class ConnectJobsListsFragmentTest {
     @Test
     fun `a running opportunity is labelled with its expiry`() {
         assertEquals(
-            activity.getString(R.string.connect_label_expiry),
+            activity.getString(R.string.connect_label_expires_on),
             getDateLabelText(LEARNING_UUID),
         )
     }
@@ -165,7 +165,7 @@ class ConnectJobsListsFragmentTest {
     @Test
     fun `a new opportunity is labelled with its expiry`() {
         assertEquals(
-            activity.getString(R.string.connect_label_expiry),
+            activity.getString(R.string.connect_label_expires_on),
             getDateLabelText(NEW_UUID),
         )
     }

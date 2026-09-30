@@ -631,7 +631,7 @@
     <string name="personalid_biometric_error_timeout">La operación biométrica ha expirado. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_cannot_configure">No pudimos configurar los datos biométricos en su dispositivo. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
 
-    <string name="connect_label_expiry">Vencimiento</string>
+    <string name="connect_label_expires_on">Vence el</string>
     <string name="connect_label_completed_on">Completado el</string>
     <string name="connect_label_expired_on">Vencido el</string>
     <string name="connect_complete_by">La tarea termina el %s</string>
@@ -658,6 +658,8 @@
     <string name="connect_delivery_revisit_learning_offline">Los datos del certificado se cargarán cuando vuelva a estar en línea</string>
     <string name="connect_delivery_revisit_learning_view">Ver</string>
     <string name="connect_task_expires_on">Vence el %1$s</string>
+    <string name="connect_task_pending_chip">Tarea pendiente</string>
+    <string name="connect_task_blocking_subtitle">Complétela para continuar la entrega.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visita restante hoy</item>
         <item quantity="other">%1$d visitas restantes hoy</item>

@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/connect_space_xs"
             android:textColor="?attr/connectOnSurfaceMuted"
-            tools:text="Expiry" />
+            tools:text="Expires on" />
 
         <TextView
             android:id="@+id/tvDate"
