@@ -93,7 +93,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/profile_email_otp_notice"
-                style="@style/TextStyle.PersonalId.Helper"
+                style="@style/TextStyle.PersonalId.Warning"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_xs"
