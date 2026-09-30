@@ -33,7 +33,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_message_button"
-                style="@style/PersonalIdPrimaryButtonStyle"
+                style="@style/ConnectPrimaryButtonStyle"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="@dimen/content_start"
@@ -42,7 +42,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_message_button2"
-                style="@style/PersonalIdPrimaryButtonStyle"
+                style="@style/ConnectPrimaryButtonStyle"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_lg"

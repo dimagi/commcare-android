@@ -227,8 +227,8 @@
         <item name="android:layout_margin">@dimen/spacer_small</item>
     </style>
 
-    <style name="PersonalIdPrimaryButtonStyle" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/personalid_primary_button_background</item>
+    <style name="ConnectPrimaryButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/connect_primary_button_background</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:letterSpacing">0</item>
         <item name="android:gravity">center</item>

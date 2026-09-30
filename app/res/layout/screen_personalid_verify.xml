@@ -45,7 +45,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_verify_fingerprint_button"
-                    style="@style/PersonalIdPrimaryButtonStyle"
+                    style="@style/ConnectPrimaryButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/connect_space_lg"
@@ -80,7 +80,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_verify_pin_button"
-                    style="@style/PersonalIdPrimaryButtonStyle"
+                    style="@style/ConnectPrimaryButtonStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/connect_space_lg"

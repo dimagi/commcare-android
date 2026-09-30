@@ -50,7 +50,7 @@
             >
         <com.google.android.material.button.MaterialButton
             android:id="@+id/take_photo_button"
-            style="@style/PersonalIdPrimaryButtonStyle"
+            style="@style/ConnectPrimaryButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -59,7 +59,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save_photo_button"
-            style="@style/PersonalIdPrimaryButtonStyle"
+            style="@style/ConnectPrimaryButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

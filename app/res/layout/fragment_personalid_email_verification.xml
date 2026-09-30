@@ -107,7 +107,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/personalid_email_verify_button"
-                style="@style/PersonalIdPrimaryButtonStyle"
+                style="@style/ConnectPrimaryButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
