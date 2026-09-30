@@ -8,6 +8,8 @@ import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectCtaBarBinding
 import org.commcare.views.extensions.bindOptional
+import org.commcare.views.extensions.themeColor
+import androidx.appcompat.R as AppCompatR
 
 /**
  * Reusable Connect bottom action bar.
@@ -63,10 +65,16 @@ class ConnectCtaBar
             get() = binding.ctaInfoBanner.text
             set(value) = binding.ctaInfoBanner.bindOptional(value)
 
+        /** Disabling the CTA mutes the title with it, so the whole bar reads as stood down. */
         var isCtaEnabled: Boolean
             get() = binding.ctaButton.isEnabled
             set(value) {
                 binding.ctaButton.isEnabled = value
+                binding.ctaTitleText.setTextColor(
+                    context.themeColor(
+                        if (value) AppCompatR.attr.colorPrimary else R.attr.connectOnSurfaceEmphasis,
+                    ),
+                )
             }
 
         init {
