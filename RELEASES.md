@@ -9,6 +9,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 #### What's New
 
 - The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
+- Messaging and Work History now show the sidebar, and opening another sidebar section replaces the current one instead of stacking on top of it.
 
 #### Important Bug Fixes
 

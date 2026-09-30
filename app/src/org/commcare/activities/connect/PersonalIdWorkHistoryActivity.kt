@@ -6,18 +6,22 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
-import org.commcare.activities.CommCareActivity
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryViewPagerAdapter
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ActivityPersonalIdWorkHistoryBinding
+import org.commcare.navdrawer.BaseDrawerActivity
+import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.views.dialogs.CustomProgressDialog
 
-class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActivity>() {
+class PersonalIdWorkHistoryActivity : BaseDrawerActivity<PersonalIdWorkHistoryActivity>() {
     private val binding: ActivityPersonalIdWorkHistoryBinding by lazy {
         ActivityPersonalIdWorkHistoryBinding.inflate(layoutInflater)
     }
+
+    override val currentDrawerSection = NavItemType.WORK_HISTORY
+    override val isSidebarSection = true
 
     private lateinit var workHistoryViewPagerAdapter: WorkHistoryViewPagerAdapter
     private lateinit var personalIdWorkHistoryViewModel: PersonalIdWorkHistoryViewModel
@@ -47,6 +51,8 @@ class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActi
         fetchWorkHistoryFromNetwork()
         setUpUi()
     }
+
+    override fun shouldShowDrawer(): Boolean = shouldShowDrawerAfterCheck(true)
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
@@ -85,13 +91,6 @@ class PersonalIdWorkHistoryActivity : CommCareActivity<PersonalIdWorkHistoryActi
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         when (item.itemId) {
-            android.R.id.home -> {
-                if (!isFinishing) {
-                    finish()
-                }
-                true
-            }
-
             R.id.cloud_sync -> {
                 fetchWorkHistoryFromNetwork()
                 true

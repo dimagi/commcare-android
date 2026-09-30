@@ -49,6 +49,7 @@ import org.commcare.login.LoginResult;
 import org.commcare.login.LoginViewModel;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.UnlockPolicy;
 import org.commcare.preferences.DevSessionRestorer;
@@ -1126,6 +1127,11 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     @Override
     protected boolean shouldShowDrawer() {
         return shouldShowDrawerAfterCheck(true);
+    }
+
+    @Override
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
+        return BaseDrawerController.NavItemType.COMMCARE_APPS;
     }
 
     protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
