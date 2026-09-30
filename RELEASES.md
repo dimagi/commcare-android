@@ -16,6 +16,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Backing out of the PersonalID phone number screen while the app is contacting the server no longer crashes the app.
 - When too many incorrect email or phone OTP codes are entered, the OTP code is now reported as no longer usable and the user is prompted to request a new one, instead of showing a generic error. The wait before a new OTP code can be requested is now shown accurately.
 
+#### Internal Release Notes
+
+- Removed the root-menu home screen (the root module grid with a side drawer) and the developer setting that enabled it. Consumer apps now open to the standard home screen.
+
 ### QA Notes
 
 - Step through PersonalID sign-up and account recovery and verify the CommCare logo shows only on the phone number screen.
