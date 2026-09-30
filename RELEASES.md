@@ -29,6 +29,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
 - A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
 - In the forgot-backup-code recovery flow, running out of attempts keeps the user on the verification screen instead of ending the flow.
+- On an app whose menus display as a grid, open a module from the home screen and confirm the grid shows and items open as before.
+- On a consumer app, confirm login lands on the standard home screen and pressing back from the root menu returns there.
 
 ## CommCare 2.64.1
 
