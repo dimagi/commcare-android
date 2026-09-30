@@ -265,7 +265,7 @@
     <string name="pn_no_notification_available">Ingen varsler tilgjengelig</string>
     <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
 
-    <string name="connect_label_expiry">Utløper</string>
+    <string name="connect_label_expires_on">Utløper</string>
     <string name="connect_label_completed_on">Fullført</string>
     <string name="connect_label_expired_on">Utløpt</string>
     <string name="connect_complete_by">Oppgave avsluttes %s</string>
@@ -292,6 +292,8 @@
     <string name="connect_delivery_revisit_learning_offline">Sertifikatdetaljene lastes inn når du er tilkoblet igjen</string>
     <string name="connect_delivery_revisit_learning_view">Vis</string>
     <string name="connect_task_expires_on">Utløper %1$s</string>
+    <string name="connect_task_pending_chip">Ventende oppgave</string>
+    <string name="connect_task_blocking_subtitle">Fullfør den for å fortsette leveringen.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d besøk gjenstår i dag</item>
         <item quantity="other">%1$d besøk gjenstår i dag</item>
