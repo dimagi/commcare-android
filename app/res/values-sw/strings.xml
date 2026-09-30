@@ -620,7 +620,7 @@
     <string name="personalid_biometric_error_timeout">Muda wa utendakazi wa kibayometri umekwisha. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_cannot_configure">Hatukuweza kusanidi bayometriki kwenye kifaa chako. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
 
-    <string name="connect_label_expiry">Inaisha</string>
+    <string name="connect_label_expires_on">Inaisha</string>
     <string name="connect_label_completed_on">Ilikamilika</string>
     <string name="connect_label_expired_on">Iliisha</string>
     <string name="connect_complete_by">Kazi inaisha tarehe %s</string>
