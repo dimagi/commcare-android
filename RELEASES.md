@@ -9,6 +9,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 #### What's New
 
 - The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
+- After an incorrect email or phone OTP code, PersonalID now shows how many attempts remain before a new code must be requested.
 
 #### Important Bug Fixes
 
