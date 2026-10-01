@@ -352,6 +352,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return maxDailyVisits != NO_DAILY_LIMIT;
     }
 
+    private boolean isDailyLimitReached() {
+        return hasDailyLimit() && numberOfDeliveriesToday() >= maxDailyVisits;
+    }
+
     public Date getProjectStartDate() {
         return projectStartDate;
     }
@@ -783,7 +787,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             // The job-level caps are checked ahead of the per-unit warnings: once the whole
             // opportunity is spent, which individual unit ran out first no longer matters.
             return context.getString(R.string.connect_progress_warning_max_reached_single);
-        } else if (numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+        } else if (isDailyLimitReached()) {
             return context.getString(R.string.connect_progress_warning_daily_max_reached_single);
         } else if (!getPaymentUnits().isEmpty()) {
             return getMultiVisitWarnings(context);
@@ -807,7 +811,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 totalMaxes.add(unit.getName());
             } else {
                 int todayCount = today.containsKey(key) ? today.get(key) : 0;
-                if (todayCount >= unit.getMaxDaily()) {
+                if (unit.isDailyLimitReached(todayCount)) {
                     dailyMaxes.add(unit.getName());
                 }
             }
@@ -846,8 +850,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         // The job-level caps bind whatever the payment units allow, so they are checked first.
-        if (getDeliveries().size() >= getMaxVisits()
-                || numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+        if (getDeliveries().size() >= getMaxVisits() || isDailyLimitReached()) {
             return true;
         }
 
@@ -871,7 +874,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             String key = unit.getUnitUUID();
             int totalCount = total.containsKey(key) ? total.get(key) : 0;
             int todayCount = today.containsKey(key) ? today.get(key) : 0;
-            if (totalCount >= unit.getMaxTotal() || todayCount >= unit.getMaxDaily()) {
+            if (totalCount >= unit.getMaxTotal() || unit.isDailyLimitReached(todayCount)) {
                 atLimit.add(key);
             }
         }

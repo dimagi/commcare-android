@@ -130,6 +130,10 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
         return maxDaily != NO_DAILY_LIMIT;
     }
 
+    public boolean isDailyLimitReached(int visitsToday) {
+        return hasDailyLimit() && visitsToday >= maxDaily;
+    }
+
     public int getAmount() {
         return amount;
     }
