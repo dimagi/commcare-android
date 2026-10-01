@@ -26,6 +26,9 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
 - A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
 - In the forgot-backup-code recovery flow, running out of attempts keeps the user on the verification screen instead of ending the flow.
+- On an opportunity with no daily visit limit, confirm the delivery dashboard and the job tile on the app home screen show only today's visit count with no progress bar, and no daily-limit warning appears.
+  - Confirm the opportunity intro and learning-complete screens omit the "Up to N per day" text for such opportunities.
+  - On an opportunity that still has daily limits, confirm the daily progress bar and daily-limit warnings work as before.
 
 ## CommCare 2.64.1
 
