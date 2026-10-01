@@ -91,6 +91,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static final String META_JOB_UUID = "opportunity_id";
 
+    public static final int NO_DAILY_LIMIT = -1;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -205,7 +206,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.projectEndDate = JsonExtensions.requireDate(json, META_END_DATE);
         job.projectStartDate = JsonExtensions.requireDate(json, META_START_DATE);
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
-        job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
+        job.maxDailyVisits = JsonExtensions.requireIntOrDefaultIfNull(json, META_MAX_DAILY_VISITS, NO_DAILY_LIMIT);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
         String budgetPerUserKey = "budget_per_user";
         job.totalBudget = json.getInt(budgetPerUserKey);
@@ -345,6 +346,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public int getMaxDailyVisits() {
         return maxDailyVisits;
+    }
+
+    public boolean hasDailyLimit() {
+        return maxDailyVisits != NO_DAILY_LIMIT;
     }
 
     public Date getProjectStartDate() {

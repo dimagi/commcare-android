@@ -20,6 +20,12 @@ fun JSONObject.optStringSafe(
 /** Returns the value at [key] if it is present and not blank, otherwise null. */
 fun JSONObject.optNonBlankStringSafe(key: String): String? = optStringSafe(key, null)?.takeIf { it.isNotBlank() }
 
+/** Returns the int at [key], or [fallback] if it is null. Throws if [key] is missing. */
+fun JSONObject.requireIntOrDefaultIfNull(
+    key: String,
+    fallback: Int,
+): Int = if (get(key) == JSONObject.NULL) fallback else getInt(key)
+
 fun JSONObject.requireDate(key: String): Date =
     DateUtils.parseDate(getString(key))
         ?: throw JSONException("Unparseable date for $key: ${getString(key)}")

@@ -4,6 +4,7 @@ import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.utils.JsonExtensions;
 import org.javarosa.core.services.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +28,8 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
     public static final String META_AMOUNT = "amount";
     public static final String META_JOB_UUID = ConnectJobRecord.META_JOB_UUID;
     public static final String META_PAYMENT_UNIT_UUID = "payment_unit_id";
+
+    public static final int NO_DAILY_LIMIT = -1;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -76,7 +79,7 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
             paymentUnit.name = json.getString(META_NAME);
             paymentUnit.maxTotal = json.getInt(META_TOTAL);
-            paymentUnit.maxDaily = json.getInt(META_DAILY);
+            paymentUnit.maxDaily = JsonExtensions.requireIntOrDefaultIfNull(json, META_DAILY, NO_DAILY_LIMIT);
             paymentUnit.amount = json.getInt(META_AMOUNT);
 
             return paymentUnit;
@@ -121,6 +124,10 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
     public int getMaxDaily() {
         return maxDaily;
+    }
+
+    public boolean hasDailyLimit() {
+        return maxDaily != NO_DAILY_LIMIT;
     }
 
     public int getAmount() {
