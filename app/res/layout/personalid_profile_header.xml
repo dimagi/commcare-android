@@ -43,7 +43,7 @@
 
     <TextView
         android:id="@+id/profile_name"
-        style="@style/TextStyle.PersonalId.Heading"
+        style="@style/Widget.Connect.HeadingText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/connect_space_lg"
@@ -52,7 +52,7 @@
 
     <TextView
         android:id="@+id/profile_phone_subtitle"
-        style="@style/TextStyle.PersonalId.Body"
+        style="@style/Widget.Connect.BodyText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/connect_space_xs"

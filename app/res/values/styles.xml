@@ -433,47 +433,47 @@
         <item name="lineHeight">16sp</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Heading" parent="TextStyle.Connect.TitleXl">
+    <style name="Widget.Connect.HeadingText" parent="TextStyle.Connect.TitleXl">
         <item name="android:textSize">@dimen/connect_text_headline</item>
         <item name="android:textColor">?attr/connectOnSurfaceEmphasis</item>
     </style>
 
-    <style name="TextStyle.PersonalId.SectionHeading" parent="TextStyle.Connect.TitleS">
+    <style name="Widget.Connect.SectionHeadingText" parent="TextStyle.Connect.TitleS">
         <item name="android:textSize">@dimen/connect_text_body</item>
         <item name="android:textColor">?attr/connectOnSurfaceVariant</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Body" parent="TextStyle.Connect.BodyM">
+    <style name="Widget.Connect.BodyText" parent="TextStyle.Connect.BodyM">
         <item name="android:textSize">@dimen/connect_text_body</item>
         <item name="android:textColor">?attr/connectOnSurfaceVariant</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Label" parent="TextStyle.Connect.TitleS">
+    <style name="Widget.Connect.LabelText" parent="TextStyle.Connect.TitleS">
         <item name="android:textSize">@dimen/connect_text_body</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Value" parent="TextStyle.Connect.BodyLg">
+    <style name="Widget.Connect.ValueText" parent="TextStyle.Connect.BodyLg">
         <item name="android:textSize">@dimen/connect_text_title</item>
         <item name="android:textColor">?attr/connectOnSurfaceEmphasis</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Helper" parent="TextStyle.Connect.BodyS">
+    <style name="Widget.Connect.HelperText" parent="TextStyle.Connect.BodyS">
         <item name="android:textSize">@dimen/connect_text_caption</item>
         <item name="android:textColor">?attr/connectOnSurfaceSubtle</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Error" parent="TextStyle.Connect.BodyS">
+    <style name="Widget.Connect.ErrorText" parent="TextStyle.Connect.BodyS">
         <item name="android:textSize">@dimen/connect_text_caption</item>
         <item name="android:textColor">?attr/connectStatusNegative</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Warning" parent="TextStyle.Connect.BodyS">
+    <style name="Widget.Connect.WarningText" parent="TextStyle.Connect.BodyS">
         <item name="android:textSize">@dimen/connect_text_caption</item>
         <item name="android:textColor">?attr/connectStatusWarning</item>
     </style>
 
-    <style name="TextStyle.PersonalId.Link" parent="TextStyle.Connect.TitleS">
+    <style name="Widget.Connect.LinkText" parent="TextStyle.Connect.TitleS">
         <item name="android:textSize">@dimen/connect_text_body</item>
         <item name="android:textColor">?attr/colorPrimary</item>
     </style>

@@ -13,7 +13,7 @@
             android:orientation="vertical">
             <TextView
                 android:id="@+id/connect_verify_title"
-                style="@style/TextStyle.PersonalId.Heading"
+                style="@style/Widget.Connect.HeadingText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
@@ -22,7 +22,7 @@
 
             <TextView
                 android:id="@+id/connect_verify_message"
-                style="@style/TextStyle.PersonalId.Body"
+                style="@style/Widget.Connect.BodyText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/connect_space_lg"
@@ -89,7 +89,7 @@
 
                 <TextView
                     android:id="@+id/error_text_view"
-                    style="@style/TextStyle.PersonalId.Error"
+                    style="@style/Widget.Connect.ErrorText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/connect_space_lg"

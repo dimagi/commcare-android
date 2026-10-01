@@ -19,7 +19,7 @@
 
             <TextView
                 android:id="@+id/backup_code_subtitle"
-                style="@style/TextStyle.PersonalId.Heading"
+                style="@style/Widget.Connect.HeadingText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/connect_space_lg"
@@ -29,7 +29,7 @@
 
             <TextView
                 android:id="@+id/phone_sub_text"
-                style="@style/TextStyle.PersonalId.Body"
+                style="@style/Widget.Connect.BodyText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/connect_space_lg"
@@ -106,7 +106,7 @@
 
                     <TextView
                         android:id="@+id/personalid_phone_error"
-                        style="@style/TextStyle.PersonalId.Error"
+                        style="@style/Widget.Connect.ErrorText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingStart="@dimen/connect_space_lg"
@@ -137,7 +137,7 @@
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/tv_location"
-                    style="@style/TextStyle.PersonalId.Helper"
+                    style="@style/Widget.Connect.HelperText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/spacer_small"
@@ -188,7 +188,7 @@
 
                     <TextView
                         android:id="@+id/checkText"
-                        style="@style/TextStyle.PersonalId.Body"
+                        style="@style/Widget.Connect.BodyText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/connect_space_lg"

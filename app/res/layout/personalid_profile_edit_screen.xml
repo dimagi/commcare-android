@@ -24,14 +24,14 @@
                 android:layout_height="wrap_content" />
 
             <TextView
-                style="@style/TextStyle.PersonalId.SectionHeading"
+                style="@style/Widget.Connect.SectionHeadingText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/standard_spacer_extra_large"
                 android:text="@string/personalid_profile_section_personal_information" />
 
             <TextView
-                style="@style/TextStyle.PersonalId.Label"
+                style="@style/Widget.Connect.LabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_lg"
@@ -59,7 +59,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
-                style="@style/TextStyle.PersonalId.Label"
+                style="@style/Widget.Connect.LabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_lg"
@@ -85,7 +85,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
-                style="@style/TextStyle.PersonalId.Label"
+                style="@style/Widget.Connect.LabelText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_lg"
@@ -93,7 +93,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/profile_email_otp_notice"
-                style="@style/TextStyle.PersonalId.Warning"
+                style="@style/Widget.Connect.WarningText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_xs"

@@ -18,7 +18,7 @@
 
                 <TextView
                     android:id="@+id/name_fragment_title"
-                    style="@style/TextStyle.PersonalId.Heading"
+                    style="@style/Widget.Connect.HeadingText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/connect_space_lg"
@@ -28,7 +28,7 @@
 
                 <TextView
                     android:id="@+id/name_fragment_subtitle"
-                    style="@style/TextStyle.PersonalId.Body"
+                    style="@style/Widget.Connect.BodyText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/connect_space_lg"
@@ -79,7 +79,7 @@
 
                 <TextView
                     android:id="@+id/personalid_name_error"
-                    style="@style/TextStyle.PersonalId.Error"
+                    style="@style/Widget.Connect.ErrorText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="84dp"

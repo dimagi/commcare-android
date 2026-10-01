@@ -11,7 +11,7 @@
 
         <TextView
             android:id="@+id/connect_phone_verify_title"
-            style="@style/TextStyle.PersonalId.Heading"
+            style="@style/Widget.Connect.HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/connect_space_lg"
@@ -21,7 +21,7 @@
 
         <TextView
             android:id="@+id/connect_phone_verify_label"
-            style="@style/TextStyle.PersonalId.Value"
+            style="@style/Widget.Connect.ValueText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/connect_space_lg"
@@ -30,7 +30,7 @@
 
         <TextView
             android:id="@+id/connect_phone_verify_change"
-            style="@style/TextStyle.PersonalId.Link"
+            style="@style/Widget.Connect.LinkText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/connect_space_lg"
@@ -81,7 +81,7 @@
 
         <TextView
             android:id="@+id/connect_phone_verify_error"
-            style="@style/TextStyle.PersonalId.Error"
+            style="@style/Widget.Connect.ErrorText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/connect_space_lg"
@@ -91,7 +91,7 @@
 
         <TextView
             android:id="@+id/connect_phone_verify_resend"
-            style="@style/TextStyle.PersonalId.Helper"
+            style="@style/Widget.Connect.HelperText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"

@@ -14,7 +14,7 @@
         android:orientation="vertical">
 
         <TextView
-            style="@style/TextStyle.PersonalId.Heading"
+            style="@style/Widget.Connect.HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/connect_space_lg"
@@ -24,7 +24,7 @@
 
         <TextView
             android:id="@+id/email_verification_description"
-            style="@style/TextStyle.PersonalId.Body"
+            style="@style/Widget.Connect.BodyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/connect_space_lg"
@@ -70,7 +70,7 @@
 
         <TextView
             android:id="@+id/personalid_email_verify_error"
-            style="@style/TextStyle.PersonalId.Error"
+            style="@style/Widget.Connect.ErrorText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/connect_space_lg"
@@ -80,7 +80,7 @@
 
         <TextView
             android:id="@+id/personalid_resend_countdown_text"
-            style="@style/TextStyle.PersonalId.Helper"
+            style="@style/Widget.Connect.HelperText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"

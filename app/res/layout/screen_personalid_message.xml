@@ -17,14 +17,14 @@
 
             <TextView
                 android:id="@+id/connect_message_title"
-                style="@style/TextStyle.PersonalId.Heading"
+                style="@style/Widget.Connect.HeadingText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_sm" />
 
             <TextView
                 android:id="@+id/connect_message_message"
-                style="@style/TextStyle.PersonalId.Body"
+                style="@style/Widget.Connect.BodyText"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/connect_space_sm"
