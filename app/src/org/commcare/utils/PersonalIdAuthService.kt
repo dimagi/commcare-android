@@ -8,7 +8,6 @@ import org.commcare.core.network.AuthInfo
 class PersonalIdAuthService(
     private val activity: Activity,
     private val authInfo: AuthInfo,
-    private val personalIdSessionData: PersonalIdSessionData?,
     private val callback: OtpVerificationCallback,
 ) : OtpAuthService {
     override fun requestOtp(phoneNumber: String) {
@@ -23,7 +22,7 @@ class PersonalIdAuthService(
             ) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.sendPhoneOtp(activity, authInfo, personalIdSessionData)
+        }.sendPhoneOtp(activity, authInfo)
     }
 
     override fun verifyOtp(code: String) {
@@ -43,6 +42,6 @@ class PersonalIdAuthService(
             ) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.validatePhoneOtp(activity, code, authInfo, personalIdSessionData)
+        }.validatePhoneOtp(activity, code, authInfo)
     }
 }

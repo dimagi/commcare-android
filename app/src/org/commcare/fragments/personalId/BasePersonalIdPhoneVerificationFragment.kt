@@ -18,7 +18,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import com.google.android.gms.auth.api.phone.SmsRetriever
-import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.SMSBroadcastReceiver
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
@@ -73,9 +72,6 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
 
     /** Credentials for the PersonalID OTP calls. */
     protected abstract fun buildAuthInfo(): AuthInfo
-
-    /** Session the PersonalID responses are parsed into, or null outside the signup flow. */
-    protected abstract fun sessionDataOrNull(): PersonalIdSessionData?
 
     /** SMS method to start with; anything other than PersonalID means Firebase. */
     protected abstract fun defaultSmsMethod(): String?
@@ -528,7 +524,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
 
         // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase.
         if (useOtpFallback && isFallbackAllowed()) {
-            otpManager = OtpManager(requireActivity(), authInfo, sessionDataOrNull(), otpCallback, SMS_METHOD_PERSONAL_ID)
+            otpManager = OtpManager(requireActivity(), authInfo, otpCallback, SMS_METHOD_PERSONAL_ID)
             lastOtpMethod = SMS_METHOD_PERSONAL_ID
             return true
         }
@@ -540,7 +536,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             } else {
                 SMS_METHOD_FIREBASE
             }
-        otpManager = OtpManager(requireActivity(), authInfo, sessionDataOrNull(), otpCallback, method)
+        otpManager = OtpManager(requireActivity(), authInfo, otpCallback, method)
         lastOtpMethod = method
         return false
     }

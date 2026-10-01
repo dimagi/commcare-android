@@ -246,14 +246,13 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
     public void validateFirebaseIdToken(
             Activity activity,
             String firebaseIdToken,
-            AuthInfo authInfo,
-            @Nullable PersonalIdSessionData sessionData
+            AuthInfo authInfo
     ) {
         ApiPersonalId.validateFirebaseIdToken(
                 authInfo,
                 activity,
                 firebaseIdToken,
-                createCallback(sessionData, null)
+                createCallback((PersonalIdSessionData) null, null)
         );
     }
 
@@ -352,25 +351,24 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
         );
     }
 
-    public void sendPhoneOtp(Activity activity, AuthInfo authInfo, @Nullable PersonalIdSessionData sessionData) {
+    public void sendPhoneOtp(Activity activity, AuthInfo authInfo) {
         ApiPersonalId.sendPhoneOtp(
                 activity,
                 authInfo,
-                createCallback(sessionData, null)
+                createCallback((PersonalIdSessionData) null, null)
         );
     }
 
     public void validatePhoneOtp(
             Activity activity,
             String otp,
-            AuthInfo authInfo,
-            @Nullable PersonalIdSessionData sessionData
+            AuthInfo authInfo
     ) {
         ApiPersonalId.validatePhoneOtp(
                 activity,
                 authInfo,
                 otp,
-                createCallback(sessionData, null)
+                createCallback((PersonalIdSessionData) null, null)
         );
     }
 

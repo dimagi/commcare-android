@@ -3,7 +3,6 @@ package org.commcare.utils
 import android.app.Activity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
-import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.util.FirebaseTestUtils
 import org.commcare.core.network.AuthInfo
 import org.junit.Assert.assertTrue
@@ -37,7 +36,7 @@ class OtpManagerTest {
 
     private fun callback(): OtpVerificationCallback = mock(OtpVerificationCallback::class.java)
 
-    private fun managerFor(method: String?) = OtpManager(activity(), authInfo, PersonalIdSessionData(), callback(), method)
+    private fun managerFor(method: String?) = OtpManager(activity(), authInfo, callback(), method)
 
     @Test
     fun `personal_id method resolves to PersonalIdAuthService`() {
@@ -60,12 +59,11 @@ class OtpManagerTest {
     }
 
     @Test
-    fun `a null session is accepted for the profile flow`() {
+    fun `basic auth is accepted for the profile flow`() {
         val manager =
             OtpManager(
                 activity(),
                 AuthInfo.ProvidedAuth("test-user-id", "test-password", false),
-                null,
                 callback(),
                 OtpManager.SMS_METHOD_PERSONAL_ID,
             )

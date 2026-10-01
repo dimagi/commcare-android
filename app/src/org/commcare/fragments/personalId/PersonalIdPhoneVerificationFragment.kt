@@ -37,8 +37,6 @@ class PersonalIdPhoneVerificationFragment : BasePersonalIdPhoneVerificationFragm
 
     override fun buildAuthInfo(): AuthInfo = AuthInfo.TokenAuth(personalIdSessionData.token)
 
-    override fun sessionDataOrNull(): PersonalIdSessionData = personalIdSessionData
-
     override fun defaultSmsMethod(): String? = personalIdSessionData.smsMethod
 
     override fun isFallbackAllowed(): Boolean = personalIdSessionData.otpFallback
