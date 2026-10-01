@@ -9,6 +9,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.personalId.ApiPersonalId
+import org.commcare.utils.CommCareAttemptCounter
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -42,7 +43,7 @@ class EmailHelperTest {
                 email = "user@example.com",
                 workflow = EmailWorkFlow.REGISTRATION,
                 sessionData = sessionData,
-                tracker = AttemptTracker(),
+                tracker = CommCareAttemptCounter(),
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -76,7 +77,7 @@ class EmailHelperTest {
                     email = "user@example.com",
                     workflow = EmailWorkFlow.RECOVERY,
                     sessionData = sessionData,
-                    tracker = AttemptTracker(),
+                    tracker = CommCareAttemptCounter(),
                     onSuccess = {},
                     onFailure = { _, _ -> },
                 )
@@ -110,7 +111,7 @@ class EmailHelperTest {
                     email = "user@example.com",
                     workflow = EmailWorkFlow.EXISTING_USER,
                     sessionData = null,
-                    tracker = AttemptTracker(),
+                    tracker = CommCareAttemptCounter(),
                     onSuccess = {},
                     onFailure = { _, _ -> },
                 )
@@ -142,7 +143,7 @@ class EmailHelperTest {
                 otp = "123456",
                 workflow = EmailWorkFlow.REGISTRATION,
                 sessionData = sessionData,
-                tracker = AttemptTracker(),
+                tracker = CommCareAttemptCounter(),
                 onSuccess = {},
                 onFailure = { _, _ -> },
             )
@@ -178,7 +179,7 @@ class EmailHelperTest {
                     otp = "654321",
                     workflow = EmailWorkFlow.RECOVERY,
                     sessionData = sessionData,
-                    tracker = AttemptTracker(),
+                    tracker = CommCareAttemptCounter(),
                     onSuccess = {},
                     onFailure = { _, _ -> },
                 )
@@ -214,7 +215,7 @@ class EmailHelperTest {
                     otp = "111111",
                     workflow = EmailWorkFlow.EXISTING_USER,
                     sessionData = null,
-                    tracker = AttemptTracker(),
+                    tracker = CommCareAttemptCounter(),
                     onSuccess = {},
                     onFailure = { _, _ -> },
                 )
