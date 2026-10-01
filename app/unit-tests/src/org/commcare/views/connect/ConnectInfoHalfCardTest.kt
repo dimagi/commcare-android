@@ -114,7 +114,7 @@ class ConnectInfoHalfCardTest {
 
         card.contentEnabled = false
         assertEquals(
-            card.context.themeColor(R.attr.connectOnSurfaceDisabled),
+            card.context.themeColor(R.attr.connectOnSurfaceEmphasis),
             value.currentTextColor,
         )
 
@@ -158,7 +158,7 @@ class ConnectInfoHalfCardTest {
         assertEquals("100 each", card.subtitleText.toString())
         assertEquals(false, card.contentEnabled)
         assertEquals(
-            card.context.themeColor(R.attr.connectOnSurfaceDisabled),
+            card.context.themeColor(R.attr.connectOnSurfaceEmphasis),
             card.findViewById<TextView>(R.id.info_card_value_text).currentTextColor,
         )
     }

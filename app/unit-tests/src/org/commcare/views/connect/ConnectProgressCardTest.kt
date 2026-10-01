@@ -14,6 +14,7 @@ import com.google.android.material.color.MaterialColors
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.commcare.views.connect.ConnectProgressCard.State
+import org.commcare.views.extensions.themeColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -173,12 +174,12 @@ class ConnectProgressCardTest {
     }
 
     @Test
-    fun `contentEnabled recolors caption and semi-circle`() {
+    fun `contentEnabled recolors the semi-circle but leaves the caption at the accent`() {
         val card = newCard()
         val caption = card.findViewById<TextView>(R.id.progress_card_bar_caption)
         val semi = card.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle)
 
-        val grey = ContextCompat.getColor(card.context, R.color.connect_grey)
+        val disabled = card.context.themeColor(R.attr.connectOnSurfaceEmphasis)
         val accent = MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary)
         val primary = ContextCompat.getColor(card.context, R.color.connect_text_color)
 
@@ -189,9 +190,9 @@ class ConnectProgressCardTest {
             )
 
         card.bind(content.copy(contentEnabled = false))
-        assertEquals(grey, caption.currentTextColor)
-        assertEquals(grey, semi.progressColor)
-        assertEquals(grey, semi.valueTextColor)
+        assertEquals(accent, caption.currentTextColor)
+        assertEquals(disabled, semi.progressColor)
+        assertEquals(disabled, semi.valueTextColor)
         assertEquals(primary, semi.descriptionTextColor)
 
         card.bind(content.copy(contentEnabled = true))

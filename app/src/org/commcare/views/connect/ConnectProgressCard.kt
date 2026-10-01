@@ -248,7 +248,9 @@ class ConnectProgressCard
             binding.progressCardTitle.setTextColor(primary)
             binding.progressCardBarLabel.setTextColor(primary)
             binding.progressCardBarCount.setTextColor(accent)
-            binding.progressCardBarCaption.setTextColor(accent)
+            // The caption keeps the accent even when disabled - it explains why the card is
+            // blocked, so it stays legible rather than greying out with the figures.
+            binding.progressCardBarCaption.setTextColor(contentAccentColor)
             binding.progressCardLinearBar.setProgressColor(accent)
             binding.progressCardSemiCircle.progressColor = accent
             binding.progressCardSemiCircle.valueTextColor = accent
