@@ -27,8 +27,8 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
-    fun initialLoad_insertsAllMessages() {
-        val hasNewMessages = adapter.updateData(listOf(chat("a"), chat("b")))
+    fun `initial load inserts all messages and reports new messages`() {
+        val hasNewMessages = adapter.updateData(listOf(getIncomingChat("a"), getIncomingChat("b")))
 
         assertTrue(hasNewMessages)
         assertEquals(listOf(Event.Inserted(0, 2)), observer.events)
@@ -36,64 +36,64 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
-    fun unchangedRefresh_dispatchesNothing() {
-        adapter.updateData(listOf(chat("a"), chat("b")))
+    fun `refresh with unchanged messages dispatches no updates`() {
+        adapter.updateData(listOf(getIncomingChat("a"), getIncomingChat("b")))
         observer.events.clear()
 
-        val hasNewMessages = adapter.updateData(listOf(chat("a"), chat("b")))
+        val hasNewMessages = adapter.updateData(listOf(getIncomingChat("a"), getIncomingChat("b")))
 
         assertFalse(hasNewMessages)
         assertTrue(observer.events.isEmpty())
     }
 
     @Test
-    fun appendedMessage_isSingleInsertionAtEnd() {
-        adapter.updateData(listOf(chat("a"), chat("b")))
+    fun `message appended to the list is a single insertion at the end`() {
+        adapter.updateData(listOf(getIncomingChat("a"), getIncomingChat("b")))
         observer.events.clear()
 
-        val hasNewMessages = adapter.updateData(listOf(chat("a"), chat("b"), chat("c")))
+        val hasNewMessages = adapter.updateData(listOf(getIncomingChat("a"), getIncomingChat("b"), getIncomingChat("c")))
 
         assertTrue(hasNewMessages)
         assertEquals(listOf(Event.Inserted(2, 1)), observer.events)
     }
 
     @Test
-    fun readStatusChange_isPayloadChangeOnThatRow() {
-        adapter.updateData(listOf(chat("a"), outgoing("b", read = false)))
+    fun `read status change is a payload-only change on that row`() {
+        adapter.updateData(listOf(getIncomingChat("a"), getOutgoingChat("b", read = false)))
         observer.events.clear()
 
-        val hasNewMessages = adapter.updateData(listOf(chat("a"), outgoing("b", read = true)))
+        val hasNewMessages = adapter.updateData(listOf(getIncomingChat("a"), getOutgoingChat("b", read = true)))
 
         assertFalse(hasNewMessages)
         assertEquals(listOf(Event.Changed(1, 1, hasPayload = true)), observer.events)
     }
 
     @Test
-    fun textChange_isFullRowChange() {
-        adapter.updateData(listOf(chat("a"), chat("b")))
+    fun `text change is a full change on that row`() {
+        adapter.updateData(listOf(getIncomingChat("a"), getIncomingChat("b")))
         observer.events.clear()
 
-        adapter.updateData(listOf(chat("a", text = "edited"), chat("b")))
+        adapter.updateData(listOf(getIncomingChat("a", text = "edited"), getIncomingChat("b")))
 
         assertEquals(listOf(Event.Changed(0, 1, hasPayload = false)), observer.events)
     }
 
     @Test
-    fun updateMessageReadStatus_isPayloadChangeOnThatRow() {
-        adapter.updateData(listOf(outgoing("a", read = false), outgoing("b", read = false)))
+    fun `updateMessageReadStatus is a payload-only change on that row`() {
+        adapter.updateData(listOf(getOutgoingChat("a", read = false), getOutgoingChat("b", read = false)))
         observer.events.clear()
 
-        adapter.updateMessageReadStatus(outgoing("a", read = true))
+        adapter.updateMessageReadStatus(getOutgoingChat("a", read = true))
 
         assertEquals(listOf(Event.Changed(0, 1, hasPayload = true)), observer.events)
     }
 
-    private fun chat(
+    private fun getIncomingChat(
         id: String,
         text: String = "message $id",
     ) = ConnectMessageChatData(id, ConnectMessageAdapter.LEFTVIEW, text, "them", Date(TIMESTAMP), false)
 
-    private fun outgoing(
+    private fun getOutgoingChat(
         id: String,
         read: Boolean,
     ) = ConnectMessageChatData(id, ConnectMessageAdapter.RIGHTVIEW, "message $id", "you", Date(TIMESTAMP), read)

@@ -33,6 +33,11 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.messages = messages;
     }
 
+    /**
+     * Applies the new message list as a diff against the displayed one.
+     *
+     * @return true if the new list contains a message that was not already displayed
+     */
     public boolean updateData(List<ConnectMessageChatData> newMessages) {
         DiffUtil.DiffResult diff = DiffUtil.calculateDiff(
                 new MessageDiffCallback(messages, newMessages));
