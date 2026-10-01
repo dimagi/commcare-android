@@ -184,6 +184,17 @@ class ConnectDeliveryDashboardFragmentTest {
         )
     }
 
+    @Test
+    fun `a job without a daily limit shows only today's visit count`() {
+        job = seedDeliveryJob(maxDailyVisits = ConnectJobRecord.NO_DAILY_LIMIT)
+        val view = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 3))).requireView()
+
+        assertEquals("3", view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString())
+        assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_linear_bar).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_bar_caption).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_info_message).visibility)
+    }
+
     /**
      * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
      * same delivery-progress call and land its result on the figures.
@@ -533,10 +544,11 @@ class ConnectDeliveryDashboardFragmentTest {
      * Writes the opportunity through the real storage layer so the repository's cache read and the
      * dashboard both see the same record production would.
      */
-    private fun seedDeliveryJob(): ConnectJobRecord {
+    private fun seedDeliveryJob(maxDailyVisits: Int = ConnectLearnJobTestData.MAX_DAILY_VISITS): ConnectJobRecord {
         val seeded =
             ConnectLearnJobTestData.job().apply {
                 status = ConnectJobRecord.STATUS_DELIVERING
+                setMaxDailyVisits(maxDailyVisits)
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
         return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!

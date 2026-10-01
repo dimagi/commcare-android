@@ -105,6 +105,24 @@ class ConnectProgressCardTest {
     }
 
     @Test
+    fun `a null max shows the bare count and hides the bar until a max returns`() {
+        val card = newCard()
+        val count = card.findViewById<TextView>(R.id.progress_card_bar_count)
+        val bar = card.findViewById<View>(R.id.progress_card_linear_bar)
+
+        card.bind(State(linearProgress = State.LinearProgress(current = 3, max = null)))
+
+        assertEquals(View.VISIBLE, count.visibility)
+        assertEquals("3", count.text.toString())
+        assertEquals(View.GONE, bar.visibility)
+
+        card.bind(State(linearProgress = State.LinearProgress(current = 3, max = 5)))
+
+        assertEquals("3 of 5", count.text.toString())
+        assertEquals(View.VISIBLE, bar.visibility)
+    }
+
+    @Test
     fun `linear current is clamped to max in the count label`() {
         val card = newCard()
         val count = card.findViewById<TextView>(R.id.progress_card_bar_count)
