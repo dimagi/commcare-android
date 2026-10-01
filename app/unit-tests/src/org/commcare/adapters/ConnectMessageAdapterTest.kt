@@ -1,8 +1,14 @@
 package org.commcare.adapters
 
+import android.content.Context
+import android.view.ContextThemeWrapper
+import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
+import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ItemChatRightViewBinding
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -10,6 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import java.util.Date
 
@@ -88,6 +95,55 @@ class ConnectMessageAdapterTest {
         assertEquals(listOf(Event.Changed(0, 1, hasPayload = true)), observer.events)
     }
 
+    @Test
+    fun `refresh with no messages reports no new messages`() {
+        val hasNewMessages = adapter.updateData(emptyList())
+
+        assertFalse(hasNewMessages)
+        assertTrue(observer.events.isEmpty())
+    }
+
+    @Test
+    fun `text and read status changing together is a full change on that row`() {
+        adapter.updateData(listOf(getOutgoingChat("a", read = false)))
+        observer.events.clear()
+
+        adapter.updateData(listOf(getOutgoingChat("a", read = true, text = "edited")))
+
+        assertEquals(listOf(Event.Changed(0, 1, hasPayload = false)), observer.events)
+    }
+
+    @Test
+    fun `updateMessageReadStatus for an unknown message dispatches no updates`() {
+        adapter.updateData(listOf(getOutgoingChat("a", read = false)))
+        observer.events.clear()
+
+        adapter.updateMessageReadStatus(getOutgoingChat("unknown", read = true))
+
+        assertTrue(observer.events.isEmpty())
+    }
+
+    @Test
+    fun `binding with the read status payload updates only the read icon`() {
+        adapter.updateData(listOf(getOutgoingChat("a", read = false)))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.RIGHTVIEW)
+        adapter.onBindViewHolder(holder, 0)
+        val binding = ItemChatRightViewBinding.bind(holder.itemView)
+        assertEquals(R.drawable.ic_connect_message_unread, getReadIconResId(binding))
+        binding.tvChatMessage.text = UNTOUCHED_TEXT
+
+        adapter.updateMessageReadStatus(getOutgoingChat("a", read = true))
+        adapter.onBindViewHolder(holder, 0, mutableListOf(requireNotNull(observer.lastPayload)))
+
+        assertEquals(R.drawable.ic_connect_message_read, getReadIconResId(binding))
+        assertEquals(UNTOUCHED_TEXT, binding.tvChatMessage.text.toString())
+    }
+
+    private fun themedContext(): Context = ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
+
+    private fun getReadIconResId(binding: ItemChatRightViewBinding) =
+        Shadows.shadowOf(binding.imgMessageReadStatus.drawable).createdFromResId
+
     private fun getIncomingChat(
         id: String,
         text: String = "message $id",
@@ -96,7 +152,8 @@ class ConnectMessageAdapterTest {
     private fun getOutgoingChat(
         id: String,
         read: Boolean,
-    ) = ConnectMessageChatData(id, ConnectMessageAdapter.RIGHTVIEW, "message $id", "you", Date(TIMESTAMP), read)
+        text: String = "message $id",
+    ) = ConnectMessageChatData(id, ConnectMessageAdapter.RIGHTVIEW, text, "you", Date(TIMESTAMP), read)
 
     private sealed class Event {
         data class Inserted(
@@ -125,6 +182,7 @@ class ConnectMessageAdapterTest {
 
     private class RecordingObserver : RecyclerView.AdapterDataObserver() {
         val events = mutableListOf<Event>()
+        var lastPayload: Any? = null
 
         override fun onChanged() {
             events.add(Event.FullRefresh)
@@ -158,10 +216,12 @@ class ConnectMessageAdapterTest {
             payload: Any?,
         ) {
             events.add(Event.Changed(positionStart, itemCount, payload != null))
+            lastPayload = payload
         }
     }
 
     companion object {
         private const val TIMESTAMP = 1_000L
+        private const val UNTOUCHED_TEXT = "untouched"
     }
 }
