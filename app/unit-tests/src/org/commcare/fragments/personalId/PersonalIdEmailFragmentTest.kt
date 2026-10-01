@@ -177,10 +177,10 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
         ShadowLooper.idleMainLooper()
 
         val dialog = openSkipDialog()
-        val yesButton = dialog.findViewById<Button>(R.id.positive_button)!!
+        val skipButton = dialog.findViewById<Button>(R.id.negative_button)!!
 
         mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
-            activity.runOnUiThread { yesButton.performClick() }
+            activity.runOnUiThread { skipButton.performClick() }
             ShadowLooper.idleMainLooper()
             mockAnalytics.verify {
                 FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
@@ -210,17 +210,17 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
             .check(matches(isDisplayed()))
         onView(withId(R.id.positive_button))
             .inRoot(isDialog())
-            .check(matches(withText(R.string.personalid_email_skip_confirm_skip)))
+            .check(matches(withText(R.string.personalid_email_skip_confirm_add)))
         onView(withId(R.id.negative_button))
             .inRoot(isDialog())
-            .check(matches(withText(R.string.personalid_email_skip_confirm_add)))
+            .check(matches(withText(R.string.personalid_email_skip_confirm_skip)))
     }
 
     @Test
     fun `add email keeps the user on the email screen`() {
         val dialog = openSkipDialog()
 
-        activity.runOnUiThread { dialog.findViewById<Button>(R.id.negative_button)!!.performClick() }
+        activity.runOnUiThread { dialog.findViewById<Button>(R.id.positive_button)!!.performClick() }
         ShadowLooper.idleMainLooper()
 
         assertTrue(fragment.isResumed)
@@ -234,7 +234,7 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
         ShadowLooper.idleMainLooper()
         openSkipDialog()
 
-        onView(withId(R.id.positive_button)).inRoot(isDialog()).perform(click())
+        onView(withId(R.id.negative_button)).inRoot(isDialog()).perform(click())
         ShadowLooper.idleMainLooper()
 
         assertEquals(R.id.personalid_photo_capture, navController.currentDestination?.id)

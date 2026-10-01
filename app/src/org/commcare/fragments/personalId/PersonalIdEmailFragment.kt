@@ -107,12 +107,12 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
                 getString(R.string.personalid_email_skip_confirm_title),
                 getString(R.string.personalid_email_skip_confirm_message),
             )
-        dialog.setPositiveButton(getString(R.string.personalid_email_skip_confirm_skip)) { _, _ ->
+        dialog.setPositiveButton(getString(R.string.personalid_email_skip_confirm_add)) { _, _ ->
+            commCareActivity.dismissAlertDialog()
+        }
+        dialog.setNegativeButton(getString(R.string.personalid_email_skip_confirm_skip)) { _, _ ->
             commCareActivity.dismissAlertDialog()
             skipEmail()
-        }
-        dialog.setNegativeButton(getString(R.string.personalid_email_skip_confirm_add)) { _, _ ->
-            commCareActivity.dismissAlertDialog()
         }
         commCareActivity.showAlertDialog(dialog)
     }
