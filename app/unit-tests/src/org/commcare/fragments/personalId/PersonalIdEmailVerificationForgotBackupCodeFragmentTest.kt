@@ -85,43 +85,72 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
         )
     }
 
-    // ========== showProceedWithoutEmailDialog ==========
+    // ========== OTP_LIMIT_EXCEEDED ==========
 
     @Test
-    fun `three failed OTP attempts show max-attempts error instead of dialog`() {
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
+    fun `running out of attempts shows the request-a-new-code error instead of the proceed-without-email dialog`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
 
-        repeat(3) {
-            onUiThread {
-                val view = fragment().requireView()
-                view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode("123456")
-                view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
-            }
-            mockApiServer.drainHttp()
-        }
+        enterCode()
 
         assertFalse(
-            "FORGOT_BACKUP_CODE_EXISTING_USER should not show a visible dialog after 3 failed OTP attempts",
+            "Email OTP is the only way back into this flow, so there is nothing to proceed without",
             ShadowDialog.getLatestDialog()?.isShowing ?: false,
         )
 
         val errorText =
             fragment().requireView().findViewById<TextView>(R.id.personalid_email_verify_error)
         assertEquals(
-            "Error text should be visible after 3 failed attempts",
+            "Error text should be visible once the code has run out of attempts",
             View.VISIBLE,
             errorText.visibility,
         )
         assertEquals(
-            "Max-attempts error message should be shown instead of the proceed-without-email dialog",
-            activity.getString(R.string.personalid_email_otp_max_attempts_reached),
+            activity.getString(R.string.personalid_otp_limit_exceeded),
+            errorText.text.toString(),
+        )
+    }
+
+    @Test
+    fun `a code that has run out of attempts closes the screen for the server's wait`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
+
+        enterCode()
+
+        val codeView = fragment().requireView().findViewById<NumericCodeView>(R.id.otp_code_view)
+        assertEquals("The dead code should not be left in the field", "", codeView.codeValue)
+        assertFalse("Nothing can be typed until a new code is requested", codeView.isEnabled)
+        assertEquals(
+            "No new code can be requested until the server's wait elapses",
+            View.GONE,
+            fragment().requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
+        )
+    }
+
+    @Test
+    fun `a wrong code is still reported as a wrong code`() {
+        mockWebServer.enqueue(incorrectOtpResponse())
+
+        enterCode()
+
+        val errorText =
+            fragment().requireView().findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(
+            activity.getString(R.string.personalid_incorrect_otp),
             errorText.text.toString(),
         )
     }
 
     // ========== Helpers ==========
+
+    private fun enterCode(code: String = "123456") {
+        onUiThread {
+            val view = fragment().requireView()
+            view.findViewById<NumericCodeView>(R.id.otp_code_view).setCode(code)
+            view.findViewById<View>(R.id.personalid_email_verify_button).performClick()
+        }
+        mockApiServer.drainHttp()
+    }
 
     private fun successResponse(): MockResponse =
         MockResponse()
@@ -132,6 +161,11 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
         MockResponse()
             .setResponseCode(401)
             .setBody("""{"error_code":"INCORRECT_OTP"}""")
+
+    private fun otpLimitExceededResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED","retry_after_seconds":3600}""")
 
     companion object {
         private const val TEST_EMAIL = "user@example.com"

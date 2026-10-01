@@ -25,9 +25,11 @@
             android:src="@drawable/nav_drawer_person_avatar" />
 
         <FrameLayout
+            android:id="@+id/profile_user_image_camera_overlay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:visibility="gone"
             android:background="@color/black_60"
             android:paddingTop="3dp"
             android:paddingBottom="6dp">
