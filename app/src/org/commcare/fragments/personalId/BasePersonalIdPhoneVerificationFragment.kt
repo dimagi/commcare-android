@@ -495,6 +495,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             } else {
                 R.string.connect_verify_phone_resend_code
             }
+
         @StringRes val countdownMessage =
             if (otpLimitExceeded) {
                 R.string.personalid_otp_request_new_code_wait
