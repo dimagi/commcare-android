@@ -20,13 +20,14 @@ import org.commcare.dalvik.databinding.FragmentPersonalidEmailBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
+import org.commcare.utils.CommCareAttemptCounter
 import org.commcare.utils.KeyboardHelper
 import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
     private var personalIdSessionData: PersonalIdSessionData? = null
-    private val emailOtpTracker = AttemptTracker()
+    private val emailOtpTracker = CommCareAttemptCounter()
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,

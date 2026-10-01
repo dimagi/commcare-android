@@ -3,15 +3,16 @@ package org.commcare.utils
 import android.app.Activity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
+import org.commcare.core.network.AuthInfo
 
 class PersonalIdAuthService(
     private val activity: Activity,
-    private val personalIdSessionData: PersonalIdSessionData,
+    private val authInfo: AuthInfo,
     private val callback: OtpVerificationCallback,
 ) : OtpAuthService {
     override fun requestOtp(phoneNumber: String) {
-        object : PersonalIdApiHandler<PersonalIdSessionData>() {
-            override fun onSuccess(sessionData: PersonalIdSessionData) {
+        object : PersonalIdApiHandler<PersonalIdSessionData?>() {
+            override fun onSuccess(sessionData: PersonalIdSessionData?) {
                 callback.onCodeSent(null)
             }
 
@@ -21,7 +22,7 @@ class PersonalIdAuthService(
             ) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.sendPhoneOtp(activity, personalIdSessionData)
+        }.sendPhoneOtp(activity, authInfo)
     }
 
     override fun verifyOtp(code: String) {
@@ -30,8 +31,8 @@ class PersonalIdAuthService(
     }
 
     override fun submitOtp(code: String) {
-        object : PersonalIdApiHandler<PersonalIdSessionData>() {
-            override fun onSuccess(sessionData: PersonalIdSessionData) {
+        object : PersonalIdApiHandler<PersonalIdSessionData?>() {
+            override fun onSuccess(sessionData: PersonalIdSessionData?) {
                 callback.onSuccess()
             }
 
@@ -41,6 +42,6 @@ class PersonalIdAuthService(
             ) {
                 callback.onPersonalIdApiFailure(failureCode, t)
             }
-        }.validatePhoneOtp(activity, code, personalIdSessionData)
+        }.validatePhoneOtp(activity, code, authInfo)
     }
 }
