@@ -29,11 +29,11 @@ import org.javarosa.core.services.locale.Localization
  *
  * Registered once on the host lifecycle rather than per session, because rebuilding the
  * [FlexibleAppUpdateController] would leak its Play Core listener. Reads the session through
- * [session] and no-ops on those reads when none is attached.
+ * [session], which resolves the live session per call.
  */
 class AppUpdateDelegate(
     private val host: HomeActivityHost,
-    private val session: () -> SeatedAppSession?,
+    private val session: SeatedAppSession,
     private val networkAvailable: (Context) -> Boolean = { ConnectivityStatus.isNetworkAvailable(it) },
     private val controllerFactory: (Runnable, Context) -> FlexibleAppUpdateController =
         { callback, context -> AppUpdateControllerFactory.create(callback, context) },
@@ -86,7 +86,7 @@ class AppUpdateDelegate(
         val availableVersion = controller?.availableVersionCode()
         if (resultCode == Activity.RESULT_CANCELED && availableVersion != null) {
             HiddenPreferences.incrementCommCareUpdateCancellationCounter(availableVersion.toString())
-            session()?.hideInAppUpdate()
+            session.hideInAppUpdate()
         }
         return true
     }
@@ -96,7 +96,7 @@ class AppUpdateDelegate(
         when (controller.status) {
             AppUpdateState.UNAVAILABLE -> {
                 if (networkAvailable(host.hostContext)) {
-                    session()?.hideInAppUpdate()
+                    session.hideInAppUpdate()
                 } else {
                     Logger.log(LogTypes.TYPE_NETWORK, "No Internet")
                 }
@@ -143,7 +143,7 @@ class AppUpdateDelegate(
      * construction, which a session-less host does before any session exists.
      */
     private fun handleUpdateAvailable(controller: FlexibleAppUpdateController) {
-        if (session()?.shouldShowInAppUpdate() == false) {
+        if (!session.shouldShowInAppUpdate()) {
             return
         }
         val cancellations =

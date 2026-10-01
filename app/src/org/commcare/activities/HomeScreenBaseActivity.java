@@ -171,7 +171,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private FirebaseMessagingDataSyncer dataSyncer;
     private boolean isVisible;
 
-    private final HomeActivityCoordinator coordinator = new HomeActivityCoordinator(this);
+    private final HomeActivityCoordinator coordinator = new HomeActivityCoordinator(this, new ServiceBackedSession());
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);
@@ -195,7 +195,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        coordinator.attachSession(new ServiceBackedSession());
 
         updateLastSuccessfulCommCareVersion();
         sessionNavigator = new SessionNavigator(this);

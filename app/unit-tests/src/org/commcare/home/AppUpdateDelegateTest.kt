@@ -23,13 +23,13 @@ class AppUpdateDelegateTest {
     private val controller = FakeAppUpdateController()
 
     private fun created(
-        session: SeatedAppSession? = FakeSeatedAppSession(),
+        session: SeatedAppSession = FakeSeatedAppSession(),
         networkAvailable: Boolean = true,
     ): AppUpdateDelegate {
         val delegate =
             AppUpdateDelegate(
                 host = host,
-                session = { session },
+                session = session,
                 networkAvailable = { networkAvailable },
                 controllerFactory = { callback, _ -> controller.also { it.callback = callback } },
             )
@@ -99,15 +99,6 @@ class AppUpdateDelegateTest {
     }
 
     @Test
-    fun `an available update is started when no session is attached`() {
-        created(session = null)
-
-        reportAvailable(version = 503)
-
-        assertEquals(1, controller.startUpdateCount)
-    }
-
-    @Test
     fun `no available update with network hides the prompt for the session`() {
         val session = FakeSeatedAppSession()
         created(session = session, networkAvailable = true)
@@ -127,14 +118,6 @@ class AppUpdateDelegateTest {
         controller.fireCallback()
 
         assertEquals(0, session.hideInAppUpdateCount)
-    }
-
-    @Test
-    fun `no available update with no session attached does not throw`() {
-        created(session = null)
-        controller.state = AppUpdateState.UNAVAILABLE
-
-        controller.fireCallback()
     }
 
     @Test

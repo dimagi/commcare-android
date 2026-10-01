@@ -15,16 +15,16 @@ import androidx.lifecycle.LifecycleOwner
  */
 class HomeActivityCoordinator(
     private val host: HomeActivityHost,
+    session: SeatedAppSession = ServiceBackedSession(),
 ) : DefaultLifecycleObserver {
     private var restored = false
 
     private var externalLaunch = false
     private var loginExtraConsumed = false
     private var endpointNavPendingAfterSync = false
-    private var attachedSession: SeatedAppSession? = null
 
     /** Owns the binary and content app updates. Session-independent, registered on the host lifecycle. */
-    val appUpdate = AppUpdateDelegate(host = host, session = { attachedSession })
+    val appUpdate = AppUpdateDelegate(host = host, session = session)
 
     /** Activity was launched by an external app, so form submission may redispatch back to it. */
     var wasExternal: Boolean
@@ -66,11 +66,6 @@ class HomeActivityCoordinator(
 
     override fun onCreate(owner: LifecycleOwner) {
         ensureRestored()
-    }
-
-    /** Bind [session] as the live session the delegates read. */
-    fun attachSession(session: SeatedAppSession) {
-        attachedSession = session
     }
 
     /**
