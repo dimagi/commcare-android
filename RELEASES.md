@@ -10,6 +10,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
 - Messaging and Work History now show the sidebar, and opening another sidebar section replaces the current one instead of stacking on top of it.
+- After an incorrect email or phone OTP code, PersonalID now shows how many attempts remain before a new code must be requested.
 
 #### Important Bug Fixes
 
@@ -31,6 +32,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 - In the forgot-backup-code recovery flow, running out of attempts keeps the user on the verification screen instead of ending the flow.
 - On an app whose menus display as a grid, open a module from the home screen and confirm the grid shows and items open as before.
 - On a consumer app, confirm login lands on the standard home screen and pressing back from the root menu returns there.
+- Enter wrong email OTP codes during sign-up, profile email edit, and forgot-backup-code recovery, and confirm the error shows the attempts remaining (2, then 1) before the "request a new code" message appears.
+- For an invited user receiving the phone OTP by SMS through PersonalID, confirm a wrong code likewise shows the attempts remaining.
 
 ## CommCare 2.64.1
 

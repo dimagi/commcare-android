@@ -116,7 +116,6 @@
     <string name="please_wait_long">Tafadhali subiri. Hii inaweza kuchukua dakika chache.</string>
     <string name="quit_application">Ondoka %s</string>
     <string name="quit_form_title">Ungependa Kufunga Fomu?</string>
-    <string name="refresh">Onyesha upya</string>
     <string name="replace_location">Badilisha Mahali</string>
     <string name="required_answer_error">Samahani, jibu hili linahitajika!</string>
     <string name="review">Endelea</string>
@@ -273,13 +272,14 @@
     <string name="personalid_email_description">Barua pepe yako inakusaidia kurejesha akaunti yako iwapo utapoteza ufikiaji wa simu yako.</string>
     <string name="personalid_email_hint">Anwani ya barua pepe</string>
     <string name="personalid_email_skip">Ruka kwa sasa</string>
-    <string name="personalid_email_skip_confirm_title">Ruka barua pepe?</string>
-    <string name="personalid_email_skip_confirm_message">Una uhakika unataka kuruka?</string>
+    <string name="personalid_email_skip_confirm_title">Linda akaunti yako</string>
+    <string name="personalid_email_skip_confirm_message">Kuongeza barua pepe huimarisha usalama wa akaunti yako. Husaidia kuthibitisha mabadiliko muhimu ya akaunti, huzuia majaribio ya kurejesha yasiyoidhinishwa, na hukupa njia salama ya kurejesha ufikiaji ukipoteza kifaa chako.</string>
+    <string name="personalid_email_skip_confirm_skip">Ruka</string>
+    <string name="personalid_email_skip_confirm_add">Ongeza Barua Pepe</string>
     <string name="personalid_email_invalid_format">Tafadhali weka anwani halali ya barua pepe.</string>
     <string name="personalid_email_verification_appbar_title">Thibitisha barua pepe</string>
     <string name="personalid_email_verification_title">Thibitisha barua pepe yako</string>
     <string name="personalid_email_verification_description">Weka msimbo wa tarakimu 6 uliotumwa kwa %1$s</string>
-    <string name="personalid_email_verify_button">Thibitisha</string>
     <string name="personalid_email_otp_failed_title">Uthibitishaji haukufaulu</string>
     <string name="personalid_email_otp_failed_message">Umetumia majaribio yote ya msimbo huu. Unaweza kuomba mpya baada ya %1$s, au kuruka barua pepe kwa sasa.</string>
     <string name="personalid_email_otp_failed_wait">Subiri</string>
@@ -335,13 +335,11 @@
     <string name="connect_verify_phone_resend">Hukupokea nambari yako ya kuthibitisha? Tuma tena</string>
     <string name="connect_verify_phone_change">Badilisha nambari</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
-    <string name="connect_last_update">Imesasishwa: %s</string>
     <string name="connect_title">Unganisha</string>
     <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
     <string name="connect_learn_complete_by">Kamilisha Mradi kabla ya %s</string>
     <string name="connect_job_ended">Kazi ilimalizika mnamo %s</string>
     <string name="connect_learn_title">Maendeleo ya Kujifunza</string>
-    <string name="connect_fetch_learning_progress_error">Imeshindwa kuleta maendeleo ya kujifunza</string>
     <string name="connect_sms_invite_opportunity_not_found">Fursa haijapatikana</string>
     <string name="connect_learn_complete">Kamilisha</string>
     <string name="connect_learn_certificate">Cheti</string>
@@ -360,11 +358,8 @@
     <string name="connect_learn_cta_complete_assessment">Kamilisha tathmini</string>
     <string name="connect_learn_cta_take_assessment">Fanya tathmini</string>
     <string name="connect_learn_cta_start">Anza</string>
-    <string name="connect_delivery_earn_multi">Lipa kwa kila ziara:</string>
     <string name="connect_delivery_go">Nenda kwa Programu</string>
     <string name="connect_progress_delivery">Uwasilishaji</string>
-    <string name="connect_progress_title">Maendeleo ya Utoaji</string>
-    <string name="connect_progress_status">Umekamilisha ziara %d kati ya %d.</string>
     <string name="semi_circle_progress_value_format">%1$d kati ya %2$d</string>
     <string name="connect_progress_count_format">%1$d kati ya %2$d</string>
     <string name="connect_progress_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
@@ -382,9 +377,6 @@
     <string name="connect_downloading_delivery">Inapakua Uwasilishaji</string>
     <string name="connect_results_summary_earned">Imelipwa</string>
     <string name="connect_results_summary_transferred">Imehamishwa</string>
-    <string name="connect_payment_confirm_text">Je, umelipwa %d %s kwa ajili ya fursa ya %s?</string>
-    <string name="connect_payment_confirm_yes">Ndiyo!</string>
-    <string name="connect_payment_confirm_no">Uliza baadaye</string>
     <string name="personalid_login_with">Ingia kwa PersonalId</string>
     <string name="personalid_link_app_title">Unganisha kwa PersonalId?</string>
     <string name="personalid_link_app_message">Je, ungependa kuunganisha kuingia huku kwa akaunti yako ya PersonalId? Hutahitaji kuandika nenosiri lako katika siku zijazo.</string>
@@ -427,10 +419,6 @@
     <string name="personalid_profile_edit_discard_message">Mabadiliko yako ambayo hayajahifadhiwa yatapotea.</string>
     <string name="personalid_profile_edit_discard_positive">Tupa</string>
     <string name="personalid_profile_edit_discard_negative">Endelea kuhariri</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Thibitisha barua pepe yako mpya</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Tutatuma msimbo wa tarakimu 6 kwa %1$s. Uweke kwenye skrini inayofuata ili kuthibitisha.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Tuma Msimbo</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Ghairi</string>
     <string name="personalid_profile_edit_save">Hifadhi</string>
     <string name="personalid_profile_edit_cancel">Ghairi</string>
     <string name="personalid_profile_edit_save_success">Wasifu wako umesasishwa kwa mafanikio.</string>
@@ -461,20 +449,8 @@
     <string name="personalid_set_backup_code_reminder_message">Huna nambari ya hifadhi iliyowekwa kwenye akaunti yako. Bonyeza Thibitisha ili uweke moja.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Weka Nambari ya Hifadhi</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Tafadhali weka nambari ya hifadhi kabla ya kutoka</string>
-    <string name="connect_job_info_delivery_detail">Maelezo ya Uwasilishaji</string>
-    <string name="connect_job_info_review_delivery">Kagua maelezo ya utoaji</string>
-    <string name="connect_job_info_visit">%d upeo wa Ziara</string>
-    <string name="connect_job_info_days">Siku %d kukamilika</string>
-    <string name="connect_job_info_max_visit">Upeo wa juu wa kutembelewa kwa siku %d</string>
-    <string name="connect_job_info_visit_charge">Pata hadi %s kwa kutembelewa</string>
-    <string name="connect_job_info_view_info">Angalia Taarifa</string>
-    <string name="connect_job_info_view_resume">Endelea</string>
-    <string name="connect_job_info_view_review">Revisar</string>
-    <string name="connect_job_info_view_proceed">Endelea</string>
     <string name="connect_progress">Maendeleo</string>
     <string name="connect_payment">Malipo</string>
-    <string name="connect_delivery_progress_description">Hujamaliza masomo yoyote. Anza kujifunza kupata cheti chako.</string>
-    <string name="connect_click_to_sync_progress">Bofya ili kusawazisha maendeleo</string>
     <string name="connect_payment_received">Imepokelewa</string>
     <string name="connect_payment_transferred">Imehamishwa</string>
     <string name="connect_payment_confirm_transferred">Thibitisha Malipo Yaliyohamishwa</string>
@@ -514,6 +490,10 @@
     <string name="connect_job_tile_daily_visits">Ziara za Kila Siku</string>
     <string name="connect_appbar_title_app_lock">Kufuli ya Programu</string>
     <string name="personalid_incorrect_otp">Umeweka nambari ya siri yenye tarakimu 6 isiyo sahihi. Tafadhali jaribu tena.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">Umeweka nambari ya siri yenye tarakimu 6 isiyo sahihi. Limebaki jaribio %d.</item>
+        <item quantity="other">Umeweka nambari ya siri yenye tarakimu 6 isiyo sahihi. Yamebaki majaribio %d.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">Barua pepe hii imeunganishwa na akaunti nyingine. Tafadhali tumia anwani nyingine ya barua pepe.</string>
     <string name="personalid_too_many_otp_attempts">Umejaribu kutuma OTP mara nyingi sana. Tafadhali subiri na ujaribu tena kitufe cha kutuma tena kinapoonekana.</string>
     <string name="personalid_otp_verification_failed_generic">Kitu kilienda vibaya wakati wa kuthibitisha nambari yako ya simu. Tafadhali jaribu tena.</string>
@@ -546,7 +526,6 @@
     <string name="connect_message_you">Wewe</string>
     <string name="connect_message_them">Wao</string>
     <string name="fcm_sync_failed_body_text">Bofya hapa kujua zaidi</string>
-    <string name="connect_corrupt_job_text">Imeshindwa kupakia fursa hii</string>
     <string name="personalid_login_via_connect">Tayari kuingia!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Tunakabiliwa na hitilafu isiyoweza kurekebishwa wakati wa kuunganisha kuingia kwa kutumia Kitambulisho chako cha Kibinafsi. Tafadhali ingia na nenosiri lako au urejeshe kuingia kwa Kitambulisho chako cha Kibinafsi</string>
     <string name="personalid_name_appbar_title">Jina</string>
@@ -630,7 +609,6 @@
     <string name="network_forbidden_error">Ufikiaji umekataliwa. Tafadhali wasiliana na huduma kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="error">Hitilafu</string>
     <string name="failed_to_start_learning">Imeshindwa kuanza kujifunza</string>
-    <string name="failed_to_update_payment">Imeshindwa kusasisha malipo</string>
     <string name="personalid_biometric_error_cancelled">Usanidi wa kibayometri ulighairiwa. Tafadhali wasiliana na usaidizi kwa wateja ikiwa tatizo litaendelea.</string>
     <string name="personalid_biometric_error_lockout">Majaribio mengi mno. Tafadhali subiri na ujaribu tena.</string>
     <string name="personalid_biometric_error_lockout_permanent">Majaribio mengi mno yameshindikana. Tafadhali fungua kifaa chako na ujaribu tena.</string>
@@ -640,8 +618,6 @@
     <string name="connect_label_expires_on">Inaisha</string>
     <string name="connect_label_completed_on">Ilikamilika</string>
     <string name="connect_label_expired_on">Iliisha</string>
-    <string name="connect_complete_by">Kazi inaisha tarehe %s</string>
-    <string name="connect_expired_on">Kazi iliisha tarehe %s</string>
     <string name="connect_dashboard">Dashibodi</string>
     <string name="connect_visits">Ziara</string>
     <string name="connect_more">Zaidi</string>
@@ -715,7 +691,6 @@
     <string name="menu_app_list_install">Tazama Programu kwa Mtumiaji Wangu</string>
     <string name="menu_app_list_install_other_user">Tazama Programu kwa Mtumiaji Mwingine</string>
     <string name="toggle_web_user_mode">Mtumiaji wa Wavuti</string>
-    <string name="toggle_mobile_user_mode">Mtumiaji wa Simu</string>
     <string name="missing_fields">Tafadhali jaza sehemu zote zinazohitajika.</string>
     <string name="email_address_invalid">Tafadhali ingiza anwani halali ya barua pepe.</string>
     <string name="get_app_list_user_error_mobile">Jina la mtumiaji, kikoa, au nenosiri batili lilitolewa. Tafadhali hakikisha sehemu zote ulizoingiza ni sahihi.</string>

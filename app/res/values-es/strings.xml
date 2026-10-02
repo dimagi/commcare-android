@@ -210,13 +210,14 @@
     <string name="personalid_email_description">Tu correo electrónico te ayuda a recuperar tu cuenta si pierdes el acceso a tu teléfono.</string>
     <string name="personalid_email_hint">Correo electrónico</string>
     <string name="personalid_email_skip">Omitir por ahora</string>
-    <string name="personalid_email_skip_confirm_title">¿Omitir el correo electrónico?</string>
-    <string name="personalid_email_skip_confirm_message">¿Seguro que quieres omitir este paso?</string>
+    <string name="personalid_email_skip_confirm_title">Protege tu cuenta</string>
+    <string name="personalid_email_skip_confirm_message">Agregar un correo electrónico refuerza la seguridad de tu cuenta. Ayuda a verificar cambios importantes en la cuenta, evita intentos de recuperación no autorizados y te da una forma segura de recuperar el acceso si pierdes tu dispositivo.</string>
+    <string name="personalid_email_skip_confirm_skip">Omitir</string>
+    <string name="personalid_email_skip_confirm_add">Agregar correo electrónico</string>
     <string name="personalid_email_invalid_format">Por favor, introduce una dirección de correo electrónico válida.</string>
     <string name="personalid_email_verification_appbar_title">Verificar correo</string>
     <string name="personalid_email_verification_title">Verifica tu correo electrónico</string>
     <string name="personalid_email_verification_description">Introduce el código de 6 dígitos enviado a %1$s</string>
-    <string name="personalid_email_verify_button">Verificar</string>
     <string name="personalid_email_otp_failed_title">Verificación incorrecta</string>
     <string name="personalid_email_otp_failed_message">Ha utilizado todos los intentos para este código. Puede solicitar uno nuevo en %1$s, u omitir el correo electrónico por ahora.</string>
     <string name="personalid_email_otp_failed_wait">Esperar</string>
@@ -271,13 +272,11 @@
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
     <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
-    <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
     <string name="connect_job_ended">La tarea finalizó el %s</string>
     <string name="connect_learn_title">Progreso del aprendizaje</string>
-    <string name="connect_fetch_learning_progress_error">No se pudo obtener el progreso del aprendizaje</string>
     <string name="connect_sms_invite_opportunity_not_found">Oportunidad no encontrada</string>
     <string name="connect_learn_complete">Completar</string>
     <string name="connect_learn_certificate">Certificado</string>
@@ -296,11 +295,8 @@
     <string name="connect_learn_cta_complete_assessment">Completar la evaluación</string>
     <string name="connect_learn_cta_take_assessment">Realizar la evaluación</string>
     <string name="connect_learn_cta_start">Comenzar</string>
-    <string name="connect_delivery_earn_multi">Pago por visita:</string>
     <string name="connect_delivery_go">Ir a la aplicación</string>
     <string name="connect_progress_delivery">Entrega</string>
-    <string name="connect_progress_title">Progreso de la entrega</string>
-    <string name="connect_progress_status">Has realizado %d visitas de %d.</string>
     <string name="semi_circle_progress_value_format">%1$d de %2$d</string>
     <string name="connect_progress_count_format">%1$d de %2$d</string>
     <string name="connect_progress_warning_ended">El trabajo ha terminado. No progresarás si realizas tareas adicionales.</string>
@@ -343,7 +339,6 @@
     <string name="please_wait">"Por favor espere unos momentos."</string>
     <string name="please_wait_long">Por favor espere. Esto podria demorarse unos minutos.</string>
     <string name="quit_application">Salir %s</string>
-    <string name="refresh">Refrescar</string>
     <string name="replace_location">Reemplazar la Ubicacion</string>
     <string name="required_answer_error">Esta respuesta es obligatoria!</string>
     <string name="review">Continuar</string>
@@ -383,9 +378,6 @@
     <string name="connect_downloading_delivery">Descargando Entrega</string>
     <string name="connect_results_summary_earned">Ganado</string>
     <string name="connect_results_summary_transferred">Transferido</string>
-    <string name="connect_payment_confirm_text">¿Ha recibido el pago de %d %s por la oportunidad de %s?</string>
-    <string name="connect_payment_confirm_yes">¡Sí!</string>
-    <string name="connect_payment_confirm_no">Más tarde</string>
     <string name="personalid_login_with">Iniciar sesión con PersonalId</string>
     <string name="personalid_link_app_title">¿Vincular con PersonalId?</string>
     <string name="personalid_link_app_message">¿Te gustaría vincular este inicio de sesión con tu cuenta de PersonalId? No necesitarás ingresar tu contraseña en el futuro.</string>
@@ -428,10 +420,6 @@
     <string name="personalid_profile_edit_discard_message">Se perderán los cambios no guardados.</string>
     <string name="personalid_profile_edit_discard_positive">Descartar</string>
     <string name="personalid_profile_edit_discard_negative">Seguir editando</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Verifica tu nuevo correo electrónico</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Enviaremos un código de 6 dígitos a %1$s. Introdúcelo en la siguiente pantalla para verificar.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Enviar código</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Cancelar</string>
     <string name="personalid_profile_edit_save">Guardar</string>
     <string name="personalid_profile_edit_cancel">Cancelar</string>
     <string name="personalid_profile_edit_save_success">Tu perfil se ha actualizado correctamente.</string>
@@ -462,20 +450,8 @@
     <string name="personalid_set_backup_code_reminder_message">No tienes un código de respaldo configurado en tu cuenta. Haz clic en Confirmar para configurar uno.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Establecer código de respaldo</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Por favor, establezca un código de respaldo antes de salir</string>
-    <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
-    <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
-    <string name="connect_job_info_visit">%d visitas máximo</string>
-    <string name="connect_job_info_days">%d días para completar</string>
-    <string name="connect_job_info_max_visit">Número máximo de visitas por día %d</string>
-    <string name="connect_job_info_visit_charge">Gana hasta %s por visita</string>
-    <string name="connect_job_info_view_info">Ver información</string>
-    <string name="connect_job_info_view_resume">Reanudar</string>
-    <string name="connect_job_info_view_review">Revisar</string>
-    <string name="connect_job_info_view_proceed">Proceder</string>
     <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
-    <string name="connect_delivery_progress_description">No has completado ninguna lección. Comienza tu aprendizaje para obtener tu certificado.</string>
-    <string name="connect_click_to_sync_progress">Haz clic para sincronizar el progreso</string>
     <string name="connect_payment_received">Recibido</string>
     <string name="connect_payment_transferred">Transferido</string>
     <string name="connect_payment_confirm_transferred">Confirmar pago transferido</string>
@@ -513,6 +489,10 @@
     <string name="connect_job_tile_daily_visits">Visitas diarias</string>
     <string name="connect_appbar_title_app_lock">Bloqueo de aplicación</string>
     <string name="personalid_incorrect_otp">Ha introducido el código de acceso de 6 dígitos incorrecto. Por favor, inténtelo de nuevo.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">Ha introducido el código de acceso de 6 dígitos incorrecto. Le queda %d intento.</item>
+        <item quantity="other">Ha introducido el código de acceso de 6 dígitos incorrecto. Le quedan %d intentos.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">Este correo electrónico ya está vinculado a otra cuenta. Por favor, utilice una dirección de correo electrónico diferente.</string>
     <string name="personalid_too_many_otp_attempts">Ha realizado demasiados intentos de envío de OTP. Por favor, espere e inténtelo de nuevo cuando el botón de reenvío sea visible.</string>
     <string name="personalid_otp_verification_failed_generic">Algo salió mal al verificar su número de teléfono. Por favor, inténtelo de nuevo.</string>
@@ -541,7 +521,6 @@
     <string name="connect_messaging_channel_menu_item_unsubscribe">Darse de baja</string>
     <string name="connect_send_message_hint">Escribe un mensaje</string>
     <string name="connect_send_message_btn_desc">Toca aquí para enviar un mensaje</string>
-    <string name="connect_corrupt_job_text">No se pudo cargar esta oportunidad</string>
     <string name="personalid_login_via_connect">¡Listo para iniciar sesión!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos experimentando un error irrecuperable al iniciar sesión con tu PersonalId. Por favor, inicia sesión con tu contraseña o recupera tu PersonalId.</string>
     <string name="personalid_name_appbar_title">Nombre</string>
@@ -625,7 +604,6 @@
     <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
     <string name="error">Error</string>
     <string name="failed_to_start_learning">Error al iniciar el aprendizaje</string>
-    <string name="failed_to_update_payment">Error al actualizar el pago</string>
 
     <string name="personalid_biometric_error_cancelled">La configuración biométrica fue cancelada. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_lockout">Demasiados intentos. Por favor, espere e inténtelo de nuevo.</string>
@@ -636,8 +614,6 @@
     <string name="connect_label_expires_on">Vence el</string>
     <string name="connect_label_completed_on">Completado el</string>
     <string name="connect_label_expired_on">Vencido el</string>
-    <string name="connect_complete_by">La tarea termina el %s</string>
-    <string name="connect_expired_on">La tarea terminó el %s</string>
     <string name="connect_dashboard">Panel</string>
     <string name="connect_visits">Visitas</string>
     <string name="connect_more">Más</string>
@@ -711,7 +687,6 @@
     <string name="menu_app_list_install">Ver Aplicaciones para Mi Usuario</string>
     <string name="menu_app_list_install_other_user">Ver Aplicaciones para Otro Usuario</string>
     <string name="toggle_web_user_mode">Usuario Web</string>
-    <string name="toggle_mobile_user_mode">Usuario Móvil</string>
     <string name="missing_fields">Por favor, complete todos los campos requeridos.</string>
     <string name="email_address_invalid">Por favor, ingrese una dirección de correo electrónico válida.</string>
     <string name="get_app_list_user_error_mobile">Se proporcionó un nombre de usuario, dominio o contraseña inválidos. Por favor, asegúrese de que todos los campos ingresados sean correctos.</string>

@@ -1,19 +1,19 @@
-package org.commcare.fragments.personalId
+package org.commcare.utils
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class AttemptTrackerTest {
+class CommCareAttemptCounterTest {
     @Test
     fun `new tracker starts at zero`() {
-        val tracker = AttemptTracker()
+        val tracker = CommCareAttemptCounter()
         assertEquals(0, tracker.requestCount)
         assertEquals(0, tracker.failedAttempts)
     }
 
     @Test
     fun `recordRequest increments only the request count`() {
-        val tracker = AttemptTracker()
+        val tracker = CommCareAttemptCounter()
         tracker.recordRequest()
         tracker.recordRequest()
         assertEquals(2, tracker.requestCount)
@@ -22,7 +22,7 @@ class AttemptTrackerTest {
 
     @Test
     fun `recordFailedAttempt increments only the failed count`() {
-        val tracker = AttemptTracker()
+        val tracker = CommCareAttemptCounter()
         tracker.recordFailedAttempt()
         assertEquals(0, tracker.requestCount)
         assertEquals(1, tracker.failedAttempts)
@@ -30,7 +30,7 @@ class AttemptTrackerTest {
 
     @Test
     fun `tracker seeds from initial values`() {
-        val tracker = AttemptTracker(initialRequestCount = 3, initialFailedAttempts = 2)
+        val tracker = CommCareAttemptCounter(initialRequestCount = 3, initialFailedAttempts = 2)
         assertEquals(3, tracker.requestCount)
         assertEquals(2, tracker.failedAttempts)
         tracker.recordRequest()
@@ -41,7 +41,7 @@ class AttemptTrackerTest {
 
     @Test
     fun `reset returns both counts to zero`() {
-        val tracker = AttemptTracker(initialRequestCount = 5, initialFailedAttempts = 4)
+        val tracker = CommCareAttemptCounter(initialRequestCount = 5, initialFailedAttempts = 4)
         tracker.reset()
         assertEquals(0, tracker.requestCount)
         assertEquals(0, tracker.failedAttempts)

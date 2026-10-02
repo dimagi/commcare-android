@@ -19,6 +19,7 @@ import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBindin
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.CommCareAttemptCounter
 import org.commcare.utils.OtpWaitFormatter
 import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit
 abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment() {
     protected lateinit var binding: FragmentPersonalidEmailVerificationBinding
     private lateinit var activity: Activity
-    private lateinit var emailOtpTracker: AttemptTracker
+    private lateinit var emailOtpTracker: CommCareAttemptCounter
 
     private var personalIdSessionData: PersonalIdSessionData? = null
 
@@ -73,7 +74,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         personalIdSessionData = getSessionData()
         enteredEmail = resolveEmail()
         workflow = resolveWorkflow()
-        emailOtpTracker = AttemptTracker(initialRequestCount = resolveEmailOtpRequestCount())
+        emailOtpTracker = CommCareAttemptCounter(initialRequestCount = resolveEmailOtpRequestCount())
         savedInstanceState?.let {
             otpRequestTime = it.getLong(KEY_OTP_REQUEST_TIME)
             resendCooldownMillis = it.getLong(KEY_RESEND_COOLDOWN_MILLIS, DEFAULT_RESEND_COOLDOWN_MILLIS)

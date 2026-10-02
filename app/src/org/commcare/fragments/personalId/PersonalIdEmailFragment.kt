@@ -20,13 +20,14 @@ import org.commcare.dalvik.databinding.FragmentPersonalidEmailBinding
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
+import org.commcare.utils.CommCareAttemptCounter
 import org.commcare.utils.KeyboardHelper
 import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdEmailFragment : BasePersonalIdFragment() {
     private lateinit var binding: FragmentPersonalidEmailBinding
     private var personalIdSessionData: PersonalIdSessionData? = null
-    private val emailOtpTracker = AttemptTracker()
+    private val emailOtpTracker = CommCareAttemptCounter()
 
     /**
      * Launch context for this screen — distinguishes brand-new signup, account recovery,
@@ -107,12 +108,12 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
                 getString(R.string.personalid_email_skip_confirm_title),
                 getString(R.string.personalid_email_skip_confirm_message),
             )
-        dialog.setPositiveButton(getString(R.string.personalid_link_app_yes)) { _, _ ->
+        dialog.setPositiveButton(getString(R.string.personalid_email_skip_confirm_add)) { _, _ ->
+            commCareActivity.dismissAlertDialog()
+        }
+        dialog.setNegativeButton(getString(R.string.personalid_email_skip_confirm_skip)) { _, _ ->
             commCareActivity.dismissAlertDialog()
             skipEmail()
-        }
-        dialog.setNegativeButton(getString(R.string.personalid_link_app_no)) { _, _ ->
-            commCareActivity.dismissAlertDialog()
         }
         commCareActivity.showAlertDialog(dialog)
     }
