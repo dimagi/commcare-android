@@ -127,7 +127,6 @@ class ConnectInfoHalfCardTest {
         assertEquals(accent, ImageViewCompat.getImageTintList(icon)?.defaultColor)
     }
 
-
     @Test
     fun `contentEnabled defaults to true`() {
         val card = newCard()
