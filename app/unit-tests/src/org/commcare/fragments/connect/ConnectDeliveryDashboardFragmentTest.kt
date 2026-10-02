@@ -472,7 +472,7 @@ class ConnectDeliveryDashboardFragmentTest {
     private fun accentColor(): Int =
         MaterialColors.getColor(activity.findViewById(android.R.id.content), com.google.android.material.R.attr.colorPrimary)
 
-    private fun disabledColor(): Int = activity.themeColor(R.attr.connectOnSurfaceEmphasis)
+    private fun disabledColor(): Int = activity.themeColor(R.attr.connectOnSurfaceDisabled)
 
     private fun progressResponse(
         deliveries: List<String> = emptyList(),

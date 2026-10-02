@@ -20,6 +20,7 @@
     <attr name="connectOnSurfaceVariant" format="reference|color" />
     <attr name="connectOnSurfaceSecondary" format="reference|color" />
     <attr name="connectOnSurfaceMuted" format="reference|color" />
+    <attr name="connectOnSurfaceDisabled" format="reference|color" />
     <attr name="connectDisabledContainer" format="reference|color" />
     <attr name="connectOnDisabledContainer" format="reference|color" />
     <attr name="connectCtaButtonBackground" format="reference|color" />

@@ -72,7 +72,7 @@ class ConnectCtaBar
                 binding.ctaButton.isEnabled = value
                 binding.ctaTitleText.setTextColor(
                     context.themeColor(
-                        if (value) AppCompatR.attr.colorPrimary else R.attr.connectOnSurfaceEmphasis,
+                        if (value) AppCompatR.attr.colorPrimary else R.attr.connectOnSurfaceDisabled,
                     ),
                 )
             }

@@ -174,12 +174,12 @@ class ConnectProgressCardTest {
     }
 
     @Test
-    fun `contentEnabled recolors the semi-circle but leaves the caption at the accent`() {
+    fun `contentEnabled recolors the caption and semi-circle`() {
         val card = newCard()
         val caption = card.findViewById<TextView>(R.id.progress_card_bar_caption)
         val semi = card.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle)
 
-        val disabled = card.context.themeColor(R.attr.connectOnSurfaceEmphasis)
+        val disabled = card.context.themeColor(R.attr.connectOnSurfaceDisabled)
         val accent = MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary)
         val primary = ContextCompat.getColor(card.context, R.color.connect_text_color)
 
@@ -190,7 +190,7 @@ class ConnectProgressCardTest {
             )
 
         card.bind(content.copy(contentEnabled = false))
-        assertEquals(accent, caption.currentTextColor)
+        assertEquals(disabled, caption.currentTextColor)
         assertEquals(disabled, semi.progressColor)
         assertEquals(disabled, semi.valueTextColor)
         assertEquals(primary, semi.descriptionTextColor)

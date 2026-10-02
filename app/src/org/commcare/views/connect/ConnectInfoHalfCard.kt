@@ -56,7 +56,6 @@ class ConnectInfoHalfCard
                 field = value
                 binding.infoCardIcon.setImageDrawable(value)
                 binding.infoCardIcon.visibility = if (value == null) GONE else VISIBLE
-                applyContentColors()
             }
 
         private fun applyContentColors() {
@@ -64,7 +63,7 @@ class ConnectInfoHalfCard
                 if (contentEnabled) {
                     MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary)
                 } else {
-                    context.themeColor(R.attr.connectOnSurfaceEmphasis)
+                    context.themeColor(R.attr.connectOnSurfaceDisabled)
                 }
             binding.infoCardValueText.setTextColor(accent)
             binding.infoCardIcon.tint(accent)
