@@ -149,7 +149,7 @@ class ConnectLearningProgressFragment :
 
     private fun navigateToDeliveryProgress(): NavDirections =
         ConnectLearningProgressFragmentDirections
-            .actionConnectJobLearningProgressFragmentToConnectJobDeliveryProgressFragment()
+            .actionConnectJobLearningProgressFragmentToConnectDeliveryHomeFragment()
 
     override fun onAppInstallStateChanged(
         state: AppInstallState,

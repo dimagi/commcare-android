@@ -116,7 +116,6 @@
     <string name="please_wait_long">Por favor, aguarde. Isto levará alguns minutos.</string>
     <string name="quit_application">Sair %s</string>
     <string name="quit_form_title">Guarde o formulário e saia</string>
-    <string name="refresh">Atualizar</string>
     <string name="replace_location">Verificar a Localização</string>
     <string name="required_answer_error">Desculpe, esta resposta é obrigatória!</string>
     <string name="review">Continuar</string>
@@ -285,7 +284,6 @@
     <string name="personalid_email_verification_appbar_title">Verificar e-mail</string>
     <string name="personalid_email_verification_title">Verifique seu e-mail</string>
     <string name="personalid_email_verification_description">Digite o código de 6 dígitos enviado para %1$s</string>
-    <string name="personalid_email_verify_button">Verificar</string>
     <string name="personalid_email_otp_failed_title">Falha na verificação</string>
     <string name="personalid_email_otp_failed_message">Você usou todas as tentativas deste código. Pode solicitar um novo em %1$s, ou pular o e-mail por agora.</string>
     <string name="personalid_email_otp_failed_wait">Aguardar</string>
@@ -343,13 +341,11 @@
     <string name="connect_verify_skip_phone_number">Vejo que é um utilizador de demonstração, por isso vamos saltar o OTP</string>
     <string name="connect_verify_phone_change">Alterar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
-    <string name="connect_last_update">Atualizado: %s</string>
     <string name="connect_title">Ligar</string>
     <string name="connect_no_jobs">Você ainda não foi convidado para nenhuma oportunidade. Assim que for convidado para uma oportunidade, ela aparecerá nesta lista.</string>
     <string name="connect_learn_complete_by">Concluir projeto por %s</string>
     <string name="connect_job_ended">A tarefa terminou em %s</string>
     <string name="connect_learn_title">Progresso de aprendizagem</string>
-    <string name="connect_fetch_learning_progress_error">Falha ao procurar o progresso da aprendizagem</string>
     <string name="connect_sms_invite_opportunity_not_found">Oportunidade não encontrada</string>
     <string name="connect_learn_complete">Concluída</string>
     <string name="connect_learn_certificate">CERTIFICADO DE CONCLUSÃO</string>
@@ -368,11 +364,8 @@
     <string name="connect_learn_cta_complete_assessment">Concluir a avaliação</string>
     <string name="connect_learn_cta_take_assessment">Fazer a avaliação</string>
     <string name="connect_learn_cta_start">Começar</string>
-    <string name="connect_delivery_earn_multi">Pagamento por visita:</string>
     <string name="connect_delivery_go">Ir para a aplicação</string>
     <string name="connect_progress_delivery">Entrega</string>
-    <string name="connect_progress_title">Progresso da entrega</string>
-    <string name="connect_progress_status">Você concluiu %d de %d visitas.</string>
     <string name="semi_circle_progress_value_format">%1$d de %2$d</string>
     <string name="connect_progress_count_format">%1$d de %2$d</string>
     <string name="connect_progress_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
@@ -398,9 +391,6 @@
     <string name="connect_results_summary_remaining_today">%d até Hoje</string>
     <string name="connect_results_summary_visits_done">Todas as Visitas Realizadas</string>
     <string name="connect_results_summary_days_over">Dias Acima</string>
-    <string name="connect_payment_confirm_text">Você recebeu o pagamento de %d %s pela oportunidade %s?</string>
-    <string name="connect_payment_confirm_yes">Sim!</string>
-    <string name="connect_payment_confirm_no">Pergunte mais tarde</string>
     <string name="personalid_login_with">Iniciar sessão com o PersonalId</string>
     <string name="personalid_link_app_title">Link para PersonalId?</string>
     <string name="personalid_link_app_message">Deseja vincular este login à sua conta PersonalId? Você não precisará digitar sua senha no futuro.</string>
@@ -443,10 +433,6 @@
     <string name="personalid_profile_edit_discard_message">Suas alterações não salvas serão perdidas.</string>
     <string name="personalid_profile_edit_discard_positive">Descartar</string>
     <string name="personalid_profile_edit_discard_negative">Continuar editando</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Verifique seu novo e-mail</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Enviaremos um código de 6 dígitos para %1$s. Digite-o na próxima tela para verificar.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Enviar código</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Cancelar</string>
     <string name="personalid_profile_edit_save">Salvar</string>
     <string name="personalid_profile_edit_cancel">Cancelar</string>
     <string name="personalid_profile_edit_save_success">Seu perfil foi atualizado com sucesso.</string>
@@ -477,22 +463,10 @@
     <string name="personalid_set_backup_code_reminder_message">Você não tem um código de backup configurado na sua conta. Clique em Confirmar para configurar um.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Definir código de backup</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Por favor, defina um código de backup antes de sair</string>
-    <string name="connect_job_info_delivery_detail">Detalhes da entrega</string>
-    <string name="connect_job_info_review_delivery">Revise os detalhes da entrega</string>
-    <string name="connect_job_info_visit">%d máximo de visitas</string>
-    <string name="connect_job_info_days">%d dias para concluir</string>
-    <string name="connect_job_info_max_visit">Máximo de visitas por dia %d</string>
-    <string name="connect_job_info_visit_charge">Ganhe até %s por visita</string>
     <string name="connect_job_info_delivery_hours">Horário de entrega</string>
     <string name="connect_job_info_view_more">Ver mais</string>
-    <string name="connect_job_info_view_info">Ver informações</string>
-    <string name="connect_job_info_view_resume">Retomar</string>
-    <string name="connect_job_info_view_review">Revisar</string>
-    <string name="connect_job_info_view_proceed">Prosseguir</string>
     <string name="connect_progress">Progresso</string>
     <string name="connect_payment">Pagamento</string>
-    <string name="connect_delivery_progress_description">Você não concluiu nenhuma lição. Comece a aprender para ganhar seu certificado.</string>
-    <string name="connect_click_to_sync_progress">Sincronizar o progresso</string>
     <string name="connect_visit_type_title">%s Visitas</string>
     <string name="connect_payment_received">Recebida</string>
     <string name="connect_payment_transferred">Transferido</string>
@@ -550,7 +524,6 @@
     <string name="connect_message_you">Você</string>
     <string name="connect_message_them">Eles</string>
     <string name="fcm_sync_failed_body_text">Clique aqui para saber mais</string>
-    <string name="connect_corrupt_job_text">Falha ao carregar esta oportunidade</string>
     <string name="connect_results_summary_pending">Pendente</string>
     <string name="connect_results_summary_rejected">Rejeitado</string>
     <string name="connect_results_summary_approved">Aprovado</string>
@@ -637,7 +610,6 @@
     <string name="network_forbidden_error">Acesso negado. Se o problema persistir, entre em contato com o suporte ao cliente.</string>
     <string name="error">Erro</string>
     <string name="failed_to_start_learning">Falha ao iniciar o aprendizado</string>
-    <string name="failed_to_update_payment">Falha ao atualizar o pagamento</string>
     <string name="personalid_biometric_error_cancelled">A configuração biométrica foi cancelada. Por favor, contacte o apoio ao cliente se o problema persistir.</string>
     <string name="personalid_biometric_error_lockout">Muitas tentativas. Por favor, espere e tente novamente.</string>
     <string name="personalid_biometric_error_lockout_permanent">Muitas tentativas falhadas. Por favor, desbloqueie o seu dispositivo e tente novamente.</string>
@@ -647,8 +619,6 @@
     <string name="connect_label_expires_on">Expira em</string>
     <string name="connect_label_completed_on">Concluído em</string>
     <string name="connect_label_expired_on">Expirado em</string>
-    <string name="connect_complete_by">A tarefa termina em %s</string>
-    <string name="connect_expired_on">A tarefa terminou em %s</string>
 
     <string name="connect_dashboard">Painel</string>
     <string name="connect_visits">Visitas</string>
@@ -723,7 +693,6 @@
     <string name="menu_app_list_install">Ver Aplicativos para Meu Usuário</string>
     <string name="menu_app_list_install_other_user">Ver Aplicativos para Outro Usuário</string>
     <string name="toggle_web_user_mode">Usuário Web</string>
-    <string name="toggle_mobile_user_mode">Usuário Móvel</string>
     <string name="missing_fields">Por favor, preencha todos os campos obrigatórios.</string>
     <string name="email_address_invalid">Por favor, insira um endereço de e-mail válido.</string>
     <string name="get_app_list_user_error_mobile">Foi fornecido um nome de usuário, domínio ou senha inválidos. Certifique-se de que todos os campos preenchidos estão corretos.</string>
