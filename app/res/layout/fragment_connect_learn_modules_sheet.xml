@@ -8,22 +8,22 @@
     android:orientation="vertical"
     android:paddingHorizontal="@dimen/standard_spacer_double"
     android:paddingTop="@dimen/standard_spacer"
-    android:paddingBottom="@dimen/standard_spacer_double">
+    android:paddingBottom="@dimen/standard_spacer_double"
+    tools:theme="@style/ConnectTheme">
 
     <androidx.cardview.widget.CardView
         android:layout_width="@dimen/standard_spacer_extra_large"
         android:layout_height="@dimen/standard_spacer_half"
         android:layout_gravity="center"
-        app:cardBackgroundColor="@color/connect_divider_color" />
+        app:cardBackgroundColor="?attr/connectOutlineVariant" />
 
     <TextView
         android:id="@+id/tv_modules_title"
+        style="@style/TextStyle.Connect.TitleM"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/standard_spacer_large"
-        android:textColor="@color/connect_text_color"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:textColor="?attr/colorOnSurface"
         tools:text="Infant Vaccination - Learn Modules" />
 
     <androidx.core.widget.NestedScrollView
@@ -47,11 +47,11 @@
 
             <TextView
                 android:id="@+id/tv_modules_footer_note"
+                style="@style/TextStyle.Connect.BodyXs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/connect_opportunity_modules_footer_note"
-                android:textColor="@color/black"
-                android:textSize="11sp" />
+                android:textColor="@color/black" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

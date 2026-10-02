@@ -87,8 +87,11 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_login_via">Ta hanyar PersonalID (ko danna nan)</string>
     <string name="personalid_welcome_user">Barka da zuwa %s!</string>
     <string name="personalid_choice_or">_________ KO _________</string>
+    <string name="connect_download_delivery">Sauke Isarwa</string>
+    <string name="connect_app_install_setting_up">Ana saita manhaja…</string>
+    <string name="connect_app_finishing_install">Ana kammala shigarwa…</string>
+    <string name="connect_app_launching">An gama sauke, ana buɗe manhaja…</string>
     <string name="connect_button_logged_in">Je zuwa menu na Haɗawa</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="connect_registration_title">Fara da PersonalID</string>
     <string name="connect_consent_message_1">Na karanta kuma na yarda da Dimagi\'s</string>
     <string name="connect_phone_country_code_default">+1</string>
@@ -107,18 +110,36 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_email_description">Imel ɗinka yana taimaka maka dawo da asusunka idan ka rasa damar shiga wayarka.</string>
     <string name="personalid_email_hint">Adireshin imel</string>
     <string name="personalid_email_skip">Tsallake yanzu</string>
-    <string name="personalid_email_skip_confirm_title">A tsallake imel?</string>
-    <string name="personalid_email_skip_confirm_message">Tabbas kuna so ku tsallake?</string>
+    <string name="personalid_email_skip_confirm_title">Kare asusunku</string>
+    <string name="personalid_email_skip_confirm_message">Ƙara imel yana ƙarfafa tsaron asusunku. Yana taimakawa tabbatar da muhimman canje-canje na asusu, yana hana yunƙurin dawo da asusu ba tare da izini ba, kuma yana ba ka hanya mai aminci ta dawo da damar shiga idan ka rasa na\'urarka.</string>
+    <string name="personalid_email_skip_confirm_skip">Tsallake</string>
+    <string name="personalid_email_skip_confirm_add">Ƙara Imel</string>
     <string name="personalid_email_invalid_format">Da fatan za a shigar da ingantaccen adireshin imel.</string>
     <string name="personalid_email_verification_appbar_title">Tabbatar da imel</string>
     <string name="personalid_email_verification_title">Tabbatar da imel ɗinka</string>
     <string name="personalid_email_verification_description">Shigar da lambar lamba 6 da aka aiko zuwa %1$s</string>
     <string name="personalid_email_verify_button">Tabbatar</string>
     <string name="personalid_email_otp_failed_title">Tabbatarwa ba ta yi nasara ba</string>
-    <string name="personalid_email_otp_failed_message">Da alama kuna fuskantar matsala wajen tabbatar da imel ɗinku. Kuna iya tsallake wannan a yanzu kuma ku sake gwadawa daga baya, ko kuma ku ci gaba da gwadawa.</string>
-    <string name="personalid_email_otp_failed_retry">Sake gwadawa</string>
+    <string name="personalid_email_otp_failed_message">Kun yi amfani da dukkan yunƙurin wannan lambar. Kuna iya neman sabuwa cikin %1$s, ko ku tsallake imel a yanzu.</string>
+    <string name="personalid_email_otp_failed_wait">Jira</string>
     <string name="personalid_email_otp_failed_skip">Ci gaba ba tare da imel ba</string>
-    <string name="personalid_email_otp_max_attempts_reached">An kai iyakar yunƙurin tabbatarwa. Don Allah sake gwadawa daga baya.</string>
+    <string name="personalid_otp_limit_exceeded">Ka yi amfani da dukkan yunƙurin wannan lambar, don haka ba ta da inganci. Nemi sabuwar lamba don ci gaba.</string>
+    <string name="personalid_rate_limited_retry_after">Yunƙuri da yawa. Don Allah sake gwadawa cikin %1$s.</string>
+    <string name="personalid_otp_resend_wait">Ba ka karɓi lambarka ba? Sake aikawa cikin %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Jira %1$s don neman sabuwar lamba</string>
+    <string name="personalid_otp_request_code">Nemi lamba</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">daƙiƙa %d</item>
+        <item quantity="other">daƙiƙa %d</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">minti %d</item>
+        <item quantity="other">minti %d</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">awa %d</item>
+        <item quantity="other">awanni %d</item>
+    </plurals>
     <string name="personalid_email_added_title">An ƙara imel</string>
     <string name="personalid_email_added_message">An ƙara imel ɗinka cikin nasara.</string>
     <string name="personalId_email_otp_sent">An aika lambar sirri mai lamba 6 zuwa adireshin imel ɗinku.</string>
@@ -150,7 +171,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_verify_phone_title">Lambar tabbaci</string>
     <string name="connect_verify_phone_label">Mun yi ƙoƙarin aika SMS zuwa lambar wayar ku da ta ƙare da %s.</string>
     <string name="connect_verify_phone_resend">Ba ku karɓi lambar ku ba? Sake aika</string>
-    <string name="connect_verify_phone_resend_wait">Ba ka karɓi lambar ka ba? Sake aika a cikin %d s</string>
     <string name="connect_verify_phone_change">Canja lamba</string>
     <string name="connect_verify_phone_verify">Tabbatar da lambar</string>
     <string name="connect_last_update">An sabunta: %s</string>
@@ -194,9 +214,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_warning_relearn_tasks_pending">Kammala ayyukan da aka ba ka don ci gaba da bayar da hidimomi.</string>
     <string name="connect_open_conversation_button_text">Buɗe Tattaunawa</string>
     <string name="connect_progress_relearn_tasks_completed">An kammala duk ayyukan da ake bukata. Kuna iya ci gaba da ayyukan isarwa.</string>
-    <string name="connect_download_learn">Sauke Manhajar Koyi</string>
-    <string name="connect_downloading_learn">Sauke Manhajar Koyo</string>
-    <string name="connect_downloading_delivery">Sauke Manhajar Isarwa</string>
+    <string name="connect_download_learn">Sauke Koyo</string>
+    <string name="connect_starting_learning">Ana fara koyo</string>
+    <string name="connect_downloading_learn">Ana sauke Koyo</string>
+    <string name="connect_downloading_delivery">Ana sauke Isarwa</string>
     <string name="connect_results_summary_earned">An samu</string>
     <string name="connect_results_summary_transferred">An canja wurin</string>
     <string name="connect_payment_confirm_text">An biya ku %d %s don damar %s?</string>
@@ -254,24 +275,36 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_profile_change_backup_code">Canza lambar sirrin ajiyar bayanai</string>
     <string name="personalid_forgot_backup_code">Ka manta da lambar sirrin ajiyar bayananka?</string>
     <string name="personalid_backup_code_too_many_attempts">Yunkuri da yawa. Da fatan za a sake gwadawa daga baya.</string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Da fatan za a ƙara adireshin imel</string>
+    <string name="personalid_profile_add_email_toast">Da fatan za a ƙara adireshin imel</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">Saita Lambar Ajiya</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">Asusun ka ba shi da lambar ajiya tukuna. Tabbatar da adireshin imel ɗinka a ƙasa don saita ɗaya.</string>
     <string name="personalid_send_email_otp_title">Dawo da lambar ajiya</string>
     <string name="personalid_send_email_otp_description">Za mu aika lambar tabbatarwa zuwa:</string>
     <string name="personalid_send_email_otp_button">Aika lambar</string>
     <string name="personalid_send_email_otp_address_label">Imel na farfado</string>
     <string name="personalid_set_new_backup_code_title">Saita sabuwar lambar sirrin ajiyar bayanai</string>
+    <string name="personalid_backup_code_reminder_title">Tabbatar da Lambar Ajiyar</string>
+    <string name="personalid_backup_code_reminder_message">Shigar da lambar ajiyar ka don tabbatar da cewa kana tuna da ita.</string>
+    <string name="personalid_backup_code_reminder_incorrect">Lambar ajiyar ba daidai ba ce. Da fatan a sake gwadawa. Gwaje-gwaje %d suka rage.</string>
+    <string name="personalid_backup_code_reminder_success_toast">Kyau, komai yana da kyau!</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">Kun wuce yawan gwaje-gwaje da aka yarda da su.</string>
+    <string name="personalid_backup_code_reminder_skip">Tsallake</string>
+    <string name="personalid_backup_code_reminder_confirm">Tabbatarwa</string>
     <string name="personalid_backup_code_changed_success">An sabunta lambar sirrin ajiyar bayanai cikin nasara</string>
     <string name="personalid_set_new_backup_code_abandon_title">Soke saita lambar ajiyar?</string>
     <string name="personalid_set_new_backup_code_abandon_message">Koma baya zai soke tsarin canza lambar ajiyar.</string>
     <string name="personalid_set_new_backup_code_abandon_positive">Saita Lambar Ajiyar</string>
     <string name="personalid_set_new_backup_code_abandon_negative">Fita</string>
+    <string name="personalid_set_backup_code_reminder_title">Saita Lambar Ajiyar</string>
+    <string name="personalid_set_backup_code_reminder_message">Ba ka da lambar ajiyar da aka saita a asusunka. Danna Tabbatarwa don saita ɗaya.</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">Saita Lambar Ajiyar</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">Da fatan za a saita lambar ajiyar kafin fita</string>
     <string name="connect_job_info_delivery_detail">Cikakkun Bayanan Isarwa</string>
     <string name="connect_job_info_review_delivery">Yi bitar cikakkun bayanai game da isar da kaya</string>
     <string name="connect_job_info_visit">Matsakaicin Ziyarar %d</string>
     <string name="connect_job_info_days">Kwanaki %d da za a kammala</string>
     <string name="connect_job_info_max_visit">Matsakaicin ziyara a kowace rana %d</string>
     <string name="connect_job_info_visit_charge">Sami har zuwa %s don ziyara</string>
-    <string name="connect_job_info_download_delivery">Sauke Isarwa</string>
     <string name="connect_job_info_view_info">Duba Bayani</string>
     <string name="connect_job_info_view_resume">Ci gaba da karatu</string>
     <string name="connect_job_info_view_review">Bita</string>
@@ -291,7 +324,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_tile_daily_limit_description">An cimma Iyakar Kullum. Babu Biyan Kuɗi don ƙaddamar da fom ɗin</string>
     <string name="connect_in_progress">Ana kai</string>
     <string name="connect_new_opportunities">Sabbin Damammaki</string>
-    <string name="connect_completed">An kammala</string>
+    <string name="connect_completed_expired_label">Damammaki da Aka Kammala / Suka Ƙare</string>
     <string name="personalid_continue_label">Ci gaba</string>
     <string name="connect_verify_phone_resend_code">Sake aika lambar</string>
     <string name="connect_verify_skip_phone_number">Na ga kai mai amfani ne da demo, don haka za mu tsallake OTP</string>
@@ -315,6 +348,10 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_tile_daily_visits">Ziyarar Kullum</string>
     <string name="connect_appbar_title_app_lock">Makullin Manhaja</string>
     <string name="personalid_incorrect_otp">Kun shigar da lambar sirri mai lambobi 6 ba daidai ba. Da fatan za a sake gwadawa.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">Kun shigar da lambar sirri mai lambobi 6 ba daidai ba. Saura ƙoƙari %d.</item>
+        <item quantity="other">Kun shigar da lambar sirri mai lambobi 6 ba daidai ba. Saura ƙoƙari %d.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">An riga an haɗa wannan imel ɗin da wani asusu. Da fatan za a yi amfani da wata adireshin imel.</string>
     <string name="personalid_too_many_otp_attempts">Kun yi ƙoƙarin aika OTP sau da yawa. Da fatan za a jira kuma a sake gwadawa lokacin da maballin sake aikawa ya bayyana.</string>
     <string name="personalid_otp_verification_failed_generic">Akwai matsala wajen tabbatar da lambar wayarku. Da fatan za a sake gwadawa.</string>
@@ -352,6 +389,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_generic_error_title">An fita daga PersonalID</string>
     <string name="personalid_login_via_connect">A shirye don shiga!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Muna fuskantar kuskuren da ba za a iya gyarawa ba yayin da muke haɗa shiga ta amfani da ID ɗinka na Sirri. Da fatan za a shiga da kalmar sirri ko a dawo da shiga ID ɗinka na Sirri</string>
+    <string name="personalid_name_appbar_title">Suna</string>
     <string name="personalid_name_fragment_subtitle">Da fatan za a shigar da sunanka kamar yadda ya bayyana a katin shaidar da gwamnati ta bayar</string>
     <string name="personalid_configuration_process_failed_title">Tsarin aiki ya gaza</string>
     <string name="personalid_configuration_locked_account">An kulle asusunka. Da fatan za a tuntuɓi tallafi</string>
@@ -401,6 +439,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="nav_drawer_commcare_apps">Manhajojin CommCare</string>
     <string name="nav_drawer_switch_app_dialog_title">Fita daga wannan manhaja?</string>
     <string name="nav_drawer_switch_app_dialog_message">Za a fitar da kai daga wannan manhaja a kuma mayar da kai zuwa allon shiga, inda za ka iya zaɓar wata manhaja.</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">Fita ka canza manhaja?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">Za a fitar da kai daga manhajar CommCare da ka shiga a kuma mayar da kai zuwa allon shiga, inda za ka iya zaɓar wata manhaja.</string>
     <string name="nav_drawer_switch_app_dialog_confirm">Ci gaba</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Soke</string>
     <string name="play_service_update_error">Don amfani da PersonalID, kuna buƙatar sabunta Ayyukan Google Play. Danna nan don zuwa Shagon Google Play don duba sabuntawa</string>
@@ -430,6 +470,9 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_biometric_error_lockout_permanent">Gwaje-gwaje da yawa sun gaza. Da fatan za a buɗe na\'urarka ka sake gwadawa.</string>
     <string name="personalid_biometric_error_timeout">Aikin biometric ya ƙare. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba.</string>
     <string name="personalid_biometric_error_cannot_configure">Ba za mu iya saita yanayin halittu a na\'urarka ba. Da fatan za a tuntuɓi tallafin abokin ciniki idan matsalar ta ci gaba.</string>
+    <string name="connect_label_expires_on">Zai ƙare a</string>
+    <string name="connect_label_completed_on">An kammala a</string>
+    <string name="connect_label_expired_on">Ya ƙare a</string>
     <string name="connect_complete_by">Aiki yana ƙarewa akan %s</string>
     <string name="connect_expired_on">Aiki ya ƙare a kan %s</string>
     <string name="connect_dashboard">Dashboard</string>
@@ -454,6 +497,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_delivery_revisit_learning_offline">Bayanan takardar shaida za su ɗauko sa\'ad da ka dawo kan layi</string>
     <string name="connect_delivery_revisit_learning_view">Duba</string>
     <string name="connect_task_expires_on">Wa\'adi ya ƙare a %1$s</string>
+    <string name="connect_task_pending_chip">Aikin da ke jira</string>
+    <string name="connect_task_blocking_subtitle">Kammala shi don ci gaba da isarwa.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">ziyara %1$d ta rage yau</item>
         <item quantity="other">ziyara %1$d suka rage yau</item>
@@ -677,6 +722,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_last_synced">Aiki na ƙarshe: %s</string>
     <string name="connect_sync_successful">Aiki na ƙarshe: Yanzu haka</string>
     <string name="connect_sync_failed">Daidaitawa ta kasa, aiki na ƙarshe: %s</string>
+    <string name="connect_sync_card_press_to_sync">Danna nan don daidaitawa</string>
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_back_online">An Sake Haɗawa</string>
     <string name="connect_never">Ba taɓa</string>
@@ -721,7 +767,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
         <item quantity="other">Sassan biya %d</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Fara koyo</string>
-    <string name="connect_opportunity_footer_download_learn_app">Sauke Koyo</string>
     <string name="connect_opportunity_modules_footer_note">Kammala kayayyakin koyo, ka ci jarrabawa, sannan ka sami takardar shaidarka</string>
     <string name="connect_opportunity_footer_download_app">Sauke manhaja</string>
     <string name="microimage_saving_failed">An kasa ajiye hoton. Da fatan za a sake gwadawa</string>

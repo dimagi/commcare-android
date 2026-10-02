@@ -1,17 +1,11 @@
 package org.commcare.fragments.personalId
 
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDirections
-import androidx.navigation.findNavController
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ReleaseToggleHelper
-import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
@@ -48,7 +42,10 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             binding.recoveryCodeTilte.setText(R.string.connect_backup_code_message_title)
             binding.welcomeBackLayout.visibility = View.VISIBLE
             setUserNameAndPhoto()
+            binding.personalidForgotBackupCode.visibility =
+                if (!personalIdSessionData.maskedEmail.isNullOrEmpty()) View.VISIBLE else View.GONE
         } else {
+            binding.personalidForgotBackupCode.visibility = View.GONE
             setUpInitialState(
                 titleResId = R.string.connect_backup_code_title_set,
                 showConfirmCode = true,
@@ -70,6 +67,16 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         binding.backupCodeView.setCodeCompleteListener { if (isRecovery) submitIfEnabled() }
         binding.confirmCodeView.setCodeCompleteListener { submitIfEnabled() }
         binding.notMeButton.setOnClickListener { handleNotMeButtonPressed() }
+    }
+
+    override fun handleForgotBackupCode() {
+        navigate(
+            PersonalIdBackupCodeFragmentDirections
+                .actionPersonalidBackupCodeToSendEmailOtp(
+                    personalIdSessionData.maskedEmail!!,
+                    EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
+                ),
+        )
     }
 
     private fun handleNotMeButtonPressed() {
@@ -122,16 +129,20 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                     enableContinueButton(true)
                 }
             }
-        }.confirmBackupCode(activity, backupCode, personalIdSessionData)
+        }.completeRecoveryWithBackupCode(activity, backupCode, personalIdSessionData)
     }
 
     private fun handleConfirmBackupCodeSuccess() {
+        PersonalIdRecoveryCompleter.finalizeAccountRecovery(
+            requireActivity(),
+            personalIdSessionData,
+            AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE,
+        )
         if (personalIdSessionData.email == null &&
             ReleaseToggleHelper.isEmailOtpVerificationActive(personalIdSessionData)
         ) {
             navigateToEmail()
         } else {
-            PersonalIdRecoveryCompleter.finalizeAccountRecovery(requireActivity(), personalIdSessionData)
             navigateToSuccess()
         }
     }
@@ -200,6 +211,4 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                 ).setIsCancellable(isCancellable),
         )
     }
-
-    private fun navigate(directions: NavDirections) = binding.root.findNavController().navigate(directions)
 }

@@ -9,9 +9,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectTaskRecord
-import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectDateUtils
-import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.repository.DataState
@@ -19,9 +17,9 @@ import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryMoreBinding
 import org.commcare.fragments.RefreshableTab
-import org.commcare.personalId.UnlockPolicy
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.connect.ConnectTaskCard
+import org.commcare.views.connect.ConnectTaskPresenter
 import org.commcare.views.connect.bindCertificate
 import org.commcare.views.extensions.themeColor
 import java.text.DateFormat
@@ -89,21 +87,9 @@ class ConnectDeliveryMoreFragment :
         highlighted: Boolean,
     ) = ConnectTaskCard(requireContext()).apply {
         bind(
-            ConnectTaskCard.State(
-                title = task.name,
-                iconRes =
-                    if (task.isOCSConversation) {
-                        R.drawable.ic_chat_bubble_outline
-                    } else {
-                        R.drawable.ic_connect_learn_app
-                    },
-                expiryLabel =
-                    task.dueDate?.let {
-                        getString(
-                            R.string.connect_task_expires_on,
-                            ConnectDateUtils.formatDate(it, DateFormat.LONG),
-                        )
-                    },
+            ConnectTaskPresenter.state(
+                context = requireContext(),
+                task = task,
                 highlighted = highlighted,
                 onClick = { openTask(task) },
             ),
@@ -119,26 +105,10 @@ class ConnectDeliveryMoreFragment :
                 if (index > 0) topMargin = resources.getDimensionPixelSize(R.dimen.connect_space_md)
             }
 
-    private fun openTask(task: ConnectTaskRecord) {
-        if (task.isOCSConversation) {
-            check(task.connectChannelId.isNotEmpty()) {
-                "Conversation task ${task.taskId} has no channel id"
-            }
-            ConnectNavHelper.unlockAndGoToMessaging(
-                requireActivity() as CommCareActivity<*>,
-                UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
-                task.connectChannelId,
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) = Unit
-                },
-            )
-        } else {
+    private fun openTask(task: ConnectTaskRecord) =
+        ConnectTaskPresenter.open(requireActivity() as CommCareActivity<*>, task) {
             launchApp(isLearning = false)
         }
-    }
 
     private fun bindRevisitLearning() {
         val learnCompletionDate = job.latestLearningActivityDate
@@ -185,11 +155,6 @@ class ConnectDeliveryMoreFragment :
     private fun toggleCertificate() {
         certificateExpanded = !certificateExpanded
         binding.revisitLearningCertificate.root.isVisible = certificateExpanded
-    }
-
-    /** Launching is the host's job, so the install check and download screen stay in one place. */
-    private fun launchApp(isLearning: Boolean) {
-        (parentFragment as? ConnectDeliveryHomeFragment)?.launchApp(isLearning)
     }
 
     override fun inflateBinding(

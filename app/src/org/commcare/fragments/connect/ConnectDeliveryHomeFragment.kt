@@ -13,16 +13,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
-import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
@@ -91,6 +90,7 @@ class ConnectDeliveryHomeFragment :
 
         setupTabViewPager()
         binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
+        updateCtaBarButton()
 
         observeDeliveryAndLearningProgress()
         observeConnectivity()
@@ -113,7 +113,7 @@ class ConnectDeliveryHomeFragment :
             currentTabPosition = initialTabPosition
             viewPager.setCurrentItem(initialTabPosition, false)
         }
-        updateCtaBarVisibility()
+        updateCtaBarEnabled()
 
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
@@ -122,7 +122,6 @@ class ConnectDeliveryHomeFragment :
                         return
                     }
                     currentTabPosition = position
-                    updateCtaBarVisibility()
                     tabLayout.getTabAt(position)?.text?.let {
                         FirebaseAnalyticsUtil.reportConnectTabChange(it.toString())
                     }
@@ -132,11 +131,15 @@ class ConnectDeliveryHomeFragment :
     }
 
     /**
-     * The More tab makes its highest-priority task the primary action, so the shared launch bar gets
-     * out of its way.
+     * A pending task has to be cleared in the delivery app, so the launch bar is disabled while one
+     * is outstanding. Without the app installed there is nothing to clear it with, so the bar stays
+     * live until the download finishes and the user is not left stranded.
      */
-    private fun updateCtaBarVisibility() {
-        binding.connectDeliveryCtaBar.isVisible = currentTabPosition != moreTabPosition
+    private fun updateCtaBarEnabled() {
+        val appInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
+        val hasPendingTask =
+            ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID).isNotEmpty()
+        binding.connectDeliveryCtaBar.isCtaEnabled = !appInstalled || !hasPendingTask
     }
 
     private fun updateMoreTabBadge() {
@@ -178,7 +181,22 @@ class ConnectDeliveryHomeFragment :
         }
     }
 
+    private fun updateCtaBarButton() {
+        val installed = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
+        binding.connectDeliveryCtaBar.apply {
+            if (installed) {
+                subtitleText = getString(R.string.connect_delivery_continue_visits_subtitle)
+                buttonText = getString(R.string.connect_delivery_start)
+            } else {
+                subtitleText = getString(R.string.connect_download_delivery)
+                buttonText = getString(R.string.connect_opportunity_footer_download_app)
+            }
+        }
+    }
+
     private fun refreshTabs() {
+        updateCtaBarButton()
+        updateCtaBarEnabled()
         updateMoreTabBadge()
         childFragmentManager.fragments.forEach { fragment ->
             if (fragment.view != null && fragment is RefreshableTab) {
@@ -189,6 +207,18 @@ class ConnectDeliveryHomeFragment :
 
     override fun refresh(forceRefresh: Boolean) {
         viewModel.loadDeliveryProgress(job, forceRefresh)
+    }
+
+    /** Delivery is synced here rather than per tab, so the status has to reach the tabs showing it. */
+    override fun informSyncStatus(
+        lastSyncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        childFragmentManager.fragments.forEach { fragment ->
+            if (fragment.view != null && fragment is ConnectDeliveryDashboardFragment) {
+                fragment.updateSyncStatus(lastSyncStatus, synced)
+            }
+        }
     }
 
     /**
@@ -261,27 +291,13 @@ class ConnectDeliveryHomeFragment :
             .setActionBarTitle(job.title, getString(R.string.connect_progress_delivery))
     }
 
-    /**
-     * Launches the opportunity's learn or delivery app, sending the user to the download screen when
-     * it isn't installed yet. Tabs route their own launches through here so the install check and the
-     * download hand-off live in one place.
-     */
-    fun launchApp(isLearning: Boolean) {
-        val appId = if (isLearning) job.learnAppInfo.appId else job.deliveryAppInfo.appId
-        if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppLaunchController(this).launchApp(appId, isLearning, Runnable { popSelfOnceHidden() })
-            return
-        }
-
-        val downloadTitle =
-            if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
-        val directions =
-            ConnectDeliveryHomeFragmentDirections
-                .actionConnectDeliveryHomeFragmentToConnectDownloadingFragment(
-                    getString(downloadTitle),
-                    isLearning,
-                )
-        findNavController().navigate(directions)
+    /** A delivery app still being downloaded takes over the launch bar the user started it from. */
+    override fun onAppInstallStateChanged(
+        state: AppInstallState,
+        isLearning: Boolean,
+    ) {
+        binding.connectDeliveryCtaBar.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
+        updateCtaBarEnabled()
     }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.jobUUID

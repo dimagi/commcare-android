@@ -83,6 +83,7 @@ abstract class BasePersonalIdConfigurationTest<T : BasePersonalIdFragment> {
         activity =
             activityController
                 .create()
+                .postCreate(null)
                 .start()
                 .resume()
                 .get()

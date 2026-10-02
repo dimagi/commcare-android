@@ -21,6 +21,8 @@ abstract class BasePersonalIdBackupCodeFragmentTest : BasePersonalIdConfiguratio
     protected fun buildSessionData(
         accountExists: Boolean = false,
         photoBase64: String? = null,
+        email: String? = null,
+        maskedEmail: String? = null,
     ): PersonalIdSessionData =
         PersonalIdSessionData(
             requiredLock = PersonalIdSessionData.PIN,
@@ -30,6 +32,8 @@ abstract class BasePersonalIdBackupCodeFragmentTest : BasePersonalIdConfiguratio
             userName = TEST_USER_NAME,
             phoneNumber = TEST_PHONE_NUMBER,
             photoBase64 = photoBase64,
+            email = email,
+            maskedEmail = maskedEmail,
         )
 
     protected fun launchBackupCodeFragment(sessionData: PersonalIdSessionData = buildSessionData()) {
