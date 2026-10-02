@@ -7,6 +7,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.tasks.Tasks
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -319,6 +321,26 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
         } finally {
             hostController.pause().stop().destroy()
         }
+    }
+
+    @Test
+    fun `email change with no stored backup code skips the gate and goes to send phone otp`() {
+        user.pin = null
+        saveEmailChangeFromEdit()
+
+        assertEquals(R.id.personalid_profile_send_phone_otp_fragment, currentDestinationId())
+        val args = PersonalIdProfileSendPhoneOtpFragmentArgs.fromBundle(currentFragment().requireArguments())
+        assertEquals(pendingEmail, args.pendingEmail)
+
+        onUiThread { navController.popBackStack() }
+        assertEquals(R.id.personalid_profile_edit_fragment, currentDestinationId())
+    }
+
+    private fun saveEmailChangeFromEdit() {
+        onUiThread { navController.navigate(R.id.action_profile_to_profile_edit) }
+        val edit = currentFragment().requireView()
+        setText(edit.findViewById<TextInputEditText>(R.id.profile_email_edit_text), pendingEmail)
+        onUiThread { edit.findViewById<MaterialButton>(R.id.btn_save).performClick() }
     }
 
     companion object {

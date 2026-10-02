@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_profile_edit_to_backup_code"
             app:destination="@id/personalid_profile_backup_code_fragment" />
+        <action
+            android:id="@+id/action_profile_edit_to_profile_send_phone_otp"
+            app:destination="@id/personalid_profile_send_phone_otp_fragment" />
     </fragment>
 
     <fragment
