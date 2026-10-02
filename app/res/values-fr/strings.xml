@@ -115,7 +115,6 @@ License.
     <string name="please_wait_long">Veuillez patienter. Cela peut prendre quelques minutes.</string>
     <string name="quit_application">Sortie %s</string>
     <string name="quit_form_title">Formulaire de sortie ?</string>
-    <string name="refresh">Rafraîchir</string>
     <string name="replace_location">Remplacer l\'emplacement</string>
     <string name="required_answer_error">Désolé, cette réponse est obligatoire !</string>
     <string name="review">Continuer</string>
@@ -280,7 +279,6 @@ License.
     <string name="personalid_email_verification_appbar_title">Vérifier l\'e-mail</string>
     <string name="personalid_email_verification_title">Vérifiez votre adresse e-mail</string>
     <string name="personalid_email_verification_description">Saisissez le code à 6 chiffres envoyé à %1$s</string>
-    <string name="personalid_email_verify_button">Vérifier</string>
     <string name="personalid_email_otp_failed_title">Échec de la vérification</string>
     <string name="personalid_email_otp_failed_message">Vous avez utilisé toutes les tentatives pour ce code. Vous pouvez en demander un nouveau dans %1$s, ou ignorer l\'e-mail pour le moment.</string>
     <string name="personalid_email_otp_failed_wait">Attendre</string>
@@ -335,13 +333,11 @@ License.
     <string name="connect_verify_phone_resend">Vous n\'avez pas reçu votre code? Renvoyer</string>
     <string name="connect_verify_phone_change">Changer de numéro</string>
     <string name="connect_verify_phone_verify">Vérifier le code</string>
-    <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_title">Connecter</string>
     <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
     <string name="connect_job_ended">Tâche terminée le %s</string>
     <string name="connect_learn_title">Progrès d\'apprentissage</string>
-    <string name="connect_fetch_learning_progress_error">Échec de la récupération de la progression de l\'apprentissage</string>
     <string name="connect_sms_invite_opportunity_not_found">Opportunité introuvable</string>
     <string name="connect_learn_complete">Complet</string>
     <string name="connect_learn_certificate">Certificat</string>
@@ -360,11 +356,8 @@ License.
     <string name="connect_learn_cta_complete_assessment">Terminer l\'évaluation</string>
     <string name="connect_learn_cta_take_assessment">Passer l\'évaluation</string>
     <string name="connect_learn_cta_start">Commencer</string>
-    <string name="connect_delivery_earn_multi">Paiement par visite :</string>
     <string name="connect_delivery_go">Accéder à l\'application</string>
     <string name="connect_progress_delivery">Livraison</string>
-    <string name="connect_progress_title">Progression de la livraison</string>
-    <string name="connect_progress_status">Vous avez effectué %d visites sur %d.</string>
     <string name="semi_circle_progress_value_format">%1$d sur %2$d</string>
     <string name="connect_progress_count_format">%1$d sur %2$d</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
@@ -382,9 +375,6 @@ License.
     <string name="connect_downloading_delivery">Téléchargement de Livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>
     <string name="connect_results_summary_transferred">Transféré</string>
-    <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
-    <string name="connect_payment_confirm_yes">Oui!</string>
-    <string name="connect_payment_confirm_no">Plus tard</string>
     <string name="personalid_login_with">Connectez-vous avec PersonalId</string>
     <string name="personalid_link_app_title">Lien vers PersonalId ?</string>
     <string name="personalid_link_app_message">Souhaitez-vous associer cet identifiant à votre compte PersonalId? Vous n\'aurez plus besoin de saisir votre mot de passe à l\'avenir.</string>
@@ -427,10 +417,6 @@ License.
     <string name="personalid_profile_edit_discard_message">Vos modifications non enregistrées seront perdues.</string>
     <string name="personalid_profile_edit_discard_positive">Abandonner</string>
     <string name="personalid_profile_edit_discard_negative">Continuer la modification</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Vérifiez votre nouvelle adresse e-mail</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Nous enverrons un code à 6 chiffres à %1$s. Saisissez-le sur l\'écran suivant pour vérifier.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Envoyer le code</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Annuler</string>
     <string name="personalid_profile_edit_save">Enregistrer</string>
     <string name="personalid_profile_edit_cancel">Annuler</string>
     <string name="personalid_profile_edit_save_success">Votre profil a été mis à jour avec succès.</string>
@@ -461,20 +447,8 @@ License.
     <string name="personalid_set_backup_code_reminder_message">Vous n\'avez pas de code de sauvegarde configuré sur votre compte. Cliquez sur Confirmer pour en configurer un.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Définir le code de sauvegarde</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Veuillez définir un code de sauvegarde avant de quitter</string>
-    <string name="connect_job_info_delivery_detail">Détails de livraison</string>
-    <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
-    <string name="connect_job_info_visit">%d visites maximum</string>
-    <string name="connect_job_info_days">%d jours pour terminer</string>
-    <string name="connect_job_info_max_visit">Nombre maximal de visites par jour %d</string>
-    <string name="connect_job_info_visit_charge">Gagnez jusqu\'à %s par visite</string>
-    <string name="connect_job_info_view_info">Voir les informations</string>
-    <string name="connect_job_info_view_resume">Reprendre</string>
-    <string name="connect_job_info_view_review">Réviser</string>
-    <string name="connect_job_info_view_proceed">Procéder</string>
     <string name="connect_progress">Progrès</string>
     <string name="connect_payment">Paiement</string>
-    <string name="connect_delivery_progress_description">Vous n\'avez terminé aucune leçon. Commencez votre apprentissage pour obtenir votre certificat.</string>
-    <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
     <string name="connect_payment_received">Reçu</string>
     <string name="connect_payment_transferred">Transféré</string>
     <string name="connect_payment_confirm_transferred">Confirmer le paiement transféré</string>
@@ -546,7 +520,6 @@ License.
     <string name="connect_message_you">Toi</string>
     <string name="connect_message_them">Eux</string>
     <string name="fcm_sync_failed_body_text">Cliquez ici pour en savoir plus</string>
-    <string name="connect_corrupt_job_text">Impossible de charger cette opportunité</string>
     <string name="personalid_login_via_connect">Prêt à vous connecter !\n</string>
     <string name="personalid_failed_to_login_with_connectid">Nous rencontrons une erreur irrécupérable lors de la connexion avec votre identifiant personnel. Veuillez vous connecter avec votre mot de passe ou restaurer votre identifiant personnel.</string>
     <string name="personalid_name_appbar_title">Nom</string>
@@ -631,7 +604,6 @@ License.
     <string name="network_forbidden_error">Accès refusé. Veuillez contacter le service client si le problème persiste.</string>
     <string name="error">Erreur</string>
     <string name="failed_to_start_learning">Échec du démarrage de l\'apprentissage</string>
-    <string name="failed_to_update_payment">Échec de la mise à jour du paiement</string>
 
     <string name="personalid_biometric_error_cancelled">La configuration biométrique a été annulée. Veuillez contacter le support client si le problème persiste.</string>
     <string name="personalid_biometric_error_lockout">Trop de tentatives. Veuillez patienter et réessayer.</string>
@@ -642,8 +614,6 @@ License.
     <string name="connect_label_expires_on">Expire le</string>
     <string name="connect_label_completed_on">Terminé le</string>
     <string name="connect_label_expired_on">Expiré le</string>
-    <string name="connect_complete_by">La tâche se termine le %s</string>
-    <string name="connect_expired_on">La tâche s\'est terminée le %s</string>
     <string name="connect_dashboard">Tableau de bord</string>
     <string name="connect_visits">Visites</string>
     <string name="connect_more">Plus</string>
@@ -717,7 +687,6 @@ License.
     <string name="menu_app_list_install">Voir les applications pour mon utilisateur</string>
     <string name="menu_app_list_install_other_user">Voir les applications pour un autre utilisateur</string>
     <string name="toggle_web_user_mode">Utilisateur Web</string>
-    <string name="toggle_mobile_user_mode">Utilisateur mobile</string>
     <string name="missing_fields">Veuillez remplir tous les champs obligatoires.</string>
     <string name="email_address_invalid">Veuillez saisir une adresse e-mail valide.</string>
     <string name="get_app_list_user_error_mobile">Un nom d\'utilisateur, un domaine ou un mot de passe non valide a été fourni. Veuillez vous assurer que tous les champs saisis sont corrects.</string>

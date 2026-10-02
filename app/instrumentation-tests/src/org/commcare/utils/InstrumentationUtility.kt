@@ -108,7 +108,7 @@ object InstrumentationUtility {
         openOptionsMenu()
         onView(withText("Go To App Manager"))
             .perform(click())
-        clickListItem(R.id.apps_list_view, 0)
+        clickListItem(R.id.apps_list_view, 1)
         onView(withText("Uninstall"))
             .perform(click())
         onView(withText(R.string.ok))

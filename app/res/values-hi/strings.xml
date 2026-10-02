@@ -115,7 +115,6 @@ License.
     <string name="please_wait_long">कृपया प्रतीक्षा करें। इसमें कुछ मिनट लग सकते हैं।</string>
     <string name="quit_application">बाहर निकलें %s</string>
     <string name="quit_form_title">फ़ॉर्म से बाहर निकलें?</string>
-    <string name="refresh">ताज़ा करें</string>
     <string name="replace_location">स्थान बदलें</string>
     <string name="required_answer_error">क्षमा करें, यह उत्तर आवश्यक है!</string>
     <string name="review">जारी रखें</string>
@@ -280,7 +279,6 @@ License.
     <string name="personalid_email_verification_appbar_title">ईमेल सत्यापित करें</string>
     <string name="personalid_email_verification_title">अपना ईमेल सत्यापित करें</string>
     <string name="personalid_email_verification_description">%1$s पर भेजा गया 6-अंकीय कोड दर्ज करें</string>
-    <string name="personalid_email_verify_button">सत्यापित करें</string>
     <string name="personalid_email_otp_failed_title">सत्यापन असफल</string>
     <string name="personalid_email_otp_failed_message">आपने इस कोड के सभी प्रयास उपयोग कर लिए हैं। आप %1$s में नया कोड माँग सकते हैं, या अभी ईमेल छोड़ सकते हैं।</string>
     <string name="personalid_email_otp_failed_wait">प्रतीक्षा करें</string>
@@ -335,13 +333,11 @@ License.
     <string name="connect_verify_phone_resend">आपको अपना कोड प्राप्त नहीं हुआ? पुनः भेजें</string>
     <string name="connect_verify_phone_change">नंबर बदलें</string>
     <string name="connect_verify_phone_verify">कोड सत्यापित करें</string>
-    <string name="connect_last_update">अपडेट किया गया: %s</string>
     <string name="connect_title">कनेक्ट करें</string>
     <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
     <string name="connect_learn_complete_by">%s द्वारा परियोजना पूरी की गई</string>
     <string name="connect_job_ended">कार्य %s को समाप्त हुआ</string>
     <string name="connect_learn_title">सीखने की प्रगति</string>
-    <string name="connect_fetch_learning_progress_error">सीखने की प्रगति प्राप्त करने में विफल</string>
     <string name="connect_sms_invite_opportunity_not_found">अवसर नहीं मिला</string>
     <string name="connect_learn_complete">पूरा</string>
     <string name="connect_learn_certificate">प्रमाण पत्र</string>
@@ -360,11 +356,8 @@ License.
     <string name="connect_learn_cta_complete_assessment">मूल्यांकन पूरा करें</string>
     <string name="connect_learn_cta_take_assessment">मूल्यांकन दें</string>
     <string name="connect_learn_cta_start">शुरू करें</string>
-    <string name="connect_delivery_earn_multi">प्रति विज़िट भुगतान:</string>
     <string name="connect_delivery_go">ऐप पर जाएं</string>
     <string name="connect_progress_delivery">वितरण</string>
-    <string name="connect_progress_title">वितरण प्रगति</string>
-    <string name="connect_progress_status">आपने %d में से %d विज़िट पूरी कर ली हैं।</string>
     <string name="semi_circle_progress_value_format">%2$d में से %1$d</string>
     <string name="connect_progress_count_format">%2$d में से %1$d</string>
     <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
@@ -382,9 +375,6 @@ License.
     <string name="connect_downloading_delivery">वितरण डाउनलोड हो रहा है</string>
     <string name="connect_results_summary_earned">अर्जित</string>
     <string name="connect_results_summary_transferred">स्थानांतरित</string>
-    <string name="connect_payment_confirm_text">क्या आपको %d %s अवसर के लिए %s का भुगतान किया गया है?</string>
-    <string name="connect_payment_confirm_yes">हाँ!</string>
-    <string name="connect_payment_confirm_no">बाद में</string>
     <string name="personalid_login_with">PersonalId से लॉग इन करें</string>
     <string name="personalid_link_app_title">PersonalId से लिंक करें?</string>
     <string name="personalid_link_app_message">क्या आप इस आईडी को अपने PersonalId खाते से लिंक करना चाहेंगे? आपको भविष्य में अपना पासवर्ड दर्ज करने की आवश्यकता नहीं होगी।</string>
@@ -427,10 +417,6 @@ License.
     <string name="personalid_profile_edit_discard_message">आपके सहेजे न गए बदलाव खो जाएँगे।</string>
     <string name="personalid_profile_edit_discard_positive">छोड़ें</string>
     <string name="personalid_profile_edit_discard_negative">संपादन जारी रखें</string>
-    <string name="personalid_profile_edit_otp_confirm_title">अपना नया ईमेल सत्यापित करें</string>
-    <string name="personalid_profile_edit_otp_confirm_message">हम %1$s पर 6 अंकों का कोड भेजेंगे। सत्यापित करने के लिए इसे अगली स्क्रीन पर दर्ज करें।</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">कोड भेजें</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">रद्द करें</string>
     <string name="personalid_profile_edit_save">सहेजें</string>
     <string name="personalid_profile_edit_cancel">रद्द करें</string>
     <string name="personalid_profile_edit_save_success">आपकी प्रोफ़ाइल सफलतापूर्वक अपडेट कर दी गई है।</string>
@@ -461,20 +447,8 @@ License.
     <string name="personalid_set_backup_code_reminder_message">आपके खाते पर कोई बैकअप कोड सेट नहीं है। एक सेट करने के लिए पुष्टि करें पर क्लिक करें।</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">बैकअप कोड सेट करें</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">बाहर निकलने से पहले कृपया बैकअप कोड सेट करें</string>
-    <string name="connect_job_info_delivery_detail">वितरण विवरण</string>
-    <string name="connect_job_info_review_delivery">वितरण विवरण की समीक्षा करें</string>
-    <string name="connect_job_info_visit">अधिकतम %d विज़िट</string>
-    <string name="connect_job_info_days">पूरा करने के लिए %d दिन</string>
-    <string name="connect_job_info_max_visit">प्रति दिन अधिकतम विज़िट %d</string>
-    <string name="connect_job_info_visit_charge">प्रति विज़िट %s तक कमाएं</string>
-    <string name="connect_job_info_view_info">जानकारी देखें</string>
-    <string name="connect_job_info_view_resume">फिर से शुरू करें</string>
-    <string name="connect_job_info_view_review">समीक्षा करें</string>
-    <string name="connect_job_info_view_proceed">आगे बढ़ें</string>
     <string name="connect_progress">प्रगति</string>
     <string name="connect_payment">भुगतान</string>
-    <string name="connect_delivery_progress_description">आपने कोई पाठ पूरा नहीं किया है। अपना प्रमाण पत्र प्राप्त करने के लिए अपना सीखना शुरू करें।</string>
-    <string name="connect_click_to_sync_progress">प्रगति सिंक करने के लिए क्लिक करें</string>
     <string name="connect_payment_received">प्राप्त</string>
     <string name="connect_payment_transferred">स्थानांतरित</string>
     <string name="connect_payment_confirm_transferred">स्थानांतरित भुगतान की पुष्टि करें</string>
@@ -543,7 +517,6 @@ License.
     <string name="connect_messaging_channel_menu_item_unsubscribe">सदस्यता समाप्त करें</string>
     <string name="connect_send_message_hint">एक संदेश टाइप करें</string>
     <string name="connect_send_message_btn_desc">संदेश भेजने के लिए यहां टैप करें</string>
-    <string name="connect_corrupt_job_text">इस अवसर को लोड करने में असमर्थ</string>
     <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!\n</string>
     <string name="personalid_failed_to_login_with_connectid">आपके व्यक्तिगत आईडी से लॉग इन करते समय हमें एक अप्राप्य त्रुटि का सामना करना पड़ रहा है। कृपया अपने पासवर्ड से लॉग इन करें या अपनी व्यक्तिगत आईडी पुनर्स्थापित करें।</string>
     <string name="personalid_name_appbar_title">नाम</string>
@@ -629,7 +602,6 @@ License.
     <string name="network_forbidden_error">एक्सेस नहीं मिला। अगर समस्या बनी रहती है, तो कृपया कस्टमर सपोर्ट से संपर्क करें।</string>
     <string name="error">त्रुटि</string>
     <string name="failed_to_start_learning">सीखना शुरू करने में विफल</string>
-    <string name="failed_to_update_payment">भुगतान अपडेट करने में विफल</string>
     <string name="personalid_biometric_error_cancelled">बायोमेट्रिक सेटअप रद्द कर दिया गया था। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
     <string name="personalid_biometric_error_lockout">बहुत अधिक प्रयास। कृपया प्रतीक्षा करें और पुनः प्रयास करें।</string>
     <string name="personalid_biometric_error_lockout_permanent">बहुत अधिक असफल प्रयास। कृपया अपने डिवाइस को अनलॉक करें और पुनः प्रयास करें।</string>
@@ -639,8 +611,6 @@ License.
     <string name="connect_label_expires_on">समाप्त होगा</string>
     <string name="connect_label_completed_on">पूरा हुआ</string>
     <string name="connect_label_expired_on">समाप्त हुआ</string>
-    <string name="connect_complete_by">कार्य %s को समाप्त होती है</string>
-    <string name="connect_expired_on">कार्य %s को समाप्त हुई</string>
     <string name="connect_dashboard">डैशबोर्ड</string>
     <string name="connect_visits">विज़िट</string>
     <string name="connect_more">अधिक</string>
@@ -714,7 +684,6 @@ License.
     <string name="menu_app_list_install">मेरे उपयोगकर्ता के लिए ऐप्स देखें</string>
     <string name="menu_app_list_install_other_user">किसी अन्य उपयोगकर्ता के लिए ऐप्स देखें</string>
     <string name="toggle_web_user_mode">वेब उपयोगकर्ता</string>
-    <string name="toggle_mobile_user_mode">मोबाइल उपयोगकर्ता</string>
     <string name="missing_fields">कृपया सभी आवश्यक फ़ील्ड भरें।</string>
     <string name="email_address_invalid">कृपया एक मान्य ईमेल पता दर्ज करें।</string>
     <string name="get_app_list_user_error_mobile">एक अमान्य उपयोगकर्ता नाम, डोमेन, या पासवर्ड प्रदान किया गया था। कृपया सुनिश्चित करें कि आपके द्वारा दर्ज किए गए सभी फ़ील्ड सही हैं।</string>

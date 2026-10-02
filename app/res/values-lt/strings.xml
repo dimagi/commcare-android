@@ -50,7 +50,6 @@
     <string name="please_wait">Prašome šiek tiek palaukti.</string>
     <string name="please_wait_long">Prašome palaukti. Tai gali užtrukti kelias minutes.</string>
     <string name="quit_application">Išeiti %s</string>
-    <string name="refresh">Atnaujinti</string>
     <string name="replace_location">Pakeisti vietovę</string>
     <string name="required_answer_error">Atsakymas į šį klausimą yra privalomas!</string>
     <string name="review">tęsti</string>
@@ -96,10 +95,6 @@
     <string name="personalid_profile_edit_discard_message">Neišsaugoti pakeitimai bus prarasti.</string>
     <string name="personalid_profile_edit_discard_positive">Atsisakyti</string>
     <string name="personalid_profile_edit_discard_negative">Tęsti redagavimą</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Patvirtinkite naują el. paštą</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Išsiųsime 6 skaitmenų kodą adresu %1$s. Įveskite jį kitame ekrane, kad patvirtintumėte.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Siųsti kodą</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Atšaukti</string>
     <string name="personalid_profile_edit_save">Išsaugoti</string>
     <string name="personalid_profile_edit_cancel">Atšaukti</string>
     <string name="personalid_profile_edit_save_success">Jūsų profilis sėkmingai atnaujintas.</string>
@@ -152,7 +147,6 @@
     <string name="connect_app_install_setting_up">Ruošiama programa…</string>
     <string name="connect_app_finishing_install">Baigiamas diegimas…</string>
     <string name="connect_app_launching">Atsisiuntimas baigtas, paleidžiama programa…</string>
-    <string name="connect_fetch_learning_progress_error">Nepavyko gauti mokymosi eigos</string>
     <string name="personalid_not_login_from_fcm_error">Norėdami peržiūrėti išsamią informaciją, prisijunkite prie „PersonalId“.</string>
     <string name="connect_messaging_resubscribe_dialog_title">Vėl užsiprenumeruoti %s</string>
     <string name="connect_messaging_resubscribe_dialog_body">Ar tikrai norite vėl užsiprenumeruoti %s pranešimų kanalą?</string>
@@ -228,7 +222,6 @@
     <string name="personalid_email_verification_appbar_title">Patvirtinti el. paštą</string>
     <string name="personalid_email_verification_title">Patvirtinkite savo el. paštą</string>
     <string name="personalid_email_verification_description">Įveskite 6 skaitmenų kodą, išsiųstą į %1$s</string>
-    <string name="personalid_email_verify_button">Patvirtinti</string>
     <string name="personalid_email_otp_failed_title">Patvirtinimas nepavyko</string>
     <string name="personalid_email_otp_failed_message">Išnaudojote visus šio kodo bandymus. Naują kodą galėsite užsisakyti po %1$s arba dabar praleisti el. pašto žingsnį.</string>
     <string name="personalid_email_otp_failed_wait">Palaukti</string>
@@ -267,9 +260,6 @@
     <string name="connect_register_success_message">Jūsų paskyra sukurta ir paruošta naudojimui!</string>
     <string name="connect_backup_code_remember">Būtinai atsiminkite savo atsarginį kodą! Jį turi sudaryti %d skaitmenys. Laikykite jį saugioje vietoje, nes jo prireiks norint vėl prisijungti prie paskyros.</string>
     <string name="no_channel_msg">Jūs neprenumeruojate jokių susirašinėjimo kanalų. Kai būsite pridėtas prie kanalo, jis pasirodys šiame sąraše.</string>
-    <string name="connect_payment_confirm_text">Ar gavote %d %s už %s galimybę?</string>
-    <string name="connect_payment_confirm_yes">Taip, gavau</string>
-    <string name="connect_payment_confirm_no">Ne, negavau</string>
     <string name="connect_payment">Mokėjimas</string>
     <string name="connect_payment_received">Mokėjimas gautas</string>
     <string name="connect_payment_transferred">Mokėjimas pervestas</string>
@@ -286,14 +276,9 @@
 
     <string name="network_forbidden_error">Prieiga uždrausta. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="connect_job_ended">Užduotis baigėsi %s</string>
-    <string name="connect_job_info_view_info">Žiūrėti informaciją</string>
-    <string name="connect_job_info_view_resume">Tęsti</string>
-    <string name="connect_job_info_view_review">Peržiūrėti</string>
-    <string name="connect_job_info_view_proceed">Tęsti</string>
 
     <string name="error">Klaida</string>
     <string name="failed_to_start_learning">Nepavyko pradėti mokytis</string>
-    <string name="failed_to_update_payment">Nepavyko atnaujinti mokėjimo</string>
     <string name="connect_in_progress">Vykdoma</string>
     <string name="connect_new_opportunities">Naujos galimybės</string>
     <string name="connect_completed_expired_label">Užbaigtos / pasibaigusios galimybės</string>
@@ -310,8 +295,6 @@
     <string name="connect_label_expires_on">Baigiasi</string>
     <string name="connect_label_completed_on">Užbaigta</string>
     <string name="connect_label_expired_on">Baigėsi</string>
-    <string name="connect_complete_by">Užduotis baigiasi %s</string>
-    <string name="connect_expired_on">Užduotis baigėsi %s</string>
     <string name="connect_dashboard">Skydelis</string>
     <string name="connect_visits">Vizitai</string>
     <string name="connect_more">Daugiau</string>
@@ -407,7 +390,6 @@
     <string name="menu_app_list_install">Žiūrėti programas mano vartotojui</string>
     <string name="menu_app_list_install_other_user">Žiūrėti programas kitam vartotojui</string>
     <string name="toggle_web_user_mode">Žiniatinklio vartotojas</string>
-    <string name="toggle_mobile_user_mode">Mobilusis vartotojas</string>
     <string name="missing_fields">Užpildykite visus privalomus laukus.</string>
     <string name="email_address_invalid">Įveskite galiojantį el. pašto adresą.</string>
     <string name="get_app_list_user_error_mobile">Pateiktas neteisingas vartotojo vardas, domenas arba slaptažodis. Įsitikinkite, kad visi įvesti laukai yra teisingi.</string>
