@@ -14,8 +14,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.tabs.TabLayout
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -27,6 +29,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectLearnJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
@@ -39,7 +42,9 @@ import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.views.connect.ConnectCtaBar
 import org.commcare.views.connect.ConnectTaskCard
+import org.commcare.views.dialogs.CustomProgressDialog
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -102,6 +107,9 @@ class ConnectDeliveryMoreFragmentTest {
 
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
+
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
 
         // Counts as unlocked this session, so opening a conversation task navigates rather than
         // raising a biometric prompt.
@@ -216,21 +224,17 @@ class ConnectDeliveryMoreFragmentTest {
     }
 
     @Test
-    fun `tapping a relearn task goes to the download screen while the delivery app is missing`() {
+    fun `tapping a relearn task downloads the delivery app without leaving the tab`() {
         val moreTab = openMoreTab(deliveryProgressJson(tasks = listOf(taskJson(mode = RELEARN_MODE))))
 
         activity.runOnUiThread { moreTab.taskCards().first().performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
-        assertEquals(
-            activity.getString(R.string.connect_downloading_delivery),
-            navController.currentBackStackEntry?.arguments?.getString(DOWNLOAD_TITLE_ARG),
-        )
-        assertFalse(
-            "a relearn task downloads the delivery app, not the learn app",
-            navController.currentBackStackEntry!!.arguments!!.getBoolean(DOWNLOAD_LEARNING_ARG, true),
-        )
+        verify {
+            ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any())
+        }
+        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertInstallDialogShowing(moreTab, R.string.connect_downloading_delivery)
     }
 
     @Test
@@ -369,21 +373,46 @@ class ConnectDeliveryMoreFragmentTest {
         )
     }
 
+    /**
+     * Only one app installs at a time, so a tab opened while another screen's install is running has
+     * to report that install rather than start a second one it would then wait on forever.
+     */
     @Test
-    fun `viewing learning goes to the download screen while the learn app is missing`() {
+    fun `a task tapped while an install is already running does not start a second download`() {
+        openMoreTab(deliveryProgressJson(tasks = listOf(taskJson(mode = RELEARN_MODE))))
+        startInstallFromDashboard()
+        selectTabForPosition(ConnectDeliveryHomeFragment.TAB_MORE)
+        val moreTab = getMoreTabFragment()
+
+        activity.runOnUiThread { moreTab.taskCards().first().performClick() }
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 1) { ConnectAppUtils.downloadApp(any(), any()) }
+        assertNull(
+            "the More tab must not raise a dialog over an install it does not own",
+            moreTab.childFragmentManager.findFragmentByTag(INSTALL_DIALOG_TAG),
+        )
+    }
+
+    /** Without the app there is nothing to clear a task with, so the bar stays live to download it. */
+    @Test
+    fun `the launch bar stays enabled with a task pending while the app is missing`() {
+        openMoreTab(deliveryProgressJson(tasks = listOf(taskJson())))
+
+        assertEquals(View.VISIBLE, getDeliveryCtaBar().visibility)
+        assertTrue(getDeliveryCtaBar().isCtaEnabled)
+    }
+
+    @Test
+    fun `viewing learning downloads the learn app without leaving the tab`() {
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
 
         moreTab.performClick(R.id.revisit_learning_view_button)
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_downloading_fragment, navController.currentDestination?.id)
-        assertEquals(
-            activity.getString(R.string.connect_downloading_learn),
-            navController.currentBackStackEntry?.arguments?.getString(DOWNLOAD_TITLE_ARG),
-        )
-        assertTrue(
-            navController.currentBackStackEntry!!.arguments!!.getBoolean(DOWNLOAD_LEARNING_ARG, false),
-        )
+        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
+        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertInstallDialogShowing(moreTab, R.string.connect_downloading_learn)
     }
 
     @Test
@@ -423,23 +452,27 @@ class ConnectDeliveryMoreFragmentTest {
         )
     }
 
+    /** A pending task has to be cleared in the delivery app, so the launch bar stands down. */
     @Test
-    fun `the shared launch bar hides on the more tab and returns with the dashboard`() {
+    fun `an installed app with a task pending disables the launch bar on every tab`() {
+        every { AppUtils.isAppInstalled(any()) } returns true
+        openMoreTab(deliveryProgressJson(tasks = listOf(taskJson())))
+
+        assertEquals(View.VISIBLE, getDeliveryCtaBar().visibility)
+        assertFalse(getDeliveryCtaBar().isCtaEnabled)
+
+        selectTabForPosition(ConnectDeliveryHomeFragment.TAB_DASHBOARD)
+
+        assertEquals(View.VISIBLE, getDeliveryCtaBar().visibility)
+        assertFalse(getDeliveryCtaBar().isCtaEnabled)
+    }
+
+    @Test
+    fun `an installed app with nothing pending leaves the launch bar enabled`() {
+        every { AppUtils.isAppInstalled(any()) } returns true
         openMoreTab(deliveryProgressJson(tasks = emptyList()))
-        val home = homeFragment()
-        val ctaBar = home.requireView().findViewById<View>(R.id.connect_delivery_cta_bar)
 
-        assertEquals(View.GONE, ctaBar.visibility)
-
-        activity.runOnUiThread {
-            home
-                .requireView()
-                .findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.connect_delivery_home_view_pager)
-                .setCurrentItem(ConnectDeliveryHomeFragment.TAB_DASHBOARD, false)
-        }
-        ShadowLooper.idleMainLooper()
-
-        assertEquals(View.VISIBLE, ctaBar.visibility)
+        assertTrue(getDeliveryCtaBar().isCtaEnabled)
     }
 
     /**
@@ -464,7 +497,7 @@ class ConnectDeliveryMoreFragmentTest {
         layOutHierarchy()
 
         val moreTab =
-            homeFragment()
+            getHomeFragment()
                 .childFragmentManager
                 .fragments
                 .filterIsInstance<ConnectDeliveryMoreFragment>()
@@ -481,19 +514,44 @@ class ConnectDeliveryMoreFragmentTest {
         deliveryProgressBody = progressJson
         ConnectSyncPreferences.getInstance().clearAll()
 
-        activity.runOnUiThread { homeFragment().refresh(true) }
+        activity.runOnUiThread { getHomeFragment().refresh(true) }
         ShadowLooper.idleMainLooper()
 
         awaitDeliverySync()
         layOutHierarchy()
     }
 
-    private fun homeFragment(): ConnectDeliveryHomeFragment =
+    private fun getHomeFragment(): ConnectDeliveryHomeFragment =
         navHostFragment.childFragmentManager.primaryNavigationFragment as ConnectDeliveryHomeFragment
+
+    private fun getMoreTabFragment(): ConnectDeliveryMoreFragment =
+        getHomeFragment()
+            .childFragmentManager
+            .fragments
+            .filterIsInstance<ConnectDeliveryMoreFragment>()
+            .first()
+
+    private fun getDeliveryCtaBar(): ConnectCtaBar = getHomeFragment().requireView().findViewById(R.id.connect_delivery_cta_bar)
+
+    private fun selectTabForPosition(position: Int) {
+        val tabs =
+            getHomeFragment().requireView().findViewById<TabLayout>(R.id.connect_delivery_home_tabs)
+        activity.runOnUiThread { tabs.getTabAt(position)?.select() }
+        ShadowLooper.idleMainLooper()
+        layOutHierarchy()
+    }
+
+    /** Starts a delivery-app install the way a user does, from the launch bar on the Dashboard tab. */
+    private fun startInstallFromDashboard() {
+        selectTabForPosition(ConnectDeliveryHomeFragment.TAB_DASHBOARD)
+        val ctaButton = getDeliveryCtaBar().findViewById<View>(R.id.cta_button)
+        activity.runOnUiThread { ctaButton.performClick() }
+        ShadowLooper.idleMainLooper()
+    }
 
     /** The More entry in the tab strip, which carries the pending-task badge. */
     private fun moreTabHeader(): TabLayout.Tab =
-        homeFragment()
+        getHomeFragment()
             .requireView()
             .findViewById<TabLayout>(R.id.connect_delivery_home_tabs)
             .getTabAt(ConnectDeliveryHomeFragment.TAB_MORE)!!
@@ -656,10 +714,24 @@ class ConnectDeliveryMoreFragmentTest {
         shadowOf(manager).setActiveNetworkInfo(null)
     }
 
+    /**
+     * The More tab has no action bar of its own, so an install it starts is reported in a blocking
+     * dialog naming [downloadingRes].
+     */
+    private fun assertInstallDialogShowing(
+        moreTab: ConnectDeliveryMoreFragment,
+        downloadingRes: Int,
+    ) {
+        val dialog =
+            moreTab.childFragmentManager.findFragmentByTag(INSTALL_DIALOG_TAG) as? CustomProgressDialog
+        assertNotNull("an install dialog should be showing", dialog)
+        val title = dialog!!.requireDialog().findViewById<TextView>(R.id.dialog_title_text)
+        assertEquals(activity.getString(downloadingRes), title.text.toString())
+    }
+
     private companion object {
         const val DELIVERY_PROGRESS_PATH = "/delivery_progress"
-        const val DOWNLOAD_TITLE_ARG = "title"
-        const val DOWNLOAD_LEARNING_ARG = "learning"
+        const val INSTALL_DIALOG_TAG = "connect_install_progress"
         const val LEARNER_NAME = "Test User"
         const val RELEARN_MODE = "relearn"
         const val SYNC_TIMEOUT_MS = 10_000L

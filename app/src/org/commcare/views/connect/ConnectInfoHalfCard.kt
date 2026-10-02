@@ -7,10 +7,13 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoHalfCardBinding
 import org.commcare.views.extensions.bindOptional
 import org.commcare.views.extensions.bindReservingSpace
+import org.commcare.views.extensions.themeColor
+import org.commcare.views.extensions.tint
 
 /**
  * Reusable half-width Connect info card.
@@ -41,16 +44,11 @@ class ConnectInfoHalfCard
             get() = binding.infoCardSubtitleText.text
             set(value) = binding.infoCardSubtitleText.bindReservingSpace(value)
 
-        /** When false the value reads as disabled, matching a disabled [ConnectProgressCard]. */
+        /** When false the value and icon read as disabled, matching a disabled [ConnectProgressCard]. */
         var contentEnabled: Boolean = true
             set(value) {
                 field = value
-                binding.infoCardValueText.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        if (value) R.color.connect_dark_blue_color else R.color.connect_dark_grey,
-                    ),
-                )
+                applyContentColors()
             }
 
         var icon: Drawable? = null
@@ -59,6 +57,17 @@ class ConnectInfoHalfCard
                 binding.infoCardIcon.setImageDrawable(value)
                 binding.infoCardIcon.visibility = if (value == null) GONE else VISIBLE
             }
+
+        private fun applyContentColors() {
+            val accent =
+                if (contentEnabled) {
+                    MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary)
+                } else {
+                    context.themeColor(R.attr.connectOnSurfaceDisabled)
+                }
+            binding.infoCardValueText.setTextColor(accent)
+            binding.infoCardIcon.tint(accent)
+        }
 
         var navigable: Boolean = false
             set(value) {
@@ -74,7 +83,7 @@ class ConnectInfoHalfCard
             // Compat padding would reserve room for a shadow this flat card never draws, and it
             // reserves more vertically than horizontally, so gaps between cards come out uneven.
             useCompatPadding = false
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
+            setCardBackgroundColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface))
 
             context.obtainStyledAttributes(attrs, R.styleable.ConnectInfoHalfCard).apply {
                 valueText = getString(R.styleable.ConnectInfoHalfCard_valueText)

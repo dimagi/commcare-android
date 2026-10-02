@@ -101,7 +101,7 @@ object ConnectTestUtils {
         PersonalIdManager.getInstance().init(context)
     }
 
-    private fun createConnectDbFile() {
+    fun createConnectDbFile() {
         CommCareApplication.instance().getDatabasePath(ConnectDatabaseSchemaManager.DB_NAME).apply {
             parentFile?.mkdirs()
             createNewFile()

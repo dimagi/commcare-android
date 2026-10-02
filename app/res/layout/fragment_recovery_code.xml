@@ -14,16 +14,6 @@
             android:layout_width="match_parent"
             android:orientation="vertical">
 
-        <include layout="@layout/grid_header_top_banner"/>
-
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="40dp"
-            android:background="@android:color/darker_gray" />
-
         <LinearLayout
             android:id="@+id/welcome_back_layout"
             android:layout_width="match_parent"
@@ -230,6 +220,21 @@
                     android:clickable="true"
                     android:visibility="gone"
                     android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/personalid_forgot_backup_code"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="@string/personalid_forgot_backup_code"
+                    android:textColor="@color/cc_brand_color"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_backup_code_button"

@@ -9,6 +9,7 @@ import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
+import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectLearnCompleteBinding
 import java.text.DateFormat
@@ -47,6 +48,12 @@ class ConnectLearnCompleteView
             orientation = VERTICAL
             binding.certificateHeader.setOnClickListener { toggleCertificate() }
         }
+
+        fun renderAppInstallState(
+            state: AppInstallState,
+            isLearning: Boolean,
+            onFailureDismissed: () -> Unit,
+        ) = binding.learnCompleteCtaBar.renderAppInstallState(state, isLearning, onFailureDismissed)
 
         fun showClaimFailure(message: String) {
             binding.learnCompleteFailureCard.show(ConnectSuccessFailureCard.Mode.FAILURE, message)
@@ -102,7 +109,7 @@ class ConnectLearnCompleteView
                     subtitleText = null
                 } else {
                     buttonText = context.getString(R.string.connect_opportunity_footer_download_app)
-                    subtitleText = context.getString(R.string.connect_job_info_download_delivery).trim()
+                    subtitleText = context.getString(R.string.connect_download_delivery)
                 }
                 infoMessage =
                     if (job.isFinished) context.getString(R.string.connect_learn_warning_ended) else null

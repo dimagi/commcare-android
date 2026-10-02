@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import org.commcare.connect.network.personalId.TokenExceptionHandler;
 import org.commcare.dalvik.R;
+import org.commcare.utils.OtpWaitFormatter;
 import org.javarosa.core.services.Logger;
 
 import java.util.EnumSet;
@@ -45,7 +46,7 @@ public class PersonalIdOrConnectApiErrorHandler {
             case TOKEN_UNAVAILABLE_ERROR:
                 return context.getString(R.string.personalid_token_unavailable);
             case RATE_LIMIT_EXCEEDED_ERROR:
-                return context.getString(R.string.recovery_network_cooldown);
+                return getRateLimitExceededMessage(context, t);
             case FAILED_AUTH_ERROR:
                 return context.getString(R.string.recovery_network_unauthorized);
             case SERVER_ERROR:
@@ -62,7 +63,9 @@ public class PersonalIdOrConnectApiErrorHandler {
             case UNKNOWN_ERROR:
                 return context.getString(R.string.recovery_network_unknown);
             case INCORRECT_OTP_ERROR:
-                return context.getString(R.string.personalid_incorrect_otp);
+                return getIncorrectOtpMessage(context, t);
+            case OTP_LIMIT_EXCEEDED_ERROR:
+                return context.getString(R.string.personalid_otp_limit_exceeded);
             case JSON_PARSING_ERROR:
                 return context.getString(R.string.personalid_network_response_parsing_error);
             case EMAIL_ALREADY_IN_USE_ERROR:
@@ -76,6 +79,43 @@ public class PersonalIdOrConnectApiErrorHandler {
                     return context.getString(R.string.recovery_network_unknown);
                 }
         }
+    }
+
+    private static String getIncorrectOtpMessage(
+            Context context,
+            @Nullable Throwable throwable
+    ) {
+        Integer attemptsLeft = throwable instanceof IncorrectOtpException
+                ? ((IncorrectOtpException) throwable).getAttemptsLeft()
+                : null;
+
+        if (attemptsLeft == null) {
+            return context.getString(R.string.personalid_incorrect_otp);
+        }
+
+        return context.getResources().getQuantityString(
+                R.plurals.personalid_incorrect_otp_attempts_remaining,
+                attemptsLeft,
+                attemptsLeft
+        );
+    }
+
+    private static String getRateLimitExceededMessage(
+            Context context,
+            @Nullable Throwable throwable
+    ) {
+        Integer retryAfterSeconds = throwable instanceof RateLimitedException
+                ? ((RateLimitedException) throwable).getRetryAfterSeconds()
+                : null;
+
+        if (retryAfterSeconds == null) {
+            return context.getString(R.string.recovery_network_cooldown);
+        }
+
+        return context.getString(
+                R.string.personalid_rate_limited_retry_after,
+                OtpWaitFormatter.format(context, retryAfterSeconds)
+        );
     }
 
     /**

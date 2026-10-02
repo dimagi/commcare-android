@@ -726,9 +726,10 @@ public class FirebaseAnalyticsUtil {
             }
 
             Bundle bundle = new Bundle();
+            CharSequence label = navDestination.getLabel();
             bundle.putString(
                     FirebaseAnalytics.Param.SCREEN_NAME,
-                    navDestination.getLabel().toString()
+                    label != null ? label.toString() : currentFragmentClassName
             );
             bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
             reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);

@@ -91,5 +91,6 @@ public class PersonalIdActivity extends NavigationHostCommCareActivity<PersonalI
                         .setPopUpTo(R.id.personalid_phone_fragment, true)
                         .build());
     }
+
 }
 

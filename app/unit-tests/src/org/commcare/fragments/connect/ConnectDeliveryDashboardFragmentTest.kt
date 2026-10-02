@@ -11,9 +11,12 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -34,8 +37,11 @@ import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectInfoHalfCard
+import org.commcare.views.connect.ConnectSyncStatusCard
 import org.commcare.views.connect.SemiCircleProgressBar
+import org.commcare.views.extensions.themeColor
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -68,6 +74,9 @@ class ConnectDeliveryDashboardFragmentTest {
     @Volatile
     private var deliveryProgressBody: String = "{}"
 
+    @Volatile
+    private var deliveryProgressRequests: Int = 0
+
     private val visitDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
     private val navController: NavController get() = navHostFragment.navController
     private val appContext get() = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
@@ -79,6 +88,9 @@ class ConnectDeliveryDashboardFragmentTest {
         mockApi.start()
         mockApi.server.dispatcher = pathRoutingDispatcher()
         ConnectSyncPreferences.getInstance().clearAll()
+
+        mockkObject(DispatcherProvider)
+        every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
@@ -170,6 +182,35 @@ class ConnectDeliveryDashboardFragmentTest {
             activity.getString(R.string.connect_delivery_total_visits_completed),
             semiCircle.descriptionText.toString(),
         )
+    }
+
+    /**
+     * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
+     * same delivery-progress call and land its result on the figures.
+     */
+    @Test
+    fun `tapping the sync card refreshes delivery progress`() {
+        val dashboard = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 1)))
+        val view = dashboard.requireView()
+        val syncCard = view.findViewById<ConnectSyncStatusCard>(R.id.delivery_sync_card)
+
+        assertTrue("The sync card invites a tap", syncCard.isClickable)
+
+        val requestsBefore = deliveryProgressRequests
+        deliveryProgressBody = progressResponse(deliveries = deliveriesToday(unit = 1, count = 3))
+        activity.runOnUiThread { syncCard.performClick() }
+        // The response is applied on the IO dispatcher before it reaches the main looper, so the
+        // refreshed figures are waited for rather than assumed to have landed.
+        idleUntil("The tapped sync never refreshed the delivery figures") {
+            view.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle).current == 3
+        }
+
+        assertEquals("The tap asks for delivery progress", requestsBefore + 1, deliveryProgressRequests)
+        assertEquals(
+            "3 of ${ConnectLearnJobTestData.MAX_DAILY_VISITS}",
+            view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString(),
+        )
+        assertEquals(3, view.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle).current)
     }
 
     @Test
@@ -380,6 +421,7 @@ class ConnectDeliveryDashboardFragmentTest {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 val body =
                     if (request.path?.endsWith(DELIVERY_PROGRESS_PATH) == true) {
+                        deliveryProgressRequests++
                         deliveryProgressBody
                     } else {
                         ""
@@ -395,11 +437,22 @@ class ConnectDeliveryDashboardFragmentTest {
     private fun awaitDeliverySync() {
         val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
         val prefs = ConnectSyncPreferences.getInstance()
+        idleUntil("Delivery progress was never synced") { prefs.getLastSyncTime(syncKey) != null }
+    }
+
+    /**
+     * Drains the main looper until [condition] holds, bounded so a response that never arrives
+     * fails with [description] rather than hanging.
+     */
+    private fun idleUntil(
+        description: String,
+        condition: () -> Boolean,
+    ) {
         val deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS
 
-        while (prefs.getLastSyncTime(syncKey) == null) {
+        while (!condition()) {
             if (System.currentTimeMillis() > deadline) {
-                throw AssertionError("Delivery progress was never synced within ${SYNC_TIMEOUT_MS}ms")
+                throw AssertionError("$description within ${SYNC_TIMEOUT_MS}ms")
             }
             ShadowLooper.idleMainLooper()
             Thread.sleep(POLL_INTERVAL_MS)
@@ -416,9 +469,10 @@ class ConnectDeliveryDashboardFragmentTest {
 
     private fun ConnectInfoHalfCard.valueTextColor(): Int = findViewById<TextView>(R.id.info_card_value_text).currentTextColor
 
-    private fun accentColor(): Int = ContextCompat.getColor(activity, R.color.connect_dark_blue_color)
+    private fun accentColor(): Int =
+        MaterialColors.getColor(activity.findViewById(android.R.id.content), com.google.android.material.R.attr.colorPrimary)
 
-    private fun disabledColor(): Int = ContextCompat.getColor(activity, R.color.connect_dark_grey)
+    private fun disabledColor(): Int = activity.themeColor(R.attr.connectOnSurfaceDisabled)
 
     private fun progressResponse(
         deliveries: List<String> = emptyList(),

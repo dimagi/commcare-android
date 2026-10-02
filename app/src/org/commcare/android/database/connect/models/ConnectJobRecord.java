@@ -195,14 +195,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dailyFinishTime = "";
     }
 
-    public static ConnectJobRecord corruptJobFromJson(JSONObject json) throws JSONException {
-        ConnectJobRecord job = new ConnectJobRecord();
-        job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
-        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
-        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
-        return job;
-    }
-
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
         job.jobId = json.getInt(META_JOB_ID);   //  This will be eventually removed
@@ -210,8 +202,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
-        job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
-        job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
+        job.projectEndDate = JsonExtensions.requireDate(json, META_END_DATE);
+        job.projectStartDate = JsonExtensions.requireDate(json, META_START_DATE);
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
         job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
@@ -261,11 +253,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
 
             if (claim.has(META_END_DATE)) {
-                job.projectEndDate = DateUtils.parseDate(claim.getString(META_END_DATE));
+                job.projectEndDate = JsonExtensions.requireDate(claim, META_END_DATE);
             }
 
             if (claim.has(META_CLAIM_DATE)) {
-                job.dateClaimed = DateUtils.parseDate(claim.getString(META_CLAIM_DATE));
+                job.dateClaimed = JsonExtensions.requireDate(claim, META_CLAIM_DATE);
             }
 
             if (claim.has(META_PAYMENT_UNITS)) {
@@ -381,7 +373,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
      */
     public int getLearningPercentComplete(boolean includeAssessmentModule) {
         int totalModules = numLearningModules;
-        int modulesCompleted = learningModulesCompleted;
+        int modulesCompleted = Math.min(learningModulesCompleted, numLearningModules);
 
         if (includeAssessmentModule) {
             // Add 1 to the calculation to represent the assessment module.
@@ -656,6 +648,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 || getAssessmentScore() >= getLearnAppInfo().getPassingScore();
     }
 
+    /**
+     * Whether the user has finished everything required before claiming the job:
+     * every learn module submitted, and a passing assessment score
+     */
+    public boolean isLearningComplete() {
+        return getLearningPercentComplete(true) >= 100;
+    }
+
     public int getAssessmentScore() {
         int mostRecentFailingScore = 0;
         int firstPassingScore = -1;
@@ -759,7 +759,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean readyToTransitionToDelivery() {
-        return status == STATUS_LEARNING && passedAssessment();
+        return status == STATUS_LEARNING && isLearningComplete();
     }
 
     @Nullable

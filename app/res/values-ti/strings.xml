@@ -238,8 +238,11 @@
     <string name="personalid_login_via">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
     <string name="personalid_welcome_user">እንቋዕ ብደሓን መጻእኩም %s!</string>
     <string name="personalid_choice_or">_____________ ወይ _____________</string>
+    <string name="connect_download_delivery">ዳውንሎድ ምብፃሕ</string>
+    <string name="connect_app_install_setting_up">መተግበሪ ይዳሎ ኣሎ…</string>
+    <string name="connect_app_finishing_install">ምትካል ይውዳእ ኣሎ…</string>
+    <string name="connect_app_launching">ምውራድ ተወዲኡ፣ መተግበሪ ይኽፈት ኣሎ…</string>
     <string name="connect_button_logged_in">ናብ Connect መማረፂ ኪድ</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">ኣብ ውቅር ኣፕ ጌጋ ኣጋጢሙ ብሰንኪ እዚ ድማ ኩሎም ኣብቲ ካርታ ዘለዉ ማርከራት ብትኽክል ኣይጽዓኑን እዮም።</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">ብ PersonalID ጀምር</string>
@@ -262,18 +265,36 @@
     <string name="personalid_email_description">ኢመይልካ ናብ ስልክኻ ምድራኽ እንተ ስኢንካ ሕሳብካ ንምሕዳስ ይሕግዘካ።</string>
     <string name="personalid_email_hint">ኣድራሻ ኢመይል</string>
     <string name="personalid_email_skip">ሕጂ ሕለፍ</string>
-    <string name="personalid_email_skip_confirm_title">ኢመይል ትሓልፍ?</string>
-    <string name="personalid_email_skip_confirm_message">ብርግፅ ክትሓልፎ ትደሊ ዲኻ?</string>
+    <string name="personalid_email_skip_confirm_title">ሕሳብካ ኣውሕስ</string>
+    <string name="personalid_email_skip_confirm_message">ኢመይል ምውሳኽ ድሕንነት ሕሳብካ የደልድል። ኣገደስቲ ለውጥታት ሕሳብ ንምርግጋጽ ይሕግዝ፣ ዘይተፈቐደ ፈተነታት ምምላስ ይኸልክል፣ ከምኡውን መሳርሒኻ እንተጥፊኡካ ብውሑስ መገዲ ተመሊስካ ክትኣቱ ዘኽእለካ መገዲ ይህበካ።</string>
+    <string name="personalid_email_skip_confirm_skip">ሕለፍ</string>
+    <string name="personalid_email_skip_confirm_add">ኢመይል ወስኽ</string>
     <string name="personalid_email_invalid_format">በጃኻ ቅኑዕ ኣድራሻ ኢመይል ኣእቱ።</string>
     <string name="personalid_email_verification_appbar_title">ኢመይል ኣረጋግፅ</string>
     <string name="personalid_email_verification_title">ኢመይልካ ኣረጋግፅ</string>
     <string name="personalid_email_verification_description">ናብ %1$s ዝተላእከ 6-ቁፅሪ ኮድ ኣእቱ</string>
     <string name="personalid_email_verify_button">ኣረጋግፅ</string>
     <string name="personalid_email_otp_failed_title">ምርግጋፅ ኣይተዓወተን</string>
-    <string name="personalid_email_otp_failed_message">ኢመይል ምርግጋጽ ጸገም የጋጥመካ ኣሎ ዝመስል። ንሕጂ ነዚ ክትሓልፎ እሞ ድሕሪ ቑሩብ ግዜ ክትፍትን፣ ወይ ምፍታን ክትቕጽል ትኽእል ኢኻ።</string>
-    <string name="personalid_email_otp_failed_retry">ከም ብሓዱሽ ፈትን</string>
+    <string name="personalid_email_otp_failed_message">ንዚ ኮድ እዚ ኩሉ ፈተነታት ተጠቒምኩምሉ ኢኹም። ድሕሪ %1$s ሓድሽ ክትሓቱ፣ ወይ ንሕጂ ኢመይል ክትሓልፍዎ ትኽእሉ ኢኹም።</string>
+    <string name="personalid_email_otp_failed_wait">ተጸበዩ</string>
     <string name="personalid_email_otp_failed_skip">ብዘይ ኢመይል ቅፀል</string>
-    <string name="personalid_email_otp_max_attempts_reached">ዝለዓለ ቁጽሪ ምርግጋጽ ፈቲኖ ኣኺሉ። በጃኹም ድሒሩ ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_otp_limit_exceeded">ንዚ ኮድ እዚ ኩሉ ፈተነታት ተጠቒምኩምሉ ኢኹም፣ ስለዚ ደጊም ኣይሰርሕን እዩ። ንምቕጻል ሓድሽ ኮድ ሕተቱ።</string>
+    <string name="personalid_rate_limited_retry_after">ብዙሕ ፈተነታት። በጃኹም ድሕሪ %1$s ደጊምኩም ፈትኑ።</string>
+    <string name="personalid_otp_resend_wait">ኮድኩም ኣይበጽሐኩምን ድዩ? ድሕሪ %1$s ደጊምኩም ስደዱ</string>
+    <string name="personalid_otp_request_new_code_wait">ሓድሽ ኮድ ንምሕታት %1$s ተጸበዩ</string>
+    <string name="personalid_otp_request_code">ኮድ ሕተቱ</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">%d ካልኢት</item>
+        <item quantity="other">%d ካልኢታት</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">%d ደቒቕ</item>
+        <item quantity="other">%d ደቓይቕ</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">%d ሰዓት</item>
+        <item quantity="other">%d ሰዓታት</item>
+    </plurals>
     <string name="personalid_email_added_title">ኢመይል ተወሲኹ</string>
     <string name="personalid_email_added_message">ኢመይልካ ብዓወት ተወሲኹ።</string>
     <string name="personalId_email_otp_sent">ናብ ኢመይል ኣድራሻኻ ናይ 6 ኣሃዝ መሕለፊ ቓል ተላኢኹ ኣሎ።</string>
@@ -308,7 +329,6 @@
     <string name="connect_verify_phone_resend">ኮድካ ኣይተቐበልካን ዲኻ? ዳግማይ ስደድ</string>
     <string name="connect_verify_phone_resend_code">ዳግማይ ምልኣኽ ኮድ</string>
     <string name="connect_verify_skip_phone_number">ዲሞ ተጠቃሚ ምዃንካ ይርእየካ ኣለኹ ስለዚ OTP ክንዝልፎ ኢና።</string>
-    <string name="connect_verify_phone_resend_wait">ኮድካ ኣይተቐበልካን ዲኻ? ኣብ %d s ዳግማይ ስደድ</string>
     <string name="connect_verify_phone_change">ቁጽሪ ቐይር</string>
     <string name="connect_verify_phone_verify">ኮድ ኣረጋግፅ።</string>
     <string name="connect_last_update">ዝተመሓየሸ: %s</string>
@@ -353,9 +373,10 @@
     <string name="connect_progress_warning_relearn_tasks_pending">ኣገልግሎት ምሃብ ንምቕጻል ዝተመደቡ ዕማማት ኣጠናቕቑ።</string>
     <string name="connect_open_conversation_button_text">ዘተ ክፈት</string>
     <string name="connect_progress_relearn_tasks_completed">ኩሎም ዝድለዩ ስራሕቲ ተዛዚሞም ኣለዉ። ምስ ናይ ኣወሃህባ ንጥፈታት ክትቅጽል ትኽእል ኢኻ።</string>
-    <string name="connect_download_learn">Download ተማሃሩ ኣፕ</string>
-    <string name="connect_downloading_learn">ምውራድ ( Downloading ) ናይ ትምህርቲ ኣፕ ( App )</string>
-    <string name="connect_downloading_delivery">ናይ ምብፃሕ ኣፕ ( App ) ምውራድ</string>
+    <string name="connect_download_learn">ትምህርቲ ኣውርድ</string>
+    <string name="connect_starting_learning">ትምህርቲ ይጅምር ኣሎ</string>
+    <string name="connect_downloading_learn">ትምህርቲ ይወርድ ኣሎ</string>
+    <string name="connect_downloading_delivery">ምብፃሕ ይወርድ ኣሎ</string>
     <string name="connect_results_summary_earned">ዝረኸበ</string>
     <string name="connect_results_summary_transferred">ተሰጋጊሩ</string>
     <string name="connect_results_summary_all">ኩሎም</string>
@@ -419,17 +440,30 @@
     <string name="personalid_profile_change_backup_code">ናይ ምትካእ ኮድ ቀይር</string>
     <string name="personalid_forgot_backup_code">ናይ ምትካእ ኮድካ ረሲዕካ?</string>
     <string name="personalid_backup_code_too_many_attempts">ብዙሕ ፈተናታት። በጃኻ ድሕሪ ሕጂ እንደገና ፈትን።</string>
-    <string name="personalid_no_email_forgot_backup_code_toast">በጃኻ ናይ ኢ-መይል ኣድራሻ ወስኽ</string>
+    <string name="personalid_profile_add_email_toast">በጃኻ ናይ ኢ-መይል ኣድራሻ ወስኽ</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">ናይ ሰርቪስ ኮድ ኣቐምጥ</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">ኣካውንትካ ናይ ሰርቲፊኬት ኮድ ገና የብሉን። ሓደ ንምቛም ኢሜልካ ኣብ ታሕቲ ኣረጋግጽ።</string>
     <string name="personalid_send_email_otp_title">ናይ ምትካእ ኮድ ምምላስ</string>
     <string name="personalid_send_email_otp_description">ናብዚ ናይ ምርግጋጽ ኮድ ክንሰድድ ኢና:</string>
     <string name="personalid_send_email_otp_button">ኮድ ስደድ</string>
     <string name="personalid_send_email_otp_address_label">ናይ ምምላስ ኢሜይል</string>
     <string name="personalid_set_new_backup_code_title">ሓድሽ ናይ ምትካእ ኮድ ኣቐምጥ</string>
+    <string name="personalid_backup_code_reminder_title">ናይ ምትካእ ኮድ ኣረጋጽ</string>
+    <string name="personalid_backup_code_reminder_message">ናይ ምትካእ ኮድካ ኣእቱ ምእንቲ ምርግጋጽ ከምዝዝክሮ።</string>
+    <string name="personalid_backup_code_reminder_incorrect">ናይ ምትካእ ኮድ ሓሶት። በጃኻ ደጊምካ ፈትን። %d ፈተነታት ተሪፈን።</string>
+    <string name="personalid_backup_code_reminder_success_toast">ጽቡቅ፣ ኩሉ ተዳሊዩ!</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">ብዝሒ ፈተነ ሓሊፍካ።</string>
+    <string name="personalid_backup_code_reminder_skip">ሓልፍ</string>
+    <string name="personalid_backup_code_reminder_confirm">ኣረጋጽ</string>
     <string name="personalid_backup_code_changed_success">ናይ ምትካእ ኮድ ብዓወት ተሓዲሱ</string>
     <string name="personalid_set_new_backup_code_abandon_title">ናይ ምትካእ ኮድ ቅጥዒ ምስረዛ?</string>
     <string name="personalid_set_new_backup_code_abandon_message">ምምላስ ናብ ድሕሪት ን ምቕያር ናይ ምትካእ ኮድ ሃለዋት ይስርዝ።</string>
     <string name="personalid_set_new_backup_code_abandon_positive">ናይ ምትካእ ኮድ ኣቐምጥ</string>
     <string name="personalid_set_new_backup_code_abandon_negative">ውጻእ</string>
+    <string name="personalid_set_backup_code_reminder_title">ናይ ምትካእ ኮድ ኣቐምጥ</string>
+    <string name="personalid_set_backup_code_reminder_message">ኣብ ሕሳብካ ዝቐረበ ናይ ምትካእ ኮድ የብልካን። ሓደ ንምቕማጥ ኣረጋጽ ጠውቕ።</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">ናይ ምትካእ ኮድ ኣቐምጥ</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">በጃኻ ቅድሚ ምውጻእካ ናይ ምትካእ ኮድ ኣቐምጥ</string>
     <string name="connect_job_info_delivery_detail">ዝርዝር (ኣተገባብራ)ኣወሃህባ</string>
     <string name="connect_job_info_review_delivery">ዝርዝር ኣወሃህባ ዳህሳስ ከልስ</string>
     <string name="connect_job_info_visit">%d ዝለዓለ ምብጻሕ</string>
@@ -438,7 +472,6 @@
     <string name="connect_job_info_visit_charge">ንምጉብናይ ክሳብ %s ኣታዊ ምርካብ</string>
     <string name="connect_job_info_delivery_hours">ሰዓታት ምብጻሕ</string>
     <string name="connect_job_info_view_more">ተወሳኺ ርአ</string>
-    <string name="connect_job_info_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_job_info_view_info">ሓበሬታ ርአ</string>
     <string name="connect_job_info_view_resume">ቐጽል</string>
     <string name="connect_job_info_view_review">ዳግመ ግምት</string>
@@ -458,9 +491,13 @@
     <string name="connect_job_tile_daily_limit_description">መዓልታዊ ገደብ በጺሑ። ቅጥዕታት ንምቕራብ ክፍሊት የለን</string>
     <string name="connect_in_progress">ኣብ መስርሕ</string>
     <string name="connect_new_opportunities">ሓደስቲ ዕድላት</string>
-    <string name="connect_completed">ተዛዚሙ</string>
+    <string name="connect_completed_expired_label">ዝተዛዘሙ / ዝተወደኡ ዕድላት</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። %d ፈተነ ተሪፉ ኣሎ።</item>
+        <item quantity="other">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። %d ፈተነታት ተሪፎም ኣለዉ።</item>
+    </plurals>
     <string name="personalid_email_already_in_use">እዚ ኢመይል እዚ ምስ ካልእ ኣካውንት ተኣሳሲሩ ኣሎ። በጃኻ ካልእ ኣድራሻ ኢመይል ተጠቐም።</string>
     <string name="personalid_too_many_otp_attempts">OTP ንምልኣኽ ብዙሕ ግዜ ፈቲንካ ኢኻ። በጃኻ ተጸበ እሞ እቲ ናይ ደጊም ምልኣኽ መልጎም ክረአ ከሎ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>
@@ -504,6 +541,7 @@
     <string name="connect_results_summary_approved">ጸዲቑ</string>
     <string name="personalid_login_via_connect">ንምእታው ድሉው!\n</string>
     <string name="personalid_failed_to_login_with_connectid">ውልቃዊ መለለዪ መንነትካ ተጠቒምካ ንምእታው ኣብ እንኣስረሉ እዋን ዘይምለስ ጌጋ የጋጥመና ኣሎ። በጃኻ ብፓስዎርድካ እቶ ወይ ድማ ውልቃዊ መለለዪ መእተዊኻ ምምላስ</string>
+    <string name="personalid_name_appbar_title">ስም</string>
     <string name="personalid_name_fragment_subtitle">በጃኹም ኣብቲ ብመንግስቲ ዝተዋህበኩም መለለዪ መንነትኩም ከም ዝረአ ስምኩም ኣእትዉ</string>
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
@@ -555,6 +593,8 @@
     <string name="nav_drawer_commcare_apps">መተግበሪ ኮምኬር</string>
     <string name="nav_drawer_switch_app_dialog_title">ካብዚ መተግበሪ ትወጽእ?</string>
     <string name="nav_drawer_switch_app_dialog_message">ካብዚ መተግበሪ ክትወጽእ ኢኻ፡ ናብ መእተዊ መስኮት ድማ ክትምለስ ኢኻ፡ ኣብኡ ካልእ መተግበሪ ክትመርጽ ትኽእል።</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">ወጺእካ መተግበሪ ክትቕይር?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">ካብቲ ዝኣቶኻሉ CommCare መተግበሪ ክትወጽእ ኢኻ፡ ናብ መእተዊ መስኮት ድማ ክትምለስ ኢኻ፡ ኣብኡ ካልእ መተግበሪ ክትመርጽ ትኽእል።</string>
     <string name="nav_drawer_switch_app_dialog_confirm">ቀጽል</string>
     <string name="nav_drawer_switch_app_dialog_cancel">የቋርፁ</string>
     <string name="play_service_update_error">PersonalID ንኽትጥቀም፡ ናይ Google Play ኣገልግሎታት ከተሐድስ የድልየካ። ምዕዳጋት ንምርኣይ ናብ Google Play Store ንምኻድ ኣብዚ ጠውቕ።</string>
@@ -587,6 +627,9 @@
     <string name="personalid_biometric_error_timeout">ናይ ባዮሜትሪክ ኦፕሬሽን ግዜኡ ተወዲኡ። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
     <string name="personalid_biometric_error_cannot_configure">ኣብ መሳርሒኻ ባዮሜትሪክ ክንቃኔ ኣይከኣልናን። እቲ ጸገም እንተቀጺሉ በጃኻ ንደገፍ ዓማዊል ተወከስ።</string>
 
+    <string name="connect_label_expires_on">ይውዳእ ኣብ</string>
+    <string name="connect_label_completed_on">ተዛዚሙ ኣብ</string>
+    <string name="connect_label_expired_on">ተወዲኡ ኣብ</string>
     <string name="connect_complete_by">ዕዮ ኣብ %s ይወዳእ</string>
     <string name="connect_expired_on">ዕዮ ኣብ %s ተወዲኡ</string>
     <string name="connect_dashboard">ዳሽቦርድ</string>
@@ -611,6 +654,8 @@
     <string name="connect_delivery_revisit_learning_offline">ዝርዝራት ሰርቲፊኬት ናብ ኢንተርነት ምስ ተመለስካ ክጽዓን እዩ</string>
     <string name="connect_delivery_revisit_learning_view">ርአ</string>
     <string name="connect_task_expires_on">%1$s ይውዳእ</string>
+    <string name="connect_task_pending_chip">ዝጽበ ዕዮ</string>
+    <string name="connect_task_blocking_subtitle">ንምቕጻል ምብጻሕ ንዕኡ ወድእዎ።</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">ሎሚ %1$d ምብጻሕ ተሪፉ</item>
         <item quantity="other">ሎሚ %1$d ምብጻሓት ተሪፎም</item>
@@ -671,6 +716,7 @@
     <string name="connect_last_synced">ናይ መወዳእታ ምስንኻል: %s</string>
     <string name="connect_sync_successful">ናይ መወዳእታ ምስንኻል: ሕጂ ሕጂ</string>
     <string name="connect_sync_failed">ምስንኻል ኣይሰለጠን, ናይ መወዳእታ ምስንኻል: %s</string>
+    <string name="connect_sync_card_press_to_sync">ንምስንኻል ኣብዚ ጠውቑ</string>
     <string name="connect_offline">ኦፍላይን</string>
     <string name="connect_back_online">ናብ ኦንላይን ተመሊሱ</string>
     <string name="connect_never">ፈጺሙ</string>
@@ -715,7 +761,6 @@
         <item quantity="other">%d ናይ ክፍሊት ኣሃዱታት</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">ትምህርቲ ጀምር</string>
-    <string name="connect_opportunity_footer_download_learn_app">ትምህርቲ ኣውርድ</string>
     <string name="connect_opportunity_modules_footer_note">ሞጁላት ወድእ፣ ነቲ ገምጋም ሕለፍ፣ ከምኡውን ምስክር ወረቐትካ ተቐበል</string>
     <string name="connect_opportunity_footer_download_app">መተግበሪ ኣውርድ</string>
     <string name="microimage_saving_failed">ስእሊ ክዕቀብ ኣይተኻእለን። በጃኹም ደጊምኩም ፈትኑ</string>
