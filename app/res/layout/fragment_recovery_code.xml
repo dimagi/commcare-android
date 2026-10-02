@@ -28,7 +28,7 @@
                 android:contentDescription="@null"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_personalid_avatar_placeholder"
-                app:shapeAppearanceOverlay="@style/CircularImageView" />
+                app:shapeAppearanceOverlay="@style/personalIdCircleImageView" />
             <TextView
                 android:id="@+id/welcome_back"
                 style="@style/Widget.Connect.ValueText"

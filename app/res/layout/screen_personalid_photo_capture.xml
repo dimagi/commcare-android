@@ -38,7 +38,7 @@
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_personalid_avatar_placeholder"
-            app:shapeAppearanceOverlay="@style/CircularImageView" />
+            app:shapeAppearanceOverlay="@style/personalIdCircleImageView" />
 
         <LinearLayout
             android:layout_width="match_parent"
