@@ -1,21 +1,27 @@
 package org.commcare.fragments.connect
 
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
-import org.commcare.connect.ConnectAppLaunchController
+import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.ConnectDeliveryHomeViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
@@ -52,10 +58,18 @@ class ConnectDeliveryHomeFragment :
 
     private val visibleTabs get() = tabs.filter { it.visible }
 
+    private val moreTabPosition get() = visibleTabs.indexOfFirst { it.titleRes == R.string.connect_more }
+
+    /** True until this device has synced the learn records the Revisit Learning card reads. */
+    private val learningRecordsMissing get() = job.latestLearningActivityDate == null
+
     private lateinit var viewModel: ConnectDeliveryHomeViewModel
     private lateinit var pagerAdapter: DeliveryViewStateAdapter
     private var initialTabPosition = TAB_DASHBOARD
     private var currentTabPosition = TAB_DASHBOARD
+    private var connectivityCallback: ConnectivityManager.NetworkCallback? = null
+
+    private var networkOnline = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,9 +89,11 @@ class ConnectDeliveryHomeFragment :
             )[ConnectDeliveryHomeViewModel::class.java]
 
         setupTabViewPager()
-        binding.connectDeliveryCtaBar.setOnCtaClickListener { launchDeliveryApp() }
+        binding.connectDeliveryCtaBar.setOnCtaClickListener { launchApp(isLearning = false) }
+        updateCtaBarButton()
 
-        observeDeliveryProgress()
+        observeDeliveryAndLearningProgress()
+        observeConnectivity()
         return view
     }
 
@@ -89,6 +105,7 @@ class ConnectDeliveryHomeFragment :
 
         val tabLayout = binding.connectDeliveryHomeTabs
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.setCustomView(R.layout.view_connect_tab_label)
             tab.setText(visibleTabs[position].titleRes)
         }.attach()
 
@@ -96,6 +113,7 @@ class ConnectDeliveryHomeFragment :
             currentTabPosition = initialTabPosition
             viewPager.setCurrentItem(initialTabPosition, false)
         }
+        updateCtaBarEnabled()
 
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
@@ -112,21 +130,74 @@ class ConnectDeliveryHomeFragment :
         )
     }
 
-    private fun observeDeliveryProgress() {
+    /**
+     * A pending task has to be cleared in the delivery app, so the launch bar is disabled while one
+     * is outstanding. Without the app installed there is nothing to clear it with, so the bar stays
+     * live until the download finishes and the user is not left stranded.
+     */
+    private fun updateCtaBarEnabled() {
+        val appInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
+        val hasPendingTask =
+            ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID).isNotEmpty()
+        binding.connectDeliveryCtaBar.isCtaEnabled = !appInstalled || !hasPendingTask
+    }
+
+    private fun updateMoreTabBadge() {
+        val tab = binding.connectDeliveryHomeTabs.getTabAt(moreTabPosition) ?: return
+        val badge = tab.customView?.findViewById<TextView>(R.id.tab_badge) ?: return
+        val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID).size
+
+        badge.isVisible = pendingTasks > 0
+        badge.text = pendingTasks.toString()
+    }
+
+    /**
+     * The tabs read the opportunity back off the activity, and the repository hands back a fresh
+     * instance each sync, so the refreshed job has to be published there and not just kept here.
+     */
+    private fun observeDeliveryAndLearningProgress() {
         observeDataState(
             viewModel.deliveryProgress,
             { cached ->
-                job = cached
+                setActiveJob(cached)
                 refreshTabs()
             },
             { success ->
-                job = success
+                setActiveJob(success)
                 refreshTabs()
+                loadLearningProgressIfMissing()
             },
         )
+        // Observed directly: the user did not ask for this fetch, so it must not show them loading
+        // bars or sync errors.
+        viewModel.learningProgress.observe(viewLifecycleOwner) { state ->
+            if (state is DataState.Success) {
+                job.learnings = state.data.learnings
+                job.assessments = state.data.assessments
+                if (job.latestLearningActivityDate != null) {
+                    refreshTabs()
+                }
+            }
+        }
+    }
+
+    private fun updateCtaBarButton() {
+        val installed = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
+        binding.connectDeliveryCtaBar.apply {
+            if (installed) {
+                subtitleText = getString(R.string.connect_delivery_continue_visits_subtitle)
+                buttonText = getString(R.string.connect_delivery_start)
+            } else {
+                subtitleText = getString(R.string.connect_download_delivery)
+                buttonText = getString(R.string.connect_opportunity_footer_download_app)
+            }
+        }
     }
 
     private fun refreshTabs() {
+        updateCtaBarButton()
+        updateCtaBarEnabled()
+        updateMoreTabBadge()
         childFragmentManager.fragments.forEach { fragment ->
             if (fragment.view != null && fragment is RefreshableTab) {
                 fragment.updateView()
@@ -136,6 +207,77 @@ class ConnectDeliveryHomeFragment :
 
     override fun refresh(forceRefresh: Boolean) {
         viewModel.loadDeliveryProgress(job, forceRefresh)
+    }
+
+    /** Delivery is synced here rather than per tab, so the status has to reach the tabs showing it. */
+    override fun informSyncStatus(
+        lastSyncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        childFragmentManager.fragments.forEach { fragment ->
+            if (fragment.view != null && fragment is ConnectDeliveryDashboardFragment) {
+                fragment.updateSyncStatus(lastSyncStatus, synced)
+            }
+        }
+    }
+
+    /**
+     * Learning finished before delivery began, so its records are fetched only for a device that is
+     * missing them, and only once delivery progress has landed: both write the opportunity row, and
+     * running them together lets one revert the other's fields.
+     */
+    private fun loadLearningProgressIfMissing() {
+        if (learningRecordsMissing) {
+            viewModel.loadLearningProgress(job)
+        }
+    }
+
+    private fun observeConnectivity() {
+        val connectivityManager = requireContext().getSystemService(ConnectivityManager::class.java) ?: return
+        val callback =
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onCapabilitiesChanged(
+                    network: Network,
+                    capabilities: NetworkCapabilities,
+                ) {
+                    val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                    onConnectivityChanged(hasInternet && isValidated)
+                }
+
+                override fun onLost(network: Network) = onConnectivityChanged(false)
+            }
+        connectivityManager.registerDefaultNetworkCallback(callback)
+        connectivityCallback = callback
+    }
+
+    private fun onConnectivityChanged(isOnline: Boolean) {
+        if (isOnline == networkOnline) {
+            return
+        }
+
+        networkOnline = isOnline
+
+        view?.post {
+            if (!isAdded) {
+                return@post
+            }
+
+            refreshTabs()
+            if (isOnline && learningRecordsMissing) {
+                // Re-runs delivery rather than the learn fetch, so the two never write the
+                // opportunity simultaneously; its success is what asks for the learn records.
+                refresh(false)
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        connectivityCallback?.let {
+            requireContext().getSystemService(ConnectivityManager::class.java)?.unregisterNetworkCallback(it)
+        }
+        connectivityCallback = null
+        super.onDestroyView()
     }
 
     override fun onResume() {
@@ -149,19 +291,13 @@ class ConnectDeliveryHomeFragment :
             .setActionBarTitle(job.title, getString(R.string.connect_progress_delivery))
     }
 
-    private fun launchDeliveryApp() {
-        val appId = job.deliveryAppInfo.appId
-        if (AppUtils.isAppInstalled(appId)) {
-            ConnectAppLaunchController(this).launchApp(appId, false, Runnable { popSelfOnceHidden() })
-        } else {
-            val directions =
-                ConnectDeliveryHomeFragmentDirections
-                    .actionConnectDeliveryHomeFragmentToConnectDownloadingFragment(
-                        getString(R.string.connect_downloading_delivery),
-                        false,
-                    )
-            findNavController().navigate(directions)
-        }
+    /** A delivery app still being downloaded takes over the launch bar the user started it from. */
+    override fun onAppInstallStateChanged(
+        state: AppInstallState,
+        isLearning: Boolean,
+    ) {
+        binding.connectDeliveryCtaBar.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
+        updateCtaBarEnabled()
     }
 
     override fun getEndpoint(): String = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + job.jobUUID

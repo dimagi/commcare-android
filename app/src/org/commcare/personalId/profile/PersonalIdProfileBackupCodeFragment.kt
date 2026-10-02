@@ -2,7 +2,6 @@ package org.commcare.personalId.profile
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
@@ -11,7 +10,9 @@ import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.PersonalIdUserPreferences
 
 class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
-    private val forgotBackupCodeButton get() = binding.notMeButton
+    private val args by lazy { PersonalIdProfileBackupCodeFragmentArgs.fromBundle(requireArguments()) }
+    private val pendingEmail get() = args.pendingEmail
+
     private var isLocked = false
 
     override fun onViewCreated(
@@ -29,39 +30,32 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             titleResId = R.string.connect_backup_code_title_confirm,
             showConfirmCode = false,
             subtitle = getString(R.string.connect_backup_code_message),
-            notMeButtonTextId = R.string.personalid_forgot_backup_code,
         )
+        binding.personalidForgotBackupCode.visibility = View.VISIBLE
     }
 
     override fun onCodeChanged() {
         if (!isLocked) validateBackupCodeAndEnableContinue()
     }
 
-    override fun setupListeners() {
-        super.setupListeners()
-        forgotBackupCodeButton.setOnClickListener { handleForgot() }
+    override fun handleForgotBackupCode() {
+        val email = ConnectUserDatabaseUtil.getUser().email
+        if (email.isNullOrEmpty()) {
+            (requireActivity() as PersonalIdProfileActivity).showAddEmailToast()
+            findNavController().popBackStack()
+        } else {
+            navigateToForgotBackupCodeEmailOtp(email, EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER)
+        }
     }
 
-    private fun handleForgot() {
-        val email = ConnectUserDatabaseUtil.getUser()?.email
-        if (email != null) {
-            findNavController().navigate(
-                PersonalIdProfileBackupCodeFragmentDirections
-                    .actionProfileBackupCodeToEmailVerification(
-                        email,
-                        EmailWorkFlow.RECOVERY,
-                        0,
-                    ),
-            )
-        } else {
-            Toast
-                .makeText(
-                    requireContext(),
-                    R.string.personalid_no_email_forgot_backup_code_toast,
-                    Toast.LENGTH_LONG,
-                ).show()
-            findNavController().popBackStack()
-        }
+    private fun navigateToForgotBackupCodeEmailOtp(
+        email: String,
+        workflow: EmailWorkFlow,
+    ) {
+        findNavController().navigate(
+            PersonalIdProfileBackupCodeFragmentDirections
+                .actionProfileBackupCodeToSendEmailOtp(email, workflow),
+        )
     }
 
     override fun handleBackupCodeSubmission() {
@@ -69,7 +63,11 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         val storedBackupCode = ConnectUserDatabaseUtil.getUser()?.pin
         if (enteredCode == storedBackupCode) {
             PersonalIdUserPreferences.clearBackupCodeLockout()
-            findNavController().navigate(R.id.action_profile_backup_code_to_set_new_backup_code)
+            if (args.emailWorkflow == EmailWorkFlow.EXISTING_USER) {
+                navigateToEmailOtpFragment()
+            } else {
+                navigateToSetNewBackupCode()
+            }
         } else {
             val attempts = PersonalIdUserPreferences.recordBackupCodeFailure()
             if (attempts >= MAX_ATTEMPTS) {
@@ -79,6 +77,18 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                 showError(getString(R.string.connect_backup_fail_title))
             }
         }
+    }
+
+    private fun navigateToEmailOtpFragment() {
+        val directions =
+            PersonalIdProfileBackupCodeFragmentDirections
+                .actionProfileBackupCodeToSendEmailOtp(pendingEmail, args.emailWorkflow)
+        findNavController().navigate(directions)
+    }
+
+    private fun navigateToSetNewBackupCode() {
+        val directions = PersonalIdProfileBackupCodeFragmentDirections.actionProfileBackupCodeToSetNewBackupCode()
+        findNavController().navigate(directions)
     }
 
     private fun enterLockedState() {

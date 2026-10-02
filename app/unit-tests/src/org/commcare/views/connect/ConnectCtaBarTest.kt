@@ -19,12 +19,10 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class ConnectCtaBarTest {
-    // MaterialButton requires a Theme.MaterialComponents descendant; the bare application context
-    // isn't one, so inflate through the app's Material theme as the hosting activity does in production.
     private fun themedContext(): Context =
         ContextThemeWrapper(
             ApplicationProvider.getApplicationContext(),
-            R.style.CommonTheme,
+            R.style.ConnectTheme,
         )
 
     private fun newBar() = ConnectCtaBar(themedContext())
@@ -69,34 +67,96 @@ class ConnectCtaBarTest {
     }
 
     @Test
-    fun `null progress shows button and hides progress cluster`() {
+    fun `null progress shows button and hides progress ring`() {
         val bar = newBar()
         bar.progress = null
         assertEquals(View.VISIBLE, bar.findViewById<View>(R.id.cta_button).visibility)
-        assertEquals(View.GONE, bar.findViewById<View>(R.id.cta_progress_cluster).visibility)
+        assertEquals(View.GONE, bar.findViewById<View>(R.id.cta_progress_ring).visibility)
     }
 
     @Test
-    fun `progress value shows cluster with percent and hides button`() {
+    fun `progress value shows the ring and hides the button`() {
         val bar = newBar()
         bar.progress = 25
         assertEquals(View.GONE, bar.findViewById<View>(R.id.cta_button).visibility)
-        assertEquals(View.VISIBLE, bar.findViewById<View>(R.id.cta_progress_cluster).visibility)
-        assertEquals("25%", bar.findViewById<TextView>(R.id.cta_progress_text).text.toString())
+        assertEquals(View.VISIBLE, bar.findViewById<View>(R.id.cta_progress_ring).visibility)
     }
 
     @Test
-    fun `progress above max clamps to 100 percent`() {
+    fun `install progress replaces the subtitle and shows the ring, leaving the title alone`() {
         val bar = newBar()
-        bar.progress = 150
-        assertEquals("100%", bar.findViewById<TextView>(R.id.cta_progress_text).text.toString())
+        bar.titleText = "Start Visits"
+        bar.subtitleText = "Download Delivery"
+
+        bar.showInstallProgress(40, "Downloading Delivery")
+
+        assertEquals("Start Visits", bar.findViewById<TextView>(R.id.cta_title_text).text.toString())
+        assertEquals(
+            "Downloading Delivery",
+            bar.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
+        )
+        assertEquals(View.VISIBLE, bar.findViewById<View>(R.id.cta_progress_ring).visibility)
     }
 
     @Test
-    fun `progress below min clamps to 0 percent`() {
+    fun `rebinding during an install updates the subtitle the bar returns to, not what it shows`() {
         val bar = newBar()
-        bar.progress = -5
-        assertEquals("0%", bar.findViewById<TextView>(R.id.cta_progress_text).text.toString())
+        bar.showInstallProgress(40, "Downloading Delivery")
+
+        bar.subtitleText = "Submit delivery forms"
+
+        assertEquals(
+            "Downloading Delivery",
+            bar.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
+        )
+
+        bar.clearInstallProgress()
+
+        assertEquals(
+            "Submit delivery forms",
+            bar.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
+        )
+    }
+
+    @Test
+    fun `clearing install progress restores the button`() {
+        val bar = newBar()
+        bar.titleText = "Start Visits"
+        bar.showInstallProgress(40, "Downloading Delivery")
+
+        bar.clearInstallProgress()
+
+        assertEquals("Start Visits", bar.findViewById<TextView>(R.id.cta_title_text).text.toString())
+        assertEquals(View.VISIBLE, bar.findViewById<View>(R.id.cta_button).visibility)
+        assertEquals(View.GONE, bar.findViewById<View>(R.id.cta_progress_ring).visibility)
+    }
+
+    @Test
+    fun `an install failure restores the button and explains itself above the bar`() {
+        val bar = newBar()
+        bar.titleText = "Start Visits"
+        bar.showInstallProgress(40, "Downloading Delivery")
+
+        bar.showInstallFailure("Download failed. Please try again.")
+
+        val card = bar.findViewById<View>(R.id.cta_failure_card)
+        assertEquals(View.VISIBLE, card.visibility)
+        assertEquals(
+            "Download failed. Please try again.",
+            bar.findViewById<TextView>(R.id.success_failure_card_text).text.toString(),
+        )
+        assertEquals("Start Visits", bar.findViewById<TextView>(R.id.cta_title_text).text.toString())
+        assertEquals(View.VISIBLE, bar.findViewById<View>(R.id.cta_button).visibility)
+    }
+
+    @Test
+    fun `starting an install clears a previous failure`() {
+        val bar = newBar()
+        bar.showInstallFailure("Download failed. Please try again.")
+
+        bar.showInstallProgress(0, "Downloading Delivery")
+
+        assertEquals(View.GONE, bar.findViewById<View>(R.id.cta_failure_card).visibility)
     }
 
     @Test
@@ -130,6 +190,6 @@ class ConnectCtaBarTest {
         assertEquals("Continue", bar.findViewById<TextView>(R.id.cta_title_text).text.toString())
         assertEquals("Learning modules", bar.findViewById<TextView>(R.id.cta_subtitle_text).text.toString())
         assertEquals("Start", bar.findViewById<MaterialButton>(R.id.cta_button).text.toString())
-        assertEquals("25%", bar.findViewById<TextView>(R.id.cta_progress_text).text.toString())
+        assertEquals(View.VISIBLE, bar.findViewById<View>(R.id.cta_progress_ring).visibility)
     }
 }

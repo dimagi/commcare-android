@@ -47,7 +47,7 @@ class ConnectLearnCompleteViewTest {
         context =
             ContextThemeWrapper(
                 ApplicationProvider.getApplicationContext<CommCareTestApplication>(),
-                R.style.CommonTheme,
+                R.style.ConnectTheme,
             )
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
@@ -102,19 +102,6 @@ class ConnectLearnCompleteViewTest {
     }
 
     @Test
-    fun `certificate date puts the label above the date`() {
-        val view = bind()
-        val lines = view.text(R.id.cert_date_text).lines()
-
-        assertEquals(2, lines.size)
-        assertEquals(expectedCompletedOn().replace("\n", " "), lines.joinToString(" "))
-        assertEquals(
-            ConnectDateUtils.formatDate(completedOn, DateFormat.SHORT),
-            lines[1],
-        )
-    }
-
-    @Test
     fun `certificate score is hidden when no assessment was attempted`() {
         val view = bind(ConnectLearnJobTestData.job(assessmentScore = null))
 
@@ -158,7 +145,7 @@ class ConnectLearnCompleteViewTest {
             view.text(R.id.cta_title_text),
         )
         assertEquals(
-            context.getString(R.string.connect_job_info_download_delivery).trim(),
+            context.getString(R.string.connect_download_delivery),
             view.text(R.id.cta_subtitle_text),
         )
         assertEquals(

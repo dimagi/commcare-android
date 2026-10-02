@@ -590,6 +590,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         // This is part of the CommCare app initialization because it needs to be applied during
         // app initialization, update and when switching the seated app
         customiseOkHttp();
+        CrashUtil.registerAppData();
     }
 
     /**

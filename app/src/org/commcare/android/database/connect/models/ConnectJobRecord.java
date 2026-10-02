@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -194,14 +195,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dailyFinishTime = "";
     }
 
-    public static ConnectJobRecord corruptJobFromJson(JSONObject json) throws JSONException {
-        ConnectJobRecord job = new ConnectJobRecord();
-        job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
-        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
-        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
-        return job;
-    }
-
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
         job.jobId = json.getInt(META_JOB_ID);   //  This will be eventually removed
@@ -209,8 +202,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
-        job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
-        job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
+        job.projectEndDate = JsonExtensions.requireDate(json, META_END_DATE);
+        job.projectStartDate = JsonExtensions.requireDate(json, META_START_DATE);
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
         job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
@@ -260,11 +253,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
 
             if (claim.has(META_END_DATE)) {
-                job.projectEndDate = DateUtils.parseDate(claim.getString(META_END_DATE));
+                job.projectEndDate = JsonExtensions.requireDate(claim, META_END_DATE);
             }
 
             if (claim.has(META_CLAIM_DATE)) {
-                job.dateClaimed = DateUtils.parseDate(claim.getString(META_CLAIM_DATE));
+                job.dateClaimed = JsonExtensions.requireDate(claim, META_CLAIM_DATE);
             }
 
             if (claim.has(META_PAYMENT_UNITS)) {
@@ -380,7 +373,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
      */
     public int getLearningPercentComplete(boolean includeAssessmentModule) {
         int totalModules = numLearningModules;
-        int modulesCompleted = learningModulesCompleted;
+        int modulesCompleted = Math.min(learningModulesCompleted, numLearningModules);
 
         if (includeAssessmentModule) {
             // Add 1 to the calculation to represent the assessment module.
@@ -546,6 +539,33 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return assessments != null && !assessments.isEmpty();
     }
 
+    /**
+     * The most recent learning activity: the latest assessment date, or the latest completed module
+     * if the user never took an assessment. Callers that have established learning is complete read
+     * this as the completion date. Null when this device holds no dated record of either, which is
+     * the case until it has run a learn sync.
+     */
+    @Nullable
+    public Date getLatestLearningActivityDate() {
+        List<Date> dates = new ArrayList<>();
+
+        if (attemptedAssessment()) {
+            for (ConnectJobAssessmentRecord record : assessments) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        } else if (getLearnings() != null) {
+            for (ConnectJobLearningRecord record : getLearnings()) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        }
+
+        return dates.isEmpty() ? null : Collections.max(dates);
+    }
+
     public List<ConnectLearnModuleSummaryRecord> getSortedLearnModules() {
         List<ConnectLearnModuleSummaryRecord> modules = learnModules();
         List<ConnectLearnModuleSummaryRecord> sorted = new ArrayList<>(modules);
@@ -626,6 +646,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public boolean passedAssessment() {
         return status == STATUS_DELIVERING
                 || getAssessmentScore() >= getLearnAppInfo().getPassingScore();
+    }
+
+    /**
+     * Whether the user has finished everything required before claiming the job:
+     * every learn module submitted, and a passing assessment score
+     */
+    public boolean isLearningComplete() {
+        return getLearningPercentComplete(true) >= 100;
     }
 
     public int getAssessmentScore() {
@@ -731,7 +759,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean readyToTransitionToDelivery() {
-        return status == STATUS_LEARNING && passedAssessment();
+        return status == STATUS_LEARNING && isLearningComplete();
     }
 
     @Nullable

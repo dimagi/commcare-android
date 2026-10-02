@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
@@ -27,7 +28,10 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         PersonalIdUserPreferences.clearBackupCodeLockout()
         user.pin = "123456" // override to 6 digits so the code view can hold it
         onUiThread {
-            navController.navigate(R.id.action_profile_to_profile_backup_code)
+            navController.navigate(
+                PersonalIdProfileFragmentDirections
+                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+            )
         }
     }
 
@@ -47,7 +51,9 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
 
     private fun errorMessage(): TextView = fragment().requireView().findViewById(R.id.connect_backup_code_error_message)
 
-    private fun forgotButton(): TextView = fragment().requireView().findViewById(R.id.not_me_button)
+    private fun forgotButton(): TextView = fragment().requireView().findViewById(R.id.personalid_forgot_backup_code)
+
+    private fun notMeButton(): View = fragment().requireView().findViewById(R.id.not_me_button)
 
     private fun setCodeAndContinue(code: String = "000000") {
         onUiThread { backupCodeView().setCode(code) }
@@ -75,6 +81,11 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     @Test
     fun `error message starts hidden`() {
         assertEquals(View.GONE, errorMessage().visibility)
+    }
+
+    @Test
+    fun `not me button is hidden`() {
+        assertEquals(View.GONE, notMeButton().visibility)
     }
 
     @Test
@@ -106,7 +117,7 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     fun `correct code navigates to set-new-backup-code`() {
         setCodeAndContinue("123456")
 
-        assertEquals(R.id.personalid_set_new_backup_code_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_profile_set_new_backup_code_fragment, currentDestinationId())
     }
 
     // ===== Wrong code =====
@@ -157,7 +168,12 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         // Navigate back to profile, then forward again so the fragment is recreated
         onUiThread { navController.popBackStack() }
         ShadowLooper.idleMainLooper()
-        onUiThread { navController.navigate(R.id.action_profile_to_profile_backup_code) }
+        onUiThread {
+            navController.navigate(
+                PersonalIdProfileFragmentDirections
+                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+            )
+        }
         ShadowLooper.idleMainLooper()
 
         assertFalse(backupCodeView().isEnabled)
@@ -192,11 +208,11 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     // ===== Forgot =====
 
     @Test
-    fun `forgot with email navigates to email verification`() {
+    fun `forgot with email navigates to send email otp`() {
         // user.email is "ada@example.com" per BasePersonalIdProfileTest
         onUiThread { forgotButton().performClick() }
 
-        assertEquals(R.id.personalid_email_verification_fragment, currentDestinationId())
+        assertEquals(R.id.personalid_send_email_otp_fragment, currentDestinationId())
     }
 
     @Test
@@ -205,7 +221,7 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         onUiThread { forgotButton().performClick() }
 
         assertEquals(
-            activity.getString(R.string.personalid_no_email_forgot_backup_code_toast),
+            activity.getString(R.string.personalid_profile_add_email_toast),
             ShadowToast.getTextOfLatestToast(),
         )
         assertEquals(R.id.personalid_profile_fragment, currentDestinationId())

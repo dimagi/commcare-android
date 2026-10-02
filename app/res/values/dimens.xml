@@ -60,7 +60,6 @@
     <dimen name="font_size_xlarge">21sp</dimen>
     <dimen name="font_size_xlarger">23sp</dimen>
     <dimen name="font_size_40">40sp</dimen>
-    <dimen name="font_size_xxxxlarge">64sp</dimen>
     <dimen name="font_size_dp_medium">15dp</dimen>
     <dimen name="font_size_dp_large">18dp</dimen>
     <dimen name="cell_padding_vertical">8dp</dimen>
@@ -169,6 +168,9 @@
 
     <!-- Connect/PersonalID shared tokens -->
     <!-- Text -->
+    <dimen name="connect_text_badge">10sp</dimen>
+    <dimen name="connect_text_tab">14sp</dimen>
+    <dimen name="connect_text_label">11sp</dimen>
     <dimen name="connect_text_caption">12sp</dimen>
     <dimen name="connect_text_body">14sp</dimen>
     <dimen name="connect_text_title">16sp</dimen>
@@ -180,14 +182,44 @@
     <dimen name="connect_space_sm">8dp</dimen>
     <dimen name="connect_space_md">12dp</dimen>
     <dimen name="connect_space_lg">16dp</dimen>
+    <dimen name="connect_space_xl">24dp</dimen>
     <dimen name="connect_chip_icon_size">20dp</dimen>
+    <!-- Keeps a borderless text button wide enough to stay an easy tap target. -->
+    <dimen name="connect_text_button_min_width">64dp</dimen>
+    <dimen name="connect_touch_target_min">48dp</dimen>
     <!-- Half of the gap between grid cards; the full 16dp gap is two of these. -->
     <dimen name="connect_grid_gutter_half">8dp</dimen>
+    <!-- Circles holding a 20dp glyph; the padding is what sizes the glyph down to 20dp. -->
+    <dimen name="connect_icon_circle_sm">28dp</dimen>
+    <dimen name="connect_tab_badge_size">16dp</dimen>
+    <dimen name="connect_icon_circle_lg">40dp</dimen>
+    <dimen name="connect_icon_circle_padding_lg">10dp</dimen>
     <!-- Corner radii -->
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>
     <dimen name="connect_radius_lg">16dp</dimen>
     <dimen name="connect_radius_pill">24dp</dimen>
+    <!-- Elevation -->
+    <dimen name="connect_card_elevation_low">2dp</dimen>
+    <dimen name="connect_card_elevation_medium">5dp</dimen>
+    <dimen name="connect_card_elevation_high">10dp</dimen>
+    <dimen name="connect_button_elevation">3dp</dimen>
     <!-- Strokes -->
     <dimen name="connect_stroke_hairline">1dp</dimen>
+    <!-- Opportunity list card -->
+    <dimen name="connect_radius_md">12dp</dimen>
+    <dimen name="connect_job_badge_ring_size">48dp</dimen>
+    <dimen name="connect_job_badge_ring_stroke">4dp</dimen>
+    <dimen name="connect_job_badge_icon_in_ring">28dp</dimen>
+    <dimen name="connect_job_badge_icon_standalone">32dp</dimen>
+    <dimen name="connect_job_expiry_warning_size">16dp</dimen>
+
+    <!-- Audio Recording -->
+    <dimen name="audio_recording_button_size">110dp</dimen>
+    <dimen name="audio_recording_progress_size">190dp</dimen>
+    <dimen name="audio_recording_timer_text_size">40sp</dimen>
+    <dimen name="audio_recording_dialog_max_width">420dp</dimen>
+    <dimen name="audio_recording_header_text_size">16sp</dimen>
+    <dimen name="audio_recording_capture_label_text_size">32sp</dimen>
+    <dimen name="audio_recording_close_button_size">40dp</dimen>
 </resources>

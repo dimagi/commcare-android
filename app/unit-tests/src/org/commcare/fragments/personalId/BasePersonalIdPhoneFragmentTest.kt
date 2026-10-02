@@ -41,7 +41,7 @@ abstract class BasePersonalIdPhoneFragmentTest : BasePersonalIdConfigurationTest
         captureNavFragment()
 
         activity.runOnUiThread {
-            installTestNavController(fragment.requireView(), R.id.personalid_phone_fragment)
+            installTestNavController(navHostFragment.requireView(), R.id.personalid_phone_fragment)
         }
         ShadowLooper.idleMainLooper()
     }

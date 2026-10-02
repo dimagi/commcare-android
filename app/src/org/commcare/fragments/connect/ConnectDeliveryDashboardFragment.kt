@@ -7,18 +7,24 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import org.commcare.activities.CommCareActivity
+import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
+import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding
 import org.commcare.fragments.RefreshableTab
 import org.commcare.views.connect.ConnectInfoHalfCard
 import org.commcare.views.connect.ConnectProgressCard
+import org.commcare.views.connect.ConnectSyncStatusCard
+import org.commcare.views.connect.ConnectTaskPresenter
 import java.text.DateFormat
 
 /**
- * Dashboard tab of a delivery opportunity: visit progress and a per-payment-unit breakdown of the
- * worker's own progress.
+ * Dashboard tab of a delivery opportunity: visit progress, a sync card that re-syncs on tap, and a
+ * per-payment-unit breakdown of the worker's own progress.
  *
  * Figures render disabled once no further work earns progress, and an individual payment unit's card
  * also dims on its own once that unit is out of visits.
@@ -26,6 +32,8 @@ import java.text.DateFormat
 class ConnectDeliveryDashboardFragment :
     ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>(),
     RefreshableTab {
+    private val host get() = requireParentFragment() as ConnectDeliveryHomeFragment
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,9 +46,12 @@ class ConnectDeliveryDashboardFragment :
 
     override fun updateView() {
         reloadActiveJob()
-        val contentEnabled = !job.isFurtherWorkBlocked
+        val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
+        val contentEnabled = !job.isFurtherWorkBlocked && pendingTasks.isEmpty()
         bindHeader()
         bindVisitProgress(contentEnabled)
+        bindBlockingTask(pendingTasks.firstOrNull())
+        bindSyncCard(host.syncStatus, host.isSynced)
         bindProgressGrid(contentEnabled)
     }
 
@@ -85,6 +96,55 @@ class ConnectDeliveryDashboardFragment :
                     ),
             ),
         )
+    }
+
+    /**
+     * Only the task falling due first is shown here; the rest stay on the More tab, so the dashboard
+     * asks for one thing at a time.
+     */
+    private fun bindBlockingTask(task: ConnectTaskRecord?) {
+        binding.deliveryTaskCard.isVisible = task != null
+        if (task == null) return
+
+        binding.deliveryTaskCard.bind(
+            ConnectTaskPresenter.state(
+                context = requireContext(),
+                task = task,
+                highlighted = true,
+                showExpiry = false,
+                chipLabel = getString(R.string.connect_task_pending_chip),
+                subtitle = getString(R.string.connect_task_blocking_subtitle),
+                iconOnCircle = false,
+                onClick = { openTask(task) },
+            ),
+        )
+    }
+
+    private fun openTask(task: ConnectTaskRecord) =
+        ConnectTaskPresenter.open(requireActivity() as CommCareActivity<*>, task) {
+            launchApp(isLearning = false)
+        }
+
+    /** Called by the host, which owns the delivery sync and so learns its status first. */
+    fun updateSyncStatus(
+        syncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        bindSyncCard(syncStatus, synced)
+    }
+
+    private fun bindSyncCard(
+        syncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        binding.deliverySyncCard.bind(
+            ConnectSyncStatusCard.State(
+                statusText = getString(R.string.connect_sync_card_press_to_sync),
+                statusSubtext = syncStatus,
+                warning = !synced,
+            ),
+        )
+        binding.deliverySyncCard.onCardClick = { host.refresh(true) }
     }
 
     private fun bindProgressGrid(contentEnabled: Boolean) {

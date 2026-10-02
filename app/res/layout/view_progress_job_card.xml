@@ -67,7 +67,7 @@
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:background="@drawable/bg_rounded_corner_lavender_70"
-            android:drawableStart="@drawable/nav_drawer_message_icon"
+            android:drawableStart="@drawable/ic_chat_bubble_outline"
             android:drawableEnd="@drawable/connect_right_arrow"
             android:drawablePadding="8dp"
             android:padding="16dp"

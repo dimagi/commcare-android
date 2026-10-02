@@ -247,8 +247,11 @@ License.
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
     <string name="personalid_welcome_user">Bienvenue %s !</string>
     <string name="personalid_choice_or">_____________    OU    _____________</string>
+    <string name="connect_download_delivery">Télécharger Livraison</string>
+    <string name="connect_app_install_setting_up">Configuration de l\'application…</string>
+    <string name="connect_app_finishing_install">Finalisation de l\'installation…</string>
+    <string name="connect_app_launching">Téléchargement terminé, lancement de l\'application…</string>
     <string name="connect_button_logged_in">Accéder au menu Connecter</string>
-    <string name="connect_cta_progress_percent">%1$d%%</string>
     <string name="entity_map_error_message">Une erreur s\'est produite dans la configuration de l\'application, ce qui a empêché le chargement correct de tous les marqueurs sur la carte</string>
     <string name="personalid_generic_error">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
     <string name="connect_registration_title">Démarrer avec PersonalID</string>
@@ -269,17 +272,36 @@ License.
     <string name="personalid_email_description">Votre adresse e-mail vous aide à récupérer votre compte si vous perdez l\'accès à votre téléphone.</string>
     <string name="personalid_email_hint">Adresse e-mail</string>
     <string name="personalid_email_skip">Ignorer pour l\'instant</string>
-    <string name="personalid_email_skip_confirm_title">Ignorer l\'e-mail ?</string>
-    <string name="personalid_email_skip_confirm_message">Êtes-vous sûr de vouloir ignorer cette étape ?</string>
+    <string name="personalid_email_skip_confirm_title">Protégez votre compte</string>
+    <string name="personalid_email_skip_confirm_message">L\'ajout d\'une adresse e-mail renforce la sécurité de votre compte. Cela permet de vérifier les modifications importantes du compte, d\'empêcher les tentatives de récupération non autorisées et vous offre un moyen sécurisé de récupérer l\'accès si vous perdez votre appareil.</string>
+    <string name="personalid_email_skip_confirm_skip">Ignorer</string>
+    <string name="personalid_email_skip_confirm_add">Ajouter un e-mail</string>
     <string name="personalid_email_invalid_format">Veuillez saisir une adresse e-mail valide.</string>
     <string name="personalid_email_verification_appbar_title">Vérifier l\'e-mail</string>
     <string name="personalid_email_verification_title">Vérifiez votre adresse e-mail</string>
     <string name="personalid_email_verification_description">Saisissez le code à 6 chiffres envoyé à %1$s</string>
     <string name="personalid_email_verify_button">Vérifier</string>
     <string name="personalid_email_otp_failed_title">Échec de la vérification</string>
-    <string name="personalid_email_otp_failed_message">Il semble que vous ayez du mal à vérifier votre adresse e-mail. Vous pouvez ignorer cette étape pour le moment et réessayer plus tard, ou continuer d\'essayer.</string>
-    <string name="personalid_email_otp_failed_retry">Réessayer</string>
+    <string name="personalid_email_otp_failed_message">Vous avez utilisé toutes les tentatives pour ce code. Vous pouvez en demander un nouveau dans %1$s, ou ignorer l\'e-mail pour le moment.</string>
+    <string name="personalid_email_otp_failed_wait">Attendre</string>
     <string name="personalid_email_otp_failed_skip">Continuer sans e-mail</string>
+    <string name="personalid_otp_limit_exceeded">Vous avez utilisé toutes les tentatives pour ce code, il n\'est donc plus valide. Demandez un nouveau code pour continuer.</string>
+    <string name="personalid_rate_limited_retry_after">Trop de tentatives. Veuillez réessayer dans %1$s.</string>
+    <string name="personalid_otp_resend_wait">Vous n\'avez pas reçu votre code ? Renvoyer dans %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Attendez %1$s pour demander un nouveau code</string>
+    <string name="personalid_otp_request_code">Demander un code</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="other">%d secondes</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">%d heure</item>
+        <item quantity="other">%d heures</item>
+    </plurals>
     <string name="personalid_email_added_title">E-mail ajouté</string>
     <string name="personalid_email_added_message">Votre adresse e-mail a été ajoutée avec succès.</string>
     <string name="personalId_email_otp_sent">Un code à 6 chiffres a été envoyé à votre adresse e-mail.</string>
@@ -311,7 +333,6 @@ License.
     <string name="connect_verify_phone_title">Le code de vérification</string>
     <string name="connect_verify_phone_label">Nous avons tenté d\'envoyer un SMS à votre numéro de téléphone se terminant par %s.</string>
     <string name="connect_verify_phone_resend">Vous n\'avez pas reçu votre code? Renvoyer</string>
-    <string name="connect_verify_phone_resend_wait">Vous n\'avez pas reçu votre code? Veuillez le renvoyer dans%ds.</string>
     <string name="connect_verify_phone_change">Changer de numéro</string>
     <string name="connect_verify_phone_verify">Vérifier le code</string>
     <string name="connect_last_update">Mis à jour: %s</string>
@@ -355,9 +376,10 @@ License.
     <string name="connect_progress_warning_relearn_tasks_pending">Complétez les tâches assignées pour continuer à fournir des services.</string>
     <string name="connect_open_conversation_button_text">Ouvrir la conversation</string>
     <string name="connect_progress_relearn_tasks_completed">Toutes les tâches requises ont été complétées. Vous pouvez continuer avec les activités de livraison.</string>
-    <string name="connect_download_learn">Téléchargez l\'application Apprendre</string>
-    <string name="connect_downloading_learn">Téléchargement de l\'application Learn</string>
-    <string name="connect_downloading_delivery">Téléchargement de l\'application de livraison</string>
+    <string name="connect_download_learn">Télécharger Apprentissage</string>
+    <string name="connect_starting_learning">Démarrage de l\'apprentissage</string>
+    <string name="connect_downloading_learn">Téléchargement d\'Apprentissage</string>
+    <string name="connect_downloading_delivery">Téléchargement de Livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>
     <string name="connect_results_summary_transferred">Transféré</string>
     <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
@@ -415,16 +437,36 @@ License.
     <string name="personalid_profile_change_backup_code">Changer le code de sauvegarde</string>
     <string name="personalid_forgot_backup_code">Vous avez oublié votre code de sauvegarde ?</string>
     <string name="personalid_backup_code_too_many_attempts">Trop de tentatives. Veuillez réessayer plus tard.</string>
-    <string name="personalid_no_email_forgot_backup_code_toast">Veuillez ajouter une adresse e-mail</string>
+    <string name="personalid_profile_add_email_toast">Veuillez ajouter une adresse e-mail</string>
+    <string name="personalid_send_email_otp_pending_backup_code_title">Définir le code de secours</string>
+    <string name="personalid_send_email_otp_pending_backup_code_subtitle">Votre compte n\'a pas encore de code de secours. Vérifiez votre adresse e-mail ci-dessous pour en créer un.</string>
+    <string name="personalid_send_email_otp_title">Récupérer le code de sauvegarde</string>
+    <string name="personalid_send_email_otp_description">Nous enverrons un code de vérification à :</string>
+    <string name="personalid_send_email_otp_button">Envoyer le code</string>
+    <string name="personalid_send_email_otp_address_label">E-mail de récupération</string>
     <string name="personalid_set_new_backup_code_title">Définir un nouveau code de sauvegarde</string>
+    <string name="personalid_backup_code_reminder_title">Confirmer le code de sauvegarde</string>
+    <string name="personalid_backup_code_reminder_message">Entrez votre code de sauvegarde pour confirmer que vous vous en souvenez encore.</string>
+    <string name="personalid_backup_code_reminder_incorrect">Code de sauvegarde incorrect. Veuillez réessayer. %d tentatives restantes.</string>
+    <string name="personalid_backup_code_reminder_success_toast">Parfait, vous êtes prêt\(e\) !</string>
+    <string name="personalid_backup_code_reminder_max_attempts_toast">Vous avez dépassé le nombre maximum de tentatives.</string>
+    <string name="personalid_backup_code_reminder_skip">Ignorer</string>
+    <string name="personalid_backup_code_reminder_confirm">Confirmer</string>
     <string name="personalid_backup_code_changed_success">Code de sauvegarde mis à jour avec succès</string>
+    <string name="personalid_set_new_backup_code_abandon_title">Annuler la configuration du code de sauvegarde ?</string>
+    <string name="personalid_set_new_backup_code_abandon_message">Revenir en arrière annulera le processus de modification du code de sauvegarde.</string>
+    <string name="personalid_set_new_backup_code_abandon_positive">Définir le code de sauvegarde</string>
+    <string name="personalid_set_new_backup_code_abandon_negative">Quitter</string>
+    <string name="personalid_set_backup_code_reminder_title">Définir le code de sauvegarde</string>
+    <string name="personalid_set_backup_code_reminder_message">Vous n\'avez pas de code de sauvegarde configuré sur votre compte. Cliquez sur Confirmer pour en configurer un.</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_title">Définir le code de sauvegarde</string>
+    <string name="personalid_configuration_set_new_backup_code_abandon_message">Veuillez définir un code de sauvegarde avant de quitter</string>
     <string name="connect_job_info_delivery_detail">Détails de livraison</string>
     <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
     <string name="connect_job_info_visit">%d visites maximum</string>
     <string name="connect_job_info_days">%d jours pour terminer</string>
     <string name="connect_job_info_max_visit">Nombre maximal de visites par jour %d</string>
     <string name="connect_job_info_visit_charge">Gagnez jusqu\'à %s par visite</string>
-    <string name="connect_job_info_download_delivery">Télécharger Livraison</string>
     <string name="connect_job_info_view_info">Voir les informations</string>
     <string name="connect_job_info_view_resume">Reprendre</string>
     <string name="connect_job_info_view_review">Réviser</string>
@@ -444,7 +486,7 @@ License.
     <string name="connect_job_tile_daily_limit_description">Limite quotidienne atteinte. Aucun paiement pour l\'envoi des formulaires.</string>
     <string name="connect_in_progress">En cours</string>
     <string name="connect_new_opportunities">Nouvelles opportunités</string>
-    <string name="connect_completed">Terminé</string>
+    <string name="connect_completed_expired_label">Opportunités terminées / expirées</string>
     <string name="personalid_continue_label">Continuer</string>
     <string name="connect_verify_phone_resend_code">Renvoyer le code</string>
     <string name="connect_verify_skip_phone_number">Je vois que vous êtes un utilisateur de démonstration, nous allons donc ignorer l\'OTP</string>
@@ -468,6 +510,10 @@ License.
     <string name="connect_job_tile_daily_visits">Visites quotidiennes</string>
     <string name="connect_appbar_title_app_lock">Verrouillage d\'application</string>
     <string name="personalid_incorrect_otp">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Veuillez réessayer.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Il vous reste %d tentative.</item>
+        <item quantity="other">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Il vous reste %d tentatives.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">Cette adresse e-mail est déjà liée à un autre compte. Veuillez utiliser une adresse e-mail différente.</string>
     <string name="personalid_too_many_otp_attempts">Vous avez fait trop de tentatives d\'envoi d\'OTP. Veuillez patienter et réessayer lorsque le bouton de renvoi est visible.</string>
     <string name="personalid_otp_verification_failed_generic">Un problème est survenu lors de la vérification de votre numéro de téléphone. Veuillez réessayer.</string>
@@ -503,6 +549,7 @@ License.
     <string name="connect_corrupt_job_text">Impossible de charger cette opportunité</string>
     <string name="personalid_login_via_connect">Prêt à vous connecter !\n</string>
     <string name="personalid_failed_to_login_with_connectid">Nous rencontrons une erreur irrécupérable lors de la connexion avec votre identifiant personnel. Veuillez vous connecter avec votre mot de passe ou restaurer votre identifiant personnel.</string>
+    <string name="personalid_name_appbar_title">Nom</string>
     <string name="personalid_name_fragment_subtitle">Veuillez saisir votre nom tel qu\'il apparaît sur votre pièce d\'identité émise par le gouvernement</string>
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
@@ -553,6 +600,8 @@ License.
     <string name="nav_drawer_commcare_apps">Applications CommCare</string>
     <string name="nav_drawer_switch_app_dialog_title">Se déconnecter de cette application ?</string>
     <string name="nav_drawer_switch_app_dialog_message">Vous serez déconnecté de cette application et redirigé vers l\'écran de connexion, où vous pourrez choisir une autre application.</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">Se déconnecter et changer d\'application ?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">Vous serez déconnecté de l\'application CommCare à laquelle vous êtes connecté et redirigé vers l\'écran de connexion, où vous pourrez choisir une autre application.</string>
     <string name="nav_drawer_switch_app_dialog_confirm">Continuer</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Annuler</string>
     <string name="play_service_update_error">Pour utiliser PersonalID, vous devez mettre à jour les services Google Play. Appuyez ici pour accéder au Google Play Store afin de rechercher des mises à jour.</string>
@@ -589,6 +638,9 @@ License.
     <string name="personalid_biometric_error_timeout">L\'opération biométrique a expiré. Veuillez contacter le support client si le problème persiste.</string>
     <string name="personalid_biometric_error_cannot_configure">Nous n\'avons pas pu configurer la biométrie sur votre appareil. Veuillez contacter le support client si le problème persiste.</string>
 
+    <string name="connect_label_expires_on">Expire le</string>
+    <string name="connect_label_completed_on">Terminé le</string>
+    <string name="connect_label_expired_on">Expiré le</string>
     <string name="connect_complete_by">La tâche se termine le %s</string>
     <string name="connect_expired_on">La tâche s\'est terminée le %s</string>
     <string name="connect_dashboard">Tableau de bord</string>
@@ -603,6 +655,18 @@ License.
     <string name="connect_delivery_your_progress">Votre progression</string>
     <string name="connect_delivery_total_earnings">Gains totaux</string>
     <string name="connect_delivery_amount_each">%1$s chacune</string>
+    <string name="connect_delivery_tasks_title">Tâches</string>
+    <string name="connect_delivery_tasks_mandatory_title">Obligatoires</string>
+    <string name="connect_delivery_tasks_mandatory_subtitle">Terminez les tâches pour continuer la prestation.</string>
+    <string name="connect_delivery_tasks_empty">Aucune tâche en attente pour le moment. Nous vous informerons dès qu\'une nouvelle tâche sera disponible.</string>
+    <string name="connect_delivery_revisit_learning_title">Revoir la formation</string>
+    <string name="connect_delivery_revisit_learning_completed">Terminé le %1$s</string>
+    <string name="connect_delivery_revisit_learning_unsynced">Le certificat sera disponible après votre prochaine synchronisation</string>
+    <string name="connect_delivery_revisit_learning_offline">Les détails du certificat se chargeront lorsque vous serez de nouveau en ligne</string>
+    <string name="connect_delivery_revisit_learning_view">Voir</string>
+    <string name="connect_task_expires_on">Expire le %1$s</string>
+    <string name="connect_task_pending_chip">Tâche en attente</string>
+    <string name="connect_task_blocking_subtitle">Terminez-la pour continuer la livraison.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visite restante aujourd\'hui</item>
         <item quantity="other">%1$d visites restantes aujourd\'hui</item>
@@ -663,6 +727,7 @@ License.
     <string name="connect_last_synced">Dernière synchronisation : %s</string>
     <string name="connect_sync_successful">Dernière synchronisation : À l\'instant</string>
     <string name="connect_sync_failed">Échec de synchronisation, dernière synchronisation : %s</string>
+    <string name="connect_sync_card_press_to_sync">Cliquez ici pour synchroniser</string>
     <string name="connect_offline">Hors ligne</string>
     <string name="connect_back_online">De retour en ligne</string>
     <string name="connect_never">Jamais</string>
@@ -707,7 +772,6 @@ License.
         <item quantity="other">%d unités de paiement</item>
     </plurals>
     <string name="connect_opportunity_footer_start_learning">Commencer l\'apprentissage</string>
-    <string name="connect_opportunity_footer_download_learn_app">Télécharger Apprentissage</string>
     <string name="connect_opportunity_modules_footer_note">Terminez les modules, réussissez l\'évaluation et obtenez votre certificat</string>
     <string name="connect_opportunity_footer_download_app">Télécharger l\'app</string>
     <string name="microimage_saving_failed">Impossible d\'enregistrer l\'image. Veuillez réessayer</string>

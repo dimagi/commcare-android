@@ -6,8 +6,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.color.MaterialColors
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
+import org.commcare.views.extensions.themeColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -22,7 +24,7 @@ class ConnectInfoHalfCardTest {
         ConnectInfoHalfCard(
             ContextThemeWrapper(
                 ApplicationProvider.getApplicationContext(),
-                R.style.CommonTheme,
+                R.style.ConnectTheme,
             ),
         )
 
@@ -112,13 +114,13 @@ class ConnectInfoHalfCardTest {
 
         card.contentEnabled = false
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_grey),
+            card.context.themeColor(R.attr.connectOnSurfaceDisabled),
             value.currentTextColor,
         )
 
         card.contentEnabled = true
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_blue_color),
+            MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary),
             value.currentTextColor,
         )
     }
@@ -129,7 +131,7 @@ class ConnectInfoHalfCardTest {
 
         assertEquals(true, card.contentEnabled)
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_blue_color),
+            MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary),
             card.findViewById<TextView>(R.id.info_card_value_text).currentTextColor,
         )
     }
@@ -147,7 +149,7 @@ class ConnectInfoHalfCardTest {
 
         val card =
             ConnectInfoHalfCard(
-                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.CommonTheme),
+                ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme),
                 attrs,
             )
 
@@ -156,7 +158,7 @@ class ConnectInfoHalfCardTest {
         assertEquals("100 each", card.subtitleText.toString())
         assertEquals(false, card.contentEnabled)
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_grey),
+            card.context.themeColor(R.attr.connectOnSurfaceDisabled),
             card.findViewById<TextView>(R.id.info_card_value_text).currentTextColor,
         )
     }

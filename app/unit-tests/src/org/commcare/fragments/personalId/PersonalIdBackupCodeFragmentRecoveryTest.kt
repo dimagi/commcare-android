@@ -12,6 +12,8 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.json.JSONObject
 import org.junit.After
@@ -24,6 +26,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mockStatic
+import org.mockito.kotlin.eq
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
@@ -72,6 +76,38 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     }
 
     @Test
+    fun `forgot backup code link is gone when no email is on file`() {
+        // Default setUp launches without an email — the link should be hidden.
+        val forgotLink = fragment.requireView().findViewById<android.view.View>(R.id.personalid_forgot_backup_code)
+        assertEquals(View.GONE, forgotLink.visibility)
+    }
+
+    @Test
+    fun `forgot backup code link is visible when masked email is set in session data`() {
+        launchBackupCodeFragment(buildSessionData(accountExists = true, maskedEmail = "u***@example.com"))
+        val forgotLink = fragment.requireView().findViewById<android.view.View>(R.id.personalid_forgot_backup_code)
+        assertEquals(View.VISIBLE, forgotLink.visibility)
+    }
+
+    @Test
+    fun `clicking forgot backup code link navigates to send email OTP with masked email`() {
+        val maskedEmail = "u***@example.com"
+        launchBackupCodeFragment(buildSessionData(accountExists = true, maskedEmail = maskedEmail))
+
+        val forgotLink = fragment.requireView().findViewById<View>(R.id.personalid_forgot_backup_code)
+        clickView(forgotLink)
+
+        assertEquals(R.id.personalid_send_email_otp_fragment, navController.currentDestination?.id)
+        assertEquals(
+            maskedEmail,
+            navController.backStack
+                .last()
+                .arguments
+                ?.getString("email"),
+        )
+    }
+
+    @Test
     fun `welcome back header greets the user by name`() {
         assertEquals(View.VISIBLE, welcomeBackLayout.visibility)
         assertEquals(
@@ -113,14 +149,16 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     // ========== Request ==========
 
     @Test
-    fun `a complete code posts it to the confirm endpoint and disables continue while in flight`() {
+    fun `a complete code posts it to the complete_recovery endpoint and disables continue while in flight`() {
         // No response is enqueued so the request stays in flight, making the disabled assertion deterministic.
         enterBackupCode(TEST_BACKUP_CODE)
 
         val request = takeRequestOrFail()
-        assertEquals("/users/recover/confirm_backup_code", request.path)
+        val body = JSONObject(request.body.readUtf8())
+        assertEquals("/users/recover/complete_recovery", request.path)
         assertEquals("POST", request.method)
-        assertEquals(TEST_BACKUP_CODE, JSONObject(request.body.readUtf8()).getString("recovery_pin"))
+        assertEquals("backup_code", body.getString("method"))
+        assertEquals(TEST_BACKUP_CODE, body.getString("backup_code"))
 
         val authHeader = request.headers["Authorization"]
         assertNotNull("Authorization header should be present", authHeader)
@@ -160,7 +198,7 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     }
 
     @Test
-    fun `a confirmed code routes to the email screen when the toggle is active and no email is on file`() {
+    fun `a confirmed code finalizes recovery and routes to the email screen when the toggle is active and no email is on file`() {
         activateEmailOtpToggle()
         mockWebServer.enqueue(successResponse())
 
@@ -176,7 +214,24 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
                 .arguments
                 ?.getSerializable("workflow"),
         )
-        assertNull("User should not be stored before email verification completes", storedUser())
+        assertNotNull("User should be stored before navigating to the email screen", storedUser())
+    }
+
+    @Test
+    fun `a confirmed code reports recovery before routing to the email screen`() {
+        activateEmailOtpToggle()
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            mockWebServer.enqueue(successResponse())
+            enterBackupCode(TEST_BACKUP_CODE)
+            drainHttp()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
+                )
+            }
+        }
+        assertEquals(R.id.personalid_email, navController.currentDestination?.id)
     }
 
     @Test
@@ -193,6 +248,21 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
             message = fragment.getString(R.string.connect_recovery_success_message),
             phase = ConnectConstants.PERSONALID_RECOVERY_SUCCESS,
         )
+    }
+
+    @Test
+    fun `a confirmed code passes backup_code as the recovery method`() {
+        mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
+            mockWebServer.enqueue(successResponse())
+            enterBackupCode(TEST_BACKUP_CODE)
+            drainHttp()
+            mockAnalytics.verify {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
+                    eq(true),
+                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
+                )
+            }
+        }
     }
 
     // ========== Failure ==========

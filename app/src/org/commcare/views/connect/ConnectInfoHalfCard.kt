@@ -7,10 +7,12 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectInfoHalfCardBinding
 import org.commcare.views.extensions.bindOptional
 import org.commcare.views.extensions.bindReservingSpace
+import org.commcare.views.extensions.themeColor
 
 /**
  * Reusable half-width Connect info card.
@@ -46,10 +48,11 @@ class ConnectInfoHalfCard
             set(value) {
                 field = value
                 binding.infoCardValueText.setTextColor(
-                    ContextCompat.getColor(
-                        context,
-                        if (value) R.color.connect_dark_blue_color else R.color.connect_dark_grey,
-                    ),
+                    if (value) {
+                        MaterialColors.getColor(this, com.google.android.material.R.attr.colorPrimary)
+                    } else {
+                        context.themeColor(R.attr.connectOnSurfaceDisabled)
+                    },
                 )
             }
 
@@ -74,7 +77,7 @@ class ConnectInfoHalfCard
             // Compat padding would reserve room for a shadow this flat card never draws, and it
             // reserves more vertically than horizontally, so gaps between cards come out uneven.
             useCompatPadding = false
-            setCardBackgroundColor(ContextCompat.getColor(context, R.color.white))
+            setCardBackgroundColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface))
 
             context.obtainStyledAttributes(attrs, R.styleable.ConnectInfoHalfCard).apply {
                 valueText = getString(R.styleable.ConnectInfoHalfCard_valueText)

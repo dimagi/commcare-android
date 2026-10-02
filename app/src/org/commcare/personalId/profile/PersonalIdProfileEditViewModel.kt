@@ -5,8 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.fragments.personalId.AttemptTracker
 import org.commcare.fragments.personalId.EmailHelper
+import org.commcare.utils.CommCareAttemptCounter
 
 /**
  * Holds the in-progress Edit Profile form state in a [SavedStateHandle] so typed values
@@ -19,7 +19,7 @@ class PersonalIdProfileEditViewModel(
 ) : AndroidViewModel(application) {
     var user: ConnectUserRecord = ConnectUserDatabaseUtil.getUser()
         private set
-    val emailOtpTracker = AttemptTracker()
+    val emailOtpTracker = CommCareAttemptCounter()
 
     val currentName: String
         get() = savedStateHandle[KEY_CURRENT_NAME] ?: user.name

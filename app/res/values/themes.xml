@@ -58,14 +58,24 @@
         <item name="appBarLayoutStyle">@style/Widget.Connect.AppBarLayout</item>
 
         <item name="connectBackground">@color/connect_background_color</item>
+        <item name="connectSurfaceContainerLow">@color/cool_gray_50</item>
         <item name="connectPrimaryContainer">@color/light_lavender</item>
+        <item name="connectOnPrimaryContainer">@color/neon_blue</item>
+        <item name="connectInversePrimary">@color/cc_brand_color</item>
         <item name="connectOnSurfaceEmphasis">@color/cool_gray_900</item>
         <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
         <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
         <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
+        <item name="connectDisabledContainer">@color/cool_gray_100</item>
+        <item name="connectOnDisabledContainer">@color/connect_subtext_color</item>
+        <item name="connectCtaButtonBackground">@color/connect_cta_button_background</item>
+        <item name="connectCtaButtonForeground">@color/connect_cta_button_foreground</item>
+        <item name="connectOnSurfaceDisabled">@color/neutral_gray_600</item>
+        <item name="connectOutline">@color/connect_grey</item>
         <item name="connectOutlineVariant">@color/connect_light_grey</item>
         <item name="connectStatusPositive">@color/connect_green</item>
         <item name="connectStatusPositiveContainer">@color/connect_light_green</item>
+        <item name="connectStatusNegative">@color/red_600</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />
