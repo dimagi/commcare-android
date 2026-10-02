@@ -125,7 +125,7 @@ class ConnectOpportunityListFragment :
     private fun navigateToDeliveryProgress() {
         binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
-                .actionConnectJobsListFragmentToConnectJobDeliveryProgressFragment(),
+                .actionConnectJobsListFragmentToConnectDeliveryHomeFragment(),
         )
     }
 
