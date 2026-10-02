@@ -14,7 +14,7 @@ import org.robolectric.annotation.Config
 
 /**
  * Covers the messages that depend on more than the error code alone: the rate-limit wait the
- * server supplies, and the out-of-attempts code introduced alongside it.
+ * server supplies, the attempts left on an incorrect OTP, and the out-of-attempts code.
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -31,6 +31,30 @@ class PersonalIdOrConnectApiErrorHandlerTest {
         assertEquals(
             context.getString(R.string.personalid_otp_limit_exceeded),
             getHandledMessage(PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR, null),
+        )
+    }
+
+    @Test
+    fun `an incorrect OTP reports how many attempts the code has left`() {
+        assertEquals(
+            context.resources.getQuantityString(R.plurals.personalid_incorrect_otp_attempts_remaining, 2, 2),
+            getHandledMessage(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, IncorrectOtpException(2)),
+        )
+    }
+
+    @Test
+    fun `an incorrect OTP with no attempt count falls back to the generic incorrect OTP message`() {
+        assertEquals(
+            context.getString(R.string.personalid_incorrect_otp),
+            getHandledMessage(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, IncorrectOtpException(null)),
+        )
+    }
+
+    @Test
+    fun `an incorrect OTP with no throwable falls back to the generic incorrect OTP message`() {
+        assertEquals(
+            context.getString(R.string.personalid_incorrect_otp),
+            getHandledMessage(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, null),
         )
     }
 

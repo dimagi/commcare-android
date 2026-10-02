@@ -142,7 +142,6 @@
     <string name="menu_app_list_install">See Apps for My User</string>
     <string name="menu_app_list_install_other_user">See Apps for Another User</string>
     <string name="toggle_web_user_mode">Web User</string>
-    <string name="toggle_mobile_user_mode">Mobile User</string>
     <string name="missing_fields">Please enter all required fields.</string>
     <string name="email_address_invalid">Please enter a valid email address.</string>
     <string name="get_app_list_user_error_mobile">An invalid username, domain, or password was provided. Please make sure all of the fields you entered are correct.</string>
@@ -203,7 +202,6 @@
     <string name="please_wait_long" cc:translatable="true">Please wait. This could take a few minutes.</string>
     <string name="quit_application" cc:translatable="true">Exit %s</string>
     <string name="quit_form_title" cc:translatable="true">Exit Form?</string>
-    <string name="refresh" cc:translatable="true">Refresh</string>
     <string name="replace_location" cc:translatable="true">Replace Location</string>
     <string name="required_answer_error" cc:translatable="true">Sorry, this response is required!</string>
     <string name="review" cc:translatable="true">Continue</string>
@@ -358,7 +356,7 @@
     <string name="connect_button_logged_in">Go to Connect menu</string>
 
     <string name="connect_registration_title">Get Started with PersonalID</string>
-    <string name="connect_registration_subtitle">Enter your Phone Number</string>
+    <string name="connect_registration_subtitle">Enter your phone number</string>
 
     <string name="personalid_welcome_user">Welcome %s!</string>
     <string name="personalid_choice_or">___________    OR    ___________</string>
@@ -374,7 +372,7 @@
 
     <string name="connect_backup_code_title_set">Backup Code</string>
     <string name="connect_backup_code_title_confirm">Confirm Backup Code</string>
-    <string name="connect_backup_code_message_title">PersonalId Backup Code</string>
+    <string name="connect_backup_code_message_title">PersonalID backup code</string>
     <string name="connect_backup_code_message">Enter your 6-digit Backup Code</string>
     <string name="connect_backup_code_remember">Please be sure to remember your backup code! It must be %d digits. Keep it in a safe place as you will need it to access your account again.</string>
     <string name="connect_backup_code_mismatch">The backup codes you enter must match.</string>
@@ -399,13 +397,14 @@
     <string name="personalid_email_description">Your email helps you recover your account if you lose access to your phone.</string>
     <string name="personalid_email_hint">Email address</string>
     <string name="personalid_email_skip">Skip for now</string>
-    <string name="personalid_email_skip_confirm_title">Skip email?</string>
-    <string name="personalid_email_skip_confirm_message">Are you sure you want to skip?</string>
+    <string name="personalid_email_skip_confirm_title">Protect your account</string>
+    <string name="personalid_email_skip_confirm_message">Adding an email strengthens your account security. It helps verify important account changes, prevents unauthorized recovery attempts, and gives you a secure way to regain access if you lose your device.</string>
+    <string name="personalid_email_skip_confirm_skip">Skip</string>
+    <string name="personalid_email_skip_confirm_add">Add Email</string>
     <string name="personalid_email_invalid_format">Please enter a valid email address.</string>
     <string name="personalid_email_verification_appbar_title">Verify Email</string>
     <string name="personalid_email_verification_title">Verify your email</string>
     <string name="personalid_email_verification_description">Enter the 6-digit code sent to %1$s</string>
-    <string name="personalid_email_verify_button">Verify</string>
     <string name="personalid_email_otp_failed_title">Verification unsuccessful</string>
     <string name="personalid_email_otp_failed_message">You have used all the attempts for this code. You can request a new one in %1$s, or skip email for now.</string>
     <string name="personalid_email_otp_failed_wait">Wait</string>
@@ -449,14 +448,14 @@
 
     <string name="connect_register_success_message">Your account has been created, and is ready for you to use!</string>
     <string name="connect_register_success_button">OK</string>
-    <string name="connect_verify_title">Unlock Options</string>
+    <string name="connect_verify_title">Unlock options</string>
     <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_message_pin">Please configure a PIN or pattern below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_message_fingerprint">Please configure your fingerprint below to unlock both your device and PersonalID account</string>
-    <string name="connect_verify_use_fingerprint_long">Use Fingerprint to Connect</string>
+    <string name="connect_verify_use_fingerprint_long">Use fingerprint to connect</string>
     <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock PersonalID.</string>
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
-    <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
+    <string name="connect_verify_use_pin_long">Use PIN to connect</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
@@ -502,7 +501,6 @@
     <string name="connect_message_them">Them</string>
     <string name="fcm_sync_failed_body_text">Click here to know more</string>
 
-    <string name="connect_last_update">Updated: %s</string>
     <string name="connect_last_synced">Last synced: %s</string>
     <string name="connect_sync_successful">Last synced: Just Now</string>
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
@@ -522,7 +520,6 @@
     <string name="connect_never">Never</string>
     <string name="connect_title">Connect</string>
     <string name="connect_no_jobs">You haven’t been invited to any opportunities yet. Once you’ve been invited to an opportunity, it will appear in this list.</string>
-    <string name="connect_corrupt_job_text">Failed to load this opportunity</string>
 
 
 
@@ -530,7 +527,6 @@
     <string name="connect_job_ended">Task ended on %s</string>
 
     <string name="connect_learn_title">Learning Progress</string>
-    <string name="connect_fetch_learning_progress_error">Failed to fetch the learning progress</string>
     <string name="connect_sms_invite_opportunity_not_found">Opportunity not found</string>
 
     <string name="connect_learn_complete">Complete</string>
@@ -551,12 +547,9 @@
     <string name="connect_learn_cta_complete_assessment">Complete assessment</string>
     <string name="connect_learn_cta_take_assessment">Take assessment</string>
     <string name="connect_learn_cta_start">Start</string>
-    <string name="connect_delivery_earn_multi">Pay per visit:</string>
 
     <string name="connect_delivery_go">Go To App</string>
     <string name="connect_progress_delivery">Delivery</string>
-    <string name="connect_progress_title">Delivery Progress</string>
-    <string name="connect_progress_status">You have completed %d of %d visits.</string>
     <string name="semi_circle_progress_value_format" cc:translatable="true">%1$d of %2$d</string>
     <string name="connect_progress_count_format" cc:translatable="true">%1$d of %2$d</string>
 
@@ -591,9 +584,6 @@
     <string name="connect_results_summary_days_over">Days Over</string>
 
     <string name="connect_results_summary_transferred">Transferred</string>
-    <string name="connect_payment_confirm_text">Have you been paid %d %s for %s Opportunity?</string>
-    <string name="connect_payment_confirm_yes">Yes!</string>
-    <string name="connect_payment_confirm_no">Ask later</string>
     <string name="personalid_login_with">Login with PersonalId</string>
     <string name="personalid_link_app_title">Link to PersonalId?</string>
     <string name="personalid_link_app_message">Do you want to link this login to your PersonalId account? You will not need to type your password in the future.</string>
@@ -612,8 +602,8 @@
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
 
 
-    <string name="enter_otp">Enter One Time Password</string>
-    <string name="create_a_new_recovery_code">Create a new Backup Code</string>
+    <string name="enter_otp">Enter one-time password</string>
+    <string name="create_a_new_recovery_code">Create a new backup code</string>
     <string name="confirm_code">Confirm Code</string>
     <string name="code">Code</string>
     <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Backup Code</string>
@@ -698,7 +688,7 @@
     <string name="personalid_manage_profile"><u>Manage Profile</u></string>
     <string name="personalid_profile_title">Profile</string>
     <string name="personalid_profile_edit_title">Edit Profile</string>
-    <string name="personalid_profile_section_personal_information">Personal Information</string>
+    <string name="personalid_profile_section_personal_information">Personal information</string>
     <string name="personalid_profile_field_name">Name</string>
     <string name="personalid_profile_field_phone">Phone Number</string>
     <string name="personalid_profile_field_email">Email Address</string>
@@ -712,27 +702,13 @@
     <string name="personalid_profile_edit_discard_message">Your unsaved changes will be lost.</string>
     <string name="personalid_profile_edit_discard_positive">Discard</string>
     <string name="personalid_profile_edit_discard_negative">Keep editing</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Verify your new email</string>
-    <string name="personalid_profile_edit_otp_confirm_message">We\'ll send a 6-digit code to %1$s. Enter it on the next screen to verify.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Send Code</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Cancel</string>
     <string name="personalid_profile_edit_save">Save</string>
     <string name="personalid_profile_edit_cancel">Cancel</string>
     <string name="personalid_profile_edit_save_success">Your profile has been updated successfully.</string>
 
-    <string name="connect_job_info_delivery_detail">Delivery Details</string>
-    <string name="connect_job_info_review_delivery">Review the delivery details</string>
-    <string name="connect_job_info_visit">%d maximum Visits</string>
-    <string name="connect_job_info_days">%d Days to complete</string>
-    <string name="connect_job_info_max_visit">Maximum visits per day %d</string>
-    <string name="connect_job_info_visit_charge">Earn up to %s for visit</string>
     <string name="connect_job_info_delivery_hours">Delivery Hours</string>
     <string name="connect_job_info_view_more">View More</string>
     <string name="connect_job_info_view_opportunity">View Opportunity</string>
-    <string name="connect_job_info_view_info">View Info</string>
-    <string name="connect_job_info_view_resume">Resume</string>
-    <string name="connect_job_info_view_review">Review</string>
-    <string name="connect_job_info_view_proceed">Proceed</string>
 
     <string name="connect_opportunity_badge_new">New Opportunity</string>
     <string name="connect_opportunity_expiry_label">Expires on</string>
@@ -769,7 +745,6 @@
     <string name="connect_delivery_start">Start</string>
     <string name="connect_delivery_continue_visits">Continue your visits</string>
     <string name="connect_delivery_continue_visits_subtitle">Submit delivery forms</string>
-    <string name="connect_delivery_progress_description">You haven’t completed any lessons. Start learning to earn your certificate.</string>
     <string name="connect_delivery_visit_progress_title">Visit Progress</string>
     <string name="connect_delivery_total_visits_completed">total visits completed</string>
     <string name="connect_delivery_daily_visits">Daily Visits</string>
@@ -792,7 +767,6 @@
         <item quantity="one">%1$d visit remaining today</item>
         <item quantity="other">%1$d visits remaining today</item>
     </plurals>
-    <string name="connect_click_to_sync_progress">Click to sync progress</string>
     <string name="connect_visit_type_title">%s Visits</string>
 
     <string name="connect_payment_received">Received</string>
@@ -823,6 +797,7 @@
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_appbar_title">Name</string>
+    <string name="personalid_name_fragment_title">Enter your name</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
@@ -836,7 +811,7 @@
     <string name="personalid_configuration_process_pin_needs_update_message">The PIN on this device requires an update. Please apply any available system updates, or try again on a different device.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">Biometrics on this device is out of date. Please apply any available system updates, or try again with a different device.</string>
     <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires your device to have a fingerprint scanner. Please try again on a different device.</string>
-    <string name="personalid_photo_capture_title">Welcome %1$s</string>
+    <string name="personalid_photo_capture_title">Welcome, %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
     <string name="personalid_photo_capture_save_photo_button">Save Photo</string>
@@ -858,7 +833,7 @@
     <string name="personalid_send_email_otp_description">We\'ll send a verification code to:</string>
     <string name="personalid_send_email_otp_button">Send code</string>
     <string name="personalid_send_email_otp_address_label">Recovery email</string>
-    <string name="personalid_welcome_back_msg">Welcome back %s</string>
+    <string name="personalid_welcome_back_msg">Welcome back, %s</string>
     <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
     <string name="personalid_second_device_login_title">Login on Second Device</string>
     <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>
@@ -871,6 +846,10 @@
     <string name="camera_permission_msg" cc:translatable="true">In order to take a picture, CommCare needs permission to use your device camera.</string>
     <string name="personalid_capture_photo">Capture Photo</string>
     <string name="personalid_incorrect_otp">You have entered the wrong 6-digit passcode. Please try again.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">You have entered the wrong 6-digit passcode. %d attempt remaining.</item>
+        <item quantity="other">You have entered the wrong 6-digit passcode. %d attempts remaining.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">This email is already linked to another account. Please use a different email address.</string>
     <string name="personalid_too_many_otp_attempts">You have made too many attempts to send OTP. Please wait and try again whenever the resend button is visible.</string>
     <string name="personalid_otp_verification_failed_generic">Something went wrong verifying your phone number. Please try again.</string>
@@ -936,7 +915,6 @@
     <string name="network_forbidden_error">Access denied. Please contact customer support if the problem persists.</string>
     <string name="error">Error</string>
     <string name="failed_to_start_learning">Failed to start learning</string>
-    <string name="failed_to_update_payment">Failed to update payment</string>
 
     <string name="personalid_biometric_error_cancelled">Biometric setup was cancelled. Please contact customer support if the problem persists.</string>
     <string name="personalid_biometric_error_lockout">Too many attempts. Please wait and try again.</string>
@@ -947,8 +925,6 @@
     <string name="connect_label_expires_on">Expires on</string>
     <string name="connect_label_completed_on">Completed on</string>
     <string name="connect_label_expired_on">Expired on</string>
-    <string name="connect_complete_by">Task ends on %s</string>
-    <string name="connect_expired_on">Task ended on %s</string>
 
     <string name="network_notification_service_starting">Starting network service</string>
     <string name="network_notification_service_running">Running network requests...</string>

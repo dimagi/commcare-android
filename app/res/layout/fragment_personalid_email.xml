@@ -4,7 +4,7 @@
     android:id="@+id/personalid_email_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?attr/colorSurface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -13,31 +13,30 @@
         android:orientation="vertical">
 
         <TextView
+            style="@style/Widget.Connect.HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/personalid_email_title"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:text="@string/personalid_email_title" />
 
         <TextView
+            style="@style/Widget.Connect.BodyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:text="@string/personalid_email_description" />
 
         <LinearLayout
             android:id="@+id/email_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:gravity="start"
             android:orientation="horizontal">
 
@@ -54,32 +53,31 @@
                 android:id="@+id/email_text_value"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/connect_space_lg"
                 android:background="@drawable/connect_edit_text_bg"
                 android:hint="@string/personalid_email_hint"
                 android:imeOptions="actionDone"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
-                android:paddingStart="16dp"
+                android:paddingStart="@dimen/connect_space_lg"
                 android:textColorHint="@color/connect_grey" />
 
         </LinearLayout>
 
         <TextView
             android:id="@+id/personalid_email_error"
+            style="@style/Widget.Connect.ErrorText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="84dp"
-            android:paddingTop="4dp"
-            android:textColor="@android:color/holo_red_light"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:paddingTop="@dimen/connect_space_xs"
             android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="@dimen/connect_space_md"
+            android:layout_marginTop="@dimen/connect_space_xl"
             android:orientation="horizontal"
             android:weightSum="2">
 
@@ -88,19 +86,16 @@
                 style="@style/CustomSecondaryCtaButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="12dp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/personalid_email_skip" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/personalid_email_continue_button"
-                style="@style/CustomButtonStyle"
+                style="@style/ConnectPrimaryButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="24dp"
+                android:layout_margin="@dimen/spacer_small"
                 android:layout_weight="1"
                 android:drawableEnd="@drawable/connect_right_arrow"
                 android:enabled="false"
