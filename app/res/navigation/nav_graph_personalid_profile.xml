@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_profile_edit_to_backup_code"
             app:destination="@id/personalid_profile_backup_code_fragment" />
+        <action
+            android:id="@+id/action_profile_edit_to_profile_send_phone_otp"
+            app:destination="@id/personalid_profile_send_phone_otp_fragment" />
     </fragment>
 
     <fragment
@@ -80,6 +83,37 @@
         <action
             android:id="@+id/action_profile_backup_code_to_send_email_otp"
             app:destination="@id/personalid_send_email_otp_fragment" />
+        <action
+            android:id="@+id/action_profile_backup_code_to_profile_send_phone_otp"
+            app:destination="@id/personalid_profile_send_phone_otp_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_send_phone_otp_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileSendPhoneOtpFragment"
+        android:label="@string/connect_verify_phone_title"
+        tools:layout="@layout/fragment_personalid_send_email_otp">
+        <argument
+            android:name="pendingEmail"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_profile_send_phone_otp_to_profile_phone_verification"
+            app:destination="@id/personalid_profile_phone_verification_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_phone_verification_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfilePhoneVerificationFragment"
+        android:label="@string/connect_verify_phone_title"
+        tools:layout="@layout/screen_personalid_phone_verify">
+        <argument
+            android:name="pendingEmail"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_profile_phone_verification_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment"
+            app:popUpTo="@id/personalid_profile_send_phone_otp_fragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment

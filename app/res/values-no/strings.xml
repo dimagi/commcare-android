@@ -110,6 +110,7 @@
     <string name="personalid_send_email_otp_pending_backup_code_title">Angi sikkerhetskode</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">Kontoen din har ikke en sikkerhetskode ennå. Bekreft e-postadressen din nedenfor for å opprette en.</string>
     <string name="personalid_send_email_otp_title">Gjenopprett sikkerhetskoden</string>
+    <string name="personalid_send_phone_otp_title">Bekreft telefonnummeret ditt</string>
     <string name="personalid_send_email_otp_description">Vi sender en bekreftelseskode til:</string>
     <string name="personalid_send_email_otp_button">Send kode</string>
     <string name="personalid_send_email_otp_address_label">Gjenopprettings-e-post</string>

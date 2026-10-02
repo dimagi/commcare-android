@@ -141,7 +141,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
 
     private fun onSaveClicked() {
         if (viewModel.isEmailModified()) {
-            navigateToBackupCodeForEmailChange()
+            startEmailChange()
         } else {
             saveProfileDetails {
                 showSuccess()
@@ -150,23 +150,28 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         }
     }
 
-    private fun navigateToBackupCodeForEmailChange() {
+    private fun startEmailChange() {
         val pendingEmail = viewModel.currentEmail
         if (viewModel.isNameModified()) {
             binding.btnSave.isEnabled = false
-            saveProfileDetails { navigateToBackupCode(pendingEmail) }
+            saveProfileDetails { startEmailChangeAuth(pendingEmail) }
         } else {
-            navigateToBackupCode(pendingEmail)
+            startEmailChangeAuth(pendingEmail)
         }
     }
 
-    private fun navigateToBackupCode(pendingEmail: String) {
+    private fun startEmailChangeAuth(pendingEmail: String) {
         _binding ?: return
-        findNavController().navigate(
-            PersonalIdProfileEditFragmentDirections
-                .actionProfileEditToBackupCode(EmailWorkFlow.EXISTING_USER)
-                .setPendingEmail(pendingEmail),
-        )
+        val directions =
+            if (viewModel.user.pin.isNullOrEmpty()) {
+                PersonalIdProfileEditFragmentDirections
+                    .actionProfileEditToProfileSendPhoneOtp(pendingEmail)
+            } else {
+                PersonalIdProfileEditFragmentDirections
+                    .actionProfileEditToBackupCode(EmailWorkFlow.EXISTING_USER)
+                    .setPendingEmail(pendingEmail)
+            }
+        findNavController().navigate(directions)
     }
 
     private fun saveProfileDetails(onSaved: () -> Unit) {
