@@ -227,6 +227,17 @@
         <item name="android:layout_margin">@dimen/spacer_small</item>
     </style>
 
+    <style name="ConnectPrimaryButtonStyle" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/connect_primary_button_background</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">@dimen/connect_space_md</item>
+        <item name="height">40dp</item>
+        <item name="cornerRadius">@dimen/rounded_button_corner_radius</item>
+        <item name="iconPadding">@dimen/connect_space_sm</item>
+    </style>
+
     <style name="CustomSecondaryCtaButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="backgroundTint">@color/secondary_cta_btn_background</item>
         <item name="android:textColor">@color/secondary_cta_btn_text_color</item>
@@ -372,6 +383,42 @@
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:letterSpacing">0.0364</item>
         <item name="lineHeight">16sp</item>
+    </style>
+
+    <style name="Widget.Connect.HeadingText" parent="TextStyle.Connect.TitleXl">
+        <item name="android:textColor">?attr/connectOnSurfaceEmphasis</item>
+    </style>
+
+    <style name="Widget.Connect.SectionHeadingText" parent="TextStyle.Connect.TitleS">
+        <item name="android:textColor">?attr/connectOnSurfaceVariant</item>
+    </style>
+
+    <style name="Widget.Connect.BodyText" parent="TextStyle.Connect.BodyM">
+        <item name="android:textColor">?attr/connectOnSurfaceVariant</item>
+    </style>
+
+    <style name="Widget.Connect.LabelText" parent="TextStyle.Connect.TitleS">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.Connect.ValueText" parent="TextStyle.Connect.BodyLg">
+        <item name="android:textColor">?attr/connectOnSurfaceEmphasis</item>
+    </style>
+
+    <style name="Widget.Connect.HelperText" parent="TextStyle.Connect.BodyS">
+        <item name="android:textColor">?attr/connectOnSurfaceSecondary</item>
+    </style>
+
+    <style name="Widget.Connect.ErrorText" parent="TextStyle.Connect.BodyS">
+        <item name="android:textColor">?attr/connectStatusNegative</item>
+    </style>
+
+    <style name="Widget.Connect.WarningText" parent="TextStyle.Connect.BodyS">
+        <item name="android:textColor">?attr/connectStatusWarning</item>
+    </style>
+
+    <style name="Widget.Connect.LinkText" parent="TextStyle.Connect.TitleS">
+        <item name="android:textColor">?attr/colorPrimary</item>
     </style>
 
     <style name="Widget.Connect.CtaBarButton" parent="Commcare.Button.Primary.Rounded">

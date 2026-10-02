@@ -356,7 +356,7 @@
     <string name="connect_button_logged_in">Go to Connect menu</string>
 
     <string name="connect_registration_title">Get Started with PersonalID</string>
-    <string name="connect_registration_subtitle">Enter your Phone Number</string>
+    <string name="connect_registration_subtitle">Enter your phone number</string>
 
     <string name="personalid_welcome_user">Welcome %s!</string>
     <string name="personalid_choice_or">___________    OR    ___________</string>
@@ -372,7 +372,7 @@
 
     <string name="connect_backup_code_title_set">Backup Code</string>
     <string name="connect_backup_code_title_confirm">Confirm Backup Code</string>
-    <string name="connect_backup_code_message_title">PersonalId Backup Code</string>
+    <string name="connect_backup_code_message_title">PersonalID backup code</string>
     <string name="connect_backup_code_message">Enter your 6-digit Backup Code</string>
     <string name="connect_backup_code_remember">Please be sure to remember your backup code! It must be %d digits. Keep it in a safe place as you will need it to access your account again.</string>
     <string name="connect_backup_code_mismatch">The backup codes you enter must match.</string>
@@ -448,14 +448,14 @@
 
     <string name="connect_register_success_message">Your account has been created, and is ready for you to use!</string>
     <string name="connect_register_success_button">OK</string>
-    <string name="connect_verify_title">Unlock Options</string>
+    <string name="connect_verify_title">Unlock options</string>
     <string name="connect_verify_message">Please configure a method below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_message_pin">Please configure a PIN or pattern below to unlock both your device and PersonalID account</string>
     <string name="connect_verify_message_fingerprint">Please configure your fingerprint below to unlock both your device and PersonalID account</string>
-    <string name="connect_verify_use_fingerprint_long">Use Fingerprint to Connect</string>
+    <string name="connect_verify_use_fingerprint_long">Use fingerprint to connect</string>
     <string name="connect_verify_fingerprint_configured">Your fingerprint has already been configured and will be used to unlock PersonalID.</string>
     <string name="connect_verify_configure_fingerprint">Configure Fingerprint</string>
-    <string name="connect_verify_use_pin_long">Use PIN to Connect</string>
+    <string name="connect_verify_use_pin_long">Use PIN to connect</string>
 
     <string name="connect_verify_configure_pin">Configure PIN</string>
     <string name="connect_verify_agree">Agree &amp; Continue</string>
@@ -602,8 +602,8 @@
     <string name="user_suspended">User is Suspended. Please contact admin.</string>
 
 
-    <string name="enter_otp">Enter One Time Password</string>
-    <string name="create_a_new_recovery_code">Create a new Backup Code</string>
+    <string name="enter_otp">Enter one-time password</string>
+    <string name="create_a_new_recovery_code">Create a new backup code</string>
     <string name="confirm_code">Confirm Code</string>
     <string name="code">Code</string>
     <string name="choose_a_6_digit_recovery_code">Choose a 6 Digit Backup Code</string>
@@ -688,7 +688,7 @@
     <string name="personalid_manage_profile"><u>Manage Profile</u></string>
     <string name="personalid_profile_title">Profile</string>
     <string name="personalid_profile_edit_title">Edit Profile</string>
-    <string name="personalid_profile_section_personal_information">Personal Information</string>
+    <string name="personalid_profile_section_personal_information">Personal information</string>
     <string name="personalid_profile_field_name">Name</string>
     <string name="personalid_profile_field_phone">Phone Number</string>
     <string name="personalid_profile_field_email">Email Address</string>
@@ -797,6 +797,7 @@
     <string name="personalid_login_via_connect">Ready to login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_appbar_title">Name</string>
+    <string name="personalid_name_fragment_title">Enter your name</string>
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
@@ -810,7 +811,7 @@
     <string name="personalid_configuration_process_pin_needs_update_message">The PIN on this device requires an update. Please apply any available system updates, or try again on a different device.</string>
     <string name="personalid_configuration_process_biometric_needs_update_message">Biometrics on this device is out of date. Please apply any available system updates, or try again with a different device.</string>
     <string name="personalid_configuration_process_biometric_no_hardware_message">PersonalID requires your device to have a fingerprint scanner. Please try again on a different device.</string>
-    <string name="personalid_photo_capture_title">Welcome %1$s</string>
+    <string name="personalid_photo_capture_title">Welcome, %1$s</string>
     <string name="personalid_photo_capture_subtitle">Please take a photo of yourself to complete your account setup</string>
     <string name="personalid_photo_capture_take_photo_button">Take Photo</string>
     <string name="personalid_photo_capture_save_photo_button">Save Photo</string>
@@ -832,7 +833,7 @@
     <string name="personalid_send_email_otp_description">We\'ll send a verification code to:</string>
     <string name="personalid_send_email_otp_button">Send code</string>
     <string name="personalid_send_email_otp_address_label">Recovery email</string>
-    <string name="personalid_welcome_back_msg">Welcome back %s</string>
+    <string name="personalid_welcome_back_msg">Welcome back, %s</string>
     <string name="personalid_wrong_backup_message">You have entered the wrong Backup Code. Please try again. Your account will be locked after %d more incorrect attempts.</string>
     <string name="personalid_second_device_login_title">Login on Second Device</string>
     <string name="personalid_second_device_login_message">Logged out of %s, last used %s. PersonalID can only be logged in on one device at a time.</string>

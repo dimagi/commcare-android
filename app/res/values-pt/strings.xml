@@ -265,7 +265,7 @@
     <string name="connect_enter_otp">Por favor, introduza o código de acesso de 6 dígitos que foi enviado para o seu número de telefone.</string>
     <string name="connect_backup_code_title_set">Código de recuperação</string>
     <string name="connect_backup_code_title_confirm">Confirmar código de recuperação</string>
-    <string name="connect_backup_code_message_title">Código de recuperação PersonalId</string>
+    <string name="connect_backup_code_message_title">Código de recuperação PersonalID</string>
     <string name="connect_backup_code_message">Digite seu código de recuperação de 6 dígitos</string>
     <string name="connect_backup_code_remember">Certifique-se de que se lembra do seu código de segurança! Tem de ter %d dígitos. Guarde-o num local seguro, pois irá precisar dele para aceder novamente à sua conta.</string>
     <string name="connect_backup_code_mismatch">Os códigos de segurança que introduzir têm de coincidir.</string>
@@ -530,6 +530,7 @@
     <string name="personalid_login_via_connect">Pronto para fazer login!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos a deparar-nos com um erro irrecuperável ao tentar fazer login usando o seu ID Pessoal. Faça login com a sua palavra-passe ou restaure o seu login com o ID Pessoal.</string>
     <string name="personalid_name_appbar_title">Nome</string>
+    <string name="personalid_name_fragment_title">Insira o seu nome</string>
     <string name="personalid_name_fragment_subtitle">Por favor, insira o seu nome tal como aparece na sua identificação emitida pelo governo</string>
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_locked_account">A sua conta foi bloqueada. Entre em contacto com o suporte</string>
@@ -543,12 +544,12 @@
     <string name="personalid_configuration_process_failed_temporary_unavailable">Erro temporário ao verificar a elegibilidade do seu dispositivo. Por favor, tente novamente depois de um dia.</string>
     <string name="personalid_configuration_process_failed_network_error">Erro de rede ao verificar a elegibilidade do seu dispositivo. Por favor, certifique-se de que tem uma boa conexão de rede e tente novamente.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">Não foi possível verificar a elegibilidade do dispositivo devido a um erro inesperado. Por favor, entre em contato com o suporte ao cliente se o problema persistir.</string>
-    <string name="personalid_photo_capture_title">Bem-vindo %1$s</string>
+    <string name="personalid_photo_capture_title">Bem-vindo, %1$s</string>
     <string name="personalid_photo_capture_subtitle">Por favor, tire uma fotografia sua para concluir a configuração da sua conta</string>
     <string name="personalid_photo_capture_take_photo_button">Tirar foto</string>
     <string name="personalid_photo_capture_save_photo_button">Guardar foto</string>
     <string name="personalid_this_is_not_me"><u>Este não sou eu</u></string>
-    <string name="personalid_welcome_back_msg">Bem-vindo de volta %s</string>
+    <string name="personalid_welcome_back_msg">Bem-vindo de volta, %s</string>
     <string name="personalid_wrong_backup_message">Introduziu o código de segurança incorretamente. Tente novamente. A sua conta será bloqueada após %d tentativas incorretas.</string>
     <string name="personalid_second_device_login_title">Iniciar sessão no segundo dispositivo</string>
     <string name="personalid_second_device_login_message">Sessão encerrada em %s, último acesso em %s. O PersonalID só pode ser utilizado num dispositivo de cada vez.</string>

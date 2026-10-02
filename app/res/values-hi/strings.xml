@@ -495,7 +495,7 @@ License.
     <string name="personalid_otp_verification_failed">कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>
     <string name="personalid_location_permission_error">PersonalID के लिए आवश्यक है कि आपके डिवाइस पर लोकेशन सेवाएं सक्षम हों। कृपया आगे बढ़ने से पहले इसे अपने फ़ोन की सेटिंग में सक्षम करें।</string>
     <string name="connect_registration_subtitle">अपना फ़ोन नंबर दर्ज करें</string>
-    <string name="connect_backup_code_message_title">PersonalId बैकअप कोड</string>
+    <string name="connect_backup_code_message_title">PersonalID बैकअप कोड</string>
     <string name="connect_backup_code_message">अपना 6 अंकों का बैकअप कोड दर्ज करें</string>
     <string name="connect_messaging_send_message_fail_msg">संदेश भेजने में विफल</string>
     <string name="connect_messaging_retrieve_messages_fail">संदेश पुनर्प्राप्त करने में विफल</string>
@@ -520,6 +520,7 @@ License.
     <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!\n</string>
     <string name="personalid_failed_to_login_with_connectid">आपके व्यक्तिगत आईडी से लॉग इन करते समय हमें एक अप्राप्य त्रुटि का सामना करना पड़ रहा है। कृपया अपने पासवर्ड से लॉग इन करें या अपनी व्यक्तिगत आईडी पुनर्स्थापित करें।</string>
     <string name="personalid_name_appbar_title">नाम</string>
+    <string name="personalid_name_fragment_title">अपना नाम दर्ज करें</string>
     <string name="personalid_name_fragment_subtitle">कृपया अपना नाम दर्ज करें जैसा कि आपके सरकार द्वारा जारी आईडी पर दिखाई देता है</string>
     <string name="personalid_configuration_process_failed_title">प्रक्रिया विफल</string>
     <string name="personalid_configuration_process_failed_subtitle">दुर्भाग्य से, यह डिवाइस PersonalID के लिए साइन अप करने हेतु आवश्यक सुरक्षा जांच में विफल रहा। कृपया किसी दूसरे डिवाइस पर पुनः प्रयास करें।</string>
@@ -532,12 +533,12 @@ License.
     <string name="personalid_configuration_process_failed_temporary_unavailable">आपके डिवाइस की पात्रता की जांच करते समय अस्थायी त्रुटि। कृपया एक दिन बाद पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_network_error">आपके डिवाइस की पात्रता की जांच करते समय नेटवर्क त्रुटि। कृपया सुनिश्चित करें कि आपके पास एक अच्छा नेटवर्क कनेक्शन है और पुनः प्रयास करें।</string>
     <string name="personalid_configuration_process_failed_unexpected_error">अप्रत्याशित त्रुटि के कारण डिवाइस की पात्रता की जांच करने में असमर्थ। यदि समस्या बनी रहती है तो कृपया ग्राहक सहायता से संपर्क करें।</string>
-    <string name="personalid_photo_capture_title">स्वागत है %1$s</string>
+    <string name="personalid_photo_capture_title">स्वागत है, %1$s</string>
     <string name="personalid_photo_capture_subtitle">कृपया अपने खाते का सेटअप पूरा करने के लिए अपनी एक तस्वीर लें</string>
     <string name="personalid_photo_capture_take_photo_button">तस्वीर लें</string>
     <string name="personalid_photo_capture_save_photo_button">तस्वीर सहेजें</string>
     <string name="personalid_this_is_not_me"><u>यह मैं नहीं हूँ</u></string>
-    <string name="personalid_welcome_back_msg">वापसी पर स्वागत है %s</string>
+    <string name="personalid_welcome_back_msg">वापसी पर स्वागत है, %s</string>
     <string name="personalid_wrong_backup_message">आपने गलत बैकअप कोड डाला है। कृपया फिर से कोशिश करें। %d और गलत कोशिशों के बाद आपका अकाउंट लॉक हो जाएगा।</string>
     <string name="personalid_second_device_login_title">दूसरे डिवाइस पर लॉग इन करें</string>
     <string name="personalid_second_device_login_message">%s से लॉग आउट किया गया, आखिरी बार %s इस्तेमाल किया गया था। PersonalID से एक समय में सिर्फ़ एक डिवाइस पर लॉग इन किया जा सकता है।</string>

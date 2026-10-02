@@ -190,7 +190,7 @@
         <activity
             android:name="org.commcare.activities.connect.PersonalIdActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <activity
             android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
@@ -610,7 +610,7 @@
             android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"

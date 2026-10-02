@@ -8,7 +8,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 #### What's New
 
-- The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
+- The CommCare logo no longer appears on any PersonalID sign-up or account recovery screen.
+- PersonalID sign-up, account recovery and profile screens now share consistent headings, text styles, spacing and colors.
 - Messaging and Work History now show the sidebar, and opening another sidebar section replaces the current one instead of stacking on top of it.
 - After an incorrect email or phone OTP code, PersonalID now shows how many attempts remain before a new code must be requested.
 
@@ -19,8 +20,9 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 ### QA Notes
 
-- Step through PersonalID sign-up and account recovery and verify the CommCare logo shows only on the phone number screen.
+- Step through PersonalID sign-up and account recovery and verify the CommCare logo no longer appears, including on the phone number screen.
   - Confirm the name screen's app bar title reads "Name" and not "App Lock".
+- On every PersonalID sign-up, recovery and profile screen, including any message sheets that appear, confirm each screen has a heading and no text is oversized or clipped.
 - On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
 - After too many wrong email or phone OTP codes, the field clears, the message explains the OTP code can no longer be used, and Resend is offered straight away.
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
