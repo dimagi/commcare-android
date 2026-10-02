@@ -206,7 +206,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.projectEndDate = JsonExtensions.requireDate(json, META_END_DATE);
         job.projectStartDate = JsonExtensions.requireDate(json, META_START_DATE);
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
-        job.maxDailyVisits = JsonExtensions.requireIntOrDefaultIfNull(json, META_MAX_DAILY_VISITS, NO_DAILY_LIMIT);
+        job.maxDailyVisits = JsonExtensions.optIntSafe(json, META_MAX_DAILY_VISITS, NO_DAILY_LIMIT);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
         String budgetPerUserKey = "budget_per_user";
         job.totalBudget = json.getInt(budgetPerUserKey);

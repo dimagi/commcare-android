@@ -79,7 +79,7 @@ public class ConnectPaymentUnitRecord extends Persisted implements Serializable 
 
             paymentUnit.name = json.getString(META_NAME);
             paymentUnit.maxTotal = json.getInt(META_TOTAL);
-            paymentUnit.maxDaily = JsonExtensions.requireIntOrDefaultIfNull(json, META_DAILY, NO_DAILY_LIMIT);
+            paymentUnit.maxDaily = JsonExtensions.optIntSafe(json, META_DAILY, NO_DAILY_LIMIT);
             paymentUnit.amount = json.getInt(META_AMOUNT);
 
             return paymentUnit;

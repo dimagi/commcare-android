@@ -289,8 +289,10 @@ class ConnectOpportunitiesParserTest {
     }
 
     @Test
-    fun `parse stores valid job and skips job missing its daily limit`() {
-        assertBadJobIsSkipped(validJobJson(10).apply { remove("daily_max_visits_per_user") })
+    fun `parse treats a missing job daily limit as no daily limit`() {
+        val job = parseSingleJob(validJobJson(1).apply { remove("daily_max_visits_per_user") })
+
+        assertFalse(job.hasDailyLimit())
     }
 
     @Test
