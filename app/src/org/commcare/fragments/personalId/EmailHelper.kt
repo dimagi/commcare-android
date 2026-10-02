@@ -11,6 +11,7 @@ import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.CommCareAttemptCounter
 import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.StringUtils
 
@@ -22,11 +23,7 @@ object EmailHelper {
     // ---------- Auth-arg selection -------------------------------------------------------
 
     /**
-     * Picks the right auth pair for an email OTP API call based on [workflow]:
-     *  - [EmailWorkFlow.EXISTING_USER] / [EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER] / [EmailWorkFlow.PENDING_BACKUP_CODE]: the user is already signed up
-     *    so authenticate with the persisted [ConnectUserRecord]'s basic-auth credentials.
-     *  - [EmailWorkFlow.REGISTRATION] / [EmailWorkFlow.RECOVERY] / [EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY]:
-     *    the user has a fresh session token from /users/start_configuration API call.
+     * Picks the right auth pair for an email OTP API call based on [workflow]
      */
     private fun buildAuthArgs(
         workflow: EmailWorkFlow,
@@ -36,10 +33,10 @@ object EmailHelper {
             EmailWorkFlow.EXISTING_USER,
             EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
             EmailWorkFlow.PENDING_BACKUP_CODE,
+            EmailWorkFlow.RECOVERY,
             -> null to ConnectUserDatabaseUtil.getUser()
 
             EmailWorkFlow.REGISTRATION,
-            EmailWorkFlow.RECOVERY,
             EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
             -> sessionData?.token to null
         }
@@ -54,7 +51,7 @@ object EmailHelper {
         email: String?,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
-        tracker: AttemptTracker = AttemptTracker(),
+        tracker: CommCareAttemptCounter = CommCareAttemptCounter(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
@@ -107,7 +104,7 @@ object EmailHelper {
         otp: String,
         workflow: EmailWorkFlow,
         sessionData: PersonalIdSessionData?,
-        tracker: AttemptTracker = AttemptTracker(),
+        tracker: CommCareAttemptCounter = CommCareAttemptCounter(),
         onSuccess: () -> Unit,
         onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
     ) {
@@ -149,14 +146,6 @@ object EmailHelper {
 
     /**
      * Dispatches the next step after the user skips / declines the email step.
-     *  - [EmailWorkFlow.EXISTING_USER]: finish the host activity.
-     *  - [EmailWorkFlow.RECOVERY]: finalize account recovery, then call [onRecoverySuccess]
-     *    to navigate to the success message screen.
-     *  - [EmailWorkFlow.REGISTRATION]: call [onRegistration] to continue to the next signup
-     *    step (Photo Capture).
-     *
-     * The two navigation lambdas live with the caller because each fragment owns its own
-     * Safe Args Directions class.
      */
     fun routeAfterEmailDeclined(
         fragment: Fragment,

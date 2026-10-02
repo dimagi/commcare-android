@@ -42,7 +42,7 @@
                         android:src="@drawable/ic_connect_learn_app" />
 
                     <TextView
-                        style="@style/TextStyle.Connect.LabelM"
+                        style="@style/TextStyle.Connect.LabelS"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/standard_spacer_half"

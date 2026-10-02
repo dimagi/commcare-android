@@ -2,13 +2,16 @@ package org.commcare.views.connect
 
 import android.view.ContextThemeWrapper
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.color.MaterialColors
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
+import org.commcare.views.extensions.themeColor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -107,21 +110,21 @@ class ConnectInfoHalfCardTest {
     }
 
     @Test
-    fun `contentEnabled false grays the value and true restores the accent`() {
+    fun `contentEnabled false grays the value and icon, and true restores the accent`() {
         val card = newCard()
+        card.icon = ContextCompat.getDrawable(card.context, R.drawable.ic_connect_footprint)
         val value = card.findViewById<TextView>(R.id.info_card_value_text)
+        val icon = card.findViewById<ImageView>(R.id.info_card_icon)
 
         card.contentEnabled = false
-        assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_grey),
-            value.currentTextColor,
-        )
+        val disabled = card.context.themeColor(R.attr.connectOnSurfaceDisabled)
+        assertEquals(disabled, value.currentTextColor)
+        assertEquals(disabled, ImageViewCompat.getImageTintList(icon)?.defaultColor)
 
         card.contentEnabled = true
-        assertEquals(
-            MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary),
-            value.currentTextColor,
-        )
+        val accent = MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary)
+        assertEquals(accent, value.currentTextColor)
+        assertEquals(accent, ImageViewCompat.getImageTintList(icon)?.defaultColor)
     }
 
     @Test
@@ -157,7 +160,7 @@ class ConnectInfoHalfCardTest {
         assertEquals("100 each", card.subtitleText.toString())
         assertEquals(false, card.contentEnabled)
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_dark_grey),
+            card.context.themeColor(R.attr.connectOnSurfaceDisabled),
             card.findViewById<TextView>(R.id.info_card_value_text).currentTextColor,
         )
     }

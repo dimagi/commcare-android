@@ -137,6 +137,8 @@
     <string name="nav_drawer_commcare_apps">CommCare-apper</string>
     <string name="nav_drawer_switch_app_dialog_title">Logge ut av denne appen?</string>
     <string name="nav_drawer_switch_app_dialog_message">Du blir logget ut av denne appen og sendt tilbake til påloggingsskjermen, der du kan velge en annen app.</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">Logge ut og bytte app?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">Du blir logget ut av CommCare-appen du er logget inn på og sendt tilbake til påloggingsskjermen, der du kan velge en annen app.</string>
     <string name="nav_drawer_switch_app_dialog_confirm">Fortsett</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Avbryt</string>
     <string name="play_service_update_error">For å bruke PersonalID må du oppdatere Google Play-tjenester. Trykk her for å gå til Google Play-butikken for å søke etter oppdateringer.</string>
@@ -202,6 +204,10 @@
     <string name="connect_otp_verified">Suksess! Ditt telefonnummer er blitt bekreftet.</string>
     <string name="personalid_otp_verification_failed_generic">Noe gikk galt under bekreftelsen av ditt telefonnummer. Prøv igjen.</string>
     <string name="personalid_incorrect_otp">Du har tastet inn feil 6-sifret adgangskode. Prøv igjen.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">Du har tastet inn feil 6-sifret adgangskode. %d forsøk gjenstår.</item>
+        <item quantity="other">Du har tastet inn feil 6-sifret adgangskode. %d forsøk gjenstår.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">Denne e-postadressen er allerede knyttet til en annen konto. Bruk en annen e-postadresse.</string>
     <string name="connect_backup_code_mismatch">Reservekodene du taster inn, må stemme overens.</string>
     <string name="personalid_network_response_parsing_error">Feil ved lesing av data fra serveren. Kontakt kundestøtte.</string>
@@ -211,18 +217,36 @@
     <string name="personalid_email_description">E-postadressen din hjelper deg å gjenopprette kontoen din hvis du mister tilgang til telefonen.</string>
     <string name="personalid_email_hint">E-postadresse</string>
     <string name="personalid_email_skip">Hopp over for nå</string>
-    <string name="personalid_email_skip_confirm_title">Hoppe over e-post?</string>
-    <string name="personalid_email_skip_confirm_message">Er du sikker på at du vil hoppe over?</string>
+    <string name="personalid_email_skip_confirm_title">Beskytt kontoen din</string>
+    <string name="personalid_email_skip_confirm_message">Å legge til en e-postadresse styrker sikkerheten til kontoen din. Det bidrar til å bekrefte viktige kontoendringer, forhindrer uautoriserte gjenopprettingsforsøk, og gir deg en sikker måte å gjenvinne tilgang på hvis du mister enheten din.</string>
+    <string name="personalid_email_skip_confirm_skip">Hopp over</string>
+    <string name="personalid_email_skip_confirm_add">Legg til e-post</string>
     <string name="personalid_email_invalid_format">Vennligst skriv inn en gyldig e-postadresse.</string>
     <string name="personalid_email_verification_appbar_title">Bekreft e-post</string>
     <string name="personalid_email_verification_title">Bekreft e-postadressen din</string>
     <string name="personalid_email_verification_description">Skriv inn den 6-sifrede koden sendt til %1$s</string>
     <string name="personalid_email_verify_button">Bekreft</string>
     <string name="personalid_email_otp_failed_title">Bekreftelse mislyktes</string>
-    <string name="personalid_email_otp_failed_message">Det ser ut til at du har problemer med å bekrefte e-postadressen din. Du kan hoppe over dette nå og prøve igjen senere, eller fortsette å prøve.</string>
-    <string name="personalid_email_otp_failed_retry">Prøv igjen</string>
+    <string name="personalid_email_otp_failed_message">Du har brukt alle forsøkene for denne koden. Du kan be om en ny om %1$s, eller hoppe over e-post for nå.</string>
+    <string name="personalid_email_otp_failed_wait">Vent</string>
     <string name="personalid_email_otp_failed_skip">Fortsett uten e-post</string>
-    <string name="personalid_email_otp_max_attempts_reached">Maksimalt antall bekreftingsforsøk er nådd. Vennligst prøv igjen senere.</string>
+    <string name="personalid_otp_limit_exceeded">Du har brukt alle forsøkene for denne koden, så den er ikke lenger gyldig. Be om en ny kode for å fortsette.</string>
+    <string name="personalid_rate_limited_retry_after">For mange forsøk. Prøv igjen om %1$s.</string>
+    <string name="personalid_otp_resend_wait">Fikk du ikke koden? Send på nytt om %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Vent %1$s for å be om en ny kode</string>
+    <string name="personalid_otp_request_code">Be om kode</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">%d sekund</item>
+        <item quantity="other">%d sekunder</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">%d minutt</item>
+        <item quantity="other">%d minutter</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">%d time</item>
+        <item quantity="other">%d timer</item>
+    </plurals>
     <string name="personalid_email_added_title">E-post lagt til</string>
     <string name="personalid_email_added_message">E-postadressen din er lagt til.</string>
     <string name="personalId_email_otp_sent">En 6-sifret kode er sendt til e-postadressen din.</string>
@@ -264,7 +288,7 @@
     <string name="pn_no_notification_available">Ingen varsler tilgjengelig</string>
     <string name="connect_no_jobs">Du har ikke blitt invitert til noen muligheter ennå. Når du har blitt invitert til en mulighet, vil den vises i denne listen.</string>
 
-    <string name="connect_label_expiry">Utløper</string>
+    <string name="connect_label_expires_on">Utløper</string>
     <string name="connect_label_completed_on">Fullført</string>
     <string name="connect_label_expired_on">Utløpt</string>
     <string name="connect_complete_by">Oppgave avsluttes %s</string>
@@ -291,6 +315,8 @@
     <string name="connect_delivery_revisit_learning_offline">Sertifikatdetaljene lastes inn når du er tilkoblet igjen</string>
     <string name="connect_delivery_revisit_learning_view">Vis</string>
     <string name="connect_task_expires_on">Utløper %1$s</string>
+    <string name="connect_task_pending_chip">Ventende oppgave</string>
+    <string name="connect_task_blocking_subtitle">Fullfør den for å fortsette leveringen.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d besøk gjenstår i dag</item>
         <item quantity="other">%1$d besøk gjenstår i dag</item>

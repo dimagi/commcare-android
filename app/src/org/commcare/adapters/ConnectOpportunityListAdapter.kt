@@ -108,7 +108,7 @@ class ConnectOpportunityListAdapter(
         private fun bindDate(item: ConnectLoginJobListModel) {
             val labelRes =
                 when {
-                    !item.jobFinished -> R.string.connect_label_expiry
+                    !item.jobFinished -> R.string.connect_label_expires_on
                     item.userCompletedDelivery -> R.string.connect_label_completed_on
                     else -> R.string.connect_label_expired_on
                 }

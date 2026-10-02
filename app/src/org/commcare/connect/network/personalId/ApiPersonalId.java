@@ -235,14 +235,13 @@ public class ApiPersonalId {
     }
 
     public static void validateFirebaseIdToken(
-            String token,
+            AuthInfo authInfo,
             Context context,
             String firebaseIdToken,
             IApiCallback callback
     ) {
         HashMap<String, String> params = new HashMap<>();
         params.put("token", firebaseIdToken);
-        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
@@ -371,8 +370,11 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.UPDATE_NOTIFICATIONS);
     }
 
-    public static void sendPhoneOtp(Context context, String token, IApiCallback callback) {
-        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
+    /**
+     * Sends a phone OTP. Auth is the PersonalID session token during signup, or basic auth from
+     * the stored user in Manage Profile.
+     */
+    public static void sendPhoneOtp(Context context, AuthInfo authInfo, IApiCallback callback) {
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
@@ -380,13 +382,16 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.SEND_SESSION_OTP);
     }
 
+    /**
+     * Validates a phone OTP. Auth is the PersonalID session token during signup, or basic auth from
+     * the stored user in Manage Profile.
+     */
     public static void validatePhoneOtp(
             Context context,
-            String token,
+            AuthInfo authInfo,
             String otp,
             IApiCallback callback
     ) {
-        AuthInfo authInfo = new AuthInfo.TokenAuth(token);
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
 

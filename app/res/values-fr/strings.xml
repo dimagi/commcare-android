@@ -272,18 +272,36 @@ License.
     <string name="personalid_email_description">Votre adresse e-mail vous aide à récupérer votre compte si vous perdez l\'accès à votre téléphone.</string>
     <string name="personalid_email_hint">Adresse e-mail</string>
     <string name="personalid_email_skip">Ignorer pour l\'instant</string>
-    <string name="personalid_email_skip_confirm_title">Ignorer l\'e-mail ?</string>
-    <string name="personalid_email_skip_confirm_message">Êtes-vous sûr de vouloir ignorer cette étape ?</string>
+    <string name="personalid_email_skip_confirm_title">Protégez votre compte</string>
+    <string name="personalid_email_skip_confirm_message">L\'ajout d\'une adresse e-mail renforce la sécurité de votre compte. Cela permet de vérifier les modifications importantes du compte, d\'empêcher les tentatives de récupération non autorisées et vous offre un moyen sécurisé de récupérer l\'accès si vous perdez votre appareil.</string>
+    <string name="personalid_email_skip_confirm_skip">Ignorer</string>
+    <string name="personalid_email_skip_confirm_add">Ajouter un e-mail</string>
     <string name="personalid_email_invalid_format">Veuillez saisir une adresse e-mail valide.</string>
     <string name="personalid_email_verification_appbar_title">Vérifier l\'e-mail</string>
     <string name="personalid_email_verification_title">Vérifiez votre adresse e-mail</string>
     <string name="personalid_email_verification_description">Saisissez le code à 6 chiffres envoyé à %1$s</string>
     <string name="personalid_email_verify_button">Vérifier</string>
     <string name="personalid_email_otp_failed_title">Échec de la vérification</string>
-    <string name="personalid_email_otp_failed_message">Il semble que vous ayez du mal à vérifier votre adresse e-mail. Vous pouvez ignorer cette étape pour le moment et réessayer plus tard, ou continuer d\'essayer.</string>
-    <string name="personalid_email_otp_failed_retry">Réessayer</string>
+    <string name="personalid_email_otp_failed_message">Vous avez utilisé toutes les tentatives pour ce code. Vous pouvez en demander un nouveau dans %1$s, ou ignorer l\'e-mail pour le moment.</string>
+    <string name="personalid_email_otp_failed_wait">Attendre</string>
     <string name="personalid_email_otp_failed_skip">Continuer sans e-mail</string>
-    <string name="personalid_email_otp_max_attempts_reached">Nombre maximum de tentatives de vérification atteint. Veuillez réessayer plus tard.</string>
+    <string name="personalid_otp_limit_exceeded">Vous avez utilisé toutes les tentatives pour ce code, il n\'est donc plus valide. Demandez un nouveau code pour continuer.</string>
+    <string name="personalid_rate_limited_retry_after">Trop de tentatives. Veuillez réessayer dans %1$s.</string>
+    <string name="personalid_otp_resend_wait">Vous n\'avez pas reçu votre code ? Renvoyer dans %1$s</string>
+    <string name="personalid_otp_request_new_code_wait">Attendez %1$s pour demander un nouveau code</string>
+    <string name="personalid_otp_request_code">Demander un code</string>
+    <plurals name="personalid_otp_retry_after_seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="other">%d secondes</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="personalid_otp_retry_after_hours">
+        <item quantity="one">%d heure</item>
+        <item quantity="other">%d heures</item>
+    </plurals>
     <string name="personalid_email_added_title">E-mail ajouté</string>
     <string name="personalid_email_added_message">Votre adresse e-mail a été ajoutée avec succès.</string>
     <string name="personalId_email_otp_sent">Un code à 6 chiffres a été envoyé à votre adresse e-mail.</string>
@@ -315,7 +333,6 @@ License.
     <string name="connect_verify_phone_title">Le code de vérification</string>
     <string name="connect_verify_phone_label">Nous avons tenté d\'envoyer un SMS à votre numéro de téléphone se terminant par %s.</string>
     <string name="connect_verify_phone_resend">Vous n\'avez pas reçu votre code? Renvoyer</string>
-    <string name="connect_verify_phone_resend_wait">Vous n\'avez pas reçu votre code? Veuillez le renvoyer dans%ds.</string>
     <string name="connect_verify_phone_change">Changer de numéro</string>
     <string name="connect_verify_phone_verify">Vérifier le code</string>
     <string name="connect_last_update">Mis à jour: %s</string>
@@ -493,6 +510,10 @@ License.
     <string name="connect_job_tile_daily_visits">Visites quotidiennes</string>
     <string name="connect_appbar_title_app_lock">Verrouillage d\'application</string>
     <string name="personalid_incorrect_otp">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Veuillez réessayer.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Il vous reste %d tentative.</item>
+        <item quantity="other">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Il vous reste %d tentatives.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">Cette adresse e-mail est déjà liée à un autre compte. Veuillez utiliser une adresse e-mail différente.</string>
     <string name="personalid_too_many_otp_attempts">Vous avez fait trop de tentatives d\'envoi d\'OTP. Veuillez patienter et réessayer lorsque le bouton de renvoi est visible.</string>
     <string name="personalid_otp_verification_failed_generic">Un problème est survenu lors de la vérification de votre numéro de téléphone. Veuillez réessayer.</string>
@@ -579,6 +600,8 @@ License.
     <string name="nav_drawer_commcare_apps">Applications CommCare</string>
     <string name="nav_drawer_switch_app_dialog_title">Se déconnecter de cette application ?</string>
     <string name="nav_drawer_switch_app_dialog_message">Vous serez déconnecté de cette application et redirigé vers l\'écran de connexion, où vous pourrez choisir une autre application.</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_title">Se déconnecter et changer d\'application ?</string>
+    <string name="nav_drawer_switch_app_from_section_dialog_message">Vous serez déconnecté de l\'application CommCare à laquelle vous êtes connecté et redirigé vers l\'écran de connexion, où vous pourrez choisir une autre application.</string>
     <string name="nav_drawer_switch_app_dialog_confirm">Continuer</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Annuler</string>
     <string name="play_service_update_error">Pour utiliser PersonalID, vous devez mettre à jour les services Google Play. Appuyez ici pour accéder au Google Play Store afin de rechercher des mises à jour.</string>
@@ -615,7 +638,7 @@ License.
     <string name="personalid_biometric_error_timeout">L\'opération biométrique a expiré. Veuillez contacter le support client si le problème persiste.</string>
     <string name="personalid_biometric_error_cannot_configure">Nous n\'avons pas pu configurer la biométrie sur votre appareil. Veuillez contacter le support client si le problème persiste.</string>
 
-    <string name="connect_label_expiry">Expiration</string>
+    <string name="connect_label_expires_on">Expire le</string>
     <string name="connect_label_completed_on">Terminé le</string>
     <string name="connect_label_expired_on">Expiré le</string>
     <string name="connect_complete_by">La tâche se termine le %s</string>
@@ -642,6 +665,8 @@ License.
     <string name="connect_delivery_revisit_learning_offline">Les détails du certificat se chargeront lorsque vous serez de nouveau en ligne</string>
     <string name="connect_delivery_revisit_learning_view">Voir</string>
     <string name="connect_task_expires_on">Expire le %1$s</string>
+    <string name="connect_task_pending_chip">Tâche en attente</string>
+    <string name="connect_task_blocking_subtitle">Terminez-la pour continuer la livraison.</string>
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visite restante aujourd\'hui</item>
         <item quantity="other">%1$d visites restantes aujourd\'hui</item>

@@ -5,11 +5,16 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.android.util.ConnectTestUtils
+import org.commcare.connect.ConnectConstants
+import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -26,6 +31,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mockStatic
+import org.mockito.Mockito.never
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
@@ -190,6 +197,21 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     @Test
+    fun `a wrong code reports how many attempts the code has left`() {
+        mockWebServer.enqueue(incorrectOtpResponse(attemptsLeft = 2))
+
+        enterCode("123456")
+        drainHttp()
+
+        val errorText = fragment.requireView().findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(View.VISIBLE, errorText.visibility)
+        assertEquals(
+            activity.resources.getQuantityString(R.plurals.personalid_incorrect_otp_attempts_remaining, 2, 2),
+            errorText.text.toString(),
+        )
+    }
+
+    @Test
     fun `email already in use response shows the email-in-use error instead of crashing`() {
         mockWebServer.enqueue(emailAlreadyInUseResponse())
 
@@ -234,35 +256,84 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         }
     }
 
-    @Test
-    fun `three failed OTP attempts show the verification-unsuccessful dialog`() {
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
+    // ========== OTP_LIMIT_EXCEEDED Tests ==========
 
+    @Test
+    fun `wrong codes alone never raise the verification-unsuccessful dialog`() {
         repeat(3) {
+            mockWebServer.enqueue(incorrectOtpResponse())
             enterCode("123456")
             drainHttp()
         }
 
-        val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
-        assertNotNull("Verification-unsuccessful dialog should be shown after 3 failed attempts", dialog)
-        assertTrue("Dialog should be visible", dialog!!.isShowing)
-        // The fragment shows exactly one dialog (showProceedWithoutEmailDialog) and only after
-        // failedOtpAttempts >= 3, so reaching this point proves the failure path took the
-        // dialog branch rather than the per-attempt re-enable branch.
+        assertFalse(
+            "Only the server's OTP_LIMIT_EXCEEDED decides when the guesses have run out",
+            ShadowDialog.getLatestDialog()?.isShowing ?: false,
+        )
     }
 
     @Test
-    fun `retry CTA on verification-unsuccessful dialog clears OTP state and dismisses the dialog`() {
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
+    fun `a code that has run out of attempts raises the verification-unsuccessful dialog`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
 
-        repeat(3) {
-            enterCode("123456")
-            drainHttp()
-        }
+        enterCode("123456")
+        drainHttp()
+
+        val dialog = ShadowDialog.getLatestDialog() as? AlertDialog
+        assertNotNull("OTP_LIMIT_EXCEEDED should offer the skip-email escape during REGISTRATION", dialog)
+        assertTrue("Dialog should be visible", dialog!!.isShowing)
+    }
+
+    @Test
+    fun `a code that has run out of attempts closes the screen for the server's wait`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        val codeView = fragment.view?.findViewById<NumericCodeView>(R.id.otp_code_view)
+        val errorText =
+            fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        val verifyButton =
+            fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_verify_button)
+
+        assertTrue("The dead code should not be left in the field", codeView!!.codeValue.isEmpty())
+        assertFalse("Nothing can be typed until a new code is requested", codeView.isEnabled)
+        assertEquals(
+            activity.getString(R.string.personalid_otp_limit_exceeded),
+            errorText!!.text.toString(),
+        )
+        assertFalse("Nothing to verify, so verify stays disabled", verifyButton!!.isEnabled)
+        assertEquals(
+            "No new code can be requested until the server's wait elapses",
+            View.GONE,
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
+        )
+    }
+
+    @Test
+    fun `running out of attempts counts down to requesting a new code rather than resending`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        val countdown = fragment.requireView().findViewById<TextView>(R.id.personalid_resend_countdown_text)
+        assertEquals(View.VISIBLE, countdown.visibility)
+        assertEquals(
+            activity.getString(
+                R.string.personalid_otp_request_new_code_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 1, 1),
+            ),
+            countdown.text.toString(),
+        )
+    }
+
+    @Test
+    fun `retry CTA on verification-unsuccessful dialog leaves the countdown running`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
+        enterCode("123456")
+        drainHttp()
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
         // StandardAlertDialog uses a custom content view, so the buttons are inside that
@@ -272,34 +343,25 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         activity.runOnUiThread { retryButton.performClick() }
         ShadowLooper.idleMainLooper()
 
-        val codeView = fragment.view?.findViewById<NumericCodeView>(R.id.otp_code_view)
         val errorText =
             fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
-        val verifyButton =
-            fragment.view?.findViewById<MaterialButton>(R.id.personalid_email_verify_button)
-
-        assertTrue("OTP code should be cleared after Retry", codeView!!.codeValue.isEmpty())
         assertEquals(
-            "Error text should be hidden after Retry",
-            View.GONE,
-            errorText!!.visibility,
+            "The reason should survive the dialog, since it is what explains the wait",
+            activity.getString(R.string.personalid_otp_limit_exceeded),
+            errorText!!.text.toString(),
         )
-        assertFalse(
-            "Verify button should be disabled after Retry (no 6-digit code present)",
-            verifyButton!!.isEnabled,
+        assertEquals(
+            "Dismissing the dialog must not shortcut the server's wait",
+            View.GONE,
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
         )
     }
 
     @Test
     fun `skip CTA on verification-unsuccessful dialog navigates to photo capture for REGISTRATION`() {
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
-        mockWebServer.enqueue(incorrectOtpResponse())
-
-        repeat(3) {
-            enterCode("123456")
-            drainHttp()
-        }
+        mockWebServer.enqueue(otpLimitExceededResponse())
+        enterCode("123456")
+        drainHttp()
 
         val dialog = ShadowDialog.getLatestDialog() as AlertDialog
         val skipButton = dialog.findViewById<Button>(R.id.negative_button)!!
@@ -311,6 +373,147 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
             R.id.personalid_photo_capture,
             navController.currentDestination!!.id,
         )
+    }
+
+    // ========== RATE_LIMITED Tests ==========
+
+    @Test
+    fun `a rate-limited resend reports how long the wait actually is`() {
+        clickResend(
+            MockResponse()
+                .setResponseCode(429)
+                .setBody("""{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""),
+        )
+
+        val errorText = fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(
+            activity.getString(
+                R.string.personalid_rate_limited_retry_after,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 2, 2),
+            ),
+            errorText!!.text.toString(),
+        )
+    }
+
+    @Test
+    fun `a rate-limited resend holds the resend button for the server's wait`() {
+        clickResend(
+            MockResponse()
+                .setResponseCode(429)
+                .setBody("""{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""),
+        )
+
+        assertEquals(
+            "Resend must not reappear on the default two-minute cooldown after a two-hour wait",
+            View.GONE,
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
+        )
+    }
+
+    @Test
+    fun `a rate-limited resend without a retry hint falls back to the generic cooldown message`() {
+        clickResend(
+            MockResponse().setResponseCode(429).setBody("""{"error_code":"RATE_LIMITED"}"""),
+        )
+
+        val errorText = fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(
+            activity.getString(R.string.recovery_network_cooldown),
+            errorText!!.text.toString(),
+        )
+    }
+
+    @Test
+    fun `the resend countdown names a multi-hour wait in hours rather than raw seconds`() {
+        clickResend(
+            MockResponse()
+                .setResponseCode(429)
+                .setBody("""{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""),
+        )
+
+        val countdown = fragment.requireView().findViewById<TextView>(R.id.personalid_resend_countdown_text)
+        assertEquals(View.VISIBLE, countdown.visibility)
+        assertEquals(
+            activity.getString(
+                R.string.personalid_otp_resend_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 2, 2),
+            ),
+            countdown.text.toString(),
+        )
+    }
+
+    // ========== Saved State Tests ==========
+
+    @Test
+    fun `the wait after running out of attempts survives a configuration change`() {
+        mockWebServer.enqueue(otpLimitExceededResponse())
+        enterCode("123456")
+        drainHttp()
+
+        recreateFragment()
+
+        assertEquals(
+            "A rotation must not shortcut the server's wait",
+            View.GONE,
+            fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button).visibility,
+        )
+        assertEquals(
+            "The wording must still be about requesting a new code, not resending",
+            activity.getString(
+                R.string.personalid_otp_request_new_code_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 1, 1),
+            ),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.personalid_resend_countdown_text)
+                .text
+                .toString(),
+        )
+    }
+
+    @Test
+    fun `a server-supplied wait survives a configuration change`() {
+        clickResend(
+            MockResponse()
+                .setResponseCode(429)
+                .setBody("""{"error_code":"RATE_LIMITED","retry_after_seconds":7200}"""),
+        )
+
+        recreateFragment()
+
+        val countdown = fragment.requireView().findViewById<TextView>(R.id.personalid_resend_countdown_text)
+        assertEquals(
+            "The two-hour wait must not collapse back to the two-minute default",
+            activity.getString(
+                R.string.personalid_otp_resend_wait,
+                activity.resources.getQuantityString(R.plurals.personalid_otp_retry_after_hours, 2, 2),
+            ),
+            countdown.text.toString(),
+        )
+    }
+
+    // ========== Skip-Eligibility Tests ==========
+
+    /**
+     * The skip dialog is raised by OTP_LIMIT_EXCEEDED, and its "proceed without email" button routes
+     * through proceedWithoutEmail(), which throws for any workflow it has no branch for. These two
+     * must therefore agree exactly.
+     */
+    @Test
+    fun `only the workflows proceedWithoutEmail can route are offered a skip`() {
+        mapOf(
+            EmailWorkFlow.REGISTRATION to true,
+            EmailWorkFlow.RECOVERY to true,
+            EmailWorkFlow.EXISTING_USER to false,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY to false,
+        ).forEach { (workflow, expected) ->
+            setUpWorkflow(workflow)
+            assertEquals(
+                "$workflow skip eligibility",
+                expected,
+                fragment.canSkipEmailVerification(),
+            )
+        }
     }
 
     // ========== FORGOT_BACKUP_CODE_RECOVERY tests ==========
@@ -357,18 +560,58 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     @Test
-    fun `FORGOT_BACKUP_CODE_RECOVERY three failures navigate to message screen`() {
+    fun `FORGOT_BACKUP_CODE_RECOVERY treats running out of attempts as recoverable rather than a lockout`() {
         setUpForgotBackupCodeRecoveryFlow()
-        repeat(3) {
-            mockCompleteRecovery(false)
+        mockWebServer.enqueue(otpLimitExceededResponse())
+
+        enterCode("000000")
+        drainHttp()
+
+        assertEquals(
+            "Running out of guesses no longer locks the account, so recovery stays on this screen",
+            R.id.personalid_email_verification,
+            navController.currentDestination!!.id,
+        )
+        assertFalse(
+            "Email OTP is the recovery factor here, so there is nothing to proceed without",
+            ShadowDialog.getLatestDialog()?.isShowing ?: false,
+        )
+        val errorText = fragment.view?.findViewById<TextView>(R.id.personalid_email_verify_error)
+        assertEquals(
+            activity.getString(R.string.personalid_otp_limit_exceeded),
+            errorText!!.text.toString(),
+        )
+    }
+
+    @Test
+    fun `FORGOT_BACKUP_CODE_RECOVERY counts down the attempts left and then asks for a new code`() {
+        setUpForgotBackupCodeRecoveryFlow()
+        val errorText = fragment.requireView().findViewById<TextView>(R.id.personalid_email_verify_error)
+
+        listOf(2, 1).forEach { attemptsLeft ->
+            mockWebServer.enqueue(incorrectOtpResponse(attemptsLeft))
             enterCode("000000")
             drainHttp()
+            assertEquals(
+                activity.resources.getQuantityString(
+                    R.plurals.personalid_incorrect_otp_attempts_remaining,
+                    attemptsLeft,
+                    attemptsLeft,
+                ),
+                errorText.text.toString(),
+            )
         }
 
-        assertEquals(R.id.personalid_message_display, navController.currentDestination!!.id)
-        val args = navController.currentBackStackEntry?.arguments
-        assertEquals(activity.getString(R.string.connect_backup_fail_title), args?.getString("title"))
-        assertEquals(activity.getString(R.string.personalid_email_otp_max_attempts_reached), args?.getString("message"))
+        mockWebServer.enqueue(otpLimitExceededResponse())
+        enterCode("000000")
+        drainHttp()
+
+        assertEquals(
+            "The last wrong guess hands off to the out-of-attempts handling, not a lockout",
+            activity.getString(R.string.personalid_otp_limit_exceeded),
+            errorText.text.toString(),
+        )
+        assertEquals(R.id.personalid_email_verification, navController.currentDestination!!.id)
     }
 
     @Test
@@ -429,22 +672,89 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     // ========== RECOVERY workflow tests ==========
 
     @Test
-    fun `RECOVERY workflow email verification success passes backup_code as the recovery method`() {
+    fun `RECOVERY workflow verifies OTP with the stored user credentials`() {
+        setUpRecoveryFlow()
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+        val request = takeRequestOrFail()
+
+        assertEquals("/users/verify_email_otp", request.path)
+        val authHeader = request.headers["Authorization"]
+        assertNotNull("Authorization header should be present", authHeader)
+        assertTrue(
+            "RECOVERY should use basic auth from the stored user, not the session token",
+            authHeader!!.startsWith("Basic "),
+        )
+    }
+
+    @Test
+    fun `RECOVERY workflow email verification success navigates to recovery success screen`() {
+        setUpRecoveryFlow()
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        assertEquals(R.id.personalid_message_display, navController.currentDestination!!.id)
+        val args = navController.currentBackStackEntry?.arguments
+        assertEquals(activity.getString(R.string.connect_recovery_success_title), args?.getString("title"))
+        assertEquals(ConnectConstants.PERSONALID_RECOVERY_SUCCESS, args?.getInt("callingClass"))
+    }
+
+    @Test
+    fun `RECOVERY workflow email verification success persists email to stored user`() {
+        setUpRecoveryFlow()
+        mockWebServer.enqueue(successResponse())
+
+        enterCode("123456")
+        drainHttp()
+
+        assertEquals(TEST_EMAIL, ConnectUserDatabaseUtil.getUser().email)
+    }
+
+    @Test
+    fun `RECOVERY workflow email verification success does not report recovery again`() {
         setUpRecoveryFlow()
         mockStatic(FirebaseAnalyticsUtil::class.java).use { mockAnalytics ->
             mockWebServer.enqueue(successResponse())
             enterCode("123456")
             drainHttp()
-            mockAnalytics.verify {
-                FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(
-                    eq(true),
-                    eq(AnalyticsParamValue.CCC_RECOVERY_METHOD_BACKUPCODE),
-                )
-            }
+            mockAnalytics.verify(
+                {
+                    FirebaseAnalyticsUtil.reportPersonalIdAccountRecovered(any(), any())
+                },
+                never(),
+            )
         }
     }
 
     // ========== Helpers ==========
+
+    /** Rebuilds the activity from saved state, as a rotation would, and re-resolves the fragment. */
+    private fun recreateFragment() {
+        activityController.recreate()
+        activity = activityController.get()
+        navHostFragment =
+            activity.supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
+        captureNavFragment()
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun setUpWorkflow(workflow: EmailWorkFlow) {
+        val args =
+            Bundle().apply {
+                putString("email", TEST_EMAIL)
+                putSerializable("workflow", workflow)
+                putInt("emailOtpRequestCount", 0)
+            }
+        navigateToFragment(PersonalIdSessionData(token = "test-token"), R.id.personalid_email_verification, args)
+        activity.runOnUiThread {
+            installTestNavController(fragment.requireView(), R.id.personalid_email_verification, args)
+        }
+        ShadowLooper.idleMainLooper()
+    }
 
     private fun setUpForgotBackupCodeRecoveryFlow() {
         MockAndroidKeyStoreProvider.registerProvider()
@@ -492,6 +802,8 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
                 personalId = "test-personal-id",
                 oauthPassword = "test-oauth-pwd",
             )
+        ConnectTestUtils.createConnectDbFile()
+        PersonalIdManager.getInstance().onAccountConfigurationSuccess(sessionData)
         navigateToFragment(sessionData, R.id.personalid_email_verification, args)
         activity.runOnUiThread {
             installTestNavController(
@@ -527,6 +839,17 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         ShadowLooper.idleMainLooper()
     }
 
+    /** Reveals the resend button past its countdown, clicks it, and lets [response] come back. */
+    private fun clickResend(response: MockResponse) {
+        val resendButton = fragment.requireView().findViewById<View>(R.id.personalid_email_resend_button)
+        activity.runOnUiThread { resendButton.visibility = View.VISIBLE }
+        ShadowLooper.idleMainLooper()
+
+        mockWebServer.enqueue(response)
+        activity.runOnUiThread { resendButton.performClick() }
+        drainHttp()
+    }
+
     private fun successResponse(): MockResponse =
         MockResponse()
             .setResponseCode(200)
@@ -536,6 +859,16 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
         MockResponse()
             .setResponseCode(401)
             .setBody("""{"error_code":"INCORRECT_OTP"}""")
+
+    private fun incorrectOtpResponse(attemptsLeft: Int): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error_code":"INCORRECT_OTP","attempts_left":$attemptsLeft}""")
+
+    private fun otpLimitExceededResponse(): MockResponse =
+        MockResponse()
+            .setResponseCode(401)
+            .setBody("""{"error_code":"OTP_LIMIT_EXCEEDED","retry_after_seconds":3600}""")
 
     private fun emailAlreadyInUseResponse(): MockResponse =
         MockResponse()

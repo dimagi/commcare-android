@@ -6,6 +6,7 @@ import androidx.navigation.findNavController
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectConstants
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
@@ -42,7 +43,8 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
 
     override fun getSessionData(): PersonalIdSessionData? = personalIdSessionData
 
-    override fun canSkipEmailVerification(): Boolean = true
+    // Only offer to skip where we have somewhere to send the user next.
+    override fun canSkipEmailVerification(): Boolean = workflow == EmailWorkFlow.REGISTRATION || workflow == EmailWorkFlow.RECOVERY
 
     override fun doVerifyOtpRequest(otp: String) {
         if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY) {
@@ -76,25 +78,14 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
         }.completeRecoveryWithEmailOtp(requireActivity(), otp, personalIdSessionData!!)
     }
 
-    override fun onMaxingEmailVerificationAttempts() {
-        if (workflow == EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY) {
-            navigateToMessageDisplay(
-                getString(R.string.connect_backup_fail_title),
-                getString(R.string.personalid_email_otp_max_attempts_reached),
-                isCancellable = false,
-                phase = ConnectConstants.PERSONALID_RECOVERY_EMAIL_OTP_FAILED,
-                buttonText = R.string.ok,
-            )
-        } else {
-            super.onMaxingEmailVerificationAttempts()
-        }
-    }
-
     override fun onEmailVerified() {
         when (workflow) {
             EmailWorkFlow.RECOVERY -> {
                 personalIdSessionData!!.email = enteredEmail
-                finalizeRecoveryAndShowSuccess()
+                val user = ConnectUserDatabaseUtil.getUser()
+                user.email = enteredEmail
+                ConnectUserDatabaseUtil.storeUser(user)
+                navigateToRecoverySuccess()
             }
 
             EmailWorkFlow.REGISTRATION -> {
@@ -120,7 +111,7 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
     override fun proceedWithoutEmail() {
         when (workflow) {
             EmailWorkFlow.RECOVERY -> {
-                finalizeRecoveryAndShowSuccess()
+                navigateToRecoverySuccess()
             }
 
             EmailWorkFlow.REGISTRATION -> {
@@ -138,11 +129,6 @@ class PersonalIdConfigurationEmailVerificationFragment : BasePersonalIdEmailVeri
             PersonalIdConfigurationEmailVerificationFragmentDirections
                 .actionPersonalidEmailVerificationToPersonalidPhotoCapture(),
         )
-    }
-
-    private fun finalizeRecoveryAndShowSuccess() {
-        finalizeRecovery()
-        navigateToRecoverySuccess()
     }
 
     private fun finalizeRecovery() {
