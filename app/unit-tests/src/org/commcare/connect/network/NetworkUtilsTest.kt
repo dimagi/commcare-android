@@ -78,19 +78,37 @@ class NetworkUtilsTest {
     }
 
     @Test
+    fun `parseErrorBody reads the attempts left on an incorrect OTP`() {
+        val result = NetworkUtils.parseErrorBody("""{"error_code":"INCORRECT_OTP","attempts_left":2}""")
+        assertEquals("INCORRECT_OTP", result.errorCode)
+        assertEquals(2, result.attemptsLeft)
+    }
+
+    @Test
+    fun `parseErrorBody returns null attempts left when the server did not supply a count`() {
+        assertNull(NetworkUtils.parseErrorBody("""{"error_code":"INCORRECT_OTP"}""").attemptsLeft)
+    }
+
+    @Test
+    fun `parseErrorBody treats a non-positive attempt count as no count at all`() {
+        assertNull(NetworkUtils.parseErrorBody("""{"attempts_left":0}""").attemptsLeft)
+        assertNull(NetworkUtils.parseErrorBody("""{"attempts_left":-1}""").attemptsLeft)
+    }
+
+    @Test
     fun `parseErrorBody returns empty fields for an empty JSON object`() {
-        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody("{}"))
+        assertEquals(PersonalIdApiErrorBody("", "", null, null), NetworkUtils.parseErrorBody("{}"))
     }
 
     @Test
     fun `parseErrorBody returns empty fields for an empty input string`() {
-        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody(""))
+        assertEquals(PersonalIdApiErrorBody("", "", null, null), NetworkUtils.parseErrorBody(""))
     }
 
     @Test
     fun `parseErrorBody returns empty fields for invalid JSON`() {
-        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody("not valid json"))
-        assertEquals(PersonalIdApiErrorBody("", "", null), NetworkUtils.parseErrorBody("<html>429</html>"))
+        assertEquals(PersonalIdApiErrorBody("", "", null, null), NetworkUtils.parseErrorBody("not valid json"))
+        assertEquals(PersonalIdApiErrorBody("", "", null, null), NetworkUtils.parseErrorBody("<html>429</html>"))
     }
 
     // ── logFailedResponse ────────────────────────────────────────────────────

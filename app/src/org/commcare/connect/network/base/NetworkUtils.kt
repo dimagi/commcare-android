@@ -36,13 +36,14 @@ object NetworkUtils {
 
     /**
      * Reads the client-relevant fields out of a JSON error response body. An empty, malformed, or
-     * incomplete body yields empty codes and a null wait rather than an error.
+     * incomplete body yields empty codes and null counts rather than an error.
      *
      * @param errorBody The JSON error response body as a string.
      */
     @JvmStatic
     fun parseErrorBody(errorBody: String): PersonalIdApiErrorBody {
-        val emptyErrorBody = PersonalIdApiErrorBody(errorCode = "", errorSubCode = "", retryAfterSeconds = null)
+        val emptyErrorBody =
+            PersonalIdApiErrorBody(errorCode = "", errorSubCode = "", retryAfterSeconds = null, attemptsLeft = null)
         if (errorBody.isEmpty()) {
             return emptyErrorBody
         }
@@ -53,6 +54,7 @@ object NetworkUtils {
                 errorCode = json.optString("error_code", ""),
                 errorSubCode = json.optString("error_sub_code", ""),
                 retryAfterSeconds = json.optInt("retry_after_seconds", -1).takeIf { it > 0 },
+                attemptsLeft = json.optInt("attempts_left", -1).takeIf { it > 0 },
             )
         } catch (e: Exception) {
             Logger.exception("Error parsing API error body", e)
