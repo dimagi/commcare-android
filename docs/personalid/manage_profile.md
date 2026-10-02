@@ -26,7 +26,8 @@ Photo, name, and email are three independent saves — this is intentional, not 
 * **Email** — a change requires OTP verification. The edit fragment sends the OTP and navigates
   to `PersonalIdEmailVerificationFragment` (`EXISTING_USER` workflow), which writes the new email
   to the record and finishes the activity. Before the OTP step the user confirms their backup
-  code or, when none is stored, verifies their phone by OTP after a Send phone OTP screen.
+  code or, when none is stored, verifies their phone by OTP after a Send phone OTP screen; the
+  PersonalID SMS fallback there uses the basic-auth `validate_phone` and `confirm_otp` endpoints.
 
 Because name commits before the OTP step, a user who saves a name change and then abandons email
 verification keeps the new name while the email stays unchanged.

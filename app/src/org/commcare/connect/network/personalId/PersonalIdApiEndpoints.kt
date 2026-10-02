@@ -9,6 +9,8 @@ object PersonalIdApiEndpoints {
     const val START_CONFIGURATION = "/users/start_configuration"
     const val SEND_SESSION_OTP = "/users/send_session_otp"
     const val VALIDATE_SESSION_OTP = "/users/confirm_session_otp"
+    const val VALIDATE_PHONE = "/users/validate_phone"
+    const val CONFIRM_OTP = "/users/confirm_otp"
     const val SEND_EMAIL_OTP = "/users/send_email_otp"
     const val VERIFY_EMAIL_OTP = "/users/verify_email_otp"
     const val UPDATE_PROFILE = "/users/update_profile"

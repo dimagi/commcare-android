@@ -96,6 +96,8 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
 
     private fun okResponse() = MockResponse().setResponseCode(200).setBody("{}")
 
+    private fun incorrectOtpResponse() = MockResponse().setResponseCode(401).setBody("""{"error":"INCORRECT_OTP"}""")
+
     private fun expectedBasicAuth() = HttpUtils.getCredential(AuthInfo.ProvidedAuth(user.userId, user.password, false))
 
     /** Asserts [request] went to [expectedPath] with basic auth and, if given, carries [bodyField]. */
@@ -219,7 +221,7 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
 
     @Test
     fun `non-recoverable Firebase failure switches to PersonalID with basic auth`() {
-        assertBasicAuthRequest(launchOnPersonalIdPath(), PersonalIdApiEndpoints.SEND_SESSION_OTP)
+        assertBasicAuthRequest(launchOnPersonalIdPath(), PersonalIdApiEndpoints.VALIDATE_PHONE)
     }
 
     @Test
@@ -230,7 +232,7 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
         mockWebServer.enqueue(okResponse())
         onUiThread { resendButton().performClick() }
 
-        assertBasicAuthRequest(mockApiServer.takeRequestOrFail(), PersonalIdApiEndpoints.SEND_SESSION_OTP)
+        assertBasicAuthRequest(mockApiServer.takeRequestOrFail(), PersonalIdApiEndpoints.VALIDATE_PHONE)
         assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
     }
 
@@ -259,6 +261,20 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
             PersonalIdApiEndpoints.VALIDATE_FIREBASE_ID_TOKEN,
             "token" to FIREBASE_ID_TOKEN,
         )
+    }
+
+    @Test
+    fun `wrong PersonalID code shows an error, then the right code verifies through confirm_otp`() {
+        launchOnPersonalIdPath()
+
+        assertBasicAuthRequest(
+            verifyCodeWithServer(WRONG_CODE, incorrectOtpResponse()),
+            PersonalIdApiEndpoints.CONFIRM_OTP,
+            "otp" to WRONG_CODE,
+        )
+        assertIncorrectOtpShown()
+
+        assertBasicAuthRequest(retryWithCorrectCode(), PersonalIdApiEndpoints.CONFIRM_OTP, "otp" to CORRECT_CODE)
     }
 
     @Test

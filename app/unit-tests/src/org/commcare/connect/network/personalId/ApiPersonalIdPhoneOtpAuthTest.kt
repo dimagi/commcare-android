@@ -19,8 +19,8 @@ import org.mockito.Mockito.mock
 import org.robolectric.annotation.Config
 
 /**
- * The phone OTP endpoints serve both signup (PersonalID session token) and Manage Profile
- * (basic auth from the stored user). These tests pin the Authorization header each AuthInfo produces.
+ * Phone OTP endpoints are chosen by auth type: basic auth (Manage Profile) uses validate_phone and
+ * confirm_otp; the PersonalID session token (signup) uses the session OTP endpoints.
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -49,9 +49,9 @@ class ApiPersonalIdPhoneOtpAuthTest {
     }
 
     @Test
-    fun `sendPhoneOtp with ProvidedAuth sends basic auth`() {
+    fun `sendPhoneOtp with ProvidedAuth sends basic auth to validate_phone`() {
         ApiPersonalId.sendPhoneOtp(context, basicAuth, callback)
-        val header = authorizationHeader(PersonalIdApiEndpoints.SEND_SESSION_OTP)
+        val header = authorizationHeader(PersonalIdApiEndpoints.VALIDATE_PHONE)
         assertTrue(header!!.startsWith("Basic "))
         assertEquals(HttpUtils.getCredential(basicAuth), header)
     }
@@ -66,12 +66,12 @@ class ApiPersonalIdPhoneOtpAuthTest {
     }
 
     @Test
-    fun `validatePhoneOtp with ProvidedAuth sends basic auth`() {
+    fun `validatePhoneOtp with ProvidedAuth sends basic auth and the otp to confirm_otp`() {
         ApiPersonalId.validatePhoneOtp(context, basicAuth, "123456", callback)
-        assertEquals(
-            HttpUtils.getCredential(basicAuth),
-            authorizationHeader(PersonalIdApiEndpoints.VALIDATE_SESSION_OTP),
-        )
+        val request = mockApiServer.takeRequestOrFail()
+        assertEquals(PersonalIdApiEndpoints.CONFIRM_OTP, request.path)
+        assertEquals(HttpUtils.getCredential(basicAuth), request.getHeader("Authorization"))
+        assertTrue(request.body.readUtf8().contains("\"otp\":\"123456\""))
     }
 
     @Test
