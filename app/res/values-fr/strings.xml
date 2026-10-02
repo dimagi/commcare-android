@@ -272,8 +272,10 @@ License.
     <string name="personalid_email_description">Votre adresse e-mail vous aide à récupérer votre compte si vous perdez l\'accès à votre téléphone.</string>
     <string name="personalid_email_hint">Adresse e-mail</string>
     <string name="personalid_email_skip">Ignorer pour l\'instant</string>
-    <string name="personalid_email_skip_confirm_title">Ignorer l\'e-mail ?</string>
-    <string name="personalid_email_skip_confirm_message">Êtes-vous sûr de vouloir ignorer cette étape ?</string>
+    <string name="personalid_email_skip_confirm_title">Protégez votre compte</string>
+    <string name="personalid_email_skip_confirm_message">L\'ajout d\'une adresse e-mail renforce la sécurité de votre compte. Cela permet de vérifier les modifications importantes du compte, d\'empêcher les tentatives de récupération non autorisées et vous offre un moyen sécurisé de récupérer l\'accès si vous perdez votre appareil.</string>
+    <string name="personalid_email_skip_confirm_skip">Ignorer</string>
+    <string name="personalid_email_skip_confirm_add">Ajouter un e-mail</string>
     <string name="personalid_email_invalid_format">Veuillez saisir une adresse e-mail valide.</string>
     <string name="personalid_email_verification_appbar_title">Vérifier l\'e-mail</string>
     <string name="personalid_email_verification_title">Vérifiez votre adresse e-mail</string>

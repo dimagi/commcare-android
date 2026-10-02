@@ -213,8 +213,10 @@
     <string name="personalid_email_description">E-postadressen din hjelper deg å gjenopprette kontoen din hvis du mister tilgang til telefonen.</string>
     <string name="personalid_email_hint">E-postadresse</string>
     <string name="personalid_email_skip">Hopp over for nå</string>
-    <string name="personalid_email_skip_confirm_title">Hoppe over e-post?</string>
-    <string name="personalid_email_skip_confirm_message">Er du sikker på at du vil hoppe over?</string>
+    <string name="personalid_email_skip_confirm_title">Beskytt kontoen din</string>
+    <string name="personalid_email_skip_confirm_message">Å legge til en e-postadresse styrker sikkerheten til kontoen din. Det bidrar til å bekrefte viktige kontoendringer, forhindrer uautoriserte gjenopprettingsforsøk, og gir deg en sikker måte å gjenvinne tilgang på hvis du mister enheten din.</string>
+    <string name="personalid_email_skip_confirm_skip">Hopp over</string>
+    <string name="personalid_email_skip_confirm_add">Legg til e-post</string>
     <string name="personalid_email_invalid_format">Vennligst skriv inn en gyldig e-postadresse.</string>
     <string name="personalid_email_verification_appbar_title">Bekreft e-post</string>
     <string name="personalid_email_verification_title">Bekreft e-postadressen din</string>

@@ -273,8 +273,10 @@
     <string name="personalid_email_description">Barua pepe yako inakusaidia kurejesha akaunti yako iwapo utapoteza ufikiaji wa simu yako.</string>
     <string name="personalid_email_hint">Anwani ya barua pepe</string>
     <string name="personalid_email_skip">Ruka kwa sasa</string>
-    <string name="personalid_email_skip_confirm_title">Ruka barua pepe?</string>
-    <string name="personalid_email_skip_confirm_message">Una uhakika unataka kuruka?</string>
+    <string name="personalid_email_skip_confirm_title">Linda akaunti yako</string>
+    <string name="personalid_email_skip_confirm_message">Kuongeza barua pepe huimarisha usalama wa akaunti yako. Husaidia kuthibitisha mabadiliko muhimu ya akaunti, huzuia majaribio ya kurejesha yasiyoidhinishwa, na hukupa njia salama ya kurejesha ufikiaji ukipoteza kifaa chako.</string>
+    <string name="personalid_email_skip_confirm_skip">Ruka</string>
+    <string name="personalid_email_skip_confirm_add">Ongeza Barua Pepe</string>
     <string name="personalid_email_invalid_format">Tafadhali weka anwani halali ya barua pepe.</string>
     <string name="personalid_email_verification_appbar_title">Thibitisha barua pepe</string>
     <string name="personalid_email_verification_title">Thibitisha barua pepe yako</string>

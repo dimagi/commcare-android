@@ -265,8 +265,10 @@
     <string name="personalid_email_description">ኢመይልካ ናብ ስልክኻ ምድራኽ እንተ ስኢንካ ሕሳብካ ንምሕዳስ ይሕግዘካ።</string>
     <string name="personalid_email_hint">ኣድራሻ ኢመይል</string>
     <string name="personalid_email_skip">ሕጂ ሕለፍ</string>
-    <string name="personalid_email_skip_confirm_title">ኢመይል ትሓልፍ?</string>
-    <string name="personalid_email_skip_confirm_message">ብርግፅ ክትሓልፎ ትደሊ ዲኻ?</string>
+    <string name="personalid_email_skip_confirm_title">ሕሳብካ ኣውሕስ</string>
+    <string name="personalid_email_skip_confirm_message">ኢመይል ምውሳኽ ድሕንነት ሕሳብካ የደልድል። ኣገደስቲ ለውጥታት ሕሳብ ንምርግጋጽ ይሕግዝ፣ ዘይተፈቐደ ፈተነታት ምምላስ ይኸልክል፣ ከምኡውን መሳርሒኻ እንተጥፊኡካ ብውሑስ መገዲ ተመሊስካ ክትኣቱ ዘኽእለካ መገዲ ይህበካ።</string>
+    <string name="personalid_email_skip_confirm_skip">ሕለፍ</string>
+    <string name="personalid_email_skip_confirm_add">ኢመይል ወስኽ</string>
     <string name="personalid_email_invalid_format">በጃኻ ቅኑዕ ኣድራሻ ኢመይል ኣእቱ።</string>
     <string name="personalid_email_verification_appbar_title">ኢመይል ኣረጋግፅ</string>
     <string name="personalid_email_verification_title">ኢመይልካ ኣረጋግፅ</string>

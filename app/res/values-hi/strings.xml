@@ -272,8 +272,10 @@ License.
     <string name="personalid_email_description">यदि आप अपने फ़ोन तक पहुँच खो देते हैं तो आपका ईमेल आपके खाते को पुनर्प्राप्त करने में मदद करता है।</string>
     <string name="personalid_email_hint">ईमेल पता</string>
     <string name="personalid_email_skip">अभी छोड़ें</string>
-    <string name="personalid_email_skip_confirm_title">ईमेल छोड़ें?</string>
-    <string name="personalid_email_skip_confirm_message">क्या आप वाकई इसे छोड़ना चाहते हैं?</string>
+    <string name="personalid_email_skip_confirm_title">अपने खाते को सुरक्षित करें</string>
+    <string name="personalid_email_skip_confirm_message">ईमेल जोड़ने से आपके खाते की सुरक्षा मज़बूत होती है। इससे महत्वपूर्ण खाता परिवर्तनों को सत्यापित करने में मदद मिलती है, अनधिकृत रिकवरी प्रयासों को रोका जाता है, और यदि आप अपना डिवाइस खो देते हैं तो पहुंच वापस पाने का एक सुरक्षित तरीका मिलता है।</string>
+    <string name="personalid_email_skip_confirm_skip">छोड़ें</string>
+    <string name="personalid_email_skip_confirm_add">ईमेल जोड़ें</string>
     <string name="personalid_email_invalid_format">कृपया एक मान्य ईमेल पता दर्ज करें।</string>
     <string name="personalid_email_verification_appbar_title">ईमेल सत्यापित करें</string>
     <string name="personalid_email_verification_title">अपना ईमेल सत्यापित करें</string>

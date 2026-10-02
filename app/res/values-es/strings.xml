@@ -210,8 +210,10 @@
     <string name="personalid_email_description">Tu correo electrónico te ayuda a recuperar tu cuenta si pierdes el acceso a tu teléfono.</string>
     <string name="personalid_email_hint">Correo electrónico</string>
     <string name="personalid_email_skip">Omitir por ahora</string>
-    <string name="personalid_email_skip_confirm_title">¿Omitir el correo electrónico?</string>
-    <string name="personalid_email_skip_confirm_message">¿Seguro que quieres omitir este paso?</string>
+    <string name="personalid_email_skip_confirm_title">Protege tu cuenta</string>
+    <string name="personalid_email_skip_confirm_message">Agregar un correo electrónico refuerza la seguridad de tu cuenta. Ayuda a verificar cambios importantes en la cuenta, evita intentos de recuperación no autorizados y te da una forma segura de recuperar el acceso si pierdes tu dispositivo.</string>
+    <string name="personalid_email_skip_confirm_skip">Omitir</string>
+    <string name="personalid_email_skip_confirm_add">Agregar correo electrónico</string>
     <string name="personalid_email_invalid_format">Por favor, introduce una dirección de correo electrónico válida.</string>
     <string name="personalid_email_verification_appbar_title">Verificar correo</string>
     <string name="personalid_email_verification_title">Verifica tu correo electrónico</string>
