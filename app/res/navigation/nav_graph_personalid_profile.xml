@@ -80,6 +80,9 @@
         <action
             android:id="@+id/action_profile_backup_code_to_send_email_otp"
             app:destination="@id/personalid_send_email_otp_fragment" />
+        <action
+            android:id="@+id/action_profile_backup_code_to_profile_send_phone_otp"
+            app:destination="@id/personalid_profile_send_phone_otp_fragment" />
     </fragment>
 
     <fragment

@@ -259,6 +259,34 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
         )
     }
 
+    @Test
+    fun `back from Send email OTP lands on the Forgot Backup Code page`() {
+        launchOnPersonalIdPath { openFromForgotBackupCode() }
+        assertEquals(R.id.personalid_profile_phone_verification_fragment, currentDestinationId())
+
+        verifyCodeWithServer()
+        assertEquals(R.id.personalid_send_email_otp_fragment, currentDestinationId())
+
+        onUiThread { navController.popBackStack() }
+
+        assertEquals(R.id.personalid_profile_backup_code_fragment, currentDestinationId())
+    }
+
+    private fun openFromForgotBackupCode() {
+        val backupCodeArgs =
+            PersonalIdProfileBackupCodeFragmentArgs
+                .Builder(EmailWorkFlow.EXISTING_USER)
+                .setPendingEmail(pendingEmail)
+                .build()
+                .toBundle()
+        onUiThread { navController.navigate(R.id.personalid_profile_backup_code_fragment, backupCodeArgs) }
+        user.email = null
+        val forgotButton = currentFragment().requireView().findViewById<View>(R.id.personalid_forgot_backup_code)
+        onUiThread { forgotButton.performClick() }
+        assertEquals(R.id.personalid_profile_send_phone_otp_fragment, currentDestinationId())
+        tapSendPhoneOtp()
+    }
+
     // Regression test due to saveInstanceState saving view state before it getting initialized
     @Test
     fun `onSaveInstanceState does not crash on a fragment whose view was never created`() {
