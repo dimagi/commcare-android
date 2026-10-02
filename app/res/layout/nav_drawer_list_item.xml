@@ -8,7 +8,8 @@
     android:gravity="center_vertical"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:background="@color/connect_blue_color">
+    android:background="?attr/colorPrimary"
+    android:theme="@style/ConnectTheme">
 
     <FrameLayout
         android:layout_width="wrap_content"
@@ -43,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:includeFontPadding="false"
-                android:textColor="@android:color/white"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="11sp" />
         </FrameLayout>
     </FrameLayout>
@@ -52,6 +53,7 @@
         android:id="@+id/list_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.NavDrawerItem"
+        style="@style/TextStyle.Connect.LabelM"
+        android:textColor="?attr/connectNavDrawerForeground"
         android:layout_marginStart="12dp"/>
 </LinearLayout>

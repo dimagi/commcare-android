@@ -19,7 +19,7 @@
         app:tabInlineLabel="true"
         app:tabMode="fixed"
         app:tabSelectedTextColor="?attr/colorOnPrimary"
-        app:tabTextAppearance="@style/TabTextStyle"
+        app:tabTextAppearance="@style/TextStyle.Connect.BodyM"
         app:tabTextColor="?attr/colorOnPrimary" />
 
     <!--

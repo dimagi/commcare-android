@@ -25,6 +25,7 @@
     <attr name="connectOnDisabledContainer" format="reference|color" />
     <attr name="connectCtaButtonBackground" format="reference|color" />
     <attr name="connectCtaButtonForeground" format="reference|color" />
+    <attr name="connectNavDrawerForeground" format="reference|color" />
     <attr name="connectOutline" format="reference|color" />
     <attr name="connectOutlineVariant" format="reference|color" />
     <attr name="connectStatusPositive" format="reference|color" />
