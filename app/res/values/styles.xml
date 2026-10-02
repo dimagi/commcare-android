@@ -398,7 +398,7 @@
     <style name="Widget.CommCare.ConnectProgressCard" parent="">
         <item name="contentPrimaryColor">?attr/colorOnSurface</item>
         <item name="contentAccentColor">?attr/colorPrimary</item>
-        <item name="contentDisabledColor">?attr/connectOutline</item>
+        <item name="contentDisabledColor">?attr/connectOnSurfaceDisabled</item>
     </style>
 
     <style name="Widget.CommCare.ConnectSuccessFailureCard" parent="">
