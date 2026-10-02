@@ -3,14 +3,14 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.utils.SessionRegistrationHelper;
-
 /**
  * Reproduction of SessionAwareCommCareActivity, but for an activity that must extend ListActivity
  *
  * @author Aliza Stone
  */
 public abstract class SessionAwareListActivity extends CommcareListActivity implements SessionAwareInterface {
+
+    private final SessionExpirationHandler loginRedirect = new LoginRedirectingExpirationHandler(this);
 
     private boolean redirectedInOnCreate;
 
@@ -27,8 +27,8 @@ public abstract class SessionAwareListActivity extends CommcareListActivity impl
     @Override
     protected void onResume() {
         super.onResume();
-        SessionRegistrationHelper.registerSessionExpirationReceiver(this);
-        SessionAwareHelper.onResumeHelper(this, this, redirectedInOnCreate);
+        loginRedirect.startListening();
+        SessionAwareHelper.onResumeHelper(this, loginRedirect, redirectedInOnCreate);
     }
 
     @Override
@@ -38,7 +38,7 @@ public abstract class SessionAwareListActivity extends CommcareListActivity impl
     @Override
     protected void onPause() {
         super.onPause();
-        SessionRegistrationHelper.unregisterSessionExpirationReceiver(this);
+        loginRedirect.stopListening();
     }
 
     @Override

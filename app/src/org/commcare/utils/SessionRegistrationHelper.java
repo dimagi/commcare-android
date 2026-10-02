@@ -44,13 +44,23 @@ public class SessionRegistrationHelper {
      * methods of activities that are session sensitive.
      */
     public static boolean handleSessionExpiration(AppCompatActivity activity) {
+        if (consumePendingExpiration()) {
+            redirectToLogin(activity);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Clear a session expiration registered while no activity was listening.
+     *
+     * @return true if one was pending
+     */
+    public static boolean consumePendingExpiration() {
         synchronized (registrationLock) {
-            if (unredirectedSessionExpiration) {
-                unredirectedSessionExpiration = false;
-                redirectToLogin(activity);
-                return true;
-            }
-            return false;
+            boolean pending = unredirectedSessionExpiration;
+            unredirectedSessionExpiration = false;
+            return pending;
         }
     }
 
