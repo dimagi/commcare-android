@@ -15,6 +15,7 @@ import org.commcare.connect.network.base.NoParsingResponseParser;
 import org.commcare.connect.network.base.BaseApiCallback;
 import org.commcare.connect.network.base.BaseApiHandler;
 import org.commcare.connect.network.base.BaseApiResponseParser;
+import org.commcare.connect.network.base.IncorrectOtpException;
 import org.commcare.connect.network.base.NetworkUtils;
 import org.commcare.connect.network.base.RateLimitedException;
 import org.commcare.connect.network.connect.parser.ConnectReleaseTogglesParser;
@@ -125,7 +126,10 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 );
                 return true;
             case "INCORRECT_OTP":
-                onFailure(PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR, null);
+                onFailure(
+                        PersonalIdOrConnectApiErrorCodes.INCORRECT_OTP_ERROR,
+                        new IncorrectOtpException(error.getAttemptsLeft())
+                );
                 return true;
             case "OTP_LIMIT_EXCEEDED":
                 onFailure(

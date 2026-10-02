@@ -353,6 +353,22 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     }
 
     @Test
+    fun `a wrong code reports how many attempts the code has left`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(
+            MockResponse()
+                .setResponseCode(401)
+                .setBody("""{"error_code":"INCORRECT_OTP","attempts_left":2}"""),
+        )
+
+        assertEquals(View.VISIBLE, errorView().visibility)
+        assertEquals(
+            activity.resources.getQuantityString(R.plurals.personalid_incorrect_otp_attempts_remaining, 2, 2),
+            errorView().text.toString(),
+        )
+    }
+
+    @Test
     fun `a rate-limited request holds resend for the wait the server reported`() {
         mockWebServer.enqueue(
             MockResponse()
