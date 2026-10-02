@@ -15,12 +15,16 @@ import androidx.lifecycle.LifecycleOwner
  */
 class HomeActivityCoordinator(
     private val host: HomeActivityHost,
+    session: SeatedAppSession = ServiceBackedSession(),
 ) : DefaultLifecycleObserver {
     private var restored = false
 
     private var externalLaunch = false
     private var loginExtraConsumed = false
     private var endpointNavPendingAfterSync = false
+
+    /** Owns the binary and content app updates. Session-independent, registered on the host lifecycle. */
+    val appUpdate = AppUpdateDelegate(host = host, session = session)
 
     /** Activity was launched by an external app, so form submission may redispatch back to it. */
     var wasExternal: Boolean
@@ -57,6 +61,7 @@ class HomeActivityCoordinator(
 
     init {
         host.lifecycle.addObserver(this)
+        host.lifecycle.addObserver(appUpdate)
     }
 
     override fun onCreate(owner: LifecycleOwner) {
@@ -71,7 +76,7 @@ class HomeActivityCoordinator(
         resultCode: Int,
         intent: Intent?,
     ) {
-        // Intentionally empty: delegates arrive in later slices.
+        appUpdate.onActivityResult(requestCode, resultCode)
     }
 
     /**

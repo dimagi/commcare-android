@@ -28,6 +28,7 @@ This file is meant as an easy way for us to collate notes and change logs across
   - Confirm the name screen's app bar title reads "Name" and not "App Lock".
 - On every PersonalID sign-up, recovery and profile screen, including any message sheets that appear, confirm each screen has a heading and no text is oversized or clipped.
 - On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
+- Regression check on app updates from the home screen: the Update menu item still opens the update screen, and when a newer CommCare version is on the Play Store, the in-app update prompt, download and restart dialog still work, including the "Update CommCare" menu item after declining the prompt several times.
 - After too many wrong email or phone OTP codes, the field clears, the message explains the OTP code can no longer be used, and Resend is offered straight away.
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
 - A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
