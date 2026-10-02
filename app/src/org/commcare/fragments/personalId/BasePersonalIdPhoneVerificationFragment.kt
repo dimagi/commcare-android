@@ -399,7 +399,9 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
         super.onSaveInstanceState(outState)
         outState.putString(KEY_PHONE, primaryPhone)
         outState.putString(KEY_LAST_OTP_METHOD, lastOtpMethod)
-        outState.putBoolean(KEY_VERIFY_BUTTON_ENABLED, binding.connectPhoneVerifyButton.isEnabled)
+        if (::binding.isInitialized) {
+            outState.putBoolean(KEY_VERIFY_BUTTON_ENABLED, binding.connectPhoneVerifyButton.isEnabled)
+        }
         outState.putString(KEY_OTP_REQUEST_TIME_STRING, otpRequestTime?.toString())
         outState.putBoolean(KEY_OTP_LIMIT_EXCEEDED, otpLimitExceeded)
         outState.putInt(KEY_RESEND_COOLDOWN_SECONDS, resendCooldownSeconds)

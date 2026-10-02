@@ -51,6 +51,7 @@
             android:padding="16dp">
 
             <ImageView
+                android:id="@+id/personalid_send_email_otp_icon"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_gravity="center_vertical"
@@ -68,6 +69,7 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/personalid_send_email_otp_address_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/personalid_send_email_otp_address_label"

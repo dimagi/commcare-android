@@ -444,6 +444,7 @@
     <string name="personalid_send_email_otp_pending_backup_code_title">Establecer código de seguridad</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">Tu cuenta aún no tiene un código de seguridad. Verifica tu dirección de correo electrónico a continuación para configurar uno.</string>
     <string name="personalid_send_email_otp_title">Recuperar código de respaldo</string>
+    <string name="personalid_send_phone_otp_title">Verifica tu número de teléfono</string>
     <string name="personalid_send_email_otp_description">Enviaremos un código de verificación a:</string>
     <string name="personalid_send_email_otp_button">Enviar código</string>
     <string name="personalid_send_email_otp_address_label">Correo de recuperación</string>
