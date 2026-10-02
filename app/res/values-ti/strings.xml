@@ -265,8 +265,10 @@
     <string name="personalid_email_description">ኢመይልካ ናብ ስልክኻ ምድራኽ እንተ ስኢንካ ሕሳብካ ንምሕዳስ ይሕግዘካ።</string>
     <string name="personalid_email_hint">ኣድራሻ ኢመይል</string>
     <string name="personalid_email_skip">ሕጂ ሕለፍ</string>
-    <string name="personalid_email_skip_confirm_title">ኢመይል ትሓልፍ?</string>
-    <string name="personalid_email_skip_confirm_message">ብርግፅ ክትሓልፎ ትደሊ ዲኻ?</string>
+    <string name="personalid_email_skip_confirm_title">ሕሳብካ ኣውሕስ</string>
+    <string name="personalid_email_skip_confirm_message">ኢመይል ምውሳኽ ድሕንነት ሕሳብካ የደልድል። ኣገደስቲ ለውጥታት ሕሳብ ንምርግጋጽ ይሕግዝ፣ ዘይተፈቐደ ፈተነታት ምምላስ ይኸልክል፣ ከምኡውን መሳርሒኻ እንተጥፊኡካ ብውሑስ መገዲ ተመሊስካ ክትኣቱ ዘኽእለካ መገዲ ይህበካ።</string>
+    <string name="personalid_email_skip_confirm_skip">ሕለፍ</string>
+    <string name="personalid_email_skip_confirm_add">ኢመይል ወስኽ</string>
     <string name="personalid_email_invalid_format">በጃኻ ቅኑዕ ኣድራሻ ኢመይል ኣእቱ።</string>
     <string name="personalid_email_verification_appbar_title">ኢመይል ኣረጋግፅ</string>
     <string name="personalid_email_verification_title">ኢመይልካ ኣረጋግፅ</string>
@@ -492,6 +494,10 @@
     <string name="connect_completed_expired_label">ዝተዛዘሙ / ዝተወደኡ ዕድላት</string>
     <string name="connect_job_tile_daily_visits">መዓልታዊ ምብጻሕ ምግባር</string>
     <string name="personalid_incorrect_otp">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። በጃኻ እንደገና ፈትን።</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። %d ፈተነ ተሪፉ ኣሎ።</item>
+        <item quantity="other">ናይ 6 ኣሃዛት መሕለፊ ኮድ ብጌጋ ኣእቲኻ። %d ፈተነታት ተሪፎም ኣለዉ።</item>
+    </plurals>
     <string name="personalid_email_already_in_use">እዚ ኢመይል እዚ ምስ ካልእ ኣካውንት ተኣሳሲሩ ኣሎ። በጃኻ ካልእ ኣድራሻ ኢመይል ተጠቐም።</string>
     <string name="personalid_too_many_otp_attempts">OTP ንምልኣኽ ብዙሕ ግዜ ፈቲንካ ኢኻ። በጃኻ ተጸበ እሞ እቲ ናይ ደጊም ምልኣኽ መልጎም ክረአ ከሎ እንደገና ፈትን።</string>
     <string name="personalid_otp_verification_failed_generic">ቁጽሪ ስልክኻ ኣብ ምእማት ገለ ነገር ተጋግዩ። በጃኻ እንደገና ፈትን።</string>

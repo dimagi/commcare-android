@@ -272,8 +272,10 @@ License.
     <string name="personalid_email_description">यदि आप अपने फ़ोन तक पहुँच खो देते हैं तो आपका ईमेल आपके खाते को पुनर्प्राप्त करने में मदद करता है।</string>
     <string name="personalid_email_hint">ईमेल पता</string>
     <string name="personalid_email_skip">अभी छोड़ें</string>
-    <string name="personalid_email_skip_confirm_title">ईमेल छोड़ें?</string>
-    <string name="personalid_email_skip_confirm_message">क्या आप वाकई इसे छोड़ना चाहते हैं?</string>
+    <string name="personalid_email_skip_confirm_title">अपने खाते को सुरक्षित करें</string>
+    <string name="personalid_email_skip_confirm_message">ईमेल जोड़ने से आपके खाते की सुरक्षा मज़बूत होती है। इससे महत्वपूर्ण खाता परिवर्तनों को सत्यापित करने में मदद मिलती है, अनधिकृत रिकवरी प्रयासों को रोका जाता है, और यदि आप अपना डिवाइस खो देते हैं तो पहुंच वापस पाने का एक सुरक्षित तरीका मिलता है।</string>
+    <string name="personalid_email_skip_confirm_skip">छोड़ें</string>
+    <string name="personalid_email_skip_confirm_add">ईमेल जोड़ें</string>
     <string name="personalid_email_invalid_format">कृपया एक मान्य ईमेल पता दर्ज करें।</string>
     <string name="personalid_email_verification_appbar_title">ईमेल सत्यापित करें</string>
     <string name="personalid_email_verification_title">अपना ईमेल सत्यापित करें</string>
@@ -509,6 +511,10 @@ License.
     <string name="connect_job_tile_daily_visits">दैनिक विज़िट</string>
     <string name="connect_appbar_title_app_lock">ऐप लॉक</string>
     <string name="personalid_incorrect_otp">आपने गलत 6-अंकीय पासकोड दर्ज किया है। कृपया पुन: प्रयास करें।</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">आपने गलत 6-अंकीय पासकोड दर्ज किया है। %d प्रयास शेष है।</item>
+        <item quantity="other">आपने गलत 6-अंकीय पासकोड दर्ज किया है। %d प्रयास शेष हैं।</item>
+    </plurals>
     <string name="personalid_email_already_in_use">यह ईमेल पहले से ही किसी अन्य खाते से जुड़ा हुआ है। कृपया कोई दूसरा ईमेल पता उपयोग करें।</string>
     <string name="personalid_too_many_otp_attempts">आपने OTP भेजने के बहुत अधिक प्रयास किए हैं। कृपया प्रतीक्षा करें और जब पुनः भेजें बटन दिखाई दे तब पुनः प्रयास करें।</string>
     <string name="personalid_otp_verification_failed_generic">आपके फ़ोन नंबर का सत्यापन करते समय कुछ गलत हो गया। कृपया पुन: प्रयास करें।</string>

@@ -272,8 +272,10 @@ License.
     <string name="personalid_email_description">Votre adresse e-mail vous aide à récupérer votre compte si vous perdez l\'accès à votre téléphone.</string>
     <string name="personalid_email_hint">Adresse e-mail</string>
     <string name="personalid_email_skip">Ignorer pour l\'instant</string>
-    <string name="personalid_email_skip_confirm_title">Ignorer l\'e-mail ?</string>
-    <string name="personalid_email_skip_confirm_message">Êtes-vous sûr de vouloir ignorer cette étape ?</string>
+    <string name="personalid_email_skip_confirm_title">Protégez votre compte</string>
+    <string name="personalid_email_skip_confirm_message">L\'ajout d\'une adresse e-mail renforce la sécurité de votre compte. Cela permet de vérifier les modifications importantes du compte, d\'empêcher les tentatives de récupération non autorisées et vous offre un moyen sécurisé de récupérer l\'accès si vous perdez votre appareil.</string>
+    <string name="personalid_email_skip_confirm_skip">Ignorer</string>
+    <string name="personalid_email_skip_confirm_add">Ajouter un e-mail</string>
     <string name="personalid_email_invalid_format">Veuillez saisir une adresse e-mail valide.</string>
     <string name="personalid_email_verification_appbar_title">Vérifier l\'e-mail</string>
     <string name="personalid_email_verification_title">Vérifiez votre adresse e-mail</string>
@@ -508,6 +510,10 @@ License.
     <string name="connect_job_tile_daily_visits">Visites quotidiennes</string>
     <string name="connect_appbar_title_app_lock">Verrouillage d\'application</string>
     <string name="personalid_incorrect_otp">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Veuillez réessayer.</string>
+    <plurals name="personalid_incorrect_otp_attempts_remaining">
+        <item quantity="one">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Il vous reste %d tentative.</item>
+        <item quantity="other">Vous avez saisi le mauvais code d\'accès à 6 chiffres. Il vous reste %d tentatives.</item>
+    </plurals>
     <string name="personalid_email_already_in_use">Cette adresse e-mail est déjà liée à un autre compte. Veuillez utiliser une adresse e-mail différente.</string>
     <string name="personalid_too_many_otp_attempts">Vous avez fait trop de tentatives d\'envoi d\'OTP. Veuillez patienter et réessayer lorsque le bouton de renvoi est visible.</string>
     <string name="personalid_otp_verification_failed_generic">Un problème est survenu lors de la vérification de votre numéro de téléphone. Veuillez réessayer.</string>
