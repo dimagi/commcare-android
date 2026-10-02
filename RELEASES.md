@@ -18,6 +18,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Backing out of the PersonalID phone number screen while the app is contacting the server no longer crashes the app.
 - When too many incorrect email or phone OTP codes are entered, the OTP code is now reported as no longer usable and the user is prompted to request a new one, instead of showing a generic error. The wait before a new OTP code can be requested is now shown accurately.
 
+#### Internal Release Notes
+
+- Removed the root-menu home screen (the root module grid with a side drawer) and the developer setting that enabled it. Consumer apps now open to the standard home screen.
+
 ### QA Notes
 
 - Step through PersonalID sign-up and account recovery and verify the CommCare logo no longer appears, including on the phone number screen.
@@ -28,6 +32,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
 - A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
 - In the forgot-backup-code recovery flow, running out of attempts keeps the user on the verification screen instead of ending the flow.
+- On an app whose menus display as a grid, open a module from the home screen and confirm the grid shows and items open as before.
+- On a consumer app, confirm login lands on the standard home screen and pressing back from the root menu returns there.
 - Enter wrong email OTP codes during sign-up, profile email edit, and forgot-backup-code recovery, and confirm the error shows the attempts remaining (2, then 1) before the "request a new code" message appears.
 - For an invited user receiving the phone OTP by SMS through PersonalID, confirm a wrong code likewise shows the attempts remaining.
 

@@ -12,9 +12,6 @@ import org.junit.Test
  * progress-bar capabilities and title it answers for its base activity, plus which buttons its grid
  * renders.
  *
- * Every row is a point where the two `HomeScreenBaseActivity` hosts disagree — [RootMenuHomeActivity]
- * answers differently or has no button grid at all — which is why the host is in the class name.
- *
  * This host's Connect behaviour is pinned in [HomeConnectJobProgressTest] and [HomeConnectTileTest].
  */
 class StandardHomePresentationTest : BaseHomeScreenActivityTest() {

@@ -21,7 +21,6 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.personalId.PersonalIdUserPreferences;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.utils.AndroidShortcuts;
@@ -389,11 +388,6 @@ public class DispatchActivity extends AppCompatActivity {
         startFromLogin = false;
         clearSessionEndpointIntentExtras();
         startActivityForResult(intent, HOME_SCREEN);
-    }
-
-    public static boolean useRootMenuHomeActivity() {
-        return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
-                CommCareApplication.instance().isConsumerApp();
     }
 
     private void clearSessionEndpointIntentExtras() {

@@ -13,7 +13,6 @@ import android.widget.ListView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -26,7 +25,6 @@ public class MenuList implements AdapterView.OnItemClickListener {
     protected CommCareActivity activity;
     protected AdapterView<ListAdapter> adapterView;
     protected MenuAdapter adapter;
-    private boolean beingUsedInHomeScreen;
 
     /**
      * Injects a list (or grid) of CommCare modules/forms for the given menu id into the UI of
@@ -34,7 +32,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
      */
     @NonNull
     public static MenuList setupMenuViewInActivity(CommCareActivity activity, String menuId,
-                                                   boolean useGridMenu, boolean beingUsedInHomeScreen) {
+                                                   boolean useGridMenu) {
         MenuList menuView;
         if (useGridMenu) {
             menuView = new MenuGrid();
@@ -42,7 +40,6 @@ public class MenuList implements AdapterView.OnItemClickListener {
             menuView = new MenuList();
         }
         menuView.setupMenuInActivity(activity, menuId);
-        menuView.beingUsedInHomeScreen = beingUsedInHomeScreen;
         return menuView;
     }
 
@@ -94,17 +91,7 @@ public class MenuList implements AdapterView.OnItemClickListener {
         FirebaseAnalyticsUtil.reportMenuItemClick(commandId);
         Intent i = new Intent(activity.getIntent());
         i.putExtra(SessionFrame.STATE_COMMAND_ID, commandId);
-        if (beingUsedInHomeScreen) {
-            // If this MenuList is on our home screen, that means we can't finish() here because we
-            // are already in our home activity. Instead, just manually launch the same code path
-            // that would have been initiated by onActivityResult of HomeScreenBaseActivity
-            HomeScreenBaseActivity homeActivity = (HomeScreenBaseActivity)activity;
-            if (homeActivity.processReturnFromGetCommand(AppCompatActivity.RESULT_OK, i)) {
-                homeActivity.startNextSessionStepSafe();
-            }
-        } else {
-            activity.setResult(AppCompatActivity.RESULT_OK, i);
-            activity.finish();
-        }
+        activity.setResult(AppCompatActivity.RESULT_OK, i);
+        activity.finish();
     }
 }
