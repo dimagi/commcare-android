@@ -74,6 +74,7 @@ import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -190,6 +191,16 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         coordinator.onActivityResult(requestCode, resultCode, intent);
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    @Override
+    protected SessionExpirationHandler getSessionExpirationHandler() {
+        return coordinator.getSessionExpiration();
+    }
+
+    @Override
+    public void onSessionLost() {
+        SessionRegistrationHelper.redirectToLogin(this);
     }
 
     @Override
