@@ -847,10 +847,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
                 Toast.LENGTH_LONG).show();
     }
 
-    public boolean forcesPortrait() {
-        return false;
-    }
-
     /**
      * @return Whether this widget is to be shown in compact mode
      */
