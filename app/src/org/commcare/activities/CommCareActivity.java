@@ -809,11 +809,6 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
                 instantiator.onActionBarFound(searchMenuItem, searchView, barcodeItem);
             }
         }
-
-        View bottomSearchWidget = activity.findViewById(org.commcare.dalvik.R.id.searchfooter);
-        if (bottomSearchWidget != null) {
-            bottomSearchWidget.setVisibility(View.GONE);
-        }
     }
 
     /**
