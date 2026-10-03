@@ -10,6 +10,8 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.trace.EvaluationTraceReporter;
 import org.javarosa.core.model.trace.ReducingTraceReporter;
+import org.javarosa.core.model.trace.AccumulatingReporter;
+import org.javarosa.core.model.trace.TraceSerialization;
 import org.javarosa.core.model.utils.InstrumentationUtils;
 import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xpath.XPathParseTool;
@@ -25,6 +27,7 @@ import org.robolectric.annotation.Config;
 import java.util.Collection;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.TestCase.assertTrue;
 
 /**
  * General case query tests
@@ -124,12 +127,18 @@ public class CaseDbQueryTest {
 
     @Test
     public void testModelSelfReference() {
-        TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
+        TestUtils.processResourceTransaction("/inputs/case_parent_child_index_bulk.xml");
         EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        ReducingTraceReporter traceReporter = new ReducingTraceReporter(false);
+        ec.setDebugModeOn(traceReporter);
 
         evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child'][@status='open'][true() and " +
                 "count(instance('casedb')/casedb/case[index/parent = instance('casedb')/casedb/case[@case_id=current()/@case_id]/index/parent][false = 'true']) > 0]/@case_id)", "", ec);
 
+        String trace = InstrumentationUtils.collectAndClearTraces(
+                traceReporter, "Child Lookups", TraceSerialization.TraceInfoType.FULL_PROFILE);
+        assertTrue("Nested index query should trigger a reverse index optimization", trace.contains("reverse index"));
     }
 
     @Test
@@ -154,7 +163,7 @@ public class CaseDbQueryTest {
                 "string(instance('casedb')/casedb/case[@case_id = instance('casedb')/casedb/case[@case_id=current()/index/parent]/index/parent]/case_name) = 'Valid']/@case_id)", "child_ptwo_one_one", ec);
 
 
-        TreeReference unexpanded=
+        TreeReference unexpanded =
                 XPathReference.getPathExpr("instance('casedb')/casedb/case[@case_type='unit_test_child_child'][@status='open']").getReference();
 
 
@@ -167,13 +176,44 @@ public class CaseDbQueryTest {
         //TODO: Set up a trace reporter which tracks events specifically, and test that this
         //full loop doesn't do model loads of any of the "Irrelevant" type cases
         XPathExpression name = XPathParseTool.parseXPath("string(instance('casedb')/casedb/case[@case_id = instance('casedb')/casedb/case[@case_id=current()/index/parent]/index/parent]/case_name)");
-        for(TreeReference currentRef : references) {
+        for (TreeReference currentRef : references) {
             EvaluationContext subEc = new EvaluationContext(ec, currentRef);
             FunctionUtils.toString(name.eval(subEc));
         }
-
     }
 
+    @Test
+    public void testParentIndexTransformOptimization() throws XPathSyntaxException {
+        TestUtils.processResourceTransaction("/inputs/case_parent_child_index_bulk.xml");
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+
+        TreeReference unexpanded =
+                XPathReference.getPathExpr("instance('casedb')/casedb/case[@case_type='unit_test_parent'][@status='open']").getReference();
+
+        Collection<TreeReference> references = ec.expandReference(unexpanded);
+
+        QueryContext qc = ec.getCurrentQueryContext().checkForDerivativeContextAndReturn(references.size());
+        qc.setHackyOriginalContextBody(new CurrentModelQuerySet(references));
+        ec.setQueryContext(qc);
+
+        AccumulatingReporter traceReporter = new AccumulatingReporter();
+        ec.setDebugModeOn(traceReporter);
+
+        //TODO: Set up a trace reporter which tracks events specifically, and test that this
+        //full loop doesn't do model loads of any of the "Irrelevant" type cases
+        XPathExpression name = XPathParseTool.parseXPath("count(instance('casedb')/casedb/case[index/parent = current()/@case_id]/case_name)");
+        for (TreeReference currentRef : references) {
+            EvaluationContext subEc = new EvaluationContext(ec, currentRef);
+            assertEquals(2.0, FunctionUtils.toInt(name.eval(subEc)));
+
+        }
+        String trace = InstrumentationUtils.collectAndClearTraces(
+                traceReporter, "Child Lookups", TraceSerialization.TraceInfoType.FULL_PROFILE);
+
+        assertEquals("Query performed incorrect single record reads", -1, trace.indexOf("Model [casedb]: Singular Load"));
+        assertTrue("Query should trigger a reverse index transform", trace.indexOf("reverse index") != -1);
+        System.out.println(trace);
+    }
 
     public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
         XPathExpression expr;
