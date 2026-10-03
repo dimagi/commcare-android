@@ -449,6 +449,7 @@ payload.file.not.set=Payload file path is not set in preferences
 custom.restore.file.not.exist=Custom restore file does not exist
 custom.restore.file.not.set=Custom restore file path is not set in preferences
 custom.restore.error=Error loading custom sync
+restore.failed.error=Restore file contains at least one report with more than 100K records. Please report this problem to CommCare Support
 
 start.recording=Start Recording
 start.recording.failed=Unable to start recording while another application is using the microphone!
