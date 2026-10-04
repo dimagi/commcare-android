@@ -92,7 +92,7 @@
         android:id="@+id/personalid_profile_send_phone_otp_fragment"
         android:name="org.commcare.personalId.profile.PersonalIdProfileSendPhoneOtpFragment"
         android:label="@string/connect_verify_phone_title"
-        tools:layout="@layout/fragment_personalid_send_email_otp">
+        tools:layout="@layout/fragment_personalid_send_otp">
         <argument
             android:name="pendingEmail"
             app:argType="string" />

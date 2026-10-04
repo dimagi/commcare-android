@@ -68,7 +68,7 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
     private fun currentFragment() = navHostFragment.childFragmentManager.primaryNavigationFragment!!
 
     private fun tapSendPhoneOtp() {
-        val send = currentFragment().requireView().findViewById<View>(R.id.personalid_send_email_otp_button)
+        val send = currentFragment().requireView().findViewById<View>(R.id.send_otp_button)
         onUiThread { send.performClick() }
     }
 

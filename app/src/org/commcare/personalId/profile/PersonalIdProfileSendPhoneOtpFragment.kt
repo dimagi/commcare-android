@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.FragmentPersonalidSendEmailOtpBinding
+import org.commcare.dalvik.databinding.FragmentPersonalidSendOtpBinding
 import org.commcare.fragments.personalId.BasePersonalIdFragment
 
 class PersonalIdProfileSendPhoneOtpFragment : BasePersonalIdFragment() {
@@ -18,13 +18,13 @@ class PersonalIdProfileSendPhoneOtpFragment : BasePersonalIdFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        val binding = FragmentPersonalidSendEmailOtpBinding.inflate(inflater, container, false)
+        val binding = FragmentPersonalidSendOtpBinding.inflate(inflater, container, false)
         setTitle(R.string.connect_verify_phone_title)
-        binding.personalidSendEmailOtpTitle.setText(R.string.personalid_send_phone_otp_title)
-        binding.personalidSendEmailOtpIcon.setImageResource(R.drawable.ic_outline_phone_24)
-        binding.personalidSendEmailOtpAddressLabel.setText(R.string.personalid_profile_field_phone)
-        binding.personalidSendEmailOtpAddress.text = maskPhone(ConnectUserDatabaseUtil.getUser().primaryPhone)
-        binding.personalidSendEmailOtpButton.setOnClickListener { navigateToPhoneVerification() }
+        binding.sendOtpTitle.setText(R.string.personalid_send_phone_otp_title)
+        binding.sendOtpIcon.setImageResource(R.drawable.ic_outline_phone_24)
+        binding.sendOtpAddressLabel.setText(R.string.personalid_profile_field_phone)
+        binding.sendOtpAddress.text = maskPhone(ConnectUserDatabaseUtil.getUser().primaryPhone)
+        binding.sendOtpButton.setOnClickListener { navigateToPhoneVerification() }
         return binding.root
     }
 

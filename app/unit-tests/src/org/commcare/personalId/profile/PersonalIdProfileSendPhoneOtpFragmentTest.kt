@@ -41,14 +41,14 @@ class PersonalIdProfileSendPhoneOtpFragmentTest : BasePersonalIdProfileTest() {
 
     private fun currentView() = navHostFragment.childFragmentManager.primaryNavigationFragment!!.requireView()
 
-    private fun sendButton() = currentView().findViewById<MaterialButton>(R.id.personalid_send_email_otp_button)
+    private fun sendButton() = currentView().findViewById<MaterialButton>(R.id.send_otp_button)
 
     private fun text(id: Int) = currentView().findViewById<TextView>(id).text.toString()
 
     @Test
     fun `shows the stored phone number masked to the last 3 digits`() {
         launch()
-        assertEquals("•••••••••890", text(R.id.personalid_send_email_otp_address))
+        assertEquals("•••••••••890", text(R.id.send_otp_address))
     }
 
     @Test
@@ -78,11 +78,11 @@ class PersonalIdProfileSendPhoneOtpFragmentTest : BasePersonalIdProfileTest() {
         launch()
         assertEquals(
             activity.getString(R.string.personalid_send_phone_otp_title),
-            text(R.id.personalid_send_email_otp_title),
+            text(R.id.send_otp_title),
         )
         assertEquals(
             activity.getString(R.string.personalid_profile_field_phone),
-            text(R.id.personalid_send_email_otp_address_label),
+            text(R.id.send_otp_address_label),
         )
     }
 
