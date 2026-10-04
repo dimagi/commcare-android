@@ -270,11 +270,11 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
         assertBasicAuthRequest(
             verifyCodeWithServer(WRONG_CODE, incorrectOtpResponse()),
             PersonalIdApiEndpoints.CONFIRM_OTP,
-            "otp" to WRONG_CODE,
+            "token" to WRONG_CODE,
         )
         assertIncorrectOtpShown()
 
-        assertBasicAuthRequest(retryWithCorrectCode(), PersonalIdApiEndpoints.CONFIRM_OTP, "otp" to CORRECT_CODE)
+        assertBasicAuthRequest(retryWithCorrectCode(), PersonalIdApiEndpoints.CONFIRM_OTP, "token" to CORRECT_CODE)
     }
 
     @Test

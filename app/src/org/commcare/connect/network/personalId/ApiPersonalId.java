@@ -401,13 +401,13 @@ public class ApiPersonalId {
         Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("otp", otp);
-
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
         if (authInfo instanceof AuthInfo.ProvidedAuth) {
+            params.put("token", otp);
             BaseApi.Companion.callApi(context, apiService.confirmOtp(tokenAuth, params), callback,
                     PersonalIdApiEndpoints.CONFIRM_OTP);
         } else {
+            params.put("otp", otp);
             BaseApi.Companion.callApi(context, apiService.validateSessionOtp(tokenAuth, params),
                     callback, PersonalIdApiEndpoints.VALIDATE_SESSION_OTP);
         }

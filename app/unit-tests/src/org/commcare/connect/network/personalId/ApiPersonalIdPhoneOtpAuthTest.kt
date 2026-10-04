@@ -66,21 +66,21 @@ class ApiPersonalIdPhoneOtpAuthTest {
     }
 
     @Test
-    fun `validatePhoneOtp with ProvidedAuth sends basic auth and the otp to confirm_otp`() {
+    fun `validatePhoneOtp with ProvidedAuth sends basic auth and the otp as token to confirm_otp`() {
         ApiPersonalId.validatePhoneOtp(context, basicAuth, "123456", callback)
         val request = mockApiServer.takeRequestOrFail()
         assertEquals(PersonalIdApiEndpoints.CONFIRM_OTP, request.path)
         assertEquals(HttpUtils.getCredential(basicAuth), request.getHeader("Authorization"))
-        assertTrue(request.body.readUtf8().contains("\"otp\":\"123456\""))
+        assertTrue(request.body.readUtf8().contains("\"token\":\"123456\""))
     }
 
     @Test
-    fun `validatePhoneOtp with TokenAuth sends the session token credential`() {
+    fun `validatePhoneOtp with TokenAuth sends the session token credential and the otp`() {
         ApiPersonalId.validatePhoneOtp(context, tokenAuth, "123456", callback)
-        assertEquals(
-            HttpUtils.getCredential(tokenAuth),
-            authorizationHeader(PersonalIdApiEndpoints.VALIDATE_SESSION_OTP),
-        )
+        val request = mockApiServer.takeRequestOrFail()
+        assertEquals(PersonalIdApiEndpoints.VALIDATE_SESSION_OTP, request.path)
+        assertEquals(HttpUtils.getCredential(tokenAuth), request.getHeader("Authorization"))
+        assertTrue(request.body.readUtf8().contains("\"otp\":\"123456\""))
     }
 
     @Test
