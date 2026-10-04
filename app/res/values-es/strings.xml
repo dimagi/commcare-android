@@ -218,7 +218,6 @@
     <string name="personalid_email_verification_appbar_title">Verificar correo</string>
     <string name="personalid_email_verification_title">Verifica tu correo electrónico</string>
     <string name="personalid_email_verification_description">Introduce el código de 6 dígitos enviado a %1$s</string>
-    <string name="personalid_email_verify_button">Verificar</string>
     <string name="personalid_email_otp_failed_title">Verificación incorrecta</string>
     <string name="personalid_email_otp_failed_message">Ha utilizado todos los intentos para este código. Puede solicitar uno nuevo en %1$s, u omitir el correo electrónico por ahora.</string>
     <string name="personalid_email_otp_failed_wait">Esperar</string>
@@ -273,13 +272,11 @@
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
     <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
-    <string name="connect_last_update">Actualizado: %s</string>
     <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
     <string name="connect_job_ended">La tarea finalizó el %s</string>
     <string name="connect_learn_title">Progreso del aprendizaje</string>
-    <string name="connect_fetch_learning_progress_error">No se pudo obtener el progreso del aprendizaje</string>
     <string name="connect_sms_invite_opportunity_not_found">Oportunidad no encontrada</string>
     <string name="connect_learn_complete">Completar</string>
     <string name="connect_learn_certificate">Certificado</string>
@@ -298,11 +295,8 @@
     <string name="connect_learn_cta_complete_assessment">Completar la evaluación</string>
     <string name="connect_learn_cta_take_assessment">Realizar la evaluación</string>
     <string name="connect_learn_cta_start">Comenzar</string>
-    <string name="connect_delivery_earn_multi">Pago por visita:</string>
     <string name="connect_delivery_go">Ir a la aplicación</string>
     <string name="connect_progress_delivery">Entrega</string>
-    <string name="connect_progress_title">Progreso de la entrega</string>
-    <string name="connect_progress_status">Has realizado %d visitas de %d.</string>
     <string name="semi_circle_progress_value_format">%1$d de %2$d</string>
     <string name="connect_progress_count_format">%1$d de %2$d</string>
     <string name="connect_progress_warning_ended">El trabajo ha terminado. No progresarás si realizas tareas adicionales.</string>
@@ -345,7 +339,6 @@
     <string name="please_wait">"Por favor espere unos momentos."</string>
     <string name="please_wait_long">Por favor espere. Esto podria demorarse unos minutos.</string>
     <string name="quit_application">Salir %s</string>
-    <string name="refresh">Refrescar</string>
     <string name="replace_location">Reemplazar la Ubicacion</string>
     <string name="required_answer_error">Esta respuesta es obligatoria!</string>
     <string name="review">Continuar</string>
@@ -385,9 +378,6 @@
     <string name="connect_downloading_delivery">Descargando Entrega</string>
     <string name="connect_results_summary_earned">Ganado</string>
     <string name="connect_results_summary_transferred">Transferido</string>
-    <string name="connect_payment_confirm_text">¿Ha recibido el pago de %d %s por la oportunidad de %s?</string>
-    <string name="connect_payment_confirm_yes">¡Sí!</string>
-    <string name="connect_payment_confirm_no">Más tarde</string>
     <string name="personalid_login_with">Iniciar sesión con PersonalId</string>
     <string name="personalid_link_app_title">¿Vincular con PersonalId?</string>
     <string name="personalid_link_app_message">¿Te gustaría vincular este inicio de sesión con tu cuenta de PersonalId? No necesitarás ingresar tu contraseña en el futuro.</string>
@@ -430,10 +420,6 @@
     <string name="personalid_profile_edit_discard_message">Se perderán los cambios no guardados.</string>
     <string name="personalid_profile_edit_discard_positive">Descartar</string>
     <string name="personalid_profile_edit_discard_negative">Seguir editando</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Verifica tu nuevo correo electrónico</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Enviaremos un código de 6 dígitos a %1$s. Introdúcelo en la siguiente pantalla para verificar.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Enviar código</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Cancelar</string>
     <string name="personalid_profile_edit_save">Guardar</string>
     <string name="personalid_profile_edit_cancel">Cancelar</string>
     <string name="personalid_profile_edit_save_success">Tu perfil se ha actualizado correctamente.</string>
@@ -465,20 +451,8 @@
     <string name="personalid_set_backup_code_reminder_message">No tienes un código de respaldo configurado en tu cuenta. Haz clic en Confirmar para configurar uno.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Establecer código de respaldo</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Por favor, establezca un código de respaldo antes de salir</string>
-    <string name="connect_job_info_delivery_detail">Detalles de la entrega</string>
-    <string name="connect_job_info_review_delivery">Revisar detalles de la entrega</string>
-    <string name="connect_job_info_visit">%d visitas máximo</string>
-    <string name="connect_job_info_days">%d días para completar</string>
-    <string name="connect_job_info_max_visit">Número máximo de visitas por día %d</string>
-    <string name="connect_job_info_visit_charge">Gana hasta %s por visita</string>
-    <string name="connect_job_info_view_info">Ver información</string>
-    <string name="connect_job_info_view_resume">Reanudar</string>
-    <string name="connect_job_info_view_review">Revisar</string>
-    <string name="connect_job_info_view_proceed">Proceder</string>
     <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
-    <string name="connect_delivery_progress_description">No has completado ninguna lección. Comienza tu aprendizaje para obtener tu certificado.</string>
-    <string name="connect_click_to_sync_progress">Haz clic para sincronizar el progreso</string>
     <string name="connect_payment_received">Recibido</string>
     <string name="connect_payment_transferred">Transferido</string>
     <string name="connect_payment_confirm_transferred">Confirmar pago transferido</string>
@@ -526,7 +500,7 @@
     <string name="personalid_otp_verification_failed">Algo salió mal. Por favor, inténtelo de nuevo.</string>
     <string name="personalid_location_permission_error">PersonalID requiere que su dispositivo tenga los Servicios de ubicación habilitados. Por favor, actívelos en la configuración de su teléfono antes de continuar.</string>
     <string name="connect_registration_subtitle">Ingresa tu número de teléfono</string>
-    <string name="connect_backup_code_message_title">Código de respaldo de PersonalId</string>
+    <string name="connect_backup_code_message_title">Código de respaldo de PersonalID</string>
     <string name="connect_backup_code_message">Ingresa tu código de respaldo de 6 dígitos</string>
     <string name="connect_messaging_send_message_fail_msg">Error al enviar el mensaje</string>
     <string name="connect_messaging_retrieve_messages_fail">Error al recuperar mensajes</string>
@@ -548,10 +522,10 @@
     <string name="connect_messaging_channel_menu_item_unsubscribe">Darse de baja</string>
     <string name="connect_send_message_hint">Escribe un mensaje</string>
     <string name="connect_send_message_btn_desc">Toca aquí para enviar un mensaje</string>
-    <string name="connect_corrupt_job_text">No se pudo cargar esta oportunidad</string>
     <string name="personalid_login_via_connect">¡Listo para iniciar sesión!\n</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos experimentando un error irrecuperable al iniciar sesión con tu PersonalId. Por favor, inicia sesión con tu contraseña o recupera tu PersonalId.</string>
     <string name="personalid_name_appbar_title">Nombre</string>
+    <string name="personalid_name_fragment_title">Ingresa tu nombre</string>
     <string name="personalid_name_fragment_subtitle">Por favor, ingresa tu nombre tal como aparece en tu identificación emitida por el gobierno</string>
     <string name="personalid_configuration_process_failed_title">Proceso fallido</string>
     <string name="personalid_configuration_process_failed_subtitle">Lamentablemente, este dispositivo no pasó las comprobaciones de seguridad necesarias para registrarse en PersonalID. Por favor, inténtalo de nuevo en un dispositivo diferente.</string>
@@ -564,12 +538,12 @@
     <string name="personalid_configuration_process_failed_temporary_unavailable">Error temporal al verificar la elegibilidad de tu dispositivo. Por favor, inténtalo de nuevo después de un día.</string>
     <string name="personalid_configuration_process_failed_network_error">Error de red al verificar la elegibilidad de tu dispositivo. Asegúrate de tener una buena conexión de red e inténtalo de nuevo.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">No se pudo verificar la elegibilidad del dispositivo debido a un error inesperado. Por favor, contacta al soporte al cliente si el problema persiste.</string>
-    <string name="personalid_photo_capture_title">Bienvenido %1$s</string>
+    <string name="personalid_photo_capture_title">Bienvenido, %1$s</string>
     <string name="personalid_photo_capture_subtitle">Por favor, toma una foto tuya para completar la configuración de tu cuenta</string>
     <string name="personalid_photo_capture_take_photo_button">Tomar foto</string>
     <string name="personalid_photo_capture_save_photo_button">Guardar foto</string>
     <string name="personalid_this_is_not_me"><u>Este no soy yo</u></string>
-    <string name="personalid_welcome_back_msg">Bienvenido de nuevo %s</string>
+    <string name="personalid_welcome_back_msg">Bienvenido de nuevo, %s</string>
     <string name="personalid_wrong_backup_message">Ha introducido el código de seguridad incorrecto. Inténtelo de nuevo. Su cuenta se bloqueará después de %d intentos incorrectos más.</string>
     <string name="personalid_second_device_login_title">Iniciar sesión en un segundo dispositivo</string>
     <string name="personalid_second_device_login_message">Sesión cerrada en %s, último uso: %s. Solo se puede iniciar sesión con PersonalID en un dispositivo a la vez.</string>
@@ -632,7 +606,6 @@
     <string name="network_forbidden_error">Acceso denegado. Si el problema persiste, contacte con atención al cliente.</string>
     <string name="error">Error</string>
     <string name="failed_to_start_learning">Error al iniciar el aprendizaje</string>
-    <string name="failed_to_update_payment">Error al actualizar el pago</string>
 
     <string name="personalid_biometric_error_cancelled">La configuración biométrica fue cancelada. Por favor, póngase en contacto con el soporte técnico si el problema persiste.</string>
     <string name="personalid_biometric_error_lockout">Demasiados intentos. Por favor, espere e inténtelo de nuevo.</string>
@@ -643,8 +616,6 @@
     <string name="connect_label_expires_on">Vence el</string>
     <string name="connect_label_completed_on">Completado el</string>
     <string name="connect_label_expired_on">Vencido el</string>
-    <string name="connect_complete_by">La tarea termina el %s</string>
-    <string name="connect_expired_on">La tarea terminó el %s</string>
     <string name="connect_dashboard">Panel</string>
     <string name="connect_visits">Visitas</string>
     <string name="connect_more">Más</string>
@@ -718,7 +689,6 @@
     <string name="menu_app_list_install">Ver Aplicaciones para Mi Usuario</string>
     <string name="menu_app_list_install_other_user">Ver Aplicaciones para Otro Usuario</string>
     <string name="toggle_web_user_mode">Usuario Web</string>
-    <string name="toggle_mobile_user_mode">Usuario Móvil</string>
     <string name="missing_fields">Por favor, complete todos los campos requeridos.</string>
     <string name="email_address_invalid">Por favor, ingrese una dirección de correo electrónico válida.</string>
     <string name="get_app_list_user_error_mobile">Se proporcionó un nombre de usuario, dominio o contraseña inválidos. Por favor, asegúrese de que todos los campos ingresados sean correctos.</string>

@@ -50,7 +50,6 @@
     <string name="please_wait">Vennligst vent.</string>
     <string name="please_wait_long">Vennligst vent. Det kan ta litt tid.</string>
     <string name="quit_application">Avslutt %s</string>
-    <string name="refresh">Oppdater</string>
     <string name="replace_location">Erstatte plassering</string>
     <string name="required_answer_error">Beklager, svaret er påkrevd!</string>
     <string name="review">fortsette</string>
@@ -96,10 +95,6 @@
     <string name="personalid_profile_edit_discard_message">Endringer som ikke er lagret, går tapt.</string>
     <string name="personalid_profile_edit_discard_positive">Forkast</string>
     <string name="personalid_profile_edit_discard_negative">Fortsett redigeringen</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Bekreft din nye e-post</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Vi sender en 6-sifret kode til %1$s. Skriv den inn på neste skjerm for å bekrefte.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Send kode</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Avbryt</string>
     <string name="personalid_profile_edit_save">Lagre</string>
     <string name="personalid_profile_edit_cancel">Avbryt</string>
     <string name="personalid_profile_edit_save_success">Profilen din er oppdatert.</string>
@@ -153,7 +148,6 @@
     <string name="connect_app_install_setting_up">Setter opp appen…</string>
     <string name="connect_app_finishing_install">Fullfører installasjonen…</string>
     <string name="connect_app_launching">Nedlasting fullført, starter appen…</string>
-    <string name="connect_fetch_learning_progress_error">Kunne ikke hente læringsfremdriften</string>
     <string name="personalid_not_login_from_fcm_error">Vennligst logg inn på PersonalId for å se detaljene</string>
     <string name="connect_messaging_resubscribe_dialog_title">Abonner på %s på nytt</string>
     <string name="connect_messaging_resubscribe_dialog_body">Er du sikker på at du vil abonnere på meldingskanalen %s på nytt?</string>
@@ -214,6 +208,7 @@
     <string name="personalid_network_response_parsing_error">Feil ved lesing av data fra serveren. Kontakt kundestøtte.</string>
     <string name="personalid_email_appbar_title">E-post</string>
     <string name="personalid_name_appbar_title">Navn</string>
+    <string name="personalid_name_fragment_title">Skriv inn navnet ditt</string>
     <string name="personalid_email_title">Legg til e-postadressen din (valgfritt)</string>
     <string name="personalid_email_description">E-postadressen din hjelper deg å gjenopprette kontoen din hvis du mister tilgang til telefonen.</string>
     <string name="personalid_email_hint">E-postadresse</string>
@@ -226,7 +221,6 @@
     <string name="personalid_email_verification_appbar_title">Bekreft e-post</string>
     <string name="personalid_email_verification_title">Bekreft e-postadressen din</string>
     <string name="personalid_email_verification_description">Skriv inn den 6-sifrede koden sendt til %1$s</string>
-    <string name="personalid_email_verify_button">Bekreft</string>
     <string name="personalid_email_otp_failed_title">Bekreftelse mislyktes</string>
     <string name="personalid_email_otp_failed_message">Du har brukt alle forsøkene for denne koden. Du kan be om en ny om %1$s, eller hoppe over e-post for nå.</string>
     <string name="personalid_email_otp_failed_wait">Vent</string>
@@ -259,7 +253,6 @@
     <string name="connect_register_success_message">Kontoen din er blitt opprettet og er klar til bruk</string>
     <string name="connect_backup_code_remember">Sørg for å huske reservekoden din! Den må være på %d sifre. Oppbevar den på et trygt sted, da du trenger den for å få tilgang til kontoen din igjen.</string>
     <string name="no_channel_msg">Du abonnerer ikke på noen meldingskanaler. Når du er lagt til i en kanal, vil den vises i denne listen.</string>
-    <string name="connect_payment_confirm_text">Har du mottatt %d %s for %s-muligheten?</string>
 
     <string name="personalid_using_your_location">Bruker posisjonen din</string>
     <string name="personalid_no_location_found">Vi kan ikke finne posisjonen din</string>
@@ -268,14 +261,9 @@
 
     <string name="network_forbidden_error">Tilgang nektet. Ta kontakt med kundestøtte hvis problemet vedvarer.</string>
     <string name="connect_job_ended">Oppgaven ble avsluttet %s</string>
-    <string name="connect_job_info_view_info">Se info</string>
-    <string name="connect_job_info_view_resume">Gjenoppta</string>
-    <string name="connect_job_info_view_review">Vurder</string>
-    <string name="connect_job_info_view_proceed">Fortsett</string>
 
     <string name="error">Feil</string>
     <string name="failed_to_start_learning">Kunne ikke starte læringen</string>
-    <string name="failed_to_update_payment">Kunne ikke oppdatere betalingen</string>
     <string name="connect_in_progress">Pågår</string>
     <string name="connect_new_opportunities">Nye muligheter</string>
     <string name="connect_completed_expired_label">Fullførte / utløpte muligheter</string>
@@ -292,8 +280,6 @@
     <string name="connect_label_expires_on">Utløper</string>
     <string name="connect_label_completed_on">Fullført</string>
     <string name="connect_label_expired_on">Utløpt</string>
-    <string name="connect_complete_by">Oppgave avsluttes %s</string>
-    <string name="connect_expired_on">Oppgaven ble avsluttet %s</string>
     <string name="connect_dashboard">Dashbord</string>
     <string name="connect_visits">Besøk</string>
     <string name="connect_more">Mer</string>
@@ -387,7 +373,6 @@
     <string name="menu_app_list_install">Se apper for min bruker</string>
     <string name="menu_app_list_install_other_user">Se apper for en annen bruker</string>
     <string name="toggle_web_user_mode">Webbruker</string>
-    <string name="toggle_mobile_user_mode">Mobilbruker</string>
     <string name="missing_fields">Vennligst fyll ut alle obligatoriske felt.</string>
     <string name="email_address_invalid">Vennligst skriv inn en gyldig e-postadresse.</string>
     <string name="get_app_list_user_error_mobile">Et ugyldig brukernavn, domene eller passord ble oppgitt. Sørg for at alle feltene du har skrevet inn er korrekte.</string>

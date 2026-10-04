@@ -6,7 +6,7 @@
             android:id="@+id/firstLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white"
+            android:background="?attr/colorSurface"
             app:layout_constraintTop_toTopOf="parent"
             android:orientation="vertical"
             tools:context="org.commcare.fragments.personalId.PersonalIdNameFragment">
@@ -17,24 +17,32 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/name_fragment_subtitle"
+                    android:id="@+id/name_fragment_title"
+                    style="@style/Widget.Connect.HeadingText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@string/personalid_name_fragment_subtitle"
-                    android:textColor="@color/connect_dark_blue_color"
-                    android:textSize="16sp" />
+                    android:layout_marginStart="@dimen/connect_space_lg"
+                    android:layout_marginTop="@dimen/connect_space_xl"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
+                    android:text="@string/personalid_name_fragment_title" />
+
+                <TextView
+                    android:id="@+id/name_fragment_subtitle"
+                    style="@style/Widget.Connect.BodyText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/connect_space_lg"
+                    android:layout_marginTop="@dimen/connect_space_sm"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
+                    android:text="@string/personalid_name_fragment_subtitle" />
 
                 <LinearLayout
                     android:id="@+id/name_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="@dimen/connect_space_lg"
+                    android:layout_marginTop="@dimen/connect_space_xl"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
                     android:gravity="start"
                     android:orientation="horizontal">
 
@@ -49,6 +57,7 @@
                             android:layout_width="42dp"
                             android:layout_height="42dp"
                             android:padding="1dp"
+                            android:scaleType="center"
                             android:src="@drawable/ic_outline_person_24" />
 
                     </LinearLayout>
@@ -57,36 +66,34 @@
                         android:id="@+id/nameTextValue"
                         android:layout_width="match_parent"
                         android:layout_height="55dp"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginStart="@dimen/connect_space_lg"
                         android:background="@drawable/connect_edit_text_bg"
                         android:hint="@string/connect_register_name"
                         android:inputType="textPersonName|textCapWords"
                         android:imeOptions="actionNext"
-                        android:paddingStart="16dp"
+                        android:paddingStart="@dimen/connect_space_lg"
                         android:textColorHint="@color/connect_grey"
                         />
 
                 </LinearLayout>
 
                 <TextView
-                    android:textStyle="bold"
                     android:id="@+id/personalid_name_error"
+                    style="@style/Widget.Connect.ErrorText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="84dp"
-                    android:paddingTop="4dp"
-                    android:textColor="@android:color/holo_red_light"
-                    android:textSize="14sp"
+                    android:paddingTop="@dimen/connect_space_xs"
                     android:visibility="gone"
                      />
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/personalid_name_continue_button"
-                    style="@style/CustomButtonStyle"
+                    style="@style/ConnectPrimaryButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="@dimen/connect_space_lg"
+                    android:layout_marginEnd="@dimen/connect_space_lg"
                     android:gravity="start|center"
                     android:text="@string/personalid_continue_label"
                     android:drawableEnd="@drawable/connect_right_arrow"
