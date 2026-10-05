@@ -1,6 +1,8 @@
 package org.commcare.fragments.connectMessaging;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 public class ConnectMessageChatData {
     private String messageId;
@@ -10,15 +12,37 @@ public class ConnectMessageChatData {
     private Date timestamp;
     private int countUnread;
     private boolean isMessageRead;
+    private final List<ConnectMessageAttachmentItem> attachments;
+    private final boolean unsupportedVersion;
 
     // Constructor with parameters
     public ConnectMessageChatData(String messageId, int type, String message, String userName, Date timestamp, boolean isMessageRead) {
+        this(messageId, type, message, userName, timestamp, isMessageRead, Collections.emptyList(), false);
+    }
+
+    public ConnectMessageChatData(String messageId, int type, String message, String userName, Date timestamp,
+                                  boolean isMessageRead, List<ConnectMessageAttachmentItem> attachments,
+                                  boolean unsupportedVersion) {
         this.messageId = messageId;
         this.type = type;
         this.message = message;
         this.userName = userName;
         this.timestamp = timestamp;
         this.isMessageRead = isMessageRead;
+        this.attachments = attachments;
+        this.unsupportedVersion = unsupportedVersion;
+    }
+
+    public List<ConnectMessageAttachmentItem> getAttachments() {
+        return attachments;
+    }
+
+    public boolean isUnsupportedVersion() {
+        return unsupportedVersion;
+    }
+
+    public boolean hasRichContent() {
+        return !attachments.isEmpty() || unsupportedVersion;
     }
 
     // Getters and setters

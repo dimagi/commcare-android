@@ -764,4 +764,14 @@
     <string name="recording_notification_save_action">Salvar</string>
     <string name="recording_notification_pause_action">Pausar</string>
     <string name="recording_notification_resume_action">Retomar</string>
+    <string name="connect_messaging_attachment_download">Baixar</string>
+    <string name="connect_messaging_attachment_downloading">Baixando…</string>
+    <string name="connect_messaging_attachment_download_failed">Falha no download</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Toque para tentar novamente</string>
+    <string name="connect_messaging_attachment_expired">Não está mais disponível</string>
+    <string name="connect_messaging_attachment_open_failed">Nenhum aplicativo neste telefone pode abrir este arquivo</string>
+    <string name="connect_messaging_audio_play">Reproduzir áudio</string>
+    <string name="connect_messaging_audio_pause">Pausar áudio</string>
+    <string name="connect_messaging_audio_play_failed">Não foi possível reproduzir este áudio</string>
+    <string name="connect_messaging_update_app_notice">Atualize o aplicativo para ver esta mensagem</string>
 </resources>

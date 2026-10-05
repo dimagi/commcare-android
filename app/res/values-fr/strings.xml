@@ -757,4 +757,14 @@ License.
     <string name="recording_notification_save_action">Enregistrer</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Reprendre</string>
+    <string name="connect_messaging_attachment_download">Télécharger</string>
+    <string name="connect_messaging_attachment_downloading">Téléchargement…</string>
+    <string name="connect_messaging_attachment_download_failed">Échec du téléchargement</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Appuyez pour réessayer</string>
+    <string name="connect_messaging_attachment_expired">N\'est plus disponible</string>
+    <string name="connect_messaging_attachment_open_failed">Aucune application sur ce téléphone ne peut ouvrir ce fichier</string>
+    <string name="connect_messaging_audio_play">Lire l\'audio</string>
+    <string name="connect_messaging_audio_pause">Mettre l\'audio en pause</string>
+    <string name="connect_messaging_audio_play_failed">Impossible de lire cet audio</string>
+    <string name="connect_messaging_update_app_notice">Mettez l\'application à jour pour voir ce message</string>
 </resources>

@@ -752,4 +752,14 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="recording_notification_save_action">Ajiye</string>
     <string name="recording_notification_pause_action">Dakata</string>
     <string name="recording_notification_resume_action">Ci gaba</string>
+    <string name="connect_messaging_attachment_download">Sauke</string>
+    <string name="connect_messaging_attachment_downloading">Ana saukewa…</string>
+    <string name="connect_messaging_attachment_download_failed">Saukewa ta kasa</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Taɓa don sake gwadawa</string>
+    <string name="connect_messaging_attachment_expired">Ba a samunsa yanzu</string>
+    <string name="connect_messaging_attachment_open_failed">Babu wata manhaja a wannan wayar da za ta iya buɗe wannan fayil</string>
+    <string name="connect_messaging_audio_play">Kunna sauti</string>
+    <string name="connect_messaging_audio_pause">Dakatar da sauti</string>
+    <string name="connect_messaging_audio_play_failed">Ba a iya kunna wannan sautin ba</string>
+    <string name="connect_messaging_update_app_notice">Sabunta manhajar don ganin wannan saƙon</string>
 </resources>

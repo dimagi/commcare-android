@@ -484,4 +484,32 @@
         <item name="android:windowAnimationStyle">@style/ConnectBottomSheetAnimation</item>
     </style>
 
+    <style name="ConnectMessageMediaShapeAppearance" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/connect_message_media_corner_radius</item>
+    </style>
+
+    <style name="ConnectMessageAttachmentText">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/connect_text_caption</item>
+    </style>
+
+    <style name="ConnectMessageAttachmentText.Label">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="ConnectMessageAttachmentText.Detail">
+        <item name="android:textSize">@dimen/connect_text_label</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">middle</item>
+    </style>
+
+    <style name="ConnectMessageAttachmentActionCircle">
+        <item name="android:background">@drawable/connect_message_white_circle</item>
+        <item name="android:scaleType">center</item>
+        <item name="tint">@color/connect_message_receiver_bg</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
 </resources>

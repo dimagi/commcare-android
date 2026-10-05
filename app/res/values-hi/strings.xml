@@ -754,4 +754,14 @@ License.
     <string name="recording_notification_save_action">सहेजें</string>
     <string name="recording_notification_pause_action">रोकें</string>
     <string name="recording_notification_resume_action">फिर से शुरू करें</string>
+    <string name="connect_messaging_attachment_download">डाउनलोड करें</string>
+    <string name="connect_messaging_attachment_downloading">डाउनलोड हो रहा है…</string>
+    <string name="connect_messaging_attachment_download_failed">डाउनलोड विफल रहा</string>
+    <string name="connect_messaging_attachment_tap_to_retry">फिर से कोशिश करने के लिए टैप करें</string>
+    <string name="connect_messaging_attachment_expired">अब उपलब्ध नहीं है</string>
+    <string name="connect_messaging_attachment_open_failed">इस फ़ोन पर कोई भी ऐप यह फ़ाइल नहीं खोल सकता</string>
+    <string name="connect_messaging_audio_play">ऑडियो चलाएं</string>
+    <string name="connect_messaging_audio_pause">ऑडियो रोकें</string>
+    <string name="connect_messaging_audio_play_failed">यह ऑडियो नहीं चलाया जा सका</string>
+    <string name="connect_messaging_update_app_notice">यह संदेश देखने के लिए ऐप अपडेट करें</string>
 </resources>

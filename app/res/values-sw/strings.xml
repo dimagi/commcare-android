@@ -762,4 +762,14 @@
     <string name="recording_notification_save_action">Hifadhi</string>
     <string name="recording_notification_pause_action">Sitisha</string>
     <string name="recording_notification_resume_action">Endelea</string>
+    <string name="connect_messaging_attachment_download">Pakua</string>
+    <string name="connect_messaging_attachment_downloading">Inapakua…</string>
+    <string name="connect_messaging_attachment_download_failed">Upakuaji umeshindwa</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Gusa ili ujaribu tena</string>
+    <string name="connect_messaging_attachment_expired">Haipatikani tena</string>
+    <string name="connect_messaging_attachment_open_failed">Hakuna programu kwenye simu hii inayoweza kufungua faili hili</string>
+    <string name="connect_messaging_audio_play">Cheza sauti</string>
+    <string name="connect_messaging_audio_pause">Sitisha sauti</string>
+    <string name="connect_messaging_audio_play_failed">Sauti hii haikuweza kuchezwa</string>
+    <string name="connect_messaging_update_app_notice">Sasisha programu ili kuona ujumbe huu</string>
 </resources>

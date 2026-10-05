@@ -758,4 +758,14 @@
     <string name="recording_notification_save_action">Guardar</string>
     <string name="recording_notification_pause_action">Pausar</string>
     <string name="recording_notification_resume_action">Reanudar</string>
+    <string name="connect_messaging_attachment_download">Descargar</string>
+    <string name="connect_messaging_attachment_downloading">Descargando…</string>
+    <string name="connect_messaging_attachment_download_failed">Error en la descarga</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Toca para reintentar</string>
+    <string name="connect_messaging_attachment_expired">Ya no está disponible</string>
+    <string name="connect_messaging_attachment_open_failed">Ninguna aplicación de este teléfono puede abrir este archivo</string>
+    <string name="connect_messaging_audio_play">Reproducir audio</string>
+    <string name="connect_messaging_audio_pause">Pausar audio</string>
+    <string name="connect_messaging_audio_play_failed">No se pudo reproducir este audio</string>
+    <string name="connect_messaging_update_app_notice">Actualiza la aplicación para ver este mensaje</string>
 </resources>

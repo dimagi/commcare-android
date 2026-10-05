@@ -468,4 +468,14 @@
     <string name="recording_notification_save_action">Išsaugoti</string>
     <string name="recording_notification_pause_action">Pristabdyti</string>
     <string name="recording_notification_resume_action">Tęsti</string>
+    <string name="connect_messaging_attachment_download">Atsisiųsti</string>
+    <string name="connect_messaging_attachment_downloading">Atsisiunčiama…</string>
+    <string name="connect_messaging_attachment_download_failed">Nepavyko atsisiųsti</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Palieskite, kad bandytumėte dar kartą</string>
+    <string name="connect_messaging_attachment_expired">Nebepasiekiama</string>
+    <string name="connect_messaging_attachment_open_failed">Jokia šio telefono programa negali atidaryti šio failo</string>
+    <string name="connect_messaging_audio_play">Leisti garso įrašą</string>
+    <string name="connect_messaging_audio_pause">Pristabdyti garso įrašą</string>
+    <string name="connect_messaging_audio_play_failed">Nepavyko paleisti šio garso įrašo</string>
+    <string name="connect_messaging_update_app_notice">Atnaujinkite programą, kad pamatytumėte šią žinutę</string>
 </resources>

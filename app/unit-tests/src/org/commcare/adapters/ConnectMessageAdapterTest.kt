@@ -7,8 +7,13 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ItemChatLeftRichViewBinding
 import org.commcare.dalvik.databinding.ItemChatRightViewBinding
+import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentPendingBinding
+import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentItem
+import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentListener
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -28,7 +33,7 @@ class ConnectMessageAdapterTest {
 
     @Before
     fun setUp() {
-        adapter = ConnectMessageAdapter(ArrayList())
+        adapter = ConnectMessageAdapter(ArrayList(), IgnoringAttachmentListener)
         observer = RecordingObserver()
         adapter.registerAdapterDataObserver(observer)
     }
@@ -139,7 +144,65 @@ class ConnectMessageAdapterTest {
         assertEquals(UNTOUCHED_TEXT, binding.tvChatMessage.text.toString())
     }
 
+    @Test
+    fun `incoming message with attachments uses the rich row and a plain one does not`() {
+        adapter.updateData(listOf(getIncomingChat("plain"), getRichChat("rich", ConnectMessagingAttachmentState.QUEUED)))
+
+        assertEquals(ConnectMessageAdapter.LEFTVIEW, adapter.getItemViewType(0))
+        assertEquals(ConnectMessageAdapter.LEFT_RICH_VIEW, adapter.getItemViewType(1))
+    }
+
+    @Test
+    fun `attachment state change is a payload-only change on the owning row`() {
+        adapter.updateData(listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED), getRichChat("b", ConnectMessagingAttachmentState.QUEUED)))
+        observer.events.clear()
+
+        val hasNewMessages =
+            adapter.updateData(
+                listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED), getRichChat("b", ConnectMessagingAttachmentState.FAILED)),
+            )
+
+        assertFalse(hasNewMessages)
+        assertEquals(listOf(Event.Changed(1, 1, hasPayload = true)), observer.events)
+    }
+
+    @Test
+    fun `binding with the attachments payload redraws the attachments but not the text`() {
+        adapter.updateData(listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED)))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+        adapter.onBindViewHolder(holder, 0)
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        binding.tvChatMessage.text = UNTOUCHED_TEXT
+
+        adapter.updateData(listOf(getRichChat("a", ConnectMessagingAttachmentState.FAILED)))
+        adapter.onBindViewHolder(holder, 0, mutableListOf(requireNotNull(observer.lastPayload)))
+
+        val tile = ViewConnectMessageAttachmentPendingBinding.bind(binding.llAttachments.getChildAt(0))
+        assertEquals(themedContext().getString(R.string.connect_messaging_attachment_download_failed), tile.tvLabel.text.toString())
+        assertEquals(UNTOUCHED_TEXT, binding.tvChatMessage.text.toString())
+    }
+
     private fun themedContext(): Context = ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
+
+    private fun getRichChat(
+        id: String,
+        attachmentState: ConnectMessagingAttachmentState,
+    ) = ConnectMessageChatData(
+        id,
+        ConnectMessageAdapter.LEFTVIEW,
+        "message $id",
+        "them",
+        Date(TIMESTAMP),
+        false,
+        listOf(ConnectMessageAttachmentItem("attachment-$id", "site-map.jpg", "image/jpeg", 1000, attachmentState, null)),
+        false,
+    )
+
+    private object IgnoringAttachmentListener : ConnectMessageAttachmentListener {
+        override fun onAttachmentDownloadRequested(attachmentId: String) = Unit
+
+        override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) = Unit
+    }
 
     private fun getReadIconResId(binding: ItemChatRightViewBinding) =
         Shadows.shadowOf(binding.imgMessageReadStatus.drawable).createdFromResId

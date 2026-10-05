@@ -444,4 +444,14 @@
     <string name="recording_notification_save_action">Lagre</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Gjenoppta</string>
+    <string name="connect_messaging_attachment_download">Last ned</string>
+    <string name="connect_messaging_attachment_downloading">Laster ned…</string>
+    <string name="connect_messaging_attachment_download_failed">Nedlastingen mislyktes</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Trykk for å prøve igjen</string>
+    <string name="connect_messaging_attachment_expired">Ikke lenger tilgjengelig</string>
+    <string name="connect_messaging_attachment_open_failed">Ingen app på denne telefonen kan åpne denne filen</string>
+    <string name="connect_messaging_audio_play">Spill av lyd</string>
+    <string name="connect_messaging_audio_pause">Sett lyden på pause</string>
+    <string name="connect_messaging_audio_play_failed">Lyden kunne ikke spilles av</string>
+    <string name="connect_messaging_update_app_notice">Oppdater appen for å se denne meldingen</string>
 </resources>

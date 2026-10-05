@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/connect_message_pending_tile_width"
+    android:layout_height="wrap_content"
+    android:background="@drawable/connect_message_pending_tile_bg"
+    android:gravity="center"
+    android:minHeight="@dimen/connect_message_pending_tile_min_height"
+    android:orientation="vertical"
+    android:padding="@dimen/connect_space_md">
+
+    <FrameLayout
+        android:layout_width="@dimen/connect_message_pending_button_size"
+        android:layout_height="@dimen/connect_message_pending_button_size">
+
+        <ImageView
+            android:id="@+id/ivAction"
+            style="@style/ConnectMessageAttachmentActionCircle"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            tools:src="@drawable/ic_connect_message_download" />
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:indicatorColor="@color/white"
+            app:indicatorSize="@dimen/connect_message_progress_size"
+            app:trackColor="@color/connect_message_receiver_bg"
+            app:trackThickness="@dimen/connect_message_progress_thickness" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvLabel"
+        style="@style/ConnectMessageAttachmentText.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_sm"
+        tools:text="@string/connect_messaging_attachment_download" />
+
+    <TextView
+        android:id="@+id/tvSecondaryLabel"
+        style="@style/ConnectMessageAttachmentText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/connect_messaging_attachment_tap_to_retry"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvNameAndSize"
+        style="@style/ConnectMessageAttachmentText.Detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_xs"
+        tools:text="site-map.jpg · 180 kB" />
+</LinearLayout>
