@@ -780,4 +780,5 @@
     <string name="connect_messaging_settings_auto_download_title">Baixar anexos automaticamente</string>
     <string name="connect_messaging_settings_large_on_wifi_only">Anexos grandes (mais de 1 MB) somente no Wi-Fi</string>
     <string name="connect_messaging_settings_manual_only">Somente download manual</string>
+    <string name="connect_messaging_preview_pending_download">[Mensagem de mídia para baixar]</string>
 </resources>

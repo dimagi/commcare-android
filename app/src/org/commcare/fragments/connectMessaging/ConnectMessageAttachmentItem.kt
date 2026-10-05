@@ -45,7 +45,7 @@ data class ConnectMessageAttachmentItem(
 }
 
 interface ConnectMessageAttachmentListener {
-    fun onAttachmentDownloadRequested(attachmentId: String)
+    fun onMessageDownloadRequested(messageId: String)
 
     fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem)
 }

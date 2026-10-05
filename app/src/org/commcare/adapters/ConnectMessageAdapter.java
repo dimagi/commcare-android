@@ -110,7 +110,7 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ConnectMessageChatData oldChat = oldMessages.get(oldItemPosition);
             ConnectMessageChatData newChat = newMessages.get(newItemPosition);
             return hasSameDisplayContent(oldChat, newChat)
-                    && oldChat.getAttachments().equals(newChat.getAttachments())
+                    && hasSameAttachmentContent(oldChat, newChat)
                     && oldChat.isMessageRead() == newChat.isMessageRead();
         }
 
@@ -122,10 +122,16 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             if (!hasSameDisplayContent(oldChat, newChat)) {
                 return null;
             }
-            if (!oldChat.getAttachments().equals(newChat.getAttachments())) {
+            if (!hasSameAttachmentContent(oldChat, newChat)) {
                 return oldChat.hasRichContent() && newChat.hasRichContent() ? PAYLOAD_ATTACHMENTS : null;
             }
             return PAYLOAD_READ_STATUS;
+        }
+
+        private static boolean hasSameAttachmentContent(ConnectMessageChatData oldChat,
+                                                        ConnectMessageChatData newChat) {
+            return oldChat.getAttachments().equals(newChat.getAttachments())
+                    && oldChat.getPendingDownloadState() == newChat.getPendingDownloadState();
         }
 
         private static boolean hasSameDisplayContent(ConnectMessageChatData oldChat,
@@ -166,12 +172,15 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         @Override
         public void bind(ConnectMessageChatData chat) {
             super.bind(chat);
-            richBinding.tvUpdateNotice.setVisibility(chat.isUnsupportedVersion() ? View.VISIBLE : View.GONE);
             bindAttachments(chat);
         }
 
         public void bindAttachments(ConnectMessageChatData chat) {
-            boolean hasAttachments = !chat.getAttachments().isEmpty();
+            boolean awaitingDownload = chat.isAwaitingDownload();
+            boolean hasAttachments = awaitingDownload || !chat.getAttachments().isEmpty();
+            richBinding.tvChatMessage.setVisibility(awaitingDownload ? View.GONE : View.VISIBLE);
+            richBinding.tvUpdateNotice.setVisibility(
+                    chat.isUnsupportedVersion() && !awaitingDownload ? View.VISIBLE : View.GONE);
             ConstraintLayout.LayoutParams guidelineParams =
                     (ConstraintLayout.LayoutParams)richBinding.guideline.getLayoutParams();
             guidelineParams.guidePercent = hasAttachments
@@ -179,8 +188,9 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     : TEXT_BUBBLE_WIDTH_FRACTION;
             richBinding.guideline.setLayoutParams(guidelineParams);
 
-            ConnectMessageAttachmentsBinder.Layout layout = attachmentsBinder.bind(chat.getAttachments(),
-                    maxMediaWidth(), maxMediaHeight());
+            ConnectMessageAttachmentsBinder.Layout layout = awaitingDownload
+                    ? attachmentsBinder.bindPendingMessage(chat.getMessageId(), chat.getPendingDownloadState())
+                    : attachmentsBinder.bind(chat.getAttachments(), maxMediaWidth(), maxMediaHeight());
 
             ViewGroup.LayoutParams bubbleParams = richBinding.llBubble.getLayoutParams();
             bubbleParams.width = layout.getFillsBubbleWidth()

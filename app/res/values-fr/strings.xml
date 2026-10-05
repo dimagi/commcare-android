@@ -773,4 +773,5 @@ License.
     <string name="connect_messaging_settings_auto_download_title">Télécharger automatiquement les pièces jointes</string>
     <string name="connect_messaging_settings_large_on_wifi_only">Pièces jointes volumineuses (plus de 1 Mo) uniquement en Wi-Fi</string>
     <string name="connect_messaging_settings_manual_only">Téléchargement manuel uniquement</string>
+    <string name="connect_messaging_preview_pending_download">[Message multimédia à télécharger]</string>
 </resources>

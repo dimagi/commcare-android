@@ -51,12 +51,4 @@
         android:gravity="center"
         android:text="@string/connect_messaging_attachment_tap_to_retry"
         android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvNameAndSize"
-        style="@style/ConnectMessageAttachmentText.Detail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/connect_space_xs"
-        tools:text="site-map.jpg · 180 kB" />
 </LinearLayout>

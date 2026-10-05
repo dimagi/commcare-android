@@ -2,6 +2,7 @@ package org.commcare.adapters
 
 import android.content.Context
 import android.view.ContextThemeWrapper
+import android.view.View
 import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
@@ -14,6 +15,7 @@ import org.commcare.dalvik.databinding.ItemChatRightViewBinding
 import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentPendingBinding
 import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentItem
 import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentListener
+import org.commcare.fragments.connectMessaging.ConnectMessageAudioAttachmentView
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -23,6 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
+import java.io.File
 import java.util.Date
 
 @Config(application = CommCareTestApplication::class)
@@ -145,63 +148,82 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
-    fun `incoming message with attachments uses the rich row and a plain one does not`() {
-        adapter.updateData(listOf(getIncomingChat("plain"), getRichChat("rich", ConnectMessagingAttachmentState.QUEUED)))
+    fun `incoming message awaiting download uses the rich row and a plain one does not`() {
+        adapter.updateData(listOf(getIncomingChat("plain"), getPendingChat("rich", ConnectMessagingAttachmentState.QUEUED)))
 
         assertEquals(ConnectMessageAdapter.LEFTVIEW, adapter.getItemViewType(0))
         assertEquals(ConnectMessageAdapter.LEFT_RICH_VIEW, adapter.getItemViewType(1))
     }
 
     @Test
-    fun `attachment state change is a payload-only change on the owning row`() {
-        adapter.updateData(
-            listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED), getRichChat("b", ConnectMessagingAttachmentState.QUEUED)),
-        )
+    fun `download state change is a payload-only change on the owning row`() {
+        val queued = ConnectMessagingAttachmentState.QUEUED
+        adapter.updateData(listOf(getPendingChat("a", queued), getPendingChat("b", queued)))
         observer.events.clear()
 
         val hasNewMessages =
-            adapter.updateData(
-                listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED), getRichChat("b", ConnectMessagingAttachmentState.FAILED)),
-            )
+            adapter.updateData(listOf(getPendingChat("a", queued), getPendingChat("b", ConnectMessagingAttachmentState.FAILED)))
 
         assertFalse(hasNewMessages)
         assertEquals(listOf(Event.Changed(1, 1, hasPayload = true)), observer.events)
     }
 
     @Test
-    fun `binding with the attachments payload redraws the attachments but not the text`() {
-        adapter.updateData(listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED)))
+    fun `pending message hides its text and the attachments payload redraws only the tile`() {
+        adapter.updateData(listOf(getPendingChat("a", ConnectMessagingAttachmentState.QUEUED)))
         val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
         adapter.onBindViewHolder(holder, 0)
         val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
         binding.tvChatMessage.text = UNTOUCHED_TEXT
 
-        adapter.updateData(listOf(getRichChat("a", ConnectMessagingAttachmentState.FAILED)))
+        adapter.updateData(listOf(getPendingChat("a", ConnectMessagingAttachmentState.FAILED)))
         adapter.onBindViewHolder(holder, 0, mutableListOf(requireNotNull(observer.lastPayload)))
 
         val tile = ViewConnectMessageAttachmentPendingBinding.bind(binding.llAttachments.getChildAt(0))
         assertEquals(themedContext().getString(R.string.connect_messaging_attachment_download_failed), tile.tvLabel.text.toString())
         assertEquals(UNTOUCHED_TEXT, binding.tvChatMessage.text.toString())
+        assertEquals(View.GONE, binding.tvChatMessage.visibility)
+    }
+
+    @Test
+    fun `finishing the download reveals the text and media through the attachments payload`() {
+        adapter.updateData(listOf(getPendingChat("a", ConnectMessagingAttachmentState.DOWNLOADING)))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+        adapter.onBindViewHolder(holder, 0)
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        observer.events.clear()
+
+        adapter.updateData(listOf(getDownloadedChat("a")))
+        adapter.onBindViewHolder(holder, 0, mutableListOf(requireNotNull(observer.lastPayload)))
+
+        assertEquals(listOf(Event.Changed(0, 1, hasPayload = true)), observer.events)
+        assertEquals(View.VISIBLE, binding.tvChatMessage.visibility)
+        assertEquals("message a", binding.tvChatMessage.text.toString())
+        assertTrue(binding.llAttachments.getChildAt(0) is ConnectMessageAudioAttachmentView)
     }
 
     private fun themedContext(): Context = ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
 
+    private fun getPendingChat(
+        id: String,
+        pendingState: ConnectMessagingAttachmentState,
+    ) = getRichChat(id, emptyList(), pendingState)
+
+    private fun getDownloadedChat(id: String): ConnectMessageChatData {
+        val file = File(themedContext().cacheDir, "audio-$id").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val attachment =
+            ConnectMessageAttachmentItem("attachment-$id", "note.mp3", "audio/mpeg", 3, ConnectMessagingAttachmentState.AVAILABLE, file)
+        return getRichChat(id, listOf(attachment), null)
+    }
+
     private fun getRichChat(
         id: String,
-        attachmentState: ConnectMessagingAttachmentState,
-    ) = ConnectMessageChatData(
-        id,
-        ConnectMessageAdapter.LEFTVIEW,
-        "message $id",
-        "them",
-        Date(TIMESTAMP),
-        false,
-        listOf(ConnectMessageAttachmentItem("attachment-$id", "site-map.jpg", "image/jpeg", 1000, attachmentState, null)),
-        false,
-    )
+        attachments: List<ConnectMessageAttachmentItem>,
+        pendingState: ConnectMessagingAttachmentState?,
+    ) = ConnectMessageChatData(id, ConnectMessageAdapter.LEFTVIEW, "message $id", "them", Date(TIMESTAMP), false, attachments, false, pendingState)
 
     private object IgnoringAttachmentListener : ConnectMessageAttachmentListener {
-        override fun onAttachmentDownloadRequested(attachmentId: String) = Unit
+        override fun onMessageDownloadRequested(messageId: String) = Unit
 
         override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) = Unit
     }

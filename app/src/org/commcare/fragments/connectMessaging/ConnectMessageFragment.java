@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.adapters.ConnectMessageAdapter;
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
@@ -37,6 +38,7 @@ import org.commcare.connect.MessageManager;
 import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler;
+import org.commcare.connect.messaging.ConnectMessagingMessagePackage;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -344,12 +346,19 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
                 ? ConnectMessageAdapter.RIGHTVIEW
                 : ConnectMessageAdapter.LEFTVIEW;
         List<ConnectMessageAttachmentItem> attachments = new ArrayList<>();
-        if (message.isRich()) {
-            List<ConnectMessagingAttachmentRecord> records = attachmentsByMessageId.get(message.getMessageId());
-            if (records != null) {
+        ConnectMessagingAttachmentState pendingDownloadState = null;
+        List<ConnectMessagingAttachmentRecord> records = message.isRich()
+                ? attachmentsByMessageId.get(message.getMessageId())
+                : null;
+        if (records != null) {
+            ConnectMessagingAttachmentState packageState =
+                    ConnectMessagingMessagePackage.stateOfAttachments(records);
+            if (packageState == ConnectMessagingAttachmentState.AVAILABLE) {
                 for (ConnectMessagingAttachmentRecord record : records) {
                     attachments.add(ConnectMessageAttachmentItem.fromRecord(requireContext(), record));
                 }
+            } else {
+                pendingDownloadState = packageState;
             }
         }
         return new ConnectMessageChatData(message.getMessageId(), viewType,
@@ -360,13 +369,17 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
                 message.getTimeStamp(),
                 message.getConfirmed(),
                 attachments,
-                message.isUnsupportedVersion());
+                message.isUnsupportedVersion(),
+                pendingDownloadState);
     }
 
     @Override
-    public void onAttachmentDownloadRequested(@NonNull String attachmentId) {
-        if (ConnectMessagingAttachmentDatabaseHelper.requeue(attachmentId)) {
+    public void onMessageDownloadRequested(@NonNull String messageId) {
+        List<String> requeuedAttachmentIds = ConnectMessagingAttachmentDatabaseHelper.requeueMessage(messageId);
+        for (String attachmentId : requeuedAttachmentIds) {
             ConnectMessagingAttachmentDownloadScheduler.downloadNow(requireContext(), attachmentId);
+        }
+        if (!requeuedAttachmentIds.isEmpty()) {
             refreshUi();
         }
     }

@@ -484,4 +484,5 @@
     <string name="connect_messaging_settings_auto_download_title">Automatiškai atsisiųsti priedus</string>
     <string name="connect_messaging_settings_large_on_wifi_only">Didelius priedus (daugiau nei 1 MB) tik per „Wi-Fi“</string>
     <string name="connect_messaging_settings_manual_only">Tik rankinis atsisiuntimas</string>
+    <string name="connect_messaging_preview_pending_download">[Atsisiųstina medijos žinutė]</string>
 </resources>

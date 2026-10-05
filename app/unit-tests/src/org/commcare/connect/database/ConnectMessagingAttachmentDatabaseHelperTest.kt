@@ -108,6 +108,45 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
         assertEquals(ConnectMessagingAttachmentState.AVAILABLE, stateOf("available"))
     }
 
+    @Test
+    fun `requeueing a message queues its unfinished attachments and keeps finished ones`() {
+        storeIncomingMessage("message-1", daysAgo = 10)
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
+            listOf(
+                attachment("waiting", "message-1", position = 0),
+                attachment("failed", "message-1", position = 1),
+                attachment("available", "message-1", position = 2),
+            ),
+            true,
+            now,
+        )
+        setState("failed", ConnectMessagingAttachmentState.FAILED)
+        setState("available", ConnectMessagingAttachmentState.AVAILABLE)
+
+        val requeued = ConnectMessagingAttachmentDatabaseHelper.requeueMessage("message-1")
+
+        assertEquals(listOf("waiting", "failed"), requeued)
+        assertEquals(ConnectMessagingAttachmentState.QUEUED, stateOf("waiting"))
+        assertEquals(ConnectMessagingAttachmentState.QUEUED, stateOf("failed"))
+        assertEquals(ConnectMessagingAttachmentState.AVAILABLE, stateOf("available"))
+    }
+
+    @Test
+    fun `requeueing an expired message does nothing`() {
+        storeIncomingMessage("message-1", daysAgo = 10)
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
+            listOf(attachment("waiting", "message-1", position = 0), attachment("expired", "message-1", position = 1)),
+            true,
+            now,
+        )
+        setState("expired", ConnectMessagingAttachmentState.EXPIRED)
+
+        val requeued = ConnectMessagingAttachmentDatabaseHelper.requeueMessage("message-1")
+
+        assertEquals(emptyList<String>(), requeued)
+        assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("waiting"))
+    }
+
     private fun setState(
         attachmentId: String,
         state: ConnectMessagingAttachmentState,

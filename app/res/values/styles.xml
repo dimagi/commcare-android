@@ -499,12 +499,6 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="ConnectMessageAttachmentText.Detail">
-        <item name="android:textSize">@dimen/connect_text_label</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:ellipsize">middle</item>
-    </style>
-
     <style name="ConnectMessageAttachmentActionCircle">
         <item name="android:background">@drawable/connect_message_white_circle</item>
         <item name="android:scaleType">center</item>

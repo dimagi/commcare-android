@@ -30,8 +30,8 @@ class ConnectMessageAttachmentsBinderTest {
         ConnectMessageAttachmentsBinder(
             container,
             object : ConnectMessageAttachmentListener {
-                override fun onAttachmentDownloadRequested(attachmentId: String) {
-                    requestedDownloads.add(attachmentId)
+                override fun onMessageDownloadRequested(messageId: String) {
+                    requestedDownloads.add(messageId)
                 }
 
                 override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) {
@@ -66,27 +66,27 @@ class ConnectMessageAttachmentsBinderTest {
     }
 
     @Test
-    fun `waiting attachment shows a download tile that requests the download`() {
+    fun `message waiting for download shows one download tile that requests the whole message`() {
         val tile = bindPendingTile(ConnectMessagingAttachmentState.WAITING)
 
         assertEquals(context.getString(R.string.connect_messaging_attachment_download), tile.tvLabel.text.toString())
-        assertTrue(tile.tvNameAndSize.text.startsWith("pending.bin"))
+        assertEquals(1, container.childCount)
         tile.root.performClick()
-        assertEquals(listOf("pending"), requestedDownloads)
+        assertEquals(listOf("message-1"), requestedDownloads)
     }
 
     @Test
-    fun `failed attachment offers a retry`() {
+    fun `failed message download offers a retry`() {
         val tile = bindPendingTile(ConnectMessagingAttachmentState.FAILED)
 
         assertEquals(context.getString(R.string.connect_messaging_attachment_download_failed), tile.tvLabel.text.toString())
         assertEquals(View.VISIBLE, tile.tvSecondaryLabel.visibility)
         tile.root.performClick()
-        assertEquals(listOf("pending"), requestedDownloads)
+        assertEquals(listOf("message-1"), requestedDownloads)
     }
 
     @Test
-    fun `downloading attachment shows progress and ignores taps`() {
+    fun `downloading message shows progress and ignores taps`() {
         val tile = bindPendingTile(ConnectMessagingAttachmentState.DOWNLOADING)
 
         assertEquals(View.VISIBLE, tile.progress.visibility)
@@ -95,7 +95,7 @@ class ConnectMessageAttachmentsBinderTest {
     }
 
     @Test
-    fun `expired attachment says it is no longer available and ignores taps`() {
+    fun `expired message says it is no longer available and ignores taps`() {
         val tile = bindPendingTile(ConnectMessagingAttachmentState.EXPIRED)
 
         assertEquals(context.getString(R.string.connect_messaging_attachment_expired), tile.tvLabel.text.toString())
@@ -104,11 +104,7 @@ class ConnectMessageAttachmentsBinderTest {
     }
 
     private fun bindPendingTile(state: ConnectMessagingAttachmentState): ViewConnectMessageAttachmentPendingBinding {
-        binder.bind(
-            listOf(ConnectMessageAttachmentItem("pending", "pending.bin", "image/png", 2048, state, null)),
-            MAX_WIDTH,
-            MAX_HEIGHT,
-        )
+        binder.bindPendingMessage("message-1", state)
         return ViewConnectMessageAttachmentPendingBinding.bind(container.getChildAt(0))
     }
 

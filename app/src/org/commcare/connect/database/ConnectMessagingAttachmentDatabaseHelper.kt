@@ -48,17 +48,30 @@ object ConnectMessagingAttachmentDatabaseHelper {
     }
 
     @JvmStatic
-    fun requeue(attachmentId: String): Boolean {
-        val attachment = getAttachment(attachmentId) ?: return false
-        if (attachment.downloadState != ConnectMessagingAttachmentState.WAITING &&
-            attachment.downloadState != ConnectMessagingAttachmentState.FAILED
-        ) {
-            return false
+    fun getAttachmentsForMessage(messageId: String): List<ConnectMessagingAttachmentRecord> =
+        storage()
+            .getRecordsForValues(
+                arrayOf(ConnectMessagingAttachmentRecord.META_MESSAGE_ID),
+                arrayOf<Any>(messageId),
+            ).sortedBy { it.position }
+
+    @JvmStatic
+    fun requeueMessage(messageId: String): List<String> {
+        val attachments = getAttachmentsForMessage(messageId)
+        if (attachments.any { it.downloadState == ConnectMessagingAttachmentState.EXPIRED }) {
+            return emptyList()
         }
-        attachment.downloadState = ConnectMessagingAttachmentState.QUEUED
-        attachment.attempts = 0
-        save(attachment)
-        return true
+        val requeued =
+            attachments.filter {
+                it.downloadState == ConnectMessagingAttachmentState.WAITING ||
+                    it.downloadState == ConnectMessagingAttachmentState.FAILED
+            }
+        for (attachment in requeued) {
+            attachment.downloadState = ConnectMessagingAttachmentState.QUEUED
+            attachment.attempts = 0
+            save(attachment)
+        }
+        return requeued.map { it.attachmentId }
     }
 
     @JvmStatic

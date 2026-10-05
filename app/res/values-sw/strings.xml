@@ -778,4 +778,5 @@
     <string name="connect_messaging_settings_auto_download_title">Pakua viambatisho kiotomatiki</string>
     <string name="connect_messaging_settings_large_on_wifi_only">Viambatisho vikubwa (zaidi ya MB 1) kwenye Wi-Fi pekee</string>
     <string name="connect_messaging_settings_manual_only">Upakuaji wa mwenyewe pekee</string>
+    <string name="connect_messaging_preview_pending_download">[Ujumbe wa media wa kupakua]</string>
 </resources>

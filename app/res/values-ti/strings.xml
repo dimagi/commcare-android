@@ -762,4 +762,5 @@
     <string name="connect_messaging_settings_auto_download_title">ተተሓሒዝቲ ብኣውቶማቲክ ኣውርድ</string>
     <string name="connect_messaging_settings_large_on_wifi_only">ዓበይቲ ተተሓሒዝቲ (ካብ 1 MB ንላዕሊ) ብዋይፋይ ጥራይ</string>
     <string name="connect_messaging_settings_manual_only">ብኢድ ምውራድ ጥራይ</string>
+    <string name="connect_messaging_preview_pending_download">[ዝወርድ መልእኽቲ ሚድያ]</string>
 </resources>

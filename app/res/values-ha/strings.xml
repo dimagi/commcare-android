@@ -768,4 +768,5 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_messaging_settings_auto_download_title">Sauke haɗe-haɗe kai tsaye</string>
     <string name="connect_messaging_settings_large_on_wifi_only">Manyan haɗe-haɗe (sama da MB 1) a Wi-Fi kawai</string>
     <string name="connect_messaging_settings_manual_only">Saukewa da hannu kawai</string>
+    <string name="connect_messaging_preview_pending_download">[Saƙon kafofin watsa labarai don saukewa]</string>
 </resources>

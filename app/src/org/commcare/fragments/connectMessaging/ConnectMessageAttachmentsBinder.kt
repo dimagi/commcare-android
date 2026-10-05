@@ -29,6 +29,16 @@ class ConnectMessageAttachmentsBinder(
     private val context = container.context
     private val inflater = LayoutInflater.from(context)
 
+    fun bindPendingMessage(
+        messageId: String,
+        pendingState: ConnectMessagingAttachmentState,
+    ): Layout {
+        container.removeAllViews()
+        container.visibility = View.VISIBLE
+        container.addView(createPendingView(messageId, pendingState))
+        return Layout(false, context.resources.getDimensionPixelSize(R.dimen.connect_message_pending_tile_width))
+    }
+
     fun bind(
         attachments: List<ConnectMessageAttachmentItem>,
         maxMediaWidth: Int,
@@ -54,13 +64,9 @@ class ConnectMessageAttachmentsBinder(
                     width = maxMediaWidth
                     fillsBubbleWidth = true
                 }
-                attachment.file != null -> {
+                else -> {
                     view = createFileView(attachment)
                     width = maxMediaWidth
-                }
-                else -> {
-                    view = createPendingView(attachment)
-                    width = context.resources.getDimensionPixelSize(R.dimen.connect_message_pending_tile_width)
                 }
             }
             contentWidth = maxOf(contentWidth, width)
@@ -110,20 +116,17 @@ class ConnectMessageAttachmentsBinder(
         return binding.root
     }
 
-    private fun createPendingView(attachment: ConnectMessageAttachmentItem): View {
+    private fun createPendingView(
+        messageId: String,
+        pendingState: ConnectMessagingAttachmentState,
+    ): View {
         val binding = ViewConnectMessageAttachmentPendingBinding.inflate(inflater, container, false)
-        binding.tvNameAndSize.text =
-            context.getString(
-                R.string.connect_messaging_attachment_name_and_size,
-                attachment.name,
-                Formatter.formatShortFileSize(context, attachment.sizeBytes),
-            )
         binding.tvLabel.setTextColor(ContextCompat.getColor(context, R.color.white))
         binding.tvSecondaryLabel.visibility = View.GONE
         binding.progress.visibility = View.GONE
         binding.ivAction.visibility = View.VISIBLE
         val canRequestDownload: Boolean
-        when (attachment.state) {
+        when (pendingState) {
             ConnectMessagingAttachmentState.QUEUED, ConnectMessagingAttachmentState.DOWNLOADING -> {
                 binding.ivAction.visibility = View.GONE
                 binding.progress.visibility = View.VISIBLE
@@ -145,11 +148,11 @@ class ConnectMessageAttachmentsBinder(
             ConnectMessagingAttachmentState.WAITING, ConnectMessagingAttachmentState.AVAILABLE -> {
                 binding.ivAction.setImageResource(R.drawable.ic_connect_message_download)
                 binding.tvLabel.setText(R.string.connect_messaging_attachment_download)
-                canRequestDownload = attachment.state == ConnectMessagingAttachmentState.WAITING
+                canRequestDownload = pendingState == ConnectMessagingAttachmentState.WAITING
             }
         }
         if (canRequestDownload) {
-            binding.root.setOnClickListener { listener.onAttachmentDownloadRequested(attachment.attachmentId) }
+            binding.root.setOnClickListener { listener.onMessageDownloadRequested(messageId) }
         }
         return binding.root
     }

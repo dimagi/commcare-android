@@ -770,4 +770,5 @@ License.
     <string name="connect_messaging_settings_auto_download_title">अटैचमेंट अपने-आप डाउनलोड करें</string>
     <string name="connect_messaging_settings_large_on_wifi_only">बड़े अटैचमेंट (1 MB से ज़्यादा) केवल वाई-फ़ाई पर</string>
     <string name="connect_messaging_settings_manual_only">केवल मैन्युअल डाउनलोड</string>
+    <string name="connect_messaging_preview_pending_download">[डाउनलोड करने के लिए मीडिया संदेश]</string>
 </resources>
