@@ -50,16 +50,6 @@
                 tools:text="Some dummy text message from user A" />
 
             <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvUpdateNotice"
-                style="@style/ConnectMessageAttachmentText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/connect_space_xs"
-                android:text="@string/connect_messaging_update_app_notice"
-                android:textStyle="italic"
-                android:visibility="gone" />
-
-            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvChatDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
