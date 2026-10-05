@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:layout_gravity="bottom"
-    android:background="@color/connect_blue_color">
+    android:background="?attr/colorPrimary"
+    android:theme="@style/ConnectTheme">
     <View
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
@@ -36,7 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/personalid_notification"
-            android:textAppearance="@style/TextAppearance.NavDrawerItem"
+            style="@style/TextStyle.Connect.LabelM"
+            android:textColor="?attr/connectNavDrawerForeground"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 
@@ -62,7 +64,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_cc"
-            android:textAppearance="@style/TextAppearance.NavDrawerItem"
+            style="@style/TextStyle.Connect.LabelM"
+            android:textColor="?attr/connectNavDrawerForeground"
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
@@ -89,16 +92,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/nav_drawer_help"
-            android:textAppearance="@style/TextAppearance.NavDrawerItem"
+            style="@style/TextStyle.Connect.LabelM"
+            android:textColor="?attr/connectNavDrawerForeground"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
     <TextView
         android:id="@+id/app_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.NavDrawerItem.SubTitle"
+        style="@style/TextStyle.Connect.BodyS"
         android:enabled="false"
-        android:textColor="@color/white"
+        android:textColor="?attr/colorOnPrimary"
         android:layout_marginTop="8dp"/>
 
 </LinearLayout>
