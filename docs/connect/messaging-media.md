@@ -9,9 +9,10 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
 1. **Sync.** `RetrieveNotificationsResponseParser` reads `version`, `rich_text`, `format`,
    `expires_at` and `attachments` for version 2 messages. Wherever a version 2 message's text
    appears (chat and channel preview), `rich_text` is shown whenever present; an empty string
-   (`"rich_text": ""`) marks a media-only message, which shows no text; `content` is only the
-   fallback when it is absent or fails to decrypt. An entry that fails to parse is logged,
-   skipped and not acked, so it can't block the rest of the sync.
+   (`"rich_text": ""`) marks a media-only message, which shows no text. `content` is not stored
+   when rich text is present; it is only the fallback when `rich_text` is absent or fails to
+   decrypt. An entry that fails to parse is logged, skipped and not acked, so it can't block the
+   rest of the sync.
 
    **Unsupported versions** (anything but absent, 0 or 2) keep none of the message: only its id,
    channel, timestamp and version are stored, and it is not acked. The server redelivers it on
