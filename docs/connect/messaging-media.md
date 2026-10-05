@@ -19,7 +19,8 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
    message first, checks the size, decrypts with the channel key (AES-256-GCM, nonce +
    ciphertext + tag) and writes the file atomically. Automatic downloads run as unique work
    scheduled after every sync; tapping a message gives each of its unfinished attachments its
-   own job on any network. Each attachment downloads independently.
+   own job, run at once without waiting for a network so a failure shows right away, and ahead
+   of automatic downloads. Each attachment downloads independently.
 4. **Chat.** A rich message with attachments stays hidden behind one generic tile, with no text
    or attachment details, until every attachment is available; the channel list previews it as
    "[Media message to download]". Every state change sends `com.dimagi.messaging.update`; only
@@ -34,26 +35,31 @@ Messaging home › ⋮ › Settings › "Download attachments automatically", st
 |---|---|
 | On Wi-Fi and mobile data (default) | All attachments, any network |
 | Large attachments (over 1 MB) only on Wi-Fi | Up to 1 MB on any network; larger ones wait for an unmetered network |
-| Manual download only | None. New attachments start as `waiting`; switching to this returns pending downloads to `waiting` |
+| Manual download only | None. New attachments start as `waiting`; switching to this returns queued downloads to `waiting` |
 
 Tapping a pending message always downloads it right away, whatever the setting.
 
 ## Attachment states
 
-The message tile shows the combined state: any `expired` part makes it "No longer
-available", a part in progress shows the spinner, a failed part shows the retry tile, and it
-opens fully once every part is `available`.
+The message tile shows the combined state, in priority order: any `expired` part makes it "No
+longer available", a part downloading or just tapped shows the spinner, a failed part shows the
+retry tile, otherwise the download tile. It opens fully once every part is `available`. The
+spinner never stands for waiting on a network or a retry backoff.
 
 | State | Set when | Tile while the message is pending |
 |---|---|---|
-| `queued` | First stored, if automatic download is on, the message is under 7 days old and among the channel's newest 50 incoming messages; or tapped | Spinner tile |
+| `queued` | First stored, if automatic download is on, the message is under 7 days old and among the channel's newest 50 incoming messages | Download tile |
 | `waiting` | First stored, otherwise | Download tile |
-| `downloading` | The job picks it up (reset to `queued` if the job died) | Spinner tile |
+| `requested` | Tapped | Spinner tile |
+| `downloading` | A job is fetching it (marked `failed` if the job died) | Spinner tile |
 | `available` | Decrypted file on disk; kept after expiry | Shown as image, audio player or file chip once all parts are |
-| `failed` | Third failed attempt (network, HTTP error, size mismatch, decryption) | Retry tile |
+| `failed` | Any unsuccessful attempt (network, HTTP error, size mismatch, decryption, 401/403) | Retry tile |
 | `expired` | `expires_at` passed or the server returned 410 before download | "No longer available" tile |
 
-401/403 stop the pass without counting an attempt; the next sync tries again.
+A failed part stays eligible for background retry until its third counted failure. The
+automatic jobs retry on their usual backoff; a failed tap schedules its own retry, 3 minutes
+later once a network is available and backing off after that. Tapping retries at once and
+resets the count. 401/403 stop the pass without counting an attempt.
 
 ## Design (dp)
 
@@ -88,5 +94,5 @@ Dimensions, styles and icons are prefixed `connect_message_` / `ConnectMessage` 
 - **Lifecycle:** download state lives in the database, so it survives the app being killed.
   Audio position is not kept across rotation or leaving the chat.
 - **Form factors:** phone, both orientations; image sizes follow the current list size.
-- **Connectivity:** downloads wait for a network and retry with backoff; failures end in a retry
-  tile.
+- **Connectivity:** automatic downloads wait for a network; every failure shows the retry tile
+  at once while background retries continue with backoff.
