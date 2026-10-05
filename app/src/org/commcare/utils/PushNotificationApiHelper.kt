@@ -32,6 +32,7 @@ import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
+import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.connect.network.personalId.parser.NotificationParseResult
@@ -86,6 +87,7 @@ object PushNotificationApiHelper {
                     scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(DispatcherProvider.io()).launch {
                         val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
+                        ConnectMessagingAttachmentDownloadScheduler.scheduleQueuedDownloads(context)
 
                         // Update notification preferences and send broadcasts
                         if (savedNotificationIds.isNotEmpty()) {

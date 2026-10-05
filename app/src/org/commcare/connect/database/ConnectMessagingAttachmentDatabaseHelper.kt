@@ -1,6 +1,7 @@
 package org.commcare.connect.database
 
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.connect.messaging.ConnectMessagingAttachmentAutoDownloadPolicy
 import org.commcare.models.database.SqlStorage
@@ -25,6 +26,44 @@ object ConnectMessagingAttachmentDatabaseHelper {
                 arrayOf(ConnectMessagingAttachmentRecord.META_ATTACHMENT_ID),
                 arrayOf<Any>(attachmentId),
             ).firstOrNull()
+
+    @JvmStatic
+    fun getAttachmentsByMessageId(): Map<String, List<ConnectMessagingAttachmentRecord>> =
+        storage()
+            .getRecordsForValues(arrayOf<String>(), arrayOf<Any>())
+            .groupBy { it.messageId }
+            .mapValues { (_, attachments) -> attachments.sortedBy { it.position } }
+
+    fun getAttachmentsInState(state: ConnectMessagingAttachmentState): List<ConnectMessagingAttachmentRecord> =
+        storage().getRecordsForValues(
+            arrayOf(ConnectMessagingAttachmentRecord.META_STATE),
+            arrayOf<Any>(state.value),
+        )
+
+    fun save(attachment: ConnectMessagingAttachmentRecord) {
+        storage().write(attachment)
+    }
+
+    fun markInterruptedDownloadsQueued() {
+        for (attachment in getAttachmentsInState(ConnectMessagingAttachmentState.DOWNLOADING)) {
+            attachment.downloadState = ConnectMessagingAttachmentState.QUEUED
+            save(attachment)
+        }
+    }
+
+    @JvmStatic
+    fun requeue(attachmentId: String): Boolean {
+        val attachment = getAttachment(attachmentId) ?: return false
+        if (attachment.downloadState != ConnectMessagingAttachmentState.WAITING &&
+            attachment.downloadState != ConnectMessagingAttachmentState.FAILED
+        ) {
+            return false
+        }
+        attachment.downloadState = ConnectMessagingAttachmentState.QUEUED
+        attachment.attempts = 0
+        save(attachment)
+        return true
+    }
 
     @JvmStatic
     @JvmOverloads
@@ -71,7 +110,7 @@ object ConnectMessagingAttachmentDatabaseHelper {
         }
     }
 
-    private fun getMessage(messageId: String): ConnectMessagingMessageRecord? =
+    fun getMessage(messageId: String): ConnectMessagingMessageRecord? =
         ConnectDatabaseHelper
             .getConnectStorage(ConnectMessagingMessageRecord::class.java)
             .getRecordsForValues(
