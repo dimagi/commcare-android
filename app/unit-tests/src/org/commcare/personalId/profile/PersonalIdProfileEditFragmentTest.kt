@@ -204,6 +204,7 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
     @Test
     fun `editing the email and saving navigates to backup code confirmation`() {
+        user.pin = "123456"
         setText(emailField(), "grace@example.com")
 
         clickSave()
@@ -213,6 +214,7 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
     @Test
     fun `editing the email when user has no existing email navigates to backup code confirmation`() {
+        user.pin = "123456"
         user.email = null
         setText(emailField(), "grace@example.com")
         clickSave()
@@ -221,6 +223,7 @@ class PersonalIdProfileEditFragmentTest : BasePersonalIdProfileTest() {
 
     @Test
     fun `saving a simultaneous name and email change commits the name before navigating to backup code`() {
+        user.pin = "123456"
         setText(nameField(), "Grace Hopper")
         setText(emailField(), "grace@example.com")
 

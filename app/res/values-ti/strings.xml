@@ -430,6 +430,7 @@
     <string name="personalid_send_email_otp_pending_backup_code_title">ናይ ሰርቪስ ኮድ ኣቐምጥ</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">ኣካውንትካ ናይ ሰርቲፊኬት ኮድ ገና የብሉን። ሓደ ንምቛም ኢሜልካ ኣብ ታሕቲ ኣረጋግጽ።</string>
     <string name="personalid_send_email_otp_title">ናይ ምትካእ ኮድ ምምላስ</string>
+    <string name="personalid_send_phone_otp_title">ቁጽሪ ተሌፎንካ ኣረጋግጽ</string>
     <string name="personalid_send_email_otp_description">ናብዚ ናይ ምርግጋጽ ኮድ ክንሰድድ ኢና:</string>
     <string name="personalid_send_email_otp_button">ኮድ ስደድ</string>
     <string name="personalid_send_email_otp_address_label">ናይ ምምላስ ኢሜይል</string>

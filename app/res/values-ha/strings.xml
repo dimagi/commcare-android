@@ -266,6 +266,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_send_email_otp_pending_backup_code_title">Saita Lambar Ajiya</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">Asusun ka ba shi da lambar ajiya tukuna. Tabbatar da adireshin imel ɗinka a ƙasa don saita ɗaya.</string>
     <string name="personalid_send_email_otp_title">Dawo da lambar ajiya</string>
+    <string name="personalid_send_phone_otp_title">Tabbatar da lambar wayarka</string>
     <string name="personalid_send_email_otp_description">Za mu aika lambar tabbatarwa zuwa:</string>
     <string name="personalid_send_email_otp_button">Aika lambar</string>
     <string name="personalid_send_email_otp_address_label">Imel na farfado</string>

@@ -133,7 +133,7 @@ class PersonalIdProfileActivityTest {
 
         mockApiServer.server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         activity.runOnUiThread {
-            currentFragment().requireView().findViewById<View>(R.id.personalid_send_email_otp_button).performClick()
+            currentFragment().requireView().findViewById<View>(R.id.send_otp_button).performClick()
         }
         mockApiServer.drainHttp()
         assertEquals(R.id.personalid_email_verification_forgot_backup_code_fragment, navController.currentDestination!!.id)
@@ -255,7 +255,7 @@ class PersonalIdProfileActivityTest {
         // Click "Send" to send the email OTP (API mock returns success, triggering navigation to verification).
         mockApiServer.server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         activity.runOnUiThread {
-            currentFragment().requireView().findViewById<View>(R.id.personalid_send_email_otp_button).performClick()
+            currentFragment().requireView().findViewById<View>(R.id.send_otp_button).performClick()
         }
         mockApiServer.drainHttp()
         assertEquals(R.id.personalid_email_verification_forgot_backup_code_fragment, navController.currentDestination!!.id)

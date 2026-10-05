@@ -40,13 +40,27 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
 
     override fun handleForgotBackupCode() {
         val email = ConnectUserDatabaseUtil.getUser().email
-        if (email.isNullOrEmpty()) {
-            (requireActivity() as PersonalIdProfileActivity).showAddEmailToast()
-            findNavController().popBackStack()
-        } else {
-            navigateToForgotBackupCodeEmailOtp(email, EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER)
+        when {
+            !email.isNullOrEmpty() -> {
+                navigateToForgotBackupCodeEmailOtp(email, EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER)
+            }
+
+            isAddingEmail() -> {
+                findNavController().navigate(
+                    PersonalIdProfileBackupCodeFragmentDirections
+                        .actionProfileBackupCodeToProfileSendPhoneOtp(pendingEmail),
+                )
+            }
+
+            else -> {
+                (requireActivity() as PersonalIdProfileActivity).showAddEmailToast()
+                findNavController().popBackStack()
+            }
         }
     }
+
+    /** Adding an email from Manage Profile: the gate was opened with a pending email to verify. */
+    private fun isAddingEmail() = args.emailWorkflow == EmailWorkFlow.EXISTING_USER && pendingEmail.isNotEmpty()
 
     private fun navigateToForgotBackupCodeEmailOtp(
         email: String,
@@ -83,6 +97,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         val directions =
             PersonalIdProfileBackupCodeFragmentDirections
                 .actionProfileBackupCodeToSendEmailOtp(pendingEmail, args.emailWorkflow)
+                .setMasked(false)
         findNavController().navigate(directions)
     }
 
