@@ -18,9 +18,12 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
 3. **Download.** `ConnectMessagingAttachmentDownloadWorker` downloads queued attachments oldest
    message first, checks the size, decrypts with the channel key (AES-256-GCM, nonce +
    ciphertext + tag) and writes the file atomically. Automatic downloads run as unique work
-   scheduled after every sync; a tapped attachment gets its own job on any network.
-4. **Chat.** Every state change sends `com.dimagi.messaging.update`; only the owning row
-   redraws.
+   scheduled after every sync; tapping a message gives each of its unfinished attachments its
+   own job on any network. Each attachment downloads independently.
+4. **Chat.** A rich message with attachments stays hidden behind one generic tile, with no text
+   or attachment details, until every attachment is available; the channel list previews it as
+   "[Media message to download]". Every state change sends `com.dimagi.messaging.update`; only
+   the owning row redraws.
 
 ## Automatic download setting
 
@@ -33,16 +36,20 @@ Messaging home › ⋮ › Settings › "Download attachments automatically", st
 | Large attachments (over 1 MB) only on Wi-Fi | Up to 1 MB on any network; larger ones wait for an unmetered network |
 | Manual download only | None. New attachments start as `waiting`; switching to this returns pending downloads to `waiting` |
 
-Tapping an attachment always downloads it right away, whatever the setting.
+Tapping a pending message always downloads it right away, whatever the setting.
 
 ## Attachment states
 
-| State | Set when | Shown as |
+The message tile shows the combined state: any `expired` part makes it "No longer
+available", a part in progress shows the spinner, a failed part shows the retry tile, and it
+opens fully once every part is `available`.
+
+| State | Set when | Tile while the message is pending |
 |---|---|---|
 | `queued` | First stored, if automatic download is on, the message is under 7 days old and among the channel's newest 50 incoming messages; or tapped | Spinner tile |
 | `waiting` | First stored, otherwise | Download tile |
 | `downloading` | The job picks it up (reset to `queued` if the job died) | Spinner tile |
-| `available` | Decrypted file on disk; kept after expiry | Image, audio player or file chip |
+| `available` | Decrypted file on disk; kept after expiry | Shown as image, audio player or file chip once all parts are |
 | `failed` | Third failed attempt (network, HTTP error, size mismatch, decryption) | Retry tile |
 | `expired` | `expires_at` passed or the server returned 410 before download | "No longer available" tile |
 
@@ -60,9 +67,9 @@ Tapping an attachment always downloads it right away, whatever the setting.
   track plays at a time and playback stops when the chat closes.
 - **Other files.** Chip with name and size; tapping opens it with `ACTION_VIEW` through the
   app's `FileProvider`.
-- **Not downloaded.** Fixed 240-wide tile (min 128 high), corners 6, `connect_blue_color`: 56
-  white circle with a `connect_message_receiver_bg` icon, a 12sp white label, and the file name
-  and size underneath. Spinner: 48 indeterminate ring, `connect_message_receiver_bg` track,
+- **Not downloaded.** One fixed 240-wide tile per message (min 128 high), corners 6,
+  `connect_blue_color`: 56 white circle with a `connect_message_receiver_bg` icon and a 12sp
+  white label; no text, names, sizes or media types. Spinner: 48 indeterminate ring, `connect_message_receiver_bg` track,
   white indicator. Failed: "Download failed" in `connect_red_light` over "Tap to retry".
 
 Dimensions, styles and icons are prefixed `connect_message_` / `ConnectMessage` in `res/`.
@@ -71,8 +78,7 @@ Dimensions, styles and icons are prefixed `connect_message_` / `ConnectMessage` 
 
 - `format` is stored but every value uses the default layout (no gallery strip).
 - Download progress is indeterminate; cancelling isn't possible.
-- The image lightbox and media-specific channel-list previews from the design (rich messages
-  always carry plain `content`, which the preview shows).
+- The image lightbox from the design.
 
 ## Edge cases
 
