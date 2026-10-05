@@ -28,6 +28,7 @@ import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.PAYMENT_UUID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
@@ -139,6 +140,10 @@ object PushNotificationApiHelper {
         // Store messaging messages
         if (parseResult.messages.isNotEmpty()) {
             ConnectMessagingDatabaseHelper.storeMessagingMessages(context, parseResult.messages, false)
+        }
+
+        if (parseResult.attachments.isNotEmpty()) {
+            ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(parseResult.attachments)
         }
 
         // Store non-messaging notifications

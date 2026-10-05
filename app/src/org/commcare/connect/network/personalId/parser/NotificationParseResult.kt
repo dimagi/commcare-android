@@ -1,5 +1,6 @@
 package org.commcare.connect.network.personalId.parser
 
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.android.database.connect.models.PushNotificationRecord
@@ -13,4 +14,5 @@ data class NotificationParseResult(
     val channels: List<ConnectMessagingChannelRecord>,
     val messages: List<ConnectMessagingMessageRecord>,
     val messagingNotificationIds: List<String>,
+    val attachments: List<ConnectMessagingAttachmentRecord>,
 )

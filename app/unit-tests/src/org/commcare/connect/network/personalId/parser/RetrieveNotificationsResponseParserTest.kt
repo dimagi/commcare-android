@@ -4,10 +4,14 @@ import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
+import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONException
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -299,6 +303,156 @@ class RetrieveNotificationsResponseParserTest {
         assertEquals(listOf("msg_001"), result.messagingNotificationIds)
     }
 
+    @Test
+    fun `plain message is stored as version zero with no attachments`() {
+        val result = parseMessages(NotificationTestUtil.createMessagingNotificationWithValidEncryption("msg_001", "message_001", "channel_001", "Hello"))
+
+        val message = result.messages.single()
+        assertEquals(ConnectMessagingMessageRecord.VERSION_PLAIN, message.version)
+        assertEquals("Hello", message.displayText)
+        assertNull(message.richText)
+        assertTrue(result.attachments.isEmpty())
+    }
+
+    @Test
+    fun `version 2 message reads rich text, format, expiry and attachments in order`() {
+        val notification =
+            NotificationTestUtil.createRichMessagingNotification(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                content = "Plain text",
+                richText = "**Rich** text",
+                format = "gallery",
+                expiresAt = "2026-02-01T00:00:00Z",
+                attachments =
+                    listOf(
+                        NotificationTestUtil.createAttachmentJson(FIRST_ATTACHMENT_ID, "site-map.jpg", "image/jpeg", 184279),
+                        NotificationTestUtil.createAttachmentJson(SECOND_ATTACHMENT_ID, "instructions.mp3", "audio/mpeg", 412964),
+                    ),
+            )
+
+        val result = parseMessages(notification)
+
+        val message = result.messages.single()
+        assertTrue(message.isRich)
+        assertEquals("Plain text", message.message)
+        assertEquals("**Rich** text", message.displayText)
+        assertEquals("gallery", message.format)
+        assertEquals(DateUtils.parseDateTime("2026-02-01T00:00:00Z"), message.expiresAt)
+        assertEquals(listOf(FIRST_ATTACHMENT_ID, SECOND_ATTACHMENT_ID), result.attachments.map { it.attachmentId })
+        assertEquals(listOf(0, 1), result.attachments.map { it.position })
+        assertEquals(listOf("message_001", "message_001"), result.attachments.map { it.messageId })
+        assertEquals("instructions.mp3", result.attachments[1].name)
+        assertEquals("audio/mpeg", result.attachments[1].type)
+        assertEquals(412964L, result.attachments[1].size)
+    }
+
+    @Test
+    fun `version 2 message without optional fields shows its content`() {
+        val result =
+            parseMessages(
+                NotificationTestUtil.createRichMessagingNotification("msg_001", "message_001", "channel_001", content = "Plain text"),
+            )
+
+        val message = result.messages.single()
+        assertTrue(message.isRich)
+        assertEquals("Plain text", message.displayText)
+        assertNull(message.format)
+        assertNull(message.expiresAt)
+        assertTrue(result.attachments.isEmpty())
+    }
+
+    @Test
+    fun `version 2 message whose rich text does not decrypt falls back to content`() {
+        val notification =
+            NotificationTestUtil.createRichMessagingNotification(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                content = "Plain text",
+                richText = "Rich text",
+                encryptionKey = NotificationTestUtil.TEST_ENCRYPTION_KEY,
+            )
+        val richTextWithBadCipher =
+            JSONObject(notification).apply {
+                getJSONObject("rich_text").put("ciphertext", "AAAA")
+            }
+
+        val result = parseMessages(richTextWithBadCipher.toString())
+
+        assertEquals("Plain text", result.messages.single().displayText)
+    }
+
+    @Test
+    fun `unknown version keeps the content and ignores attachments`() {
+        val notification =
+            NotificationTestUtil.createRichMessagingNotification(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                content = "Plain text",
+                version = 3,
+                attachments = listOf(NotificationTestUtil.createAttachmentJson(FIRST_ATTACHMENT_ID, "site-map.jpg")),
+            )
+
+        val result = parseMessages(notification)
+
+        val message = result.messages.single()
+        assertTrue(message.isUnsupportedVersion)
+        assertEquals("Plain text", message.displayText)
+        assertTrue(result.attachments.isEmpty())
+    }
+
+    @Test
+    fun `version 2 message with a malformed attachment is skipped while the rest still parse`() {
+        val malformed =
+            NotificationTestUtil.createRichMessagingNotification(
+                "msg_bad",
+                "message_bad",
+                "channel_001",
+                content = "Broken",
+                attachments = listOf("""{"name": "x"}"""),
+            )
+        val valid =
+            NotificationTestUtil.createRichMessagingNotification(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                content = "Fine",
+                attachments = listOf(NotificationTestUtil.createAttachmentJson(FIRST_ATTACHMENT_ID, "site-map.jpg")),
+            )
+
+        val result = parseMessages(malformed, valid)
+
+        assertEquals(listOf("message_001"), result.messages.map { it.messageId })
+        assertEquals(listOf("msg_001"), result.messagingNotificationIds)
+        assertEquals(listOf(FIRST_ATTACHMENT_ID), result.attachments.map { it.attachmentId })
+    }
+
+    @Test
+    fun `attachment whose id is not a UUID fails its message`() {
+        val notification =
+            NotificationTestUtil.createRichMessagingNotification(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                content = "Plain text",
+                attachments = listOf(NotificationTestUtil.createAttachmentJson("../escape", "site-map.jpg")),
+            )
+
+        val result = parseMessages(notification)
+
+        assertTrue(result.messages.isEmpty())
+        assertTrue(result.messagingNotificationIds.isEmpty())
+    }
+
+    private fun parseMessages(vararg messagingNotifications: String): NotificationParseResult =
+        parseWithStoredChannels(
+            NotificationTestUtil.createCompleteResponse(notifications = messagingNotifications.toList()),
+            listOf(channelWithTestKey("channel_001")),
+        )
+
     private fun parseWithStoredChannels(
         response: String,
         storedChannels: List<ConnectMessagingChannelRecord>,
@@ -317,5 +471,10 @@ class RetrieveNotificationsResponseParserTest {
         `when`(channel.key).thenReturn(NotificationTestUtil.TEST_ENCRYPTION_KEY)
         `when`(channel.consented).thenReturn(true)
         return channel
+    }
+
+    private companion object {
+        const val FIRST_ATTACHMENT_ID = "5b0c1e7a-0f6b-4b8e-9d2a-1c3e5f7a9b0d"
+        const val SECOND_ATTACHMENT_ID = "9e1d2f3a-4b5c-4d6e-8f90-a1b2c3d4e5f6"
     }
 }

@@ -42,6 +42,14 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     public static final int VERSION_RICH = 2;
     private static final long NO_EXPIRY = 0;
 
+    private static final String JSON_VERSION = "version";
+    private static final String JSON_RICH_TEXT = "rich_text";
+    private static final String JSON_FORMAT = "format";
+    private static final String JSON_EXPIRES_AT = "expires_at";
+    private static final String JSON_CIPHER_TEXT = "ciphertext";
+    private static final String JSON_NONCE = "nonce";
+    private static final String JSON_TAG = "tag";
+
     public ConnectMessagingMessageRecord() {
 
     }
@@ -130,9 +138,9 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         String dateString = json.getString(META_MESSAGE_TIMESTAMP);
         connectMessagingMessageRecord.timeStamp = DateUtils.parseDateTime(dateString);
 
-        String tag = json.getString("tag");
-        String nonce = json.getString("nonce");
-        String cipherText = json.getString("ciphertext");
+        String tag = json.getString(JSON_TAG);
+        String nonce = json.getString(JSON_NONCE);
+        String cipherText = json.getString(JSON_CIPHER_TEXT);
 
         String decrypted = decrypt(cipherText, nonce, tag, channel.getKey());
 
@@ -146,7 +154,38 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         connectMessagingMessageRecord.confirmed = false;
         connectMessagingMessageRecord.userViewed = false;
 
+        connectMessagingMessageRecord.version = json.optInt(JSON_VERSION, VERSION_PLAIN);
+        if (connectMessagingMessageRecord.isRich()) {
+            readRichFields(connectMessagingMessageRecord, json, channel.getKey());
+        }
+
         return connectMessagingMessageRecord;
+    }
+
+    private static void readRichFields(ConnectMessagingMessageRecord record, JSONObject json, String key)
+            throws JSONException, ParseException {
+        JSONObject richText = json.optJSONObject(JSON_RICH_TEXT);
+        if (richText != null) {
+            String decryptedRichText = decrypt(
+                    richText.optString(JSON_CIPHER_TEXT),
+                    richText.optString(JSON_NONCE),
+                    richText.optString(JSON_TAG),
+                    key
+            );
+            record.richText = decryptedRichText == null ? null : truncateMessage(decryptedRichText, MESSAGE);
+        }
+
+        record.format = json.has(JSON_FORMAT) ? json.getString(JSON_FORMAT) : null;
+
+        if (json.has(JSON_EXPIRES_AT)) {
+            String expiresAt = json.getString(JSON_EXPIRES_AT);
+            Date expiryDate = DateUtils.parseDateTime(expiresAt);
+            if (expiryDate == null) {
+                throw new ParseException("Invalid expires_at for message " + record.messageId + ": '"
+                        + expiresAt + "'", 0);
+            }
+            record.expiresAtMillis = expiryDate.getTime();
+        }
     }
 
     private static ConnectMessagingChannelRecord getChannel(
