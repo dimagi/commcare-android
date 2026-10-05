@@ -27,6 +27,7 @@ public class ConnectUserDatabaseUtil {
     }
 
     public static void forgetUser() {
+        ConnectMessagingAttachmentFileStore.deleteAll(CommCareApplication.instance());
         DatabaseConnectOpenHelper.deleteDb();
         CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
         ConnectDatabaseHelper.dbBroken = false;

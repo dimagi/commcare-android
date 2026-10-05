@@ -29,9 +29,11 @@ import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecordV27;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecordV29;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecordV21;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
@@ -201,6 +203,11 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 28) {
             upgradeTwentyEightTwentyNine(db);
             oldVersion = 29;
+        }
+
+        if (oldVersion == 29) {
+            upgradeTwentyNineThirty(db);
+            oldVersion = 30;
         }
     }
 
@@ -1185,6 +1192,34 @@ public class ConnectDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private void upgradeTwentyNineThirty(IDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<ConnectMessagingMessageRecordV29> oldStorage = new SqlStorage<>(
+                    ConnectMessagingMessageRecord.STORAGE_KEY,
+                    ConnectMessagingMessageRecordV29.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectMessagingMessageRecord> newStorage = new SqlStorage<>(
+                    ConnectMessagingMessageRecord.STORAGE_KEY,
+                    ConnectMessagingMessageRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectMessagingMessageRecordV29 oldRecord : oldStorage) {
+                ConnectMessagingMessageRecord newRecord = ConnectMessagingMessageRecord.fromV29(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        addTableForNewModel(db, ConnectMessagingAttachmentRecord.STORAGE_KEY,
+                new ConnectMessagingAttachmentRecord());
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
