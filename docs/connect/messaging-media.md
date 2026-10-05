@@ -9,9 +9,15 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
 1. **Sync.** `RetrieveNotificationsResponseParser` reads `version`, `rich_text`, `format`,
    `expires_at` and `attachments` for version 2 messages. Wherever a version 2 message's text
    appears (chat and channel preview), `rich_text` is shown whenever present; `content` is only
-   the fallback when it is absent or fails to decrypt. Unknown versions keep only `content`
-   and show an update notice. An entry that fails to parse is logged, skipped and not acked, so
-   it can't block the rest of the sync.
+   the fallback when it is absent or fails to decrypt. An entry that fails to parse is logged,
+   skipped and not acked, so it can't block the rest of the sync.
+
+   **Unsupported versions** (anything but absent, 0 or 2) keep none of the message: only its id,
+   channel, timestamp and version are stored, and it is not acked. The server redelivers it on
+   every sync until an app that understands the version replaces the stored copy; read state is
+   kept while the version is unchanged. The chat shows an "Update the app to see this message"
+   tile, plus a banner above the input while the channel holds one; the channel list previews
+   it as "[Update the app to see this message]".
 2. **Storage** (Connect DB v30). `ConnectMessagingMessageRecord` holds the rich fields;
    `ConnectMessagingAttachmentRecord` (`connect_messaging_attachment`) holds one row per
    attachment, keyed by the server's attachment id. Re-delivered attachments keep their state.
