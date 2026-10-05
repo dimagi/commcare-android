@@ -305,7 +305,10 @@ class RetrieveNotificationsResponseParserTest {
 
     @Test
     fun `plain message is stored as version zero with no attachments`() {
-        val result = parseMessages(NotificationTestUtil.createMessagingNotificationWithValidEncryption("msg_001", "message_001", "channel_001", "Hello"))
+        val result =
+            parseMessages(
+                NotificationTestUtil.createMessagingNotificationWithValidEncryption("msg_001", "message_001", "channel_001", "Hello"),
+            )
 
         val message = result.messages.single()
         assertEquals(ConnectMessagingMessageRecord.VERSION_PLAIN, message.version)

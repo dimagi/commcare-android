@@ -12,14 +12,6 @@ object ConnectMessagingAttachmentDatabaseHelper {
         ConnectDatabaseHelper.getConnectStorage(ConnectMessagingAttachmentRecord::class.java)
 
     @JvmStatic
-    fun getAttachmentsForMessage(messageId: String): List<ConnectMessagingAttachmentRecord> =
-        storage()
-            .getRecordsForValues(
-                arrayOf(ConnectMessagingAttachmentRecord.META_MESSAGE_ID),
-                arrayOf<Any>(messageId),
-            ).sortedBy { it.position }
-
-    @JvmStatic
     fun getAttachment(attachmentId: String): ConnectMessagingAttachmentRecord? =
         storage()
             .getRecordsForValues(

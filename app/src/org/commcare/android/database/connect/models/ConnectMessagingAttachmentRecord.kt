@@ -46,12 +46,6 @@ class ConnectMessagingAttachmentRecord :
             state = value.value
         }
 
-    val isImage: Boolean
-        get() = type.startsWith("image/")
-
-    val isAudio: Boolean
-        get() = type.startsWith("audio/")
-
     companion object {
         const val STORAGE_KEY = "connect_messaging_attachment"
         const val META_ATTACHMENT_ID = "attachment_id"

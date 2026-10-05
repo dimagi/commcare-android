@@ -154,7 +154,9 @@ class ConnectMessageAdapterTest {
 
     @Test
     fun `attachment state change is a payload-only change on the owning row`() {
-        adapter.updateData(listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED), getRichChat("b", ConnectMessagingAttachmentState.QUEUED)))
+        adapter.updateData(
+            listOf(getRichChat("a", ConnectMessagingAttachmentState.QUEUED), getRichChat("b", ConnectMessagingAttachmentState.QUEUED)),
+        )
         observer.events.clear()
 
         val hasNewMessages =

@@ -55,7 +55,7 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
 
         ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), now)
 
-        val attachments = ConnectMessagingAttachmentDatabaseHelper.getAttachmentsForMessage("message-1")
+        val attachments = attachmentsOf("message-1")
         assertEquals(1, attachments.size)
         assertEquals(ConnectMessagingAttachmentState.AVAILABLE, attachments[0].downloadState)
         assertEquals(2, attachments[0].attempts)
@@ -72,7 +72,7 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
 
         assertEquals(
             listOf("attachment-a", "attachment-b"),
-            ConnectMessagingAttachmentDatabaseHelper.getAttachmentsForMessage("message-1").map { it.attachmentId },
+            attachmentsOf("message-1").map { it.attachmentId },
         )
     }
 
@@ -105,4 +105,6 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
     }
 
     private fun stateOf(attachmentId: String) = ConnectMessagingAttachmentDatabaseHelper.getAttachment(attachmentId)!!.downloadState
+
+    private fun attachmentsOf(messageId: String) = ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId().getValue(messageId)
 }
