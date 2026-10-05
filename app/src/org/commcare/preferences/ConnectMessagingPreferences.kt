@@ -36,8 +36,7 @@ object ConnectMessagingPreferences {
     }
 
     @JvmStatic
-    fun isAutomaticDownloadEnabled(context: Context): Boolean =
-        getAttachmentAutoDownload(context) != AttachmentAutoDownload.MANUAL_ONLY
+    fun isAutomaticDownloadEnabled(context: Context): Boolean = getAttachmentAutoDownload(context) != AttachmentAutoDownload.MANUAL_ONLY
 
     @JvmStatic
     fun clear(context: Context) {

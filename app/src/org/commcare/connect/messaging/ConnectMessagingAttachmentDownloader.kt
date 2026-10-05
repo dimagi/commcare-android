@@ -122,13 +122,22 @@ class ConnectMessagingAttachmentDownloader(
             }
 
         return when (response.statusCode) {
-            HttpURLConnection.HTTP_OK -> store(attachment, response.body, channelKey)
-            HttpURLConnection.HTTP_GONE -> finish(attachment, ConnectMessagingAttachmentState.EXPIRED)
+            HttpURLConnection.HTTP_OK -> {
+                store(attachment, response.body, channelKey)
+            }
+
+            HttpURLConnection.HTTP_GONE -> {
+                finish(attachment, ConnectMessagingAttachmentState.EXPIRED)
+            }
+
             HttpURLConnection.HTTP_UNAUTHORIZED, HttpURLConnection.HTTP_FORBIDDEN -> {
                 update(attachment, ConnectMessagingAttachmentState.FAILED)
                 Outcome.AUTH_FAILURE
             }
-            else -> countFailedAttempt(attachment, "HTTP ${response.statusCode}")
+
+            else -> {
+                countFailedAttempt(attachment, "HTTP ${response.statusCode}")
+            }
         }
     }
 

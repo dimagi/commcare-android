@@ -68,11 +68,13 @@ class ConnectMessageAttachmentsBinder(
                     view = createImageView(attachment, fitted)
                     width = fitted.width
                 }
+
                 attachment.file != null && attachment.isAudio -> {
                     view = ConnectMessageAudioAttachmentView(context).apply { bind(attachment) }
                     width = maxMediaWidth
                     fillsBubbleWidth = true
                 }
+
                 else -> {
                     view = createFileView(attachment)
                     width = maxMediaWidth
@@ -142,6 +144,7 @@ class ConnectMessageAttachmentsBinder(
                 binding.tvLabel.setText(R.string.connect_messaging_attachment_downloading)
                 canRequestDownload = false
             }
+
             ConnectMessagingAttachmentState.FAILED -> {
                 binding.ivAction.setImageResource(R.drawable.ic_connect_message_retry)
                 binding.tvLabel.setText(R.string.connect_messaging_attachment_download_failed)
@@ -149,11 +152,13 @@ class ConnectMessageAttachmentsBinder(
                 binding.tvSecondaryLabel.visibility = View.VISIBLE
                 canRequestDownload = true
             }
+
             ConnectMessagingAttachmentState.EXPIRED -> {
                 binding.ivAction.visibility = View.GONE
                 binding.tvLabel.setText(R.string.connect_messaging_attachment_expired)
                 canRequestDownload = false
             }
+
             ConnectMessagingAttachmentState.WAITING,
             ConnectMessagingAttachmentState.QUEUED,
             ConnectMessagingAttachmentState.AVAILABLE,

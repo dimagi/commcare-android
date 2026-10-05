@@ -138,6 +138,5 @@ class ConnectMessagingAttachmentDownloadSchedulerTest {
             .get()
             .single()
 
-    private fun pendingNetworkType(workName: String): NetworkType =
-        pendingWork(workName).single().constraints.requiredNetworkType
+    private fun pendingNetworkType(workName: String): NetworkType = pendingWork(workName).single().constraints.requiredNetworkType
 }
