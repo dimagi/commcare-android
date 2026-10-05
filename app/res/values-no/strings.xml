@@ -453,7 +453,7 @@
     <string name="connect_messaging_audio_play">Spill av lyd</string>
     <string name="connect_messaging_audio_pause">Sett lyden på pause</string>
     <string name="connect_messaging_audio_play_failed">Lyden kunne ikke spilles av</string>
-    <string name="connect_messaging_update_app_notice">Oppdater appen for å se denne meldingen</string>
+    <string name="connect_messaging_update_app_notice">Android-appen din må oppdateres for å vise denne meldingen</string>
     <string name="connect_messaging_update_app_banner">Oppdater appen for å se alle meldingene i denne kanalen</string>
     <string name="connect_messaging_preview_update_app">[Oppdater appen for å se denne meldingen]</string>
     <string name="connect_messaging_settings_title">Meldingsinnstillinger</string>

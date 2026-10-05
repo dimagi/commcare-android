@@ -771,7 +771,7 @@
     <string name="connect_messaging_audio_play">Cheza sauti</string>
     <string name="connect_messaging_audio_pause">Sitisha sauti</string>
     <string name="connect_messaging_audio_play_failed">Sauti hii haikuweza kuchezwa</string>
-    <string name="connect_messaging_update_app_notice">Sasisha programu ili kuona ujumbe huu</string>
+    <string name="connect_messaging_update_app_notice">Programu yako ya Android inahitaji kusasishwa ili kuona ujumbe huu</string>
     <string name="connect_messaging_update_app_banner">Sasisha programu ili kuona jumbe zote katika chaneli hii</string>
     <string name="connect_messaging_preview_update_app">[Sasisha programu ili kuona ujumbe huu]</string>
     <string name="connect_messaging_settings_title">Mipangilio ya ujumbe</string>

@@ -761,7 +761,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_messaging_audio_play">Kunna sauti</string>
     <string name="connect_messaging_audio_pause">Dakatar da sauti</string>
     <string name="connect_messaging_audio_play_failed">Ba a iya kunna wannan sautin ba</string>
-    <string name="connect_messaging_update_app_notice">Sabunta manhajar don ganin wannan saƙon</string>
+    <string name="connect_messaging_update_app_notice">Ana buƙatar sabunta manhajar Android ɗinka don ganin wannan saƙon</string>
     <string name="connect_messaging_update_app_banner">Sabunta manhajar don ganin dukkan saƙonni a wannan tasha</string>
     <string name="connect_messaging_preview_update_app">[Sabunta manhajar don ganin wannan saƙon]</string>
     <string name="connect_messaging_settings_title">Saitunan saƙonni</string>

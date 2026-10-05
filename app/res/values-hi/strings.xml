@@ -763,7 +763,7 @@ License.
     <string name="connect_messaging_audio_play">ऑडियो चलाएं</string>
     <string name="connect_messaging_audio_pause">ऑडियो रोकें</string>
     <string name="connect_messaging_audio_play_failed">यह ऑडियो नहीं चलाया जा सका</string>
-    <string name="connect_messaging_update_app_notice">यह संदेश देखने के लिए ऐप अपडेट करें</string>
+    <string name="connect_messaging_update_app_notice">यह संदेश देखने के लिए आपके Android ऐप को अपडेट करना होगा</string>
     <string name="connect_messaging_update_app_banner">इस चैनल के सभी संदेश देखने के लिए ऐप अपडेट करें</string>
     <string name="connect_messaging_preview_update_app">[यह संदेश देखने के लिए ऐप अपडेट करें]</string>
     <string name="connect_messaging_settings_title">संदेश सेटिंग</string>

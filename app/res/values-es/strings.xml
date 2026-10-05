@@ -767,7 +767,7 @@
     <string name="connect_messaging_audio_play">Reproducir audio</string>
     <string name="connect_messaging_audio_pause">Pausar audio</string>
     <string name="connect_messaging_audio_play_failed">No se pudo reproducir este audio</string>
-    <string name="connect_messaging_update_app_notice">Actualiza la aplicación para ver este mensaje</string>
+    <string name="connect_messaging_update_app_notice">Tu aplicación de Android debe actualizarse para ver este mensaje</string>
     <string name="connect_messaging_update_app_banner">Actualiza la aplicación para ver todos los mensajes de este canal</string>
     <string name="connect_messaging_preview_update_app">[Actualiza la aplicación para ver este mensaje]</string>
     <string name="connect_messaging_settings_title">Ajustes de mensajería</string>

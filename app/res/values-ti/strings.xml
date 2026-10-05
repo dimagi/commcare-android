@@ -755,7 +755,7 @@
     <string name="connect_messaging_audio_play">ድምጺ ተጻወት</string>
     <string name="connect_messaging_audio_pause">ድምጺ ደው ኣብል</string>
     <string name="connect_messaging_audio_play_failed">እዚ ድምጺ ክጻወት ኣይከኣለን</string>
-    <string name="connect_messaging_update_app_notice">ነዚ መልእኽቲ ንምርኣይ ነቲ ኣፕ ኣሐድሶ</string>
+    <string name="connect_messaging_update_app_notice">ነዚ መልእኽቲ ንምርኣይ ናይ Android ኣፕኻ ክሕደስ ኣለዎ</string>
     <string name="connect_messaging_update_app_banner">ኣብዚ ቻነል ዘለዉ ኩሎም መልእኽቲታት ንምርኣይ ነቲ ኣፕ ኣሐድሶ</string>
     <string name="connect_messaging_preview_update_app">[ነዚ መልእኽቲ ንምርኣይ ነቲ ኣፕ ኣሐድሶ]</string>
     <string name="connect_messaging_settings_title">ቅጥዕታት መልእኽቲ</string>

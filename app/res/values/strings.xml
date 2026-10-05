@@ -509,7 +509,7 @@
     <string name="connect_messaging_audio_play">Play audio</string>
     <string name="connect_messaging_audio_pause">Pause audio</string>
     <string name="connect_messaging_audio_play_failed">This audio could not be played</string>
-    <string name="connect_messaging_update_app_notice">Update the app to see this message</string>
+    <string name="connect_messaging_update_app_notice">Your Android app needs to be updated to view this message</string>
     <string name="connect_messaging_update_app_banner">Update the app to see all messages in this channel</string>
     <string name="connect_messaging_preview_update_app">[Update the app to see this message]</string>
     <string name="connect_messaging_settings_title">Messaging settings</string>
