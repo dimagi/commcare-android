@@ -32,10 +32,19 @@ class ConnectMessageAttachmentsBinder(
     fun bindPendingMessage(
         messageId: String,
         pendingState: ConnectMessagingAttachmentState,
-    ): Layout {
+    ): Layout = bindTile(createPendingView(messageId, pendingState))
+
+    fun bindUnsupportedMessage(): Layout {
+        val binding = ViewConnectMessageAttachmentPendingBinding.inflate(inflater, container, false)
+        binding.flAction.visibility = View.GONE
+        binding.tvLabel.setText(R.string.connect_messaging_update_app_notice)
+        return bindTile(binding.root)
+    }
+
+    private fun bindTile(tile: View): Layout {
         container.removeAllViews()
         container.visibility = View.VISIBLE
-        container.addView(createPendingView(messageId, pendingState))
+        container.addView(tile)
         return Layout(false, context.resources.getDimensionPixelSize(R.dimen.connect_message_pending_tile_width))
     }
 

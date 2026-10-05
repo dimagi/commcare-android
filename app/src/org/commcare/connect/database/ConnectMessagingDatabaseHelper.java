@@ -47,7 +47,9 @@ public class ConnectMessagingDatabaseHelper {
 
             if (lastMessage != null && channel.getConsented()) {
                 String trimmed;
-                if (isAwaitingDownload(lastMessage)) {
+                if (lastMessage.isUnsupportedVersion()) {
+                    trimmed = context.getString(R.string.connect_messaging_preview_update_app);
+                } else if (isAwaitingDownload(lastMessage)) {
                     trimmed = context.getString(R.string.connect_messaging_preview_pending_download);
                 } else {
                     trimmed = lastMessage.getDisplayText().split("\n")[0];
@@ -241,6 +243,9 @@ public class ConnectMessagingDatabaseHelper {
             for (ConnectMessagingMessageRecord incoming : messages) {
                 if (existing.getMessageId().equals(incoming.getMessageId())) {
                     incoming.setID(existing.getID());
+                    if (incoming.getVersion() == existing.getVersion()) {
+                        incoming.setUserViewed(existing.getUserViewed());
+                    }
                     stillExists = true;
                     break;
                 }

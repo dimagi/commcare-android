@@ -202,6 +202,21 @@ class ConnectMessageAdapterTest {
         assertTrue(binding.llAttachments.getChildAt(0) is ConnectMessageAudioAttachmentView)
     }
 
+    @Test
+    fun `message too new for this app shows only the update placeholder`() {
+        val chat = ConnectMessageChatData("a", ConnectMessageAdapter.LEFTVIEW, "", "them", Date(TIMESTAMP), false, emptyList(), true, null)
+        adapter.updateData(listOf(chat))
+        assertEquals(ConnectMessageAdapter.LEFT_RICH_VIEW, adapter.getItemViewType(0))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+
+        adapter.onBindViewHolder(holder, 0)
+
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        val tile = ViewConnectMessageAttachmentPendingBinding.bind(binding.llAttachments.getChildAt(0))
+        assertEquals(themedContext().getString(R.string.connect_messaging_update_app_notice), tile.tvLabel.text.toString())
+        assertEquals(View.GONE, binding.tvChatMessage.visibility)
+    }
+
     private fun themedContext(): Context = ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
 
     private fun getPendingChat(

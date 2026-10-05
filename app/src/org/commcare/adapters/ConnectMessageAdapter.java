@@ -176,11 +176,11 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
 
         public void bindAttachments(ConnectMessageChatData chat) {
+            boolean unsupported = chat.isUnsupportedVersion();
             boolean awaitingDownload = chat.isAwaitingDownload();
-            boolean hasAttachments = awaitingDownload || !chat.getAttachments().isEmpty();
-            richBinding.tvChatMessage.setVisibility(awaitingDownload ? View.GONE : View.VISIBLE);
-            richBinding.tvUpdateNotice.setVisibility(
-                    chat.isUnsupportedVersion() && !awaitingDownload ? View.VISIBLE : View.GONE);
+            boolean showsTile = unsupported || awaitingDownload;
+            boolean hasAttachments = showsTile || !chat.getAttachments().isEmpty();
+            richBinding.tvChatMessage.setVisibility(showsTile ? View.GONE : View.VISIBLE);
             ConstraintLayout.LayoutParams guidelineParams =
                     (ConstraintLayout.LayoutParams)richBinding.guideline.getLayoutParams();
             guidelineParams.guidePercent = hasAttachments
@@ -188,9 +188,14 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     : TEXT_BUBBLE_WIDTH_FRACTION;
             richBinding.guideline.setLayoutParams(guidelineParams);
 
-            ConnectMessageAttachmentsBinder.Layout layout = awaitingDownload
-                    ? attachmentsBinder.bindPendingMessage(chat.getMessageId(), chat.getPendingDownloadState())
-                    : attachmentsBinder.bind(chat.getAttachments(), maxMediaWidth(), maxMediaHeight());
+            ConnectMessageAttachmentsBinder.Layout layout;
+            if (unsupported) {
+                layout = attachmentsBinder.bindUnsupportedMessage();
+            } else if (awaitingDownload) {
+                layout = attachmentsBinder.bindPendingMessage(chat.getMessageId(), chat.getPendingDownloadState());
+            } else {
+                layout = attachmentsBinder.bind(chat.getAttachments(), maxMediaWidth(), maxMediaHeight());
+            }
 
             ViewGroup.LayoutParams bubbleParams = richBinding.llBubble.getLayoutParams();
             bubbleParams.width = layout.getFillsBubbleWidth()

@@ -73,6 +73,13 @@ class ConnectMessagingChannelPreviewTest {
         assertEquals("Site visit notes", previewText())
     }
 
+    @Test
+    fun `message too new for this app is previewed as needing an update`() {
+        storeRichMessage(content = "Placeholder from the server", richText = null, version = 3)
+
+        assertEquals(context.getString(R.string.connect_messaging_preview_update_app), previewText())
+    }
+
     private fun previewText() =
         ConnectMessagingDatabaseHelper
             .getMessagingChannels(context)
@@ -83,6 +90,7 @@ class ConnectMessagingChannelPreviewTest {
     private fun storeRichMessage(
         content: String,
         richText: String?,
+        version: Int = 2,
     ) {
         val json =
             JSONObject(
@@ -91,6 +99,7 @@ class ConnectMessagingChannelPreviewTest {
                     MESSAGE_ID,
                     CHANNEL_ID,
                     content = content,
+                    version = version,
                     richText = richText,
                 ),
             )

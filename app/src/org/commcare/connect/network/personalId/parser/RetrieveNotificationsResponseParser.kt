@@ -97,7 +97,9 @@ class RetrieveNotificationsResponseParser(
                                     emptyList()
                                 }
                             messages.add(message)
-                            messagesNotificationsIds.add(notificationId)
+                            if (!message.isUnsupportedVersion) {
+                                messagesNotificationsIds.add(notificationId)
+                            }
                             attachments.addAll(messageAttachments)
                         }
                     } else {

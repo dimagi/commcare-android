@@ -388,7 +388,7 @@ class RetrieveNotificationsResponseParserTest {
     }
 
     @Test
-    fun `unknown version keeps the content and ignores attachments`() {
+    fun `unknown version keeps none of the message and is left unacknowledged for redelivery`() {
         val notification =
             NotificationTestUtil.createRichMessagingNotification(
                 "msg_001",
@@ -396,6 +396,8 @@ class RetrieveNotificationsResponseParserTest {
                 "channel_001",
                 content = "Plain text",
                 version = 3,
+                richText = "Rich text",
+                expiresAt = "2030-01-01T00:00:00Z",
                 attachments = listOf(NotificationTestUtil.createAttachmentJson(FIRST_ATTACHMENT_ID, "site-map.jpg")),
             )
 
@@ -403,8 +405,11 @@ class RetrieveNotificationsResponseParserTest {
 
         val message = result.messages.single()
         assertTrue(message.isUnsupportedVersion)
-        assertEquals("Plain text", message.displayText)
+        assertEquals("", message.message)
+        assertEquals("", message.displayText)
+        assertNull(message.expiresAt)
         assertTrue(result.attachments.isEmpty())
+        assertTrue(result.messagingNotificationIds.isEmpty())
     }
 
     @Test

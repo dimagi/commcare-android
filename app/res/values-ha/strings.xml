@@ -762,6 +762,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_messaging_audio_pause">Dakatar da sauti</string>
     <string name="connect_messaging_audio_play_failed">Ba a iya kunna wannan sautin ba</string>
     <string name="connect_messaging_update_app_notice">Sabunta manhajar don ganin wannan saƙon</string>
+    <string name="connect_messaging_update_app_banner">Sabunta manhajar don ganin dukkan saƙonni a wannan tasha</string>
+    <string name="connect_messaging_preview_update_app">[Sabunta manhajar don ganin wannan saƙon]</string>
     <string name="connect_messaging_settings_title">Saitunan saƙonni</string>
     <string name="connect_messaging_settings_any_network">A Wi-Fi da bayanan waya</string>
     <string name="connect_messaging_settings_tap_note">Haɗe-haɗen da ka taɓa ana saukewa nan take koyaushe, a kowace hanyar sadarwa.</string>

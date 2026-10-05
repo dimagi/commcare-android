@@ -115,6 +115,16 @@ class ConnectMessageAttachmentsBinderTest {
         assertFalse(tile.root.hasOnClickListeners())
     }
 
+    @Test
+    fun `message too new for this app shows an update placeholder with no action`() {
+        binder.bindUnsupportedMessage()
+        val tile = ViewConnectMessageAttachmentPendingBinding.bind(container.getChildAt(0))
+
+        assertEquals(context.getString(R.string.connect_messaging_update_app_notice), tile.tvLabel.text.toString())
+        assertEquals(View.GONE, tile.flAction.visibility)
+        assertFalse(tile.root.hasOnClickListeners())
+    }
+
     private fun bindPendingTile(state: ConnectMessagingAttachmentState): ViewConnectMessageAttachmentPendingBinding {
         binder.bindPendingMessage("message-1", state)
         return ViewConnectMessageAttachmentPendingBinding.bind(container.getChildAt(0))

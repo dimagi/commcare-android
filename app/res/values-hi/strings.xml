@@ -764,6 +764,8 @@ License.
     <string name="connect_messaging_audio_pause">ऑडियो रोकें</string>
     <string name="connect_messaging_audio_play_failed">यह ऑडियो नहीं चलाया जा सका</string>
     <string name="connect_messaging_update_app_notice">यह संदेश देखने के लिए ऐप अपडेट करें</string>
+    <string name="connect_messaging_update_app_banner">इस चैनल के सभी संदेश देखने के लिए ऐप अपडेट करें</string>
+    <string name="connect_messaging_preview_update_app">[यह संदेश देखने के लिए ऐप अपडेट करें]</string>
     <string name="connect_messaging_settings_title">संदेश सेटिंग</string>
     <string name="connect_messaging_settings_any_network">वाई-फ़ाई और मोबाइल डेटा पर</string>
     <string name="connect_messaging_settings_tap_note">जिन अटैचमेंट पर आप टैप करते हैं, वे हमेशा किसी भी नेटवर्क पर तुरंत डाउनलोड होते हैं।</string>

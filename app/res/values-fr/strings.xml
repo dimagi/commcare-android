@@ -767,6 +767,8 @@ License.
     <string name="connect_messaging_audio_pause">Mettre l\'audio en pause</string>
     <string name="connect_messaging_audio_play_failed">Impossible de lire cet audio</string>
     <string name="connect_messaging_update_app_notice">Mettez l\'application à jour pour voir ce message</string>
+    <string name="connect_messaging_update_app_banner">Mettez l\'application à jour pour voir tous les messages de ce canal</string>
+    <string name="connect_messaging_preview_update_app">[Mettez l\'application à jour pour voir ce message]</string>
     <string name="connect_messaging_settings_title">Paramètres de messagerie</string>
     <string name="connect_messaging_settings_any_network">En Wi-Fi et données mobiles</string>
     <string name="connect_messaging_settings_tap_note">Les pièces jointes sur lesquelles vous appuyez sont toujours téléchargées immédiatement, sur n\'importe quel réseau.</string>

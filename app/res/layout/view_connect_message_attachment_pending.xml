@@ -11,6 +11,7 @@
     android:padding="@dimen/connect_space_md">
 
     <FrameLayout
+        android:id="@+id/flAction"
         android:layout_width="@dimen/connect_message_pending_button_size"
         android:layout_height="@dimen/connect_message_pending_button_size">
 

@@ -138,6 +138,16 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         String dateString = json.getString(META_MESSAGE_TIMESTAMP);
         connectMessagingMessageRecord.timeStamp = DateUtils.parseDateTime(dateString);
 
+        connectMessagingMessageRecord.isOutgoing = false;
+        connectMessagingMessageRecord.confirmed = false;
+        connectMessagingMessageRecord.userViewed = false;
+
+        connectMessagingMessageRecord.version = json.optInt(JSON_VERSION, VERSION_PLAIN);
+        if (connectMessagingMessageRecord.isUnsupportedVersion()) {
+            connectMessagingMessageRecord.message = "";
+            return connectMessagingMessageRecord;
+        }
+
         String tag = json.getString(JSON_TAG);
         String nonce = json.getString(JSON_NONCE);
         String cipherText = json.getString(JSON_CIPHER_TEXT);
@@ -150,11 +160,6 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
         connectMessagingMessageRecord.message = truncateMessage(decrypted, MESSAGE);
 
-        connectMessagingMessageRecord.isOutgoing = false;
-        connectMessagingMessageRecord.confirmed = false;
-        connectMessagingMessageRecord.userViewed = false;
-
-        connectMessagingMessageRecord.version = json.optInt(JSON_VERSION, VERSION_PLAIN);
         if (connectMessagingMessageRecord.isRich()) {
             readRichFields(connectMessagingMessageRecord, json, channel.getKey());
         }

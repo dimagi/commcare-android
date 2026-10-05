@@ -310,15 +310,19 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
             Map<String, List<ConnectMessagingAttachmentRecord>> attachmentsByMessageId =
                     ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId();
             List<ConnectMessageChatData> chats = new ArrayList<>();
+            boolean hasUnsupportedMessages = false;
 
             for (ConnectMessagingMessageRecord message : messages) {
                 chats.add(fromMessage(message, attachmentsByMessageId));
+                hasUnsupportedMessages |= message.isUnsupportedVersion();
 
                 if (!message.getUserViewed()) {
                     message.setUserViewed(true);
                     ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message);
                 }
             }
+
+            binding.tvUpdateBanner.setVisibility(hasUnsupportedMessages ? View.VISIBLE : View.GONE);
 
             boolean initialLoad = adapter.getItemCount() == 0;
             boolean wasNearBottom = isNearBottom();
