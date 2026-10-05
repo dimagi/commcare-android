@@ -29,7 +29,7 @@ class ConnectNetworkClient
     ) {
         companion object {
             private const val BASE_URL = "https://${BuildConfig.CCC_HOST}"
-            private const val API_VERSION_CONNECT = "1.0"
+            private const val API_VERSION_CONNECT = "2.0"
 
             @Volatile
             private var instance: ConnectNetworkClient? = null

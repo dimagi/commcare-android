@@ -71,7 +71,7 @@ class ConnectJobRecordCardMessageTest {
     private fun paymentUnit(
         id: Int,
         maxTotal: Int,
-        maxDaily: Int,
+        maxDaily: Int?,
     ): ConnectPaymentUnitRecord =
         ConnectPaymentUnitRecord.fromJson(
             JSONObject(
@@ -151,6 +151,35 @@ class ConnectJobRecordCardMessageTest {
 
         assertEquals(
             context.getString(R.string.connect_progress_warning_max_reached_multi, "Unit 1"),
+            job.getCardMessageText(context),
+        )
+    }
+
+    @Test
+    fun `a job without a daily limit never reports the daily maximum`() {
+        val job = multiPaymentJob(maxDailyVisits = ConnectJobRecord.NO_DAILY_LIMIT)
+        job.deliveries = List(5) { delivery(it, 1, Date()) }
+
+        assertNull(job.getCardMessageText(context))
+    }
+
+    @Test
+    fun `a payment unit without a daily limit is never named in the daily maximum warning`() {
+        val job = multiPaymentJob()
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = null),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 1),
+            )
+        job.deliveries =
+            listOf(
+                delivery(1, 1, Date()),
+                delivery(2, 1, Date()),
+                delivery(3, 2, Date()),
+            )
+
+        assertEquals(
+            context.getString(R.string.connect_progress_warning_daily_max_reached_multi, "Unit 2"),
             job.getCardMessageText(context),
         )
     }

@@ -234,7 +234,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         list.add(new ConnectDeliveryPaymentSummaryInfo(
                 activity.getString(R.string.connect_job_tile_daily_visits),
                 job.numberOfDeliveriesToday(),
-                job.getMaxDailyVisits()
+                job.hasDailyLimit()
+                        ? job.getMaxDailyVisits()
+                        : ConnectDeliveryPaymentSummaryInfo.NO_DAILY_LIMIT
         ));
 
         connectProgressJobSummaryAdapter.setDeliverySummaries(list);
