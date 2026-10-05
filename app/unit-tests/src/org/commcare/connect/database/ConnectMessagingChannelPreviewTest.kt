@@ -59,6 +59,20 @@ class ConnectMessagingChannelPreviewTest {
         assertEquals("Site visit notes", previewText())
     }
 
+    @Test
+    fun `rich message is previewed by its rich text rather than its content`() {
+        storeRichMessage(content = "Plain fallback", richText = "Site visit notes")
+
+        assertEquals("Site visit notes", previewText())
+    }
+
+    @Test
+    fun `rich message without rich text is previewed by its content`() {
+        storeRichMessage(content = "Site visit notes", richText = null)
+
+        assertEquals("Site visit notes", previewText())
+    }
+
     private fun previewText() =
         ConnectMessagingDatabaseHelper
             .getMessagingChannels(context)
@@ -66,18 +80,26 @@ class ConnectMessagingChannelPreviewTest {
             .preview
             .toString()
 
-    private fun storeRichMessageWithAttachment(state: ConnectMessagingAttachmentState) {
+    private fun storeRichMessage(
+        content: String,
+        richText: String?,
+    ) {
         val json =
             JSONObject(
                 NotificationTestUtil.createRichMessagingNotification(
                     "notification-1",
                     MESSAGE_ID,
                     CHANNEL_ID,
-                    content = "Site visit notes",
+                    content = content,
+                    richText = richText,
                 ),
             )
         val message = ConnectMessagingMessageRecord.fromJson(json, listOf(channel))!!
         ConnectMessagingDatabaseHelper.storeMessagingMessage(context, message)
+    }
+
+    private fun storeRichMessageWithAttachment(state: ConnectMessagingAttachmentState) {
+        storeRichMessage(content = "Site visit notes", richText = null)
         ConnectMessagingAttachmentDatabaseHelper.save(
             ConnectMessagingAttachmentRecord().apply {
                 attachmentId = "attachment-1"

@@ -50,7 +50,7 @@ public class ConnectMessagingDatabaseHelper {
                 if (isAwaitingDownload(lastMessage)) {
                     trimmed = context.getString(R.string.connect_messaging_preview_pending_download);
                 } else {
-                    trimmed = lastMessage.getMessage().split("\n")[0];
+                    trimmed = lastMessage.getDisplayText().split("\n")[0];
                     int maxLength = 25;
                     if (trimmed.length() > maxLength) {
                         trimmed = trimmed.substring(0, maxLength - 3) + "...";
