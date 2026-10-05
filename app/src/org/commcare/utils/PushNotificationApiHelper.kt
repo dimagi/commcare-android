@@ -38,6 +38,7 @@ import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.connect.network.personalId.parser.NotificationParseResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
+import org.commcare.preferences.ConnectMessagingPreferences
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.coroutines.DispatcherProvider
 import java.util.concurrent.TimeUnit
@@ -145,7 +146,10 @@ object PushNotificationApiHelper {
         }
 
         if (parseResult.attachments.isNotEmpty()) {
-            ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(parseResult.attachments)
+            ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
+                parseResult.attachments,
+                ConnectMessagingPreferences.isAutomaticDownloadEnabled(context),
+            )
         }
 
         // Store non-messaging notifications

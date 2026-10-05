@@ -13,7 +13,16 @@
         <action
             android:id="@+id/action_channelListFragment_to_connectMessageFragment"
             app:destination="@id/connectMessageFragment" />
+        <action
+            android:id="@+id/action_channelListFragment_to_connectMessagingSettingsFragment"
+            app:destination="@id/connectMessagingSettingsFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/connectMessagingSettingsFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessagingSettingsFragment"
+        android:label="@string/connect_messaging_settings_title"
+        tools:layout="@layout/fragment_connect_messaging_settings" />
 
     <fragment
         android:id="@+id/connectMessageFragment"

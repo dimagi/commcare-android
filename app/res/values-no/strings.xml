@@ -454,4 +454,10 @@
     <string name="connect_messaging_audio_pause">Sett lyden på pause</string>
     <string name="connect_messaging_audio_play_failed">Lyden kunne ikke spilles av</string>
     <string name="connect_messaging_update_app_notice">Oppdater appen for å se denne meldingen</string>
+    <string name="connect_messaging_settings_title">Meldingsinnstillinger</string>
+    <string name="connect_messaging_settings_any_network">På Wi-Fi og mobildata</string>
+    <string name="connect_messaging_settings_tap_note">Vedlegg du trykker på, lastes alltid ned med en gang, på alle nettverk.</string>
+    <string name="connect_messaging_settings_auto_download_title">Last ned vedlegg automatisk</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Store vedlegg (over 1 MB) bare på Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Bare manuell nedlasting</string>
 </resources>

@@ -143,13 +143,56 @@ class ConnectMessagingAttachmentDownloaderTest {
         assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("tap-only"))
     }
 
-    private fun runPassWith(fetcher: ConnectMessagingAttachmentFetcher): ConnectMessagingAttachmentDownloader.PassResult {
+    @Test
+    fun `failed automatic download goes back to waiting once automatic download is off`() {
+        storeQueuedAttachment("attachment-1", "message-1")
+
+        val result = runPassWith(automaticDownloadEnabled = false) { _, _, _ -> throw IOException("connection reset") }
+
+        assertEquals(ConnectMessagingAttachmentDownloader.PassResult.COMPLETE, result)
+        assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("attachment-1"))
+    }
+
+    @Test
+    fun `failed tapped download keeps retrying even with automatic download off`() {
+        storeQueuedAttachment("attachment-1", "message-1")
+
+        val result =
+            runPassWith(automaticDownloadEnabled = false, requestedAttachmentId = "attachment-1") { _, _, _ ->
+                throw IOException("connection reset")
+            }
+
+        assertEquals(ConnectMessagingAttachmentDownloader.PassResult.RETRY_LATER, result)
+        assertEquals(ConnectMessagingAttachmentState.QUEUED, stateOf("attachment-1"))
+    }
+
+    @Test
+    fun `tapped download only fetches the tapped attachment and returns other interrupted ones to waiting`() {
+        storeQueuedAttachment("tapped", "message-1")
+        storeQueuedAttachment("other", "message-2", state = ConnectMessagingAttachmentState.DOWNLOADING)
+
+        runPassWith(automaticDownloadEnabled = false, requestedAttachmentId = "tapped") { _, _, _ -> ok(encryptedVector) }
+
+        assertEquals(listOf("tapped"), fetchedAttachmentIds)
+        assertEquals(ConnectMessagingAttachmentState.AVAILABLE, stateOf("tapped"))
+        assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("other"))
+    }
+
+    private fun runPassWith(
+        automaticDownloadEnabled: Boolean = true,
+        requestedAttachmentId: String? = null,
+        fetcher: ConnectMessagingAttachmentFetcher,
+    ): ConnectMessagingAttachmentDownloader.PassResult {
         val recordingFetcher =
             ConnectMessagingAttachmentFetcher { messageId, attachmentId, expectedSize ->
                 fetchedAttachmentIds.add(attachmentId)
                 fetcher.fetch(messageId, attachmentId, expectedSize)
             }
-        return ConnectMessagingAttachmentDownloader(context, recordingFetcher).runPass(0L..Long.MAX_VALUE) { false }
+        val downloader = ConnectMessagingAttachmentDownloader(context, recordingFetcher, { automaticDownloadEnabled })
+        return downloader.runPass(
+            { requestedAttachmentId == null || it.attachmentId == requestedAttachmentId },
+            requestedAttachmentId != null,
+        ) { false }
     }
 
     private fun ok(body: ByteArray) = ConnectMessagingAttachmentFetchResponse(200, body)

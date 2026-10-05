@@ -772,4 +772,10 @@
     <string name="connect_messaging_audio_pause">Sitisha sauti</string>
     <string name="connect_messaging_audio_play_failed">Sauti hii haikuweza kuchezwa</string>
     <string name="connect_messaging_update_app_notice">Sasisha programu ili kuona ujumbe huu</string>
+    <string name="connect_messaging_settings_title">Mipangilio ya ujumbe</string>
+    <string name="connect_messaging_settings_any_network">Kwenye Wi-Fi na data ya simu</string>
+    <string name="connect_messaging_settings_tap_note">Viambatisho unavyogusa hupakuliwa mara moja kila wakati, kwenye mtandao wowote.</string>
+    <string name="connect_messaging_settings_auto_download_title">Pakua viambatisho kiotomatiki</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Viambatisho vikubwa (zaidi ya MB 1) kwenye Wi-Fi pekee</string>
+    <string name="connect_messaging_settings_manual_only">Upakuaji wa mwenyewe pekee</string>
 </resources>

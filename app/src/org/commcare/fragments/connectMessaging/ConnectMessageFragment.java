@@ -366,7 +366,7 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
     @Override
     public void onAttachmentDownloadRequested(@NonNull String attachmentId) {
         if (ConnectMessagingAttachmentDatabaseHelper.requeue(attachmentId)) {
-            ConnectMessagingAttachmentDownloadScheduler.restartDownloads(requireContext());
+            ConnectMessagingAttachmentDownloadScheduler.downloadNow(requireContext(), attachmentId);
             refreshUi();
         }
     }

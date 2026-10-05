@@ -1,14 +1,21 @@
 package org.commcare.connect.messaging
 
 import android.content.Context
+import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.workers.ConnectMessagingAttachmentDownloadWorker
+import org.commcare.preferences.ConnectMessagingPreferences
+import org.commcare.preferences.ConnectMessagingPreferences.AttachmentAutoDownload
+import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.PushNotificationApiHelper
 import java.util.concurrent.TimeUnit
 
@@ -18,93 +25,123 @@ data class ConnectMessagingAttachmentDownloadConditions(
     val largeFileNetworkType: NetworkType,
 ) {
     companion object {
-        @JvmField
-        val DEFAULT =
-            ConnectMessagingAttachmentDownloadConditions(
+        const val LARGE_FILE_THRESHOLD_BYTES = 1024L * 1024L
+
+        @JvmStatic
+        fun fromPreferences(context: Context): ConnectMessagingAttachmentDownloadConditions? {
+            val largeFileNetworkType =
+                when (ConnectMessagingPreferences.getAttachmentAutoDownload(context)) {
+                    AttachmentAutoDownload.MANUAL_ONLY -> return null
+                    AttachmentAutoDownload.LARGE_ON_WIFI_ONLY -> NetworkType.UNMETERED
+                    AttachmentAutoDownload.ANY_NETWORK -> NetworkType.CONNECTED
+                }
+            return ConnectMessagingAttachmentDownloadConditions(
                 networkType = NetworkType.CONNECTED,
-                largeFileThresholdBytes = 1024L * 1024L,
-                largeFileNetworkType = NetworkType.CONNECTED,
+                largeFileThresholdBytes = LARGE_FILE_THRESHOLD_BYTES,
+                largeFileNetworkType = largeFileNetworkType,
             )
+        }
     }
 }
 
 object ConnectMessagingAttachmentDownloadScheduler {
-    private const val WORK_NAME = "connect_messaging_attachment_download"
-    private const val SMALL_FILES_WORK_NAME = "${WORK_NAME}_small"
-    private const val LARGE_FILES_WORK_NAME = "${WORK_NAME}_large"
+    private const val WORK_TAG = "connect_messaging_attachment_download"
+    const val ALL_FILES_WORK_NAME = WORK_TAG
+    const val SMALL_FILES_WORK_NAME = "${WORK_TAG}_small"
+    const val LARGE_FILES_WORK_NAME = "${WORK_TAG}_large"
+    private const val REQUESTED_WORK_NAME_PREFIX = "${WORK_TAG}_requested_"
 
     @JvmStatic
-    @JvmOverloads
-    fun scheduleQueuedDownloads(
-        context: Context,
-        conditions: ConnectMessagingAttachmentDownloadConditions = ConnectMessagingAttachmentDownloadConditions.DEFAULT,
-    ) {
-        enqueue(context, conditions, ExistingWorkPolicy.KEEP)
+    fun scheduleQueuedDownloads(context: Context) {
+        enqueueAutomaticDownloads(context, ExistingWorkPolicy.KEEP)
     }
 
     @JvmStatic
-    @JvmOverloads
-    fun restartDownloads(
+    fun applyAutoDownloadSetting(context: Context) {
+        val workManager = WorkManager.getInstance(context)
+        workManager.cancelUniqueWork(ALL_FILES_WORK_NAME)
+        workManager.cancelUniqueWork(SMALL_FILES_WORK_NAME)
+        workManager.cancelUniqueWork(LARGE_FILES_WORK_NAME)
+        if (ConnectMessagingPreferences.isAutomaticDownloadEnabled(context)) {
+            enqueueAutomaticDownloads(context, ExistingWorkPolicy.REPLACE)
+        } else {
+            ConnectMessagingAttachmentDatabaseHelper.returnPendingAttachmentsToWaiting()
+            LocalBroadcastManager
+                .getInstance(context)
+                .sendBroadcast(Intent(FirebaseMessagingUtil.MESSAGING_UPDATE_BROADCAST))
+        }
+    }
+
+    @JvmStatic
+    fun downloadNow(
         context: Context,
-        conditions: ConnectMessagingAttachmentDownloadConditions = ConnectMessagingAttachmentDownloadConditions.DEFAULT,
+        attachmentId: String,
     ) {
-        enqueue(context, conditions, ExistingWorkPolicy.REPLACE)
+        enqueueWork(
+            context,
+            requestedWorkName(attachmentId),
+            NetworkType.CONNECTED,
+            workDataOf(ConnectMessagingAttachmentDownloadWorker.KEY_ATTACHMENT_ID to attachmentId),
+            ExistingWorkPolicy.REPLACE,
+        )
     }
 
     @JvmStatic
     fun cancelDownloads(context: Context) {
-        val workManager = WorkManager.getInstance(context)
-        workManager.cancelUniqueWork(WORK_NAME)
-        workManager.cancelUniqueWork(SMALL_FILES_WORK_NAME)
-        workManager.cancelUniqueWork(LARGE_FILES_WORK_NAME)
+        WorkManager.getInstance(context).cancelAllWorkByTag(WORK_TAG)
     }
 
-    private fun enqueue(
+    fun requestedWorkName(attachmentId: String) = REQUESTED_WORK_NAME_PREFIX + attachmentId
+
+    private fun enqueueAutomaticDownloads(
         context: Context,
-        conditions: ConnectMessagingAttachmentDownloadConditions,
         policy: ExistingWorkPolicy,
     ) {
+        val conditions = ConnectMessagingAttachmentDownloadConditions.fromPreferences(context) ?: return
         if (conditions.networkType == conditions.largeFileNetworkType) {
-            enqueueWork(context, WORK_NAME, conditions.networkType, 0L..Long.MAX_VALUE, policy)
+            enqueueWork(context, ALL_FILES_WORK_NAME, conditions.networkType, sizeRangeData(0L..Long.MAX_VALUE), policy)
             return
         }
         enqueueWork(
             context,
             SMALL_FILES_WORK_NAME,
             conditions.networkType,
-            0L..conditions.largeFileThresholdBytes,
+            sizeRangeData(0L..conditions.largeFileThresholdBytes),
             policy,
         )
         enqueueWork(
             context,
             LARGE_FILES_WORK_NAME,
             conditions.largeFileNetworkType,
-            (conditions.largeFileThresholdBytes + 1)..Long.MAX_VALUE,
+            sizeRangeData((conditions.largeFileThresholdBytes + 1)..Long.MAX_VALUE),
             policy,
         )
     }
+
+    private fun sizeRangeData(sizeRange: LongRange): Data =
+        workDataOf(
+            ConnectMessagingAttachmentDownloadWorker.KEY_MIN_SIZE_BYTES to sizeRange.first,
+            ConnectMessagingAttachmentDownloadWorker.KEY_MAX_SIZE_BYTES to sizeRange.last,
+        )
 
     private fun enqueueWork(
         context: Context,
         workName: String,
         networkType: NetworkType,
-        sizeRange: LongRange,
+        inputData: Data,
         policy: ExistingWorkPolicy,
     ) {
         val request =
             OneTimeWorkRequest
                 .Builder(ConnectMessagingAttachmentDownloadWorker::class.java)
+                .addTag(WORK_TAG)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(networkType).build())
                 .setBackoffCriteria(
                     BackoffPolicy.EXPONENTIAL,
                     PushNotificationApiHelper.SYNC_BACKOFF_DELAY_IN_MINS,
                     TimeUnit.MINUTES,
-                ).setInputData(
-                    workDataOf(
-                        ConnectMessagingAttachmentDownloadWorker.KEY_MIN_SIZE_BYTES to sizeRange.first,
-                        ConnectMessagingAttachmentDownloadWorker.KEY_MAX_SIZE_BYTES to sizeRange.last,
-                    ),
-                ).build()
+                ).setInputData(inputData)
+                .build()
         WorkManager.getInstance(context).enqueueUniqueWork(workName, policy, request)
     }
 }

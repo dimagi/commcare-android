@@ -768,4 +768,10 @@
     <string name="connect_messaging_audio_pause">Pausar audio</string>
     <string name="connect_messaging_audio_play_failed">No se pudo reproducir este audio</string>
     <string name="connect_messaging_update_app_notice">Actualiza la aplicación para ver este mensaje</string>
+    <string name="connect_messaging_settings_title">Ajustes de mensajería</string>
+    <string name="connect_messaging_settings_any_network">Con Wi-Fi y datos móviles</string>
+    <string name="connect_messaging_settings_tap_note">Los archivos adjuntos que toques siempre se descargan de inmediato, en cualquier red.</string>
+    <string name="connect_messaging_settings_auto_download_title">Descargar archivos adjuntos automáticamente</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Archivos adjuntos grandes (más de 1 MB) solo con Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Solo descarga manual</string>
 </resources>

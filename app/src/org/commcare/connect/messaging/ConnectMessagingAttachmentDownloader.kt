@@ -10,6 +10,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingAttachmentFileStore
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
+import org.commcare.preferences.ConnectMessagingPreferences
 import org.commcare.util.LogTypes
 import org.commcare.utils.FirebaseMessagingUtil
 import org.javarosa.core.services.Logger
@@ -21,6 +22,9 @@ import java.util.Date
 class ConnectMessagingAttachmentDownloader(
     private val context: Context,
     private val fetcher: ConnectMessagingAttachmentFetcher,
+    private val isAutomaticDownloadEnabled: () -> Boolean = {
+        ConnectMessagingPreferences.isAutomaticDownloadEnabled(context)
+    },
     private val clock: () -> Date = { Date() },
 ) {
     enum class PassResult {
@@ -35,15 +39,26 @@ class ConnectMessagingAttachmentDownloader(
         AUTH_FAILURE,
     }
 
+    private var pendingStateFor: (ConnectMessagingAttachmentRecord) -> ConnectMessagingAttachmentState =
+        { ConnectMessagingAttachmentState.QUEUED }
+
     fun runPass(
-        sizeRange: LongRange,
+        isEligible: (ConnectMessagingAttachmentRecord) -> Boolean,
+        isRequestedByUser: Boolean,
         isStopped: () -> Boolean,
     ): PassResult {
-        ConnectMessagingAttachmentDatabaseHelper.markInterruptedDownloadsQueued()
+        pendingStateFor = { attachment: ConnectMessagingAttachmentRecord ->
+            if ((isRequestedByUser && isEligible(attachment)) || isAutomaticDownloadEnabled()) {
+                ConnectMessagingAttachmentState.QUEUED
+            } else {
+                ConnectMessagingAttachmentState.WAITING
+            }
+        }
+        resetInterruptedDownloads()
         val attempted = HashSet<String>()
         var retryLater = false
         while (!isStopped()) {
-            val next = nextQueued(sizeRange, attempted) ?: break
+            val next = nextQueued(isEligible, attempted) ?: break
             attempted.add(next.attachment.attachmentId)
             when (download(next.attachment, next.message)) {
                 Outcome.RETRY_LATER -> retryLater = true
@@ -54,18 +69,27 @@ class ConnectMessagingAttachmentDownloader(
         return if (retryLater) PassResult.RETRY_LATER else PassResult.COMPLETE
     }
 
+    private fun resetInterruptedDownloads() {
+        for (attachment in ConnectMessagingAttachmentDatabaseHelper.getAttachmentsInState(
+            ConnectMessagingAttachmentState.DOWNLOADING,
+        )) {
+            attachment.downloadState = pendingStateFor(attachment)
+            ConnectMessagingAttachmentDatabaseHelper.save(attachment)
+        }
+    }
+
     private class QueuedAttachment(
         val attachment: ConnectMessagingAttachmentRecord,
         val message: ConnectMessagingMessageRecord?,
     )
 
     private fun nextQueued(
-        sizeRange: LongRange,
+        isEligible: (ConnectMessagingAttachmentRecord) -> Boolean,
         attempted: Set<String>,
     ): QueuedAttachment? =
         ConnectMessagingAttachmentDatabaseHelper
             .getAttachmentsInState(ConnectMessagingAttachmentState.QUEUED)
-            .filter { it.attachmentId !in attempted && it.size in sizeRange }
+            .filter { it.attachmentId !in attempted && isEligible(it) }
             .map { QueuedAttachment(it, ConnectMessagingAttachmentDatabaseHelper.getMessage(it.messageId)) }
             .minWithOrNull(compareBy<QueuedAttachment>({ it.message?.timeStamp ?: Date(0) }, { it.attachment.position }))
 
@@ -97,7 +121,7 @@ class ConnectMessagingAttachmentDownloader(
             HttpURLConnection.HTTP_OK -> store(attachment, response.body, channelKey)
             HttpURLConnection.HTTP_GONE -> finish(attachment, ConnectMessagingAttachmentState.EXPIRED)
             HttpURLConnection.HTTP_UNAUTHORIZED, HttpURLConnection.HTTP_FORBIDDEN -> {
-                update(attachment, ConnectMessagingAttachmentState.QUEUED)
+                update(attachment, pendingStateFor(attachment))
                 Outcome.AUTH_FAILURE
             }
             else -> countFailedAttempt(attachment, "HTTP ${response.statusCode}")
@@ -130,8 +154,9 @@ class ConnectMessagingAttachmentDownloader(
     ): Outcome {
         attachment.attempts += 1
         if (attachment.attempts < MAX_ATTEMPTS) {
-            update(attachment, ConnectMessagingAttachmentState.QUEUED)
-            return Outcome.RETRY_LATER
+            val pendingState = pendingStateFor(attachment)
+            update(attachment, pendingState)
+            return if (pendingState == ConnectMessagingAttachmentState.QUEUED) Outcome.RETRY_LATER else Outcome.FINISHED
         }
         Logger.log(
             LogTypes.TYPE_WARNING_NETWORK,

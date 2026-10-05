@@ -478,4 +478,10 @@
     <string name="connect_messaging_audio_pause">Pristabdyti garso įrašą</string>
     <string name="connect_messaging_audio_play_failed">Nepavyko paleisti šio garso įrašo</string>
     <string name="connect_messaging_update_app_notice">Atnaujinkite programą, kad pamatytumėte šią žinutę</string>
+    <string name="connect_messaging_settings_title">Žinučių nustatymai</string>
+    <string name="connect_messaging_settings_any_network">Per „Wi-Fi“ ir mobiliuosius duomenis</string>
+    <string name="connect_messaging_settings_tap_note">Priedai, kuriuos paliečiate, visada atsisiunčiami iš karto per bet kurį tinklą.</string>
+    <string name="connect_messaging_settings_auto_download_title">Automatiškai atsisiųsti priedus</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Didelius priedus (daugiau nei 1 MB) tik per „Wi-Fi“</string>
+    <string name="connect_messaging_settings_manual_only">Tik rankinis atsisiuntimas</string>
 </resources>

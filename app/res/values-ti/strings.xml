@@ -756,4 +756,10 @@
     <string name="connect_messaging_audio_pause">ድምጺ ደው ኣብል</string>
     <string name="connect_messaging_audio_play_failed">እዚ ድምጺ ክጻወት ኣይከኣለን</string>
     <string name="connect_messaging_update_app_notice">ነዚ መልእኽቲ ንምርኣይ ነቲ ኣፕ ኣሐድሶ</string>
+    <string name="connect_messaging_settings_title">ቅጥዕታት መልእኽቲ</string>
+    <string name="connect_messaging_settings_any_network">ብዋይፋይን ሞባይል ዳታን</string>
+    <string name="connect_messaging_settings_tap_note">እትጠውቖም ተተሓሒዝቲ ኩሉ ግዜ ብዝኾነ መርበብ ብቕጽበት ይወርዱ።</string>
+    <string name="connect_messaging_settings_auto_download_title">ተተሓሒዝቲ ብኣውቶማቲክ ኣውርድ</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">ዓበይቲ ተተሓሒዝቲ (ካብ 1 MB ንላዕሊ) ብዋይፋይ ጥራይ</string>
+    <string name="connect_messaging_settings_manual_only">ብኢድ ምውራድ ጥራይ</string>
 </resources>

@@ -36,9 +36,13 @@ object ConnectMessagingAttachmentDatabaseHelper {
         storage().write(attachment)
     }
 
-    fun markInterruptedDownloadsQueued() {
-        for (attachment in getAttachmentsInState(ConnectMessagingAttachmentState.DOWNLOADING)) {
-            attachment.downloadState = ConnectMessagingAttachmentState.QUEUED
+    fun returnPendingAttachmentsToWaiting() {
+        val pending =
+            getAttachmentsInState(ConnectMessagingAttachmentState.QUEUED) +
+                getAttachmentsInState(ConnectMessagingAttachmentState.DOWNLOADING)
+        for (attachment in pending) {
+            attachment.downloadState = ConnectMessagingAttachmentState.WAITING
+            attachment.attempts = 0
             save(attachment)
         }
     }
@@ -61,6 +65,7 @@ object ConnectMessagingAttachmentDatabaseHelper {
     @JvmOverloads
     fun storeNewAttachments(
         incoming: List<ConnectMessagingAttachmentRecord>,
+        automaticDownloadEnabled: Boolean,
         now: Date = Date(),
     ) {
         val newAttachments = incoming.filter { getAttachment(it.attachmentId) == null }
@@ -94,7 +99,7 @@ object ConnectMessagingAttachmentDatabaseHelper {
                 ConnectMessagingAttachmentAutoDownloadPolicy.initialState(
                     message.timeStamp,
                     message.expiresAt,
-                    message.messageId in newestIncomingIds,
+                    automaticDownloadEnabled && message.messageId in newestIncomingIds,
                     now,
                 )
             attachment.attempts = 0

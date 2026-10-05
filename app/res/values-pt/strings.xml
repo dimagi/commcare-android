@@ -774,4 +774,10 @@
     <string name="connect_messaging_audio_pause">Pausar áudio</string>
     <string name="connect_messaging_audio_play_failed">Não foi possível reproduzir este áudio</string>
     <string name="connect_messaging_update_app_notice">Atualize o aplicativo para ver esta mensagem</string>
+    <string name="connect_messaging_settings_title">Configurações de mensagens</string>
+    <string name="connect_messaging_settings_any_network">No Wi-Fi e nos dados móveis</string>
+    <string name="connect_messaging_settings_tap_note">Os anexos que você tocar são sempre baixados na hora, em qualquer rede.</string>
+    <string name="connect_messaging_settings_auto_download_title">Baixar anexos automaticamente</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Anexos grandes (mais de 1 MB) somente no Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Somente download manual</string>
 </resources>

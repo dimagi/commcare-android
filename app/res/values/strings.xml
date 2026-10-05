@@ -510,6 +510,12 @@
     <string name="connect_messaging_audio_pause">Pause audio</string>
     <string name="connect_messaging_audio_play_failed">This audio could not be played</string>
     <string name="connect_messaging_update_app_notice">Update the app to see this message</string>
+    <string name="connect_messaging_settings_title">Messaging settings</string>
+    <string name="connect_messaging_settings_auto_download_title">Download attachments automatically</string>
+    <string name="connect_messaging_settings_any_network">On Wi-Fi and mobile data</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Large attachments (over 1 MB) only on Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Manual download only</string>
+    <string name="connect_messaging_settings_tap_note">Attachments you tap always download right away, on any network.</string>
     <string name="fcm_sync_failed_body_text">Click here to know more</string>
 
     <string name="connect_last_synced">Last synced: %s</string>

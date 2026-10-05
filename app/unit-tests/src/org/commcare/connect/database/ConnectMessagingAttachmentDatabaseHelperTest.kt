@@ -30,7 +30,7 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
     fun `attachment on a recent message is queued for download`() {
         storeIncomingMessage("message-1", daysAgo = 1)
 
-        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), now)
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), true, now)
 
         assertEquals(ConnectMessagingAttachmentState.QUEUED, stateOf("attachment-1"))
     }
@@ -39,7 +39,7 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
     fun `attachment on an old message waits for a tap`() {
         storeIncomingMessage("message-1", daysAgo = 10)
 
-        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), now)
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), true, now)
 
         assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("attachment-1"))
     }
@@ -47,13 +47,13 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
     @Test
     fun `redelivered attachment keeps its existing state and attempts`() {
         storeIncomingMessage("message-1", daysAgo = 1)
-        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), now)
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), true, now)
         val stored = ConnectMessagingAttachmentDatabaseHelper.getAttachment("attachment-1")!!
         stored.downloadState = ConnectMessagingAttachmentState.AVAILABLE
         stored.attempts = 2
         ConnectDatabaseHelper.getConnectStorage(ConnectMessagingAttachmentRecord::class.java).write(stored)
 
-        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), now)
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), true, now)
 
         val attachments = attachmentsOf("message-1")
         assertEquals(1, attachments.size)
@@ -67,6 +67,7 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
 
         ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
             listOf(attachment("attachment-b", "message-1", position = 1), attachment("attachment-a", "message-1", position = 0)),
+            true,
             now,
         )
 
@@ -74,6 +75,46 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
             listOf("attachment-a", "attachment-b"),
             attachmentsOf("message-1").map { it.attachmentId },
         )
+    }
+
+    @Test
+    fun `attachment on a recent message waits for a tap when automatic download is off`() {
+        storeIncomingMessage("message-1", daysAgo = 1)
+
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(listOf(attachment("attachment-1", "message-1")), false, now)
+
+        assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("attachment-1"))
+    }
+
+    @Test
+    fun `pending downloads go back to waiting and finished ones are kept`() {
+        storeIncomingMessage("message-1", daysAgo = 1)
+        ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
+            listOf(
+                attachment("queued", "message-1", position = 0),
+                attachment("downloading", "message-1", position = 1),
+                attachment("available", "message-1", position = 2),
+            ),
+            true,
+            now,
+        )
+        setState("downloading", ConnectMessagingAttachmentState.DOWNLOADING)
+        setState("available", ConnectMessagingAttachmentState.AVAILABLE)
+
+        ConnectMessagingAttachmentDatabaseHelper.returnPendingAttachmentsToWaiting()
+
+        assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("queued"))
+        assertEquals(ConnectMessagingAttachmentState.WAITING, stateOf("downloading"))
+        assertEquals(ConnectMessagingAttachmentState.AVAILABLE, stateOf("available"))
+    }
+
+    private fun setState(
+        attachmentId: String,
+        state: ConnectMessagingAttachmentState,
+    ) {
+        val attachment = ConnectMessagingAttachmentDatabaseHelper.getAttachment(attachmentId)!!
+        attachment.downloadState = state
+        ConnectMessagingAttachmentDatabaseHelper.save(attachment)
     }
 
     private fun storeIncomingMessage(
