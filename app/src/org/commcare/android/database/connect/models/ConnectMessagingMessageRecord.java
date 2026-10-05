@@ -169,8 +169,11 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     private static void readRichFields(ConnectMessagingMessageRecord record, JSONObject json, String key)
             throws JSONException, ParseException {
-        JSONObject richText = json.optJSONObject(JSON_RICH_TEXT);
-        if (richText != null) {
+        Object richTextValue = json.opt(JSON_RICH_TEXT);
+        if ("".equals(richTextValue)) {
+            record.richText = "";
+        } else if (richTextValue instanceof JSONObject) {
+            JSONObject richText = (JSONObject)richTextValue;
             String decryptedRichText = decrypt(
                     richText.optString(JSON_CIPHER_TEXT),
                     richText.optString(JSON_NONCE),

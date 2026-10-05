@@ -367,18 +367,19 @@ class RetrieveNotificationsResponseParserTest {
     }
 
     @Test
-    fun `version 2 message with blank rich text shows no text rather than its content`() {
+    fun `version 2 message with an empty rich text field shows no text rather than its content`() {
         val notification =
-            NotificationTestUtil.createRichMessagingNotification(
-                "msg_001",
-                "message_001",
-                "channel_001",
-                content = "Legacy placeholder",
-                richText = "",
-                attachments = listOf(NotificationTestUtil.createAttachmentJson(FIRST_ATTACHMENT_ID, "site-map.jpg")),
-            )
+            JSONObject(
+                NotificationTestUtil.createRichMessagingNotification(
+                    "msg_001",
+                    "message_001",
+                    "channel_001",
+                    content = "Legacy placeholder",
+                    attachments = listOf(NotificationTestUtil.createAttachmentJson(FIRST_ATTACHMENT_ID, "site-map.jpg")),
+                ),
+            ).put("rich_text", "")
 
-        val result = parseMessages(notification)
+        val result = parseMessages(notification.toString())
 
         val message = result.messages.single()
         assertEquals("", message.richText)
