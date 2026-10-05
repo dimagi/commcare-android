@@ -810,7 +810,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return false;
     }
 
-    public boolean processReturnFromGetCommand(int resultCode, Intent intent) {
+    private boolean processReturnFromGetCommand(int resultCode, Intent intent) {
         if (resultCode == RESULT_CANCELED) {
             return processCanceledGetCommandOrCase();
         } else if (resultCode == RESULT_OK) {
@@ -882,7 +882,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         }
     }
 
-    public void startNextSessionStepSafe() {
+    private void startNextSessionStepSafe() {
         try {
             sessionNavigator.startNextSessionStep();
         } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
@@ -1293,16 +1293,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             boolean manualSwitchToPwMode,
             boolean personalIdManagedLogin
     ) {
-        Intent intent;
-        if (DispatchActivity.useRootMenuHomeActivity()) {
-            intent = new Intent(context, RootMenuHomeActivity.class);
-            addPendingDataExtra(
-                    intent,
-                    CommCareApplication.instance().getCurrentSessionWrapper().getSession()
-            );
-        } else {
-            intent = new Intent(context, StandardHomeActivity.class);
-        }
+        Intent intent = new Intent(context, StandardHomeActivity.class);
         intent.putExtra(DispatchActivity.START_FROM_LOGIN, startFromLogin);
         intent.putExtra(LoginActivity.LOGIN_MODE, loginMode);
         intent.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);

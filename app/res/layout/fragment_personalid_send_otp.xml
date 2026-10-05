@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/personalid_send_email_otp_scroll_view"
+    android:id="@+id/send_otp_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?attr/colorSurface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -12,45 +12,46 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/personalid_send_email_otp_title"
+            android:id="@+id/send_otp_title"
+            style="@style/Widget.Connect.HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/personalid_send_email_otp_title"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:text="@string/personalid_send_email_otp_title" />
 
         <TextView
-            android:id="@+id/personalid_send_email_otp_subtitle"
+            android:id="@+id/send_otp_subtitle"
+            style="@style/Widget.Connect.BodyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:visibility="gone" />
 
         <TextView
+            style="@style/Widget.Connect.BodyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:text="@string/personalid_send_email_otp_description" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:background="@drawable/connect_view_info_card_border"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="@dimen/connect_space_lg">
 
             <ImageView
+                android:id="@+id/send_otp_icon"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_gravity="center_vertical"
@@ -63,53 +64,49 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="12dp"
+                android:layout_marginStart="@dimen/connect_space_md"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/send_otp_address_label"
+                    style="@style/Widget.Connect.LabelText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/personalid_send_email_otp_address_label"
-                    android:textColor="@color/connect_grey"
-                    android:textSize="12sp" />
+                    android:text="@string/personalid_send_email_otp_address_label" />
 
                 <TextView
-                    android:id="@+id/personalid_send_email_otp_address"
+                    android:id="@+id/send_otp_address"
+                    style="@style/Widget.Connect.ValueText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="@dimen/connect_space_xs"
                     android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textColor="@color/connect_dark_blue_color"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:maxLines="1" />
 
             </LinearLayout>
 
         </LinearLayout>
 
         <TextView
-            android:id="@+id/personalid_send_email_otp_error"
+            android:id="@+id/send_otp_error"
+            style="@style/Widget.Connect.ErrorText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:textColor="@color/red"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xs"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/personalid_send_email_otp_button"
-            style="@style/CustomButtonStyle"
+            android:id="@+id/send_otp_button"
+            style="@style/ConnectPrimaryButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:layout_marginBottom="@dimen/connect_space_lg"
             android:drawableEnd="@drawable/connect_right_arrow"
             android:text="@string/personalid_send_email_otp_button" />
 

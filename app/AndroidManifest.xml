@@ -190,7 +190,7 @@
         <activity
             android:name="org.commcare.activities.connect.PersonalIdActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <activity
             android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
@@ -201,7 +201,6 @@
             android:label="CommCare Forced Closure" />
         <activity android:name="org.commcare.activities.StandardHomeActivity"
             android:theme="@style/CommonTheme.NoActionBar"/>
-        <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
@@ -610,7 +609,7 @@
             android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"

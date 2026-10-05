@@ -45,8 +45,6 @@ public class CCAnalyticsEvent {
     static final String CCC_API_CLAIM_JOB = "ccc_api_claim_job";
     static final String CCC_API_DELIVERY_PROGRESS = "ccc_api_delivery_progress";
     static final String CCC_API_PAYMENT_CONFIRMATION = "ccc_api_payment_confirmation";
-    static final String CCC_PAYMENT_CONFIRMATION_DISPLAY = "ccc_payment_confirmation_display";
-    static final String CCC_PAYMENT_CONFIRMATION_INTERACT = "ccc_payment_confirmation_interact";
     static final String CCC_NOTIFICATION_TYPE = "ccc_notification_type";
     static final String CCC_BIOMETRIC_INVALIDATED = "ccc_biometric_invalidated";
     static final String CCC_MESSAGING = "ccc_messaging";

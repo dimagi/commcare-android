@@ -56,6 +56,8 @@
         <item name="colorSurface">@color/white</item>
         <item name="colorOnSurface">@color/connect_text_color</item>
         <item name="appBarLayoutStyle">@style/Widget.Connect.AppBarLayout</item>
+        <item name="toolbarStyle">@style/Widget.Connect.Toolbar</item>
+        <item name="connectNavDrawerForeground">@color/nav_drawer_text</item>
 
         <item name="connectBackground">@color/connect_background_color</item>
         <item name="connectSurfaceContainerLow">@color/cool_gray_50</item>
@@ -77,6 +79,7 @@
         <item name="connectStatusPositive">@color/connect_green</item>
         <item name="connectStatusPositiveContainer">@color/connect_light_green</item>
         <item name="connectStatusNegative">@color/red_600</item>
+        <item name="connectStatusWarning">@color/amber_800</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />
@@ -151,6 +154,11 @@
         <item name="android:stateListAnimator">@null</item>
         <item name="android:elevation">0dp</item>
         <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.Connect.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="titleTextAppearance">@style/TextStyle.Connect.TitleM</item>
+        <item name="subtitleTextAppearance">@style/TextStyle.Connect.LabelS</item>
     </style>
 
     <style name="ToolbarThemeOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">

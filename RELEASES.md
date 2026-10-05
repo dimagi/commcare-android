@@ -8,7 +8,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 #### What's New
 
-- The CommCare logo now appears only on the first screen of PersonalID sign-up and account recovery, rather than on every screen.
+- The CommCare logo no longer appears on any PersonalID sign-up or account recovery screen.
+- PersonalID sign-up, account recovery and profile screens now share consistent headings, text styles, spacing and colors.
 - Messaging and Work History now show the sidebar, and opening another sidebar section replaces the current one instead of stacking on top of it.
 - After an incorrect email or phone OTP code, PersonalID now shows how many attempts remain before a new code must be requested.
 - Opportunities whose visits have no daily limit now show today's visit count without a daily progress bar or "daily limit reached" warning.
@@ -17,18 +18,27 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - Backing out of the PersonalID phone number screen while the app is contacting the server no longer crashes the app.
 - When too many incorrect email or phone OTP codes are entered, the OTP code is now reported as no longer usable and the user is prompted to request a new one, instead of showing a generic error. The wait before a new OTP code can be requested is now shown accurately.
+- Fixed an issue where the day and year fields of the date widget used by date questions with a `gregorian` appearance could not be edited with the keyboard in landscape.
+
+#### Internal Release Notes
+
+- Removed the root-menu home screen (the root module grid with a side drawer) and the developer setting that enabled it. Consumer apps now open to the standard home screen.
 
 ### QA Notes
 
-- Step through PersonalID sign-up and account recovery and verify the CommCare logo shows only on the phone number screen.
+- Step through PersonalID sign-up and account recovery and verify the CommCare logo no longer appears, including on the phone number screen.
   - Confirm the name screen's app bar title reads "Name" and not "App Lock".
+- On every PersonalID sign-up, recovery and profile screen, including any message sheets that appear, confirm each screen has a heading and no text is oversized or clipped.
 - On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
 - After too many wrong email or phone OTP codes, the field clears, the message explains the OTP code can no longer be used, and Resend is offered straight away.
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
 - A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
 - In the forgot-backup-code recovery flow, running out of attempts keeps the user on the verification screen instead of ending the flow.
+- On an app whose menus display as a grid, open a module from the home screen and confirm the grid shows and items open as before.
+- On a consumer app, confirm login lands on the standard home screen and pressing back from the root menu returns there.
 - Enter wrong email OTP codes during sign-up, profile email edit, and forgot-backup-code recovery, and confirm the error shows the attempts remaining (2, then 1) before the "request a new code" message appears.
 - For an invited user receiving the phone OTP by SMS through PersonalID, confirm a wrong code likewise shows the attempts remaining.
+- Gregorian Date Widget: set a date in portrait, rotate to landscape, and update it with the keyboard. Tapping the day or the year field should bring up the keyboard's own full-width editor with a DONE key, and the value typed there should apply to the widget once DONE is pressed.
 - On an opportunity with no daily visit limit, confirm the delivery dashboard and the job tile on the app home screen show only today's visit count with no progress bar, and no daily-limit warning appears.
   - Confirm the opportunity intro and learning-complete screens omit the "Up to N per day" text for such opportunities.
   - On an opportunity that still has daily limits, confirm the daily progress bar and daily-limit warnings work as before.

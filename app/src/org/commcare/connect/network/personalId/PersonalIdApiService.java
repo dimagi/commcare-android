@@ -58,6 +58,13 @@ public interface PersonalIdApiService {
     Call<ResponseBody> validateSessionOtp(@Header("Authorization") String token,
             @Body Map<String, String> body);
 
+    @POST(PersonalIdApiEndpoints.VALIDATE_PHONE)
+    Call<ResponseBody> validatePhone(@Header("Authorization") String token);
+
+    @POST(PersonalIdApiEndpoints.CONFIRM_OTP)
+    Call<ResponseBody> confirmOtp(@Header("Authorization") String token,
+            @Body Map<String, String> body);
+
     @POST(PersonalIdApiEndpoints.SEND_EMAIL_OTP)
     Call<ResponseBody> sendEmailOtp(@Header("Authorization") String token,
                                     @Body Map<String, String> emailRequest);

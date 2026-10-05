@@ -62,7 +62,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
 
     private fun resumeResendTimer() {
         stopResendTimer()
-        resendHandler.postDelayed(resendTimerRunnable, 100)
+        resendTimerRunnable.run()
     }
 
     private fun stopResendTimer() {
