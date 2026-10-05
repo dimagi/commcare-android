@@ -5,6 +5,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingAttachmentSt
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState.EXPIRED
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState.FAILED
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState.QUEUED
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState.REQUESTED
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState.WAITING
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -27,18 +28,20 @@ class ConnectMessagingMessagePackageTest {
     }
 
     @Test
-    fun `a download in progress outranks a failed part`() {
+    fun `a download in progress or about to start outranks a failed part`() {
         assertEquals(DOWNLOADING, ConnectMessagingMessagePackage.stateOf(listOf(FAILED, DOWNLOADING)))
-        assertEquals(QUEUED, ConnectMessagingMessagePackage.stateOf(listOf(FAILED, QUEUED)))
+        assertEquals(DOWNLOADING, ConnectMessagingMessagePackage.stateOf(listOf(FAILED, REQUESTED)))
     }
 
     @Test
     fun `a failed part with nothing in progress fails the message`() {
         assertEquals(FAILED, ConnectMessagingMessagePackage.stateOf(listOf(AVAILABLE, FAILED, WAITING)))
+        assertEquals(FAILED, ConnectMessagingMessagePackage.stateOf(listOf(FAILED, QUEUED)))
     }
 
     @Test
-    fun `parts not yet requested leave the message waiting`() {
+    fun `parts not being downloaded leave the message ready to download`() {
         assertEquals(WAITING, ConnectMessagingMessagePackage.stateOf(listOf(AVAILABLE, WAITING)))
+        assertEquals(QUEUED, ConnectMessagingMessagePackage.stateOf(listOf(WAITING, QUEUED)))
     }
 }

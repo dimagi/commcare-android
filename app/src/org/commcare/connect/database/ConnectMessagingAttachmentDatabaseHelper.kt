@@ -64,10 +64,11 @@ object ConnectMessagingAttachmentDatabaseHelper {
         val requeued =
             attachments.filter {
                 it.downloadState == ConnectMessagingAttachmentState.WAITING ||
+                    it.downloadState == ConnectMessagingAttachmentState.QUEUED ||
                     it.downloadState == ConnectMessagingAttachmentState.FAILED
             }
         for (attachment in requeued) {
-            attachment.downloadState = ConnectMessagingAttachmentState.QUEUED
+            attachment.downloadState = ConnectMessagingAttachmentState.REQUESTED
             attachment.attempts = 0
             save(attachment)
         }

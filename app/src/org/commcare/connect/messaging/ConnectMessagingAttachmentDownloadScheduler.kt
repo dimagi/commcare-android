@@ -50,6 +50,7 @@ object ConnectMessagingAttachmentDownloadScheduler {
     const val SMALL_FILES_WORK_NAME = "${WORK_TAG}_small"
     const val LARGE_FILES_WORK_NAME = "${WORK_TAG}_large"
     private const val REQUESTED_WORK_NAME_PREFIX = "${WORK_TAG}_requested_"
+    private const val REQUESTED_RETRY_WORK_NAME_PREFIX = "${WORK_TAG}_retry_"
 
     @JvmStatic
     fun scheduleQueuedDownloads(context: Context) {
@@ -77,12 +78,27 @@ object ConnectMessagingAttachmentDownloadScheduler {
         context: Context,
         attachmentId: String,
     ) {
+        WorkManager.getInstance(context).cancelUniqueWork(requestedRetryWorkName(attachmentId))
         enqueueWork(
             context,
             requestedWorkName(attachmentId),
-            NetworkType.CONNECTED,
-            workDataOf(ConnectMessagingAttachmentDownloadWorker.KEY_ATTACHMENT_ID to attachmentId),
+            NetworkType.NOT_REQUIRED,
+            requestedData(attachmentId, isBackgroundRetry = false),
             ExistingWorkPolicy.REPLACE,
+        )
+    }
+
+    fun retryRequestedDownloadLater(
+        context: Context,
+        attachmentId: String,
+    ) {
+        enqueueWork(
+            context,
+            requestedRetryWorkName(attachmentId),
+            NetworkType.CONNECTED,
+            requestedData(attachmentId, isBackgroundRetry = true),
+            ExistingWorkPolicy.REPLACE,
+            PushNotificationApiHelper.SYNC_BACKOFF_DELAY_IN_MINS,
         )
     }
 
@@ -92,6 +108,17 @@ object ConnectMessagingAttachmentDownloadScheduler {
     }
 
     fun requestedWorkName(attachmentId: String) = REQUESTED_WORK_NAME_PREFIX + attachmentId
+
+    fun requestedRetryWorkName(attachmentId: String) = REQUESTED_RETRY_WORK_NAME_PREFIX + attachmentId
+
+    private fun requestedData(
+        attachmentId: String,
+        isBackgroundRetry: Boolean,
+    ): Data =
+        workDataOf(
+            ConnectMessagingAttachmentDownloadWorker.KEY_ATTACHMENT_ID to attachmentId,
+            ConnectMessagingAttachmentDownloadWorker.KEY_BACKGROUND_RETRY to isBackgroundRetry,
+        )
 
     private fun enqueueAutomaticDownloads(
         context: Context,
@@ -130,12 +157,14 @@ object ConnectMessagingAttachmentDownloadScheduler {
         networkType: NetworkType,
         inputData: Data,
         policy: ExistingWorkPolicy,
+        initialDelayMinutes: Long = 0,
     ) {
         val request =
             OneTimeWorkRequest
                 .Builder(ConnectMessagingAttachmentDownloadWorker::class.java)
                 .addTag(WORK_TAG)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(networkType).build())
+                .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
                 .setBackoffCriteria(
                     BackoffPolicy.EXPONENTIAL,
                     PushNotificationApiHelper.SYNC_BACKOFF_DELAY_IN_MINS,

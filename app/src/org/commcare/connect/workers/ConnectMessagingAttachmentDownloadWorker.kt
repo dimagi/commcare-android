@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler
 import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloader
 import org.commcare.connect.messaging.PersonalIdAttachmentFetcher
 import org.commcare.preferences.ConnectMessagingPreferences
@@ -22,8 +23,8 @@ class ConnectMessagingAttachmentDownloadWorker(
         if (!PersonalIdManager.getInstance().isloggedIn() || user == null) {
             return Result.success()
         }
-        val isRequestedByUser = inputData.getString(KEY_ATTACHMENT_ID) != null
-        if (!isRequestedByUser && !ConnectMessagingPreferences.isAutomaticDownloadEnabled(applicationContext)) {
+        val requestedAttachmentId = inputData.getString(KEY_ATTACHMENT_ID)
+        if (requestedAttachmentId == null && !ConnectMessagingPreferences.isAutomaticDownloadEnabled(applicationContext)) {
             return Result.success()
         }
         val downloader =
@@ -35,14 +36,17 @@ class ConnectMessagingAttachmentDownloadWorker(
         val result =
             withContext(DispatcherProvider.io()) {
                 ConnectMessagingAttachmentDownloader.passLock.withLock {
-                    downloader.runPass(isEligible, isRequestedByUser) { isStopped }
+                    downloader.runPass(isEligible) { isStopped }
                 }
             }
-        return if (result == ConnectMessagingAttachmentDownloader.PassResult.RETRY_LATER) {
-            Result.retry()
-        } else {
-            Result.success()
+        if (result != ConnectMessagingAttachmentDownloader.PassResult.RETRY_LATER) {
+            return Result.success()
         }
+        if (requestedAttachmentId != null && !inputData.getBoolean(KEY_BACKGROUND_RETRY, false)) {
+            ConnectMessagingAttachmentDownloadScheduler.retryRequestedDownloadLater(applicationContext, requestedAttachmentId)
+            return Result.success()
+        }
+        return Result.retry()
     }
 
     private fun eligibilityFromInput(): (ConnectMessagingAttachmentRecord) -> Boolean {
@@ -58,5 +62,6 @@ class ConnectMessagingAttachmentDownloadWorker(
         const val KEY_MIN_SIZE_BYTES = "min_size_bytes"
         const val KEY_MAX_SIZE_BYTES = "max_size_bytes"
         const val KEY_ATTACHMENT_ID = "attachment_id"
+        const val KEY_BACKGROUND_RETRY = "background_retry"
     }
 }

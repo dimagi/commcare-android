@@ -5,6 +5,7 @@ enum class ConnectMessagingAttachmentState(
 ) {
     WAITING("waiting"),
     QUEUED("queued"),
+    REQUESTED("requested"),
     DOWNLOADING("downloading"),
     AVAILABLE("available"),
     FAILED("failed"),

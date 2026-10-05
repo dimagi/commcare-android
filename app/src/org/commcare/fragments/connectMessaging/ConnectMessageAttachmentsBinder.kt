@@ -127,7 +127,7 @@ class ConnectMessageAttachmentsBinder(
         binding.ivAction.visibility = View.VISIBLE
         val canRequestDownload: Boolean
         when (pendingState) {
-            ConnectMessagingAttachmentState.QUEUED, ConnectMessagingAttachmentState.DOWNLOADING -> {
+            ConnectMessagingAttachmentState.REQUESTED, ConnectMessagingAttachmentState.DOWNLOADING -> {
                 binding.ivAction.visibility = View.GONE
                 binding.progress.visibility = View.VISIBLE
                 binding.tvLabel.setText(R.string.connect_messaging_attachment_downloading)
@@ -145,10 +145,13 @@ class ConnectMessageAttachmentsBinder(
                 binding.tvLabel.setText(R.string.connect_messaging_attachment_expired)
                 canRequestDownload = false
             }
-            ConnectMessagingAttachmentState.WAITING, ConnectMessagingAttachmentState.AVAILABLE -> {
+            ConnectMessagingAttachmentState.WAITING,
+            ConnectMessagingAttachmentState.QUEUED,
+            ConnectMessagingAttachmentState.AVAILABLE,
+            -> {
                 binding.ivAction.setImageResource(R.drawable.ic_connect_message_download)
                 binding.tvLabel.setText(R.string.connect_messaging_attachment_download)
-                canRequestDownload = pendingState == ConnectMessagingAttachmentState.WAITING
+                canRequestDownload = pendingState != ConnectMessagingAttachmentState.AVAILABLE
             }
         }
         if (canRequestDownload) {

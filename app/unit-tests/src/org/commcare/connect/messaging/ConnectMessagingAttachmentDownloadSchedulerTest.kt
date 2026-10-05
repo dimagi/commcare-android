@@ -9,12 +9,14 @@ import androidx.work.WorkManager
 import org.commcare.CommCareTestApplication
 import org.commcare.preferences.ConnectMessagingPreferences
 import org.commcare.preferences.ConnectMessagingPreferences.AttachmentAutoDownload
+import org.commcare.utils.PushNotificationApiHelper
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import java.util.concurrent.TimeUnit
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -56,17 +58,41 @@ class ConnectMessagingAttachmentDownloadSchedulerTest {
     }
 
     @Test
-    fun `a tapped attachment downloads on any network whatever the setting`() {
+    fun `a tapped attachment is attempted right away whatever the setting or network`() {
         for (setting in AttachmentAutoDownload.values()) {
             ConnectMessagingPreferences.setAttachmentAutoDownload(context, setting)
 
             ConnectMessagingAttachmentDownloadScheduler.downloadNow(context, "attachment-${setting.value}")
 
-            assertEquals(
-                NetworkType.CONNECTED,
-                pendingNetworkType(ConnectMessagingAttachmentDownloadScheduler.requestedWorkName("attachment-${setting.value}")),
-            )
+            val work = latestWork(ConnectMessagingAttachmentDownloadScheduler.requestedWorkName("attachment-${setting.value}"))
+            assertEquals(NetworkType.NOT_REQUIRED, work.constraints.requiredNetworkType)
+            assertEquals(0L, work.initialDelayMillis)
         }
+    }
+
+    @Test
+    fun `a failed tapped attachment is retried in the background once a network is available`() {
+        ConnectMessagingAttachmentDownloadScheduler.retryRequestedDownloadLater(context, "attachment-1")
+
+        val work = pendingWork(ConnectMessagingAttachmentDownloadScheduler.requestedRetryWorkName("attachment-1")).single()
+        assertEquals(NetworkType.CONNECTED, work.constraints.requiredNetworkType)
+        assertEquals(TimeUnit.MINUTES.toMillis(PushNotificationApiHelper.SYNC_BACKOFF_DELAY_IN_MINS), work.initialDelayMillis)
+    }
+
+    @Test
+    fun `tapping again replaces the pending background retry with an immediate attempt`() {
+        ConnectMessagingAttachmentDownloadScheduler.retryRequestedDownloadLater(context, "attachment-1")
+
+        ConnectMessagingAttachmentDownloadScheduler.downloadNow(context, "attachment-1")
+
+        assertEquals(
+            WorkInfo.State.CANCELLED,
+            latestWork(ConnectMessagingAttachmentDownloadScheduler.requestedRetryWorkName("attachment-1")).state,
+        )
+        assertEquals(
+            NetworkType.NOT_REQUIRED,
+            latestWork(ConnectMessagingAttachmentDownloadScheduler.requestedWorkName("attachment-1")).constraints.requiredNetworkType,
+        )
     }
 
     @Test
@@ -104,6 +130,13 @@ class ConnectMessagingAttachmentDownloadSchedulerTest {
             .getWorkInfosForUniqueWork(workName)
             .get()
             .filter { !it.state.isFinished }
+
+    private fun latestWork(workName: String): WorkInfo =
+        WorkManager
+            .getInstance(context)
+            .getWorkInfosForUniqueWork(workName)
+            .get()
+            .single()
 
     private fun pendingNetworkType(workName: String): NetworkType =
         pendingWork(workName).single().constraints.requiredNetworkType

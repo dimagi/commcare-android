@@ -109,25 +109,28 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
     }
 
     @Test
-    fun `requeueing a message queues its unfinished attachments and keeps finished ones`() {
+    fun `requeueing a message requests its unfinished attachments and keeps finished ones`() {
         storeIncomingMessage("message-1", daysAgo = 10)
         ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
             listOf(
                 attachment("waiting", "message-1", position = 0),
-                attachment("failed", "message-1", position = 1),
-                attachment("available", "message-1", position = 2),
+                attachment("queued", "message-1", position = 1),
+                attachment("failed", "message-1", position = 2),
+                attachment("available", "message-1", position = 3),
             ),
             true,
             now,
         )
+        setState("queued", ConnectMessagingAttachmentState.QUEUED)
         setState("failed", ConnectMessagingAttachmentState.FAILED)
         setState("available", ConnectMessagingAttachmentState.AVAILABLE)
 
         val requeued = ConnectMessagingAttachmentDatabaseHelper.requeueMessage("message-1")
 
-        assertEquals(listOf("waiting", "failed"), requeued)
-        assertEquals(ConnectMessagingAttachmentState.QUEUED, stateOf("waiting"))
-        assertEquals(ConnectMessagingAttachmentState.QUEUED, stateOf("failed"))
+        assertEquals(listOf("waiting", "queued", "failed"), requeued)
+        assertEquals(ConnectMessagingAttachmentState.REQUESTED, stateOf("waiting"))
+        assertEquals(ConnectMessagingAttachmentState.REQUESTED, stateOf("queued"))
+        assertEquals(ConnectMessagingAttachmentState.REQUESTED, stateOf("failed"))
         assertEquals(ConnectMessagingAttachmentState.AVAILABLE, stateOf("available"))
     }
 

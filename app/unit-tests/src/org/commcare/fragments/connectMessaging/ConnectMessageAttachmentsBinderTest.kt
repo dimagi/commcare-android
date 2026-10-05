@@ -76,6 +76,16 @@ class ConnectMessageAttachmentsBinderTest {
     }
 
     @Test
+    fun `message queued for automatic download shows the download tile until a download starts`() {
+        val tile = bindPendingTile(ConnectMessagingAttachmentState.QUEUED)
+
+        assertEquals(View.GONE, tile.progress.visibility)
+        assertEquals(context.getString(R.string.connect_messaging_attachment_download), tile.tvLabel.text.toString())
+        tile.root.performClick()
+        assertEquals(listOf("message-1"), requestedDownloads)
+    }
+
+    @Test
     fun `failed message download offers a retry`() {
         val tile = bindPendingTile(ConnectMessagingAttachmentState.FAILED)
 
@@ -86,12 +96,14 @@ class ConnectMessageAttachmentsBinderTest {
     }
 
     @Test
-    fun `downloading message shows progress and ignores taps`() {
-        val tile = bindPendingTile(ConnectMessagingAttachmentState.DOWNLOADING)
+    fun `downloading or just tapped message shows progress and ignores taps`() {
+        for (state in listOf(ConnectMessagingAttachmentState.DOWNLOADING, ConnectMessagingAttachmentState.REQUESTED)) {
+            val tile = bindPendingTile(state)
 
-        assertEquals(View.VISIBLE, tile.progress.visibility)
-        assertEquals(View.GONE, tile.ivAction.visibility)
-        assertFalse(tile.root.hasOnClickListeners())
+            assertEquals(View.VISIBLE, tile.progress.visibility)
+            assertEquals(View.GONE, tile.ivAction.visibility)
+            assertFalse(tile.root.hasOnClickListeners())
+        }
     }
 
     @Test
