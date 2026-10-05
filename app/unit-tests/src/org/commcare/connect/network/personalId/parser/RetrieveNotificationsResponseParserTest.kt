@@ -252,9 +252,8 @@ class RetrieveNotificationsResponseParserTest {
         parseResponse(response)
     }
 
-    @Test(expected = JSONException::class)
-    fun testParseNotificationMissingRequiredFields() {
-        // Test notification without required timestamp field
+    @Test
+    fun `push notification missing its timestamp is skipped and the rest still parse`() {
         val incompleteNotification =
             """
             {
@@ -263,15 +262,60 @@ class RetrieveNotificationsResponseParserTest {
                 "notification_type": "PUSH"
             }
             """.trimIndent()
-        val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(incompleteNotification))
+        val validNotification = NotificationTestUtil.createPushNotificationJson("push_001", "Title 1")
+        val response =
+            NotificationTestUtil.createCompleteResponse(
+                notifications = listOf(incompleteNotification, validNotification),
+            )
 
+        val result = parseWithStoredChannels(response, emptyList())
+
+        assertEquals(1, result.nonMessagingNotifications.size)
+        assertEquals("push_001", result.nonMessagingNotifications[0].notificationId)
+    }
+
+    @Test
+    fun `malformed messaging entry is skipped and not acknowledged while the rest still parse`() {
+        val malformedMessage =
+            """
+            {
+                "notification_id": "msg_bad",
+                "notification_type": "MESSAGING",
+                "channel": "channel_001"
+            }
+            """.trimIndent()
+        val validMessage =
+            NotificationTestUtil.createMessagingNotificationWithValidEncryption(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                "Hello",
+            )
+        val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(malformedMessage, validMessage))
+
+        val result = parseWithStoredChannels(response, listOf(channelWithTestKey("channel_001")))
+
+        assertEquals(listOf("message_001"), result.messages.map { it.messageId })
+        assertEquals(listOf("msg_001"), result.messagingNotificationIds)
+    }
+
+    private fun parseWithStoredChannels(
+        response: String,
+        storedChannels: List<ConnectMessagingChannelRecord>,
+    ): NotificationParseResult =
         mockStatic(ConnectMessagingDatabaseHelper::class.java).use { mockedHelper ->
             mockedHelper
                 .`when`<List<ConnectMessagingChannelRecord>> {
                     ConnectMessagingDatabaseHelper.getMessagingChannels(any())
-                }.thenReturn(emptyList())
-
+                }.thenReturn(storedChannels)
             parseResponse(response)
         }
+
+    private fun channelWithTestKey(channelId: String): ConnectMessagingChannelRecord {
+        val channel = mock(ConnectMessagingChannelRecord::class.java)
+        `when`(channel.channelId).thenReturn(channelId)
+        `when`(channel.key).thenReturn(NotificationTestUtil.TEST_ENCRYPTION_KEY)
+        `when`(channel.consented).thenReturn(true)
+        return channel
     }
 }
