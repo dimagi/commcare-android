@@ -15,9 +15,9 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
    **Unsupported versions** (anything but absent, 0 or 2) keep none of the message: only its id,
    channel, timestamp and version are stored, and it is not acked. The server redelivers it on
    every sync until an app that understands the version replaces the stored copy; read state is
-   kept while the version is unchanged. The chat shows an "Update the app to see this message"
-   tile, plus a banner above the input while the channel holds one; the channel list previews
-   it as "[Update the app to see this message]".
+   kept while the version is unchanged. The chat shows a "Your Android app needs to be updated to
+   view this message" tile, plus a soft red banner (`error_banner_bg`) above the input while the
+   channel holds one; the channel list previews it as "[Update the app to see this message]".
 2. **Storage** (Connect DB v30). `ConnectMessagingMessageRecord` holds the rich fields;
    `ConnectMessagingAttachmentRecord` (`connect_messaging_attachment`) holds one row per
    attachment, keyed by the server's attachment id. Re-delivered attachments keep their state.
