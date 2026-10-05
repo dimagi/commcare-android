@@ -15,19 +15,31 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
    attachment, keyed by the server's attachment id. Re-delivered attachments keep their state.
    Decrypted files live in `filesDir/connect_messaging_attachments/<attachment id>` and are
    deleted, with the download job cancelled, on PersonalID logout.
-3. **Download.** `ConnectMessagingAttachmentDownloadWorker` (unique WorkManager work, scheduled
-   after every sync and restarted on a tap) downloads queued attachments oldest message first,
-   checks the size, decrypts with the channel key (AES-256-GCM, nonce + ciphertext + tag) and
-   writes the file atomically. Network type and a large-file threshold are parameters in
-   `ConnectMessagingAttachmentDownloadConditions`; both are "any network" today.
+3. **Download.** `ConnectMessagingAttachmentDownloadWorker` downloads queued attachments oldest
+   message first, checks the size, decrypts with the channel key (AES-256-GCM, nonce +
+   ciphertext + tag) and writes the file atomically. Automatic downloads run as unique work
+   scheduled after every sync; a tapped attachment gets its own job on any network.
 4. **Chat.** Every state change sends `com.dimagi.messaging.update`; only the owning row
    redraws.
+
+## Automatic download setting
+
+Messaging home › ⋮ › Settings › "Download attachments automatically", stored in
+`ConnectMessagingPreferences` and cleared on PersonalID logout:
+
+| Option | Automatic downloads |
+|---|---|
+| On Wi-Fi and mobile data (default) | All attachments, any network |
+| Large attachments (over 1 MB) only on Wi-Fi | Up to 1 MB on any network; larger ones wait for an unmetered network |
+| Manual download only | None. New attachments start as `waiting`; switching to this returns pending downloads to `waiting` |
+
+Tapping an attachment always downloads it right away, whatever the setting.
 
 ## Attachment states
 
 | State | Set when | Shown as |
 |---|---|---|
-| `queued` | First stored, if the message is under 7 days old and among the channel's newest 50 incoming messages; or tapped | Spinner tile |
+| `queued` | First stored, if automatic download is on, the message is under 7 days old and among the channel's newest 50 incoming messages; or tapped | Spinner tile |
 | `waiting` | First stored, otherwise | Download tile |
 | `downloading` | The job picks it up (reset to `queued` if the job died) | Spinner tile |
 | `available` | Decrypted file on disk; kept after expiry | Image, audio player or file chip |
@@ -64,7 +76,8 @@ Dimensions, styles and icons are prefixed `connect_message_` / `ConnectMessage` 
 
 ## Edge cases
 
-- **Entry and back:** unchanged; attachments live inside the existing chat screen.
+- **Entry and back:** attachments live inside the existing chat screen; settings open from the
+  channel list menu and Back returns to the list.
 - **Session:** behind PersonalID like the rest of messaging; logout removes files and work.
 - **Lifecycle:** download state lives in the database, so it survives the app being killed.
   Audio position is not kept across rotation or leaving the chat.
