@@ -62,7 +62,7 @@ class ConnectProgressCard
             data class LinearProgress(
                 val label: CharSequence? = null,
                 val current: Int = 0,
-                val max: Int = 0,
+                val max: Int? = 0,
                 val caption: CharSequence? = null,
             )
 
@@ -152,11 +152,20 @@ class ConnectProgressCard
             bindOptionalText(binding.progressCardBarCaption, linearProgress?.caption)
 
             if (linearProgress == null) {
+                binding.progressCardLinearBar.visibility = VISIBLE
                 binding.progressCardLinearBar.setProgress(0f)
                 binding.progressCardBarCount.visibility = GONE
                 return
             }
 
+            if (linearProgress.max == null) {
+                binding.progressCardLinearBar.visibility = GONE
+                binding.progressCardBarCount.text = linearProgress.current.coerceAtLeast(0).toString()
+                binding.progressCardBarCount.visibility = VISIBLE
+                return
+            }
+
+            binding.progressCardLinearBar.visibility = VISIBLE
             val (current, max) = coerceProgress(linearProgress.current, linearProgress.max)
             binding.progressCardLinearBar.setProgress(ProgressUtils.calculateProgress(current, max) * 100f)
             if (max > 0) {

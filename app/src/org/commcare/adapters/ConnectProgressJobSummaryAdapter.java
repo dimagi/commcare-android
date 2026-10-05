@@ -36,6 +36,15 @@ public class ConnectProgressJobSummaryAdapter extends RecyclerView.Adapter<Conne
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ConnectDeliveryPaymentSummaryInfo summary = deliverySummaries.get(position);
         holder.tvPrimaryVisitTitle.setText(summary.getPaymentUnitName());
+        if (!summary.hasDailyLimit()) {
+            holder.lpPrimaryVisitProgress.setVisibility(View.GONE);
+            holder.tvPrimaryVisitCount.setText(
+                    String.format(Locale.getDefault(), "%d", summary.getPaymentUnitAmount())
+            );
+            return;
+        }
+
+        holder.lpPrimaryVisitProgress.setVisibility(View.VISIBLE);
         holder.tvPrimaryVisitCount.setText(String.format(Locale.getDefault(), "%d/%d",
                 summary.getPaymentUnitAmount(), summary.getPaymentUnitMaxDaily()));
 
