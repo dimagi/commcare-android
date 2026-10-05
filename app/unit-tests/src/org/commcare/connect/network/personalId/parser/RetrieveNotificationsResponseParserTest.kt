@@ -339,7 +339,7 @@ class RetrieveNotificationsResponseParserTest {
 
         val message = result.messages.single()
         assertTrue(message.isRich)
-        assertEquals("Plain text", message.message)
+        assertEquals("", message.message)
         assertEquals("**Rich** text", message.displayText)
         assertEquals("gallery", message.format)
         assertEquals(DateUtils.parseDateTime("2026-02-01T00:00:00Z"), message.expiresAt)
@@ -383,6 +383,7 @@ class RetrieveNotificationsResponseParserTest {
 
         val message = result.messages.single()
         assertEquals("", message.richText)
+        assertEquals("", message.message)
         assertEquals("", message.displayText)
         assertEquals(1, result.attachments.size)
     }

@@ -182,6 +182,9 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             );
             record.richText = decryptedRichText == null ? null : truncateMessage(decryptedRichText, MESSAGE);
         }
+        if (record.richText != null) {
+            record.message = "";
+        }
 
         record.format = json.has(JSON_FORMAT) ? json.getString(JSON_FORMAT) : null;
 

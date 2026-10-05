@@ -66,7 +66,17 @@ class ConnectMessagingMessageStorageTest {
         assertEquals("Site visit notes", message.displayText)
     }
 
-    private fun deliver(version: Int) {
+    @Test
+    fun `stored media-only message still shows no text instead of its legacy content`() {
+        deliver(version = 2, emptyRichText = true)
+
+        assertEquals("", storedMessage().displayText)
+    }
+
+    private fun deliver(
+        version: Int,
+        emptyRichText: Boolean = false,
+    ) {
         val json =
             JSONObject(
                 NotificationTestUtil.createRichMessagingNotification(
@@ -77,6 +87,9 @@ class ConnectMessagingMessageStorageTest {
                     version = version,
                 ),
             )
+        if (emptyRichText) {
+            json.put("rich_text", "")
+        }
         ConnectMessagingDatabaseHelper.storeMessagingMessages(
             context,
             listOf(ConnectMessagingMessageRecord.fromJson(json, listOf(channel))!!),
