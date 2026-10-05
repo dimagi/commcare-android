@@ -203,6 +203,19 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
+    fun `media message with blank text shows only its media`() {
+        val attachment = getDownloadedChat("a").attachments.single()
+        adapter.updateData(listOf(getRichChat("a", listOf(attachment), null, text = "")))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+
+        adapter.onBindViewHolder(holder, 0)
+
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        assertEquals(View.GONE, binding.tvChatMessage.visibility)
+        assertTrue(binding.llAttachments.getChildAt(0) is ConnectMessageAudioAttachmentView)
+    }
+
+    @Test
     fun `message too new for this app shows only the update placeholder`() {
         val chat = ConnectMessageChatData("a", ConnectMessageAdapter.LEFTVIEW, "", "them", Date(TIMESTAMP), false, emptyList(), true, null)
         adapter.updateData(listOf(chat))
@@ -235,7 +248,8 @@ class ConnectMessageAdapterTest {
         id: String,
         attachments: List<ConnectMessageAttachmentItem>,
         pendingState: ConnectMessagingAttachmentState?,
-    ) = ConnectMessageChatData(id, ConnectMessageAdapter.LEFTVIEW, "message $id", "them", Date(TIMESTAMP), false, attachments, false, pendingState)
+        text: String = "message $id",
+    ) = ConnectMessageChatData(id, ConnectMessageAdapter.LEFTVIEW, text, "them", Date(TIMESTAMP), false, attachments, false, pendingState)
 
     private object IgnoringAttachmentListener : ConnectMessageAttachmentListener {
         override fun onMessageDownloadRequested(messageId: String) = Unit

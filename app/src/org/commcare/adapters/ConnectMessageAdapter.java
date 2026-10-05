@@ -180,7 +180,8 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             boolean awaitingDownload = chat.isAwaitingDownload();
             boolean showsTile = unsupported || awaitingDownload;
             boolean hasAttachments = showsTile || !chat.getAttachments().isEmpty();
-            richBinding.tvChatMessage.setVisibility(showsTile ? View.GONE : View.VISIBLE);
+            boolean hasText = chat.getMessage() != null && !chat.getMessage().trim().isEmpty();
+            richBinding.tvChatMessage.setVisibility(showsTile || !hasText ? View.GONE : View.VISIBLE);
             ConstraintLayout.LayoutParams guidelineParams =
                     (ConstraintLayout.LayoutParams)richBinding.guideline.getLayoutParams();
             guidelineParams.guidePercent = hasAttachments
