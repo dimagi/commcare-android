@@ -7,7 +7,9 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
 ## Data flow
 
 1. **Sync.** `RetrieveNotificationsResponseParser` reads `version`, `rich_text`, `format`,
-   `expires_at` and `attachments` for version 2 messages. Unknown versions keep only `content`
+   `expires_at` and `attachments` for version 2 messages. Wherever a version 2 message's text
+   appears (chat and channel preview), `rich_text` is shown whenever present; `content` is only
+   the fallback when it is absent or fails to decrypt. Unknown versions keep only `content`
    and show an update notice. An entry that fails to parse is logged, skipped and not acked, so
    it can't block the rest of the sync.
 2. **Storage** (Connect DB v30). `ConnectMessagingMessageRecord` holds the rich fields;
