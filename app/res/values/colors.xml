@@ -124,7 +124,6 @@
     <color name="connect_message_receiver_bg">#5C6FD0</color>
     <color name="connect_message_sender_bg">#F1F5F9</color>
     <color name="connect_message_sender_text_color">#334155</color>
-    <color name="connect_message_large_icon_color">#16006D</color>
     <color name="connect_payment_revert">#EA6944</color>
     <color name="connect_payment_received_check">#94A3B8</color>
     <color name="connect_dark_blue_color">#3942C7</color>
