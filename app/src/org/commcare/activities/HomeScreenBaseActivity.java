@@ -35,7 +35,6 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.home.HomeActivityHost;
-import org.commcare.home.ServiceBackedSession;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
@@ -170,7 +169,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     private FirebaseMessagingDataSyncer dataSyncer;
     private boolean isVisible;
 
-    private final HomeActivityCoordinator coordinator = new HomeActivityCoordinator(this, new ServiceBackedSession());
+    private final HomeActivityCoordinator coordinator = new HomeActivityCoordinator(this);
 
     {
         dataSyncer = new FirebaseMessagingDataSyncer(this);

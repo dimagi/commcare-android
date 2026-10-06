@@ -13,7 +13,7 @@ import androidx.lifecycle.LifecycleOwner
  * - Owns the launch/nav instance state that describes *how the activity was launched*, persisting
  * it through the host's `SavedStateRegistry`.
  */
-class HomeActivityCoordinator(
+class HomeActivityCoordinator @JvmOverloads constructor(
     private val host: HomeActivityHost,
     session: SeatedAppSession = ServiceBackedSession(),
 ) : DefaultLifecycleObserver {
