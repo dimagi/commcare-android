@@ -195,7 +195,7 @@
             android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <activity
             android:name="org.commcare.activities.CrashWarningActivity"
             android:label="CommCare Forced Closure" />
