@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
+import org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -130,6 +131,14 @@ class HomeActivityCoordinatorTest {
 
         assertTrue(coordinator.wasExternal)
         assertFalse(coordinator.loginExtraWasConsumed)
+    }
+
+    @Test
+    fun `only in-app update results are reported as consumed`() {
+        val coordinator = HomeActivityCoordinator(FakeHomeActivityHost(), FakeSeatedAppSession())
+
+        assertTrue(coordinator.onActivityResult(IN_APP_UPDATE_REQUEST_CODE, RESULT_OK, null))
+        assertFalse(coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent()))
     }
 
     private companion object {

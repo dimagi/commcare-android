@@ -69,15 +69,15 @@ class HomeActivityCoordinator(
     }
 
     /**
-     * Fan an activity result out to the delegates that need it
+     * Fan an activity result out to the delegates that need it.
+     *
+     * @return true when a delegate consumed the result and the host should not handle it further
      */
     fun onActivityResult(
         requestCode: Int,
         resultCode: Int,
         intent: Intent?,
-    ) {
-        appUpdate.onActivityResult(requestCode, resultCode)
-    }
+    ): Boolean = appUpdate.onActivityResult(requestCode, resultCode)
 
     /**
      * Consume any saved launch/nav state and register the provider that writes it back. Idempotent.

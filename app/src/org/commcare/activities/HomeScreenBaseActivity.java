@@ -108,7 +108,6 @@ import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
 import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
-import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync;
 
@@ -184,12 +183,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     public HomeActivityCoordinator getCoordinator() {
         return coordinator;
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        coordinator.onActivityResult(requestCode, resultCode, intent);
-        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     @Override
@@ -608,6 +601,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+        if (coordinator.onActivityResult(requestCode, resultCode, intent)) {
+            return;
+        }
         if (resultCode == RESULT_RESTART) {
             if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
                 selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
@@ -738,8 +734,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
                     break;
-                case IN_APP_UPDATE_REQUEST_CODE:
-                    return;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
