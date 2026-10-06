@@ -245,7 +245,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             setUpEnterKeyAction(binding.customOtpView.getChildAt(childCount - 1) as EditText)
         }
         updateVerificationMessage()
-        requireActivity().setTitle(R.string.connect_verify_phone_title)
+        setTitle(R.string.connect_verify_phone_title)
 
         return binding.root
     }

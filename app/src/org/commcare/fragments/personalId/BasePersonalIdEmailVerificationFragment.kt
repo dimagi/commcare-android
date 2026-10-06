@@ -116,7 +116,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
     ): View {
         binding = FragmentPersonalidEmailVerificationBinding.inflate(inflater, container, false)
         activity = requireActivity()
-        activity.setTitle(R.string.personalid_email_verification_appbar_title)
+        setTitle(R.string.personalid_email_verification_appbar_title)
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
 
         binding.emailVerificationDescription.text =
