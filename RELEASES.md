@@ -12,11 +12,13 @@ This file is meant as an easy way for us to collate notes and change logs across
 - PersonalID sign-up, account recovery and profile screens now share consistent headings, text styles, spacing and colors.
 - Messaging and Work History now show the sidebar, and opening another sidebar section replaces the current one instead of stacking on top of it.
 - After an incorrect email or phone OTP code, PersonalID now shows how many attempts remain before a new code must be requested.
+- Opportunities whose visits have no daily limit now show today's visit count without a daily progress bar or "daily limit reached" warning.
 
 #### Important Bug Fixes
 
 - Backing out of the PersonalID phone number screen while the app is contacting the server no longer crashes the app.
 - When too many incorrect email or phone OTP codes are entered, the OTP code is now reported as no longer usable and the user is prompted to request a new one, instead of showing a generic error. The wait before a new OTP code can be requested is now shown accurately.
+- Fixed an issue where the day and year fields of the date widget used by date questions with a `gregorian` appearance could not be edited with the keyboard in landscape.
 
 #### Internal Release Notes
 
@@ -36,6 +38,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - On a consumer app, confirm login lands on the standard home screen and pressing back from the root menu returns there.
 - Enter wrong email OTP codes during sign-up, profile email edit, and forgot-backup-code recovery, and confirm the error shows the attempts remaining (2, then 1) before the "request a new code" message appears.
 - For an invited user receiving the phone OTP by SMS through PersonalID, confirm a wrong code likewise shows the attempts remaining.
+- Gregorian Date Widget: set a date in portrait, rotate to landscape, and update it with the keyboard. Tapping the day or the year field should bring up the keyboard's own full-width editor with a DONE key, and the value typed there should apply to the widget once DONE is pressed.
+- On an opportunity with no daily visit limit, confirm the delivery dashboard and the job tile on the app home screen show only today's visit count with no progress bar, and no daily-limit warning appears.
+  - Confirm the opportunity intro and learning-complete screens omit the "Up to N per day" text for such opportunities.
+  - On an opportunity that still has daily limits, confirm the daily progress bar and daily-limit warnings work as before.
 
 ## CommCare 2.64.1
 

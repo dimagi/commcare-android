@@ -5,20 +5,26 @@ import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import org.commcare.CommCareTestApplication
+import org.commcare.android.shadows.ShadowPhoneAuthProvider
+import org.commcare.android.util.FirebaseTestUtils
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.fragments.personalId.PersonalIdProfileSendEmailOtpFragmentArgs
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
-import org.robolectric.shadows.ShadowToast
 
-@Config(application = CommCareTestApplication::class)
+@Config(
+    application = CommCareTestApplication::class,
+    sdk = [31],
+    shadows = [ShadowPhoneAuthProvider::class],
+)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdProfileBackupCodeChangeEmailFragmentTest : BasePersonalIdProfileTest() {
     private val fragmentArgs =
@@ -30,6 +36,8 @@ class PersonalIdProfileBackupCodeChangeEmailFragmentTest : BasePersonalIdProfile
 
     @Before
     fun navigateToBackupCodeForEmailChange() {
+        FirebaseTestUtils.initializeDefaultAppIfNeeded()
+        ShadowPhoneAuthProvider.reset()
         PersonalIdUserPreferences.clearBackupCodeLockout()
         user.pin = "123456"
         onUiThread {
@@ -59,6 +67,12 @@ class PersonalIdProfileBackupCodeChangeEmailFragmentTest : BasePersonalIdProfile
     fun `correct code navigates to send email otp fragment`() {
         setCodeAndContinue("123456")
         assertEquals(R.id.personalid_send_email_otp_fragment, currentDestinationId())
+        val args =
+            PersonalIdProfileSendEmailOtpFragmentArgs.fromBundle(
+                navHostFragment.childFragmentManager.primaryNavigationFragment!!.requireArguments(),
+            )
+        assertEquals("grace@example.com", args.email)
+        assertFalse(args.masked)
     }
 
     @Test
@@ -69,14 +83,16 @@ class PersonalIdProfileBackupCodeChangeEmailFragmentTest : BasePersonalIdProfile
     }
 
     @Test
-    fun `forgot backup code with no stored email shows toast and pops back`() {
+    fun `forgot backup code with no stored email routes to send phone otp with the pending email`() {
         user.email = null
         onUiThread { forgotButton().performClick() }
-        assertEquals(
-            activity.getString(R.string.personalid_profile_add_email_toast),
-            ShadowToast.getTextOfLatestToast(),
-        )
-        assertEquals(R.id.personalid_profile_fragment, currentDestinationId())
+
+        assertEquals(R.id.personalid_profile_send_phone_otp_fragment, currentDestinationId())
+        val args =
+            PersonalIdProfileSendPhoneOtpFragmentArgs.fromBundle(
+                navHostFragment.childFragmentManager.primaryNavigationFragment!!.requireArguments(),
+            )
+        assertEquals("grace@example.com", args.pendingEmail)
     }
 
     @Test

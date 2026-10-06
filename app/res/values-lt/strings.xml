@@ -105,6 +105,7 @@
     <string name="personalid_send_email_otp_pending_backup_code_title">Nustatyti atsarginį kodą</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">Jūsų paskyroje dar nėra atsarginio kodo. Patvirtinkite savo el. pašto adresą žemiau, kad jį nustatytumėte.</string>
     <string name="personalid_send_email_otp_title">Atkurti atsarginį kodą</string>
+    <string name="personalid_send_phone_otp_title">Patvirtinkite savo telefono numerį</string>
     <string name="personalid_send_email_otp_description">Išsiųsime patvirtinimo kodą į:</string>
     <string name="personalid_send_email_otp_button">Siųsti kodą</string>
     <string name="personalid_send_email_otp_address_label">Atkūrimo el. paštas</string>
