@@ -12,6 +12,7 @@
     -->
     <attr name="connectBackground" format="reference|color" />
     <attr name="connectSurfaceContainerLow" format="reference|color" />
+    <attr name="connectSurfaceContainerHigh" format="reference|color" />
     <attr name="connectPrimaryContainer" format="reference|color" />
     <attr name="connectOnPrimaryContainer" format="reference|color" />
     <attr name="connectInversePrimary" format="reference|color" />

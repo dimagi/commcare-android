@@ -191,7 +191,12 @@
     <dimen name="connect_tab_badge_size">16dp</dimen>
     <dimen name="connect_icon_circle_lg">40dp</dimen>
     <dimen name="connect_icon_circle_padding_lg">10dp</dimen>
+    <dimen name="connect_input_field_icon_tile">32dp</dimen>
+    <dimen name="connect_trailing_icon_space">40dp</dimen>
+    <dimen name="connect_menu_item_height">40dp</dimen>
     <!-- Corner radii -->
+    <dimen name="connect_radius_none">0dp</dimen>
+    <dimen name="connect_radius_xs">4dp</dimen>
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>
     <dimen name="connect_radius_lg">16dp</dimen>
@@ -203,6 +208,7 @@
     <dimen name="connect_button_elevation">3dp</dimen>
     <!-- Strokes -->
     <dimen name="connect_stroke_hairline">1dp</dimen>
+    <dimen name="connect_stroke_emphasis">2dp</dimen>
     <!-- Opportunity list card -->
     <dimen name="connect_radius_md">12dp</dimen>
     <dimen name="connect_job_badge_ring_size">48dp</dimen>

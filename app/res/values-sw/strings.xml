@@ -245,8 +245,8 @@
     <string name="dependency_missing_dialog_playstore_not_found">Hakuna Duka la Google Play lililopatikana kwenye kifaa chako</string>
     <string name="fcm_default_notification_channel">arifa-chaneli-kusukuma-arifa</string>
     <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
-    <string name="personalid_welcome_user">Karibu %s!</string>
     <string name="personalid_choice_or">____________ AU _____________</string>
+    <string name="login_choice_or">AU</string>
     <string name="connect_download_delivery">Pakua Uwasilishaji</string>
     <string name="connect_app_install_setting_up">Inasanidi programu…</string>
     <string name="connect_app_finishing_install">Inakamilisha usakinishaji…</string>
@@ -527,7 +527,7 @@
     <string name="connect_message_you">Wewe</string>
     <string name="connect_message_them">Wao</string>
     <string name="fcm_sync_failed_body_text">Bofya hapa kujua zaidi</string>
-    <string name="personalid_login_via_connect">Tayari kuingia!\n</string>
+    <string name="personalid_login_via_connect">Tayari kuingia!</string>
     <string name="personalid_failed_to_login_with_connectid">Tunakabiliwa na hitilafu isiyoweza kurekebishwa wakati wa kuunganisha kuingia kwa kutumia Kitambulisho chako cha Kibinafsi. Tafadhali ingia na nenosiri lako au urejeshe kuingia kwa Kitambulisho chako cha Kibinafsi</string>
     <string name="personalid_name_appbar_title">Jina</string>
     <string name="personalid_name_fragment_title">Ingiza jina lako</string>

@@ -12,7 +12,7 @@
             android:id="@+id/nav_drawer_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white">
+            android:background="?attr/connectSurfaceContainerLow">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="fill_parent"
@@ -76,122 +76,141 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
+                            android:paddingTop="@dimen/connect_space_xl"
                             android:paddingBottom="@dimen/content_start"
                             android:paddingEnd="@dimen/login_box_margins"
                             android:paddingLeft="@dimen/login_box_margins"
                             android:paddingRight="@dimen/login_box_margins"
                             android:paddingStart="@dimen/login_box_margins">
 
-                            <TextView
-                                android:textStyle="bold"
-                                android:id="@+id/welcome_msg"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_margin="@dimen/content_min_margin"
-                                android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium" />
-
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/connect_login_button"
-                                android:layout_width="fill_parent"
+                                style="@style/Widget.Connect.FilledButton"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="bottom"
-                                android:paddingTop="@dimen/content_start"
-                                android:paddingBottom="@dimen/content_start"
                                 android:text="@string/connect_button_logged_in"
                                 android:visibility="gone"/>
 
-                            <TextView
-                                android:textStyle="bold"
+                            <LinearLayout
                                 android:id="@+id/login_or"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_margin="@dimen/content_min_margin"
-                                android:text="@string/personalid_choice_or"
-                                android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"
-                                android:visibility="gone"/>
+                                android:layout_marginTop="@dimen/connect_space_lg"
+                                android:layout_marginBottom="@dimen/connect_space_lg"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:visibility="gone">
+
+                                <View
+                                    style="@style/Widget.Connect.Separator"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1" />
+
+                                <TextView
+                                    style="@style/Widget.Connect.BodyText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/connect_space_lg"
+                                    android:layout_marginEnd="@dimen/connect_space_lg"
+                                    android:text="@string/login_choice_or" />
+
+                                <View
+                                    style="@style/Widget.Connect.Separator"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1" />
+                            </LinearLayout>
 
                             <Spinner
                                 android:id="@+id/app_selection_spinner"
+                                style="@style/Widget.Connect.Dropdown"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_marginBottom="@dimen/cell_padding_vertical"
-                                android:gravity="center"
-                                android:textSize="@dimen/text_medium"
+                                android:layout_marginBottom="@dimen/connect_space_xl"
                                 android:visibility="gone" />
 
                             <TextView
                                 android:id="@+id/login_via_connect"
+                                style="@style/Widget.Connect.BodyText"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:layout_margin="@dimen/content_min_margin"
-                                android:textStyle="bold"
                                 android:text="@string/personalid_login_via_connect"
-                                android:textColor="@color/cc_neutral_color"
-                                android:textSize="@dimen/text_medium"
                                 android:visibility="gone"/>
 
-                            <AutoCompleteTextView
-                                android:id="@+id/edit_username"
-                                style="@style/LoginEditTextV2"
-                                android:layout_width="fill_parent"
-                                android:paddingLeft="15dp"
-                                android:layout_height="50dp"
-                                android:background="@drawable/login_edit_text"
-                                android:drawableStart="@drawable/icon_user_neutral50"
-                                android:hint="Username"
-                                android:imeOptions="actionNext"
-                                android:inputType="text"
-                                android:nextFocusDown="@+id/edit_password"
-                                android:textAlignment="viewStart"
-                                android:textSize="18sp"
-                                tools:ignore="RtlCompat">
+                            <LinearLayout
+                                android:id="@+id/username_wrapper"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
 
-                            </AutoCompleteTextView>
+                                <ImageView
+                                    android:id="@+id/username_icon"
+                                    style="@style/Widget.Connect.InputFieldIconTile"
+                                    app:srcCompat="@drawable/ic_outline_person_24" />
 
-                            <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                android:id="@+id/password_wrapper"
-                                android:layout_width="wrap_content"
-                                android:layout_height="50dp"
-                                android:padding="0dp"
-                                android:layout_marginTop="15dp"
-                                android:background="@drawable/login_edit_text">
-
-                                <EditText
-                                    android:id="@+id/edit_password"
-                                    style="@style/LoginEditTextV2"
-                                    android:layout_width="fill_parent"
-                                    android:layout_height="match_parent"
-                                    android:background="@null"
-                                    android:drawableStart="@drawable/icon_lock_neutral50"
-                                    android:hint="Password"
-                                    android:textSize="18sp"
-                                    android:imeOptions="actionDone"
-                                    android:inputType="textPassword"
-                                    android:nextFocusUp="@+id/edit_username"
-                                    android:textAlignment="viewStart"
-                                    tools:ignore="RtlCompat" />
-
-                                <Button
-                                    android:id="@+id/show_password"
-                                    android:layout_width="wrap_content"
+                                <com.google.android.material.textfield.TextInputLayout
+                                    android:id="@+id/username_input_layout"
+                                    style="@style/Widget.Connect.TextInputLayout"
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
-                                    android:layout_alignBottom="@+id/edit_password"
-                                    android:layout_alignEnd="@+id/edit_password"
-                                    android:layout_alignRight="@+id/edit_password"
-                                    android:layout_alignTop="@+id/edit_password"
-                                    android:background="@android:color/transparent"
-                                    android:padding="@dimen/spacer_small"
-                                    android:src="@drawable/close_cross_icon"
-                                    android:textColor="@color/cc_brand_color"
-                                    android:textSize="@dimen/font_size_dp_medium"
-                                    android:visibility="invisible" />
-                            </RelativeLayout>
+                                    android:layout_weight="1">
+
+                                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                        android:id="@+id/edit_username"
+                                        style="@style/Widget.Connect.TextInputEditText"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:imeOptions="actionNext"
+                                        android:inputType="text"
+                                        android:nextFocusDown="@+id/edit_password"
+                                        android:textAlignment="viewStart" />
+                                </com.google.android.material.textfield.TextInputLayout>
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/password_wrapper"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/connect_space_xl"
+                                android:orientation="horizontal">
+
+                                <ImageView
+                                    android:id="@+id/password_icon"
+                                    style="@style/Widget.Connect.InputFieldIconTile"
+                                    app:srcCompat="@drawable/ic_outline_lock_24" />
+
+                                <FrameLayout
+                                    android:id="@+id/password_input_field"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1">
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:id="@+id/password_input_layout"
+                                        style="@style/Widget.Connect.TextInputLayout"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content">
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/edit_password"
+                                            style="@style/Widget.Connect.TextInputEditText"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:imeOptions="actionDone"
+                                            android:inputType="textPassword"
+                                            android:nextFocusUp="@+id/edit_username"
+                                            android:paddingEnd="@dimen/connect_text_button_min_width"
+                                            android:textAlignment="viewStart" />
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <com.google.android.material.button.MaterialButton
+                                        android:id="@+id/show_password"
+                                        style="@style/Widget.Connect.InputFieldInlineButton"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:visibility="invisible" />
+                                </FrameLayout>
+                            </LinearLayout>
 
                             <CheckBox
                                 android:id="@+id/restore_session_checkbox"
@@ -204,37 +223,35 @@
 
                             <TextView
                                 android:id="@+id/primed_password_message"
-                                android:layout_width="fill_parent"
+                                style="@style/Widget.Connect.BodyText"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_margin="@dimen/standard_spacer"
-                                android:textSize="@dimen/font_size_medium"
+                                android:layout_marginTop="@dimen/connect_space_lg"
                                 android:visibility="gone" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/login_button"
-                                android:layout_width="fill_parent"
+                                style="@style/Widget.Connect.FilledButton"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="bottom"
-                                android:textAllCaps="true"
-                                android:nextFocusUp="@+id/edit_password"
-                               />
+                                android:layout_marginTop="@dimen/connect_space_xl"
+                                android:nextFocusUp="@+id/edit_password" />
 
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="24dp"
-                                android:layout_marginTop="@dimen/content_min_margin"
+                                android:layout_marginBottom="@dimen/connect_space_xl"
+                                android:layout_marginTop="@dimen/connect_space_lg"
                                 android:orientation="vertical"
                                 android:visibility="gone">
 
                                 <TextView
                                     android:id="@+id/screen_login_bad_password"
-                                    android:layout_width="fill_parent"
+                                    style="@style/Widget.Connect.ErrorText"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:gravity="center"
-                                    android:textColor="@color/red"
-                                    android:textStyle="bold" />
+                                    android:gravity="center" />
 
                                 <FrameLayout
                                     android:id="@+id/btn_view_errors_container"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="@dimen/connect_radius_card" />
+    <solid android:color="?attr/colorSurface" />
+    <padding
+        android:bottom="@dimen/connect_space_sm"
+        android:top="@dimen/connect_space_sm" />
+</shape>
