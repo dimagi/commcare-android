@@ -41,3 +41,5 @@ app/fabric.properties
 CLAUDE.md
 .claude/worktrees/
 .claude/settings.local.json
+.kotlin/
+.vscode/
