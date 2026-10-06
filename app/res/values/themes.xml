@@ -80,6 +80,7 @@
         <item name="connectStatusPositiveContainer">@color/connect_light_green</item>
         <item name="connectStatusNegative">@color/red_600</item>
         <item name="connectStatusWarning">@color/amber_800</item>
+        <item name="connectStatusWarningContainer">@color/amber_100</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />

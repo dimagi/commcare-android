@@ -78,7 +78,7 @@ class ConnectProgressCard
                 val onCtaClick: (() -> Unit)? = null,
                 val appearance: Appearance = Appearance.INFO,
             ) {
-                /** [WARNING] adds a warning icon and inverts the banner to blue-on-grey. */
+                /** [WARNING] adds a warning icon and switches the banner to the warning colours. */
                 enum class Appearance { INFO, WARNING }
             }
         }
@@ -203,12 +203,12 @@ class ConnectProgressCard
             val background =
                 MaterialColors.getColor(
                     this,
-                    if (isWarning) R.attr.connectOutlineVariant else com.google.android.material.R.attr.colorPrimary,
+                    if (isWarning) R.attr.connectStatusWarningContainer else com.google.android.material.R.attr.colorPrimary,
                 )
             val foreground =
                 MaterialColors.getColor(
                     this,
-                    if (isWarning) com.google.android.material.R.attr.colorPrimary else com.google.android.material.R.attr.colorOnPrimary,
+                    if (isWarning) R.attr.connectStatusWarning else com.google.android.material.R.attr.colorOnPrimary,
                 )
 
             binding.progressCardInfoMessage.setCardBackgroundColor(background)

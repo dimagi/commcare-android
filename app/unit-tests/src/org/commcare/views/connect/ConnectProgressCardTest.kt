@@ -278,7 +278,7 @@ class ConnectProgressCardTest {
         val text = card.findViewById<TextView>(R.id.progress_card_info_text)
         val icon = card.findViewById<ImageView>(R.id.progress_card_info_icon)
 
-        val blue = MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary)
+        val amber = MaterialColors.getColor(card, R.attr.connectStatusWarning)
 
         card.bind(
             State(
@@ -291,12 +291,12 @@ class ConnectProgressCardTest {
         )
 
         assertEquals(
-            ContextCompat.getColor(card.context, R.color.connect_light_grey),
+            ContextCompat.getColor(card.context, R.color.amber_100),
             box.cardBackgroundColor.defaultColor,
         )
-        assertEquals(blue, text.currentTextColor)
+        assertEquals(amber, text.currentTextColor)
         assertEquals(View.VISIBLE, icon.visibility)
-        assertEquals(blue, ImageViewCompat.getImageTintList(icon)?.defaultColor)
+        assertEquals(amber, ImageViewCompat.getImageTintList(icon)?.defaultColor)
     }
 
     @Test
