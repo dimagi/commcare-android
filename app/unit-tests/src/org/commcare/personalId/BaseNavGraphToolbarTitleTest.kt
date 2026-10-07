@@ -70,7 +70,9 @@ abstract class BaseNavGraphToolbarTitleTest {
         getFragmentToFragmentActions(context, graphRes).forEach { action ->
             val sourceScreen = screens.getValue(action.sourceId)
             val targetScreen = screens.getValue(action.destinationId)
-            verifyCase("${getResourceNameForId(context, sourceScreen.destinationId)} -> ${getResourceNameForId(context, targetScreen.destinationId)}") {
+            val sourceName = getResourceNameForId(context, sourceScreen.destinationId)
+            val targetName = getResourceNameForId(context, targetScreen.destinationId)
+            verifyCase("$sourceName -> $targetName") {
                 launchHostActivity()
                 val startScreen = screens.getValue(hostNavController.graph.startDestinationId)
                 val openedScreens = mutableListOf(startScreen)
