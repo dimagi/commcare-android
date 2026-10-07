@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
@@ -22,6 +23,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
+import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
@@ -151,6 +153,7 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_preferences).setTitle(Localization.get("home.menu.settings"));
         menu.findItem(R.id.action_set_pin).setTitle(Localization.get("home.menu.pin.set"));
         menu.findItem(R.id.action_update_commcare).setTitle(Localization.get("home.menu.update.commcare"));
+        menu.findItem(R.id.action_clear_user_data).setTitle(Localization.get("clear.user.data"));
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -167,6 +170,7 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_advanced).setVisible(enableMenus);
         menu.findItem(R.id.action_about).setVisible(enableMenus);
         menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
+        menu.findItem(R.id.action_clear_user_data).setVisible(isDemoUser());
         preparePinMenu(menu, enableMenus);
         return true;
     }
@@ -218,6 +222,9 @@ public class StandardHomeActivity
         } else if (itemId == R.id.action_update_commcare) {
             startCommCareUpdate();
             return true;
+        } else if (itemId == R.id.action_clear_user_data) {
+            AdvancedActionsPreferences.clearUserData(this);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -239,6 +246,8 @@ public class StandardHomeActivity
                 AnalyticsParamValue.ITEM_ABOUT_CC);
         menuIdToAnalyticsEvent.put(R.id.action_update_commcare,
                 AnalyticsParamValue.ITEM_UPDATE_CC_PLATFORM);
+        menuIdToAnalyticsEvent.put(R.id.action_clear_user_data,
+                AnalyticsParamValue.ITEM_CLEAR_USER_DATA);
         return menuIdToAnalyticsEvent;
     }
 

@@ -32,6 +32,7 @@ public class AnalyticsParamValue {
     public static final String ITEM_FORM_HIERARCHY = "form_hierarchy";
     public static final String ITEM_CHANGE_FORM_SETTINGS = "change_settings";
     public static final String ITEM_UPDATE_CC_PLATFORM = "update_commcare_platform";
+    public static final String ITEM_CLEAR_USER_DATA = "clear_user_data";
     public static final String CC_SETUP_MENU_OFFLINE_INSTALL = "cc_setup_menu_offline_install";
     public static final String CC_SETUP_MENU_INSTALL_FROM_LIST = "cc_setup_menu_install_from_list";
     public static final String CC_SETUP_MENU_PERSONAL_ID_FORGET =

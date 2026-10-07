@@ -172,9 +172,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
 
         Preference clearDataButton = findPreference(CLEAR_USER_DATA);
         clearDataButton.setOnPreferenceClickListener(preference -> {
-            FirebaseAnalyticsUtil.reportAdvancedActionSelected(
-                    AnalyticsParamValue.CLEAR_USER_DATA);
-            clearUserData((AppCompatActivity)getActivity());
+            reportAndClearUserData((AppCompatActivity)getActivity());
             return true;
         });
 
@@ -269,6 +267,11 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private void startConnectionTest() {
         Intent i = new Intent(getActivity(), ConnectionDiagnosticActivity.class);
         startActivity(i);
+    }
+
+    public static void reportAndClearUserData(AppCompatActivity activity) {
+        FirebaseAnalyticsUtil.reportAdvancedActionSelected(AnalyticsParamValue.CLEAR_USER_DATA);
+        clearUserData(activity);
     }
 
     public static void clearUserData(final AppCompatActivity activity) {
