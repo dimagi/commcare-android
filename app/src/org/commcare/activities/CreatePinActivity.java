@@ -31,24 +31,24 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone (astone@dimagi.com)
  */
-@ManagedUi(R.layout.create_pin_view)
+@ManagedUi("create_pin_view")
 public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinActivity> {
 
     private static final int MENU_REMEMBER_PW_AND_LOGOUT = Menu.FIRST;
 
-    @UiElement(value = R.id.pin_entry)
+    @UiElement(value = "pin_entry")
     private EditText enterPinBox;
 
-    @UiElement(value = R.id.pin_prompt_text)
+    @UiElement(value = "pin_prompt_text")
     private TextView promptText;
 
-    @UiElement(value = R.id.pin_cancel_button, locale = "pin.cancel.button")
+    @UiElement(value = "pin_cancel_button", locale = "pin.cancel.button")
     private Button cancelButton;
 
-    @UiElement(value = R.id.pin_confirm_button)
+    @UiElement(value = "pin_confirm_button")
     private Button continueButton;
 
-    @UiElement(value = R.id.extra_msg, locale = "pin.primed.mode.message")
+    @UiElement(value = "extra_msg", locale = "pin.primed.mode.message")
     private TextView primedModeMessage;
 
     public static final String CHOSE_REMEMBER_PASSWORD = "chose-remember-password";

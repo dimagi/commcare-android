@@ -230,7 +230,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         CrashUtil.init();
         DataChangeLogger.init(this);
         if (!BuildConfig.DEBUG) {
-            FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
+            initFirebasePerformance();
         }
 
         logFirstCommCareRun();
@@ -287,6 +287,10 @@ public class CommCareApplication extends Application implements LifecycleEventOb
 
     protected void loadSqliteLibs() {
         System.loadLibrary("sqlcipher");
+    }
+
+    protected void initFirebasePerformance() {
+        FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
     }
 
     protected void turnOnStrictMode() {

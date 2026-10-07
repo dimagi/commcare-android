@@ -38,7 +38,7 @@ import okhttp3.RequestBody;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@ManagedUi(R.layout.http_request_layout)
+@ManagedUi("http_request_layout")
 public class PostRequestActivity
         extends SyncCapableCommCareActivity<PostRequestActivity>
         implements ConnectorWithHttpResponseProcessor<PostRequestActivity> {
@@ -51,10 +51,10 @@ public class PostRequestActivity
     public static final String URL_KEY = "url-key";
     public static final String PARAMS_KEY = "params-key";
 
-    @UiElement(value = R.id.request_button, locale = "post.request.button")
+    @UiElement(value = "request_button", locale = "post.request.button")
     private Button retryButton;
 
-    @UiElement(value = R.id.error_message)
+    @UiElement(value = "error_message")
     private TextView errorMessageBox;
 
     private URL url;

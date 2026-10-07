@@ -33,24 +33,24 @@ import androidx.appcompat.app.ActionBar;
 /**
  * @author ctsims
  */
-@ManagedUi(R.layout.screen_recovery)
+@ManagedUi("screen_recovery")
 public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
 
     private static final int MENU_APP_MANAGER = Menu.FIRST;
 
-    @UiElement(R.id.recovery_title)
+    @UiElement("recovery_title")
     TextView titleTv;
 
-    @UiElement(R.id.recovery_progress)
+    @UiElement("recovery_progress")
     ProgressBar loadingIndicator;
 
-    @UiElement(R.id.recovery_status)
+    @UiElement("recovery_status")
     TextView statusTv;
 
-    @UiElement(R.id.app_manager_button)
+    @UiElement("app_manager_button")
     Button appManagerBt;
 
-    @UiElement(R.id.retry_button)
+    @UiElement("retry_button")
     Button retryBt;
 
     @Override

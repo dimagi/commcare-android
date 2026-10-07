@@ -28,22 +28,22 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author srengesh
  */
-@ManagedUi(R.layout.connection_diagnostic)
+@ManagedUi("connection_diagnostic")
 public class ConnectionDiagnosticActivity extends CommCareActivity<ConnectionDiagnosticActivity> {
     private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
 
-    @UiElement(value = R.id.run_connection_test, locale = "connection.test.run")
+    @UiElement(value = "run_connection_test", locale = "connection.test.run")
     Button btnRunTest;
 
-    @UiElement(value = R.id.output_message, locale = "connection.test.messages")
+    @UiElement(value = "output_message", locale = "connection.test.messages")
     TextView txtInteractiveMessages;
 
-    @UiElement(value = R.id.settings_button, locale = "connection.test.access.settings")
+    @UiElement(value = "settings_button", locale = "connection.test.access.settings")
     Button settingsButton;
 
-    @UiElement(value = R.id.report_button, locale = "connection.test.report.button.message")
+    @UiElement(value = "report_button", locale = "connection.test.report.button.message")
     Button reportButton;
 
     @Override
