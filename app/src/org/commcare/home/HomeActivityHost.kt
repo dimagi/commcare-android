@@ -2,6 +2,7 @@ package org.commcare.home
 
 import android.content.Context
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.savedstate.SavedStateRegistryOwner
 import org.commcare.views.dialogs.CommCareAlertDialog
 
@@ -11,6 +12,9 @@ import org.commcare.views.dialogs.CommCareAlertDialog
 interface HomeActivityHost : SavedStateRegistryOwner {
     /** The host as a [Context], for delegates that build intents and read resources. */
     val hostContext: Context
+
+    /** The host as an [AppCompatActivity], for update flows that need a real activity. */
+    val hostActivity: AppCompatActivity
 
     /** Launch [intent] for [requestCode]; results come back through the host's `onActivityResult`. */
     fun startActivityForResult(

@@ -166,7 +166,8 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_preferences).setVisible(enableMenus);
         menu.findItem(R.id.action_advanced).setVisible(enableMenus);
         menu.findItem(R.id.action_about).setVisible(enableMenus);
-        menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
+        menu.findItem(R.id.action_update_commcare).setVisible(
+                enableMenus && getCoordinator().getAppUpdate().getShowCommCareUpdateMenu());
         preparePinMenu(menu, enableMenus);
         return true;
     }
@@ -195,7 +196,7 @@ public class StandardHomeActivity
                 menuIdToAnalyticsParam.get(item.getItemId()));
         int itemId = item.getItemId();
         if (itemId == R.id.action_update) {
-            launchUpdateActivity(false);
+            getCoordinator().getAppUpdate().launchUpdateActivity(false);
             return true;
         } else if (itemId == R.id.action_saved_forms) {
             goToFormArchive(false);
@@ -216,7 +217,7 @@ public class StandardHomeActivity
             launchPinAuthentication();
             return true;
         } else if (itemId == R.id.action_update_commcare) {
-            startCommCareUpdate();
+            getCoordinator().getAppUpdate().startCommCareUpdate();
             return true;
         }
 
