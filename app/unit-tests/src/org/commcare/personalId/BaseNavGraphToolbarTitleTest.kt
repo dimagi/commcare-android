@@ -3,10 +3,12 @@ package org.commcare.personalId
 import android.app.Activity
 import android.content.Context
 import androidx.annotation.NavigationRes
+import androidx.core.os.BundleCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.DialogFragmentNavigator
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.pressBackUnconditionally
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.NavGraphTitleTestSupport.assertToolbarTitle
 import org.commcare.personalId.NavGraphTitleTestSupport.getFragmentToFragmentActions
 import org.commcare.personalId.NavGraphTitleTestSupport.getResourceNameForId
@@ -51,7 +53,10 @@ abstract class BaseNavGraphToolbarTitleTest {
     @Test
     fun `each fragment shows its title on arrival`() {
         (screens.values + extraArrivalScreens).forEach { screen ->
-            val workflow = screen.args?.get("workflow")?.let { " $it" } ?: ""
+            val workflow =
+                screen.args
+                    ?.let { BundleCompat.getSerializable(it, "workflow", EmailWorkFlow::class.java) }
+                    ?.let { " $it" } ?: ""
             verifyCase("${getResourceNameForId(context, screen.destinationId)}$workflow") {
                 launchHostActivity()
                 navigateToScreen(screen.destinationId, screen)
