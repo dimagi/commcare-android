@@ -68,7 +68,7 @@ public class EntityListCalloutDataTest {
         EntityView entityView = (EntityView)adapter.getView(0, null, null);
         int entityColumnCount = entityView.getChildCount();
 
-        performFingerprintCallout();
+        performFingerprintCallout(entitySelectActivity);
 
         // ensure that the entity list is filtered by the received callout
         // result data (fingerprint identification list with confidence score)
@@ -97,7 +97,7 @@ public class EntityListCalloutDataTest {
         EntityView entityView = (EntityView)adapter.getView(0, null, null);
         int entityColumnCount = entityView.getChildCount();
 
-        performFingerprintCallout();
+        performFingerprintCallout(entitySelectActivity);
 
         // ensure that the entity list is filtered by the received callout
         // result data (fingerprint identification list with confidence score)
@@ -111,7 +111,7 @@ public class EntityListCalloutDataTest {
         assertEquals(entityColumnCount, entityView.getChildCount());
     }
 
-    private void performFingerprintCallout() {
+    static void performFingerprintCallout(EntitySelectActivity entitySelectActivity) {
         // make entity list callout to 'fingerprint identification'
         entitySelectActivity.barcodeScanOnClickListener.onClick(null);
 
@@ -125,7 +125,7 @@ public class EntityListCalloutDataTest {
         shadowEntitySelect.receiveResult(calloutIntent, AppCompatActivity.RESULT_OK, responseIntent);
     }
 
-    private static Intent buildIdentificationResultIntent() {
+    static Intent buildIdentificationResultIntent() {
         Intent i = new Intent();
         ArrayList<Identification> matchingList = new ArrayList<>();
         matchingList.add(new Identification("b319e951-03f1-4172-b662-4fb3964a0be7", 99, Tier.TIER_1)); // stan

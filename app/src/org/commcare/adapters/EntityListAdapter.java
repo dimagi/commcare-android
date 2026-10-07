@@ -133,6 +133,8 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
         isFilteringByCalloutResult = false;
         setCurrent(full);
         calloutResponseData.clear();
+        CommCareApplication.instance().getCurrentSession()
+                .removeExtraFromCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
     }
 
     @Override
@@ -430,11 +432,14 @@ public class EntityListAdapter extends AndroidSortableEntityAdapter implements L
 
     public void saveCalloutDataToSession() {
         if (isFilteringByCalloutResult) {
-            SessionWrapper session = CommCareApplication.instance().getCurrentSession();
-            session.removeExtraFromCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
-            session.addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA,
-                    calloutResponseData);
+            saveCalloutDataToSession(calloutResponseData);
         }
+    }
+
+    public static void saveCalloutDataToSession(OrderedHashtable<String, String> calloutData) {
+        SessionWrapper session = CommCareApplication.instance().getCurrentSession();
+        session.removeExtraFromCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
+        session.addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutData);
     }
 
 }
