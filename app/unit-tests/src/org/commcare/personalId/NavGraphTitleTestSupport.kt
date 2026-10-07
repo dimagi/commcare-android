@@ -1,7 +1,6 @@
 package org.commcare.personalId
 
 import android.content.Context
-import android.content.res.XmlResourceParser
 import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.annotation.NavigationRes
@@ -13,6 +12,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import org.commcare.dalvik.R
+import org.commcare.utils.getAndroidIdAttribute
 import org.hamcrest.Matchers.allOf
 import org.xmlpull.v1.XmlPullParser
 
@@ -29,7 +29,6 @@ data class NavAction(
 )
 
 object NavGraphTitleTestSupport {
-    private const val ANDROID_NS = "http://schemas.android.com/apk/res/android"
     private const val APP_NS = "http://schemas.android.com/apk/res-auto"
 
     fun assertToolbarTitle(
@@ -51,12 +50,12 @@ object NavGraphTitleTestSupport {
                 if (parser.eventType != XmlPullParser.START_TAG) continue
                 when (parser.name) {
                     "fragment" -> {
-                        sourceId = parser.idAttribute()
+                        sourceId = parser.getAndroidIdAttribute()
                     }
 
                     "dialog" -> {
                         sourceId = null
-                        dialogIds += parser.idAttribute()
+                        dialogIds += parser.getAndroidIdAttribute()
                     }
 
                     "action" -> {
@@ -64,7 +63,7 @@ object NavGraphTitleTestSupport {
                             actions +=
                                 NavAction(
                                     sourceId = it,
-                                    actionId = parser.idAttribute(),
+                                    actionId = parser.getAndroidIdAttribute(),
                                     destinationId = parser.getAttributeResourceValue(APP_NS, "destination", 0),
                                 )
                         }
@@ -81,6 +80,4 @@ object NavGraphTitleTestSupport {
         context: Context,
         @IdRes id: Int,
     ): String = context.resources.getResourceEntryName(id)
-
-    private fun XmlResourceParser.idAttribute(): Int = getAttributeResourceValue(ANDROID_NS, "id", 0)
 }
