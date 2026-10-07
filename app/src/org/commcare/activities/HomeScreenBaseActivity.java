@@ -15,7 +15,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
-import com.google.android.play.core.install.model.InstallErrorCode;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
@@ -27,9 +26,6 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.appupdate.AppUpdateControllerFactory;
-import org.commcare.appupdate.AppUpdateState;
-import org.commcare.appupdate.FlexibleAppUpdateController;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.core.process.CommCareInstanceInitializer;
@@ -37,7 +33,6 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.heartbeat.UpdatePromptHelper;
 import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.home.HomeActivityHost;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -76,7 +71,6 @@ import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -86,8 +80,6 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
-import org.commcare.views.notifications.NotificationMessage;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -115,7 +107,6 @@ import static org.commcare.activities.DriftHelper.getDriftDialog;
 import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
 import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
-import static org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync;
 
@@ -168,11 +159,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     // different activity or starting a UI-blocking task
     private boolean redirectedInOnCreate = false;
 
-    private FlexibleAppUpdateController appUpdateController;
-    private static final String APP_UPDATE_NOTIFICATION = "app_update_notification";
-    protected boolean showCommCareUpdateMenu = false;
-    private static final int MAX_CC_UPDATE_CANCELLATION = 3;
-
     // This is to trigger a background sync after a form submission,
     private boolean shouldTriggerBackgroundSync = true;
 
@@ -199,12 +185,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        coordinator.onActivityResult(requestCode, resultCode, intent);
-        super.onActivityResult(requestCode, resultCode, intent);
-    }
-
-    @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
@@ -214,11 +194,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
-        appUpdateController = AppUpdateControllerFactory.create(
-                this::handleAppUpdate,
-                getApplicationContext()
-        );
-        appUpdateController.register();
     }
 
     private void updateLastSuccessfulCommCareVersion() {
@@ -387,7 +362,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             return true;
         }
 
-        if (UpdatePromptHelper.promptForUpdateIfNeeded(this, false)) {
+        if (coordinator.getAppUpdate().promptForUpdateIfNeeded(false)) {
             return true;
         }
         checkForPinLaunchConditions();
@@ -625,6 +600,9 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
     @Override
     public void onActivityResultSessionSafe(int requestCode, int resultCode, Intent intent) {
+        if (coordinator.onActivityResult(requestCode, resultCode, intent)) {
+            return;
+        }
         if (resultCode == RESULT_RESTART) {
             if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
                 selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
@@ -755,16 +733,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);
                     break;
-                case IN_APP_UPDATE_REQUEST_CODE:
-                    if (resultCode == RESULT_CANCELED
-                            && appUpdateController.availableVersionCode() != null) {
-                        // An update was available for CommCare but user denied updating.
-                        HiddenPreferences.incrementCommCareUpdateCancellationCounter(
-                                String.valueOf(appUpdateController.availableVersionCode()));
-                        // User might be busy right now, so let's not ask him again in this session.
-                        CommCareApplication.instance().getSession().hideInAppUpdate();
-                    }
-                    return;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
@@ -1242,12 +1210,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return i;
     }
 
-    public void launchUpdateActivity(boolean autoProceedUpdateInstall) {
-        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
-        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, autoProceedUpdateInstall);
-        startActivity(i);
-    }
-
     void enterTrainingModule() {
         CommCareApplication.instance().getCurrentSession().setCommand(
                 org.commcare.suite.model.Menu.TRAINING_MENU_ROOT);
@@ -1515,7 +1477,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 || isLastTaskUpdateLaterThanLastSync(this)) {
             triggerSync(true);
             kickedOff = true;
-        } else if (UpdatePromptHelper.promptForUpdateIfNeeded(this, true)) {
+        } else if (coordinator.getAppUpdate().promptForUpdateIfNeeded(true)) {
             kickedOff = true;
         }
 
@@ -1633,6 +1595,12 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         return this;
     }
 
+    @NonNull
+    @Override
+    public AppCompatActivity getHostActivity() {
+        return this;
+    }
+
     @Override
     public void refreshHostUi() {
         refreshUI();
@@ -1703,115 +1671,6 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     abstract void refreshUI();
-
-    @Override
-    protected void onDestroy() {
-        if (appUpdateController != null) {
-            appUpdateController.unregister();
-        }
-        super.onDestroy();
-    }
-
-    protected void startCommCareUpdate() {
-        appUpdateController.startUpdate(this);
-    }
-
-    private void handleAppUpdate() {
-        AppUpdateState state = appUpdateController.getStatus();
-        switch (state) {
-            case UNAVAILABLE:
-                if (ConnectivityStatus.isNetworkAvailable(this)) {
-                    // We just queried and found that no update is available.
-                    // Let's check again in next session.
-                    CommCareApplication.instance().getSession().hideInAppUpdate();
-                } else {
-                    Logger.log(LogTypes.TYPE_NETWORK, "No Internet");
-                }
-                break;
-            case AVAILABLE:
-                if (HiddenPreferences.getCommCareUpdateCancellationCounter(
-                        String.valueOf(appUpdateController.availableVersionCode()))
-                        > MAX_CC_UPDATE_CANCELLATION) {
-                    showCommCareUpdateMenu = true;
-                    refreshActionSurface();
-                    return;
-                }
-                startCommCareUpdate();
-                break;
-            case DOWNLOADING:
-                // Native downloads app gives a notification regarding the current download in
-                // progress.
-                NotificationMessage message = NotificationMessageFactory.message(
-                        NotificationMessageFactory.StockMessages.InApp_Update,
-                        APP_UPDATE_NOTIFICATION
-                );
-                CommCareApplication.notificationManager().reportNotificationMessage(message);
-                if (showCommCareUpdateMenu) {
-                    // Once downloading is started, we shouldn't show the update menu anymore.
-                    showCommCareUpdateMenu = false;
-                    refreshActionSurface();
-                }
-                break;
-            case DOWNLOADED:
-                CommCareApplication.notificationManager().clearNotifications(
-                        APP_UPDATE_NOTIFICATION);
-                StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(
-                        Localization.get("in.app.update.installed.title"),
-                        Localization.get("in.app.update.installed.detail"),
-                        null
-                );
-                dialog.setPositiveButton(
-                        Localization.get("in.app.update.dialog.restart"),
-                        (dialog1, which) -> {
-                            appUpdateController.completeUpdate();
-                            dialog1.dismiss();
-                        }
-                );
-                dialog.setNegativeButton(
-                        Localization.get("in.app.update.dialog.cancel"),
-                        (dialog1, which) -> {
-                            dialog1.dismiss();
-                        }
-                );
-                showAlertDialog(dialog);
-                FirebaseAnalyticsUtil.reportInAppUpdateResult(
-                        true,
-                        AnalyticsParamValue.IN_APP_UPDATE_SUCCESS
-                );
-                break;
-            case FAILED:
-                String errorReason = "in.app.update.error.unknown";
-                switch (appUpdateController.getErrorCode()) {
-                    case InstallErrorCode.ERROR_INSTALL_NOT_ALLOWED:
-                        errorReason = "in.app.update.error.not.allowed";
-                        break;
-                    case InstallErrorCode.NO_ERROR_PARTIALLY_ALLOWED:
-                        errorReason = "in.app.update.error.partially.allowed";
-                        break;
-                    case InstallErrorCode.ERROR_UNKNOWN:
-                        errorReason = "in.app.update.error.unknown";
-                        break;
-                    case InstallErrorCode.ERROR_PLAY_STORE_NOT_FOUND:
-                        errorReason = "in.app.update.error.playstore";
-                        break;
-                    case InstallErrorCode.ERROR_INVALID_REQUEST:
-                        errorReason = "in.app.update.error.invalid.request";
-                        break;
-                    case InstallErrorCode.ERROR_INTERNAL_ERROR:
-                        errorReason = "in.app.update.error.internal.error";
-                        break;
-                }
-                Logger.log(
-                        LogTypes.TYPE_CC_UPDATE,
-                        "CommCare In App Update failed because : " + errorReason
-                );
-                CommCareApplication.notificationManager().clearNotifications(
-                        APP_UPDATE_NOTIFICATION);
-                Toast.makeText(this, Localization.get(errorReason), Toast.LENGTH_LONG).show();
-                FirebaseAnalyticsUtil.reportInAppUpdateResult(false, errorReason);
-                break;
-        }
-    }
 
     @Override
     public ReentrantLock getBackgroundSyncLock() {
