@@ -270,6 +270,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             otpRequestTime = DateTime.parse(otpRequestTimeString)
         }
         binding.connectPhoneVerifyButton.isEnabled = verifyButtonEnabled
+        binding.customOtpView.isEnabled = !otpLimitExceeded
     }
 
     private fun setupListeners() {

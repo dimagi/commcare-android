@@ -369,6 +369,36 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             activity.getString(R.string.personalid_otp_request_code),
             (resendButton() as TextView).text.toString(),
         )
+        assertEquals(
+            activity.getString(R.string.connect_verify_phone_resend),
+            fragment
+                .requireView()
+                .findViewById<TextView>(R.id.connect_phone_verify_resend)
+                .text
+                .toString(),
+        )
+    }
+
+    @Test
+    fun `an expired firebase code keeps code entry closed across a configuration change`() {
+        submitFirebaseCodeRejectedWith(
+            FirebaseAuthInvalidCredentialsException("ERROR_SESSION_EXPIRED", "expired"),
+        )
+
+        recreateFragment()
+
+        assertFalse("Nothing can be typed until a new code is requested", codeView().isEnabled)
+        assertEquals(View.VISIBLE, resendButton().visibility)
+    }
+
+    @Test
+    fun `a code that has run out of attempts keeps code entry closed across a configuration change`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(otpLimitExceededResponse())
+
+        recreateFragment()
+
+        assertFalse("Nothing can be typed until a new code is requested", codeView().isEnabled)
     }
 
     // ========== OTP_LIMIT_EXCEEDED ==========
