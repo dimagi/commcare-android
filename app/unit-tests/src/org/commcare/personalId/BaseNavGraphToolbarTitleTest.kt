@@ -8,8 +8,8 @@ import androidx.navigation.fragment.DialogFragmentNavigator
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.pressBackUnconditionally
 import org.commcare.personalId.NavGraphTitleTestSupport.assertToolbarTitle
-import org.commcare.personalId.NavGraphTitleTestSupport.describe
-import org.commcare.personalId.NavGraphTitleTestSupport.fragmentToFragmentActions
+import org.commcare.personalId.NavGraphTitleTestSupport.getFragmentToFragmentActions
+import org.commcare.personalId.NavGraphTitleTestSupport.getResourceNameForId
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -33,18 +33,18 @@ abstract class BaseNavGraphToolbarTitleTest {
 
     protected abstract val hostNavController: NavController
 
-    protected abstract fun launch()
+    protected abstract fun launchHostActivity()
 
     @Test
     fun `every fragment destination has an expected title`() {
-        launch()
+        launchHostActivity()
         val fragmentIds =
             hostNavController.graph
                 .filterNot { it is DialogFragmentNavigator.Destination }
                 .map { it.id }
         assertEquals(
-            fragmentIds.map { describe(context, it) }.toSet(),
-            screens.keys.map { describe(context, it) }.toSet(),
+            fragmentIds.map { getResourceNameForId(context, it) }.toSet(),
+            screens.keys.map { getResourceNameForId(context, it) }.toSet(),
         )
     }
 
@@ -52,9 +52,9 @@ abstract class BaseNavGraphToolbarTitleTest {
     fun `each fragment shows its title on arrival`() {
         (screens.values + extraArrivalScreens).forEach { screen ->
             val workflow = screen.args?.get("workflow")?.let { " $it" } ?: ""
-            check("${describe(context, screen.destinationId)}$workflow") {
-                launch()
-                navigate(screen.destinationId, screen)
+            verifyCase("${getResourceNameForId(context, screen.destinationId)}$workflow") {
+                launchHostActivity()
+                navigateToScreen(screen.destinationId, screen)
                 assertToolbarTitle(screen.titleRes)
             }
         }
@@ -62,36 +62,36 @@ abstract class BaseNavGraphToolbarTitleTest {
 
     @Test
     fun `pressing back from each forward navigation restores the visible screen's title`() {
-        fragmentToFragmentActions(context, graphRes).forEach { action ->
-            val source = screens.getValue(action.sourceId)
-            val target = screens.getValue(action.destinationId)
-            check("${describe(context, source.destinationId)} -> ${describe(context, target.destinationId)}") {
-                launch()
-                val start = screens.getValue(hostNavController.graph.startDestinationId)
-                val opened = mutableListOf(start)
-                if (source != start) {
-                    navigate(source.destinationId, source)
-                    opened += source
+        getFragmentToFragmentActions(context, graphRes).forEach { action ->
+            val sourceScreen = screens.getValue(action.sourceId)
+            val targetScreen = screens.getValue(action.destinationId)
+            verifyCase("${getResourceNameForId(context, sourceScreen.destinationId)} -> ${getResourceNameForId(context, targetScreen.destinationId)}") {
+                launchHostActivity()
+                val startScreen = screens.getValue(hostNavController.graph.startDestinationId)
+                val openedScreens = mutableListOf(startScreen)
+                if (sourceScreen != startScreen) {
+                    navigateToScreen(sourceScreen.destinationId, sourceScreen)
+                    openedScreens += sourceScreen
                 }
-                navigate(action.actionId, target)
-                opened += target
-                assertToolbarTitle(target.titleRes)
+                navigateToScreen(action.actionId, targetScreen)
+                openedScreens += targetScreen
+                assertToolbarTitle(targetScreen.titleRes)
 
                 pressBackUnconditionally()
                 ShadowLooper.idleMainLooper()
 
                 if (!currentActivity.isFinishing) {
                     val currentId = hostNavController.currentDestination!!.id
-                    val visible =
-                        opened.lastOrNull { it.destinationId == currentId }
-                            ?: throw AssertionError("Back landed on unexpected destination ${describe(context, currentId)}")
-                    assertToolbarTitle(visible.titleRes)
+                    val visibleScreen =
+                        openedScreens.lastOrNull { it.destinationId == currentId }
+                            ?: throw AssertionError("Back landed on unexpected destination ${getResourceNameForId(context, currentId)}")
+                    assertToolbarTitle(visibleScreen.titleRes)
                 }
             }
         }
     }
 
-    private fun navigate(
+    private fun navigateToScreen(
         resId: Int,
         screen: TitledScreen,
     ) {
@@ -99,7 +99,7 @@ abstract class BaseNavGraphToolbarTitleTest {
         ShadowLooper.idleMainLooper()
     }
 
-    private fun check(
+    private fun verifyCase(
         case: String,
         block: () -> Unit,
     ) {

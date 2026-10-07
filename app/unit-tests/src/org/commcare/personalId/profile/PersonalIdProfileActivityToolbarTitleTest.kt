@@ -87,7 +87,7 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
         ShadowPhoneAuthProvider.reset()
     }
 
-    override fun launch() {
+    override fun launchHostActivity() {
         destroyActivity()
         val controller = Robolectric.buildActivity(PersonalIdProfileActivity::class.java)
         activityController = controller
@@ -111,7 +111,7 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
     companion object {
         private const val EMAIL = "ada@example.com"
 
-        private fun sendEmailOtp(
+        private fun getTitledScreenForEmailOtp(
             workflow: EmailWorkFlow,
             titleRes: Int,
         ) = TitledScreen(
@@ -167,7 +167,7 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
                     R.string.connect_verify_phone_title,
                     Bundle().apply { putString("pendingEmail", EMAIL) },
                 ),
-                sendEmailOtp(
+                getTitledScreenForEmailOtp(
                     EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
                     R.string.personalid_send_email_otp_title,
                 ),
@@ -179,11 +179,11 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
 
         private val SEND_EMAIL_OTP_WORKFLOW_VARIANTS =
             listOf(
-                sendEmailOtp(
+                getTitledScreenForEmailOtp(
                     EmailWorkFlow.PENDING_BACKUP_CODE,
                     R.string.personalid_send_email_otp_pending_backup_code_title,
                 ),
-                sendEmailOtp(
+                getTitledScreenForEmailOtp(
                     EmailWorkFlow.EXISTING_USER,
                     R.string.personalid_email_verification_title,
                 ),

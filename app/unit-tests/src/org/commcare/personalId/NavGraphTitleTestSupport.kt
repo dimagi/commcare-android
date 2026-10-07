@@ -39,7 +39,7 @@ object NavGraphTitleTestSupport {
             .check(matches(isDisplayed()))
     }
 
-    fun fragmentToFragmentActions(
+    fun getFragmentToFragmentActions(
         context: Context,
         @NavigationRes graphRes: Int,
     ): Set<NavAction> {
@@ -77,7 +77,7 @@ object NavGraphTitleTestSupport {
             .toSet()
     }
 
-    fun describe(
+    fun getResourceNameForId(
         context: Context,
         @IdRes id: Int,
     ): String = context.resources.getResourceEntryName(id)

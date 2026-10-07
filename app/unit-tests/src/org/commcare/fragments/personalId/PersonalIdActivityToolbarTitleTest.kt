@@ -31,12 +31,12 @@ import org.robolectric.shadows.ShadowLooper
 )
 @RunWith(AndroidJUnit4::class)
 class PersonalIdActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest() {
-    private val host = Host()
+    private val activityLauncher = ActivityLauncher()
 
     override val graphRes = R.navigation.nav_graph_personalid
     override val screens = SCREENS
-    override val currentActivity: Activity get() = host.currentActivity()
-    override val hostNavController: NavController get() = host.hostNavController()
+    override val currentActivity: Activity get() = activityLauncher.currentActivity()
+    override val hostNavController: NavController get() = activityLauncher.hostNavController()
 
     @Before
     fun setUp() {
@@ -48,17 +48,17 @@ class PersonalIdActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest() {
         )
         shadowOf(context.getSystemService(LocationManager::class.java))
             .setProviderEnabled(LocationManager.GPS_PROVIDER, true)
-        host.setUp()
+        activityLauncher.setUp()
         FirebaseTestUtils.initializeDefaultAppIfNeeded()
     }
 
     @After
     fun tearDown() {
-        host.tearDown()
+        activityLauncher.tearDown()
         MockAndroidKeyStoreProvider.deregisterProvider()
     }
 
-    override fun launch() = host.launch(buildSessionData())
+    override fun launchHostActivity() = activityLauncher.launchHostActivity(buildSessionData())
 
     private fun buildSessionData() =
         PersonalIdSessionData(
@@ -71,19 +71,19 @@ class PersonalIdActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest() {
             smsMethod = OtpManager.SMS_METHOD_PERSONAL_ID,
         )
 
-    private class Host : BasePersonalIdConfigurationTest<BasePersonalIdFragment>() {
-        private var booted = false
+    private class ActivityLauncher : BasePersonalIdConfigurationTest<BasePersonalIdFragment>() {
+        private var activityLaunched = false
 
         fun currentActivity(): Activity = activity
 
         fun hostNavController(): NavController = navHostFragment.navController
 
-        fun launch(sessionData: PersonalIdSessionData) {
+        fun launchHostActivity(sessionData: PersonalIdSessionData) {
             destroyActivity()
             bootActivityAndSeedSession(sessionData)
             activityController.visible()
             ShadowLooper.idleMainLooper()
-            booted = true
+            activityLaunched = true
         }
 
         override fun tearDown() {
@@ -92,8 +92,8 @@ class PersonalIdActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest() {
         }
 
         private fun destroyActivity() {
-            if (booted && !activity.isDestroyed) activityController.pause().stop().destroy()
-            booted = false
+            if (activityLaunched && !activity.isDestroyed) activityController.pause().stop().destroy()
+            activityLaunched = false
         }
     }
 
