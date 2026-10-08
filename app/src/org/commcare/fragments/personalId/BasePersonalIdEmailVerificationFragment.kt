@@ -19,6 +19,7 @@ import org.commcare.dalvik.databinding.FragmentPersonalidEmailVerificationBindin
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.AccountSecurityAnalyticsMapper
 import org.commcare.utils.CommCareAttemptCounter
 import org.commcare.utils.OtpWaitFormatter
 import org.commcare.views.dialogs.StandardAlertDialog
@@ -118,6 +119,13 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         activity = requireActivity()
         activity.setTitle(R.string.personalid_email_verification_appbar_title)
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            AccountSecurityAnalyticsMapper.workflowParam(workflow),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_VERIFY_EMAIL_OTP_SHOWN,
+            null,
+            null,
+            null,
+        )
 
         binding.emailVerificationDescription.text =
             getString(R.string.personalid_email_verification_description, displayEmail())
@@ -256,6 +264,13 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
 
     private fun onOtpLimitExceeded(throwable: Throwable?) {
         otpLimitExceeded = true
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            AccountSecurityAnalyticsMapper.workflowParam(workflow),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_VERIFY_EMAIL_OTP_MAX_ATTEMPTS,
+            null,
+            null,
+            emailOtpTracker.failedAttempts,
+        )
         binding.otpCodeView.clearCode()
         binding.otpCodeView.isEnabled = false
         enableVerifyButton(false)
