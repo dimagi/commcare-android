@@ -25,6 +25,8 @@ import org.javarosa.core.services.Logger;
 
 public class FirebaseAuthService implements OtpAuthService {
 
+    private static final String ERROR_SESSION_EXPIRED = "ERROR_SESSION_EXPIRED";
+
     private final FirebaseAuth firebaseAuth;
     private final OtpVerificationCallback callback;
     private final Activity activity;
@@ -129,7 +131,10 @@ public class FirebaseAuthService implements OtpAuthService {
     @VisibleForTesting
     static OtpErrorType errorTypeFrom(Exception e) {
         if (e instanceof FirebaseAuthInvalidCredentialsException) {
-            return OtpErrorType.INVALID_CREDENTIAL;
+            String errorCode = ((FirebaseAuthInvalidCredentialsException) e).getErrorCode();
+            return ERROR_SESSION_EXPIRED.equals(errorCode)
+                    ? OtpErrorType.SESSION_EXPIRED
+                    : OtpErrorType.INVALID_CREDENTIAL;
         } else if (e instanceof FirebaseTooManyRequestsException) {
             return OtpErrorType.TOO_MANY_REQUESTS;
         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
