@@ -12,6 +12,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.PersonalIdUserPreferences
@@ -43,7 +44,10 @@ class BasePersonalIdSetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         onUiThread {
             navController.navigate(
                 PersonalIdProfileFragmentDirections
-                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+                    .actionProfileToProfileBackupCode(
+                        EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+                        BackupCodeWorkflow.CHANGE_BACKUP_CODE,
+                    ),
             )
         }
         // Enter the current backup code on the confirm screen and click continue
