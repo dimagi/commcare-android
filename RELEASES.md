@@ -43,6 +43,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 - On an opportunity with no daily visit limit, confirm the delivery dashboard and the job tile on the app home screen show only today's visit count with no progress bar, and no daily-limit warning appears.
   - Confirm the opportunity intro and learning-complete screens omit the "Up to N per day" text for such opportunities.
   - On an opportunity that still has daily limits, confirm the daily progress bar and daily-limit warnings work as before.
+- With a phone number that gets its OTP code through Firebase, enter a wrong code three times. Confirm the field clears, the message says the code is no longer valid, and Request Code is offered straight away.
+  - Rotate the device in that state and confirm the code field stays disabled.
 
 ## CommCare 2.64.1
 
