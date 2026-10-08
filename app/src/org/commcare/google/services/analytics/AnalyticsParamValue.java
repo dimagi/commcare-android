@@ -248,6 +248,7 @@ public class AnalyticsParamValue {
     public static final String USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE =
             "manage_profile_email_update";
     public static final String USER_PROMPT_TYPE_BACKUP_CODE = "backup_code";
+    public static final String USER_PROMPT_ACTION_SHOWN = "shown";
     public static final String USER_PROMPT_ACTION_FORGOT = "forgot";
     public static final String USER_PROMPT_INFO_BACKUP_CODE_REMINDER = "backup_code_reminder";
     public static final String USER_PROMPT_INFO_SET_BACKUP_CODE_REMINDER =
