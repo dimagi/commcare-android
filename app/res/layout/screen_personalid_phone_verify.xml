@@ -98,14 +98,13 @@
             android:layout_marginTop="@dimen/connect_space_xs"
             tools:text="Resend OTP in 60s" />
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/connect_space_lg"
             android:layout_marginTop="@dimen/connect_space_lg"
             android:layout_marginEnd="@dimen/connect_space_lg"
-            android:layout_marginBottom="@dimen/connect_space_lg"
-            android:orientation="horizontal">
+            android:layout_marginBottom="@dimen/connect_space_lg">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_deactivate_button"
@@ -115,15 +114,24 @@
                 android:gravity="center"
                 android:text="@string/connect_deactivate_account"
                 android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/connect_resend_button"
                 style="@style/NegativeButtonStyle"
-                android:layout_width="150dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/connect_space_lg"
+                android:padding="@dimen/connect_space_md"
                 android:visibility="gone"
                 android:text="@string/connect_verify_phone_resend_code"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toStartOf="@id/connect_phone_verify_button"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
            />
 
             <com.google.android.material.button.MaterialButton
@@ -131,12 +139,11 @@
                 style="@style/ConnectPrimaryButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:text="@string/connect_verify_phone_verify" />
+                android:text="@string/connect_verify_phone_verify"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 </layout>
