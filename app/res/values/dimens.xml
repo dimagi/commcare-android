@@ -3,6 +3,7 @@
 
     <!-- Text sizes -->
     <dimen name="text_smaller">9sp</dimen>
+    <dimen name="text_caption">12sp</dimen>
     <dimen name="text_small">14sp</dimen>
     <dimen name="text_medium">18sp</dimen>
     <dimen name="text_large">21sp</dimen>

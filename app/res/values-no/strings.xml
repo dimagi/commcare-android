@@ -441,6 +441,7 @@
     <string name="connect_downloading_delivery">Laster ned levering</string>
     <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
     <string name="connect_opportunity_footer_download_app">Last ned appen</string>
+    <string name="login_choice_or">ELLER</string>
     <string name="recording_notification_save_action">Lagre</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Gjenoppta</string>
