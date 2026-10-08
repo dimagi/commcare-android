@@ -1,5 +1,6 @@
 package org.commcare.utils
 
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 
@@ -37,6 +38,26 @@ object AccountSecurityAnalyticsMapper {
 
             EmailWorkFlow.PENDING_BACKUP_CODE -> {
                 AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_RECOVERY_PENDING_CODE
+            }
+        }
+
+    /**
+     * Maps a [BackupCodeWorkflow] to the `workflow` param, for the backup-code screens that
+     * several journeys share.
+     */
+    @JvmStatic
+    fun workflowParam(workflow: BackupCodeWorkflow): String =
+        when (workflow) {
+            BackupCodeWorkflow.CHANGE_BACKUP_CODE -> {
+                AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_CHANGE_BACKUP_CODE
+            }
+
+            BackupCodeWorkflow.EMAIL_CHANGE -> {
+                AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_BACKUP_CODE
+            }
+
+            BackupCodeWorkflow.FORGOT_BACKUP_CODE -> {
+                AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_RECOVERY_EXISTING_USER
             }
         }
 }

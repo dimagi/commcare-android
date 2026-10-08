@@ -14,6 +14,7 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -168,8 +169,10 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                     .actionProfileEditToProfileSendPhoneOtp(pendingEmail)
             } else {
                 PersonalIdProfileEditFragmentDirections
-                    .actionProfileEditToBackupCode(EmailWorkFlow.EXISTING_USER)
-                    .setPendingEmail(pendingEmail)
+                    .actionProfileEditToBackupCode(
+                        EmailWorkFlow.EXISTING_USER,
+                        BackupCodeWorkflow.EMAIL_CHANGE,
+                    ).setPendingEmail(pendingEmail)
             }
         findNavController().navigate(directions)
     }
