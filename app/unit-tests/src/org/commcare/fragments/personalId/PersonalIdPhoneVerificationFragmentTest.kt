@@ -370,12 +370,9 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             (resendButton() as TextView).text.toString(),
         )
         assertEquals(
-            activity.getString(R.string.connect_verify_phone_resend),
-            fragment
-                .requireView()
-                .findViewById<TextView>(R.id.connect_phone_verify_resend)
-                .text
-                .toString(),
+            "The resend prompt does not apply to a code that is no longer valid",
+            View.GONE,
+            fragment.requireView().findViewById<TextView>(R.id.connect_phone_verify_resend).visibility,
         )
     }
 
