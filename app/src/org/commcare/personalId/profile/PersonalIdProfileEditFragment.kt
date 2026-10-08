@@ -165,6 +165,13 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         _binding ?: return
         val directions =
             if (viewModel.user.pin.isNullOrEmpty()) {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+                    AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_PHONE_OTP,
+                    AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_PHONE_OTP_REQUIRED,
+                    null,
+                    null,
+                    null,
+                )
                 PersonalIdProfileEditFragmentDirections
                     .actionProfileEditToProfileSendPhoneOtp(pendingEmail)
             } else {

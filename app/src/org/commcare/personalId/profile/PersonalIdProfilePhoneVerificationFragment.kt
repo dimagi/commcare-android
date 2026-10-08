@@ -8,6 +8,8 @@ import org.commcare.core.network.AuthInfo
 import org.commcare.fragments.personalId.BasePersonalIdPhoneVerificationFragment
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.fragments.personalId.PersonalIdWorkflow
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.AttemptCounter
 import org.commcare.utils.CommCareAttemptCounter
 import org.commcare.utils.OtpManager
@@ -52,6 +54,16 @@ class PersonalIdProfilePhoneVerificationFragment : BasePersonalIdPhoneVerificati
     override fun continueClickedWorkflow(): PersonalIdWorkflow = PersonalIdWorkflow.EDIT_PROFILE
 
     override fun showChangeNumberLink(): Boolean = false
+
+    override fun onOtpAttemptsExhausted() {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_PHONE_OTP,
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_PHONE_OTP_MAX_ATTEMPTS,
+            null,
+            null,
+            attemptTracker.failedAttempts,
+        )
+    }
 
     override fun onOtpVerified() {
         findNavController().navigate(

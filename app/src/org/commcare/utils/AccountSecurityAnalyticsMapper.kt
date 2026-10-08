@@ -25,7 +25,7 @@ object AccountSecurityAnalyticsMapper {
             }
 
             EmailWorkFlow.EXISTING_USER -> {
-                AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_BACKUP_CODE
+                AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE
             }
 
             EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY -> {
