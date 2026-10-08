@@ -520,6 +520,8 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
 
         binding.connectResendButton.setText(resendButtonLabel)
         binding.connectResendButton.visibility = if (canResend) View.VISIBLE else View.GONE
+        binding.connectPhoneVerifyResend.visibility =
+            if (otpLimitExceeded && canResend) View.GONE else View.VISIBLE
 
         val resendStatusText =
             if (canResend) {
