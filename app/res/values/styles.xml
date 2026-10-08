@@ -128,12 +128,6 @@
         <item name="android:colorBackground">@color/cc_core_bg</item>
     </style>
 
-    <style name="LoginEditTextV2">
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:drawablePadding">8dp</item>
-        <item name="android:textColor">@color/grey</item>
-    </style>
-
     <style name="DefaultHorizontalPadding">
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>
@@ -183,9 +177,6 @@
         <item name="colorControlNormal">?attr/colorAccent</item>
         <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
     </style>
-
-    <color name="login_edit_text_color">@color/cc_core_text</color>
-    <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
 
     <style name="FullScreenVideoButton">
         <item name="background">@null</item>
