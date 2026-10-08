@@ -19,6 +19,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Backing out of the PersonalID phone number screen while the app is contacting the server no longer crashes the app.
 - When too many incorrect email or phone OTP codes are entered, the OTP code is now reported as no longer usable and the user is prompted to request a new one, instead of showing a generic error. The wait before a new OTP code can be requested is now shown accurately.
 - Fixed an issue where the day and year fields of the date widget used by date questions with a `gregorian` appearance could not be edited with the keyboard in landscape.
+- When a phone OTP code sent through Firebase expires or runs out of attempts, PersonalID now asks the user to request a new code instead of reporting the code as wrong.
 
 #### Internal Release Notes
 
