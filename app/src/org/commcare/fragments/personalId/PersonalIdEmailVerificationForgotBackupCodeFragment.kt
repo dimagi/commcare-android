@@ -21,7 +21,9 @@ class PersonalIdEmailVerificationForgotBackupCodeFragment : BasePersonalIdEmailV
             .findNavController()
             .navigate(
                 PersonalIdEmailVerificationForgotBackupCodeFragmentDirections
-                    .actionEmailVerificationForgotBackupCodeToSetNewBackupCode(),
+                    .actionEmailVerificationForgotBackupCodeToSetNewBackupCode(
+                        BackupCodeWorkflow.FORGOT_BACKUP_CODE,
+                    ),
             )
     }
 }

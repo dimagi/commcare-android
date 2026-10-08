@@ -77,6 +77,9 @@
         <argument
             android:name="emailWorkflow"
             app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <argument
+            android:name="backupCodeWorkflow"
+            app:argType="org.commcare.fragments.personalId.BackupCodeWorkflow" />
         <action
             android:id="@+id/action_profile_backup_code_to_set_new_backup_code"
             app:destination="@id/personalid_profile_set_new_backup_code_fragment" />
@@ -140,6 +143,10 @@
     <fragment
         android:id="@+id/personalid_profile_set_new_backup_code_fragment"
         android:name="org.commcare.personalId.profile.PersonalIdProfileSetNewBackupCodeFragment"
-        android:label="@string/personalid_set_new_backup_code_title" />
+        android:label="@string/personalid_set_new_backup_code_title">
+        <argument
+            android:name="backupCodeWorkflow"
+            app:argType="org.commcare.fragments.personalId.BackupCodeWorkflow" />
+    </fragment>
 
 </navigation>
