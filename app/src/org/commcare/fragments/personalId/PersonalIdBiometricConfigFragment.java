@@ -75,7 +75,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> onFingerprintButtonClicked());
         binding.connectVerifyPinButton.setOnClickListener(v -> onPinButtonClicked());
-        requireActivity().setTitle(R.string.connect_appbar_title_app_lock);
+        setTitle(R.string.connect_appbar_title_app_lock);
         return binding.getRoot();
     }
 
