@@ -18,55 +18,24 @@
         android:label="fragment_connect_jobs_list"
         tools:layout="@layout/fragment_connect_jobs_list">
         <action
-            android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_intro_fragment"
-            app:destination="@id/connect_job_intro_fragment" />
-        <action
-            android:id="@+id/action_connect_jobs_list_fragment_to_connect_job_learning_progress_fragment"
-            app:destination="@id/connect_job_learning_progress_fragment" />
-        <action
-            android:id="@+id/action_connect_jobs_list_fragment_to_connect_delivery_home_fragment"
-            app:destination="@id/connect_delivery_home_fragment" />
+            android:id="@+id/action_connect_jobs_list_fragment_to_opportunity_home_fragment"
+            app:destination="@id/opportunity_home_fragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/connect_job_intro_fragment"
-        android:name="org.commcare.fragments.connect.ConnectJobIntroFragment"
-        android:label="fragment_connect_job_intro"
-        tools:layout="@layout/fragment_connect_job_intro">
+        android:id="@+id/opportunity_home_fragment"
+        android:name="org.commcare.connect.opportunity.OpportunityHomeFragment"
+        android:label="fragment_opportunity_home"
+        tools:layout="@layout/fragment_opportunity_home">
         <action
-            android:id="@+id/action_connect_job_intro_fragment_to_connect_job_learning_progress_fragment"
-            app:destination="@id/connect_job_learning_progress_fragment"
-            app:popUpTo="@id/connect_jobs_list_fragment" />
-        <action
-            android:id="@+id/action_connect_job_intro_fragment_to_personalid_message_display_dialog"
-            app:destination="@id/personalid_message_display_dialog" />
-        <action
-            android:id="@+id/action_connect_job_intro_fragment_to_connect_learn_modules_bottom_sheet"
-            app:destination="@id/connect_learn_modules_bottom_sheet" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/connect_job_learning_progress_fragment"
-        android:name="org.commcare.fragments.connect.ConnectLearningProgressFragment"
-        android:label="fragment_connect_learning_progress"
-        tools:layout="@layout/fragment_connect_learning_progress">
-        <action
-            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_delivery_home_fragment"
-            app:destination="@id/connect_delivery_home_fragment"
-            app:popUpTo="@id/connect_jobs_list_fragment" />
-        <action
-            android:id="@+id/action_connect_job_learning_progress_fragment_to_connect_job_intro_fragment"
-            app:destination="@id/connect_job_intro_fragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/connect_delivery_home_fragment"
-        android:name="org.commcare.fragments.connect.ConnectDeliveryHomeFragment"
-        android:label="fragment_connect_delivery_home"
-        tools:layout="@layout/fragment_connect_delivery_home">
-        <action
-            android:id="@+id/action_connect_delivery_home_fragment_to_connect_delivery_visits_detail_fragment"
+            android:id="@+id/action_opportunity_home_fragment_to_connect_delivery_visits_detail_fragment"
             app:destination="@id/connect_delivery_visits_detail_fragment" />
+        <action
+            android:id="@+id/action_opportunity_home_fragment_to_connect_learn_modules_bottom_sheet"
+            app:destination="@id/connect_learn_modules_bottom_sheet" />
+        <action
+            android:id="@+id/action_opportunity_home_fragment_to_personalid_message_display_dialog"
+            app:destination="@id/personalid_message_display_dialog" />
     </fragment>
 
     <fragment

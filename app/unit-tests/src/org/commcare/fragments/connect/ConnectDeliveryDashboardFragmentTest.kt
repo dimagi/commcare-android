@@ -33,6 +33,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
@@ -281,7 +282,7 @@ class ConnectDeliveryDashboardFragmentTest {
         activity.runOnUiThread { unitCard.performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
     }
 
     @Test
@@ -385,18 +386,14 @@ class ConnectDeliveryDashboardFragmentTest {
 
         activity.setActiveJob(job)
         activity.runOnUiThread {
-            navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_delivery_home_fragment,
-            )
+            navController.navigate(R.id.opportunity_home_fragment)
         }
         ShadowLooper.idleMainLooper()
 
         awaitDeliverySync()
         layOutHierarchy()
 
-        val home =
-            navHostFragment.childFragmentManager.primaryNavigationFragment
-                as ConnectDeliveryHomeFragment
+        val home = navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
         val dashboard =
             home.childFragmentManager.fragments
                 .filterIsInstance<ConnectDeliveryDashboardFragment>()

@@ -597,11 +597,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     @StringRes
-    protected fun downloadingMessage(isLearning: Boolean): Int =
+    private fun downloadingMessage(isLearning: Boolean): Int =
         if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
-
-    /** True while any Connect screen in this activity has an app install in flight. */
-    protected val isInstallingApp get() = installViewModel.isInstalling
 
     /** Drops a failure the user has dismissed, so re-rendering the screen does not bring it back. */
     protected fun forgetInstallFailure() {

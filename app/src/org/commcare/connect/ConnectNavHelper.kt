@@ -10,7 +10,6 @@ import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
-import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.PersonalIdUserPreferences
@@ -143,13 +142,11 @@ object ConnectNavHelper {
     fun goToActiveInfoForJob(
         context: Context,
         job: ConnectJobRecord,
-        allowProgression: Boolean,
     ) {
         checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
         i.putExtra(GO_TO_JOB_STATUS, true)
         i.putExtra(OPPORTUNITY_UUID, job.jobUUID)
-        i.putExtra(SHOW_LAUNCH_BUTTON, allowProgression)
         context.startActivity(i)
     }
 }

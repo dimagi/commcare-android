@@ -253,7 +253,7 @@ public class DispatchActivity extends AppCompatActivity {
                 } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
                     ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
-                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job);
                 } else {
                     launchHomeScreen();
                 }

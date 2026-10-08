@@ -33,6 +33,7 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
@@ -204,7 +205,7 @@ class ConnectDeliveryHomeFragmentTest {
 
         verify { ConnectAppUtils.downloadApp(any(), any()) }
         val navController = NavHostFragment.findNavController(oppHome)
-        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(View.GONE, startButton.visibility)
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.cta_progress_ring).visibility)
         assertEquals(
@@ -226,11 +227,9 @@ class ConnectDeliveryHomeFragmentTest {
             activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect)
                 as NavHostFragment
         assertTrue(
-            "Expected to land on the Home destination",
-            navHost.navController.currentDestination?.id == R.id.connect_delivery_home_fragment,
+            "A job-status link should land on Opportunity Home",
+            navHost.navController.currentDestination?.id == R.id.opportunity_home_fragment,
         )
-        return navHost.childFragmentManager.fragments
-            .filterIsInstance<ConnectDeliveryHomeFragment>()
-            .first()
+        return navHost.opportunityHomeSurface()
     }
 }

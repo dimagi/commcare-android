@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
@@ -93,6 +94,39 @@ class ConnectLearningProgressViewModelTest {
         assertTrue(results.any { it is DataState.Loading })
         assertTrue(results.last() is DataState.Success)
         assertEquals(secondJob, (results.last() as DataState.Success).data)
+    }
+
+    /** Claiming an already-delivering job succeeds from memory, without calling the repository. */
+    @Test
+    fun testClaimJob_alreadyDelivering_succeedsWithoutCallingTheRepository() {
+        every { mockJob.status } returns ConnectJobRecord.STATUS_DELIVERING
+
+        val results = mutableListOf<DataState<Unit>>()
+        viewModel.claimJob.observeForever { results.add(it) }
+
+        mainCoroutineRule.runBlockingTest {
+            viewModel.claimJob(mockJob)
+        }
+
+        assertEquals(1, results.size)
+        assertTrue(results[0] is DataState.Success)
+        verify(exactly = 0) { mockRepository.claimJob(any()) }
+    }
+
+    @Test
+    fun testClaimJob_whileLearning_claimsThroughTheRepository() {
+        every { mockJob.status } returns ConnectJobRecord.STATUS_LEARNING
+        every { mockRepository.claimJob(mockJob) } returns flowOf(DataState.Success(Unit))
+
+        val results = mutableListOf<DataState<Unit>>()
+        viewModel.claimJob.observeForever { results.add(it) }
+
+        mainCoroutineRule.runBlockingTest {
+            viewModel.claimJob(mockJob)
+        }
+
+        assertTrue(results.last() is DataState.Success)
+        verify { mockRepository.claimJob(mockJob) }
     }
 
     @Test
