@@ -10,6 +10,9 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentPersonalidSendOtpBinding
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.fragments.personalId.EmailHelper.maskEmail
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.AccountSecurityAnalyticsMapper
 import org.commcare.utils.CommCareAttemptCounter
 
 /**
@@ -48,6 +51,13 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
         binding.sendOtpAddress.text = if (masked) maskEmail(email) else email
         binding.sendOtpButton.setOnClickListener { sendCode() }
         clearError()
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            AccountSecurityAnalyticsMapper.workflowParam(workflow),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_SEND_EMAIL_OTP_SHOWN,
+            null,
+            null,
+            null,
+        )
     }
 
     open fun setAppBarTitle() {

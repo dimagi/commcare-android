@@ -13,6 +13,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdRecoveryCompleter
 import org.commcare.personalId.PersonalIdUserPreferences
+import org.commcare.utils.AccountSecurityAnalyticsMapper
 import org.commcare.utils.MediaUtil
 import java.util.Date
 
@@ -70,6 +71,13 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     }
 
     override fun handleForgotBackupCode() {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            AccountSecurityAnalyticsMapper.workflowParam(EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_FORGOT_CODE_STARTED,
+            null,
+            null,
+            null,
+        )
         navigate(
             PersonalIdBackupCodeFragmentDirections
                 .actionPersonalidBackupCodeToSendEmailOtp(
@@ -160,6 +168,13 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     private fun navigateToEmail() {
         PersonalIdUserPreferences.setLastEmailOfferDate(Date())
         val emailWorkFlow = if (isRecovery) EmailWorkFlow.RECOVERY else EmailWorkFlow.REGISTRATION
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            AccountSecurityAnalyticsMapper.workflowParam(emailWorkFlow),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_EMAIL_PROMPT_SHOWN,
+            null,
+            null,
+            null,
+        )
         navigate(
             PersonalIdBackupCodeFragmentDirections
                 .actionPersonalidBackupcodeToPersonalidEmail(emailWorkFlow),
