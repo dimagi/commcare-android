@@ -266,6 +266,7 @@ public class AnalyticsParamValue {
             "recovery_pending_code";
     public static final String ACCOUNT_SECURITY_WORKFLOW_BACKUP_CODE_REMINDER =
             "backup_code_reminder";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE = "email_change";
     public static final String ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_BACKUP_CODE =
             "email_change_backup_code";
     public static final String ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_PHONE_OTP =
