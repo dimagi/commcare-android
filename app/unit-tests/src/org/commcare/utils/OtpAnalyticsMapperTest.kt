@@ -65,6 +65,14 @@ class OtpAnalyticsMapperTest {
     }
 
     @Test
+    fun `reasonFrom OtpErrorType maps SESSION_EXPIRED`() {
+        assertEquals(
+            "session_expired",
+            OtpAnalyticsMapper.reasonFrom(OtpErrorType.SESSION_EXPIRED),
+        )
+    }
+
+    @Test
     fun `reasonFrom OtpErrorType maps TOO_MANY_REQUESTS`() {
         assertEquals(
             "too_many_requests",
