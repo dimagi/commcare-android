@@ -116,6 +116,29 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         ReflectionHelpers.setField(authService, "firebaseAuth", firebaseAuth)
     }
 
+    /** Makes signInWithCredential on the live FirebaseAuthService fail with [exception]. */
+    private fun stubFirebaseSignInFailsWith(exception: Exception) {
+        val otpManager = ReflectionHelpers.getField<Any>(fragment, "otpManager")
+        val authService = ReflectionHelpers.getField<Any>(otpManager, "authService")
+
+        val firebaseAuth = mock(FirebaseAuth::class.java)
+        `when`(firebaseAuth.signInWithCredential(any())).thenReturn(Tasks.forException(exception))
+
+        ReflectionHelpers.setField(authService, "firebaseAuth", firebaseAuth)
+    }
+
+    /** Launches on Firebase, waits for the code to be sent, and submits a code that Firebase rejects with [exception]. */
+    private fun submitFirebaseCodeRejectedWith(exception: Exception) {
+        ShadowPhoneAuthProvider.sendCodeWith("test-verification-id")
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
+        ShadowLooper.idleMainLooper()
+        stubFirebaseSignInFailsWith(exception)
+
+        codeView().setCode("123456")
+        verifyButton().performClick()
+        ShadowLooper.idleMainLooper()
+    }
+
     private fun lastOtpMethod(): String? = ReflectionHelpers.getField(fragment, "lastOtpMethod")
 
     private fun codeView() = fragment.requireView().findViewById<NumericCodeView>(R.id.customOtpView)
@@ -294,6 +317,85 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             activity.getString(R.string.connect_otp_verified),
             ShadowToast.getTextOfLatestToast(),
         )
+    }
+
+    // ========== Firebase verification errors ==========
+
+    @Test
+    fun `a wrong firebase code is reported as a wrong code without switching to PersonalID`() {
+        submitFirebaseCodeRejectedWith(
+            FirebaseAuthInvalidCredentialsException(
+                "ERROR_INVALID_VERIFICATION_CODE",
+                "The verification code from SMS/TOTP is invalid.",
+            ),
+        )
+
+        assertEquals(OtpManager.SMS_METHOD_FIREBASE, lastOtpMethod())
+        assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
+        assertEquals(
+            activity.getString(R.string.personalid_incorrect_otp),
+            errorView().text.toString(),
+        )
+        assertTrue("The user can correct a wrong code", codeView().isEnabled)
+    }
+
+    @Test
+    fun `an expired firebase code tells the user to request a new one without switching to PersonalID`() {
+        submitFirebaseCodeRejectedWith(
+            FirebaseAuthInvalidCredentialsException(
+                "ERROR_SESSION_EXPIRED",
+                "The sms code has expired. Please re-send the verification code to try again.",
+            ),
+        )
+
+        assertEquals(OtpManager.SMS_METHOD_FIREBASE, lastOtpMethod())
+        assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
+        assertEquals(
+            activity.getString(R.string.personalid_otp_session_expired),
+            errorView().text.toString(),
+        )
+        assertEquals("The dead code should not be left in the field", "", codeView().codeValue)
+        assertFalse("Nothing can be typed until a new code is requested", codeView().isEnabled)
+    }
+
+    @Test
+    fun `an expired firebase code offers a new code straight away`() {
+        submitFirebaseCodeRejectedWith(
+            FirebaseAuthInvalidCredentialsException("ERROR_SESSION_EXPIRED", "expired"),
+        )
+
+        assertEquals(View.VISIBLE, resendButton().visibility)
+        assertEquals(
+            activity.getString(R.string.personalid_otp_request_code),
+            (resendButton() as TextView).text.toString(),
+        )
+        assertEquals(
+            "The resend prompt does not apply to a code that is no longer valid",
+            View.GONE,
+            fragment.requireView().findViewById<TextView>(R.id.connect_phone_verify_resend).visibility,
+        )
+    }
+
+    @Test
+    fun `an expired firebase code keeps code entry closed across a configuration change`() {
+        submitFirebaseCodeRejectedWith(
+            FirebaseAuthInvalidCredentialsException("ERROR_SESSION_EXPIRED", "expired"),
+        )
+
+        recreateFragment()
+
+        assertFalse("Nothing can be typed until a new code is requested", codeView().isEnabled)
+        assertEquals(View.VISIBLE, resendButton().visibility)
+    }
+
+    @Test
+    fun `a code that has run out of attempts keeps code entry closed across a configuration change`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(otpLimitExceededResponse())
+
+        recreateFragment()
+
+        assertFalse("Nothing can be typed until a new code is requested", codeView().isEnabled)
     }
 
     // ========== OTP_LIMIT_EXCEEDED ==========
