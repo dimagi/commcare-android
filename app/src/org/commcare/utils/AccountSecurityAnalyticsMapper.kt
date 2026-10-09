@@ -59,5 +59,9 @@ object AccountSecurityAnalyticsMapper {
             BackupCodeWorkflow.FORGOT_BACKUP_CODE -> {
                 AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_RECOVERY_EXISTING_USER
             }
+
+            BackupCodeWorkflow.PENDING_BACKUP_CODE -> {
+                AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_RECOVERY_PENDING_CODE
+            }
         }
 }

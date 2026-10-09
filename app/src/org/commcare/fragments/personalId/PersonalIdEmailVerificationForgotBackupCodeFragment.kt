@@ -15,7 +15,7 @@ class PersonalIdEmailVerificationForgotBackupCodeFragment : BasePersonalIdEmailV
 
     override fun displayEmail(): String = EmailHelper.maskEmail(args().email)
 
-    override fun resolveWorkflow(): EmailWorkFlow = EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER
+    override fun resolveWorkflow(): EmailWorkFlow = args().workflow
 
     override fun resolveEmailOtpRequestCount(): Int = args().emailOtpRequestCount
 
@@ -32,8 +32,14 @@ class PersonalIdEmailVerificationForgotBackupCodeFragment : BasePersonalIdEmailV
             .navigate(
                 PersonalIdEmailVerificationForgotBackupCodeFragmentDirections
                     .actionEmailVerificationForgotBackupCodeToSetNewBackupCode(
-                        BackupCodeWorkflow.FORGOT_BACKUP_CODE,
+                        setNewCodeWorkflow(),
                     ),
             )
     }
+
+    private fun setNewCodeWorkflow(): BackupCodeWorkflow =
+        when (resolveWorkflow()) {
+            EmailWorkFlow.PENDING_BACKUP_CODE -> BackupCodeWorkflow.PENDING_BACKUP_CODE
+            else -> BackupCodeWorkflow.FORGOT_BACKUP_CODE
+        }
 }

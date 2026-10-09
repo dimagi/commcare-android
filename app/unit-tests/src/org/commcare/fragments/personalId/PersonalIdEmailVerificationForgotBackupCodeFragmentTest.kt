@@ -33,6 +33,7 @@ class PersonalIdEmailVerificationForgotBackupCodeFragmentTest : BasePersonalIdPr
         Bundle().apply {
             putString("email", TEST_EMAIL)
             putInt("emailOtpRequestCount", 0)
+            putSerializable("workflow", EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER)
         }
 
     @Before

@@ -64,6 +64,7 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
                         .actionPersonalidSendEmailOtpToEmailVerificationForgotBackupCode(
                             email,
                             emailOtpTracker.requestCount,
+                            workflow,
                         )
                 }
 

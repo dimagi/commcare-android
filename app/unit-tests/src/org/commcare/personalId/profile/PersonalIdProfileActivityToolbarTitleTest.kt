@@ -146,6 +146,10 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
                     Bundle().apply {
                         putString("email", EMAIL)
                         putInt("emailOtpRequestCount", 1)
+                        putSerializable(
+                            "workflow",
+                            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+                        )
                     },
                 ),
                 TitledScreen(
