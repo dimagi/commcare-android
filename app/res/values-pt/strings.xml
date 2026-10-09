@@ -535,6 +535,7 @@
     <string name="personalid_name_fragment_subtitle">Por favor, insira o seu nome tal como aparece na sua identificação emitida pelo governo</string>
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_locked_account">A sua conta foi bloqueada. Entre em contacto com o suporte</string>
+    <string name="personalid_backup_code_locked">O seu código de segurança foi bloqueado. Verifique o seu e-mail para definir um novo.</string>
     <string name="personalid_configuration_process_failed_subtitle">Lamentavelmente, este dispositivo não passou nas verificações de segurança necessárias para se inscrever no PersonalID. Por favor, tente novamente num dispositivo diferente.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">O PIN neste dispositivo está indisponível de momento. Por favor, tente novamente mais tarde.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">A biometria não está atualmente ativada neste dispositivo. Por favor, configure a biometria nas Definições do sistema Android antes de prosseguir.</string>

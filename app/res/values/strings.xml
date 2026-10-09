@@ -801,6 +801,7 @@
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
+    <string name="personalid_backup_code_locked">Your backup code has been locked. Please verify your email to set a new one.</string>
     <string name="personalid_configuration_process_failed_subtitle">Unfortunately, this device did not pass the security checks required to sign up for PersonalID. Please try again on a different device.</string>
     <string name="personalid_configuration_process_failed_play_services">Please make sure Play Store is available on your device and is updated.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Temporary error in establishing your device eligibility. Please try again after a day.</string>

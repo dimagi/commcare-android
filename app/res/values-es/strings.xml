@@ -552,6 +552,7 @@
     <string name="camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
+    <string name="personalid_backup_code_locked">Su código de respaldo ha sido bloqueado. Por favor, verifique su correo electrónico para establecer uno nuevo.</string>
     <string name="personalid_work_history_title">Mi Historial Laboral</string>
     <string name="personalid_work_history">Historial Laboral</string>
     <string name="personalid_work_history_learn_more">Más Información Sobre las Credenciales</string>

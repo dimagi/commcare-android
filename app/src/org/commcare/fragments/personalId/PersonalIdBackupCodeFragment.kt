@@ -1,6 +1,7 @@
 package org.commcare.fragments.personalId
 
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
 import org.commcare.android.database.connect.models.PersonalIdSessionData
@@ -121,6 +122,12 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                 failureCode: PersonalIdOrConnectApiErrorCodes,
                 t: Throwable?,
             ) {
+                if (failureCode == PersonalIdOrConnectApiErrorCodes.ACCOUNT_LOCKED_ERROR &&
+                    !personalIdSessionData.maskedEmail.isNullOrEmpty()
+                ) {
+                    handleLockedBackupCode()
+                    return
+                }
                 if (handleCommonSignupFailures(failureCode)) {
                     return
                 }
@@ -130,6 +137,11 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
                 }
             }
         }.completeRecoveryWithBackupCode(activity, backupCode, personalIdSessionData)
+    }
+
+    private fun handleLockedBackupCode() {
+        Toast.makeText(requireContext(), R.string.personalid_backup_code_locked, Toast.LENGTH_LONG).show()
+        handleForgotBackupCode()
     }
 
     private fun handleConfirmBackupCodeSuccess() {

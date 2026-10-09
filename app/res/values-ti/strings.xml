@@ -520,6 +520,7 @@
     <string name="personalid_name_fragment_subtitle">በጃኹም ኣብቲ ብመንግስቲ ዝተዋህበኩም መለለዪ መንነትኩም ከም ዝረአ ስምኩም ኣእትዉ</string>
     <string name="personalid_configuration_process_failed_title">መስርሕ ፈሺሉ።</string>
     <string name="personalid_configuration_locked_account">ኣካውንትካ ተዓጽዩ ኣሎ። በጃኹም ንደገፍ ተወከሱ</string>
+    <string name="personalid_backup_code_locked">ናይ ምትካእ ኮድካ ተዓጽዩ ኣሎ። ሓድሽ ንምቕማጥ በጃኹም ኢመይልኩም ኣረጋግጹ።</string>
     <string name="personalid_configuration_process_failed_subtitle">ብ दुर्भाग्य፣ እዚ መሳርሒ\'ዚ ን PersonalID ንምምዝጋብ ዘድልዩ ናይ ጸጥታ መርመራታት ኣይሓለፈን። በጃኹም ኣብ ካልእ መሳርሒ እንደገና ፈትኑ።</string>
     <string name="personalid_configuration_process_pin_unavailable_message">ናይዚ መሳርሒ\'ዚ ፒን ሕጂ ኣይርከብን እዩ። በጃኻ ጸኒሕካ እንደገና ፈትን።</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">ኣብዚ መሳርሒ\'ዚ ባዮሜትሪክስ ሕጂ ኣይተኸፍተን። በጃኻ፡ ቅድሚ ምቕጻልካ፡ ኣብ ናይ ኣንድሮይድ ሲስተም ሴቲንግስ ፡ ባዮሜትሪክስ ኣዋቅር።</string>

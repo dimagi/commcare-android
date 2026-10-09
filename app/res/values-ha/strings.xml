@@ -369,6 +369,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_name_fragment_subtitle">Da fatan za a shigar da sunanka kamar yadda ya bayyana a katin shaidar da gwamnati ta bayar</string>
     <string name="personalid_configuration_process_failed_title">Tsarin aiki ya gaza</string>
     <string name="personalid_configuration_locked_account">An kulle asusunka. Da fatan za a tuntuɓi tallafi</string>
+    <string name="personalid_backup_code_locked">An kulle lambar ajiyarka. Da fatan za a tabbatar da imel ɗinka don saita sabuwa.</string>
     <string name="personalid_configuration_process_failed_subtitle">Abin takaici, wannan na\'urar ba ta wuce binciken tsaro da ake buƙata don yin rijistar PersonalID ba. Da fatan za a sake gwadawa akan wata na\'ura daban.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">Lambar PIN ɗin da ke kan wannan na\'urar ba ta samuwa a halin yanzu. Da fatan za a sake gwadawa daga baya.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Ba a kunna Biometrics a wannan na\'urar a halin yanzu. Da fatan za a saita biometrics a cikin Saitunan Tsarin Android don ci gaba.</string>

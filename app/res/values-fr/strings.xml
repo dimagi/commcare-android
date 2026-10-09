@@ -528,6 +528,7 @@ License.
     <string name="personalid_name_fragment_subtitle">Veuillez saisir votre nom tel qu\'il apparaît sur votre pièce d\'identité émise par le gouvernement</string>
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
+    <string name="personalid_backup_code_locked">Votre code de secours a été bloqué. Veuillez vérifier votre e-mail pour en définir un nouveau.</string>
     <string name="personalid_configuration_process_failed_subtitle">Malheureusement, cet appareil n\'a pas réussi les contrôles de sécurité requis pour s\'inscrire à PersonalID. Veuillez réessayer sur un autre appareil.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">Le code PIN de cet appareil est actuellement indisponible. Veuillez réessayer plus tard.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">La biométrie n\'est pas actuellement activée sur cet appareil. Veuillez la configurer dans les paramètres du système Android avant de continuer.</string>

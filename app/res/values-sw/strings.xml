@@ -534,6 +534,7 @@
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
+    <string name="personalid_backup_code_locked">Msimbo wako wa akiba umefungwa. Tafadhali thibitisha barua pepe yako ili kuweka mpya.</string>
     <string name="personalid_configuration_process_failed_subtitle">Kwa bahati mbaya, kifaa hiki hakikufaulu ukaguzi wa usalama unaohitajika ili kujisajili kwa PersonalID. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">PIN kwenye kifaa hiki haipatikani kwa sasa. Tafadhali jaribu tena baadaye.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Bayometriki haiwashwi kwa sasa kwenye kifaa hiki. Tafadhali sanidi bayometriki katika Mipangilio ya Mfumo wa Android kabla ya kuendelea.</string>
