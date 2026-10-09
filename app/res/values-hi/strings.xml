@@ -244,8 +244,8 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">आपके डिवाइस पर कोई Play Store नहीं मिला</string>
     <string name="fcm_default_notification_channel">अधिसूचना-चैनल-पुश-अधिसूचनाएं</string>
     <string name="personalid_login_via">PersonalId के माध्यम से (या यहां टैप करें)</string>
-    <string name="personalid_welcome_user">स्वागत है %s!</string>
     <string name="personalid_choice_or">_____________    या    _____________</string>
+    <string name="login_choice_or">या</string>
     <string name="connect_download_delivery">वितरण डाउनलोड करें</string>
     <string name="connect_app_install_setting_up">ऐप सेट किया जा रहा है…</string>
     <string name="connect_app_finishing_install">इंस्टॉलेशन पूरा किया जा रहा है…</string>
@@ -519,7 +519,7 @@ License.
     <string name="connect_messaging_channel_menu_item_unsubscribe">सदस्यता समाप्त करें</string>
     <string name="connect_send_message_hint">एक संदेश टाइप करें</string>
     <string name="connect_send_message_btn_desc">संदेश भेजने के लिए यहां टैप करें</string>
-    <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!\n</string>
+    <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!</string>
     <string name="personalid_failed_to_login_with_connectid">आपके व्यक्तिगत आईडी से लॉग इन करते समय हमें एक अप्राप्य त्रुटि का सामना करना पड़ रहा है। कृपया अपने पासवर्ड से लॉग इन करें या अपनी व्यक्तिगत आईडी पुनर्स्थापित करें।</string>
     <string name="personalid_name_appbar_title">नाम</string>
     <string name="personalid_name_fragment_title">अपना नाम दर्ज करें</string>

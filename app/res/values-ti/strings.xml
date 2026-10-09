@@ -235,8 +235,8 @@
     <string name="dependency_missing_dialog_playstore_not_found">ኣብ መሳርሒኻ/ሞባልካ ዝኾነ ፕለይ ስቶር/ መከዘኒ ኣፕሊክሸናት ኣይተረኽበን።</string>
     <string name="fcm_default_notification_channel">ሓበሬታ መዘካከሪ-ቻነል-ደፍእ-ሓበሬታ መዘካከሪታት</string>
     <string name="personalid_login_via">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
-    <string name="personalid_welcome_user">እንቋዕ ብደሓን መጻእኩም %s!</string>
     <string name="personalid_choice_or">_____________ ወይ _____________</string>
+    <string name="login_choice_or">ወይ</string>
     <string name="connect_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_app_install_setting_up">መተግበሪ ይዳሎ ኣሎ…</string>
     <string name="connect_app_finishing_install">ምትካል ይውዳእ ኣሎ…</string>
@@ -514,7 +514,7 @@
     <string name="connect_results_summary_pending">ኣብ ከይዲ</string>
     <string name="connect_results_summary_rejected">ተነጺጉ</string>
     <string name="connect_results_summary_approved">ጸዲቑ</string>
-    <string name="personalid_login_via_connect">ንምእታው ድሉው!\n</string>
+    <string name="personalid_login_via_connect">ንምእታው ድሉው!</string>
     <string name="personalid_failed_to_login_with_connectid">ውልቃዊ መለለዪ መንነትካ ተጠቒምካ ንምእታው ኣብ እንኣስረሉ እዋን ዘይምለስ ጌጋ የጋጥመና ኣሎ። በጃኻ ብፓስዎርድካ እቶ ወይ ድማ ውልቃዊ መለለዪ መእተዊኻ ምምላስ</string>
     <string name="personalid_name_appbar_title">ስም</string>
     <string name="personalid_name_fragment_title">ስምኩም ኣእትዉ</string>

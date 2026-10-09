@@ -177,7 +177,7 @@ form.entry.restart.after.session.pause=CommCare was closed and the form you were
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
-login.username=Username
+login.username=User ID
 login.password=Password
 login.pin.password=PIN
 login.primed.prompt=Your password has been saved for you! Just press 'Log In'.

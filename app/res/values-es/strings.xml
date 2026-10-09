@@ -183,8 +183,8 @@
     <string name="dependency_missing_dialog_playstore_not_found">No se encontró Play Store en tu dispositivo</string>
     <string name="fcm_default_notification_channel">canal-de-notificación-notificaciones-push</string>
     <string name="personalid_login_via">Vía PersonalId (o toca aquí)</string>
-    <string name="personalid_welcome_user">¡Bienvenido %s!</string>
     <string name="personalid_choice_or">_____________    O    _____________</string>
+    <string name="login_choice_or">O</string>
     <string name="connect_download_delivery">Descargar Entrega</string>
     <string name="connect_app_install_setting_up">Configurando la aplicación…</string>
     <string name="connect_app_finishing_install">Finalizando la instalación…</string>
@@ -523,7 +523,7 @@
     <string name="connect_messaging_channel_menu_item_unsubscribe">Darse de baja</string>
     <string name="connect_send_message_hint">Escribe un mensaje</string>
     <string name="connect_send_message_btn_desc">Toca aquí para enviar un mensaje</string>
-    <string name="personalid_login_via_connect">¡Listo para iniciar sesión!\n</string>
+    <string name="personalid_login_via_connect">¡Listo para iniciar sesión!</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos experimentando un error irrecuperable al iniciar sesión con tu PersonalId. Por favor, inicia sesión con tu contraseña o recupera tu PersonalId.</string>
     <string name="personalid_name_appbar_title">Nombre</string>
     <string name="personalid_name_fragment_title">Ingresa tu nombre</string>
