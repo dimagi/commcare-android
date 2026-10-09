@@ -758,4 +758,23 @@ License.
     <string name="recording_notification_save_action">Enregistrer</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Reprendre</string>
+    <string name="connect_messaging_attachment_download">Télécharger</string>
+    <string name="connect_messaging_attachment_downloading">Téléchargement…</string>
+    <string name="connect_messaging_attachment_download_failed">Échec du téléchargement</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Appuyez pour réessayer</string>
+    <string name="connect_messaging_attachment_expired">N\'est plus disponible</string>
+    <string name="connect_messaging_attachment_open_failed">Aucune application sur ce téléphone ne peut ouvrir ce fichier</string>
+    <string name="connect_messaging_audio_play">Lire l\'audio</string>
+    <string name="connect_messaging_audio_pause">Mettre l\'audio en pause</string>
+    <string name="connect_messaging_audio_play_failed">Impossible de lire cet audio</string>
+    <string name="connect_messaging_update_app_notice">Votre application Android doit être mise à jour pour afficher ce message</string>
+    <string name="connect_messaging_update_app_banner">Mettez l\'application à jour pour voir tous les messages de ce canal</string>
+    <string name="connect_messaging_preview_update_app">[Mettez l\'application à jour pour voir ce message]</string>
+    <string name="connect_messaging_settings_title">Paramètres de messagerie</string>
+    <string name="connect_messaging_settings_any_network">En Wi-Fi et données mobiles</string>
+    <string name="connect_messaging_settings_tap_note">Les pièces jointes sur lesquelles vous appuyez sont toujours téléchargées immédiatement, sur n\'importe quel réseau.</string>
+    <string name="connect_messaging_settings_auto_download_title">Télécharger automatiquement les pièces jointes</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Pièces jointes volumineuses (plus de 1 Mo) uniquement en Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Téléchargement manuel uniquement</string>
+    <string name="connect_messaging_preview_pending_download">[Message multimédia à télécharger]</string>
 </resources>

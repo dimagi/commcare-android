@@ -9,6 +9,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord
@@ -54,8 +55,10 @@ object ConnectDatabaseSchemaManager {
      * V.27 - Added connect_tasks table (ConnectTaskRecord) for DB-persisted task tracking
      * V.28 - Added channel_name to ConnectMessagingChannelRecord
      * V.29 - Added module_id (server id) to ConnectLearnModuleSummaryRecord
+     * V.30 - Added rich message fields to ConnectMessagingMessageRecord and the
+     *         connect_messaging_attachment table (ConnectMessagingAttachmentRecord)
      */
-    const val DB_VERSION_CONNECT = 29
+    const val DB_VERSION_CONNECT = 30
 
     @JvmStatic
     fun initializeSchema(database: IDatabase) {
@@ -73,6 +76,7 @@ object ConnectDatabaseSchemaManager {
             database.execSQL(TableBuilder(ConnectPaymentUnitRecord::class.java).tableCreateString)
             database.execSQL(TableBuilder(ConnectMessagingChannelRecord::class.java).tableCreateString)
             database.execSQL(TableBuilder(ConnectMessagingMessageRecord::class.java).tableCreateString)
+            database.execSQL(TableBuilder(ConnectMessagingAttachmentRecord::class.java).tableCreateString)
             database.execSQL(TableBuilder(ConnectJobDeliveryFlagRecord::class.java).tableCreateString)
             database.execSQL(TableBuilder(PersonalIdWorkHistory::class.java).tableCreateString)
             database.execSQL(TableBuilder(PushNotificationRecord::class.java).tableCreateString)
