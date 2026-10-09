@@ -112,6 +112,12 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     @Override
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        setActionBarTitle(title);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         PersonalIdBackupCodeReminderHelper.checkAndShowReminder(this);
