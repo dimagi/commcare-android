@@ -548,6 +548,7 @@ License.
     <string name="camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="personalid_backup_code_locked">आपका बैकअप कोड लॉक कर दिया गया है। नया कोड सेट करने के लिए कृपया अपना ईमेल सत्यापित करें।</string>
     <string name="personalid_work_history_title">मेरा कार्य इतिहास</string>
     <string name="personalid_work_history">कार्य इतिहास</string>
     <string name="personalid_work_history_learn_more">क्रेडेंशियल्स के बारे में और जानें</string>

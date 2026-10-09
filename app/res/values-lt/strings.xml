@@ -465,6 +465,7 @@
     <string name="connect_downloading_delivery">Atsisiunčiamas pristatymas</string>
     <string name="connect_opportunity_modules_footer_note">Užbaikite modulius, išlaikykite vertinimą ir gaukite savo pažymėjimą</string>
     <string name="connect_opportunity_footer_download_app">Atsisiųsti programą</string>
+    <string name="personalid_backup_code_locked">Jūsų atsarginis kodas užblokuotas. Patvirtinkite savo el. paštą, kad nustatytumėte naują.</string>
     <string name="recording_notification_save_action">Išsaugoti</string>
     <string name="recording_notification_pause_action">Pristabdyti</string>
     <string name="recording_notification_resume_action">Tęsti</string>
