@@ -180,6 +180,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_sms_invite_opportunity_not_found">Ba a sami damar ba</string>
     <string name="connect_learn_complete">Kammalawa</string>
     <string name="connect_learn_certificate">Takardar Shaidar</string>
+    <string name="connect_learn_view_certificate">Duba Takardar Shaida</string>
     <string name="connect_learn_completed">An kammala a ranar %s</string>
     <string name="connect_learn_cert_score">Maki: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Fara Ziyarce-ziyarce</string>

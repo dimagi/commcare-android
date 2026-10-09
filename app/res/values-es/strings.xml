@@ -280,6 +280,7 @@
     <string name="connect_sms_invite_opportunity_not_found">Oportunidad no encontrada</string>
     <string name="connect_learn_complete">Completar</string>
     <string name="connect_learn_certificate">Certificado</string>
+    <string name="connect_learn_view_certificate">Ver certificado</string>
     <string name="connect_learn_completed">Completado el %s</string>
     <string name="connect_learn_cert_score">Puntuación: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Comenzar visitas</string>

@@ -531,6 +531,7 @@
 
     <string name="connect_learn_complete">Complete</string>
     <string name="connect_learn_certificate">Certificate</string>
+    <string name="connect_learn_view_certificate">View Certificate</string>
 
     <string name="connect_learn_completed">Completed on %s</string>
     <string name="connect_learn_cert_score">Score: %s</string>
