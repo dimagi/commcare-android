@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.AppUtils
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
@@ -70,15 +72,29 @@ class ConnectLearningProgressFragment :
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
-            { cached ->
-                setActiveJob(cached)
-                updateLearningUI()
-            },
-            { success ->
-                setActiveJob(success)
-                updateLearningUI()
-            },
+            { cached -> publishRefreshedJob(cached) },
+            { success -> publishRefreshedJob(success) },
         )
+    }
+
+    /** A refresh begun before the claim landed carries the pre-claim status and must not replace the claimed job. */
+    private fun publishRefreshedJob(refreshed: ConnectJobRecord) {
+        val claimed = viewModel.claimJob.value is DataState.Success
+        if (claimed && refreshed.status != ConnectJobRecord.STATUS_DELIVERING) {
+            return
+        }
+        setActiveJob(refreshed)
+        updateLearningUI()
+    }
+
+    /**
+     * The job shown may be a copy a refresh published while the claim was in flight, so the stored
+     * job is published as delivering before the page resolves its surface.
+     */
+    private fun publishClaimedJob() {
+        val claimed = ConnectJobUtils.getCompositeJob(job.jobUUID) ?: job
+        claimed.status = ConnectJobRecord.STATUS_DELIVERING
+        setActiveJob(claimed)
     }
 
     /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */
@@ -117,6 +133,7 @@ class ConnectLearningProgressFragment :
                 is DataState.Success -> {
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
+                        publishClaimedJob()
                         if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
                             OpportunityNavigator
                                 .hostOf(this@ConnectLearningProgressFragment)

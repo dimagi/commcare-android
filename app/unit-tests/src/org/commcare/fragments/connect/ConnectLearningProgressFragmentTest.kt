@@ -222,6 +222,30 @@ class ConnectLearningProgressFragmentTest {
     }
 
     @Test
+    fun `a refresh landing while the claim is in flight does not stop the page swapping`() {
+        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        clickCta(fragment)
+        refreshFrom(fragment, ConnectLearnJobTestData.job())
+        respondToClaim(responseCode = 200)
+
+        assertEquals(ConnectJobRecord.STATUS_DELIVERING, activity.activeJob.status)
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `a refresh landing after the claim does not put back the learning status`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        clickCta(fragment)
+        respondToClaim(responseCode = 200)
+        refreshFrom(fragment, ConnectLearnJobTestData.job())
+
+        assertEquals(ConnectJobRecord.STATUS_DELIVERING, activity.activeJob.status)
+    }
+
+    @Test
     fun `a refreshed opportunity is published to the page, not kept on this screen`() {
         val fragment = launch(ConnectLearnJobTestData.job())
         val refreshed = ConnectLearnJobTestData.job()
