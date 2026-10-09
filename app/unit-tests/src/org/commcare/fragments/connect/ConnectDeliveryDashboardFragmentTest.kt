@@ -539,7 +539,9 @@ class ConnectDeliveryDashboardFragmentTest {
 
     /**
      * Writes the opportunity through the real storage layer so the repository's cache read and the
-     * dashboard both see the same record production would.
+     * dashboard both see the same record production would. The assessment is stored too: without
+     * learning records the delivery home fires a learn-progress fetch that can outlive the test and
+     * crash whichever test runs next.
      */
     private fun seedDeliveryJob(maxDailyVisits: Int = ConnectLearnJobTestData.MAX_DAILY_VISITS): ConnectJobRecord {
         val seeded =
@@ -548,6 +550,7 @@ class ConnectDeliveryDashboardFragmentTest {
                 setMaxDailyVisits(maxDailyVisits)
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
+        ConnectJobUtils.storeAssessments(appContext, seeded.assessments, ConnectLearnJobTestData.JOB_UUID, true)
         return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
     }
 
