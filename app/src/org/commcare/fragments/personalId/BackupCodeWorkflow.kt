@@ -1,11 +1,18 @@
 package org.commcare.fragments.personalId
 
 /**
- * Identifies which backup-code flow is being executed.
+ * Why the user is on a backup-code screen. Passed as a nav argument so the confirm and
+ * set-new-code screens can report which journey they belong to, which their other arguments
+ * cannot tell them.
  *
- *  - [CONFIRM_BACKUP_CODE_CHANGE_CODE]: user is on the Manage Profile screen and wants to change
- *    their backup code; must confirm the current code first before setting a new one.
+ *  - [CHANGE_BACKUP_CODE]: user chose to change their backup code from Manage Profile.
+ *  - [EMAIL_CHANGE]: user is changing their email and must confirm the current code first.
+ *  - [FORGOT_BACKUP_CODE]: user forgot their code and recovered via email OTP.
+ *  - [PENDING_BACKUP_CODE]: user has no code yet and is setting one after verifying by email.
  */
 enum class BackupCodeWorkflow {
-    CONFIRM_BACKUP_CODE_CHANGE_CODE,
+    CHANGE_BACKUP_CODE,
+    EMAIL_CHANGE,
+    FORGOT_BACKUP_CODE,
+    PENDING_BACKUP_CODE,
 }

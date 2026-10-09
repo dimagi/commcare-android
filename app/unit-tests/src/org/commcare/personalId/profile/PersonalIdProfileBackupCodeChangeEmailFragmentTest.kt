@@ -8,6 +8,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.shadows.ShadowPhoneAuthProvider
 import org.commcare.android.util.FirebaseTestUtils
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.fragments.personalId.PersonalIdProfileSendEmailOtpFragmentArgs
 import org.commcare.personalId.PersonalIdUserPreferences
@@ -29,7 +30,7 @@ import org.robolectric.shadows.ShadowLooper
 class PersonalIdProfileBackupCodeChangeEmailFragmentTest : BasePersonalIdProfileTest() {
     private val fragmentArgs =
         PersonalIdProfileBackupCodeFragmentArgs
-            .Builder(EmailWorkFlow.EXISTING_USER)
+            .Builder(EmailWorkFlow.EXISTING_USER, BackupCodeWorkflow.EMAIL_CHANGE)
             .setPendingEmail("grace@example.com")
             .build()
             .toBundle()

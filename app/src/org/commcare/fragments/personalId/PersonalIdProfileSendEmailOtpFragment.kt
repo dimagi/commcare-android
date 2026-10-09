@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.AccountSecurityAnalyticsMapper
 
 /**
  * Screen that sends an email OTP to the user during the profile (existing-user) flow and
@@ -20,6 +23,13 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
             binding.sendOtpTitle.setText(R.string.personalid_send_email_otp_pending_backup_code_title)
             binding.sendOtpSubtitle.setText(R.string.personalid_send_email_otp_pending_backup_code_subtitle)
             binding.sendOtpSubtitle.visibility = View.VISIBLE
+            FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+                AccountSecurityAnalyticsMapper.accountSecurityWorkflow(workflow),
+                AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_SET_CODE_LAUNCHED_ON_STARTUP,
+                null,
+                null,
+                null,
+            )
         } else if (workflow == EmailWorkFlow.EXISTING_USER) {
             binding.sendOtpTitle.setText(R.string.personalid_email_verification_title)
         }
@@ -54,6 +64,7 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
                         .actionPersonalidSendEmailOtpToEmailVerificationForgotBackupCode(
                             email,
                             emailOtpTracker.requestCount,
+                            workflow,
                         )
                 }
 
