@@ -16,3 +16,13 @@ This is where you should add any user-visible strings today using following guid
 - All other strings that are used outside the CommCare App sandbox should not define any `cc:translatable` value as it defaults to `false`
 - Please name the strings as per the code area they are used in and group strings together as per the screen they are used in (Eg. `personalid_` and `connect_` prefixes)
 - Any PersonalId and Connect strings should be machine translated in all supported languages in the app. 
+
+## Localization screenshots
+
+The Robolectric tests in `org.commcare.l10n` record PersonalID screens per locale and are skipped unless locales are given:
+
+```bash
+./gradlew testCommcareDebugUnitTest --tests 'org.commcare.l10n.*' -Pl10n.locale=en,fr
+```
+
+Images land in `app/build/outputs/l10n-screenshots/<locale>/` (override with `-Pl10n.outDir=<dir>`).
