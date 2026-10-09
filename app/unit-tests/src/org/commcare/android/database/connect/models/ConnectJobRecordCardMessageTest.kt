@@ -185,6 +185,25 @@ class ConnectJobRecordCardMessageTest {
     }
 
     @Test
+    fun `without delivery warnings a job at its visit cap reports nothing`() {
+        val job = multiPaymentJob(maxVisits = 1)
+        job.deliveries = listOf(delivery(1, 1, daysFromNow(-1)))
+
+        assertNull(job.getCardMessageText(context, false))
+    }
+
+    @Test
+    fun `without delivery warnings an ended job still reports it`() {
+        val job = multiPaymentJob()
+        job.projectEndDate = daysFromNow(-1)
+
+        assertEquals(
+            context.getString(R.string.connect_progress_warning_ended),
+            job.getCardMessageText(context, false),
+        )
+    }
+
+    @Test
     fun `a multi-payment job with room everywhere reports nothing`() {
         val job = multiPaymentJob()
         job.deliveries = listOf(delivery(1, 1, Date()))

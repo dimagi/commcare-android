@@ -166,7 +166,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {
-            messageText = job.getCardMessageText(activity);
+            messageText = job.getCardMessageText(activity, !record.getIsLearning());
         }
 
         if (messageText != null) {
@@ -218,7 +218,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         syncJobCardVisibility(job);
 
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
-        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() ||
+        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() || isSeatedAppLearnApp() ||
                 ConnectTaskUtils.hasPendingTask(activity, job.getJobUUID())) {
             recyclerView.setVisibility(View.GONE);
         } else {
@@ -240,6 +240,12 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         ));
 
         connectProgressJobSummaryAdapter.setDeliverySummaries(list);
+    }
+
+    private boolean isSeatedAppLearnApp() {
+        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        ConnectAppRecord record = ConnectJobUtils.getAppRecord(appId);
+        return record != null && record.getIsLearning();
     }
 
     private Vector<String> getHiddenButtons() {

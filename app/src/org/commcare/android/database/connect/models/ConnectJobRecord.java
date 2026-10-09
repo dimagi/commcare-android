@@ -773,16 +773,27 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     @Nullable
     public String getCardMessageText(Context context) {
+        return getCardMessageText(context, true);
+    }
+
+    /**
+     * Pass {@code includeDeliveryWarnings = false} on surfaces that don't deliver visits, such as the learn app.
+     */
+    @Nullable
+    public String getCardMessageText(Context context, boolean includeDeliveryWarnings) {
         if (isFinished()) {
             return context.getString(R.string.connect_progress_warning_ended);
         } else if (getIsUserSuspended()) {
             return context.getString(R.string.user_suspended);
-        } else if (status == STATUS_DELIVERING && getProjectStartDate().after(new Date())) {
+        } else if (includeDeliveryWarnings && status == STATUS_DELIVERING
+                && getProjectStartDate().after(new Date())) {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
         } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(context, this)) {
             return context.getString(R.string.connect_progress_relearn_tasks_completed);
+        } else if (!includeDeliveryWarnings) {
+            return null;
         } else if (getDeliveries().size() >= getMaxVisits()) {
             // The job-level caps are checked ahead of the per-unit warnings: once the whole
             // opportunity is spent, which individual unit ran out first no longer matters.
