@@ -52,7 +52,7 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
         binding.sendOtpButton.setOnClickListener { sendCode() }
         clearError()
         FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-            AccountSecurityAnalyticsMapper.workflowParam(workflow),
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(workflow),
             AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_SEND_EMAIL_OTP_SHOWN,
             null,
             null,

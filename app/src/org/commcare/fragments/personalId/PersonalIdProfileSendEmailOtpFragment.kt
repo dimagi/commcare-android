@@ -24,7 +24,7 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
             binding.sendOtpSubtitle.setText(R.string.personalid_send_email_otp_pending_backup_code_subtitle)
             binding.sendOtpSubtitle.visibility = View.VISIBLE
             FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-                AccountSecurityAnalyticsMapper.workflowParam(workflow),
+                AccountSecurityAnalyticsMapper.accountSecurityWorkflow(workflow),
                 AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_SET_CODE_LAUNCHED_ON_STARTUP,
                 null,
                 null,

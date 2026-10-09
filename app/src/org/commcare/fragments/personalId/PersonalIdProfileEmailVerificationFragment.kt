@@ -28,7 +28,7 @@ class PersonalIdProfileEmailVerificationFragment : BasePersonalIdEmailVerificati
         user.email = enteredEmail
         ConnectUserDatabaseUtil.storeUser(user)
         FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-            AccountSecurityAnalyticsMapper.workflowParam(resolveWorkflow()),
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(resolveWorkflow()),
             AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_EMAIL_CHANGED,
             AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
             null,

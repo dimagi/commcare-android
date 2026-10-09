@@ -72,7 +72,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
 
     override fun handleForgotBackupCode() {
         FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-            AccountSecurityAnalyticsMapper.workflowParam(EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY),
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY),
             AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_FORGOT_CODE_STARTED,
             null,
             null,
@@ -169,7 +169,7 @@ class PersonalIdBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         PersonalIdUserPreferences.setLastEmailOfferDate(Date())
         val emailWorkFlow = if (isRecovery) EmailWorkFlow.RECOVERY else EmailWorkFlow.REGISTRATION
         FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-            AccountSecurityAnalyticsMapper.workflowParam(emailWorkFlow),
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(emailWorkFlow),
             AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_EMAIL_PROMPT_SHOWN,
             null,
             null,

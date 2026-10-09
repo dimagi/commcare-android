@@ -21,7 +21,7 @@ class PersonalIdEmailVerificationForgotBackupCodeFragment : BasePersonalIdEmailV
 
     override fun onEmailVerified() {
         FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-            AccountSecurityAnalyticsMapper.workflowParam(resolveWorkflow()),
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(resolveWorkflow()),
             AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_RECOVERY_COMPLETED,
             AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
             null,

@@ -120,7 +120,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
         setTitle(R.string.personalid_email_verification_appbar_title)
         activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-            AccountSecurityAnalyticsMapper.workflowParam(workflow),
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(workflow),
             AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_VERIFY_EMAIL_OTP_SHOWN,
             null,
             null,
@@ -265,7 +265,7 @@ abstract class BasePersonalIdEmailVerificationFragment : BasePersonalIdFragment(
     private fun onOtpLimitExceeded(throwable: Throwable?) {
         otpLimitExceeded = true
         FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
-            AccountSecurityAnalyticsMapper.workflowParam(workflow),
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(workflow),
             AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_VERIFY_EMAIL_OTP_MAX_ATTEMPTS,
             null,
             null,

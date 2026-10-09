@@ -18,7 +18,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
 
     private var isLocked = false
 
-    private val analyticsWorkflow get() = AccountSecurityAnalyticsMapper.workflowParam(args.backupCodeWorkflow)
+    private val analyticsWorkflow get() = AccountSecurityAnalyticsMapper.accountSecurityWorkflow(args.backupCodeWorkflow)
 
     override fun onViewCreated(
         view: View,
