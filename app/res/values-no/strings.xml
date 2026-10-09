@@ -435,6 +435,7 @@
     <string name="connect_learn_cta_complete_assessment">Fullfør vurderingen</string>
     <string name="connect_learn_cta_take_assessment">Ta vurderingen</string>
     <string name="connect_learn_cta_start">Start</string>
+    <string name="connect_learn_view_certificate">Vis sertifikat</string>
     <string name="connect_opportunity_footer_start_learning">Start læring</string>
     <string name="connect_download_learn">Last ned Læring</string>
     <string name="connect_downloading_learn">Laster ned Læring</string>

@@ -196,14 +196,18 @@ class ConnectLearnCompleteViewTest {
         val chevron = view.findViewById<View>(R.id.certificate_chevron)
         val container = view.findViewById<View>(R.id.certificate_container)
         val expandedPadding = container.paddingBottom
+        val expandedLabel = view.context.getString(R.string.connect_learn_certificate)
+        val collapsedLabel = view.context.getString(R.string.connect_learn_view_certificate)
 
         assertEquals(View.VISIBLE, certificate.visibility)
         assertEquals(180f, chevron.rotation)
+        assertEquals(expandedLabel, view.text(R.id.certificate_header_label))
         assertTrue("Expanded container should pad below the certificate", expandedPadding > 0)
 
         header.performClick()
         assertEquals(View.GONE, certificate.visibility)
         assertEquals(0f, chevron.rotation)
+        assertEquals(collapsedLabel, view.text(R.id.certificate_header_label))
         assertEquals(
             "Collapsed container should not keep the certificate's bottom padding",
             0,
@@ -214,6 +218,7 @@ class ConnectLearnCompleteViewTest {
         assertEquals(View.VISIBLE, certificate.visibility)
         assertEquals(180f, chevron.rotation)
         assertEquals(expandedPadding, container.paddingBottom)
+        assertEquals(expandedLabel, view.text(R.id.certificate_header_label))
     }
 
     @Test

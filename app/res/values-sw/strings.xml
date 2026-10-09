@@ -343,6 +343,7 @@
     <string name="connect_sms_invite_opportunity_not_found">Fursa haijapatikana</string>
     <string name="connect_learn_complete">Kamilisha</string>
     <string name="connect_learn_certificate">Cheti</string>
+    <string name="connect_learn_view_certificate">Tazama Cheti</string>
     <string name="connect_learn_completed">Ilikamilika mnamo %s</string>
     <string name="connect_learn_cert_score">Alama: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Anza Ziara</string>
