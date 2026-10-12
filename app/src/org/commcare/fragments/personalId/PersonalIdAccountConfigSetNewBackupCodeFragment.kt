@@ -2,10 +2,13 @@ package org.commcare.fragments.personalId
 
 import org.commcare.connect.ConnectConstants
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.personalId.profile.BasePersonalIdSetNewBackupCodeFragment
 import org.commcare.views.dialogs.StandardAlertDialog
 
 class PersonalIdAccountConfigSetNewBackupCodeFragment : BasePersonalIdSetNewBackupCodeFragment() {
+    override fun analyticsWorkflow(): String = AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_RECOVERY_ACCOUNT_CONFIG
+
     override fun navigateToMessageDisplay(
         title: String,
         message: String?,

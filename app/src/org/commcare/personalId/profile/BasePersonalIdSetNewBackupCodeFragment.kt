@@ -12,12 +12,17 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.BasePersonalIdBackupCodeFragment
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.personalId.UnlockPolicy
 import org.commcare.views.dialogs.StandardAlertDialog
 
 abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
+    /** The `workflow` analytics param, which differs per graph and per entry into this screen. */
+    abstract fun analyticsWorkflow(): String
+
     override fun onViewCreated(
         view: View,
         savedInstanceState: Bundle?,
@@ -44,14 +49,24 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
                 getString(R.string.personalid_set_new_backup_code_abandon_message),
             )
         dialog.setPositiveButton(getString(R.string.personalid_set_new_backup_code_abandon_positive)) { d, _ ->
+            reportAbandonPrompt(AnalyticsParamValue.USER_PROMPT_ACTION_CANCEL)
             d.dismiss()
         }
         dialog.setNegativeButton(getString(R.string.personalid_set_new_backup_code_abandon_negative)) { d, _ ->
+            reportAbandonPrompt(AnalyticsParamValue.USER_PROMPT_ACTION_ACCEPT)
             d.dismiss()
             onAbandon()
         }
         dialog.makeCancelable()
         dialog.showNonPersistentDialog(requireActivity())
+    }
+
+    private fun reportAbandonPrompt(action: String) {
+        FirebaseAnalyticsUtil.reportUserPromptEvent(
+            AnalyticsParamValue.USER_PROMPT_TYPE_BACKUP_CODE,
+            action,
+            AnalyticsParamValue.USER_PROMPT_INFO_SET_NEW_BACKUP_CODE_ABANDON,
+        )
     }
 
     protected open fun onAbandon() {
@@ -71,6 +86,13 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
             titleResId = R.string.personalid_set_new_backup_code_title,
             showConfirmCode = true,
             subtitle = getString(R.string.connect_backup_code_remember, BACKUP_CODE_LENGTH),
+        )
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            analyticsWorkflow(),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_SET_NEW_CODE_SHOWN,
+            null,
+            null,
+            null,
         )
     }
 
@@ -114,6 +136,7 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
         user.pin = backupCode
         ConnectUserDatabaseUtil.storeUser(user)
         PersonalIdUserPreferences.setPendingBackupCode(false)
+        reportSetNewCodeAttempt(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, null)
         showSuccess()
     }
 
@@ -123,6 +146,7 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
         errorCode: PersonalIdOrConnectApiErrorCodes,
         t: Throwable?,
     ) {
+        reportSetNewCodeAttempt(AnalyticsParamValue.OTP_OUTCOME_FAILURE, errorCode.name)
         showError(
             PersonalIdOrConnectApiErrorHandler.handle(
                 requireActivity(),
@@ -131,5 +155,18 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
             ),
         )
         enableContinueButton(true)
+    }
+
+    private fun reportSetNewCodeAttempt(
+        outcome: String,
+        reason: String?,
+    ) {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            analyticsWorkflow(),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_SET_NEW_CODE_ATTEMPT,
+            outcome,
+            reason,
+            null,
+        )
     }
 }

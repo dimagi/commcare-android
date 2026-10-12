@@ -7,13 +7,18 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.BasePersonalIdBackupCodeFragment
 import org.commcare.fragments.personalId.EmailWorkFlow
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
+import org.commcare.utils.AccountSecurityAnalyticsMapper
 
 class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     private val args by lazy { PersonalIdProfileBackupCodeFragmentArgs.fromBundle(requireArguments()) }
     private val pendingEmail get() = args.pendingEmail
 
     private var isLocked = false
+
+    private val analyticsWorkflow get() = AccountSecurityAnalyticsMapper.accountSecurityWorkflow(args.backupCodeWorkflow)
 
     override fun onViewCreated(
         view: View,
@@ -32,6 +37,13 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             subtitle = getString(R.string.connect_backup_code_message),
         )
         binding.personalidForgotBackupCode.visibility = View.VISIBLE
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            analyticsWorkflow,
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_CONFIRM_CODE_SHOWN,
+            null,
+            null,
+            null,
+        )
     }
 
     override fun onCodeChanged() {
@@ -39,6 +51,13 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
     }
 
     override fun handleForgotBackupCode() {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            analyticsWorkflow,
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_FORGOT_CODE_STARTED,
+            null,
+            null,
+            null,
+        )
         val email = ConnectUserDatabaseUtil.getUser().email
         when {
             !email.isNullOrEmpty() -> {
@@ -77,6 +96,7 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         val storedBackupCode = ConnectUserDatabaseUtil.getUser()?.pin
         if (enteredCode == storedBackupCode) {
             PersonalIdUserPreferences.clearBackupCodeLockout()
+            reportConfirmAttempt(AnalyticsParamValue.OTP_OUTCOME_SUCCESS, null)
             if (args.emailWorkflow == EmailWorkFlow.EXISTING_USER) {
                 navigateToEmailOtpFragment()
             } else {
@@ -84,7 +104,15 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
             }
         } else {
             val attempts = PersonalIdUserPreferences.recordBackupCodeFailure()
+            reportConfirmAttempt(AnalyticsParamValue.OTP_OUTCOME_FAILURE, attempts)
             if (attempts >= MAX_ATTEMPTS) {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+                    analyticsWorkflow,
+                    AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_CONFIRM_CODE_MAX_ATTEMPTS,
+                    null,
+                    null,
+                    attempts,
+                )
                 PersonalIdUserPreferences.triggerBackupCodeLockout()
                 enterLockedState()
             } else {
@@ -101,8 +129,23 @@ class PersonalIdProfileBackupCodeFragment : BasePersonalIdBackupCodeFragment() {
         findNavController().navigate(directions)
     }
 
+    private fun reportConfirmAttempt(
+        outcome: String,
+        failedAttempts: Int?,
+    ) {
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            analyticsWorkflow,
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_CONFIRM_CODE_ATTEMPT,
+            outcome,
+            null,
+            failedAttempts,
+        )
+    }
+
     private fun navigateToSetNewBackupCode() {
-        val directions = PersonalIdProfileBackupCodeFragmentDirections.actionProfileBackupCodeToSetNewBackupCode()
+        val directions =
+            PersonalIdProfileBackupCodeFragmentDirections
+                .actionProfileBackupCodeToSetNewBackupCode(args.backupCodeWorkflow)
         findNavController().navigate(directions)
     }
 

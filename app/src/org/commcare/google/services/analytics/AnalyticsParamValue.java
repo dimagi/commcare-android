@@ -247,6 +247,53 @@ public class AnalyticsParamValue {
             "email_verification_failure_retry";
     public static final String USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE =
             "manage_profile_email_update";
+    public static final String USER_PROMPT_TYPE_BACKUP_CODE = "backup_code";
+    public static final String USER_PROMPT_ACTION_SHOWN = "shown";
+    public static final String USER_PROMPT_ACTION_FORGOT = "forgot";
+    public static final String USER_PROMPT_INFO_BACKUP_CODE_REMINDER = "backup_code_reminder";
+    public static final String USER_PROMPT_INFO_SET_BACKUP_CODE_REMINDER =
+            "set_backup_code_reminder";
+    public static final String USER_PROMPT_INFO_SET_NEW_BACKUP_CODE_ABANDON =
+            "set_new_backup_code_abandon";
+
+    // Param values for account security analytics
+    public static final String ACCOUNT_SECURITY_WORKFLOW_CHANGE_BACKUP_CODE = "change_backup_code";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_RECOVERY_ACCOUNT_CONFIG =
+            "recovery_account_config";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_RECOVERY_EXISTING_USER =
+            "recovery_existing_user";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_RECOVERY_PENDING_CODE =
+            "recovery_pending_code";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_BACKUP_CODE_REMINDER =
+            "backup_code_reminder";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE = "email_change";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_BACKUP_CODE =
+            "email_change_backup_code";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_PHONE_OTP =
+            "email_change_phone_otp";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_REGISTRATION = "registration";
+    public static final String ACCOUNT_SECURITY_WORKFLOW_ACCOUNT_RECOVERY = "account_recovery";
+
+    public static final String ACCOUNT_SECURITY_EVENT_CONFIRM_CODE_SHOWN = "confirm_code_shown";
+    public static final String ACCOUNT_SECURITY_EVENT_CONFIRM_CODE_ATTEMPT = "confirm_code_attempt";
+    public static final String ACCOUNT_SECURITY_EVENT_CONFIRM_CODE_MAX_ATTEMPTS =
+            "confirm_code_max_attempts";
+    public static final String ACCOUNT_SECURITY_EVENT_FORGOT_CODE_STARTED = "forgot_code_started";
+    public static final String ACCOUNT_SECURITY_EVENT_SET_NEW_CODE_SHOWN = "set_new_code_shown";
+    public static final String ACCOUNT_SECURITY_EVENT_SET_NEW_CODE_ATTEMPT = "set_new_code_attempt";
+    public static final String ACCOUNT_SECURITY_EVENT_SEND_EMAIL_OTP_SHOWN = "send_email_otp_shown";
+    public static final String ACCOUNT_SECURITY_EVENT_VERIFY_EMAIL_OTP_SHOWN =
+            "verify_email_otp_shown";
+    public static final String ACCOUNT_SECURITY_EVENT_VERIFY_EMAIL_OTP_MAX_ATTEMPTS =
+            "verify_email_otp_max_attempts";
+    public static final String ACCOUNT_SECURITY_EVENT_EMAIL_PROMPT_SHOWN = "email_prompt_shown";
+    public static final String ACCOUNT_SECURITY_EVENT_PHONE_OTP_REQUIRED = "phone_otp_required";
+    public static final String ACCOUNT_SECURITY_EVENT_PHONE_OTP_MAX_ATTEMPTS =
+            "phone_otp_max_attempts";
+    public static final String ACCOUNT_SECURITY_EVENT_SET_CODE_LAUNCHED_ON_STARTUP =
+            "set_code_launched_on_startup";
+    public static final String ACCOUNT_SECURITY_EVENT_RECOVERY_COMPLETED = "recovery_completed";
+    public static final String ACCOUNT_SECURITY_EVENT_EMAIL_CHANGED = "email_changed";
 
     // Param values for SMS invite link analytics
     public static final String OPP_INVITE_LINK = "opp_invite_link";

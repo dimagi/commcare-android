@@ -14,6 +14,7 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileEditScreenBinding
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -164,12 +165,21 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         _binding ?: return
         val directions =
             if (viewModel.user.pin.isNullOrEmpty()) {
+                FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+                    AnalyticsParamValue.ACCOUNT_SECURITY_WORKFLOW_EMAIL_CHANGE_PHONE_OTP,
+                    AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_PHONE_OTP_REQUIRED,
+                    null,
+                    null,
+                    null,
+                )
                 PersonalIdProfileEditFragmentDirections
                     .actionProfileEditToProfileSendPhoneOtp(pendingEmail)
             } else {
                 PersonalIdProfileEditFragmentDirections
-                    .actionProfileEditToBackupCode(EmailWorkFlow.EXISTING_USER)
-                    .setPendingEmail(pendingEmail)
+                    .actionProfileEditToBackupCode(
+                        EmailWorkFlow.EXISTING_USER,
+                        BackupCodeWorkflow.EMAIL_CHANGE,
+                    ).setPendingEmail(pendingEmail)
             }
         findNavController().navigate(directions)
     }
