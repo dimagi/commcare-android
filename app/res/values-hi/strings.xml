@@ -284,6 +284,7 @@ License.
     <string name="personalid_email_otp_failed_wait">प्रतीक्षा करें</string>
     <string name="personalid_email_otp_failed_skip">ईमेल के बिना आगे बढ़ें</string>
     <string name="personalid_otp_limit_exceeded">आपने इस कोड के सभी प्रयास उपयोग कर लिए हैं, इसलिए यह अब मान्य नहीं है। जारी रखने के लिए नया कोड माँगें।</string>
+    <string name="personalid_otp_session_expired">यह कोड अब मान्य नहीं है। जारी रखने के लिए नया कोड माँगें।</string>
     <string name="personalid_rate_limited_retry_after">बहुत अधिक प्रयास। कृपया %1$s में पुनः प्रयास करें।</string>
     <string name="personalid_otp_resend_wait">आपको अपना कोड नहीं मिला? %1$s में पुनः भेजें</string>
     <string name="personalid_otp_request_new_code_wait">नया कोड माँगने के लिए %1$s प्रतीक्षा करें</string>
