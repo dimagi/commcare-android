@@ -93,6 +93,8 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
 
     protected open fun onChangeNumberClicked() = Unit
 
+    protected open fun onOtpAttemptsExhausted() = Unit
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
@@ -314,6 +316,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
     }
 
     private fun onOtpLimitExceeded(throwable: Throwable?) {
+        onOtpAttemptsExhausted()
         val retryAfterSeconds = (throwable as? RateLimitedException)?.retryAfterSeconds
         val limitExceededMessage =
             PersonalIdOrConnectApiErrorHandler.handle(

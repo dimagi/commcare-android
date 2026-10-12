@@ -13,6 +13,7 @@ import org.commcare.android.util.FirebaseTestUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.BaseNavGraphToolbarTitleTest
@@ -145,6 +146,10 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
                     Bundle().apply {
                         putString("email", EMAIL)
                         putInt("emailOtpRequestCount", 1)
+                        putSerializable(
+                            "workflow",
+                            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+                        )
                     },
                 ),
                 TitledScreen(
@@ -154,6 +159,10 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
                         putSerializable(
                             "emailWorkflow",
                             EmailWorkFlow.EXISTING_USER,
+                        )
+                        putSerializable(
+                            "backupCodeWorkflow",
+                            BackupCodeWorkflow.EMAIL_CHANGE,
                         )
                     },
                 ),
@@ -174,6 +183,12 @@ class PersonalIdProfileActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest()
                 TitledScreen(
                     R.id.personalid_profile_set_new_backup_code_fragment,
                     R.string.personalid_set_new_backup_code_title,
+                    Bundle().apply {
+                        putSerializable(
+                            "backupCodeWorkflow",
+                            BackupCodeWorkflow.CHANGE_BACKUP_CODE,
+                        )
+                    },
                 ),
             ).associateBy { it.destinationId }
 
