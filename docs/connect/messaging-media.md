@@ -11,8 +11,8 @@ messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSE
    appears (chat and channel preview), `rich_text` is shown whenever present; an empty string
    (`"rich_text": ""`) marks a media-only message, which shows no text. `content` is not stored
    when rich text is present; it is only the fallback when `rich_text` is absent or fails to
-   decrypt. An entry that fails to parse is logged, skipped and not acked, so it can't block the
-   rest of the sync.
+   decrypt. Any entry that fails to parse, or an attachment whose message wasn't stored, fails
+   the whole sync, so nothing is acknowledged and the error stays visible until it's fixed.
 
    **Unsupported versions** (anything but absent, 0 or 2) keep none of the message: only its id,
    channel, timestamp and version are stored, and it is not acked. The server redelivers it on
