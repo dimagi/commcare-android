@@ -27,6 +27,7 @@ import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
 import org.commcare.views.connect.ConnectInfoCard
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -84,6 +85,15 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
                 .text
                 .toString(),
         )
+    }
+
+    @Test
+    fun `toolbar shows the opportunity name without the sync button`() {
+        launch()
+        ShadowLooper.idleMainLooper()
+
+        assertEquals("Infant Vaccination", activity.supportActionBar!!.title)
+        assertFalse(activity.isSyncMenuItemVisible())
     }
 
     @Test

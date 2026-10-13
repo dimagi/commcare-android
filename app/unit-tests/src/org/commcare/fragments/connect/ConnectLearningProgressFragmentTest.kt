@@ -136,6 +136,16 @@ class ConnectLearningProgressFragmentTest {
     }
 
     @Test
+    fun `toolbar shows the opportunity name and keeps the sync button`() {
+        val job = ConnectLearnJobTestData.job()
+        launch(job)
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(job.title, activity.supportActionBar!!.title)
+        assertTrue(activity.isSyncMenuItemVisible())
+    }
+
+    @Test
     fun `progress state is shown while learning is incomplete`() {
         val fragment =
             launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
