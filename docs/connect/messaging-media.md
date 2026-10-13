@@ -75,8 +75,8 @@ resets the count. 401/403 stop the pass without counting an attempt.
 
 - **Row.** Messages with attachments drop the 70% text-bubble cap for media. Media first, text
   below it, then the timestamp; the text wraps at the wider of the media and the normal 70% text
-  width, so a narrow portrait image doesn't squeeze it. Bubble padding 10, 8 between attachments
-  and before the text.
+  width, so a narrow portrait image doesn't squeeze it; narrower media is centered above the
+  text. Bubble padding 10, 8 between attachments and before the text.
 - **Image.** `w = min(maxW, maxH × aspect)`, `h = w ÷ aspect`; `maxW` = list width − 38
   (row margins, tail, bubble padding), `maxH` = window height × 0.4 (about half the chat list
   with the keyboard closed, and unaffected by it). Dimensions follow the EXIF orientation, as
