@@ -77,11 +77,19 @@ resets the count. 401/403 stop the pass without counting an attempt.
   below it, then the timestamp; the text wraps at the wider of the media and the normal 70% text
   width, so a narrow portrait image doesn't squeeze it; narrower media is centered above the
   text. Bubble padding 10, 8 between attachments and before the text.
-- **Image.** `w = min(maxW, maxH × aspect)`, `h = w ÷ aspect`; `maxW` = list width − 38
-  (row margins, tail, bubble padding), `maxH` = window height × 0.4 (about half the chat list
-  with the keyboard closed, and unaffected by it). Dimensions follow the EXIF orientation, as
-  Glide does when drawing. Corners 6. Loaded with Glide without a disk cache, so no decrypted
-  copies leave the attachment directory.
+- **Image.** Shown at its natural size, one image pixel per dp: `w = min(maxW, maxH × aspect,
+  natural width)`, `h = w ÷ aspect`; `maxW` = list width − 38 (row margins, tail, bubble
+  padding), `maxH` = window height × 0.4 (about half the chat list with the keyboard closed,
+  and unaffected by it). An image under 48dp (`connect_touch_target_min`) in either dimension
+  is enlarged until its shorter side reaches 48dp, within those limits, and can't be tapped.
+  Dimensions follow the EXIF orientation, as Glide does when drawing. Corners 6. Loaded with
+  Glide without a disk cache, so no decrypted copies leave the attachment directory.
+- **Lightbox.** Tapping an image opens `ConnectMessageImageViewerFragment`: black background,
+  the message's date and time as the title, and the caption (up to 3 lines) on a `black_60`
+  strip. Subsampling Scale Image View shows the file in place. It opens at the smaller of
+  fit-to-screen and natural size in dp, and pinch-zooms to the larger of 2 screen pixels per
+  image pixel and twice the opening size; double-tap zooms to at least 1 screen pixel per
+  image pixel, within that limit.
 - **Audio.** Fills the bubble: 40 white play circle in a 48 touch target, seek bar (4 track,
   14 thumb, white over white 40%), time 12sp. Idle shows the duration, then the position. One
   track plays at a time and playback stops when the chat closes.
@@ -98,12 +106,13 @@ Dimensions, styles and icons are prefixed `connect_message_` / `ConnectMessage` 
 
 - `format` is stored but every value uses the default layout (no gallery strip).
 - Download progress is indeterminate; cancelling isn't possible.
-- The image lightbox from the design.
+- The lightbox shows one image; there's no swiping between a message's images.
 
 ## Edge cases
 
 - **Entry and back:** attachments live inside the existing chat screen; settings open from the
-  channel list menu and Back returns to the list.
+  channel list menu and Back returns to the list. Back from the lightbox returns to the chat,
+  and the lightbox closes itself if the image file is gone.
 - **Session:** behind PersonalID like the rest of messaging; logout removes files and work.
 - **Lifecycle:** download state lives in the database, so it survives the app being killed.
   Audio position is not kept across rotation or leaving the chat.
