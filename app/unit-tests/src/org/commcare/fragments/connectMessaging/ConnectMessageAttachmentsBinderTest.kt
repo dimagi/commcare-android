@@ -27,6 +27,7 @@ class ConnectMessageAttachmentsBinderTest {
     private val container = LinearLayout(context)
     private val requestedDownloads = mutableListOf<String>()
     private val openedAttachments = mutableListOf<String>()
+    private val openedImages = mutableListOf<Pair<String, View>>()
     private val binder =
         ConnectMessageAttachmentsBinder(
             container,
@@ -37,6 +38,13 @@ class ConnectMessageAttachmentsBinderTest {
 
                 override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) {
                     openedAttachments.add(attachment.attachmentId)
+                }
+
+                override fun onImageOpenRequested(
+                    attachment: ConnectMessageAttachmentItem,
+                    imageView: View,
+                ) {
+                    openedImages.add(attachment.attachmentId to imageView)
                 }
             },
         )
@@ -81,9 +89,11 @@ class ConnectMessageAttachmentsBinderTest {
         val photo = image("tappable-photo", storedWidth = 400, storedHeight = 300)
 
         binder.bind(listOf(photo), MAX_WIDTH, MAX_HEIGHT)
-        container.getChildAt(0).performClick()
+        val imageView = container.getChildAt(0)
+        imageView.performClick()
 
-        assertEquals(listOf("tappable-photo"), openedAttachments)
+        assertEquals(listOf("tappable-photo" to imageView), openedImages)
+        assertEquals(ConnectMessageImageViewerFragment.transitionNameFor("tappable-photo"), imageView.transitionName)
     }
 
     @Test

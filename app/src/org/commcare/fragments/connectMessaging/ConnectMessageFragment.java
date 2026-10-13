@@ -22,11 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
+import androidx.core.view.OneShotPreDrawListener;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Fade;
 
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.adapters.ConnectMessageAdapter;
@@ -82,6 +85,13 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
     private static final int MENU_RESUBSCRIBE = Menu.FIRST + 1;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setExitTransition(new Fade().setDuration(ConnectMessageImageViewerFragment.TRANSITION_DURATION_MS));
+        setReenterTransition(null);
+    }
+
+    @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             ViewGroup container,
@@ -115,6 +125,13 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
         }
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        postponeEnterTransition();
+        OneShotPreDrawListener.add(view, this::startPostponedEnterTransition);
     }
 
     private void setupMenuItems() {
@@ -395,11 +412,6 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
         if (file == null) {
             return;
         }
-        if (attachment.isImage()) {
-            Navigation.findNavController(requireView()).navigate(ConnectMessageFragmentDirections
-                    .actionConnectMessageFragmentToConnectMessageImageViewerFragment(attachment.getAttachmentId()));
-            return;
-        }
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(FileUtil.getUriForExternalFile(requireContext(), file), attachment.getMimeType());
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -409,6 +421,19 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
             Toast.makeText(requireContext(), R.string.connect_messaging_attachment_open_failed,
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onImageOpenRequested(@NonNull ConnectMessageAttachmentItem attachment, @NonNull View imageView) {
+        if (attachment.getFile() == null) {
+            return;
+        }
+        FragmentNavigator.Extras sharedImage = new FragmentNavigator.Extras.Builder()
+                .addSharedElement(imageView, imageView.getTransitionName())
+                .build();
+        Navigation.findNavController(requireView()).navigate(ConnectMessageFragmentDirections
+                        .actionConnectMessageFragmentToConnectMessageImageViewerFragment(attachment.getAttachmentId()),
+                sharedImage);
     }
 
     private void scrollToLatestMessage() {

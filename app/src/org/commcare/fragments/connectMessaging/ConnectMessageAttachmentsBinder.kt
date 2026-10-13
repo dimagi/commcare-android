@@ -123,6 +123,7 @@ class ConnectMessageAttachmentsBinder(
         val imageView = binding.root
         imageView.layoutParams = ViewGroup.LayoutParams(size.width, size.height)
         imageView.contentDescription = attachment.name
+        imageView.transitionName = ConnectMessageImageViewerFragment.transitionNameFor(attachment.attachmentId)
         Glide
             .with(imageView)
             .load(attachment.file)
@@ -130,7 +131,7 @@ class ConnectMessageAttachmentsBinder(
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .into(imageView)
         if (opensViewer) {
-            imageView.setOnClickListener { listener.onAttachmentOpenRequested(attachment) }
+            imageView.setOnClickListener { listener.onImageOpenRequested(attachment, imageView) }
         }
         return imageView
     }

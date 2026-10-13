@@ -1,6 +1,7 @@
 package org.commcare.fragments.connectMessaging
 
 import android.content.Context
+import android.view.View
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState
 import org.commcare.connect.database.ConnectMessagingAttachmentFileStore
@@ -48,4 +49,9 @@ interface ConnectMessageAttachmentListener {
     fun onMessageDownloadRequested(messageId: String)
 
     fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem)
+
+    fun onImageOpenRequested(
+        attachment: ConnectMessageAttachmentItem,
+        imageView: View,
+    )
 }

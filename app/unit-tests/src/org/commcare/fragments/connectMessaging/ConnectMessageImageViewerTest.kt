@@ -6,6 +6,7 @@ import android.text.format.DateUtils
 import android.view.View
 import android.widget.TextView
 import androidx.navigation.fragment.NavHostFragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,6 +30,7 @@ import org.commcare.dalvik.databinding.ItemChatLeftRichViewBinding
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotSame
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,7 +83,7 @@ class ConnectMessageImageViewerTest {
         openChat()
 
         chatImage().performClick()
-        ShadowLooper.idleMainLooper()
+        settle()
 
         assertEquals(R.id.connectMessageImageViewerFragment, navController().currentDestination?.id)
         assertEquals(expectedTitle(), activity.title.toString())
@@ -90,9 +92,86 @@ class ConnectMessageImageViewerTest {
         assertEquals("Site map for Thursday", caption.text.toString().trim())
 
         activity.onBackPressedDispatcher.onBackPressed()
-        ShadowLooper.idleMainLooper()
+        settle()
 
         assertEquals(R.id.connectMessageFragment, navController().currentDestination?.id)
+    }
+
+    @Test
+    fun `viewer grows out of the tapped image through a shared transition name`() {
+        storeImageMessage(caption = "Site map for Thursday")
+        openChat()
+        val image = chatImage()
+
+        image.performClick()
+        settle()
+
+        val transitionImage = activity.findViewById<View>(R.id.ivTransitionImage)
+        assertEquals(ConnectMessageImageViewerFragment.transitionNameFor(ATTACHMENT_ID), image.transitionName)
+        assertEquals(image.transitionName, transitionImage.transitionName)
+    }
+
+    @Test
+    fun `caption appears only once the image is in place`() {
+        storeImageMessage(caption = "Site map for Thursday")
+        openChat()
+
+        chatImage().performClick()
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(View.GONE, activity.findViewById<View>(R.id.tvCaption).visibility)
+
+        settle()
+
+        assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.tvCaption).visibility)
+        assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.vBackdrop).visibility)
+    }
+
+    @Test
+    fun `going back hands the image to the shrinking copy`() {
+        storeImageMessage(caption = "Site map for Thursday")
+        openChat()
+        chatImage().performClick()
+        settle()
+        val transitionImage = activity.findViewById<View>(R.id.ivTransitionImage)
+        val zoomableImage = activity.findViewById<View>(R.id.ivImage)
+
+        activity.onBackPressedDispatcher.onBackPressed()
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(View.VISIBLE, transitionImage.visibility)
+        assertEquals(0f, zoomableImage.alpha, 0f)
+    }
+
+    @Test
+    fun `zoomable image stays drawn while it loads so it can take over and be pinched`() {
+        storeImageMessage(caption = "Site map for Thursday")
+        openChat()
+
+        chatImage().performClick()
+        settle()
+
+        assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.ivImage).visibility)
+    }
+
+    @Test
+    fun `returning from the viewer keeps the tapped image on screen for the shrink back`() {
+        storeImageMessage(caption = "Site map for Thursday")
+        storePlainMessages(LATER_MESSAGES)
+        openChat()
+        val chat = layOutChat()
+        chat.scrollToPosition(0)
+        layOutChat()
+
+        imageAt(chat, 0).performClick()
+        settle()
+        assertEquals(R.id.connectMessageImageViewerFragment, navController().currentDestination?.id)
+        activity.onBackPressedDispatcher.onBackPressed()
+        settle()
+
+        val returnedChat = layOutChat()
+        assertNotSame(chat, returnedChat)
+        assertEquals(0, (returnedChat.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition())
     }
 
     @Test
@@ -101,7 +180,7 @@ class ConnectMessageImageViewerTest {
         openChat()
 
         chatImage().performClick()
-        ShadowLooper.idleMainLooper()
+        settle()
 
         assertEquals(View.GONE, activity.findViewById<TextView>(R.id.tvCaption).visibility)
     }
@@ -150,6 +229,24 @@ class ConnectMessageImageViewerTest {
         }
     }
 
+    private fun storePlainMessages(count: Int) {
+        val messages =
+            (1..count).map { index ->
+                ConnectMessagingMessageRecord().apply {
+                    messageId = "later-$index"
+                    channelId = CHANNEL_ID
+                    timeStamp = Date()
+                    message = "Later message $index"
+                    isOutgoing = false
+                }
+            }
+        ConnectMessagingDatabaseHelper.storeMessagingMessages(context, messages, false)
+    }
+
+    private fun settle() {
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+    }
+
     private fun expectedTitle(): String {
         val message = ConnectMessagingAttachmentDatabaseHelper.getMessage(MESSAGE_ID)!!
         return DateUtils.formatDateTime(
@@ -168,14 +265,23 @@ class ConnectMessageImageViewerTest {
         ShadowLooper.idleMainLooper()
     }
 
-    private fun chatImage(): View {
+    private fun chatImage(): View = imageAt(layOutChat(), 0)
+
+    private fun layOutChat(): RecyclerView {
         val chat = activity.findViewById<RecyclerView>(R.id.rvChat)
         chat.measure(
             View.MeasureSpec.makeMeasureSpec(CHAT_WIDTH_PX, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(CHAT_HEIGHT_PX, View.MeasureSpec.EXACTLY),
         )
         chat.layout(0, 0, CHAT_WIDTH_PX, CHAT_HEIGHT_PX)
-        val row = ItemChatLeftRichViewBinding.bind(chat.findViewHolderForAdapterPosition(0)!!.itemView)
+        return chat
+    }
+
+    private fun imageAt(
+        chat: RecyclerView,
+        position: Int,
+    ): View {
+        val row = ItemChatLeftRichViewBinding.bind(chat.findViewHolderForAdapterPosition(position)!!.itemView)
         return row.llAttachments.getChildAt(0)
     }
 
@@ -190,5 +296,6 @@ class ConnectMessageImageViewerTest {
         const val SYNC_RESPONSES = 3
         const val CHAT_WIDTH_PX = 1080
         const val CHAT_HEIGHT_PX = 1920
+        const val LATER_MESSAGES = 25
     }
 }

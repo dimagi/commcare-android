@@ -360,6 +360,11 @@ class ConnectMessageAdapterTest {
         override fun onMessageDownloadRequested(messageId: String) = Unit
 
         override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) = Unit
+
+        override fun onImageOpenRequested(
+            attachment: ConnectMessageAttachmentItem,
+            imageView: View,
+        ) = Unit
     }
 
     private fun getReadIconResId(binding: ItemChatRightViewBinding) =
