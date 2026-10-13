@@ -579,7 +579,8 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
     }
 
     protected boolean shouldIgnoreNavigationAction() {
-        return blockingActionsManager.isBlocked();
+        // The navigation controls are live while the form is still loading
+        return FormEntryActivity.mFormController == null || blockingActionsManager.isBlocked();
     }
 
     protected boolean shouldIgnoreSwipeAction() {
