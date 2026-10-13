@@ -168,7 +168,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     }
 
     private static void readRichFields(ConnectMessagingMessageRecord record, JSONObject json, String key)
-            throws JSONException, ParseException {
+            throws JSONException {
         Object richTextValue = json.opt(JSON_RICH_TEXT);
         if ("".equals(richTextValue)) {
             record.richText = "";
@@ -192,8 +192,8 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
             String expiresAt = json.getString(JSON_EXPIRES_AT);
             Date expiryDate = DateUtils.parseDateTime(expiresAt);
             if (expiryDate == null) {
-                throw new ParseException("Invalid expires_at for message " + record.messageId + ": '"
-                        + expiresAt + "'", 0);
+                throw new JSONException("Invalid expires_at for message " + record.messageId + ": '"
+                        + expiresAt + "'");
             }
             record.expiresAtMillis = expiryDate.getTime();
         }

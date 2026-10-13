@@ -256,8 +256,8 @@ class RetrieveNotificationsResponseParserTest {
         parseResponse(response)
     }
 
-    @Test
-    fun `push notification missing its timestamp is skipped and the rest still parse`() {
+    @Test(expected = JSONException::class)
+    fun `push notification missing its timestamp fails the whole parse`() {
         val incompleteNotification =
             """
             {
@@ -272,14 +272,11 @@ class RetrieveNotificationsResponseParserTest {
                 notifications = listOf(incompleteNotification, validNotification),
             )
 
-        val result = parseWithStoredChannels(response, emptyList())
-
-        assertEquals(1, result.nonMessagingNotifications.size)
-        assertEquals("push_001", result.nonMessagingNotifications[0].notificationId)
+        parseWithStoredChannels(response, emptyList())
     }
 
-    @Test
-    fun `malformed messaging entry is skipped and not acknowledged while the rest still parse`() {
+    @Test(expected = JSONException::class)
+    fun `malformed messaging entry fails the whole parse`() {
         val malformedMessage =
             """
             {
@@ -297,10 +294,7 @@ class RetrieveNotificationsResponseParserTest {
             )
         val response = NotificationTestUtil.createCompleteResponse(notifications = listOf(malformedMessage, validMessage))
 
-        val result = parseWithStoredChannels(response, listOf(channelWithTestKey("channel_001")))
-
-        assertEquals(listOf("message_001"), result.messages.map { it.messageId })
-        assertEquals(listOf("msg_001"), result.messagingNotificationIds)
+        parseWithStoredChannels(response, listOf(channelWithTestKey("channel_001")))
     }
 
     @Test
@@ -435,8 +429,8 @@ class RetrieveNotificationsResponseParserTest {
         assertTrue(result.messagingNotificationIds.isEmpty())
     }
 
-    @Test
-    fun `version 2 message with a malformed attachment is skipped while the rest still parse`() {
+    @Test(expected = JSONException::class)
+    fun `version 2 message with a malformed attachment fails the whole parse`() {
         val malformed =
             NotificationTestUtil.createRichMessagingNotification(
                 "msg_bad",
@@ -454,15 +448,11 @@ class RetrieveNotificationsResponseParserTest {
                 attachments = listOf(NotificationTestUtil.createAttachmentJson(FIRST_ATTACHMENT_ID, "site-map.jpg")),
             )
 
-        val result = parseMessages(malformed, valid)
-
-        assertEquals(listOf("message_001"), result.messages.map { it.messageId })
-        assertEquals(listOf("msg_001"), result.messagingNotificationIds)
-        assertEquals(listOf(FIRST_ATTACHMENT_ID), result.attachments.map { it.attachmentId })
+        parseMessages(malformed, valid)
     }
 
-    @Test
-    fun `attachment whose id is not a UUID fails its message`() {
+    @Test(expected = JSONException::class)
+    fun `attachment whose id is not a UUID fails the whole parse`() {
         val notification =
             NotificationTestUtil.createRichMessagingNotification(
                 "msg_001",
@@ -472,10 +462,21 @@ class RetrieveNotificationsResponseParserTest {
                 attachments = listOf(NotificationTestUtil.createAttachmentJson("../escape", "site-map.jpg")),
             )
 
-        val result = parseMessages(notification)
+        parseMessages(notification)
+    }
 
-        assertTrue(result.messages.isEmpty())
-        assertTrue(result.messagingNotificationIds.isEmpty())
+    @Test(expected = JSONException::class)
+    fun `version 2 message with an invalid expiry fails the whole parse`() {
+        val notification =
+            NotificationTestUtil.createRichMessagingNotification(
+                "msg_001",
+                "message_001",
+                "channel_001",
+                content = "Plain text",
+                expiresAt = "next tuesday",
+            )
+
+        parseMessages(notification)
     }
 
     private fun parseMessages(vararg messagingNotifications: String): NotificationParseResult =

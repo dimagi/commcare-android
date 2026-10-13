@@ -8,7 +8,6 @@ import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_NOTIFICATION_ID
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.network.base.BaseApiResponseParser
-import org.javarosa.core.services.Logger
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InputStream
@@ -75,42 +74,34 @@ class RetrieveNotificationsResponseParser(
             // Get existing channels from database - these have the encryption keys required for message decryption
             val existingChannels = ConnectMessagingDatabaseHelper.getMessagingChannels(context)
             for (notificationIndex in 0 until jsonArray.length()) {
-                try {
-                    val notificationJsonObject = jsonArray.getJSONObject(notificationIndex)
+                val notificationJsonObject = jsonArray.getJSONObject(notificationIndex)
 
-                    if (isNotificationMessageType(notificationJsonObject)) {
-                        // Handle messaging notifications - parse as ConnectMessagingMessageRecord
-                        val message =
-                            ConnectMessagingMessageRecord.fromJson(
-                                notificationJsonObject,
-                                existingChannels,
+                if (isNotificationMessageType(notificationJsonObject)) {
+                    // Handle messaging notifications - parse as ConnectMessagingMessageRecord
+                    val message =
+                        ConnectMessagingMessageRecord.fromJson(
+                            notificationJsonObject,
+                            existingChannels,
+                        )
+                    if (message != null) {
+                        if (message.isRich) {
+                            attachments.addAll(
+                                ConnectMessagingAttachmentRecord.listFromMessageJson(
+                                    notificationJsonObject,
+                                    message.messageId,
+                                    message.channelId,
+                                ),
                             )
-                        if (message != null) {
-                            val notificationId = notificationJsonObject.getString(META_NOTIFICATION_ID)
-                            val messageAttachments =
-                                if (message.isRich) {
-                                    ConnectMessagingAttachmentRecord.listFromMessageJson(
-                                        notificationJsonObject,
-                                        message.messageId,
-                                        message.channelId,
-                                    )
-                                } else {
-                                    emptyList()
-                                }
-                            messages.add(message)
-                            if (!message.isUnsupportedVersion) {
-                                messagesNotificationsIds.add(notificationId)
-                            }
-                            attachments.addAll(messageAttachments)
                         }
-                    } else {
-                        // Handle non-messaging notifications
-                        val notification = PushNotificationRecord.fromJson(notificationJsonObject)
-                        nonMessageNotifications.add(notification)
+                        messages.add(message)
+                        if (!message.isUnsupportedVersion) {
+                            messagesNotificationsIds.add(notificationJsonObject.getString(META_NOTIFICATION_ID))
+                        }
                     }
-                } catch (e: Exception) {
-                    val notificationId = jsonArray.optJSONObject(notificationIndex)?.optString(META_NOTIFICATION_ID)
-                    Logger.exception("Skipping notification $notificationId that could not be parsed", e)
+                } else {
+                    // Handle non-messaging notifications
+                    val notification = PushNotificationRecord.fromJson(notificationJsonObject)
+                    nonMessageNotifications.add(notification)
                 }
             }
         }
