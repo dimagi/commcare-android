@@ -94,6 +94,7 @@ object ConnectMessagingAttachmentDatabaseHelper {
                 .map { it.messageId }
                 .distinct()
                 .associateWith { messageId ->
+                    // RetrieveNotificationsResponseParser pairs attachments with their message; processParsedDataIntoDB stores messages first
                     getMessage(messageId)
                         ?: throw IllegalStateException("Attachment refers to message $messageId, which is not stored")
                 }

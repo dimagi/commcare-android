@@ -41,6 +41,7 @@ import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
 import org.commcare.preferences.ConnectMessagingPreferences
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.coroutines.DispatcherProvider
+import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -87,7 +88,14 @@ object PushNotificationApiHelper {
 
                     scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(DispatcherProvider.io()).launch {
-                        val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
+                        val (savedNotifications, savedNotificationIds) =
+                            try {
+                                processParsedDataIntoDB(context, parseResult)
+                            } catch (e: IllegalStateException) {
+                                Logger.exception("Could not store retrieved notifications", e)
+                                continuation.resume(Result.failure(e))
+                                return@launch
+                            }
                         ConnectMessagingAttachmentDownloadScheduler.scheduleQueuedDownloads(context)
 
                         // Update notification preferences and send broadcasts
