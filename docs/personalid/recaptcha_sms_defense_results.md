@@ -35,7 +35,9 @@ All timestamps are **UTC**. Sections up to and including *Send Verification Code
 `2026-08-31T00:00:00Z` onwards and were all read at `2026-09-18T12:12:19Z`, so 2026-09-18 is a
 partial day and the counts are directly comparable across them. A second window follows in
 [After adding CommCare LTS to the key](#after-adding-commcare-lts-to-the-key--24-september-onwards),
-covering `2026-09-24` onwards — the two are kept separate because the key changed between them.
+covering `2026-09-24` onwards — the two are kept separate because the key changed between them. That
+second window was extended to `2026-10-13T07:21:34Z` on 2026-10-13; the key and `recaptchaConfig` were
+re-read first and are unchanged, so it remains one continuous configuration.
 
 ## Token and verdict counts
 
@@ -253,9 +255,16 @@ a 4.8× growth in volume.
 ## After adding CommCare LTS to the key — 24 September onwards
 
 `org.commcare.lts` was added to the reCAPTCHA key on **2026-09-24**. This section is a second,
-separate window — `2026-09-24T00:00:00Z` to `2026-09-29T11:36:28Z`, read at that end time, so
-2026-09-29 is a partial day. It is deliberately not merged into the tables above: those describe the
+separate window — `2026-09-24T00:00:00Z` to `2026-10-13T07:21:34Z`, read at that end time, so
+2026-10-13 is a partial day. It is deliberately not merged into the tables above: those describe the
 state *before* the key change, and blending the two would hide the effect.
+
+> [!WARNING]
+> **The threshold now fires.** The first read of this window found zero samples at or above `0.8`.
+> Over the full window there are **34**, and they are not noise: `passed` (1490) is exactly `valid`
+> (1524) minus 34, so 34 valid tokens were rejected on risk grounds. Under `AUDIT` they proceeded
+> anyway. Under `ENFORCE` they would have been blocked. See
+> [Score Result](#score-result-sms-fraud-1).
 
 The commands are identical to the ones above with the interval moved forward.
 
@@ -272,7 +281,8 @@ The key wired into `recaptchaConfig` is `6Le4epkt…` — *Android - CommCare re
 
 `phoneEnforcementState` is still `AUDIT`, `useSmsTollFraudProtection` is `true`, and
 `tollFraudManagedRules[0].startScore` is still `0.8` — so the only variable that moved between the
-two windows is the package list.
+two windows is the package list. Re-read on 2026-10-13: unchanged, both for the key above and for
+`recaptchaConfig`.
 
 > [!NOTE]
 > Three further keys named *Key for Identity Platform reCAPTCHA integration* (web, iOS, Android) were
@@ -289,30 +299,50 @@ two windows is the package list.
 | 2026-09-26 | 34 | 29 | 4 | 1 | — | 85% |
 | 2026-09-27 | 63 | 59 | 4 | — | — | 94% |
 | 2026-09-28 | 105 | 93 | 11 | — | 1 | 89% |
-| 2026-09-29 (partial) | 64 | 44 | 16 | 3 | 1 | 69% |
-| **Total** | **477** | **407** | **62** | **6** | **2** | **85%** |
+| 2026-09-29 | 204 | 161 | 38 | 4 | 1 | 79% |
+| 2026-09-30 | 124 | 114 | 10 | — | — | 92% |
+| 2026-10-01 | 102 | 81 | 21 | — | — | 79% |
+| 2026-10-02 | 105 | 79 | 25 | 1 | — | 75% |
+| 2026-10-03 | 71 | 62 | 9 | — | — | 87% |
+| 2026-10-04 | 50 | 45 | 5 | — | — | 90% |
+| 2026-10-05 | 119 | 98 | 21 | — | — | 82% |
+| 2026-10-06 | 152 | 121 | 31 | — | — | 80% |
+| 2026-10-07 | 87 | 79 | 7 | 1 | — | 91% |
+| 2026-10-08 | 105 | 83 | 22 | — | — | 79% |
+| 2026-10-09 | 91 | 71 | 18 | 2 | — | 78% |
+| 2026-10-10 | 49 | 47 | 2 | — | — | 96% |
+| 2026-10-11 | 35 | 32 | 3 | — | — | 91% |
+| 2026-10-12 | 78 | 75 | 3 | — | — | 96% |
+| 2026-10-13 (partial) | 14 | 13 | 1 | — | — | 93% |
+| **Total** | **1799** | **1524** | **262** | **11** | **2** | **85%** |
+
+2026-09-29 was a partial day in the first read (64 of 204); the full day is shown here, which is why
+its figures differ from the earlier version of this table.
 
 ### Before and after
 
-| | 2026-08-31 → 09-18 | 2026-09-24 → 09-29 |
+| | 2026-08-31 → 09-18 | 2026-09-24 → 10-13 |
 | --- | --- | --- |
-| Requests | 1680 | 477 |
-| `valid` | 1286 — 77% | 407 — **85%** |
-| `missing` | 384 — **23%** | 62 — **13%** |
-| `invalid` | 7 — 0.4% | 6 — **1.3%** |
-| `expired` | 3 — 0.2% | 2 — 0.4% |
+| Requests | 1680 | 1799 |
+| `valid` | 1286 — 77% | 1524 — **85%** |
+| `missing` | 384 — **23%** | 262 — **15%** |
+| `invalid` | 7 — 0.4% | 11 — 0.6% |
+| `expired` | 3 — 0.2% | 2 — 0.1% |
 
-**Missing tokens are still present.** The `missing` share roughly halved, from 23% to 13%, which is
-the largest single improvement this work has produced. But 62 requests in five and a half days still
-fail to carry a token, so **the LTS package name was not the only cause**. `invalid` moved the other
-way — six occurrences against seven across a window three and a half times longer, so it roughly
-tripled as a share.
+**Missing tokens are still present.** The `missing` share fell from 23% to 15% and has held there
+across a window now slightly longer than the original, so the improvement is real rather than a
+small-sample effect. But 262 requests over 20 days still fail to carry a token, so **the LTS package
+name was not the only cause**.
 
-Two caveats on how far this can be pushed. The window is 5.5 days against 18.5, so day-to-day noise
-carries more weight; 2026-09-29 alone contributes 16 of the 62. And **package attribution is still
-unavailable** — `SendVerificationCode` log entries carry only `callerIp` and a device user agent
-(`Dalvik/2.1.0 (Linux; U; Android 12; …)`), with no package anywhere in the payload. So the residual
-`missing` cannot be attributed to LTS, to CommCare, or to anything else from the server side.
+The 13% reported in the first read of this window was optimistic — it rested on 5.5 days, and
+2026-09-29 was then only a third complete. With the full day counted, that single date contributes 38
+missing tokens, the worst in the window. `invalid` settled at 0.6%, close to the original 0.4% rather
+than the 1.3% the short window suggested.
+
+**Package attribution is still unavailable** — `SendVerificationCode` log entries carry only
+`callerIp` and a device user agent (`Dalvik/2.1.0 (Linux; U; Android 12; …)`), with no package
+anywhere in the payload. So the residual `missing` cannot be attributed to LTS, to CommCare, or to
+anything else from the server side.
 
 ### Score Result (SMS Fraud)
 
@@ -323,52 +353,74 @@ unavailable** — `SendVerificationCode` log entries carry only `callerIp` and a
 | 2026-09-26 | 9 | 19 | — | — | — | — | — | 1 | **0** | 29 |
 | 2026-09-27 | 26 | 33 | — | — | — | — | — | — | **0** | 59 |
 | 2026-09-28 | 31 | 52 | — | — | 5 | 3 | 1 | 1 | **0** | 93 |
-| 2026-09-29 (partial) | 19 | 10 | 1 | 3 | — | — | 11 | — | **0** | 44 |
-| **Total** | **177** | **193** | **1** | **5** | **6** | **7** | **14** | **4** | **0** | **407** |
+| 2026-09-29 | 34 | 45 | 9 | 17 | — | 1 | 42 | 10 | **3** | 161 |
+| 2026-09-30 | 23 | 38 | 13 | 16 | — | — | 23 | 1 | **0** | 114 |
+| 2026-10-01 | 16 | 29 | 6 | 14 | — | 1 | 13 | 2 | **0** | 81 |
+| 2026-10-02 | 15 | 30 | 9 | 5 | — | — | 18 | 1 | **1** | 79 |
+| 2026-10-03 | 7 | 22 | 4 | 8 | — | — | 16 | 1 | **4** | 62 |
+| 2026-10-04 | 3 | 11 | 8 | 7 | — | 2 | 9 | 2 | **3** | 45 |
+| 2026-10-05 | 9 | 20 | 10 | 17 | — | 5 | 32 | — | **5** | 98 |
+| 2026-10-06 | 20 | 33 | 12 | 15 | — | 2 | 26 | 5 | **8** | 121 |
+| 2026-10-07 | 4 | 25 | 8 | 16 | — | 2 | 21 | — | **3** | 79 |
+| 2026-10-08 | 3 | 26 | 14 | 19 | — | — | 18 | 3 | **0** | 83 |
+| 2026-10-09 | 3 | 11 | 12 | 12 | — | 1 | 21 | 5 | **6** | 71 |
+| 2026-10-10 | 4 | 14 | 5 | 11 | — | 1 | 12 | — | **0** | 47 |
+| 2026-10-11 | — | 8 | 4 | 11 | — | — | 7 | 2 | **0** | 32 |
+| 2026-10-12 | 1 | 31 | 11 | 9 | — | 1 | 19 | 2 | **1** | 75 |
+| 2026-10-13 (partial) | — | 3 | 1 | 1 | — | 1 | 4 | 3 | **0** | 13 |
+| **Total** | **300** | **529** | **126** | **180** | **6** | **24** | **284** | **41** | **34** | **1524** |
 
-**The threshold has not fired again.** The longest `bucketCounts` array in this window is 9 entries,
-so the highest band reached is `0.7`–`0.8`. `passed` (407) equals `valid` (407) exactly, and
-`failed_in_audit` (70) equals `missing` + `invalid` + `expired` (62 + 6 + 2), so not one valid token
-was rejected on risk grounds. The two `0.8`–`0.9` samples on 2026-09-10 remain the only ones on
-record.
+**The threshold now fires.** `bucketCounts` reaches 11 entries, so the `0.9`–`1.0` band is populated
+for the first time. The counting is unambiguous: scored samples (1524) equal `valid` (1524) exactly,
+`passed` (1490) is `valid` minus 34, and `failed_in_audit` (309) is `missing` + `invalid` + `expired`
+(275) plus the same 34. **34 valid tokens were rejected on risk grounds.** `AUDIT` let them through;
+`ENFORCE` would not have.
 
-91% of scored traffic sits below `0.2`, against 94% before — the small shift comes from
-2026-09-29's eleven samples in the `0.6`–`0.7` band, which is the single most unusual day in either
-window.
+That is 2.2% of scored traffic, spread across nine separate days rather than concentrated in one
+incident, with 2026-10-06 the worst at eight.
+
+**The whole distribution moved up on 2026-09-29 and stayed there.** Through 09-28, 92% of samples sat
+below `0.2` and the `0.6`–`0.7` band was nearly empty. From 09-29 onward the mass spreads: `0.2`–`0.4`
+goes from 6 samples to 300, and `0.6`–`0.7` from 3 to 281. Over the full window only 54% sits below
+`0.2`, against 94% in the first window. Nothing in the reCAPTCHA configuration changed on that date,
+so the cause is on the traffic side and is not explained by this audit.
 
 ### Send Verification Code Status
 
-`SendVerificationCode`, 520 calls in the window. Shares are of this window, not comparable in
-absolute count to the 1890-call window above.
+`SendVerificationCode`, 1986 calls in the window. Shares are of this window; the count is stable at
+both `--limit=2000` and `--limit=4000`.
 
-| Outcome | Count | Share | Was |
+| Outcome | Count | Share | Was (08-31 → 09-18) |
 | --- | --- | --- | --- |
-| `SUCCESS` | 449 | **86.3%** | 80.5% |
-| `OPERATION_NOT_ALLOWED` — region not enabled | 36 | 6.9% | 5.7% |
-| `INVALID_APP_CREDENTIAL` (all three variants) | 12 | 2.3% | 3.3% |
-| `Error code: 39` | 7 | **1.3%** | 2.8% |
-| `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` — invalid Play Integrity token | 7 | 1.3% | 2.3% |
-| `MISSING_RECAPTCHA_TOKEN` | 5 | 1.0% | 1.1% |
-| `TOO_MANY_ATTEMPTS_TRY_LATER` | 3 | **0.6%** | 3.8% |
-| `INVALID_PHONE_NUMBER` | 1 | 0.2% | 0.6% |
+| `SUCCESS` | 1637 | **82.4%** | 80.5% |
+| `TOO_MANY_ATTEMPTS_TRY_LATER` | 86 | **4.3%** | 3.8% |
+| `OPERATION_NOT_ALLOWED` — region not enabled | 77 | 3.9% | 5.7% |
+| `INVALID_APP_CREDENTIAL` (all three variants) | 62 | 3.1% | 3.3% |
+| `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` — invalid Play Integrity token | 57 | 2.9% | 2.3% |
+| `Error code: 39` | 43 | 2.2% | 2.8% |
+| `MISSING_RECAPTCHA_TOKEN` | 16 | 0.8% | 1.1% |
+| `INVALID_PHONE_NUMBER` (incl. `TOO_SHORT`) | 8 | 0.4% | 0.6% |
 
 > [!IMPORTANT]
-> **`MISSING_RECAPTCHA_TOKEN` at 1.0% does not mean missing tokens affect 1% of sends.** The metric
-> counts 62 for the same traffic. Most missing-token requests surface in the
-> `INVALID_APP_CREDENTIAL` and `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` rows, or succeed outright via
-> the `AUDIT` fallback and appear as `SUCCESS`. See
+> **`MISSING_RECAPTCHA_TOKEN` at 0.8% does not mean missing tokens affect 0.8% of sends.** The metric
+> counts 262 for the same traffic — a sixteenfold difference. Most missing-token requests surface in
+> the `INVALID_APP_CREDENTIAL` and `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` rows, or succeed outright
+> via the `AUDIT` fallback and appear as `SUCCESS`. See
 > [What produces a missing token](#what-produces-a-missing-token--controlled-test-30-september).
 
-Success is up nearly six points. **Error 39 is down but not gone** — 7 events against a background
-rate of roughly three a day previously, so it has fallen by more than the drop in volume alone
-explains. `TOO_MANY_ATTEMPTS_TRY_LATER`, which had grown eightfold and was the headline regression in
-the previous read, has collapsed back to 3. Region rejections are unchanged in character and remain
-the largest failure category, and they have nothing to do with reCAPTCHA.
+Success settles at 82.4%, about two points above the first window rather than the six the 5.5-day
+read suggested. **The optimistic readings in that short window did not hold.** `TOO_MANY_ATTEMPTS_TRY_LATER`
+was reported as having collapsed to 3 (0.6%); over the full window it is 86 (4.3%), slightly *worse*
+than the 3.8% before — so it did not collapse, the short window simply missed it. `Error code: 39` is
+likewise 43 rather than 7, tracking volume rather than falling.
+
+Region rejections fell from 5.7% to 3.9% and remain unrelated to reCAPTCHA.
 
 ## What produces a missing token — controlled test, 30 September
 
 Adding CommCare LTS to the key halved the `missing` rate but did not clear it. This section records a
-deliberate experiment to identify one of the remaining sources.
+deliberate experiment to identify one of the remaining sources. It was **re-run on 2026-10-13** and
+reproduced exactly — see [Repeat, 13 October](#repeat-13-october).
 
 **Method.** Read the token counter on an idle project, have a developer sign in from a locally built
 **debug** APK, then read the counter again and reconcile against the audit log.
@@ -399,6 +451,40 @@ The device's full sequence:
 06:22:04  SendVerificationCode   INVALID_APP_CREDENTIAL
 ```
 
+### Repeat, 13 October
+
+Same method, same developer device, 13 days later. The point of repeating it was to check whether the
+upward shift in risk scores from 2026-09-29 had changed how a debug build is treated. It has not.
+
+| `token_state` | Baseline `07:42:34Z` | After `07:46:16Z` | Delta |
+| --- | --- | --- | --- |
+| `valid` | 15 | 15 | **+0** |
+| `missing` | 1 | 3 | **+2** |
+| `invalid` | 0 | 0 | +0 |
+| `expired` | 0 | 0 | +0 |
+
+Both `missing` tokens land in the single one-minute bucket ending `07:46:01Z`. Only five
+identitytoolkit entries exist across the whole project between `07:42:00Z` and the read, all from one
+caller IP, containing exactly two `SendVerificationCode` calls — so the attribution is again certain
+rather than correlational.
+
+```
+07:44:55  GetRecaptchaConfig     SUCCESS
+07:44:56  GetRecaptchaParam      SUCCESS
+07:44:58  SendVerificationCode   ALTERNATE_CLIENT_IDENTIFIER_REQUIRED
+                                 "Invalid PlayIntegrity token; app not Recognized by Play Store"
+07:44:58  GetProjectConfig       INVALID_CERT_HASH
+07:44:59  SendVerificationCode   INVALID_APP_CREDENTIAL
+```
+
+The sequence is identical to 30 September call for call, including the order of the two failures and
+the `INVALID_CERT_HASH` on `GetProjectConfig` between them. Two sign-in attempts, two missing tokens,
+no valid token, in both runs — which is the basis for the "roughly two missing tokens per sign-in
+attempt" figure used below.
+
+`INVALID_CERT_HASH` is worth noting as a marker: no Play-Store-signed build produces it, so debug
+traffic can be isolated in the audit log even when the project is not idle.
+
 ### Why a debug build cannot mint a token
 
 It fails app verification on both available paths, and the package allow-list is not the reason:
@@ -420,6 +506,13 @@ missing tokens per sign-in attempt, the 62 in the 24–29 September window would
 attempts, which is plausibly the whole developer and QA population — but that is arithmetic, not
 evidence. Package attribution is still unavailable, so a developer's debug build cannot be separated
 from a field user whose Play Integrity failed for an unrelated reason.
+
+**Updated 2026-10-13.** Extending the window to 20 days gives 262 missing tokens — 13.1 a day against
+11.3 in the 24–29 window. The rate is essentially flat while daily send volume varies, which is what a
+fixed population of developer and QA devices would look like, and not what traffic-proportional field
+failures would. The 13 October repeat confirms the two-per-attempt ratio holds, so 262 corresponds to
+roughly 131 sign-in attempts over 20 days, about 6.5 a day. That is consistent with the hypothesis
+above but still does not measure it; the phone-number matching below remains the way to settle it.
 
 The `SendVerificationCode` log does carry `jsonPayload.request.phoneNumber` on every entry. Since
 developers and testers reuse known numbers and field users do not, matching the failing requests
@@ -528,8 +621,9 @@ What this does and does not change for `ENFORCE`:
 
 | Point | Description | Action |
 | --- | --- | --- |
-| **#1** Missing / invalid reCAPTCHA token | **Still open, one source identified.** LTS was added to the key on 2026-09-24 and `missing` fell from 23% to 13%, but 62 requests in five and a half days still carry no token. A [controlled test on 2026-09-30](#what-produces-a-missing-token--controlled-test-30-september) confirmed debug builds as one source — they fail Play Integrity *and* carry an unregistered signing cert, so they can never mint a token. The share they account for is unmeasured. | Bound the developer share by matching failing requests against known team test numbers. |
-| **#2** Enabling reCAPTCHA on CommCare LTS | **Done 2026-09-24.** `org.commcare.lts` is in `allowedPackageNames` on the key referenced by `recaptchaConfig`; no regression visible in the window since — success rate rose from 80.5% to 86.3%. | Closed. |
+| **#1** Missing / invalid reCAPTCHA token | **Still open, one source identified.** LTS was added to the key on 2026-09-24 and `missing` fell from 23% to 15%, but 262 requests over the 20 days since still carry no token. A [controlled test on 2026-09-30](#what-produces-a-missing-token--controlled-test-30-september) confirmed debug builds as one source — they fail Play Integrity *and* carry an unregistered signing cert, so they can never mint a token. The share they account for is unmeasured. | Bound the developer share by matching failing requests against known team test numbers. |
+| **#2** Enabling reCAPTCHA on CommCare LTS | **Done 2026-09-24.** `org.commcare.lts` is in `allowedPackageNames` on the key referenced by `recaptchaConfig`; no regression over the 20 days since — success rate 82.4% against 80.5% before. | Closed. |
+| **#3** Valid tokens now scoring at or above the threshold | **New, opened 2026-10-13.** 34 valid tokens scored `≥ 0.8` between 2026-09-29 and 2026-10-13, confirmed by `passed` being exactly `valid` minus 34. `AUDIT` let them through; `ENFORCE` would block them — 2.2% of scored traffic, where the previous read measured none. The distribution shifted upward on 2026-09-29 with no configuration change, so the cause is unidentified. | Establish whether these are genuine fraud or false positives before `ENFORCE`, and re-check whether `0.8` is the right threshold. |
 
 
 
