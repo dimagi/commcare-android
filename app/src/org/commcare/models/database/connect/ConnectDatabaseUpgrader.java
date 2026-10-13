@@ -1213,13 +1213,13 @@ public class ConnectDatabaseUpgrader {
                 newStorage.write(newRecord);
             }
 
+            addTableForNewModel(db, ConnectMessagingAttachmentRecord.STORAGE_KEY,
+                    new ConnectMessagingAttachmentRecord());
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
-
-        addTableForNewModel(db, ConnectMessagingAttachmentRecord.STORAGE_KEY,
-                new ConnectMessagingAttachmentRecord());
     }
 
     private static void addTableForNewModel(IDatabase db, String storageKey,
