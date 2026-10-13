@@ -178,7 +178,7 @@ public class PostRequestActivityTest {
         Button retryButton = postRequestActivity.findViewById(R.id.request_button);
         assertEquals(View.VISIBLE, retryButton.getVisibility());
         retryButton.performClick();
-        RobolectricUtil.flushBackgroundThread(postRequestActivity);
+        RobolectricUtil.flushAllBackgroundTasks(postRequestActivity);
 
         assertErrorMessage(postRequestActivity, false, null);
 
@@ -243,7 +243,7 @@ public class PostRequestActivityTest {
         PostRequestActivity postRequestActivity =
                 Robolectric.buildActivity(PostRequestActivity.class, postActivityIntent)
                         .create().start().resume().get();
-        ShadowLooper.idleMainLooper();
+        RobolectricUtil.flushAllBackgroundTasks(postRequestActivity);
 
         assertTrue(postRequestActivity.isFinishing());
     }

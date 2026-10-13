@@ -289,6 +289,7 @@
     <string name="personalid_email_otp_failed_wait">Aguardar</string>
     <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
     <string name="personalid_otp_limit_exceeded">Você usou todas as tentativas deste código, por isso ele não é mais válido. Solicite um novo código para continuar.</string>
+    <string name="personalid_otp_session_expired">Este código não é mais válido. Solicite um novo código para continuar.</string>
     <string name="personalid_rate_limited_retry_after">Muitas tentativas. Tente novamente em %1$s.</string>
     <string name="personalid_otp_resend_wait">Não recebeu seu código? Reenviar em %1$s</string>
     <string name="personalid_otp_request_new_code_wait">Aguarde %1$s para solicitar um novo código</string>
