@@ -204,25 +204,27 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     : ViewGroup.LayoutParams.WRAP_CONTENT;
             richBinding.llBubble.setLayoutParams(bubbleParams);
             richBinding.tvChatMessage.setMaxWidth(hasAttachments && !layout.getFillsBubbleWidth()
-                    ? layout.getContentWidth()
+                    ? Math.max(layout.getContentWidth(), bubbleContentWidth(TEXT_BUBBLE_WIDTH_FRACTION))
                     : Integer.MAX_VALUE);
         }
 
         private int maxMediaWidth() {
+            return bubbleContentWidth(MEDIA_BUBBLE_WIDTH_FRACTION);
+        }
+
+        private int bubbleContentWidth(float bubbleWidthFraction) {
             int rowWidth = messageList.getWidth() > 0
                     ? messageList.getWidth()
                     : displayMetrics().widthPixels;
             int rowMargins = 2 * itemView.getResources().getDimensionPixelSize(R.dimen.spacer_small);
             int bubblePadding = 2 * itemView.getResources().getDimensionPixelSize(R.dimen.connect_message_bubble_padding);
             int tailWidth = richBinding.edge.getDrawable().getIntrinsicWidth();
-            return Math.max(1, rowWidth - rowMargins - tailWidth - bubblePadding);
+            return Math.max(1, (int)(rowWidth * bubbleWidthFraction) - rowMargins - tailWidth - bubblePadding);
         }
 
         private int maxMediaHeight() {
-            int listHeight = messageList.getHeight() > 0
-                    ? messageList.getHeight()
-                    : displayMetrics().heightPixels;
-            return Math.max(1, (int)(listHeight * ConnectMessageMediaSizer.MAX_HEIGHT_FRACTION_OF_LIST));
+            return Math.max(1, (int)(displayMetrics().heightPixels
+                    * ConnectMessageMediaSizer.MAX_HEIGHT_FRACTION_OF_WINDOW));
         }
 
         private DisplayMetrics displayMetrics() {

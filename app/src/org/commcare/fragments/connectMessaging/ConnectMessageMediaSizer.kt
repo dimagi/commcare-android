@@ -5,7 +5,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 object ConnectMessageMediaSizer {
-    const val MAX_HEIGHT_FRACTION_OF_LIST = 0.5f
+    const val MAX_HEIGHT_FRACTION_OF_WINDOW = 0.4f
 
     data class Size(
         val width: Int,

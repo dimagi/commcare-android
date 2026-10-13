@@ -17,6 +17,7 @@ import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentItem
 import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentListener
 import org.commcare.fragments.connectMessaging.ConnectMessageAudioAttachmentView
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData
+import org.commcare.fragments.connectMessaging.ConnectMessageTestImages
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -203,6 +204,35 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
+    fun `long text under a narrow portrait image keeps the normal text width`() {
+        val row = bindImageRow("portrait", storedWidth = 30, storedHeight = 80, text = LONG_TEXT)
+
+        val image = row.llAttachments.getChildAt(0)
+        val imageWidth = image.layoutParams.width
+        assertTrue("text held to the image width", row.tvChatMessage.maxWidth > imageWidth)
+    }
+
+    @Test
+    fun `text under a wide image can span the whole image`() {
+        val row = bindImageRow("landscape", storedWidth = 160, storedHeight = 90, text = LONG_TEXT)
+
+        val image = row.llAttachments.getChildAt(0)
+        val imageWidth = image.layoutParams.width
+        assertEquals(imageWidth, row.tvChatMessage.maxWidth)
+    }
+
+    @Test
+    fun `image size does not change when the list shrinks for the keyboard`() {
+        val keyboardClosed = bindImageRow("tall", storedWidth = 30, storedHeight = 80, listHeight = 1600)
+        val keyboardOpen = bindImageRow("tall", storedWidth = 30, storedHeight = 80, listHeight = 700)
+
+        val closedSize = keyboardClosed.llAttachments.getChildAt(0).layoutParams
+        val openSize = keyboardOpen.llAttachments.getChildAt(0).layoutParams
+        assertEquals(closedSize.width, openSize.width)
+        assertEquals(closedSize.height, openSize.height)
+    }
+
+    @Test
     fun `media message with blank text shows only its media`() {
         val attachment = getDownloadedChat("a").attachments.single()
         adapter.updateData(listOf(getRichChat("a", listOf(attachment), null, text = "")))
@@ -228,6 +258,31 @@ class ConnectMessageAdapterTest {
         val tile = ViewConnectMessageAttachmentPendingBinding.bind(binding.llAttachments.getChildAt(0))
         assertEquals(themedContext().getString(R.string.connect_messaging_update_app_notice), tile.tvLabel.text.toString())
         assertEquals(View.GONE, binding.tvChatMessage.visibility)
+    }
+
+    private fun bindImageRow(
+        attachmentId: String,
+        storedWidth: Int,
+        storedHeight: Int,
+        text: String = "caption",
+        listHeight: Int = 1600,
+    ): ItemChatLeftRichViewBinding {
+        val file = ConnectMessageTestImages.writePng(File(themedContext().cacheDir, attachmentId), storedWidth, storedHeight)
+        val image =
+            ConnectMessageAttachmentItem(
+                attachmentId,
+                "$attachmentId.png",
+                "image/png",
+                file.length(),
+                ConnectMessagingAttachmentState.AVAILABLE,
+                file,
+            )
+        adapter.updateData(listOf(getRichChat(attachmentId, listOf(image), null, text = text)))
+        val listWidth = themedContext().resources.displayMetrics.widthPixels
+        val messageList = FrameLayout(themedContext()).apply { layout(0, 0, listWidth, listHeight) }
+        val holder = adapter.onCreateViewHolder(messageList, ConnectMessageAdapter.LEFT_RICH_VIEW)
+        adapter.onBindViewHolder(holder, 0)
+        return ItemChatLeftRichViewBinding.bind(holder.itemView)
     }
 
     private fun themedContext(): Context = ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
@@ -339,5 +394,6 @@ class ConnectMessageAdapterTest {
     companion object {
         private const val TIMESTAMP = 1_000L
         private const val UNTOUCHED_TEXT = "untouched"
+        private val LONG_TEXT = "Please keep the baby warm and feeding well. ".repeat(12)
     }
 }
