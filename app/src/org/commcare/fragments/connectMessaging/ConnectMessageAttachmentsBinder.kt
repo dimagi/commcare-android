@@ -3,6 +3,7 @@ package org.commcare.fragments.connectMessaging
 import android.graphics.BitmapFactory
 import android.text.format.Formatter
 import android.util.LruCache
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -96,6 +97,7 @@ class ConnectMessageAttachmentsBinder(
         val params =
             view.layoutParams?.let { LinearLayout.LayoutParams(it) }
                 ?: LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        params.gravity = Gravity.CENTER_HORIZONTAL
         if (view is ConnectMessageAudioAttachmentView) {
             params.width = ViewGroup.LayoutParams.MATCH_PARENT
         }

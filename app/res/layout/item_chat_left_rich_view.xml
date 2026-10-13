@@ -37,6 +37,7 @@
                 android:id="@+id/llAttachments"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="@dimen/connect_space_sm"
                 android:orientation="vertical"
                 android:visibility="gone" />

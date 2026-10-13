@@ -214,6 +214,24 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
+    fun `narrow image is centered above wider text`() {
+        val row = bindImageRow("centered", storedWidth = 30, storedHeight = 80, text = LONG_TEXT)
+        val rowWidth = themedContext().resources.displayMetrics.widthPixels
+        row.root.measure(
+            View.MeasureSpec.makeMeasureSpec(rowWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+        )
+        row.root.layout(0, 0, row.root.measuredWidth, row.root.measuredHeight)
+
+        val bubble = row.llBubble
+        val image = row.llAttachments.getChildAt(0)
+        val imageCenter = row.llAttachments.left + image.left + image.width / 2f
+        val contentCenter = bubble.paddingLeft + (bubble.width - bubble.paddingLeft - bubble.paddingRight) / 2f
+        assertTrue("text should be wider than the image", row.tvChatMessage.width > image.width)
+        assertEquals(contentCenter, imageCenter, 1f)
+    }
+
+    @Test
     fun `text under a wide image can span the whole image`() {
         val row = bindImageRow("landscape", storedWidth = 160, storedHeight = 90, text = LONG_TEXT)
 
