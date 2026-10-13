@@ -73,11 +73,15 @@ resets the count. 401/403 stop the pass without counting an attempt.
 
 ## Design (dp)
 
-- **Row.** Messages with attachments drop the 70% text-bubble cap. Media first, text below it,
-  then the timestamp. Bubble padding 10, 8 between attachments and before the text.
+- **Row.** Messages with attachments drop the 70% text-bubble cap for media. Media first, text
+  below it, then the timestamp; the text wraps at the wider of the media and the normal 70% text
+  width, so a narrow portrait image doesn't squeeze it. Bubble padding 10, 8 between attachments
+  and before the text.
 - **Image.** `w = min(maxW, maxH × aspect)`, `h = w ÷ aspect`; `maxW` = list width − 38
-  (row margins, tail, bubble padding), `maxH` = list height × 0.5. Corners 6. Loaded with
-  Glide without a disk cache, so no decrypted copies leave the attachment directory.
+  (row margins, tail, bubble padding), `maxH` = window height × 0.4 (about half the chat list
+  with the keyboard closed, and unaffected by it). Dimensions follow the EXIF orientation, as
+  Glide does when drawing. Corners 6. Loaded with Glide without a disk cache, so no decrypted
+  copies leave the attachment directory.
 - **Audio.** Fills the bubble: 40 white play circle in a 48 touch target, seek bar (4 track,
   14 thumb, white over white 40%), time 12sp. Idle shows the duration, then the position. One
   track plays at a time and playback stops when the chat closes.
