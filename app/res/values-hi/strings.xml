@@ -642,7 +642,6 @@ License.
         <item quantity="one">आज %1$d विज़िट शेष</item>
         <item quantity="other">आज %1$d विज़िट शेष</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">अवसर देखें</string>
     <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
     <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
     <string name="install_keep_trying">यदि कनेक्शन बाधित हो तो प्रयास करते रहें</string>

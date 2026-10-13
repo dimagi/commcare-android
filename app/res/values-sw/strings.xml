@@ -650,7 +650,6 @@
         <item quantity="one">ziara %1$d imesalia leo</item>
         <item quantity="other">ziara %1$d zimesalia leo</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_barcode_top">Karibu CommCare!</string>
     <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
     <string name="install_keep_trying">Endelea kujaribu ikiwa muunganisho umekatika</string>

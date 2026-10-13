@@ -710,7 +710,6 @@
 
     <string name="connect_job_info_delivery_hours">Delivery Hours</string>
     <string name="connect_job_info_view_more">View More</string>
-    <string name="connect_job_info_view_opportunity">View Opportunity</string>
 
     <string name="connect_opportunity_badge_new">New Opportunity</string>
     <string name="connect_opportunity_expiry_label">Expires on</string>

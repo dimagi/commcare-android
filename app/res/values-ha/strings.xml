@@ -478,7 +478,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
         <item quantity="one">ziyara %1$d ta rage yau</item>
         <item quantity="other">ziyara %1$d suka rage yau</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
     <string name="please_wait">Da fatan za a jira wasu lokuta.</string>
     <string name="install_barcode_top">Barka da zuwa CommCare!</string>
