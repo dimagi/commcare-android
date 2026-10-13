@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.LinearLayout
+import androidx.exifinterface.media.ExifInterface
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
@@ -53,6 +54,26 @@ class ConnectMessageAttachmentsBinderTest {
 
         assertTrue(container.getChildAt(0) is ConnectMessageAudioAttachmentView)
         assertTrue(layout.fillsBubbleWidth)
+    }
+
+    @Test
+    fun `phone photo stored sideways is sized by its upright orientation`() {
+        val photo = image("sideways-photo", storedWidth = 40, storedHeight = 30, ExifInterface.ORIENTATION_ROTATE_90)
+
+        binder.bind(listOf(photo), MAX_WIDTH, MAX_HEIGHT)
+
+        val size = container.getChildAt(0).layoutParams
+        assertTrue("expected portrait, got ${size.width}x${size.height}", size.height > size.width)
+    }
+
+    @Test
+    fun `photo without rotation keeps its stored orientation`() {
+        val photo = image("upright-photo", storedWidth = 40, storedHeight = 30)
+
+        binder.bind(listOf(photo), MAX_WIDTH, MAX_HEIGHT)
+
+        val size = container.getChildAt(0).layoutParams
+        assertTrue("expected landscape, got ${size.width}x${size.height}", size.width > size.height)
     }
 
     @Test
@@ -140,6 +161,24 @@ class ConnectMessageAttachmentsBinderTest {
             "$attachmentId.bin",
             mimeType,
             3,
+            ConnectMessagingAttachmentState.AVAILABLE,
+            file,
+        )
+    }
+
+    private fun image(
+        attachmentId: String,
+        storedWidth: Int,
+        storedHeight: Int,
+        exifOrientation: Int = ExifInterface.ORIENTATION_NORMAL,
+    ): ConnectMessageAttachmentItem {
+        val file =
+            ConnectMessageTestImages.writePng(File(context.cacheDir, attachmentId), storedWidth, storedHeight, exifOrientation)
+        return ConnectMessageAttachmentItem(
+            attachmentId,
+            "$attachmentId.png",
+            "image/png",
+            file.length(),
             ConnectMessagingAttachmentState.AVAILABLE,
             file,
         )

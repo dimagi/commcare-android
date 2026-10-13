@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState
@@ -15,7 +16,9 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentFileBinding
 import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentImageBinding
 import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentPendingBinding
+import org.javarosa.core.services.Logger
 import java.io.File
+import java.io.IOException
 
 class ConnectMessageAttachmentsBinder(
     private val container: LinearLayout,
@@ -184,8 +187,22 @@ class ConnectMessageAttachmentsBinder(
         if (options.outWidth <= 0 || options.outHeight <= 0) {
             return null
         }
-        return ConnectMessageMediaSizer.Size(options.outWidth, options.outHeight).also { imageSizes.put(attachmentId, it) }
+        val size =
+            if (isStoredSideways(file)) {
+                ConnectMessageMediaSizer.Size(options.outHeight, options.outWidth)
+            } else {
+                ConnectMessageMediaSizer.Size(options.outWidth, options.outHeight)
+            }
+        return size.also { imageSizes.put(attachmentId, it) }
     }
+
+    private fun isStoredSideways(file: File): Boolean =
+        try {
+            ExifInterface(file).rotationDegrees % 180 != 0
+        } catch (e: IOException) {
+            Logger.exception("Could not read EXIF orientation of ${file.name}", e)
+            false
+        }
 
     private companion object {
         const val IMAGE_SIZE_CACHE_ENTRIES = 200
