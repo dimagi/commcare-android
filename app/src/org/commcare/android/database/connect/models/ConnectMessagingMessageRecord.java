@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +41,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     public static final int VERSION_PLAIN = 0;
     public static final int VERSION_RICH = 2;
+    private static final List<Integer> SUPPORTED_VERSIONS = Arrays.asList(VERSION_PLAIN, VERSION_RICH);
     private static final long NO_EXPIRY = 0;
 
     private static final String JSON_VERSION = "version";
@@ -327,7 +329,7 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     }
 
     public boolean isUnsupportedVersion() {
-        return version != VERSION_PLAIN && version != VERSION_RICH;
+        return !SUPPORTED_VERSIONS.contains(version);
     }
 
     @Nullable
