@@ -23,6 +23,10 @@ import org.robolectric.annotation.Config
 class FormEntryNavigationBeforeLoadTest {
     private lateinit var activity: FormEntryActivity
 
+    /**
+     * Opens a form, then nulls the controller to recreate the state `loadForm()` leaves it in
+     * until the form loader delivers its result.
+     */
     @Before
     fun setup() {
         TestAppInstaller.installAppAndLogin(
@@ -34,11 +38,17 @@ class FormEntryNavigationBeforeLoadTest {
         FormEntryActivity.mFormController = null
     }
 
+    /**
+     * Leaves no half-initialised controller behind for other tests sharing the static field.
+     */
     @After
     fun tearDown() {
         FormEntryActivity.mFormController = null
     }
 
+    /**
+     * The Next button path from the crash report must not dereference the missing controller.
+     */
     @Test
     fun nextButtonIsIgnoredBeforeFormLoads() {
         val questionsView = activity.odkView
@@ -49,6 +59,9 @@ class FormEntryNavigationBeforeLoadTest {
         assertNull(FormEntryActivity.mFormController)
     }
 
+    /**
+     * Backward navigation (Previous button, back swipe) must not dereference the missing controller.
+     */
     @Test
     fun previousNavigationIsIgnoredBeforeFormLoads() {
         val questionsView = activity.odkView
