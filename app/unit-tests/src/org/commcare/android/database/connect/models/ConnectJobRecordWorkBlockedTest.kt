@@ -331,6 +331,65 @@ class ConnectJobRecordWorkBlockedTest {
         assertTrue(job.isFurtherWorkBlocked)
     }
 
+    @Test
+    fun `a job with a payment unit without a daily limit has no job-level daily limit`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 1)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = null),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 1),
+            )
+
+        assertFalse(job.hasDailyLimit())
+    }
+
+    @Test
+    fun `a job whose payment units all have daily limits keeps its job-level daily limit`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 2)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = 1),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 1),
+            )
+
+        assertTrue(job.hasDailyLimit())
+    }
+
+    @Test
+    fun `a job-level daily limit of zero means no daily limit`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 0)
+
+        assertFalse(job.hasDailyLimit())
+        assertFalse(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `visits on a payment unit without a daily limit do not block work by the job-level daily limit`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 1)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = null),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 1),
+            )
+        job.deliveries = listOf(delivery(1, 1, Date()))
+
+        assertFalse(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `a capped payment unit at its daily limit leaves an uncapped payment unit workable`() {
+        val job = job(maxVisits = 100, maxDailyVisits = 1)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = null),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 1),
+            )
+        job.deliveries = listOf(delivery(1, 2, Date()))
+
+        assertEquals(setOf("unit-2"), job.paymentUnitsAtLimit)
+        assertFalse(job.isFurtherWorkBlocked)
+    }
+
     /** Guards the empty case, where an unguarded `atLimit.size == units.size` compares 0 to 0. */
     @Test
     fun `a job with no payment units is not blocked while it has visits left`() {

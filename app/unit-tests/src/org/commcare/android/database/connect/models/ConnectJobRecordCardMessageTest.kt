@@ -185,6 +185,31 @@ class ConnectJobRecordCardMessageTest {
     }
 
     @Test
+    fun `visits on a payment unit without a daily limit never report the job-level daily maximum`() {
+        val job = multiPaymentJob(maxDailyVisits = 1)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = null),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = 1),
+            )
+        job.deliveries = listOf(delivery(1, 1, Date()))
+
+        assertNull(job.getCardMessageText(context))
+    }
+
+    @Test
+    fun `a job-level daily limit of zero never reports the daily maximum`() {
+        val job = multiPaymentJob(maxDailyVisits = 0)
+        job.paymentUnits =
+            listOf(
+                paymentUnit(id = 1, maxTotal = 50, maxDaily = null),
+                paymentUnit(id = 2, maxTotal = 50, maxDaily = null),
+            )
+
+        assertNull(job.getCardMessageText(context))
+    }
+
+    @Test
     fun `a multi-payment job with room everywhere reports nothing`() {
         val job = multiPaymentJob()
         job.deliveries = listOf(delivery(1, 1, Date()))

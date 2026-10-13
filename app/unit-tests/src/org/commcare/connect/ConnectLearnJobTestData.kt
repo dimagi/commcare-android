@@ -42,13 +42,15 @@ object ConnectLearnJobTestData {
      * @param completedModules how many of [TOTAL_MODULES] the worker has finished
      * @param assessmentScore score of a single recorded assessment, or null for no attempt
      * @param endDate project end date; a past date makes the job finished
+     * @param unitsWithoutDailyLimit ids of the payment units sent with a null daily limit
      */
     fun job(
         completedModules: Int = TOTAL_MODULES,
         assessmentScore: Int? = PASSING_SCORE + 10,
         endDate: String = "2027-12-31",
+        unitsWithoutDailyLimit: Set<Int> = emptySet(),
     ): ConnectJobRecord {
-        val job = ConnectJobRecord.fromJson(jobJson(completedModules, endDate))
+        val job = ConnectJobRecord.fromJson(jobJson(completedModules, endDate, unitsWithoutDailyLimit))
         if (assessmentScore != null) {
             job.assessments = listOf(assessment(job, assessmentScore))
         }
@@ -72,6 +74,7 @@ object ConnectLearnJobTestData {
     private fun jobJson(
         completedModules: Int,
         endDate: String,
+        unitsWithoutDailyLimit: Set<Int>,
     ): JSONObject =
         JSONObject().apply {
             put("id", 1)
@@ -88,7 +91,7 @@ object ConnectLearnJobTestData {
             put("currency", CURRENCY)
             put("short_description", "One line description about the opportunity.")
             put("deliver_progress", 0)
-            put("payment_units", paymentUnitsJson())
+            put("payment_units", paymentUnitsJson(unitsWithoutDailyLimit))
             put(
                 "learn_progress",
                 JSONObject().apply {
@@ -100,7 +103,7 @@ object ConnectLearnJobTestData {
             put("deliver_app", appJson(DELIVERY_APP_ID, DELIVERY_APP_INSTALL_URL, withModules = false))
         }
 
-    private fun paymentUnitsJson(): JSONArray =
+    private fun paymentUnitsJson(unitsWithoutDailyLimit: Set<Int>): JSONArray =
         JSONArray().apply {
             for (id in 1..PAYMENT_UNIT_COUNT) {
                 put(
@@ -109,7 +112,7 @@ object ConnectLearnJobTestData {
                         put("payment_unit_id", "unit-$id")
                         put("name", "Unit $id")
                         put("max_total", MAX_VISITS / PAYMENT_UNIT_COUNT)
-                        put("max_daily", PAYMENT_UNIT_MAX_DAILY)
+                        put("max_daily", if (id in unitsWithoutDailyLimit) JSONObject.NULL else PAYMENT_UNIT_MAX_DAILY)
                         put("amount", 25)
                     },
                 )

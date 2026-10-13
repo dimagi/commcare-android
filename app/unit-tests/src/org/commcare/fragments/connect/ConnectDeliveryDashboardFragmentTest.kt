@@ -195,6 +195,22 @@ class ConnectDeliveryDashboardFragmentTest {
         assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_info_message).visibility)
     }
 
+    @Test
+    fun `a job with a payment unit without a daily limit shows only today's visit count`() {
+        job =
+            seedDeliveryJob(
+                maxDailyVisits = ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY,
+                unitsWithoutDailyLimit = setOf(1),
+            )
+        val count = ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY
+        val view = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = count))).requireView()
+
+        assertEquals("$count", view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString())
+        assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_linear_bar).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_bar_caption).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_info_message).visibility)
+    }
+
     /**
      * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
      * same delivery-progress call and land its result on the figures.
@@ -544,9 +560,12 @@ class ConnectDeliveryDashboardFragmentTest {
      * Writes the opportunity through the real storage layer so the repository's cache read and the
      * dashboard both see the same record production would.
      */
-    private fun seedDeliveryJob(maxDailyVisits: Int = ConnectLearnJobTestData.MAX_DAILY_VISITS): ConnectJobRecord {
+    private fun seedDeliveryJob(
+        maxDailyVisits: Int = ConnectLearnJobTestData.MAX_DAILY_VISITS,
+        unitsWithoutDailyLimit: Set<Int> = emptySet(),
+    ): ConnectJobRecord {
         val seeded =
-            ConnectLearnJobTestData.job().apply {
+            ConnectLearnJobTestData.job(unitsWithoutDailyLimit = unitsWithoutDailyLimit).apply {
                 status = ConnectJobRecord.STATUS_DELIVERING
                 setMaxDailyVisits(maxDailyVisits)
             }

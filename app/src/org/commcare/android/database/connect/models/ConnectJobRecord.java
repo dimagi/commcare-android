@@ -349,7 +349,17 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean hasDailyLimit() {
-        return maxDailyVisits != NO_DAILY_LIMIT;
+        if (maxDailyVisits <= 0) {
+            return false;
+        }
+
+        for (ConnectPaymentUnitRecord unit : paymentUnits) {
+            if (!unit.hasDailyLimit()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean isDailyLimitReached() {
