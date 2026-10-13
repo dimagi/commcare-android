@@ -20,10 +20,12 @@ object ConnectMessagingAttachmentDatabaseHelper {
             ).firstOrNull()
 
     @JvmStatic
-    fun getAttachmentsByMessageId(): Map<String, List<ConnectMessagingAttachmentRecord>> =
+    fun getAttachmentsByMessageId(channelId: String): Map<String, List<ConnectMessagingAttachmentRecord>> =
         storage()
-            .getRecordsForValues(arrayOf<String>(), arrayOf<Any>())
-            .groupBy { it.messageId }
+            .getRecordsForValues(
+                arrayOf(ConnectMessagingAttachmentRecord.META_CHANNEL_ID),
+                arrayOf<Any>(channelId),
+            ).groupBy { it.messageId }
             .mapValues { (_, attachments) -> attachments.sortedBy { it.position } }
 
     fun getAttachmentsInState(state: ConnectMessagingAttachmentState): List<ConnectMessagingAttachmentRecord> =

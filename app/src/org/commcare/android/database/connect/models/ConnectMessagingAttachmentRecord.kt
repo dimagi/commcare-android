@@ -21,6 +21,10 @@ class ConnectMessagingAttachmentRecord :
     @MetaField(META_MESSAGE_ID)
     var messageId: String = ""
 
+    @Persisting(9)
+    @MetaField(META_CHANNEL_ID)
+    var channelId: String = ""
+
     @Persisting(3)
     var position: Int = 0
 
@@ -50,6 +54,7 @@ class ConnectMessagingAttachmentRecord :
         const val STORAGE_KEY = "connect_messaging_attachment"
         const val META_ATTACHMENT_ID = "attachment_id"
         const val META_MESSAGE_ID = "message_id"
+        const val META_CHANNEL_ID = "channel_id"
         const val META_STATE = "state"
 
         private const val JSON_ATTACHMENTS = "attachments"
@@ -63,16 +68,18 @@ class ConnectMessagingAttachmentRecord :
         fun listFromMessageJson(
             messageJson: JSONObject,
             messageId: String,
+            channelId: String,
         ): List<ConnectMessagingAttachmentRecord> {
             val attachmentsJson = messageJson.optJSONArray(JSON_ATTACHMENTS) ?: return emptyList()
             return (0 until attachmentsJson.length()).map { index ->
-                fromJson(attachmentsJson.getJSONObject(index), messageId, index)
+                fromJson(attachmentsJson.getJSONObject(index), messageId, channelId, index)
             }
         }
 
         private fun fromJson(
             attachmentJson: JSONObject,
             messageId: String,
+            channelId: String,
             position: Int,
         ): ConnectMessagingAttachmentRecord {
             val attachmentId = attachmentJson.getString(JSON_ID)
@@ -86,6 +93,7 @@ class ConnectMessagingAttachmentRecord :
             return ConnectMessagingAttachmentRecord().apply {
                 this.attachmentId = attachmentId
                 this.messageId = messageId
+                this.channelId = channelId
                 this.position = position
                 name = attachmentJson.getString(JSON_NAME)
                 type = attachmentJson.getString(JSON_TYPE)

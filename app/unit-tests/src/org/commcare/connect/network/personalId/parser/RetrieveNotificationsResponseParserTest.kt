@@ -346,6 +346,7 @@ class RetrieveNotificationsResponseParserTest {
         assertEquals(listOf(FIRST_ATTACHMENT_ID, SECOND_ATTACHMENT_ID), result.attachments.map { it.attachmentId })
         assertEquals(listOf(0, 1), result.attachments.map { it.position })
         assertEquals(listOf("message_001", "message_001"), result.attachments.map { it.messageId })
+        assertEquals(listOf("channel_001", "channel_001"), result.attachments.map { it.channelId })
         assertEquals("instructions.mp3", result.attachments[1].name)
         assertEquals("audio/mpeg", result.attachments[1].type)
         assertEquals(412964L, result.attachments[1].size)

@@ -92,6 +92,7 @@ class RetrieveNotificationsResponseParser(
                                     ConnectMessagingAttachmentRecord.listFromMessageJson(
                                         notificationJsonObject,
                                         message.messageId,
+                                        message.channelId,
                                     )
                                 } else {
                                     emptyList()

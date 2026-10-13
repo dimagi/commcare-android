@@ -78,6 +78,14 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
     }
 
     @Test
+    fun `attachments are looked up only within the requested channel`() {
+        ConnectMessagingAttachmentDatabaseHelper.save(attachment("here", "message-1"))
+        ConnectMessagingAttachmentDatabaseHelper.save(attachment("elsewhere", "message-2").apply { channelId = "channel-2" })
+
+        assertEquals(setOf("message-1"), ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId(CHANNEL_ID).keys)
+    }
+
+    @Test
     fun `attachment on a recent message waits for a tap when automatic download is off`() {
         storeIncomingMessage("message-1", daysAgo = 1)
 
@@ -166,7 +174,7 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
         val message =
             ConnectMessagingMessageRecord().apply {
                 this.messageId = messageId
-                channelId = "channel-1"
+                channelId = CHANNEL_ID
                 timeStamp = Date(now.time - TimeUnit.DAYS.toMillis(daysAgo))
                 this.message = "Hello"
                 isOutgoing = false
@@ -181,6 +189,7 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
     ) = ConnectMessagingAttachmentRecord().apply {
         this.attachmentId = attachmentId
         this.messageId = messageId
+        channelId = CHANNEL_ID
         this.position = position
         name = "file-$attachmentId"
         type = "image/png"
@@ -189,5 +198,10 @@ class ConnectMessagingAttachmentDatabaseHelperTest {
 
     private fun stateOf(attachmentId: String) = ConnectMessagingAttachmentDatabaseHelper.getAttachment(attachmentId)!!.downloadState
 
-    private fun attachmentsOf(messageId: String) = ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId().getValue(messageId)
+    private fun attachmentsOf(messageId: String) =
+        ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId(CHANNEL_ID).getValue(messageId)
+
+    private companion object {
+        const val CHANNEL_ID = "channel-1"
+    }
 }

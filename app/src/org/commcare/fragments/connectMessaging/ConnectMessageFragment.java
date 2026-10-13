@@ -308,7 +308,7 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
             List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper
                     .getMessagingMessagesForChannel(channelId);
             Map<String, List<ConnectMessagingAttachmentRecord>> attachmentsByMessageId =
-                    ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId();
+                    ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId(channelId);
             List<ConnectMessageChatData> chats = new ArrayList<>();
             boolean hasUnsupportedMessages = false;
 
