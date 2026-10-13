@@ -212,10 +212,18 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             return bubbleContentWidth(MEDIA_BUBBLE_WIDTH_FRACTION);
         }
 
+        private int listWidth() {
+            if (messageList instanceof RecyclerView) {
+                RecyclerView.LayoutManager layoutManager = ((RecyclerView)messageList).getLayoutManager();
+                if (layoutManager != null && layoutManager.getWidth() > 0) {
+                    return layoutManager.getWidth();
+                }
+            }
+            return messageList.getWidth() > 0 ? messageList.getWidth() : displayMetrics().widthPixels;
+        }
+
         private int bubbleContentWidth(float bubbleWidthFraction) {
-            int rowWidth = messageList.getWidth() > 0
-                    ? messageList.getWidth()
-                    : displayMetrics().widthPixels;
+            int rowWidth = listWidth();
             int rowMargins = 2 * itemView.getResources().getDimensionPixelSize(R.dimen.spacer_small);
             int bubblePadding = 2 * itemView.getResources().getDimensionPixelSize(R.dimen.connect_message_bubble_padding);
             int tailWidth = richBinding.edge.getDrawable().getIntrinsicWidth();

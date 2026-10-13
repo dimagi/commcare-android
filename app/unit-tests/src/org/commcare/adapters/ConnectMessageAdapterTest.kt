@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.FrameLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -222,9 +223,31 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
+    fun `rows laid out while the list is still being measured use the list width, not the screen width`() {
+        val listWidth = themedContext().resources.displayMetrics.widthPixels - NARROWER_THAN_SCREEN
+        adapter.updateData(listOf(getImageChat("measuring", storedWidth = 160, storedHeight = 90)))
+        val chatList =
+            RecyclerView(themedContext()).apply {
+                layoutManager = LinearLayoutManager(themedContext())
+                adapter = this@ConnectMessageAdapterTest.adapter
+            }
+
+        chatList.measure(
+            View.MeasureSpec.makeMeasureSpec(listWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(LIST_HEIGHT_LIMIT, View.MeasureSpec.AT_MOST),
+        )
+
+        val measuringRow = ItemChatLeftRichViewBinding.bind(chatList.getChildAt(0))
+        val laidOutRow = bindImageRow("laid-out", storedWidth = 160, storedHeight = 90, listWidth = listWidth)
+        val measuringImage = measuringRow.llAttachments.getChildAt(0)
+        val laidOutImage = laidOutRow.llAttachments.getChildAt(0)
+        assertEquals(laidOutImage.layoutParams.width, measuringImage.layoutParams.width)
+    }
+
+    @Test
     fun `image size does not change when the list shrinks for the keyboard`() {
-        val keyboardClosed = bindImageRow("tall", storedWidth = 30, storedHeight = 80, listHeight = 1600)
-        val keyboardOpen = bindImageRow("tall", storedWidth = 30, storedHeight = 80, listHeight = 700)
+        val keyboardClosed = bindImageRow("keyboard-closed", storedWidth = 30, storedHeight = 80, listHeight = 1600)
+        val keyboardOpen = bindImageRow("keyboard-open", storedWidth = 30, storedHeight = 80, listHeight = 700)
 
         val closedSize = keyboardClosed.llAttachments.getChildAt(0).layoutParams
         val openSize = keyboardOpen.llAttachments.getChildAt(0).layoutParams
@@ -265,8 +288,22 @@ class ConnectMessageAdapterTest {
         storedWidth: Int,
         storedHeight: Int,
         text: String = "caption",
+        listWidth: Int = themedContext().resources.displayMetrics.widthPixels,
         listHeight: Int = 1600,
     ): ItemChatLeftRichViewBinding {
+        adapter.updateData(listOf(getImageChat(attachmentId, storedWidth, storedHeight, text)))
+        val messageList = FrameLayout(themedContext()).apply { layout(0, 0, listWidth, listHeight) }
+        val holder = adapter.onCreateViewHolder(messageList, ConnectMessageAdapter.LEFT_RICH_VIEW)
+        adapter.onBindViewHolder(holder, 0)
+        return ItemChatLeftRichViewBinding.bind(holder.itemView)
+    }
+
+    private fun getImageChat(
+        attachmentId: String,
+        storedWidth: Int,
+        storedHeight: Int,
+        text: String = "caption",
+    ): ConnectMessageChatData {
         val file = ConnectMessageTestImages.writePng(File(themedContext().cacheDir, attachmentId), storedWidth, storedHeight)
         val image =
             ConnectMessageAttachmentItem(
@@ -277,12 +314,7 @@ class ConnectMessageAdapterTest {
                 ConnectMessagingAttachmentState.AVAILABLE,
                 file,
             )
-        adapter.updateData(listOf(getRichChat(attachmentId, listOf(image), null, text = text)))
-        val listWidth = themedContext().resources.displayMetrics.widthPixels
-        val messageList = FrameLayout(themedContext()).apply { layout(0, 0, listWidth, listHeight) }
-        val holder = adapter.onCreateViewHolder(messageList, ConnectMessageAdapter.LEFT_RICH_VIEW)
-        adapter.onBindViewHolder(holder, 0)
-        return ItemChatLeftRichViewBinding.bind(holder.itemView)
+        return getRichChat(attachmentId, listOf(image), null, text = text)
     }
 
     private fun themedContext(): Context = ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
@@ -394,6 +426,8 @@ class ConnectMessageAdapterTest {
     companion object {
         private const val TIMESTAMP = 1_000L
         private const val UNTOUCHED_TEXT = "untouched"
+        private const val NARROWER_THAN_SCREEN = 40
+        private const val LIST_HEIGHT_LIMIT = 2000
         private val LONG_TEXT = "Please keep the baby warm and feeding well. ".repeat(12)
     }
 }
