@@ -64,7 +64,7 @@ class ConnectDeliveryDashboardFragment :
     private fun bindVisitProgress(contentEnabled: Boolean) {
         val visitsDoneToday = job.numberOfDeliveriesToday()
         val maxDailyVisits = job.maxDailyVisits.takeIf { job.hasDailyLimit() }
-        val cardMessage: String? = job.getCardMessageText(requireContext())
+        val cardMessage: String? = job.getCardMessageText(requireContext(), true)
         binding.deliveryProgressCard.bind(
             ConnectProgressCard.State(
                 title = getString(R.string.connect_delivery_visit_progress_title),
