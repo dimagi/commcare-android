@@ -89,7 +89,11 @@ resets the count. 401/403 stop the pass without counting an attempt.
   strip. Subsampling Scale Image View shows the file in place. It opens at the smaller of
   fit-to-screen and natural size in dp, and pinch-zooms to the larger of 2 screen pixels per
   image pixel and twice the opening size; double-tap zooms to at least 1 screen pixel per
-  image pixel, within that limit.
+  image pixel, within that limit. Only the image grows out of the tapped thumbnail and shrinks
+  back into it (a Material container transform on a stand-in image matching where the zoomable
+  view shows it). The black backdrop fades in across the screen while the image grows (the
+  chat fades out over the viewer's static backdrop, since the leaving fragment draws on top),
+  the caption appears once it's in place, and both fade out in place while it shrinks back.
 - **Audio.** Fills the bubble: 40 white play circle in a 48 touch target, seek bar (4 track,
   14 thumb, white over white 40%), time 12sp. Idle shows the duration, then the position. One
   track plays at a time and playback stops when the chat closes.
