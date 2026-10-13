@@ -57,6 +57,7 @@ class ConnectJobRecordCardMessageTest {
     ) = ConnectJobRecord().apply {
         setIsActive(true)
         setIsUserSuspended(false)
+        projectStartDate = daysFromNow(-1)
         projectEndDate = daysFromNow(30)
         setMaxVisits(maxVisits)
         setMaxDailyVisits(maxDailyVisits)
@@ -124,7 +125,7 @@ class ConnectJobRecordCardMessageTest {
 
         assertEquals(
             context.getString(R.string.connect_progress_warning_max_reached_single),
-            job.getCardMessageText(context),
+            job.getCardMessageText(context, true),
         )
     }
 
@@ -135,7 +136,7 @@ class ConnectJobRecordCardMessageTest {
 
         assertEquals(
             context.getString(R.string.connect_progress_warning_daily_max_reached_single),
-            job.getCardMessageText(context),
+            job.getCardMessageText(context, true),
         )
     }
 
@@ -151,7 +152,7 @@ class ConnectJobRecordCardMessageTest {
 
         assertEquals(
             context.getString(R.string.connect_progress_warning_max_reached_multi, "Unit 1"),
-            job.getCardMessageText(context),
+            job.getCardMessageText(context, true),
         )
     }
 
@@ -160,7 +161,7 @@ class ConnectJobRecordCardMessageTest {
         val job = multiPaymentJob(maxDailyVisits = ConnectJobRecord.NO_DAILY_LIMIT)
         job.deliveries = List(5) { delivery(it, 1, Date()) }
 
-        assertNull(job.getCardMessageText(context))
+        assertNull(job.getCardMessageText(context, true))
     }
 
     @Test
@@ -180,7 +181,7 @@ class ConnectJobRecordCardMessageTest {
 
         assertEquals(
             context.getString(R.string.connect_progress_warning_daily_max_reached_multi, "Unit 2"),
-            job.getCardMessageText(context),
+            job.getCardMessageText(context, true),
         )
     }
 
@@ -208,6 +209,6 @@ class ConnectJobRecordCardMessageTest {
         val job = multiPaymentJob()
         job.deliveries = listOf(delivery(1, 1, Date()))
 
-        assertNull(job.getCardMessageText(context))
+        assertNull(job.getCardMessageText(context, true))
     }
 }

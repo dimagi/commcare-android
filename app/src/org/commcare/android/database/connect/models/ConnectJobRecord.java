@@ -771,11 +771,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return status == STATUS_LEARNING && isLearningComplete();
     }
 
-    @Nullable
-    public String getCardMessageText(Context context) {
-        return getCardMessageText(context, true);
-    }
-
     /**
      * Pass {@code includeDeliveryWarnings = false} on surfaces that don't deliver visits, such as the learn app.
      */
@@ -785,8 +780,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             return context.getString(R.string.connect_progress_warning_ended);
         } else if (getIsUserSuspended()) {
             return context.getString(R.string.user_suspended);
-        } else if (includeDeliveryWarnings && status == STATUS_DELIVERING
-                && getProjectStartDate().after(new Date())) {
+        } else if (includeDeliveryWarnings && getProjectStartDate().after(new Date())) {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);

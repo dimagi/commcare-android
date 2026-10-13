@@ -161,8 +161,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     private void updateConnectJobMessage() {
         String messageText = null;
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectJobUtils.getAppRecord(appId);
+        ConnectAppRecord record = ConnectJobUtils.getSeatedAppRecord();
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {
@@ -243,8 +242,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     }
 
     private boolean isSeatedAppLearnApp() {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectJobUtils.getAppRecord(appId);
+        ConnectAppRecord record = ConnectJobUtils.getSeatedAppRecord();
         return record != null && record.getIsLearning();
     }
 
