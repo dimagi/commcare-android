@@ -1,6 +1,5 @@
 package org.commcare.fragments.connectMessaging
 
-import android.graphics.BitmapFactory
 import android.text.format.Formatter
 import android.util.LruCache
 import android.view.Gravity
@@ -9,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
-import androidx.exifinterface.media.ExifInterface
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState
@@ -17,9 +15,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentFileBinding
 import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentImageBinding
 import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentPendingBinding
-import org.javarosa.core.services.Logger
 import java.io.File
-import java.io.IOException
 
 class ConnectMessageAttachmentsBinder(
     private val container: LinearLayout,
@@ -67,9 +63,20 @@ class ConnectMessageAttachmentsBinder(
             val imageSize = attachment.file?.takeIf { attachment.isImage }?.let { imageSize(attachment.attachmentId, it) }
             when {
                 imageSize != null -> {
+                    val pixelsPerDp = context.resources.displayMetrics.density
+                    val minimumSize = context.resources.getDimensionPixelSize(R.dimen.connect_touch_target_min)
                     val fitted =
-                        ConnectMessageMediaSizer.fitImage(imageSize.width, imageSize.height, maxMediaWidth, maxMediaHeight)
-                    view = createImageView(attachment, fitted)
+                        ConnectMessageMediaSizer.fitImage(
+                            imageSize.width,
+                            imageSize.height,
+                            maxMediaWidth,
+                            maxMediaHeight,
+                            pixelsPerDp,
+                            minimumSize,
+                        )
+                    val opensViewer =
+                        ConnectMessageMediaSizer.isLargeEnoughToOpen(imageSize.width, imageSize.height, pixelsPerDp, minimumSize)
+                    view = createImageView(attachment, fitted, opensViewer)
                     width = fitted.width
                 }
 
@@ -110,6 +117,7 @@ class ConnectMessageAttachmentsBinder(
     private fun createImageView(
         attachment: ConnectMessageAttachmentItem,
         size: ConnectMessageMediaSizer.Size,
+        opensViewer: Boolean,
     ): View {
         val binding = ViewConnectMessageAttachmentImageBinding.inflate(inflater, container, false)
         val imageView = binding.root
@@ -121,6 +129,9 @@ class ConnectMessageAttachmentsBinder(
             .override(size.width, size.height)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .into(imageView)
+        if (opensViewer) {
+            imageView.setOnClickListener { listener.onAttachmentOpenRequested(attachment) }
+        }
         return imageView
     }
 
@@ -184,27 +195,8 @@ class ConnectMessageAttachmentsBinder(
         file: File,
     ): ConnectMessageMediaSizer.Size? {
         imageSizes.get(attachmentId)?.let { return it }
-        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        BitmapFactory.decodeFile(file.path, options)
-        if (options.outWidth <= 0 || options.outHeight <= 0) {
-            return null
-        }
-        val size =
-            if (isStoredSideways(file)) {
-                ConnectMessageMediaSizer.Size(options.outHeight, options.outWidth)
-            } else {
-                ConnectMessageMediaSizer.Size(options.outWidth, options.outHeight)
-            }
-        return size.also { imageSizes.put(attachmentId, it) }
+        return ConnectMessageImageDimensions.read(file)?.also { imageSizes.put(attachmentId, it) }
     }
-
-    private fun isStoredSideways(file: File): Boolean =
-        try {
-            ExifInterface(file).rotationDegrees % 180 != 0
-        } catch (e: IOException) {
-            Logger.exception("Could not read EXIF orientation of ${file.name}", e)
-            false
-        }
 
     private companion object {
         const val IMAGE_SIZE_CACHE_ENTRIES = 200

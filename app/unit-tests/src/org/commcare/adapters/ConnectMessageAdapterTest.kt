@@ -206,7 +206,7 @@ class ConnectMessageAdapterTest {
 
     @Test
     fun `long text under a narrow portrait image keeps the normal text width`() {
-        val row = bindImageRow("portrait", storedWidth = 30, storedHeight = 80, text = LONG_TEXT)
+        val row = bindImageRow("portrait", storedWidth = 300, storedHeight = 800, text = LONG_TEXT)
 
         val image = row.llAttachments.getChildAt(0)
         val imageWidth = image.layoutParams.width
@@ -215,7 +215,7 @@ class ConnectMessageAdapterTest {
 
     @Test
     fun `narrow image is centered above wider text`() {
-        val row = bindImageRow("centered", storedWidth = 30, storedHeight = 80, text = LONG_TEXT)
+        val row = bindImageRow("centered", storedWidth = 300, storedHeight = 800, text = LONG_TEXT)
         val rowWidth = themedContext().resources.displayMetrics.widthPixels
         row.root.measure(
             View.MeasureSpec.makeMeasureSpec(rowWidth, View.MeasureSpec.EXACTLY),
@@ -233,7 +233,7 @@ class ConnectMessageAdapterTest {
 
     @Test
     fun `text under a wide image can span the whole image`() {
-        val row = bindImageRow("landscape", storedWidth = 160, storedHeight = 90, text = LONG_TEXT)
+        val row = bindImageRow("landscape", storedWidth = 1600, storedHeight = 900, text = LONG_TEXT)
 
         val image = row.llAttachments.getChildAt(0)
         val imageWidth = image.layoutParams.width
@@ -243,7 +243,7 @@ class ConnectMessageAdapterTest {
     @Test
     fun `rows laid out while the list is still being measured use the list width, not the screen width`() {
         val listWidth = themedContext().resources.displayMetrics.widthPixels - NARROWER_THAN_SCREEN
-        adapter.updateData(listOf(getImageChat("measuring", storedWidth = 160, storedHeight = 90)))
+        adapter.updateData(listOf(getImageChat("measuring", storedWidth = 1600, storedHeight = 900)))
         val chatList =
             RecyclerView(themedContext()).apply {
                 layoutManager = LinearLayoutManager(themedContext())
@@ -256,7 +256,7 @@ class ConnectMessageAdapterTest {
         )
 
         val measuringRow = ItemChatLeftRichViewBinding.bind(chatList.getChildAt(0))
-        val laidOutRow = bindImageRow("laid-out", storedWidth = 160, storedHeight = 90, listWidth = listWidth)
+        val laidOutRow = bindImageRow("laid-out", storedWidth = 1600, storedHeight = 900, listWidth = listWidth)
         val measuringImage = measuringRow.llAttachments.getChildAt(0)
         val laidOutImage = laidOutRow.llAttachments.getChildAt(0)
         assertEquals(laidOutImage.layoutParams.width, measuringImage.layoutParams.width)
@@ -264,8 +264,8 @@ class ConnectMessageAdapterTest {
 
     @Test
     fun `image size does not change when the list shrinks for the keyboard`() {
-        val keyboardClosed = bindImageRow("keyboard-closed", storedWidth = 30, storedHeight = 80, listHeight = 1600)
-        val keyboardOpen = bindImageRow("keyboard-open", storedWidth = 30, storedHeight = 80, listHeight = 700)
+        val keyboardClosed = bindImageRow("keyboard-closed", storedWidth = 300, storedHeight = 800, listHeight = 1600)
+        val keyboardOpen = bindImageRow("keyboard-open", storedWidth = 300, storedHeight = 800, listHeight = 700)
 
         val closedSize = keyboardClosed.llAttachments.getChildAt(0).layoutParams
         val openSize = keyboardOpen.llAttachments.getChildAt(0).layoutParams

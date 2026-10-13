@@ -33,5 +33,18 @@
             android:name="channel_id"
             app:argType="string"
             app:nullable="false"/>
+        <action
+            android:id="@+id/action_connectMessageFragment_to_connectMessageImageViewerFragment"
+            app:destination="@id/connectMessageImageViewerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectMessageImageViewerFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageImageViewerFragment"
+        tools:layout="@layout/fragment_connect_message_image_viewer">
+        <argument
+            android:name="attachment_id"
+            app:argType="string"
+            app:nullable="false"/>
     </fragment>
 </navigation>

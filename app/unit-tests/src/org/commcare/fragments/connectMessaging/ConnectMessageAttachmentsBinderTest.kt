@@ -58,7 +58,7 @@ class ConnectMessageAttachmentsBinderTest {
 
     @Test
     fun `phone photo stored sideways is sized by its upright orientation`() {
-        val photo = image("sideways-photo", storedWidth = 40, storedHeight = 30, ExifInterface.ORIENTATION_ROTATE_90)
+        val photo = image("sideways-photo", storedWidth = 400, storedHeight = 300, ExifInterface.ORIENTATION_ROTATE_90)
 
         binder.bind(listOf(photo), MAX_WIDTH, MAX_HEIGHT)
 
@@ -68,12 +68,34 @@ class ConnectMessageAttachmentsBinderTest {
 
     @Test
     fun `photo without rotation keeps its stored orientation`() {
-        val photo = image("upright-photo", storedWidth = 40, storedHeight = 30)
+        val photo = image("upright-photo", storedWidth = 400, storedHeight = 300)
 
         binder.bind(listOf(photo), MAX_WIDTH, MAX_HEIGHT)
 
         val size = container.getChildAt(0).layoutParams
         assertTrue("expected landscape, got ${size.width}x${size.height}", size.width > size.height)
+    }
+
+    @Test
+    fun `image large enough to see opens the viewer when tapped`() {
+        val photo = image("tappable-photo", storedWidth = 400, storedHeight = 300)
+
+        binder.bind(listOf(photo), MAX_WIDTH, MAX_HEIGHT)
+        container.getChildAt(0).performClick()
+
+        assertEquals(listOf("tappable-photo"), openedAttachments)
+    }
+
+    @Test
+    fun `image smaller than the minimum size is shown at that size but cannot be opened`() {
+        val minimumSize = context.resources.getDimensionPixelSize(R.dimen.connect_touch_target_min)
+        val icon = image("tiny-icon", storedWidth = 16, storedHeight = 16)
+
+        binder.bind(listOf(icon), MAX_WIDTH, MAX_HEIGHT)
+
+        val view = container.getChildAt(0)
+        assertEquals(minimumSize, view.layoutParams.width)
+        assertFalse(view.hasOnClickListeners())
     }
 
     @Test

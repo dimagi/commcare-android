@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context="org.commcare.fragments.connectMessaging.ConnectMessageImageViewerFragment">
+
+    <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+        android:id="@+id/ivImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tvCaption"
+        style="@style/TextStyle.Connect.BodyM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/black_60"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:padding="@dimen/connect_space_md"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        tools:text="Coaching notes from today's visit"
+        tools:visibility="visible" />
+</FrameLayout>

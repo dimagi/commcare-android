@@ -25,6 +25,7 @@ import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.activities.connect.ConnectMessagingActivity;
@@ -392,6 +393,11 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
     public void onAttachmentOpenRequested(@NonNull ConnectMessageAttachmentItem attachment) {
         File file = attachment.getFile();
         if (file == null) {
+            return;
+        }
+        if (attachment.isImage()) {
+            Navigation.findNavController(requireView()).navigate(ConnectMessageFragmentDirections
+                    .actionConnectMessageFragmentToConnectMessageImageViewerFragment(attachment.getAttachmentId()));
             return;
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
