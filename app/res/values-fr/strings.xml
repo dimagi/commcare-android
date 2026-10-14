@@ -361,6 +361,11 @@ License.
     <string name="connect_progress_delivery">Livraison</string>
     <string name="semi_circle_progress_value_format">%1$d sur %2$d</string>
     <string name="connect_progress_count_format">%1$d sur %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Afficher %1$d de plus</item>
+        <item quantity="other">Afficher %1$d de plus</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Afficher moins</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>

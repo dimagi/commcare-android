@@ -357,6 +357,11 @@
     <string name="connect_progress_delivery">ምብፃሕ</string>
     <string name="semi_circle_progress_value_format">%1$d ናይ %2$d</string>
     <string name="connect_progress_count_format">%1$d ናይ %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">ተወሳኺ %1$d ኣርኢ</item>
+        <item quantity="other">ተወሳኺ %1$d ኣርኢ</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">ውሑድ ኣርኢ</string>
     <string name="connect_progress_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_not_started">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
     <string name="connect_progress_ready_for_transition_to_delivery">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>

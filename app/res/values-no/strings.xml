@@ -399,6 +399,11 @@
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
     <string name="connect_progress_count_format">%1$d av %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Vis %1$d til</item>
+        <item quantity="other">Vis %1$d til</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Vis mindre</string>
 
     <string name="connect_opportunity_badge_new">Ny mulighet</string>
     <string name="connect_opportunity_expiry_label">Utløpsdato</string>
