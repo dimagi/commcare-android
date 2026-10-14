@@ -1,7 +1,5 @@
 package org.commcare.android.util
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectAppRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -93,12 +91,11 @@ object ConnectTestUtils {
      * the empty file only makes the existence probe agree with it.
      */
     fun signInToPersonalId(hasConnectAccess: Boolean = false) {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         createConnectDbFile()
         val user = ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", hasConnectAccess)
         user.updateConnectToken("test-connect-token", daysFromNow(1))
         ConnectUserDatabaseUtil.storeUser(user)
-        PersonalIdManager.getInstance().init(context)
+        PersonalIdManager.getInstance().init()
     }
 
     fun createConnectDbFile() {

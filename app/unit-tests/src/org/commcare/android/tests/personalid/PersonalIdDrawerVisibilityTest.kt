@@ -274,7 +274,7 @@ class PersonalIdDrawerVisibilityTest {
     private fun installSpyManager() {
         realManager = PersonalIdManager.getInstance()
         spyManager = spyk(realManager!!)
-        every { spyManager.init(any()) } just Runs
+        every { spyManager.init() } just Runs
         setLoggedIn(false)
         singletonField().set(null, spyManager)
     }

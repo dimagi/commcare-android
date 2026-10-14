@@ -60,7 +60,7 @@ object PersonalIdUnlocker {
         callback: PersonalIdManager.ConnectActivityCompleteListener,
     ) {
         val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
+        personalIdManager.init()
         if (BuildConfig.IS_QA_AUTOMATION) {
             lastUnlockTime = SystemClock.elapsedRealtime()
             personalIdManager.userUnlockedPersonalId()

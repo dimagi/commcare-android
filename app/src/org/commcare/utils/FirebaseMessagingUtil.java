@@ -653,7 +653,7 @@ public class FirebaseMessagingUtil {
 
     public static boolean cccCheckPassed(Context context){
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(context);
+        personalIdManager.init();
         return personalIdManager.isloggedIn();
     }
 

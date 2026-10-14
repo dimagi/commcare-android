@@ -185,7 +185,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             return;
         }
         if (!fromManager) {
-            PersonalIdManager.getInstance().init(this);
+            PersonalIdManager.getInstance().init();
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();

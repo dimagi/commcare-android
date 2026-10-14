@@ -1,6 +1,5 @@
 package org.commcare.connect;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
@@ -91,8 +90,7 @@ public class PersonalIdManager {
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
-    private volatile PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
-    private Context parentActivity;
+    private volatile PersonalIdStatus personalIdStatus = PersonalIdStatus.NotIntroduced;
     private int failedPinAttempts = 0;
 
     //Singleton, private constructor
@@ -114,13 +112,12 @@ public class PersonalIdManager {
         return manager;
     }
 
-    public void init(Context parent) {
-        parentActivity = parent;
-        if (personalIdSatus == PersonalIdStatus.NotIntroduced) {
+    public void init() {
+        if (personalIdStatus == PersonalIdStatus.NotIntroduced) {
             ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
             if (user != null) {
                 boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
-                personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
+                personalIdStatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
                 CrashUtil.registerUserData();
             } else if (ConnectDatabaseHelper.isDbBroken()) {
                 //Corrupt DB, inform user to recover
@@ -156,7 +153,7 @@ public class PersonalIdManager {
     }
 
     public boolean isloggedIn() {
-        return personalIdSatus == PersonalIdStatus.LoggedIn;
+        return personalIdStatus == PersonalIdStatus.LoggedIn;
     }
 
     public void userUnlockedPersonalId() {
@@ -167,10 +164,9 @@ public class PersonalIdManager {
     }
 
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
-        parentActivity = activity;
         if (resultCode == AppCompatActivity.RESULT_OK) {
-            if (parentActivity instanceof BaseDrawerActivity) {
-                ((BaseDrawerActivity<?>)parentActivity).openDrawer();
+            if (activity instanceof BaseDrawerActivity) {
+                ((BaseDrawerActivity<?>)activity).openDrawer();
             }
         }
     }
@@ -180,7 +176,7 @@ public class PersonalIdManager {
             FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
         }
 
-        personalIdSatus = PersonalIdStatus.NotIntroduced;
+        personalIdStatus = PersonalIdStatus.NotIntroduced;
 
         // Cancel periodic push notification retrieval when user logs out
         NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
@@ -484,11 +480,11 @@ public class PersonalIdManager {
     }
 
     public PersonalIdStatus getStatus() {
-        return personalIdSatus;
+        return personalIdStatus;
     }
 
     public void setStatus(PersonalIdStatus status) {
-        personalIdSatus = status;
+        personalIdStatus = status;
     }
 
     public void onAccountConfigurationSuccess(PersonalIdSessionData sessionData) {
@@ -514,10 +510,6 @@ public class PersonalIdManager {
         user.setEmail(sessionData.getEmail());
         user.setRegistrationPhase(ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED);
         ConnectUserDatabaseUtil.storeUser(user);
-    }
-
-    public void setParent(Context parent) {
-        parentActivity = parent;
     }
 
     public ConnectUserRecord getUser() {
