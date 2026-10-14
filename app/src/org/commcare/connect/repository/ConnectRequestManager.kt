@@ -1,5 +1,6 @@
 package org.commcare.connect.repository
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,16 +38,19 @@ object ConnectRequestManager {
 
         // Launch in app scope so request + DB writes survive viewModelScope cancellation.
         scope.launch {
-            val result =
-                try {
-                    request()
-                } catch (e: Throwable) {
-                    inFlightRequests.remove(url, deferred)
-                    deferred.completeExceptionally(e)
-                    throw e
-                }
-            inFlightRequests.remove(url, deferred)
-            deferred.complete(result as Result<Any>)
+            try {
+                val result = request()
+                inFlightRequests.remove(url, deferred)
+                deferred.complete(result as Result<Any>)
+            } catch (e: CancellationException) {
+                inFlightRequests.remove(url, deferred)
+                deferred.cancel(e)
+                throw e
+            } catch (e: Exception) {
+                inFlightRequests.remove(url, deferred)
+                deferred.completeExceptionally(e)
+                throw e
+            }
         }
 
         // deferred.await() IS cancellable — caller cancellation stops waiting but NOT the launch above.
