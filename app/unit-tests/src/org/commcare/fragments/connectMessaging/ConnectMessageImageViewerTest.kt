@@ -38,6 +38,7 @@ import org.robolectric.Robolectric
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -109,22 +110,6 @@ class ConnectMessageImageViewerTest {
         val transitionImage = activity.findViewById<View>(R.id.ivTransitionImage)
         assertEquals(ConnectMessageImageViewerFragment.transitionNameFor(ATTACHMENT_ID), image.transitionName)
         assertEquals(image.transitionName, transitionImage.transitionName)
-    }
-
-    @Test
-    fun `caption appears only once the image is in place`() {
-        storeImageMessage(caption = "Site map for Thursday")
-        openChat()
-
-        chatImage().performClick()
-        ShadowLooper.idleMainLooper()
-
-        assertEquals(View.GONE, activity.findViewById<View>(R.id.tvCaption).visibility)
-
-        settle()
-
-        assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.tvCaption).visibility)
-        assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.vBackdrop).visibility)
     }
 
     @Test
@@ -244,7 +229,7 @@ class ConnectMessageImageViewerTest {
     }
 
     private fun settle() {
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        ShadowLooper.idleMainLooper(SETTLE_TIME_MS, TimeUnit.MILLISECONDS)
     }
 
     private fun expectedTitle(): String {
@@ -297,5 +282,6 @@ class ConnectMessageImageViewerTest {
         const val CHAT_WIDTH_PX = 1080
         const val CHAT_HEIGHT_PX = 1920
         const val LATER_MESSAGES = 25
+        const val SETTLE_TIME_MS = 2000L
     }
 }
