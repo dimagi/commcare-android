@@ -327,6 +327,19 @@
         <item quantity="many">šiandien liko %1$d vizito</item>
         <item quantity="other">šiandien liko %1$d vizitų</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Nėra dienos vizitų tikslo</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">šiandien atlikta %1$s iš %2$d</item>
+        <item quantity="few">šiandien atlikta %1$s iš %2$d</item>
+        <item quantity="many">šiandien atlikta %1$s iš %2$d</item>
+        <item quantity="other">šiandien atlikta %1$s iš %2$d</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">šiandien atliktas %1$s</item>
+        <item quantity="few">šiandien atlikti %1$s</item>
+        <item quantity="many">šiandien atlikta %1$s</item>
+        <item quantity="other">šiandien atlikta %1$s</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_open_conversation_button_text">Atidaryti pokalbį</string>
