@@ -469,4 +469,23 @@
     <string name="recording_notification_save_action">Išsaugoti</string>
     <string name="recording_notification_pause_action">Pristabdyti</string>
     <string name="recording_notification_resume_action">Tęsti</string>
+    <string name="connect_messaging_attachment_download">Atsisiųsti</string>
+    <string name="connect_messaging_attachment_downloading">Atsisiunčiama…</string>
+    <string name="connect_messaging_attachment_download_failed">Nepavyko atsisiųsti</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Palieskite, kad bandytumėte dar kartą</string>
+    <string name="connect_messaging_attachment_expired">Nebepasiekiama</string>
+    <string name="connect_messaging_attachment_open_failed">Jokia šio telefono programa negali atidaryti šio failo</string>
+    <string name="connect_messaging_audio_play">Leisti garso įrašą</string>
+    <string name="connect_messaging_audio_pause">Pristabdyti garso įrašą</string>
+    <string name="connect_messaging_audio_play_failed">Nepavyko paleisti šio garso įrašo</string>
+    <string name="connect_messaging_update_app_notice">Kad pamatytumėte šią žinutę, reikia atnaujinti jūsų Android programą</string>
+    <string name="connect_messaging_update_app_banner">Atnaujinkite programą, kad pamatytumėte visas šio kanalo žinutes</string>
+    <string name="connect_messaging_preview_update_app">[Atnaujinkite programą, kad pamatytumėte šią žinutę]</string>
+    <string name="connect_messaging_settings_title">Žinučių nustatymai</string>
+    <string name="connect_messaging_settings_any_network">Per „Wi-Fi“ ir mobiliuosius duomenis</string>
+    <string name="connect_messaging_settings_tap_note">Priedai, kuriuos paliečiate, visada atsisiunčiami iš karto per bet kurį tinklą.</string>
+    <string name="connect_messaging_settings_auto_download_title">Automatiškai atsisiųsti priedus</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Didelius priedus (daugiau nei 1 MB) tik per „Wi-Fi“</string>
+    <string name="connect_messaging_settings_manual_only">Tik rankinis atsisiuntimas</string>
+    <string name="connect_messaging_preview_pending_download">[Atsisiųstina medijos žinutė]</string>
 </resources>

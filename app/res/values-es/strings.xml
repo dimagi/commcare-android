@@ -759,4 +759,23 @@
     <string name="recording_notification_save_action">Guardar</string>
     <string name="recording_notification_pause_action">Pausar</string>
     <string name="recording_notification_resume_action">Reanudar</string>
+    <string name="connect_messaging_attachment_download">Descargar</string>
+    <string name="connect_messaging_attachment_downloading">Descargando…</string>
+    <string name="connect_messaging_attachment_download_failed">Error en la descarga</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Toca para reintentar</string>
+    <string name="connect_messaging_attachment_expired">Ya no está disponible</string>
+    <string name="connect_messaging_attachment_open_failed">Ninguna aplicación de este teléfono puede abrir este archivo</string>
+    <string name="connect_messaging_audio_play">Reproducir audio</string>
+    <string name="connect_messaging_audio_pause">Pausar audio</string>
+    <string name="connect_messaging_audio_play_failed">No se pudo reproducir este audio</string>
+    <string name="connect_messaging_update_app_notice">Tu aplicación de Android debe actualizarse para ver este mensaje</string>
+    <string name="connect_messaging_update_app_banner">Actualiza la aplicación para ver todos los mensajes de este canal</string>
+    <string name="connect_messaging_preview_update_app">[Actualiza la aplicación para ver este mensaje]</string>
+    <string name="connect_messaging_settings_title">Ajustes de mensajería</string>
+    <string name="connect_messaging_settings_any_network">Con Wi-Fi y datos móviles</string>
+    <string name="connect_messaging_settings_tap_note">Los archivos adjuntos que toques siempre se descargan de inmediato, en cualquier red.</string>
+    <string name="connect_messaging_settings_auto_download_title">Descargar archivos adjuntos automáticamente</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Archivos adjuntos grandes (más de 1 MB) solo con Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Solo descarga manual</string>
+    <string name="connect_messaging_preview_pending_download">[Mensaje multimedia por descargar]</string>
 </resources>
