@@ -39,18 +39,16 @@ object ConnectRequestManager {
 
         // Launch in app scope so request + DB writes survive viewModelScope cancellation.
         scope.launch {
-            try {
-                val result = request()
-                deferred.complete(result as Result<Any>)
-            } catch (e: CancellationException) {
-                deferred.cancel(e)
-                throw e
-            } catch (e: Exception) {
-                deferred.completeExceptionally(e)
-                throw e
-            } finally {
-                inFlightRequests.remove(url)
-            }
+            val result =
+                try {
+                    request()
+                } catch (e: Throwable) {
+                    inFlightRequests.remove(url, deferred)
+                    deferred.completeExceptionally(e)
+                    throw e
+                }
+            inFlightRequests.remove(url, deferred)
+            deferred.complete(result as Result<Any>)
         }
 
         // deferred.await() IS cancellable — caller cancellation stops waiting but NOT the launch above.
