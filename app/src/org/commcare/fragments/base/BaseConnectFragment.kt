@@ -31,6 +31,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectAppLaunchController
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.personalId.TokenExceptionHandler.handleTokenDeniedException
+import org.commcare.connect.opportunity.OpportunityNavigator
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallFailureRecovery
@@ -107,6 +108,10 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     /** True while the install in flight is one this screen started, rather than another screen's. */
     protected val ownsAppInstall get() = ownedAppInstallTarget != null
+
+    /** True while this screen shows the failure of an install it started, until the user dismisses it. */
+    val showsAppInstallFailure
+        get() = ownsAppInstall && installViewModel.installState.value is AppInstallState.Failed
 
     private val verificationLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -630,10 +635,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private fun downloadingMessage(isLearning: Boolean): Int =
         if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
 
-    /** Drops a failure the user has dismissed, so re-rendering the screen does not bring it back. */
+    /**
+     * Drops a failure the user has dismissed, so re-rendering the screen does not bring it back, and
+     * lets a hosting page swap the surface the failure was holding.
+     */
     protected fun forgetInstallFailure() {
         if (installViewModel.installState.value is AppInstallState.Failed) {
             installViewModel.clear()
+            OpportunityNavigator.hostOf(this)?.onPhaseChanged()
         }
     }
 

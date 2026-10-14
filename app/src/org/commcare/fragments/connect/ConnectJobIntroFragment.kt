@@ -170,7 +170,12 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
             )
     }
 
+    /** Once learning has started, the CTA left up by a failed learn install retries that install. */
     private fun startLearning() {
+        if (job.status == ConnectJobRecord.STATUS_LEARNING) {
+            launchApp(isLearning = true)
+            return
+        }
         viewModel.startLearning(job.jobUUID)
     }
 

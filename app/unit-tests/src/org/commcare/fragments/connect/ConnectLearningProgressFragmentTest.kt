@@ -43,6 +43,7 @@ import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel
 import org.commcare.dalvik.R
+import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectSuccessFailureCard
@@ -310,6 +311,52 @@ class ConnectLearningProgressFragmentTest {
     }
 
     @Test
+    fun `a failed delivery install keeps its failure on screen across a resume`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(fragment)
+
+        activity.runOnUiThread {
+            activityController
+                .pause()
+                .stop()
+                .start()
+                .resume()
+        }
+        ShadowLooper.idleMainLooper()
+
+        assertSame(fragment, navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>())
+        assertEquals(View.VISIBLE, learnCompleteFailureCard(fragment).visibility)
+        assertTrue("the failure leaves a retry", learnCompleteCta(fragment).isEnabled)
+    }
+
+    @Test
+    fun `dismissing a failed delivery install moves the page on to delivery`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(fragment)
+
+        activity.runOnUiThread {
+            learnCompleteFailureCard(fragment).findViewById<View>(R.id.success_failure_card_close).performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `retrying after a failed delivery install downloads again without claiming again`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(fragment)
+        val requestsBefore = mockApi.server.requestCount
+        assertTrue("the failure leaves a retry", learnCompleteCta(fragment).isEnabled)
+
+        clickCta(fragment)
+
+        verify(exactly = 2) { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        assertEquals("the job is already claimed", requestsBefore, mockApi.server.requestCount)
+        assertCtaBarShowsDownload(fragment, R.id.learnCompleteView, R.string.connect_downloading_delivery)
+    }
+
+    @Test
     fun `a failed claim shows the failure card, re-enables the cta and stays on the screen`() {
         val job = ConnectLearnJobTestData.job()
         val fragment = launch(job)
@@ -410,6 +457,21 @@ class ConnectLearningProgressFragmentTest {
         ShadowLooper.idleMainLooper()
         viewModel.repository = ConnectRepository.getInstance()
     }
+
+    /** Claims the job, then has the installer report that the delivery app download failed. */
+    private fun failDeliveryInstallAfterClaim(fragment: ConnectLearningProgressFragment) {
+        clickCta(fragment)
+        respondToClaim(responseCode = 200)
+        activity.runOnUiThread { installViewModel().failUnknown(AppInstallStatus.UnknownFailure) }
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.VISIBLE, learnCompleteFailureCard(fragment).visibility)
+    }
+
+    private fun learnCompleteFailureCard(fragment: ConnectLearningProgressFragment): View =
+        fragment
+            .requireView()
+            .findViewById<View>(R.id.learnCompleteView)
+            .findViewById(R.id.cta_failure_card)
 
     private fun installViewModel(): ConnectAppInstallViewModel =
         ViewModelProvider(

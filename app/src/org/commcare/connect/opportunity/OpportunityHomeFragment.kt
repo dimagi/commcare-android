@@ -13,6 +13,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
 import org.commcare.fragments.RefreshableFragment
+import org.commcare.fragments.base.BaseConnectFragment
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
@@ -61,7 +62,10 @@ class OpportunityHomeFragment :
 
     override fun phase(): OpportunityPhase = OpportunityPhase.of(job)
 
-    override fun isBusyInstalling(): Boolean = installViewModel.isInstalling
+    override fun holdsSurface(): Boolean =
+        installViewModel.isInstalling ||
+            (childFragmentManager.findFragmentById(R.id.opportunity_home_container) as? BaseConnectFragment<*>)
+                ?.showsAppInstallFailure == true
 
     override fun showState(state: OpportunityHomeState) {
         if (childFragmentManager.findFragmentByTag(state.name) != null) {

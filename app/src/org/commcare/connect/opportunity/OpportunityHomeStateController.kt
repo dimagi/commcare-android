@@ -7,8 +7,8 @@ import androidx.lifecycle.LifecycleOwner
 interface OpportunityHomeHost {
     fun phase(): OpportunityPhase
 
-    /** Whether an app install is running on the surface currently shown. */
-    fun isBusyInstalling(): Boolean
+    /** Whether the surface shown must stay, because an app install is running or its failure is still shown. */
+    fun holdsSurface(): Boolean
 
     /** Render [state], replacing the surface currently shown. */
     fun showState(state: OpportunityHomeState)
@@ -25,9 +25,9 @@ class OpportunityHomeStateController(
         reResolveState()
     }
 
-    /** Swaps the surface when the resolved state changed; deferred while an install is running. */
+    /** Swaps the surface when the resolved state changed; deferred while the host holds the surface. */
     fun reResolveState() {
-        if (host.isBusyInstalling()) {
+        if (host.holdsSurface()) {
             return
         }
         val resolved = OpportunityHomeState.resolve(host.phase())

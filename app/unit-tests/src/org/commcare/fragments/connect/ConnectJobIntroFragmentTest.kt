@@ -3,6 +3,7 @@ package org.commcare.fragments.connect
 import android.os.Build
 import android.view.View
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
@@ -20,14 +21,18 @@ import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
+import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.fragments.personalId.PersonalIdMessageFragment
 import org.commcare.fragments.personalId.PersonalIdMessageFragmentArgs
 import org.commcare.views.connect.ConnectInfoCard
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -270,4 +275,45 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
             fragment.requireView().findViewById<View>(R.id.cta_progress_ring).visibility,
         )
     }
+
+    @Test
+    fun `a failed learn install holds the intro and its cta retries the download only`() {
+        seedConnectUser()
+        mockkStatic(AppUtils::class)
+        every { AppUtils.isAppInstalled(any()) } returns false
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+        val repo = ConnectRepository.getInstance()
+        every { repo.startLearning(any()) } returns flow { emit(DataState.Success(Unit)) }
+
+        val fragment = launch()
+        val button = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        activity.runOnUiThread { button.performClick() }
+        ShadowLooper.idleMainLooper()
+        activity.runOnUiThread { installViewModel().failUnknown(AppInstallStatus.UnknownFailure) }
+        ShadowLooper.idleMainLooper()
+
+        activity.runOnUiThread {
+            activityController
+                .pause()
+                .stop()
+                .start()
+                .resume()
+        }
+        ShadowLooper.idleMainLooper()
+        assertSame(fragment, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
+        assertEquals(View.VISIBLE, fragment.requireView().findViewById<View>(R.id.cta_failure_card).visibility)
+
+        activity.runOnUiThread { button.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 1) { repo.startLearning(any()) }
+        verify(exactly = 2) { ConnectAppUtils.downloadApp(any(), any()) }
+    }
+
+    private fun installViewModel(): ConnectAppInstallViewModel =
+        ViewModelProvider(
+            activity,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
+        )[ConnectAppInstallViewModel::class.java]
 }
