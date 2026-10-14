@@ -2,6 +2,14 @@
 This file is meant as an easy way for us to collate notes and change logs across releases. 
 -->
 
+## CommCare 2.66
+
+### Release Notes
+
+#### What's New
+
+- The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
+
 ## CommCare 2.65
 
 ### Release Notes
