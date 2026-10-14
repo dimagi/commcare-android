@@ -19,6 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
@@ -82,6 +83,9 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         private set
 
     private var installDialog: CustomProgressDialog? = null
+
+    /** Set once a launch has opened its app, so the next stop can drop the launching state. */
+    private var launchHandedOff = false
 
     /**
      * Shared with every other Connect screen in this activity, since only one app installs at a
@@ -258,13 +262,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun onStop() {
         super.onStop()
         unregisterNetworkCallback()
-        if (ownsAppInstall && installViewModel.installState.value == AppInstallState.Launching) {
-            installViewModel.clear()
+        if (launchHandedOff) {
+            launchHandedOff = false
+            clearOwnedLaunch()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        clearOwnedLaunch()
         mNetworkStatusBarViewController!!.cleanup()
         mNetworkStatusBarViewController = null
         _binding = null
@@ -427,7 +433,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         val target = AppInstallTarget(app.appId, isLearning, installOwnerKey)
 
         if (AppUtils.isAppInstalled(app.appId)) {
-            launchInstalledApp(target)
+            if (installViewModel.launch(target)) {
+                launchInstalledApp(target)
+            } else {
+                Logger.exception(
+                    "Ignored a Connect app launch for ${app.appId}",
+                    Exception("An install is already running"),
+                )
+            }
             return
         }
         if (!installViewModel.install(target, app.installUrl)) {
@@ -516,15 +529,32 @@ abstract class BaseConnectFragment<B : ViewBinding> :
      * Holds the busy state until the app is actually open, so the bar does not revert to its CTA
      * while the launch dialog is still working through seating, sign-in and sync. A successful
      * launch leaves it held: the launch dialog is dismissed before the app's activity is drawn, and
-     * [onStop] drops the state once this screen is off-screen and the revert cannot be seen.
+     * [onStop] drops the state once this screen is off-screen and the revert cannot be seen. A stop
+     * before then, such as a screen lock, keeps it held, since the launch carries on until the view
+     * is destroyed.
      */
     private fun launchInstalledApp(target: AppInstallTarget) {
         ConnectAppLaunchController(this).launchApp(
             target.appId,
             target.isLearning,
-            Runnable { runOnceHidden(::onAppLaunched) },
+            Runnable { onLaunchHandedOff() },
             { installViewModel.clear() },
         )
+    }
+
+    private fun onLaunchHandedOff() {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            launchHandedOff = true
+        } else {
+            clearOwnedLaunch()
+        }
+        runOnceHidden(::onAppLaunched)
+    }
+
+    private fun clearOwnedLaunch() {
+        if (ownsAppInstall && installViewModel.installState.value == AppInstallState.Launching) {
+            installViewModel.clear()
+        }
     }
 
     /** Defers [action] to this fragment's next onStop, so the screen beneath never flashes. */
