@@ -68,7 +68,10 @@ class ConnectLearningProgressFragment :
         binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
     }
 
-    /** Publishes the refreshed job to the host so Opportunity Home resolves against current data. */
+    /**
+     * Publishes the refreshed job to the host so Opportunity Home resolves against current data, and
+     * lets the page swap surfaces when the server says the opportunity has moved on.
+     */
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
@@ -85,6 +88,7 @@ class ConnectLearningProgressFragment :
         }
         setActiveJob(refreshed)
         updateLearningUI()
+        OpportunityNavigator.hostOf(this)?.onPhaseChanged()
     }
 
     /**

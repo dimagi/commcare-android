@@ -259,6 +259,34 @@ class ConnectLearningProgressFragmentTest {
     }
 
     @Test
+    fun `a refresh saying the job is delivering swaps the page to the delivery surface`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        refreshFrom(fragment, ConnectLearnJobTestData.job().apply { status = ConnectJobRecord.STATUS_DELIVERING })
+
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `a refresh saying the job has ended swaps the page to the delivery surface`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        refreshFrom(fragment, ConnectLearnJobTestData.job(endDate = "2020-01-01"))
+
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `a refresh that leaves the job learning keeps the screen`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        refreshFrom(fragment, ConnectLearnJobTestData.job())
+
+        assertSame(fragment, navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>())
+    }
+
+    @Test
     fun `coming back once the delivery app has installed shows the delivery surface`() {
         val fragment = launch(ConnectLearnJobTestData.job())
         refreshFrom(fragment, ConnectLearnJobTestData.job())
@@ -375,11 +403,12 @@ class ConnectLearningProgressFragmentTest {
         val repository = mockk<ConnectRepository>(relaxed = true)
         every { repository.getLearningProgress(any(), any(), any()) } returns
             flowOf(DataState.Loading, DataState.Success(refreshed))
-        learningViewModel(fragment).repository = repository
+        val viewModel = learningViewModel(fragment)
+        viewModel.repository = repository
 
         activity.runOnUiThread { fragment.refresh(true) }
         ShadowLooper.idleMainLooper()
-        learningViewModel(fragment).repository = ConnectRepository.getInstance()
+        viewModel.repository = ConnectRepository.getInstance()
     }
 
     private fun installViewModel(): ConnectAppInstallViewModel =
