@@ -309,7 +309,6 @@
         <item quantity="one">%1$d besøk gjenstår i dag</item>
         <item quantity="other">%1$d besøk gjenstår i dag</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>
     <string name="connect_progress_relearn_tasks_completed">Alle nødvendige oppgaver er fullført. Du kan fortsette med leveringsaktiviteter.</string>

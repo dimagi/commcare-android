@@ -646,7 +646,6 @@
         <item quantity="one">%1$d visita restante hoy</item>
         <item quantity="other">%1$d visitas restantes hoy</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
     <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
     <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
     <string name="install_keep_trying">Continúe intentando si la conexión se interrumpe</string>
