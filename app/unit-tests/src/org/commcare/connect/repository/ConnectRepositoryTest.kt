@@ -16,6 +16,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.connect.ConnectConstants
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.connect.ConnectNetworkClient
@@ -51,6 +52,8 @@ class ConnectRepositoryTest {
         mockkStatic(ConnectJobUtils::class)
         mockkStatic(ConnectUserDatabaseUtil::class)
         every { ConnectUserDatabaseUtil.getUser() } returns mockUser
+        // PersonalIdManager.isloggedIn() resolves the session from this record
+        every { mockUser.registrationPhase } returns ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED
 
         repository = ConnectRepository(mockSyncPrefs, mockNetworkClient)
     }

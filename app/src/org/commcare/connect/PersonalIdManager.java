@@ -112,17 +112,28 @@ public class PersonalIdManager {
         return manager;
     }
 
+    /**
+     * Resolves the session status and, unlike {@link #isloggedIn()}, reports a corrupt database.
+     * Callers that can surface the resulting error to the user should call this on startup; the
+     * status itself resolves on demand.
+     */
     public void init() {
-        if (personalIdStatus == PersonalIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
-            if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
-                personalIdStatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
-                CrashUtil.registerUserData();
-            } else if (ConnectDatabaseHelper.isDbBroken()) {
-                //Corrupt DB, inform user to recover
-                GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
-            }
+        resolveStatus();
+        if (personalIdStatus == PersonalIdStatus.NotIntroduced && ConnectDatabaseHelper.isDbBroken()) {
+            //Corrupt DB, inform user to recover
+            GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_DB_STARTUP_ERROR);
+        }
+    }
+
+    private void resolveStatus() {
+        if (personalIdStatus != PersonalIdStatus.NotIntroduced) {
+            return;
+        }
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
+        if (user != null) {
+            boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
+            personalIdStatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
+            CrashUtil.registerUserData();
         }
     }
 
@@ -153,6 +164,7 @@ public class PersonalIdManager {
     }
 
     public boolean isloggedIn() {
+        resolveStatus();
         return personalIdStatus == PersonalIdStatus.LoggedIn;
     }
 
