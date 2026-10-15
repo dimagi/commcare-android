@@ -492,7 +492,7 @@
     <style name="ConnectMessageAttachmentActionCircle">
         <item name="android:background">@drawable/connect_message_white_circle</item>
         <item name="android:scaleType">center</item>
-        <item name="tint">@color/connect_message_receiver_bg</item>
+        <item name="tint">@color/cornflower_blue</item>
         <item name="android:importantForAccessibility">no</item>
     </style>
 
