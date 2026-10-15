@@ -1,131 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/cc_core_bg"
-              android:orientation="vertical"
+    android:layout_height="match_parent"
+    android:background="@color/cool_gray_50"
+    android:scrollbars="none"
     tools:viewBindingIgnore="true">
 
-    <ScrollView
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/screen_first_start_main"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none">
+        android:orientation="vertical">
 
-        <RelativeLayout
-            android:id="@+id/screen_first_start_main"
-            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <include layout="@layout/grid_header_top_banner"/>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingEnd="@dimen/standard_spacer_double"
+            android:paddingStart="@dimen/standard_spacer_double"
+            android:paddingTop="@dimen/standard_spacer_large">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <include layout="@layout/grid_header_top_banner"/>
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:contentPaddingBottom="40dp"
+                app:contentPaddingLeft="@dimen/standard_spacer_large"
+                app:contentPaddingRight="@dimen/standard_spacer_large"
+                app:contentPaddingTop="40dp"
+                app:strokeColor="@color/mist_gray"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
+                    android:id="@+id/screen_first_start_bottom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
                     android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/str_setup_message"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/content_min_margin"
-                        android:layout_marginRight="@dimen/content_min_margin"
                         android:gravity="center"
-                        android:textSize="@dimen/text_small"
-                        android:layout_marginEnd="@dimen/content_min_margin"
-                        android:layout_marginStart="@dimen/content_min_margin" />
+                        android:lineSpacingExtra="6sp"
+                        android:textColor="@color/dark_slate"
+                        android:textSize="@dimen/text_headline" />
 
                     <TextView
                         android:id="@+id/str_setup_message_2"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/content_min_margin"
-                        android:layout_marginLeft="@dimen/content_min_margin"
-                        android:layout_marginRight="@dimen/content_min_margin"
+                        android:layout_marginTop="@dimen/standard_spacer"
                         android:gravity="center"
+                        android:lineSpacingExtra="4sp"
+                        android:textColor="@color/dark_slate"
+                        android:textSize="@dimen/text_small" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_start_install"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp48"
+                        android:layout_marginTop="@dimen/standard_spacer_extra_large"
+                        android:fontFamily="sans-serif-medium"
+                        android:insetBottom="0dp"
+                        android:insetTop="0dp"
+                        android:stateListAnimator="@null"
+                        android:textAllCaps="false"
+                        android:textColor="@color/filled_button_text"
                         android:textSize="@dimen/text_small"
-                        android:layout_marginEnd="@dimen/content_min_margin"
-                        android:layout_marginStart="@dimen/content_min_margin" />
+                        app:backgroundTint="@color/filled_button_background"
+                        app:cornerRadius="4dp"
+                        app:elevation="0dp" />
 
-                    <LinearLayout
-                        android:id="@+id/screen_first_start_bottom"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_stop_install"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingBottom="@dimen/content_min_margin">
-
-                        <FrameLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/standard_spacer"
-                            android:layout_weight="1"
-                            android:background="@drawable/tile_drop_shadow_small_margins"
-                            android:layout_marginStart="@dimen/standard_spacer">
-
-                            <org.commcare.views.SquareButtonWithText
-                                android:id="@+id/btn_start_install"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                SquareButtonWithText:backgroundColor="@color/start_home_button"
-                                SquareButtonWithText:img="@drawable/install_start"
-                                SquareButtonWithText:subtitle="Start install"
-                                SquareButtonWithText:textColor="@color/white"
-                                />
-                        </FrameLayout>
-
-                        <FrameLayout
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginRight="@dimen/standard_spacer"
-                            android:layout_weight="1"
-                            android:background="@drawable/tile_drop_shadow_small_margins"
-                            android:layout_marginEnd="@dimen/standard_spacer">
-
-                            <org.commcare.views.SquareButtonWithText
-                                android:id="@+id/btn_stop_install"
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:gravity="end"
-                                SquareButtonWithText:backgroundColor="@color/start_logout_button"
-                                SquareButtonWithText:img="@drawable/install_stop"
-                                SquareButtonWithText:subtitle="Start over"
-                                SquareButtonWithText:textColor="@color/white"/>
-                        </FrameLayout>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="start"
-                            android:layout_marginLeft="@dimen/content_start_quadruple"
-                            android:layout_marginRight="@dimen/content_start_quadruple"
-                            app:srcCompat="@drawable/icon_wifi_neutral"
-                            android:layout_marginEnd="@dimen/content_start_quadruple"
-                            android:layout_marginStart="@dimen/content_start_quadruple" />
-
-                        <TextView
-                            android:id="@+id/net_warn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/content_min_margin"
-                            android:layout_marginRight="@dimen/content_min_margin"
-                            android:textSize="@dimen/text_small"/>
-                    </LinearLayout>
+                        android:layout_height="@dimen/dp48"
+                        android:layout_marginTop="@dimen/standard_spacer_double"
+                        android:fontFamily="sans-serif-medium"
+                        android:insetBottom="0dp"
+                        android:insetTop="0dp"
+                        android:textAllCaps="false"
+                        android:textColor="@color/neon_blue"
+                        android:textSize="@dimen/text_small"
+                        app:backgroundTint="@color/white"
+                        app:cornerRadius="4dp"
+                        app:strokeColor="@color/neon_blue"
+                        app:strokeWidth="1dp" />
                 </LinearLayout>
-            </LinearLayout>
-        </RelativeLayout>
-    </ScrollView>
-</LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/net_warn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_spacer_large"
+                android:drawablePadding="@dimen/standard_spacer_one_and_half"
+                android:gravity="center_vertical"
+                android:lineSpacingExtra="4sp"
+                android:textColor="@color/slate_gray"
+                android:textSize="@dimen/text_caption"
+                app:drawableStartCompat="@drawable/icon_wifi_neutral"
+                app:drawableTint="@color/slate_gray" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
