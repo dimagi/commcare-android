@@ -158,6 +158,11 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                     return
                 }
 
+                if (errorType == OtpErrorType.SESSION_EXPIRED) {
+                    showCodeNoLongerValid(getString(R.string.personalid_otp_session_expired), 0)
+                    return
+                }
+
                 val userMessage =
                     when (errorType) {
                         OtpErrorType.INVALID_CREDENTIAL -> {
@@ -265,6 +270,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             otpRequestTime = DateTime.parse(otpRequestTimeString)
         }
         binding.connectPhoneVerifyButton.isEnabled = verifyButtonEnabled
+        binding.customOtpView.isEnabled = !otpLimitExceeded
     }
 
     private fun setupListeners() {
@@ -308,21 +314,28 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
     }
 
     private fun onOtpLimitExceeded(throwable: Throwable?) {
-        otpLimitExceeded = true
-        binding.customOtpView.clearCode()
-        binding.customOtpView.isEnabled = false
-        binding.connectPhoneVerifyButton.isEnabled = false
         val retryAfterSeconds = (throwable as? RateLimitedException)?.retryAfterSeconds
-        resendCooldownSeconds = retryAfterSeconds ?: 0
-        otpRequestTime = DateTime()
-        updateResendButtonState()
-        displayOtpError(
+        val limitExceededMessage =
             PersonalIdOrConnectApiErrorHandler.handle(
                 requireActivity(),
                 PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR,
                 throwable,
-            ),
-        )
+            )
+        showCodeNoLongerValid(limitExceededMessage, retryAfterSeconds ?: 0)
+    }
+
+    private fun showCodeNoLongerValid(
+        message: String?,
+        retryAfterSeconds: Int,
+    ) {
+        otpLimitExceeded = true
+        binding.customOtpView.clearCode()
+        binding.customOtpView.isEnabled = false
+        binding.connectPhoneVerifyButton.isEnabled = false
+        resendCooldownSeconds = retryAfterSeconds
+        otpRequestTime = DateTime()
+        updateResendButtonState()
+        displayOtpError(message)
     }
 
     private fun clearOtpError() {
@@ -507,6 +520,8 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
 
         binding.connectResendButton.setText(resendButtonLabel)
         binding.connectResendButton.visibility = if (canResend) View.VISIBLE else View.GONE
+        binding.connectPhoneVerifyResend.visibility =
+            if (otpLimitExceeded && canResend) View.GONE else View.VISIBLE
 
         val resendStatusText =
             if (canResend) {

@@ -22,5 +22,6 @@ object PersonalIdApiEndpoints {
     const val UPDATE_NOTIFICATIONS = "/messaging/update_notification_received/"
     const val MESSAGE_CHANNEL_CONSENT_URL = "/messaging/update_consent/"
     const val MESSAGE_SEND_URL = "/messaging/send_message/"
+    const val MESSAGE_ATTACHMENT_URL = "/messaging/messages/{messageId}/attachments/{attachmentId}/"
     const val RELEASE_TOGGLES = "/toggles"
 }

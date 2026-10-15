@@ -92,10 +92,14 @@ object ConnectTestUtils {
      * disk, and the test Connect DB is in-memory. Reads and writes still go to that in-memory DB;
      * the empty file only makes the existence probe agree with it.
      */
-    fun signInToPersonalId(hasConnectAccess: Boolean = false) {
+    fun signInToPersonalId(
+        hasConnectAccess: Boolean = false,
+        userId: String = "",
+        password: String = "",
+    ) {
         val context = ApplicationProvider.getApplicationContext<Context>()
         createConnectDbFile()
-        val user = ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", hasConnectAccess)
+        val user = ConnectUserRecord("", userId, password, "Test User", "", Date(), null, false, "", hasConnectAccess)
         user.updateConnectToken("test-connect-token", daysFromNow(1))
         ConnectUserDatabaseUtil.storeUser(user)
         PersonalIdManager.getInstance().init(context)

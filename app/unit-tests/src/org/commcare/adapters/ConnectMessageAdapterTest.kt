@@ -2,14 +2,23 @@ package org.commcare.adapters
 
 import android.content.Context
 import android.view.ContextThemeWrapper
+import android.view.View
 import android.widget.FrameLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ItemChatLeftRichViewBinding
 import org.commcare.dalvik.databinding.ItemChatRightViewBinding
+import org.commcare.dalvik.databinding.ViewConnectMessageAttachmentPendingBinding
+import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentItem
+import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentListener
+import org.commcare.fragments.connectMessaging.ConnectMessageAudioAttachmentView
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData
+import org.commcare.fragments.connectMessaging.ConnectMessageTestImages
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -18,6 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
+import java.io.File
 import java.util.Date
 
 @Config(application = CommCareTestApplication::class)
@@ -28,7 +38,7 @@ class ConnectMessageAdapterTest {
 
     @Before
     fun setUp() {
-        adapter = ConnectMessageAdapter(ArrayList())
+        adapter = ConnectMessageAdapter(ArrayList(), IgnoringAttachmentListener)
         observer = RecordingObserver()
         adapter.registerAdapterDataObserver(observer)
     }
@@ -139,7 +149,223 @@ class ConnectMessageAdapterTest {
         assertEquals(UNTOUCHED_TEXT, binding.tvChatMessage.text.toString())
     }
 
+    @Test
+    fun `incoming message awaiting download uses the rich row and a plain one does not`() {
+        adapter.updateData(listOf(getIncomingChat("plain"), getPendingChat("rich", ConnectMessagingAttachmentState.QUEUED)))
+
+        assertEquals(ConnectMessageAdapter.LEFTVIEW, adapter.getItemViewType(0))
+        assertEquals(ConnectMessageAdapter.LEFT_RICH_VIEW, adapter.getItemViewType(1))
+    }
+
+    @Test
+    fun `download state change is a payload-only change on the owning row`() {
+        val queued = ConnectMessagingAttachmentState.QUEUED
+        adapter.updateData(listOf(getPendingChat("a", queued), getPendingChat("b", queued)))
+        observer.events.clear()
+
+        val hasNewMessages =
+            adapter.updateData(listOf(getPendingChat("a", queued), getPendingChat("b", ConnectMessagingAttachmentState.FAILED)))
+
+        assertFalse(hasNewMessages)
+        assertEquals(listOf(Event.Changed(1, 1, hasPayload = true)), observer.events)
+    }
+
+    @Test
+    fun `pending message hides its text and the attachments payload redraws only the tile`() {
+        adapter.updateData(listOf(getPendingChat("a", ConnectMessagingAttachmentState.QUEUED)))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+        adapter.onBindViewHolder(holder, 0)
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        binding.tvChatMessage.text = UNTOUCHED_TEXT
+
+        adapter.updateData(listOf(getPendingChat("a", ConnectMessagingAttachmentState.FAILED)))
+        adapter.onBindViewHolder(holder, 0, mutableListOf(requireNotNull(observer.lastPayload)))
+
+        val tile = ViewConnectMessageAttachmentPendingBinding.bind(binding.llAttachments.getChildAt(0))
+        assertEquals(themedContext().getString(R.string.connect_messaging_attachment_download_failed), tile.tvLabel.text.toString())
+        assertEquals(UNTOUCHED_TEXT, binding.tvChatMessage.text.toString())
+        assertEquals(View.GONE, binding.tvChatMessage.visibility)
+    }
+
+    @Test
+    fun `finishing the download reveals the text and media through the attachments payload`() {
+        adapter.updateData(listOf(getPendingChat("a", ConnectMessagingAttachmentState.DOWNLOADING)))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+        adapter.onBindViewHolder(holder, 0)
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        observer.events.clear()
+
+        adapter.updateData(listOf(getDownloadedChat("a")))
+        adapter.onBindViewHolder(holder, 0, mutableListOf(requireNotNull(observer.lastPayload)))
+
+        assertEquals(listOf(Event.Changed(0, 1, hasPayload = true)), observer.events)
+        assertEquals(View.VISIBLE, binding.tvChatMessage.visibility)
+        assertEquals("message a", binding.tvChatMessage.text.toString())
+        assertTrue(binding.llAttachments.getChildAt(0) is ConnectMessageAudioAttachmentView)
+    }
+
+    @Test
+    fun `long text under a narrow portrait image keeps the normal text width`() {
+        val row = bindImageRow("portrait", storedWidth = 300, storedHeight = 800, text = LONG_TEXT)
+
+        val image = row.llAttachments.getChildAt(0)
+        val imageWidth = image.layoutParams.width
+        assertTrue("text held to the image width", row.tvChatMessage.maxWidth > imageWidth)
+    }
+
+    @Test
+    fun `narrow image is centered above wider text`() {
+        val row = bindImageRow("centered", storedWidth = 300, storedHeight = 800, text = LONG_TEXT)
+        val rowWidth = themedContext().resources.displayMetrics.widthPixels
+        row.root.measure(
+            View.MeasureSpec.makeMeasureSpec(rowWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+        )
+        row.root.layout(0, 0, row.root.measuredWidth, row.root.measuredHeight)
+
+        val bubble = row.llBubble
+        val image = row.llAttachments.getChildAt(0)
+        val imageCenter = row.llAttachments.left + image.left + image.width / 2f
+        val contentCenter = bubble.paddingLeft + (bubble.width - bubble.paddingLeft - bubble.paddingRight) / 2f
+        assertTrue("text should be wider than the image", row.tvChatMessage.width > image.width)
+        assertEquals(contentCenter, imageCenter, 1f)
+    }
+
+    @Test
+    fun `text under a wide image can span the whole image`() {
+        val row = bindImageRow("landscape", storedWidth = 1600, storedHeight = 900, text = LONG_TEXT)
+
+        val image = row.llAttachments.getChildAt(0)
+        val imageWidth = image.layoutParams.width
+        assertEquals(imageWidth, row.tvChatMessage.maxWidth)
+    }
+
+    @Test
+    fun `rows laid out while the list is still being measured use the list width, not the screen width`() {
+        val listWidth = themedContext().resources.displayMetrics.widthPixels - NARROWER_THAN_SCREEN
+        adapter.updateData(listOf(getImageChat("measuring", storedWidth = 1600, storedHeight = 900)))
+        val chatList =
+            RecyclerView(themedContext()).apply {
+                layoutManager = LinearLayoutManager(themedContext())
+                adapter = this@ConnectMessageAdapterTest.adapter
+            }
+
+        chatList.measure(
+            View.MeasureSpec.makeMeasureSpec(listWidth, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(LIST_HEIGHT_LIMIT, View.MeasureSpec.AT_MOST),
+        )
+
+        val measuringRow = ItemChatLeftRichViewBinding.bind(chatList.getChildAt(0))
+        val laidOutRow = bindImageRow("laid-out", storedWidth = 1600, storedHeight = 900, listWidth = listWidth)
+        val measuringImage = measuringRow.llAttachments.getChildAt(0)
+        val laidOutImage = laidOutRow.llAttachments.getChildAt(0)
+        assertEquals(laidOutImage.layoutParams.width, measuringImage.layoutParams.width)
+    }
+
+    @Test
+    fun `image size does not change when the list shrinks for the keyboard`() {
+        val keyboardClosed = bindImageRow("keyboard-closed", storedWidth = 300, storedHeight = 800, listHeight = 1600)
+        val keyboardOpen = bindImageRow("keyboard-open", storedWidth = 300, storedHeight = 800, listHeight = 700)
+
+        val closedSize = keyboardClosed.llAttachments.getChildAt(0).layoutParams
+        val openSize = keyboardOpen.llAttachments.getChildAt(0).layoutParams
+        assertEquals(closedSize.width, openSize.width)
+        assertEquals(closedSize.height, openSize.height)
+    }
+
+    @Test
+    fun `media message with blank text shows only its media`() {
+        val attachment = getDownloadedChat("a").attachments.single()
+        adapter.updateData(listOf(getRichChat("a", listOf(attachment), null, text = "")))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+
+        adapter.onBindViewHolder(holder, 0)
+
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        assertEquals(View.GONE, binding.tvChatMessage.visibility)
+        assertTrue(binding.llAttachments.getChildAt(0) is ConnectMessageAudioAttachmentView)
+    }
+
+    @Test
+    fun `message too new for this app shows only the update placeholder`() {
+        val chat = ConnectMessageChatData("a", ConnectMessageAdapter.LEFTVIEW, "", "them", Date(TIMESTAMP), false, emptyList(), true, null)
+        adapter.updateData(listOf(chat))
+        assertEquals(ConnectMessageAdapter.LEFT_RICH_VIEW, adapter.getItemViewType(0))
+        val holder = adapter.onCreateViewHolder(FrameLayout(themedContext()), ConnectMessageAdapter.LEFT_RICH_VIEW)
+
+        adapter.onBindViewHolder(holder, 0)
+
+        val binding = ItemChatLeftRichViewBinding.bind(holder.itemView)
+        val tile = ViewConnectMessageAttachmentPendingBinding.bind(binding.llAttachments.getChildAt(0))
+        assertEquals(themedContext().getString(R.string.connect_messaging_update_app_notice), tile.tvLabel.text.toString())
+        assertEquals(View.GONE, binding.tvChatMessage.visibility)
+    }
+
+    private fun bindImageRow(
+        attachmentId: String,
+        storedWidth: Int,
+        storedHeight: Int,
+        text: String = "caption",
+        listWidth: Int = themedContext().resources.displayMetrics.widthPixels,
+        listHeight: Int = 1600,
+    ): ItemChatLeftRichViewBinding {
+        adapter.updateData(listOf(getImageChat(attachmentId, storedWidth, storedHeight, text)))
+        val messageList = FrameLayout(themedContext()).apply { layout(0, 0, listWidth, listHeight) }
+        val holder = adapter.onCreateViewHolder(messageList, ConnectMessageAdapter.LEFT_RICH_VIEW)
+        adapter.onBindViewHolder(holder, 0)
+        return ItemChatLeftRichViewBinding.bind(holder.itemView)
+    }
+
+    private fun getImageChat(
+        attachmentId: String,
+        storedWidth: Int,
+        storedHeight: Int,
+        text: String = "caption",
+    ): ConnectMessageChatData {
+        val file = ConnectMessageTestImages.writePng(File(themedContext().cacheDir, attachmentId), storedWidth, storedHeight)
+        val image =
+            ConnectMessageAttachmentItem(
+                attachmentId,
+                "$attachmentId.png",
+                "image/png",
+                file.length(),
+                ConnectMessagingAttachmentState.AVAILABLE,
+                file,
+            )
+        return getRichChat(attachmentId, listOf(image), null, text = text)
+    }
+
     private fun themedContext(): Context = ContextThemeWrapper(ApplicationProvider.getApplicationContext(), R.style.ConnectTheme)
+
+    private fun getPendingChat(
+        id: String,
+        pendingState: ConnectMessagingAttachmentState,
+    ) = getRichChat(id, emptyList(), pendingState)
+
+    private fun getDownloadedChat(id: String): ConnectMessageChatData {
+        val file = File(themedContext().cacheDir, "audio-$id").apply { writeBytes(byteArrayOf(1, 2, 3)) }
+        val attachment =
+            ConnectMessageAttachmentItem("attachment-$id", "note.mp3", "audio/mpeg", 3, ConnectMessagingAttachmentState.AVAILABLE, file)
+        return getRichChat(id, listOf(attachment), null)
+    }
+
+    private fun getRichChat(
+        id: String,
+        attachments: List<ConnectMessageAttachmentItem>,
+        pendingState: ConnectMessagingAttachmentState?,
+        text: String = "message $id",
+    ) = ConnectMessageChatData(id, ConnectMessageAdapter.LEFTVIEW, text, "them", Date(TIMESTAMP), false, attachments, false, pendingState)
+
+    private object IgnoringAttachmentListener : ConnectMessageAttachmentListener {
+        override fun onMessageDownloadRequested(messageId: String) = Unit
+
+        override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) = Unit
+
+        override fun onImageOpenRequested(
+            attachment: ConnectMessageAttachmentItem,
+            imageView: View,
+        ) = Unit
+    }
 
     private fun getReadIconResId(binding: ItemChatRightViewBinding) =
         Shadows.shadowOf(binding.imgMessageReadStatus.drawable).createdFromResId
@@ -223,5 +449,8 @@ class ConnectMessageAdapterTest {
     companion object {
         private const val TIMESTAMP = 1_000L
         private const val UNTOUCHED_TEXT = "untouched"
+        private const val NARROWER_THAN_SCREEN = 40
+        private const val LIST_HEIGHT_LIMIT = 2000
+        private val LONG_TEXT = "Please keep the baby warm and feeding well. ".repeat(12)
     }
 }
