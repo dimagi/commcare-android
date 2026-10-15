@@ -4,6 +4,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -14,7 +15,7 @@ import kotlinx.coroutines.test.runTest
 import org.commcare.activities.DataPullController.DataPullMode
 import org.commcare.activities.LoginMode
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -70,13 +71,13 @@ private class FakeSyncOperations(
 class LoginControllerTest {
     private val credentialResolver = mockk<ConnectCredentialResolver>(relaxed = true)
     private val postLoginSideEffects = mockk<PostLoginSideEffects>(relaxed = true)
-    private val personalIdManager = mockk<PersonalIdManager>(relaxed = true)
+    private val personalIdManager = mockk<PersonalIdSessionManager>(relaxed = true)
     private val listener = LoginProgressListener { }
 
     @Before
     fun setUp() {
-        mockkStatic(PersonalIdManager::class)
-        every { PersonalIdManager.getInstance() } returns personalIdManager
+        mockkObject(PersonalIdSessionManager.Companion)
+        every { PersonalIdSessionManager.getInstance() } returns personalIdManager
         every { personalIdManager.isloggedIn() } returns false
         coEvery {
             postLoginSideEffects.runOnSuccess(any())

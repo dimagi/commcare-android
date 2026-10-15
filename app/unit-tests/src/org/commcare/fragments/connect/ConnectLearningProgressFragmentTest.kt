@@ -29,7 +29,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectLearnJobTestData
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -67,15 +67,15 @@ import java.util.Date
 class ConnectLearningProgressFragmentTest {
     private lateinit var activity: ConnectActivity
     private lateinit var navHostFragment: NavHostFragment
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
     private val mockApi = ConnectMockApiServer()
 
     private val navController: NavController get() = navHostFragment.navController
 
     @Before
     fun setUp() {
-        savedStatus = PersonalIdManager.getInstance().status
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        savedStatus = PersonalIdSessionManager.getInstance().status
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
         seedConnectUser(ApplicationProvider.getApplicationContext())
 
         mockApi.start()
@@ -121,7 +121,7 @@ class ConnectLearningProgressFragmentTest {
 
     @After
     fun tearDown() {
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         mockApi.shutdown()
         unmockkAll()
     }

@@ -4,7 +4,7 @@ import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectAppRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.models.database.connect.ConnectDatabaseSchemaManager
@@ -80,7 +80,7 @@ object ConnectTestUtils {
     fun daysFromNow(days: Int): Date = Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(days.toLong()))
 
     /**
-     * Write a signed-in PersonalId user, then let [PersonalIdManager.init] derive its status from
+     * Write a signed-in PersonalId user, then let [PersonalIdSessionManager.init] derive its status from
      * that record: no Connect lookup resolves unless PersonalId reports logged in.
      *
      * The stored token is what keeps Connect API calls off the PersonalId token endpoint —
@@ -95,7 +95,7 @@ object ConnectTestUtils {
         val user = ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", hasConnectAccess)
         user.updateConnectToken("test-connect-token", daysFromNow(1))
         ConnectUserDatabaseUtil.storeUser(user)
-        PersonalIdManager.getInstance().init()
+        PersonalIdSessionManager.getInstance().init()
     }
 
     fun createConnectDbFile() {

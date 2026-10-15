@@ -2,7 +2,7 @@ package org.commcare.personalId
 
 import org.commcare.CommCareApplication
 import org.commcare.android.database.app.models.UserKeyRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -18,14 +18,14 @@ object PersonalIdAppStateEvaluator {
     fun evaluateAppState(
         appId: String,
         userId: String,
-    ): PersonalIdManager.ConnectAppMangement {
+    ): PersonalIdSessionManager.ConnectAppMangement {
         if (ConnectJobUtils.getAppRecord(appId) != null) {
-            return PersonalIdManager.ConnectAppMangement.Connect
+            return PersonalIdSessionManager.ConnectAppMangement.Connect
         }
         return if (PersonalIdCredentialProvider.getCredentialsForApp(appId, userId) != null) {
-            PersonalIdManager.ConnectAppMangement.PersonalId
+            PersonalIdSessionManager.ConnectAppMangement.PersonalId
         } else {
-            PersonalIdManager.ConnectAppMangement.Unmanaged
+            PersonalIdSessionManager.ConnectAppMangement.Unmanaged
         }
     }
 
@@ -33,7 +33,7 @@ object PersonalIdAppStateEvaluator {
     @JvmStatic
     fun isSeatedAppConfiguredWithPersonalId(username: String): Boolean {
         try {
-            if (PersonalIdManager.getInstance().isloggedIn()) {
+            if (PersonalIdSessionManager.getInstance().isloggedIn()) {
                 val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
                 val appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(seatedAppId, username)
                 return appRecord != null && appRecord.workerLinked

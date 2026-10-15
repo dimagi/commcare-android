@@ -27,7 +27,7 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.PAYMENT_UUID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
@@ -77,7 +77,7 @@ object PushNotificationApiHelper {
 
             object : PersonalIdApiHandler<NotificationParseResult>() {
                 override fun onSuccess(parseResult: NotificationParseResult) {
-                    if (!PersonalIdManager.getInstance().isloggedIn()) {
+                    if (!PersonalIdSessionManager.getInstance().isloggedIn()) {
                         continuation.resume(Result.success(emptyList()))
                         return
                     }

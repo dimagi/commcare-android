@@ -3,7 +3,7 @@ package org.commcare.connect.workers
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import kotlin.coroutines.resume
@@ -14,7 +14,7 @@ class ConnectHeartbeatWorker(
     workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
-        val personalIdManager = PersonalIdManager.getInstance()
+        val personalIdManager = PersonalIdSessionManager.getInstance()
         if (!personalIdManager.isloggedIn()) {
             return Result.failure()
         }

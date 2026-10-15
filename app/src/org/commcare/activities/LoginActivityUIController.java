@@ -1,8 +1,8 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Unmanaged;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -26,7 +26,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -554,7 +554,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void refreshConnectView() {
-        PersonalIdManager.ConnectAppMangement appState = activity.getConnectAppState();
+        PersonalIdSessionManager.ConnectAppMangement appState = activity.getConnectAppState();
         if (appState == Unmanaged) {
             loginButton.setText(Localization.get("login.button"));
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
@@ -567,7 +567,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         setLoginInputsVisibility(appState != Connect);
-        boolean isPersonalIdLoggedIn = PersonalIdManager.getInstance().isloggedIn();
+        boolean isPersonalIdLoggedIn = PersonalIdSessionManager.getInstance().isloggedIn();
         if (isPersonalIdLoggedIn) {
             setWelcomeMessage();
         }

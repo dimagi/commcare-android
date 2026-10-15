@@ -10,7 +10,7 @@ import io.mockk.unmockkObject
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.connect.ConnectActivityCompleteListener
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.EmailWorkFlow

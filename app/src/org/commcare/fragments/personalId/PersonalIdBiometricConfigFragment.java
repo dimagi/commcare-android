@@ -26,7 +26,7 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;

@@ -28,7 +28,7 @@ import org.commcare.activities.connect.viewmodel.PushNotificationViewModel
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
@@ -70,7 +70,7 @@ class PushNotificationActivityTest {
 
     private val dbReadCount = AtomicInteger(0)
     private var dbNotifications: List<PushNotificationRecord> = emptyList()
-    private lateinit var savedPersonalIdStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedPersonalIdStatus: PersonalIdSessionManager.PersonalIdStatus
 
     private val recyclerView: RecyclerView
         get() = activity.findViewById(R.id.rvNotifications)
@@ -89,9 +89,9 @@ class PushNotificationActivityTest {
 
         // getIntentForPNClick is exercised for real, so cccCheckPassed() must see a logged-in
         // user. init() is a no-op unless status == NotIntroduced, so setting LoggedIn is enough.
-        val personalIdManager = PersonalIdManager.getInstance()
+        val personalIdManager = PersonalIdSessionManager.getInstance()
         savedPersonalIdStatus = personalIdManager.status
-        personalIdManager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        personalIdManager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         // A real (non-mock) user so the helper gets credentials and the click path's connect-access
         // logic runs for real; hasConnectAccess = true keeps turnOnConnectAccess a no-op.
@@ -138,7 +138,7 @@ class PushNotificationActivityTest {
         }
         mockApi.shutdown()
         unmockkAll()
-        PersonalIdManager.getInstance().status = savedPersonalIdStatus
+        PersonalIdSessionManager.getInstance().status = savedPersonalIdStatus
     }
 
     private fun launchActivity() {
@@ -413,7 +413,7 @@ class PushNotificationActivityTest {
         launchActivity()
         completeLoad(listOf(record))
         assertEquals(View.VISIBLE, recyclerView.visibility)
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.Registering
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.Registering
 
         recyclerView.findViewHolderForAdapterPosition(0)!!.itemView.performClick()
 

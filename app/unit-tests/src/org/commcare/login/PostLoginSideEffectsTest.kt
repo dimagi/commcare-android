@@ -15,7 +15,7 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareNoficationManager
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectAppUtils
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
@@ -27,7 +27,7 @@ import org.junit.Test
 
 class PostLoginSideEffectsTest {
     private val context = mockk<Context>(relaxed = true)
-    private val personalIdManager = mockk<PersonalIdManager>(relaxed = true)
+    private val personalIdManager = mockk<PersonalIdSessionManager>(relaxed = true)
     private val notificationManager = mockk<CommCareNoficationManager>(relaxed = true)
     private val commCareApplication = mockk<CommCareApplication>(relaxed = true)
     private val currentApp = mockk<CommCareApp>(relaxed = true)

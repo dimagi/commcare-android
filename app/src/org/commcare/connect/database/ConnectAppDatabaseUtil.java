@@ -3,7 +3,7 @@ package org.commcare.connect.database;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.models.database.SqlStorage;
 
@@ -14,7 +14,7 @@ import java.util.Vector;
 
 public class ConnectAppDatabaseUtil {
     public static ConnectLinkedAppRecord getConnectLinkedAppRecord(String appId, String username) {
-        if (PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdSessionManager.getInstance().isloggedIn()) {
             Vector<ConnectLinkedAppRecord> records = ConnectDatabaseHelper.getConnectStorage(
                             ConnectLinkedAppRecord.class)
                     .getRecordsForValues(

@@ -15,7 +15,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectNavHelper
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
@@ -178,7 +178,7 @@ class BaseDrawerController(
     }
 
     fun refreshDrawerContent() {
-        if (PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdSessionManager.getInstance().isloggedIn()) {
             setSignedInState(true)
             binding.ivNotification.setImageResource(getNotificationIcon(activity))
 
@@ -283,11 +283,11 @@ class BaseDrawerController(
         }
     }
 
-    private fun shouldShowWorkHistory(): Boolean = PersonalIdManager.getInstance().isloggedIn()
+    private fun shouldShowWorkHistory(): Boolean = PersonalIdSessionManager.getInstance().isloggedIn()
 
-    private fun shouldShowNotifications(): Boolean = PersonalIdManager.getInstance().isloggedIn()
+    private fun shouldShowNotifications(): Boolean = PersonalIdSessionManager.getInstance().isloggedIn()
 
-    private fun shouldShowManageProfile(): Boolean = PersonalIdManager.getInstance().isloggedIn()
+    private fun shouldShowManageProfile(): Boolean = PersonalIdSessionManager.getInstance().isloggedIn()
 
     fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)

@@ -52,7 +52,7 @@ class ConnectRepositoryTest {
         mockkStatic(ConnectJobUtils::class)
         mockkStatic(ConnectUserDatabaseUtil::class)
         every { ConnectUserDatabaseUtil.getUser() } returns mockUser
-        // PersonalIdManager.isloggedIn() resolves the session from this record
+        // PersonalIdSessionManager.isloggedIn() resolves the session from this record
         every { mockUser.registrationPhase } returns ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED
 
         repository = ConnectRepository(mockSyncPrefs, mockNetworkClient)

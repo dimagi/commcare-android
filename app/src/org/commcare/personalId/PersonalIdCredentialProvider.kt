@@ -1,7 +1,7 @@
 package org.commcare.personalId
 
 import org.commcare.CommCareApplication
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.personalId.ConnectSsoSyncHelper
@@ -18,7 +18,7 @@ object PersonalIdCredentialProvider {
     /** The PersonalID token for the signed-in user, or null when absent or expired. */
     @JvmStatic
     fun getConnectToken(): AuthInfo.TokenAuth? {
-        if (!PersonalIdManager.getInstance().isloggedIn()) return null
+        if (!PersonalIdSessionManager.getInstance().isloggedIn()) return null
         val user = ConnectUserDatabaseUtil.getUser() ?: return null
         val now = Date()
         if (now < user.connectTokenExpiration) {
@@ -39,7 +39,7 @@ object PersonalIdCredentialProvider {
         appId: String,
         username: String,
     ): Boolean {
-        if (!PersonalIdManager.getInstance().isloggedIn()) return false
+        if (!PersonalIdSessionManager.getInstance().isloggedIn()) return false
         val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, username)
         return record != null && record.personalIdLinked
     }
@@ -68,13 +68,13 @@ object PersonalIdCredentialProvider {
         appId: String,
         userId: String,
     ): AuthInfo.TokenAuth? {
-        if (!PersonalIdManager.getInstance().isloggedIn()) return null
+        if (!PersonalIdSessionManager.getInstance().isloggedIn()) return null
         val record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, userId) ?: return null
         return if (Date() < record.hqTokenExpiration) AuthInfo.TokenAuth(record.hqToken) else null
     }
 
     private fun isSeatedAppLinkedToPersonalId(username: String): Boolean {
-        if (!PersonalIdManager.getInstance().isloggedIn()) return false
+        if (!PersonalIdSessionManager.getInstance().isloggedIn()) return false
         val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
         return isPersonalIdLinkedApp(seatedAppId, username)
     }

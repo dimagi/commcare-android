@@ -8,7 +8,7 @@ import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToWorkHistory
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
@@ -177,7 +177,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             return true
         }
 
-        val personalIdManager = PersonalIdManager.getInstance()
+        val personalIdManager = PersonalIdSessionManager.getInstance()
         personalIdManager.init()
         val showDrawer =
             (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&

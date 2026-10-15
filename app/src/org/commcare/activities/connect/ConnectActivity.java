@@ -29,7 +29,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -71,7 +71,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
         super.onCreate(savedInstanceState);
 
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
         personalIdManager.init();
 
         if(personalIdManager.isloggedIn()){
@@ -155,7 +155,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private int handleSecureRedirect(Bundle startArgs) {
         //Entering from a notification, so we may need to initialize
-        PersonalIdManager.getInstance().init();
+        PersonalIdSessionManager.getInstance().init();
         String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
         if (!TextUtils.isEmpty(notificationId)) {
             NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);

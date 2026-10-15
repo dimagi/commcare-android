@@ -36,7 +36,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
@@ -652,7 +652,7 @@ public class FirebaseMessagingUtil {
     }
 
     public static boolean cccCheckPassed(Context context){
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
         personalIdManager.init();
         return personalIdManager.isloggedIn();
     }

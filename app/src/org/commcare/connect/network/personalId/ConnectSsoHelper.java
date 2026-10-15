@@ -5,7 +5,7 @@ import android.content.Context;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectAppDatabaseUtil;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.core.network.AuthInfo;

@@ -31,7 +31,7 @@ import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
@@ -60,14 +60,14 @@ class ConnectDeliveryHomeFragmentTest {
 
     private val uuid = "opp-uuid-1234"
     private val app = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
     private lateinit var job: ConnectJobRecord
 
     @Before
     fun setUp() {
-        val manager = PersonalIdManager.getInstance()
+        val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
-        manager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
@@ -105,7 +105,7 @@ class ConnectDeliveryHomeFragmentTest {
 
     @After
     fun tearDown() {
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         unmockkAll()
     }
 

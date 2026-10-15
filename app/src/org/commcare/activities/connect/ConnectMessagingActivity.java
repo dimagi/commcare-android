@@ -12,7 +12,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
@@ -40,7 +40,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_messaging_title);
 
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
+        PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
         personalIdManager.init();
 
         if (personalIdManager.isloggedIn()) {
@@ -138,7 +138,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         String channelId = getIntent().getStringExtra(CHANNEL_ID);
 
         if (CCC_MESSAGE.equals(action)) {
-            PersonalIdManager.getInstance().init();
+            PersonalIdSessionManager.getInstance().init();
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,

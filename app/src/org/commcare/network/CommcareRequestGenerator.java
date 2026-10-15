@@ -8,7 +8,7 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.network.personalId.ConnectSsoHelper;
 import org.commcare.connect.network.personalId.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;

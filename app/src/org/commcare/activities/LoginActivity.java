@@ -30,7 +30,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectNavHelper;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -84,9 +84,9 @@ import org.commcare.utils.BiometricsHelper;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.PersonalId;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Connect;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.PersonalId;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Unmanaged;
 import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
 
 /**
@@ -134,8 +134,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
      * (e.g. for launch from Connect Opportunities)
      */
     private String presetAppId;
-    private PersonalIdManager personalIdManager;
-    private PersonalIdManager.ConnectAppMangement connectAppState = Unmanaged;
+    private PersonalIdSessionManager personalIdManager;
+    private PersonalIdSessionManager.ConnectAppMangement connectAppState = Unmanaged;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
     private LoginPhase currentLoginPhase;
@@ -182,7 +182,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     private void initPersonaIdManager() {
         if (personalIdManager == null) {
-            personalIdManager = PersonalIdManager.getInstance();
+            personalIdManager = PersonalIdSessionManager.getInstance();
             personalIdManager.init();
         }
     }
@@ -698,7 +698,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private void handleFailedConnectSignIn() {
         if (loginManagedByPersonalId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-            PersonalIdManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
+            PersonalIdSessionManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
                     record.getUniqueId(),
                     getUniformUsername()
             );
@@ -1104,7 +1104,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     protected void evaluateConnectAppState() {
         if (personalIdManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            PersonalIdManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
+            PersonalIdSessionManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
                     seatedAppId,
                     uiController.getEnteredUsername()
             );
@@ -1127,7 +1127,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return connectAppState == PersonalId || connectAppState == Connect;
     }
 
-    public void setConnectAppState(PersonalIdManager.ConnectAppMangement connectAppState) {
+    public void setConnectAppState(PersonalIdSessionManager.ConnectAppMangement connectAppState) {
         this.connectAppState = connectAppState;
     }
 
@@ -1141,7 +1141,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return BaseDrawerController.NavItemType.COMMCARE_APPS;
     }
 
-    protected PersonalIdManager.ConnectAppMangement getConnectAppState() {
+    protected PersonalIdSessionManager.ConnectAppMangement getConnectAppState() {
         return connectAppState;
     }
 }

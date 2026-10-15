@@ -9,7 +9,7 @@ import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.util.ActivityAssertions.assertStarted
 import org.commcare.android.util.ConnectTestUtils.signInToPersonalId
 import org.commcare.connect.ConnectActivityCompleteListener
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.personalId.PersonalIdUnlocker
 import org.junit.Before

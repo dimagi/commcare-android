@@ -14,7 +14,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.connect.ConnectNavHelper;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.dalvik.R;
@@ -169,7 +169,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void dispatch() {
-        if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdSessionManager.getInstance().isloggedIn()) {
             ConnectNavHelper.goToProfileForPendingBackupCode(this);
             return;
         }

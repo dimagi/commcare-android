@@ -11,7 +11,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.javarosa.core.services.Logger
@@ -24,7 +24,7 @@ class ConnectReleaseTogglesWorker(
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
-        val personalIdManager = PersonalIdManager.getInstance()
+        val personalIdManager = PersonalIdSessionManager.getInstance()
         if (!personalIdManager.isloggedIn()) {
             return Result.failure()
         }
