@@ -24,12 +24,21 @@ object ConnectNavHelper {
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        PersonalIdUnlocker.unlock(activity, policy) { success ->
-            if (success) {
-                navigationAction(activity)
-            }
-            listener.connectActivityComplete(success)
-        }
+        PersonalIdUnlocker.unlock(
+            activity,
+            policy,
+            object : ConnectActivityCompleteListener {
+                override fun connectActivityComplete(
+                    success: Boolean,
+                    error: String?,
+                ) {
+                    if (success) {
+                        navigationAction(activity)
+                    }
+                    listener.connectActivityComplete(success)
+                }
+            },
+        )
     }
 
     fun unlockAndGoToMessaging(

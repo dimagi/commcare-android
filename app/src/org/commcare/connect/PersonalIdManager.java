@@ -245,7 +245,7 @@ public class PersonalIdManager {
                     personalIdManagedLogin,
                     callback
             );
-            case Connect -> callback.connectActivityComplete(true);
+            case Connect -> callback.connectActivityComplete(true, null);
         }
     }
 
@@ -263,7 +263,7 @@ public class PersonalIdManager {
         OfferCheckResult offerCheck = evaluateLinkOffer(linkedApp);
 
         if (!offerCheck.shouldOffer) {
-            callback.connectActivityComplete(false);
+            callback.connectActivityComplete(false, null);
             return;
         }
 
@@ -346,7 +346,7 @@ public class PersonalIdManager {
                             linkedApp.getAppId(),
                             FAILURE_USER_DENIED
                     );
-                    callback.connectActivityComplete(false);
+                    callback.connectActivityComplete(false, null);
                 }
         );
 
@@ -361,9 +361,9 @@ public class PersonalIdManager {
             ConnectActivityCompleteListener callback
     ) {
         PersonalIdUnlocker.INSTANCE.unlock(
-                activity, UnlockPolicy.ALWAYS, success -> {
+                activity, UnlockPolicy.ALWAYS, (success, error) -> {
                     if (!success) {
-                        callback.connectActivityComplete(false);
+                        callback.connectActivityComplete(false, null);
                         FirebaseAnalyticsUtil.reportPersonalIDLinking(
                                 linkedApp.getAppId(),
                                 FAILURE_UNLOCK_FAILED
@@ -383,18 +383,18 @@ public class PersonalIdManager {
                             activity, user, linkedApp, username, true,
                             new ConnectSsoHelper.TokenCallback() {
                                 public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                                    callback.connectActivityComplete(false);
+                                    callback.connectActivityComplete(false, null);
                                 }
 
                                 public void tokenUnavailable() {
                                     TokenExceptionHandler.INSTANCE.handleTokenUnavailableException(
                                             activity);
-                                    callback.connectActivityComplete(false);
+                                    callback.connectActivityComplete(false, null);
                                 }
 
                                 public void tokenRequestDenied() {
                                     TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
-                                    callback.connectActivityComplete(false);
+                                    callback.connectActivityComplete(false, null);
                                 }
                             }
                     );
@@ -411,7 +411,7 @@ public class PersonalIdManager {
     ) {
         // we only want to prompt when user chose non connect Id managed login
         if (personalIdManagedLogin) {
-            callback.connectActivityComplete(false);
+            callback.connectActivityComplete(false, null);
             return;
         }
 
@@ -424,7 +424,7 @@ public class PersonalIdManager {
                 activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
                     activity.dismissAlertDialog();
                     PersonalIdUnlocker.INSTANCE.unlock(
-                            activity, UnlockPolicy.ALWAYS, success -> {
+                            activity, UnlockPolicy.ALWAYS, (success, error) -> {
                                 if (success) {
                                     ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                                             appId, username
@@ -434,7 +434,7 @@ public class PersonalIdManager {
                                         ConnectAppDatabaseUtil.storeApp(linkedApp);
                                     }
                                 }
-                                callback.connectActivityComplete(false);
+                                callback.connectActivityComplete(false, null);
                             }
                     );
                 }
@@ -443,7 +443,7 @@ public class PersonalIdManager {
         dialog.setNegativeButton(
                 activity.getString(R.string.personalid_link_app_no), (d, w) -> {
                     activity.dismissAlertDialog();
-                    callback.connectActivityComplete(false);
+                    callback.connectActivityComplete(false, null);
                 }
         );
 
@@ -658,10 +658,4 @@ public class PersonalIdManager {
         manager = null;
     }
 
-    /**
-     * Interface for handling callbacks when a PersonalId activity finishes
-     */
-    public interface ConnectActivityCompleteListener {
-        void connectActivityComplete(boolean success);
-    }
 }

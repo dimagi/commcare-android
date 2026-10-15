@@ -236,7 +236,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         if (loginManagedByPersonalId()) {
             //Unlock and then auto login
             PersonalIdUnlocker.INSTANCE.unlock(
-                    this, UnlockPolicy.ALWAYS, success -> {
+                    this, UnlockPolicy.ALWAYS, (success, error) -> {
                         if (success) {
                             String username = uiController.getEnteredUsername();
                             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
@@ -583,7 +583,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                     success.getAppId(),
                     success.getUsername(),
                     success.getLinkPassword(),
-                    linkSuccess -> finishWithSuccess(success, linkSuccess)
+                    (linkSuccess, error) -> finishWithSuccess(success, linkSuccess)
             );
 
             return;

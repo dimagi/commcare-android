@@ -8,6 +8,7 @@ import androidx.biometric.BiometricPrompt
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.security.AndroidKeyStore
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
@@ -38,7 +39,7 @@ object PersonalIdUnlocker {
     fun unlock(
         activity: CommCareActivity<*>,
         policy: UnlockPolicy,
-        callback: PersonalIdManager.ConnectActivityCompleteListener,
+        callback: ConnectActivityCompleteListener,
     ) {
         when (policy) {
             UnlockPolicy.ALWAYS -> {
@@ -57,7 +58,7 @@ object PersonalIdUnlocker {
 
     private fun performUnlock(
         activity: CommCareActivity<*>,
-        callback: PersonalIdManager.ConnectActivityCompleteListener,
+        callback: ConnectActivityCompleteListener,
     ) {
         val personalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init()

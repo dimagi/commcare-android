@@ -159,7 +159,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
             showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
             return;
         }
-        PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
+        PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
             if (success) {
                 String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
                 if (!TextUtils.isEmpty(notificationId)) {
