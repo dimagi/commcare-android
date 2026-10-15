@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
 import org.commcare.personalId.PersonalIdUnlocker;
@@ -50,7 +51,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     R.string.personalid_not_login_from_fcm_error,
                     Toast.LENGTH_LONG
             ).show();
-            personalIdManager.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            ConnectNavHelper.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
     }

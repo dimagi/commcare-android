@@ -125,12 +125,10 @@ class BaseDrawerController(
                 GlobalErrorUtil.dismissGlobalErrors()
             }
 
-            PersonalIdManager
-                .getInstance()
-                .launchPersonalId(
-                    activity,
-                    ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH,
-                )
+            ConnectNavHelper.launchPersonalId(
+                activity,
+                ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH,
+            )
             closeDrawer()
         }
 

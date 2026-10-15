@@ -514,7 +514,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
             invalidateOptionsMenu();
             usernameBeforeRotation = passwordOrPinBeforeRotation = null;
         } else if (requestCode == ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH) {
-            personalIdManager.handleFinishedActivity(this, resultCode);
+            if (resultCode == RESULT_OK) {
+                openDrawer();
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, intent);
@@ -1078,7 +1080,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private void registerPersonalIdUser() {
-        personalIdManager.launchPersonalId(this, ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH);
+        ConnectNavHelper.launchPersonalId(this, ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH);
     }
 
     protected void seatAppIfNeeded(String appId) {

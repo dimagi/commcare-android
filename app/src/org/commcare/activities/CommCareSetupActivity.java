@@ -439,7 +439,9 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 finish();
                 return;
             case ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH:
-                PersonalIdManager.getInstance().handleFinishedActivity(this, resultCode);
+                if (resultCode == RESULT_OK) {
+                    openDrawer();
+                }
                 return;
             default:
                 return;

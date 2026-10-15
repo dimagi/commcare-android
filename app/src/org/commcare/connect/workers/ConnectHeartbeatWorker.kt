@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -17,7 +18,7 @@ class ConnectHeartbeatWorker(
         if (!personalIdManager.isloggedIn()) {
             return Result.failure()
         }
-        val user = personalIdManager.getUser()
+        val user = ConnectUserDatabaseUtil.getUser()
 
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {

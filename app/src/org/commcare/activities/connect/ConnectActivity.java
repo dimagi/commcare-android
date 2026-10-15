@@ -98,7 +98,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             retrieveMessages();
         }else{
             Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
-            personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            ConnectNavHelper.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
 

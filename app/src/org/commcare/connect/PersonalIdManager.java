@@ -1,8 +1,6 @@
 package org.commcare.connect;
 
-import android.content.Intent;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -11,8 +9,6 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.PersonalIdActivity;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
@@ -23,7 +19,6 @@ import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.navdrawer.BaseDrawerActivity;
 import org.commcare.personalId.PersonalIdBackupCodeReminderHelper;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.PersonalIdUserPreferences;
@@ -147,14 +142,6 @@ public class PersonalIdManager {
         ConnectReleaseTogglesWorker.Companion.schedulePeriodicFetch(CommCareApplication.instance());
     }
 
-    public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
-        if (resultCode == AppCompatActivity.RESULT_OK) {
-            if (activity instanceof BaseDrawerActivity) {
-                ((BaseDrawerActivity<?>)activity).openDrawer();
-            }
-        }
-    }
-
     public void forgetUser(String reason) {
         if (ConnectDatabaseHelper.dbExists()) {
             FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
@@ -174,11 +161,6 @@ public class PersonalIdManager {
         PersonalIdUnlocker.INSTANCE.resetSession();
         PersonalIdUserPreferences.clear();
         CommCareApplication.instance().closeUserSession();
-    }
-
-    public void launchPersonalId(CommCareActivity<?> parent, int requestCode) {
-        Intent intent = new Intent(parent, PersonalIdActivity.class);
-        parent.startActivityForResult(intent, requestCode);
     }
 
     public PersonalIdStatus getStatus() {
@@ -212,10 +194,6 @@ public class PersonalIdManager {
         user.setEmail(sessionData.getEmail());
         user.setRegistrationPhase(ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED);
         ConnectUserDatabaseUtil.storeUser(user);
-    }
-
-    public ConnectUserRecord getUser() {
-        return ConnectUserDatabaseUtil.getUser();
     }
 
     public static void clearInstance() {
