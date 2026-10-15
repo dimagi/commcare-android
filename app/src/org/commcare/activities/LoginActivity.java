@@ -76,6 +76,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import org.commcare.personalId.PersonalIdCredentialProvider;
 import org.commcare.personalId.PersonalIdDeviceCompatibility;
 import org.commcare.utils.BiometricsHelper;
 
@@ -242,7 +243,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                         if (success) {
                             String username = uiController.getEnteredUsername();
                             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                            String pass = personalIdManager.getStoredPasswordForApp(
+                            String pass = PersonalIdCredentialProvider.getStoredPasswordForApp(
                                     seatedAppId,
                                     username
                             );

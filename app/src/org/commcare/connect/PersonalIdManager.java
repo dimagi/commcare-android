@@ -2,7 +2,6 @@ package org.commcare.connect;
 
 import android.content.Intent;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -27,10 +26,10 @@ import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.connect.network.personalId.ConnectSsoHelper;
-import org.commcare.connect.network.personalId.ConnectSsoSyncHelper;
 import org.commcare.connect.network.personalId.TokenExceptionHandler;
 import org.commcare.connect.workers.ConnectHeartbeatWorker;
 import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
+import org.commcare.personalId.PersonalIdCredentialProvider;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -41,7 +40,6 @@ import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.personalId.UnlockPolicy;
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
 import org.commcare.preferences.NotificationPrefs;
-import org.commcare.util.LogTypes;
 import org.commcare.utils.CrashUtil;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
@@ -195,25 +193,6 @@ public class PersonalIdManager {
         PersonalIdUnlocker.INSTANCE.resetSession();
         PersonalIdUserPreferences.clear();
         CommCareApplication.instance().closeUserSession();
-    }
-
-    public AuthInfo.TokenAuth getConnectToken() {
-        if (isloggedIn()) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
-            Date currentDate = new Date();
-            if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
-                Logger.log(
-                        LogTypes.TYPE_MAINTENANCE,
-                        "Found a valid existing Connect Token with current date set to " + currentDate
-                                + " and record expiration date being " + user.getConnectTokenExpiration()
-                );
-                return new AuthInfo.TokenAuth(user.getConnectToken());
-            } else if (user != null) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
-            }
-        }
-
-        return null;
     }
 
     public void launchPersonalId(CommCareActivity<?> parent, int requestCode) {
@@ -448,37 +427,6 @@ public class PersonalIdManager {
         return ConnectJobUtils.getAppRecord(appId);
     }
 
-    public String getStoredPasswordForApp(String appId, String userId) {
-        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
-        return auth != null ? auth.password : null;
-    }
-
-    @Nullable
-    private AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                appId,
-                userId
-        );
-        if (isPersonalIdLinkedApp(appId, userId) && !record.getPassword().isEmpty()) {
-            return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
-        }
-        return null;
-    }
-
-    public AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
-        if (isloggedIn()) {
-            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                    appId,
-                    userId
-            );
-            if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
-                return new AuthInfo.TokenAuth(record.getHqToken());
-            }
-        }
-
-        return null;
-    }
-
     public PersonalIdStatus getStatus() {
         return personalIdStatus;
     }
@@ -537,8 +485,8 @@ public class PersonalIdManager {
             return ConnectAppMangement.Connect;
         }
 
-        return getCredentialsForApp(appId, userId) != null ? ConnectAppMangement.PersonalId
-                : ConnectAppMangement.Unmanaged;
+        return PersonalIdCredentialProvider.getCredentialsForApp(appId, userId) != null
+                ? ConnectAppMangement.PersonalId : ConnectAppMangement.Unmanaged;
     }
 
     private boolean isConnectApp(String appId) {
@@ -586,53 +534,6 @@ public class PersonalIdManager {
         }
 
         return false;
-    }
-
-    private boolean isPersonalIdLinkedApp(String appId, String username) {
-        if (isloggedIn()) {
-            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                    appId, username);
-            return record != null && record.getPersonalIdLinked();
-        }
-        return false;
-    }
-
-    private boolean isSeatedAppLinkedToPersonalId(String username) {
-        if (isloggedIn()) {
-            String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            return isPersonalIdLinkedApp(seatedAppId, username);
-        }
-        return false;
-    }
-
-    public static AuthInfo.TokenAuth getHqTokenIfLinked(String username) {
-        if (!manager.isloggedIn()) {
-            return null;
-        }
-
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
-        if (user == null) {
-            return null;
-        }
-
-        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-
-        if (!getInstance().isSeatedAppLinkedToPersonalId(username)) {
-            return null;
-        }
-
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                seatedAppId,
-                username
-        );
-
-        return ConnectSsoSyncHelper.INSTANCE.retrieveHqSsoTokenSync(
-                CommCareApplication.instance(),
-                user,
-                appRecord,
-                username,
-                false
-        );
     }
 
     public static void clearInstance() {

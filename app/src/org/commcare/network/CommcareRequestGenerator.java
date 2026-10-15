@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
+import org.commcare.personalId.PersonalIdCredentialProvider;
 import retrofit2.Response;
 
 
@@ -175,7 +176,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     private AuthInfo buildAuth() throws TokenUnavailableException {
         if (username != null) {
-            AuthInfo.TokenAuth tokenAuth = PersonalIdManager.getInstance().getHqTokenIfLinked(username);
+            AuthInfo.TokenAuth tokenAuth = PersonalIdCredentialProvider.getHqTokenIfLinked(username);
             if (tokenAuth != null) {
                 return tokenAuth;
             } else {

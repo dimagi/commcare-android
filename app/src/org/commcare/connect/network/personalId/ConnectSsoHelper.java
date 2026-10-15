@@ -18,6 +18,7 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import org.commcare.personalId.PersonalIdCredentialProvider;
 
 /**
  * Helper class for making SSO calls (both to ConnectID and HQ servers)
@@ -36,7 +37,7 @@ public class ConnectSsoHelper {
 
     public static void retrievePersonalIdToken(Context context, @NonNull ConnectUserRecord user, TokenCallback callback) {
 
-        AuthInfo.TokenAuth connectToken = PersonalIdManager.getInstance().getConnectToken();
+        AuthInfo.TokenAuth connectToken = PersonalIdCredentialProvider.getConnectToken();
         if (connectToken != null) {
             callback.tokenRetrieved(connectToken);
             return;
@@ -68,7 +69,7 @@ public class ConnectSsoHelper {
         String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
 
         //See if we already have a valid token
-        AuthInfo.TokenAuth hqTokenAuth = PersonalIdManager.getInstance().getTokenCredentialsForApp(seatedAppId, hqUsername);
+        AuthInfo.TokenAuth hqTokenAuth = PersonalIdCredentialProvider.getTokenCredentialsForApp(seatedAppId, hqUsername);
         if (hqTokenAuth != null) {
             callback.tokenRetrieved(hqTokenAuth);
             return;
