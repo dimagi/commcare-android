@@ -76,6 +76,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import org.commcare.connect.AppLinkPromptHelper;
 import org.commcare.personalId.PersonalIdAppStateEvaluator;
 import org.commcare.personalId.PersonalIdCredentialProvider;
 import org.commcare.personalId.PersonalIdDeviceCompatibility;
@@ -581,7 +582,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
 
     private void onLoginSuccess(LoginResult.Success success) {
         if (success.getPostLoginOutcome().getNeedsPersonalIdLinkCheck()) {
-            personalIdManager.checkPersonalIdLink(
+            AppLinkPromptHelper.checkPersonalIdLink(
                     this,
                     success.getPersonalIdManagedLogin(),
                     success.getAppId(),
