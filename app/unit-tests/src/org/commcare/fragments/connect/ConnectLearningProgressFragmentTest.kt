@@ -51,6 +51,8 @@ import org.commcare.views.connect.ConnectSyncStatusCard
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -354,6 +356,19 @@ class ConnectLearningProgressFragmentTest {
         verify(exactly = 2) { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
         assertEquals("the job is already claimed", requestsBefore, mockApi.server.requestCount)
         assertCtaBarShowsDownload(fragment, R.id.learnCompleteView, R.string.connect_downloading_delivery)
+    }
+
+    @Test
+    fun `a failed install from one job does not show on another job's screen`() {
+        val firstJobScreen = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(firstJobScreen)
+
+        val otherJob = ConnectLearnJobTestData.job().apply { jobUUID = "job-uuid-learn-2" }
+        val otherJobScreen = launch(otherJob)
+
+        assertNotSame(firstJobScreen, otherJobScreen)
+        assertFalse(otherJobScreen.showsAppInstallFailure)
+        assertNotEquals(View.VISIBLE, learnCompleteFailureCard(otherJobScreen).visibility)
     }
 
     @Test

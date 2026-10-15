@@ -101,7 +101,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     /** Stable across recreation, so a screen reclaims the install it started before a rotation. */
-    private val installOwnerKey get() = javaClass.name
+    protected open val installOwnerKey: String get() = javaClass.name
 
     private val ownedAppInstallTarget: AppInstallTarget?
         get() = installViewModel.target?.takeIf { it.ownerKey == installOwnerKey }
