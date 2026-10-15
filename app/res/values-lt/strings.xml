@@ -306,6 +306,7 @@
     <string name="connect_delivery_visit_progress_title">Vizitų pažanga</string>
     <string name="connect_delivery_total_visits_completed">iš viso atliktų vizitų</string>
     <string name="connect_delivery_daily_visits">Dienos vizitai</string>
+    <string name="connect_visits_completed_today">Šiandien atlikti vizitai</string>
     <string name="connect_delivery_your_progress">Jūsų pažanga</string>
     <string name="connect_delivery_total_earnings">Bendras uždarbis</string>
     <string name="connect_delivery_amount_each">po %1$s</string>

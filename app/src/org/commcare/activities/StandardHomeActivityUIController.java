@@ -230,10 +230,13 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         //Adding more entries to the list would show multiple progress bars
         //(i.e. one for each payment type)
         List<ConnectDeliveryPaymentSummaryInfo> list = new ArrayList<>();
+        boolean hasDailyLimit = job.hasDailyLimit();
         list.add(new ConnectDeliveryPaymentSummaryInfo(
-                activity.getString(R.string.connect_job_tile_daily_visits),
+                activity.getString(hasDailyLimit
+                        ? R.string.connect_job_tile_daily_visits
+                        : R.string.connect_visits_completed_today),
                 job.numberOfDeliveriesToday(),
-                job.hasDailyLimit()
+                hasDailyLimit
                         ? job.getMaxDailyVisits()
                         : ConnectDeliveryPaymentSummaryInfo.NO_DAILY_LIMIT
         ));

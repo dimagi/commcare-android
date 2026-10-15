@@ -631,6 +631,7 @@
     <string name="connect_delivery_visit_progress_title">Maendeleo ya ziara</string>
     <string name="connect_delivery_total_visits_completed">jumla ya ziara zilizokamilika</string>
     <string name="connect_delivery_daily_visits">Ziara za kila siku</string>
+    <string name="connect_visits_completed_today">Ziara zilizokamilika leo</string>
     <string name="connect_delivery_your_progress">Maendeleo yako</string>
     <string name="connect_delivery_total_earnings">Jumla ya mapato</string>
     <string name="connect_delivery_amount_each">%1$s kila moja</string>
