@@ -134,7 +134,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
      * (e.g. for launch from Connect Opportunities)
      */
     private String presetAppId;
-    private PersonalIdSessionManager personalIdManager;
+    private PersonalIdSessionManager personalIdSessionManager;
     private PersonalIdSessionManager.ConnectAppManagement connectAppState = Unmanaged;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
@@ -154,7 +154,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
 
         uiController.setupUI();
-        initPersonaIdManager();
+        ensurePersonalIdSessionManager();
         observeLoginPipeline();
         presetAppId = getIntent().getStringExtra(EXTRA_APP_ID);
         if (savedInstanceState == null) {
@@ -180,9 +180,9 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         }
     }
 
-    private void initPersonaIdManager() {
-        if (personalIdManager == null) {
-            personalIdManager = PersonalIdSessionManager.getInstance();
+    private void ensurePersonalIdSessionManager() {
+        if (personalIdSessionManager == null) {
+            personalIdSessionManager = PersonalIdSessionManager.getInstance();
         }
     }
 
@@ -418,7 +418,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     private AuthSource determineAuthSource() {
-        if (personalIdManager.isloggedIn() && loginManagedByPersonalId()) {
+        if (personalIdSessionManager.isloggedIn() && loginManagedByPersonalId()) {
             return AuthSource.PersonalId;
         }
 
@@ -746,8 +746,8 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(true);
         menu.findItem(MENU_FORGOT_PIN).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         menu.findItem(MENU_PERSONAL_ID_SIGN_IN).setVisible(
-                !personalIdManager.isloggedIn() && PersonalIdDeviceCompatibility.isSupported());
-        menu.findItem(MENU_PERSONAL_ID_FORGET).setVisible(personalIdManager.isloggedIn());
+                !personalIdSessionManager.isloggedIn() && PersonalIdDeviceCompatibility.isSupported());
+        menu.findItem(MENU_PERSONAL_ID_FORGET).setVisible(personalIdSessionManager.isloggedIn());
         return true;
     }
 
@@ -783,7 +783,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
                 registerPersonalIdUser();
                 return true;
             case MENU_PERSONAL_ID_FORGET:
-                personalIdManager.forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_LOGIN_PAGE);
+                personalIdSessionManager.forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_LOGIN_PAGE);
                 uiController.setPasswordOrPin("");
                 setConnectAppState(Unmanaged);
                 uiController.refreshView();
@@ -1101,7 +1101,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     }
 
     protected void evaluateConnectAppState() {
-        if (personalIdManager.isloggedIn()) {
+        if (personalIdSessionManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             PersonalIdSessionManager.ConnectAppManagement appState = PersonalIdAppStateEvaluator.evaluateAppState(
                     seatedAppId,

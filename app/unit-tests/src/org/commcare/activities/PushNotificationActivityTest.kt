@@ -89,9 +89,9 @@ class PushNotificationActivityTest {
 
         // getIntentForPNClick is exercised for real, so cccCheckPassed() must see a logged-in
         // user. init() is a no-op unless status == NotIntroduced, so setting LoggedIn is enough.
-        val personalIdManager = PersonalIdSessionManager.getInstance()
-        savedPersonalIdStatus = personalIdManager.status
-        personalIdManager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+        savedPersonalIdStatus = personalIdSessionManager.status
+        personalIdSessionManager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         // A real (non-mock) user so the helper gets credentials and the click path's connect-access
         // logic runs for real; hasConnectAccess = true keeps turnOnConnectAccess a no-op.

@@ -24,8 +24,8 @@ class ConnectReleaseTogglesWorker(
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
-        val personalIdManager = PersonalIdSessionManager.getInstance()
-        if (!personalIdManager.isloggedIn()) {
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+        if (!personalIdSessionManager.isloggedIn()) {
             return Result.failure()
         }
 

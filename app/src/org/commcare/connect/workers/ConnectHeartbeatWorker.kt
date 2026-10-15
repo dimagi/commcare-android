@@ -14,8 +14,8 @@ class ConnectHeartbeatWorker(
     workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
-        val personalIdManager = PersonalIdSessionManager.getInstance()
-        if (!personalIdManager.isloggedIn()) {
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+        if (!personalIdSessionManager.isloggedIn()) {
             return Result.failure()
         }
         val user = ConnectUserDatabaseUtil.getUser()

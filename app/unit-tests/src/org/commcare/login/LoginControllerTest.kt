@@ -71,14 +71,14 @@ private class FakeSyncOperations(
 class LoginControllerTest {
     private val credentialResolver = mockk<ConnectCredentialResolver>(relaxed = true)
     private val postLoginSideEffects = mockk<PostLoginSideEffects>(relaxed = true)
-    private val personalIdManager = mockk<PersonalIdSessionManager>(relaxed = true)
+    private val personalIdSessionManager = mockk<PersonalIdSessionManager>(relaxed = true)
     private val listener = LoginProgressListener { }
 
     @Before
     fun setUp() {
         mockkObject(PersonalIdSessionManager.Companion)
-        every { PersonalIdSessionManager.getInstance() } returns personalIdManager
-        every { personalIdManager.isloggedIn() } returns false
+        every { PersonalIdSessionManager.getInstance() } returns personalIdSessionManager
+        every { personalIdSessionManager.isloggedIn() } returns false
         coEvery {
             postLoginSideEffects.runOnSuccess(any())
         } returns PostLoginOutcome(false)

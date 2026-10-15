@@ -60,10 +60,10 @@ object PersonalIdUnlocker {
         activity: CommCareActivity<*>,
         callback: ConnectActivityCompleteListener,
     ) {
-        val personalIdManager = PersonalIdSessionManager.getInstance()
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
         if (BuildConfig.IS_QA_AUTOMATION) {
             lastUnlockTime = SystemClock.elapsedRealtime()
-            personalIdManager.userUnlockedPersonalId()
+            personalIdSessionManager.userUnlockedPersonalId()
             callback.connectActivityComplete(true, null)
             return
         }
@@ -97,7 +97,7 @@ object PersonalIdUnlocker {
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     lastUnlockTime = SystemClock.elapsedRealtime()
-                    personalIdManager.userUnlockedPersonalId()
+                    personalIdSessionManager.userUnlockedPersonalId()
                     callback.connectActivityComplete(true, null)
                 }
 

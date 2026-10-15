@@ -37,8 +37,8 @@ object DeepLinkHelper {
         // Clear the URI immediately so future dispatch() doesn't reprocess this link
         intent.data = null
 
-        val personalIdManager = PersonalIdSessionManager.getInstance()
-        if (!personalIdManager.isloggedIn()) {
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+        if (!personalIdSessionManager.isloggedIn()) {
             FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
                 AnalyticsParamValue.OPP_INVITE_LINK,
                 false,

@@ -652,8 +652,8 @@ public class FirebaseMessagingUtil {
     }
 
     public static boolean cccCheckPassed(Context context){
-        PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
-        return personalIdManager.isloggedIn();
+        PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
+        return personalIdSessionManager.isloggedIn();
     }
 
     public static String getNotificationActionFromPayload(Map<String, String> payload) {

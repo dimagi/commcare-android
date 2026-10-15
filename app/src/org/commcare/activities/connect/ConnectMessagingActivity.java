@@ -40,9 +40,9 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_messaging_title);
 
-        PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
+        PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
 
-        if (personalIdManager.isloggedIn()) {
+        if (personalIdSessionManager.isloggedIn()) {
             handleRedirectIfAny();
         } else {
             Toast.makeText(

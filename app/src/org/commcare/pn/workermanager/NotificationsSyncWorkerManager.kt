@@ -48,8 +48,8 @@ class NotificationsSyncWorkerManager(
          */
         @JvmStatic
         fun schedulePeriodicPushNotificationRetrievalChecked(context: Context) {
-            val perosnalIdManager = PersonalIdSessionManager.getInstance()
-            if (perosnalIdManager.isloggedIn()) {
+            val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+            if (personalIdSessionManager.isloggedIn()) {
                 schedulePeriodicPushNotificationRetrieval(context)
             }
         }

@@ -15,7 +15,7 @@ import org.commcare.utils.CrashUtil
  */
 internal class PostLoginSideEffects(
     private val context: Context,
-    private val personalIdManager: PersonalIdSessionManager = PersonalIdSessionManager.getInstance(),
+    private val personalIdSessionManager: PersonalIdSessionManager = PersonalIdSessionManager.getInstance(),
     private val repository: ConnectRepository = ConnectRepository.getInstance(),
 ) {
     suspend fun runOnSuccess(username: String): PostLoginOutcome {
@@ -24,7 +24,7 @@ internal class PostLoginSideEffects(
             .notificationManager()
             .clearNotifications(LoginActivity.NOTIFICATION_MESSAGE_LOGIN)
 
-        if (!personalIdManager.isloggedIn()) {
+        if (!personalIdSessionManager.isloggedIn()) {
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
 

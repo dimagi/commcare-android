@@ -71,9 +71,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
         super.onCreate(savedInstanceState);
 
-        PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
+        PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
 
-        if(personalIdManager.isloggedIn()){
+        if(personalIdSessionManager.isloggedIn()){
             NotificationBroadcastHelper.INSTANCE.registerForNotifications(
                     this,
                     this,
