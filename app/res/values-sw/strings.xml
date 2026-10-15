@@ -650,8 +650,6 @@
         <item quantity="other">ziara %1$d zimesalia leo</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
-    <string name="install_barcode_top">Karibu CommCare!</string>
-    <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
     <string name="install_get_started_title">Anza kutumia CommCare</string>
     <string name="install_get_started_message">Sakinisha programu yako ya kwanza ili kuanza.</string>
     <string name="install_via_qr_code">Sakinisha kwa msimbo wa QR</string>

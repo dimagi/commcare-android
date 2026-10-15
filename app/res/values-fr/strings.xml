@@ -645,8 +645,6 @@ License.
         <item quantity="other">%1$d visites restantes aujourd\'hui</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
-    <string name="install_barcode_top">Bienvenue sur CommCare !</string>
-    <string name="install_barcode_bottom">Veuillez choisir une méthode d\'installation ci-dessous</string>
     <string name="install_get_started_title">Commencez avec CommCare</string>
     <string name="install_get_started_message">Installez votre première application pour commencer.</string>
     <string name="install_via_qr_code">Installer via un code QR</string>

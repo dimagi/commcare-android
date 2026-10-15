@@ -646,8 +646,6 @@
         <item quantity="other">%1$d visitas restantes hoy</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
-    <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
-    <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
     <string name="install_get_started_title">Comience a usar CommCare</string>
     <string name="install_get_started_message">Instale su primera aplicación para empezar.</string>
     <string name="install_via_qr_code">Instalar con código QR</string>

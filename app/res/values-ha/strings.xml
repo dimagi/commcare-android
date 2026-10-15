@@ -480,8 +480,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
     <string name="please_wait">Da fatan za a jira wasu lokuta.</string>
-    <string name="install_barcode_top">Barka da zuwa CommCare!</string>
-    <string name="install_barcode_bottom">Da fatan za a zaɓi hanyar shigarwa a ƙasa</string>
     <string name="install_get_started_title">Fara da CommCare</string>
     <string name="install_get_started_message">Shigar da manhajarka ta farko don farawa.</string>
     <string name="install_via_qr_code">Shigar ta lambar QR</string>

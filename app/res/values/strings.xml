@@ -97,8 +97,6 @@
     <string name="managed_configuration_profile_url_description">The URL to your CommCare Application from the CommCareHQ publish page</string>
     <string name="about_cc" cc:translatable="true">About CommCare</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
-    <string name="install_barcode_top">Welcome to CommCare!</string>
-    <string name="install_barcode_bottom">Please choose an installation method below</string>
     <string name="install_get_started_title">Get started with CommCare</string>
     <string name="install_get_started_message">Install your first app to begin.</string>
     <string name="install_via_qr_code">Install via QR Code</string>
