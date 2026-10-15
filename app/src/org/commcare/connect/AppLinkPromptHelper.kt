@@ -140,53 +140,47 @@ object AppLinkPromptHelper {
         PersonalIdUnlocker.unlock(
             activity,
             UnlockPolicy.ALWAYS,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (!success) {
+        ) { success, _ ->
+            if (!success) {
+                callback.connectActivityComplete(false, null)
+                FirebaseAnalyticsUtil.reportPersonalIDLinking(
+                    linkedApp.appId,
+                    AnalyticsParamValue.FAILURE_UNLOCK_FAILED,
+                )
+                return@unlock
+            }
+
+            linkedApp.linkToPersonalId(password)
+            FirebaseAnalyticsUtil.reportPersonalIDLinking(
+                linkedApp.appId,
+                AnalyticsParamValue.SYNC_SUCCESS,
+            )
+            ConnectAppDatabaseUtil.storeApp(linkedApp)
+
+            val user = ConnectUserDatabaseUtil.getUser()
+            ConnectSsoHelper.retrieveHqSsoToken(
+                activity,
+                user,
+                linkedApp,
+                username,
+                true,
+                object : ConnectSsoHelper.TokenCallback {
+                    override fun tokenRetrieved(token: AuthInfo.TokenAuth) {
                         callback.connectActivityComplete(false, null)
-                        FirebaseAnalyticsUtil.reportPersonalIDLinking(
-                            linkedApp.appId,
-                            AnalyticsParamValue.FAILURE_UNLOCK_FAILED,
-                        )
-                        return
                     }
 
-                    linkedApp.linkToPersonalId(password)
-                    FirebaseAnalyticsUtil.reportPersonalIDLinking(
-                        linkedApp.appId,
-                        AnalyticsParamValue.SYNC_SUCCESS,
-                    )
-                    ConnectAppDatabaseUtil.storeApp(linkedApp)
+                    override fun tokenUnavailable() {
+                        TokenExceptionHandler.handleTokenUnavailableException(activity)
+                        callback.connectActivityComplete(false, null)
+                    }
 
-                    val user = ConnectUserDatabaseUtil.getUser()
-                    ConnectSsoHelper.retrieveHqSsoToken(
-                        activity,
-                        user,
-                        linkedApp,
-                        username,
-                        true,
-                        object : ConnectSsoHelper.TokenCallback {
-                            override fun tokenRetrieved(token: AuthInfo.TokenAuth) {
-                                callback.connectActivityComplete(false, null)
-                            }
-
-                            override fun tokenUnavailable() {
-                                TokenExceptionHandler.handleTokenUnavailableException(activity)
-                                callback.connectActivityComplete(false, null)
-                            }
-
-                            override fun tokenRequestDenied() {
-                                TokenExceptionHandler.handleTokenDeniedException()
-                                callback.connectActivityComplete(false, null)
-                            }
-                        },
-                    )
-                }
-            },
-        )
+                    override fun tokenRequestDenied() {
+                        TokenExceptionHandler.handleTokenDeniedException()
+                        callback.connectActivityComplete(false, null)
+                    }
+                },
+            )
+        }
     }
 
     private fun promptToDelinkPersonalIdApp(
@@ -213,23 +207,17 @@ object AppLinkPromptHelper {
             PersonalIdUnlocker.unlock(
                 activity,
                 UnlockPolicy.ALWAYS,
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) {
-                        if (success) {
-                            val linkedApp =
-                                ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, username)
-                            if (linkedApp != null) {
-                                linkedApp.severPersonalIdLink()
-                                ConnectAppDatabaseUtil.storeApp(linkedApp)
-                            }
-                        }
-                        callback.connectActivityComplete(false, null)
+            ) { success, _ ->
+                if (success) {
+                    val linkedApp =
+                        ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, username)
+                    if (linkedApp != null) {
+                        linkedApp.severPersonalIdLink()
+                        ConnectAppDatabaseUtil.storeApp(linkedApp)
                     }
-                },
-            )
+                }
+                callback.connectActivityComplete(false, null)
+            }
         }
 
         dialog.setNegativeButton(activity.getString(R.string.personalid_link_app_no)) { _, _ ->

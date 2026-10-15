@@ -135,17 +135,12 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun getDrawerNavigationListener() =
-        object : ConnectActivityCompleteListener {
-            override fun connectActivityComplete(
-                success: Boolean,
-                error: String?,
-            ) {
-                if (success) {
-                    closeDrawer()
-                    // A section is replaced by the one just opened rather than stacked beneath it.
-                    if (isSidebarSection) {
-                        finish()
-                    }
+        ConnectActivityCompleteListener { success, _ ->
+            if (success) {
+                closeDrawer()
+                // A section is replaced by the one just opened rather than stacked beneath it.
+                if (isSidebarSection) {
+                    finish()
                 }
             }
         }

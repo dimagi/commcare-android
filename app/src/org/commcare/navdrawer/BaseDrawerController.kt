@@ -152,14 +152,9 @@ class BaseDrawerController(
             ConnectNavHelper.unlockAndGoToProfile(
                 activity,
                 listener =
-                    object : ConnectActivityCompleteListener {
-                        override fun connectActivityComplete(
-                            success: Boolean,
-                            error: String?,
-                        ) {
-                            if (success) {
-                                closeDrawer()
-                            }
+                    ConnectActivityCompleteListener { success, _ ->
+                        if (success) {
+                            closeDrawer()
                         }
                     },
             )

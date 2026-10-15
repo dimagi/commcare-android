@@ -290,7 +290,7 @@ class PersonalIdProfileActivityTest {
         // Mock PersonalIdUnlocker so the biometric prompt resolves immediately in tests.
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
 
         // Enter backup code and confirm code, enqueue the set-backup-code API response,

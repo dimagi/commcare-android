@@ -50,7 +50,7 @@ object PersonalIdUnlocker {
                 if (requiresUnlockForSession()) {
                     performUnlock(activity, callback)
                 } else {
-                    callback.connectActivityComplete(true)
+                    callback.connectActivityComplete(true, null)
                 }
             }
         }
@@ -64,7 +64,7 @@ object PersonalIdUnlocker {
         if (BuildConfig.IS_QA_AUTOMATION) {
             lastUnlockTime = SystemClock.elapsedRealtime()
             personalIdManager.userUnlockedPersonalId()
-            callback.connectActivityComplete(true)
+            callback.connectActivityComplete(true, null)
             return
         }
 
@@ -78,7 +78,7 @@ object PersonalIdUnlocker {
                     errorCode: Int,
                     errString: CharSequence,
                 ) {
-                    callback.connectActivityComplete(false)
+                    callback.connectActivityComplete(false, null)
                     val fingerprintConfigured =
                         BiometricsHelper.isFingerprintConfigured(
                             activity,
@@ -98,7 +98,7 @@ object PersonalIdUnlocker {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     lastUnlockTime = SystemClock.elapsedRealtime()
                     personalIdManager.userUnlockedPersonalId()
-                    callback.connectActivityComplete(true)
+                    callback.connectActivityComplete(true, null)
                 }
 
                 // A recoverable failure (e.g. an unrecognized fingerprint). The system
@@ -120,7 +120,7 @@ object PersonalIdUnlocker {
             }
 
             else -> {
-                callback.connectActivityComplete(false)
+                callback.connectActivityComplete(false, null)
                 Logger.exception(
                     "No unlock method available when trying to unlock PersonalId",
                     Exception("No unlock option"),

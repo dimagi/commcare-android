@@ -32,7 +32,7 @@ class HomeConnectDrawerNavigationTest : BaseHomeScreenActivityTest() {
         signInToPersonalId(hasConnectAccess = true)
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
     }
 

@@ -35,7 +35,7 @@ class BasePersonalIdSetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     fun navigateToSetNewBackupCodeScreen() {
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
 
         // Prevent SharedPreferences lockout state from a previous test blocking navigation
@@ -210,7 +210,7 @@ class BasePersonalIdSetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     @Test
     fun `unlock failure does not submit and stays on screen`() {
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(false)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(false, null)
         }
 
         setCodesAndContinue("654321")

@@ -55,12 +55,12 @@ object PushNotificationApiHelper {
                 .onSuccess {
                     withContext(DispatcherProvider.main()) {
                         //  switching to main to touch views
-                        listener.connectActivityComplete(true)
+                        listener.connectActivityComplete(true, null)
                     }
                 }.onFailure {
                     withContext(DispatcherProvider.main()) {
                         //  switching to main to touch views
-                        listener.connectActivityComplete(false)
+                        listener.connectActivityComplete(false, null)
                     }
                 }
         }

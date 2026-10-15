@@ -6,7 +6,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
@@ -83,17 +82,12 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
         PersonalIdUnlocker.unlock(
             requireActivity() as CommCareActivity<*>,
             UnlockPolicy.ALWAYS,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (!success) return
-                    enableContinueButton(false)
-                    callSetBackupCodeApi(backupCode)
-                }
-            },
-        )
+        ) { success, _ ->
+            if (success) {
+                enableContinueButton(false)
+                callSetBackupCodeApi(backupCode)
+            }
+        }
     }
 
     private fun callSetBackupCodeApi(backupCode: String) {

@@ -59,7 +59,7 @@ class SidebarSectionNavigationTest : BaseHomeScreenActivityTest() {
         signInToPersonalId(hasConnectAccess = true)
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } just Runs
