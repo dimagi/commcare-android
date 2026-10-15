@@ -313,6 +313,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Būtinos</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Atlikite užduotis, kad galėtumėte tęsti paslaugų teikimą.</string>
     <string name="connect_delivery_tasks_empty">Šiuo metu nėra neatliktų užduočių. Pranešime jums, kai bus nauja užduotis.</string>
+    <string name="connect_delivery_visits_empty">Kol kas vizitų nėra. Čia bus rodomi jūsų atlikti vizitai.</string>
+    <string name="connect_delivery_visits_filter_empty">Šį filtrą atitinkančių vizitų nėra.</string>
     <string name="connect_delivery_revisit_learning_title">Pakartoti mokymus</string>
     <string name="connect_delivery_revisit_learning_completed">Atlikta %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Pažymėjimas bus prieinamas po kito sinchronizavimo</string>

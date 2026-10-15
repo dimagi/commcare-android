@@ -630,6 +630,8 @@ License.
     <string name="connect_delivery_tasks_mandatory_title">अनिवार्य</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">सेवा वितरण जारी रखने के लिए कार्य पूरे करें।</string>
     <string name="connect_delivery_tasks_empty">इस समय कोई लंबित कार्य उपलब्ध नहीं है। नया कार्य उपलब्ध होने पर हम आपको सूचित करेंगे।</string>
+    <string name="connect_delivery_visits_empty">अभी तक कोई विज़िट नहीं। आपकी पूरी की गई विज़िट यहाँ दिखाई देंगी।</string>
+    <string name="connect_delivery_visits_filter_empty">इस फ़िल्टर से कोई विज़िट मेल नहीं खाती।</string>
     <string name="connect_delivery_revisit_learning_title">प्रशिक्षण दोबारा देखें</string>
     <string name="connect_delivery_revisit_learning_completed">%1$s को पूरा किया</string>
     <string name="connect_delivery_revisit_learning_unsynced">प्रमाणपत्र आपके अगले सिंक के बाद उपलब्ध होगा</string>

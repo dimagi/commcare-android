@@ -633,6 +633,8 @@ License.
     <string name="connect_delivery_tasks_mandatory_title">Obligatoires</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Terminez les tâches pour continuer la prestation.</string>
     <string name="connect_delivery_tasks_empty">Aucune tâche en attente pour le moment. Nous vous informerons dès qu\'une nouvelle tâche sera disponible.</string>
+    <string name="connect_delivery_visits_empty">Aucune visite pour le moment. Vos visites terminées apparaîtront ici.</string>
+    <string name="connect_delivery_visits_filter_empty">Aucune visite ne correspond à ce filtre.</string>
     <string name="connect_delivery_revisit_learning_title">Revoir la formation</string>
     <string name="connect_delivery_revisit_learning_completed">Terminé le %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Le certificat sera disponible après votre prochaine synchronisation</string>
