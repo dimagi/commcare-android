@@ -19,6 +19,8 @@ import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+
+
 import org.commcare.connect.ConnectConstants;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.Logger;
@@ -50,6 +52,10 @@ public class BiometricsHelper {
      * @param biometricManager The BiometricManager instance.
      * @return The fingerprint configuration status.
      */
+    public static BiometricManager getBiometricManager(FragmentActivity parent) {
+        return BiometricManager.from(parent);
+    }
+
     public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
         return checkStatus(context, biometricManager, BIOMETRIC_STRONG);
     }

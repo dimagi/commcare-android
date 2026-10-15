@@ -86,7 +86,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private BiometricManager getBiometricManager() {
-        return PersonalIdManager.getInstance().getBiometricManager(requireActivity());
+        return BiometricsHelper.getBiometricManager(requireActivity());
     }
 
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {

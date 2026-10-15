@@ -76,6 +76,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import org.commcare.personalId.PersonalIdDeviceCompatibility;
+import org.commcare.utils.BiometricsHelper;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
@@ -740,7 +742,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         menu.findItem(MENU_ACQUIRE_PERMISSIONS).setVisible(true);
         menu.findItem(MENU_FORGOT_PIN).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         menu.findItem(MENU_PERSONAL_ID_SIGN_IN).setVisible(
-                !personalIdManager.isloggedIn() && personalIdManager.checkDeviceCompability());
+                !personalIdManager.isloggedIn() && PersonalIdDeviceCompatibility.isSupported());
         menu.findItem(MENU_PERSONAL_ID_FORGET).setVisible(personalIdManager.isloggedIn());
         return true;
     }

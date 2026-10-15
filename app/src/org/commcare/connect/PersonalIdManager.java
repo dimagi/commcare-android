@@ -1,12 +1,9 @@
 package org.commcare.connect;
 
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.fragment.app.FragmentActivity;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -86,9 +83,6 @@ public class PersonalIdManager {
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
-    private static final int MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID = 600;
-    private BiometricManager biometricManager;
-
     private static volatile PersonalIdManager manager = null;
     private volatile PersonalIdStatus personalIdStatus = PersonalIdStatus.NotIntroduced;
 
@@ -639,19 +633,6 @@ public class PersonalIdManager {
                 username,
                 false
         );
-    }
-
-    public BiometricManager getBiometricManager(FragmentActivity parent) {
-        if (biometricManager == null) {
-            biometricManager = BiometricManager.from(parent);
-        }
-
-        return biometricManager;
-    }
-
-    public boolean checkDeviceCompability() {
-        int smallestWidthDp = CommCareApplication.instance().getResources().getConfiguration().smallestScreenWidthDp;
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && smallestWidthDp < MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID;
     }
 
     public static void clearInstance() {

@@ -25,6 +25,7 @@ import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.personalId.PersonalIdDeviceCompatibility
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -49,7 +50,7 @@ import java.util.Date
  * [PersonalIdManager] is not static-mocked at all — its singleton is a plain private static field,
  * so [installSpyManager] writes a spy straight into it and `getInstance()` hands that back with no
  * instrumentation involved. The spy (rather than a mock) keeps every method it doesn't stub on real
- * behaviour, which is what `checkDeviceCompability()` needs so the per-test `@Config(sdk = ...)`
+ * behaviour, which is what `PersonalIdDeviceCompatibility.isSupported()` needs so the per-test `@Config(sdk = ...)`
  * actually decides the outcome.
 
  */
@@ -258,12 +259,13 @@ class PersonalIdDrawerVisibilityTest {
     }
 
     /**
-     * Pin `checkDeviceCompability()` to [compatible] instead of letting the spy run its real
+     * Pin `PersonalIdDeviceCompatibility.isSupported()` to [compatible] instead of letting the spy run its real
      * `SDK_INT >= P` check. Only needed by the "previously shown" rows, where the first launch has to
      * disagree with the `@Config(sdk = ...)` the assertion itself runs under.
      */
     private fun setDeviceCompatible(compatible: Boolean) {
-        every { spyManager.checkDeviceCompability() } returns compatible
+        mockkStatic(PersonalIdDeviceCompatibility::class)
+        every { PersonalIdDeviceCompatibility.isSupported() } returns compatible
     }
 
     /**

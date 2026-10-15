@@ -13,9 +13,11 @@ import org.commcare.dalvik.R
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
 import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
+import org.commcare.personalId.PersonalIdDeviceCompatibility
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.utils.AppLogoutHelper
+import org.commcare.utils.BiometricsHelper
 import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
@@ -179,7 +181,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         personalIdManager.init()
         val showDrawer =
             (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&
-                personalIdManager.checkDeviceCompability()
+                PersonalIdDeviceCompatibility.isSupported()
 
         if (showDrawer) {
             setDrawerShown()
