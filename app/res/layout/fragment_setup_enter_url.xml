@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/screen_first_start_main"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="@color/cc_core_bg"
+    android:background="@color/cool_gray_50"
     tools:viewBindingIgnore="true">
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/cc_core_bg"
+        android:background="@color/cool_gray_50"
         android:scrollbars="none">
 
         <LinearLayout
@@ -56,6 +57,7 @@
                         android:id="@+id/edit_profile_location"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:backgroundTint="@color/cornflower_blue"
                         android:hint="Enter code here"
                         android:ellipsize="start"
                         android:layout_weight="1"
@@ -67,15 +69,22 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/start_install"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/content_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp48"
+                    android:layout_marginTop="@dimen/standard_spacer_double"
                     android:enabled="false"
-                    android:paddingBottom="@dimen/content_start"
-                    android:layout_marginTop="@dimen/content_min_margin"
-                    android:layout_gravity="bottom"
+                    android:fontFamily="sans-serif-medium"
+                    android:insetBottom="0dp"
+                    android:insetTop="0dp"
+                    android:nextFocusUp="@+id/edit_password"
+                    android:stateListAnimator="@null"
                     android:text="Start Install"
-                    android:nextFocusUp="@+id/edit_password" />
+                    android:textAllCaps="false"
+                    android:textColor="@color/filled_button_text"
+                    android:textSize="@dimen/text_small"
+                    app:backgroundTint="@color/filled_button_background"
+                    app:cornerRadius="4dp"
+                    app:elevation="0dp" />
 
             </LinearLayout>
         </LinearLayout>

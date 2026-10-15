@@ -280,9 +280,9 @@
                                 android:nextFocusUp="@+id/edit_password"
                                 android:stateListAnimator="@null"
                                 android:textAllCaps="false"
-                                android:textColor="@color/white"
+                                android:textColor="@color/filled_button_text"
                                 android:textSize="@dimen/text_small"
-                                app:backgroundTint="@color/neon_blue"
+                                app:backgroundTint="@color/filled_button_background"
                                 app:cornerRadius="4dp"
                                 app:elevation="0dp" />
 
