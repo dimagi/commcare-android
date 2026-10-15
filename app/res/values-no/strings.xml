@@ -443,6 +443,11 @@
     <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
     <string name="connect_opportunity_footer_download_app">Last ned appen</string>
     <string name="login_choice_or">ELLER</string>
+    <string name="install_get_started_title">Kom i gang med CommCare</string>
+    <string name="install_get_started_message">Installer din første app for å begynne.</string>
+    <string name="install_via_qr_code">Installer via QR-kode</string>
+    <string name="install_via_app_code">Installer via appkode</string>
+    <string name="install_from_local">Installer fra lokalt nettverk</string>
     <string name="recording_notification_save_action">Lagre</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Gjenoppta</string>

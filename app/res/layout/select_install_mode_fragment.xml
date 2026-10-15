@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/screen_first_start_main"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/cc_core_bg"
+    android:background="@color/cool_gray_50"
     android:orientation="vertical"
     tools:viewBindingIgnore="true">
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/cc_core_bg"
+        android:background="@color/cool_gray_50"
         android:scrollbars="none">
 
         <LinearLayout
@@ -24,147 +25,195 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/str_setup_message"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/content_min_margin"
-                    android:layout_marginRight="@dimen/content_min_margin"
-                    android:gravity="center"
-                    android:textSize="@dimen/text_small"
-                    android:textStyle="bold"
-                    android:layout_marginEnd="@dimen/content_min_margin"
-                    android:layout_marginStart="@dimen/content_min_margin" />
+                android:orientation="vertical"
+                android:paddingEnd="@dimen/standard_spacer_double"
+                android:paddingStart="@dimen/standard_spacer_double"
+                android:paddingTop="@dimen/standard_spacer_large">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/connect_login_button"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginHorizontal="30dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp48"
+                    android:fontFamily="sans-serif-medium"
+                    android:insetBottom="0dp"
+                    android:insetTop="0dp"
+                    android:stateListAnimator="@null"
                     android:text="@string/connect_button_logged_in"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:textStyle="bold"
-                    android:id="@+id/login_or"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_margin="@dimen/content_min_margin"
-                    android:text="@string/personalid_choice_or"
-                    android:textColor="@color/cc_neutral_color"
-                    android:textSize="@dimen/text_medium"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/str_setup_message_2"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/content_min_margin"
-                    android:layout_marginLeft="@dimen/content_min_margin"
-                    android:layout_marginRight="@dimen/content_min_margin"
-                    android:gravity="center"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/text_small"
-                    android:layout_marginEnd="@dimen/content_min_margin"
-                    android:layout_marginStart="@dimen/content_min_margin" />
+                    android:visibility="gone"
+                    app:backgroundTint="@color/neon_blue"
+                    app:cornerRadius="4dp"
+                    app:elevation="0dp" />
 
-                <LinearLayout
-                    android:id="@+id/screen_first_start_bottom"
+                <include
+                    android:id="@+id/login_or"
+                    layout="@layout/or_divider"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_marginBottom="@dimen/standard_spacer_double"
+                    android:layout_marginTop="@dimen/standard_spacer_double"
+                    android:visibility="gone" />
 
-                    <FrameLayout
-                        android:id="@+id/btn_fetch_uri_container"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="@dimen/standard_spacer"
-                        android:layout_weight="1"
-                        android:background="@drawable/tile_drop_shadow_small_margins"
-                        android:layout_marginStart="@dimen/standard_spacer">
-
-                        <org.commcare.views.SquareButtonWithText
-                            android:id="@+id/btn_fetch_uri"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            SquareButtonWithText:backgroundColor="@color/palatinate_blue"
-                            SquareButtonWithText:img="@drawable/startup_barcode"
-                            SquareButtonWithText:subtitle="Scan Application Barcode"
-                            SquareButtonWithText:textColor="@color/white"/>
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginRight="@dimen/standard_spacer"
-                        android:layout_weight="1"
-                        android:background="@drawable/tile_drop_shadow_small_margins"
-                        android:layout_marginEnd="@dimen/standard_spacer">
-
-                        <org.commcare.views.SquareButtonWithText
-                            android:id="@+id/enter_app_location"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="@drawable/tile_drop_shadow_small_margins"
-                            android:gravity="end"
-                            SquareButtonWithText:backgroundColor="@color/palatinate_blue"
-                            SquareButtonWithText:img="@drawable/startup_url"
-                            SquareButtonWithText:subtitle="Enter Code"
-                            SquareButtonWithText:textColor="@color/white"/>
-                    </FrameLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/screen_first_start_second_row"
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingBottom="@dimen/content_min_margin"
-                    android:weightSum="2">
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/mist_gray"
+                    app:strokeWidth="1dp"
+                    app:contentPaddingBottom="40dp"
+                    app:contentPaddingLeft="@dimen/standard_spacer_large"
+                    app:contentPaddingRight="@dimen/standard_spacer_large"
+                    app:contentPaddingTop="40dp">
 
-                    <FrameLayout
-                        android:id="@+id/btn_fetch_hub_container"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="@dimen/standard_spacer"
-                        android:layout_weight="1"
-                        android:background="@drawable/tile_drop_shadow_small_margins"
-                        android:visibility="gone"
-                        android:layout_marginStart="@dimen/standard_spacer">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
 
-                        <org.commcare.views.SquareButtonWithText
+                        <TextView
+                            android:id="@+id/str_setup_message"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:lineSpacingExtra="6sp"
+                            android:textColor="@color/dark_slate"
+                            android:textSize="@dimen/text_headline" />
+
+                        <TextView
+                            android:id="@+id/str_setup_message_2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/standard_spacer"
+                            android:gravity="center"
+                            android:lineSpacingExtra="4sp"
+                            android:textColor="@color/dark_slate"
+                            android:textSize="@dimen/text_small" />
+
+                        <LinearLayout
+                            android:id="@+id/screen_first_start_bottom"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/standard_spacer_extra_large"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:id="@+id/btn_fetch_uri"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="?attr/selectableItemBackground"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center_horizontal"
+                                android:orientation="vertical">
+
+                                <ImageView
+                                    android:layout_width="84dp"
+                                    android:layout_height="84dp"
+                                    android:background="@drawable/install_option_tile_background"
+                                    android:importantForAccessibility="no"
+                                    android:padding="@dimen/standard_spacer_double"
+                                    app:srcCompat="@drawable/ic_qr_code_2" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="7dp"
+                                    android:gravity="center"
+                                    android:lineSpacingExtra="4sp"
+                                    android:text="@string/install_via_qr_code"
+                                    android:textColor="@color/dark_slate"
+                                    android:textSize="@dimen/text_caption" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/enter_app_location"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:background="?attr/selectableItemBackground"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center_horizontal"
+                                android:orientation="vertical">
+
+                                <ImageView
+                                    android:layout_width="84dp"
+                                    android:layout_height="84dp"
+                                    android:background="@drawable/install_option_tile_background"
+                                    android:importantForAccessibility="no"
+                                    android:padding="@dimen/standard_spacer_double"
+                                    app:srcCompat="@drawable/ic_link_2" />
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="7dp"
+                                    android:gravity="center"
+                                    android:lineSpacingExtra="4sp"
+                                    android:text="@string/install_via_app_code"
+                                    android:textColor="@color/dark_slate"
+                                    android:textSize="@dimen/text_caption" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
                             android:id="@+id/btn_fetch_hub"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
-                            SquareButtonWithText:img="@drawable/startup_micronode"
-                            SquareButtonWithText:subtitle="Install From Local"
-                            SquareButtonWithText:textColor="@color/white"/>
-                    </FrameLayout>
+                            android:layout_width="109dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/standard_spacer_large"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:visibility="gone">
 
-                </LinearLayout>
+                            <ImageView
+                                android:layout_width="84dp"
+                                android:layout_height="84dp"
+                                android:background="@drawable/install_option_tile_background"
+                                android:importantForAccessibility="no"
+                                android:padding="@dimen/standard_spacer_double"
+                                app:srcCompat="@drawable/startup_micronode"
+                                app:tint="@color/deep_indigo" />
 
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="7dp"
+                                android:gravity="center"
+                                android:lineSpacingExtra="4sp"
+                                android:text="@string/install_from_local"
+                                android:textColor="@color/dark_slate"
+                                android:textSize="@dimen/text_caption" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:layout_margin="@dimen/standard_spacer"
+                android:layout_margin="@dimen/standard_spacer_double"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/install_error_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/red"
-                    android:textStyle="bold"
                     android:gravity="center"
+                    android:textColor="@color/red_600"
+                    android:textSize="@dimen/text_small"
                     android:visibility="gone"/>
 
 
@@ -172,6 +221,7 @@
                     android:id="@+id/btn_view_errors_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/standard_spacer"
                     android:background="@drawable/tile_drop_shadow_small_margins">
 
                     <org.commcare.views.RectangleButtonWithText

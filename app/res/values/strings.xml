@@ -99,6 +99,11 @@
     <string name="accept_location" cc:translatable="true">Record Location</string>
     <string name="install_barcode_top">Welcome to CommCare!</string>
     <string name="install_barcode_bottom">Please choose an installation method below</string>
+    <string name="install_get_started_title">Get started with CommCare</string>
+    <string name="install_get_started_message">Install your first app to begin.</string>
+    <string name="install_via_qr_code">Install via QR Code</string>
+    <string name="install_via_app_code">Install via App Code</string>
+    <string name="install_from_local">Install From Local</string>
 
     <string name="install_keep_trying">Keep trying if connection is interrupted</string>
     <string name="install_manual">Please enter the URL</string>

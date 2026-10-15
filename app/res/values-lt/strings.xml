@@ -467,6 +467,11 @@
     <string name="connect_opportunity_modules_footer_note">Užbaikite modulius, išlaikykite vertinimą ir gaukite savo pažymėjimą</string>
     <string name="connect_opportunity_footer_download_app">Atsisiųsti programą</string>
     <string name="login_choice_or">ARBA</string>
+    <string name="install_get_started_title">Pradėkite naudotis CommCare</string>
+    <string name="install_get_started_message">Įdiekite pirmąją programėlę, kad pradėtumėte.</string>
+    <string name="install_via_qr_code">Įdiegti per QR kodą</string>
+    <string name="install_via_app_code">Įdiegti per programėlės kodą</string>
+    <string name="install_from_local">Įdiegti iš vietinio tinklo</string>
     <string name="recording_notification_save_action">Išsaugoti</string>
     <string name="recording_notification_pause_action">Pristabdyti</string>
     <string name="recording_notification_resume_action">Tęsti</string>

@@ -652,6 +652,11 @@
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_barcode_top">Karibu CommCare!</string>
     <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
+    <string name="install_get_started_title">Anza kutumia CommCare</string>
+    <string name="install_get_started_message">Sakinisha programu yako ya kwanza ili kuanza.</string>
+    <string name="install_via_qr_code">Sakinisha kwa msimbo wa QR</string>
+    <string name="install_via_app_code">Sakinisha kwa msimbo wa programu</string>
+    <string name="install_from_local">Sakinisha kutoka mtandao wa ndani</string>
     <string name="install_keep_trying">Endelea kujaribu ikiwa muunganisho umekatika</string>
     <string name="install_manual">Tafadhali ingiza URL</string>
     <string name="install_ready_top">Karibu kumaliza!</string>

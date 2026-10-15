@@ -644,6 +644,11 @@ License.
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
     <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
     <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
+    <string name="install_get_started_title">CommCare के साथ शुरू करें</string>
+    <string name="install_get_started_message">शुरू करने के लिए अपना पहला ऐप इंस्टॉल करें।</string>
+    <string name="install_via_qr_code">QR कोड से इंस्टॉल करें</string>
+    <string name="install_via_app_code">ऐप कोड से इंस्टॉल करें</string>
+    <string name="install_from_local">स्थानीय नेटवर्क से इंस्टॉल करें</string>
     <string name="install_keep_trying">यदि कनेक्शन बाधित हो तो प्रयास करते रहें</string>
     <string name="install_manual">कृपया URL दर्ज करें</string>
     <string name="install_ready_top">लगभग हो गया!</string>

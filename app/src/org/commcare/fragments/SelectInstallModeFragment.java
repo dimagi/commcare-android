@@ -26,7 +26,6 @@ import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.R;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.RectangleButtonWithText;
-import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.widgets.WidgetUtils;
@@ -46,13 +45,13 @@ import androidx.fragment.app.FragmentTransaction;
  */
 public class SelectInstallModeFragment extends Fragment implements NsdServiceListener {
 
-    private View mFetchHubContainer;
+    private View mFetchHubButton;
     private TextView mErrorMessageView;
     private RectangleButtonWithText mViewErrorButton;
     private View mViewErrorContainer;
     private ArrayList<MicroNode.AppManifest> mLocalApps = new ArrayList<>();
     private Button mConnectButton;
-    private TextView mOrText;
+    private View mOrText;
 
     @Override
     public void onResume() {
@@ -74,16 +73,15 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         View view = inflater.inflate(R.layout.select_install_mode_fragment, container, false);
 
         TextView setupMsg = view.findViewById(R.id.str_setup_message);
-        setupMsg.setText(StringUtils.getStringRobust(requireContext(),R.string.install_barcode_top));
+        setupMsg.setText(StringUtils.getStringRobust(requireContext(), R.string.install_get_started_title));
 
         TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
-        setupMsg2.setText(StringUtils.getStringRobust(requireContext(),R.string.install_barcode_bottom));
+        setupMsg2.setText(StringUtils.getStringRobust(requireContext(), R.string.install_get_started_message));
 
         mConnectButton = view.findViewById(R.id.connect_login_button);
         mOrText = view.findViewById(R.id.login_or);
 
-        SquareButtonWithText scanBarcodeButton = view.findViewById(R.id.btn_fetch_uri);
-        final View barcodeButtonContainer = view.findViewById(R.id.btn_fetch_uri_container);
+        View scanBarcodeButton = view.findViewById(R.id.btn_fetch_uri);
 
         scanBarcodeButton.setOnClickListener(v -> {
             try {
@@ -95,11 +93,11 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 currentActivity.startActivityForResult(intent, CommCareSetupActivity.BARCODE_CAPTURE);
             } catch (ActivityNotFoundException e) {
                 Toast.makeText(getActivity(), "No barcode scanner installed on phone!", Toast.LENGTH_SHORT).show();
-                barcodeButtonContainer.setVisibility(View.GONE);
+                scanBarcodeButton.setVisibility(View.GONE);
             }
         });
 
-        SquareButtonWithText enterURLButton = view.findViewById(R.id.enter_app_location);
+        View enterURLButton = view.findViewById(R.id.enter_app_location);
         enterURLButton.setOnClickListener(v -> {
             SetupEnterURLFragment enterUrl = new SetupEnterURLFragment();
             AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
@@ -116,8 +114,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             ft.commit();
         });
 
-        SquareButtonWithText installFromLocal = view.findViewById(R.id.btn_fetch_hub);
-        installFromLocal.setOnClickListener(v -> {
+        mFetchHubButton = view.findViewById(R.id.btn_fetch_hub);
+        mFetchHubButton.setOnClickListener(v -> {
             AppCompatActivity currentActivity = (AppCompatActivity)getActivity();
             if (currentActivity instanceof CommCareSetupActivity) {
                 showLocalAppDialog();
@@ -134,8 +132,6 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         mViewErrorButton.setOnClickListener(view1 -> CommCareNoficationManager.performIntentCalloutToNotificationsView((AppCompatActivity)getActivity()));
         showOrHideErrorMessage();
-
-        mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
 
         InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -177,7 +173,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         }
         AppCompatActivity activity = (AppCompatActivity)getActivity();
         if (appsAvailable && activity != null) {
-            getActivity().runOnUiThread(() -> mFetchHubContainer.setVisibility(View.VISIBLE));
+            getActivity().runOnUiThread(() -> mFetchHubButton.setVisibility(View.VISIBLE));
         }
     }
 

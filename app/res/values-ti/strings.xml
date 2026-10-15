@@ -636,6 +636,11 @@
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
     <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
     <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
+    <string name="install_get_started_title">ብ CommCare ጀምሩ</string>
+    <string name="install_get_started_message">ንምጅማር ቀዳማይ ኣፕኩም ኣእትዉ።</string>
+    <string name="install_via_qr_code">ብ QR ኮድ ኣእትዉ</string>
+    <string name="install_via_app_code">ብ ኮድ ኣፕ ኣእትዉ</string>
+    <string name="install_from_local">ካብ ከባቢያዊ መርበብ ኣእትዉ</string>
     <string name="install_keep_trying">ርክብ እንተ ተቛሪጹ ክትፍትኑ ቀጽሉ</string>
     <string name="install_manual">በጃኹም URL ኣእትዉ</string>
     <string name="install_ready_top">ቀሪቡ!</string>
