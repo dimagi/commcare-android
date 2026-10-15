@@ -463,6 +463,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         final ColorStateList iconColors = ColorStateList.valueOf(iconColor);
         final ColorStateList iconTileColors = ColorStateList.valueOf(ColorUtils.setAlphaComponent(iconColor, 51));
+        // A single-color list only colors the focused border, so the resting state is listed explicitly too
         final ColorStateList strokeColors = new ColorStateList(
                 new int[][]{new int[]{android.R.attr.state_focused}, new int[]{}},
                 new int[]{strokeColor, strokeColor}
