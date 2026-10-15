@@ -38,7 +38,6 @@ object DeepLinkHelper {
         intent.data = null
 
         val personalIdManager = PersonalIdSessionManager.getInstance()
-        personalIdManager.init()
         if (!personalIdManager.isloggedIn()) {
             FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
                 AnalyticsParamValue.OPP_INVITE_LINK,

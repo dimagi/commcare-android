@@ -183,7 +183,6 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private void initPersonaIdManager() {
         if (personalIdManager == null) {
             personalIdManager = PersonalIdSessionManager.getInstance();
-            personalIdManager.init();
         }
     }
 

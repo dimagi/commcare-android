@@ -57,34 +57,46 @@ class PersonalIdSessionManager private constructor() {
     }
 
     @Volatile
-    var status: PersonalIdStatus = PersonalIdStatus.NotIntroduced
+    private var resolvedStatus: PersonalIdStatus = PersonalIdStatus.NotIntroduced
 
     /**
-     * Resolves the session status and, unlike [isloggedIn], reports a corrupt database.
-     * Callers that can surface the resulting error to the user should call this on startup; the
-     * status itself resolves on demand.
+     * The current session state, resolved from the stored user on first read. Nothing has to be
+     * initialised first.
      */
-    fun init() {
-        resolveStatus()
+    var status: PersonalIdStatus
+        get() {
+            resolveStatus()
+            return resolvedStatus
+        }
+        set(value) {
+            resolvedStatus = value
+        }
+
+    /**
+     * Surfaces an unreadable Connect database to the user. Call once, at app entry: this throws
+     * [org.commcare.connect.network.personalId.LoginInvalidatedException] rather than returning,
+     * so it must run somewhere the global handler can show recovery UI.
+     *
+     * The session status itself resolves on demand, so nothing else needs calling first.
+     */
+    fun reportUnreadableDatabase() {
         if (status == PersonalIdStatus.NotIntroduced && ConnectDatabaseHelper.isDbBroken()) {
             // Corrupt DB, inform user to recover
             GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_DB_STARTUP_ERROR)
         }
     }
 
+    // Reads the backing field directly: going through [status] would recurse into this.
     private fun resolveStatus() {
-        if (status != PersonalIdStatus.NotIntroduced) return
+        if (resolvedStatus != PersonalIdStatus.NotIntroduced) return
         val user = ConnectUserDatabaseUtil.getUser() ?: return
         val registering =
             user.registrationPhase != ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED
-        status = if (registering) PersonalIdStatus.Registering else PersonalIdStatus.LoggedIn
+        resolvedStatus = if (registering) PersonalIdStatus.Registering else PersonalIdStatus.LoggedIn
         CrashUtil.registerUserData()
     }
 
-    fun isloggedIn(): Boolean {
-        resolveStatus()
-        return status == PersonalIdStatus.LoggedIn
-    }
+    fun isloggedIn(): Boolean = status == PersonalIdStatus.LoggedIn
 
     private fun scheduleHeartbeat() {
         if (!isloggedIn()) return
@@ -134,7 +146,7 @@ class PersonalIdSessionManager private constructor() {
             FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason)
         }
 
-        status = PersonalIdStatus.NotIntroduced
+        resolvedStatus = PersonalIdStatus.NotIntroduced
 
         // Cancel periodic push notification retrieval when user logs out
         NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(
@@ -155,7 +167,7 @@ class PersonalIdSessionManager private constructor() {
     fun onAccountConfigurationSuccess(sessionData: PersonalIdSessionData) {
         createAndSaveConnectUser(sessionData)
         PersonalIdBackupCodeReminderHelper.initialize()
-        status = PersonalIdStatus.LoggedIn
+        resolvedStatus = PersonalIdStatus.LoggedIn
         sessionData.featureReleaseToggles?.let { ConnectAppDatabaseUtil.storeReleaseToggles(it) }
         ConnectSyncPreferences.getInstance().markSessionStart()
         userUnlockedPersonalId()

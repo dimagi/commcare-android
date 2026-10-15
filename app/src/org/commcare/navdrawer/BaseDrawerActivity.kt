@@ -178,7 +178,6 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         }
 
         val personalIdManager = PersonalIdSessionManager.getInstance()
-        personalIdManager.init()
         val showDrawer =
             (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&
                 PersonalIdDeviceCompatibility.isSupported()

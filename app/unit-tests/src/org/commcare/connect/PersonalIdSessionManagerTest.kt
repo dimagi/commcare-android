@@ -55,7 +55,6 @@ class PersonalIdSessionManagerTest {
     @Test
     fun `a registered user resolves to LoggedIn`() {
         storeUser()
-        PersonalIdSessionManager.getInstance().init()
         assertEquals(
             PersonalIdSessionManager.PersonalIdStatus.LoggedIn,
             PersonalIdSessionManager.getInstance().status,
@@ -65,7 +64,6 @@ class PersonalIdSessionManagerTest {
     @Test
     fun `a user mid-registration resolves to Registering`() {
         storeUser(registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED - 1)
-        PersonalIdSessionManager.getInstance().init()
         assertEquals(
             PersonalIdSessionManager.PersonalIdStatus.Registering,
             PersonalIdSessionManager.getInstance().status,

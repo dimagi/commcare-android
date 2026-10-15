@@ -72,7 +72,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         super.onCreate(savedInstanceState);
 
         PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
-        personalIdManager.init();
 
         if(personalIdManager.isloggedIn()){
             NotificationBroadcastHelper.INSTANCE.registerForNotifications(
@@ -155,7 +154,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private int handleSecureRedirect(Bundle startArgs) {
         //Entering from a notification, so we may need to initialize
-        PersonalIdSessionManager.getInstance().init();
         String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
         if (!TextUtils.isEmpty(notificationId)) {
             NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);

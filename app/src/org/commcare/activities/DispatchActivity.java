@@ -169,6 +169,10 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void dispatch() {
+        // Throws if the Connect DB is unreadable, so the user is prompted to recover before
+        // anything else reads it. This is the app's entry point, so it runs once per launch.
+        PersonalIdSessionManager.getInstance().reportUnreadableDatabase();
+
         if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdSessionManager.getInstance().isloggedIn()) {
             ConnectNavHelper.goToProfileForPendingBackupCode(this);
             return;

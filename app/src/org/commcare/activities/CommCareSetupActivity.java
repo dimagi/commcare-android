@@ -184,9 +184,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         if (checkForMultipleAppsViolation()) {
             return;
         }
-        if (!fromManager) {
-            PersonalIdSessionManager.getInstance().init();
-        }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
 

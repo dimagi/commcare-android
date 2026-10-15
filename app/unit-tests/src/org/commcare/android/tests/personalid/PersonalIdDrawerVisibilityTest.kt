@@ -5,7 +5,6 @@ import android.view.View
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockkStatic
@@ -271,12 +270,10 @@ class PersonalIdDrawerVisibilityTest {
     /**
      * Seat a spy on the [PersonalIdSessionManager] singleton. `getInstance()` just returns the private
      * static `manager` field, so writing the spy there is enough — no static mocking needed.
-     * `init()` is stubbed to a no-op because its real body reads the Connect DB.
      */
     private fun installSpyManager() {
         realManager = PersonalIdSessionManager.getInstance()
         spyManager = spyk(realManager!!)
-        every { spyManager.init() } just Runs
         setLoggedIn(false)
         singletonField().set(null, spyManager)
     }

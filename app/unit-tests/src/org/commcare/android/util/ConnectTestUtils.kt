@@ -96,7 +96,6 @@ object ConnectTestUtils {
         val user = ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", hasConnectAccess)
         user.updateConnectToken("test-connect-token", daysFromNow(1))
         ConnectUserDatabaseUtil.storeUser(user)
-        PersonalIdSessionManager.getInstance().init()
     }
 
     fun createConnectDbFile() {

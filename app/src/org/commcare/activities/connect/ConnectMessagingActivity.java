@@ -41,7 +41,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         setTitle(R.string.connect_messaging_title);
 
         PersonalIdSessionManager personalIdManager = PersonalIdSessionManager.getInstance();
-        personalIdManager.init();
 
         if (personalIdManager.isloggedIn()) {
             handleRedirectIfAny();
@@ -138,7 +137,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         String channelId = getIntent().getStringExtra(CHANNEL_ID);
 
         if (CCC_MESSAGE.equals(action)) {
-            PersonalIdSessionManager.getInstance().init();
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
