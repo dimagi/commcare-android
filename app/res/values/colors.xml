@@ -122,7 +122,6 @@
 
     <!-- New Connect colors -->
     <color name="connect_message_sender_bg">#F1F5F9</color>
-    <color name="connect_message_sender_text_color">#334155</color>
     <color name="connect_payment_revert">#EA6944</color>
     <color name="connect_payment_received_check">#94A3B8</color>
     <color name="connect_dark_blue_color">#3942C7</color>
@@ -206,6 +205,8 @@
     <color name="mist_gray">#E2E8F0</color>
     <color name="slate_gray">#6B7280</color>
     <color name="ghost_white">#F8FAFC</color>
+    <color name="dark_slate">#334155</color>
+    <color name="periwinkle_mist">#E9ECFE</color>
 
     <!-- secondary CTA button colors -->
     <color name="secondary_cta_btn_background">@color/lavender_mist</color>
