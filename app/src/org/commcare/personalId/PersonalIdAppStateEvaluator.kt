@@ -18,14 +18,14 @@ object PersonalIdAppStateEvaluator {
     fun evaluateAppState(
         appId: String,
         userId: String,
-    ): PersonalIdSessionManager.ConnectAppMangement {
+    ): PersonalIdSessionManager.ConnectAppManagement {
         if (ConnectJobUtils.getAppRecord(appId) != null) {
-            return PersonalIdSessionManager.ConnectAppMangement.Connect
+            return PersonalIdSessionManager.ConnectAppManagement.Connect
         }
         return if (PersonalIdCredentialProvider.getCredentialsForApp(appId, userId) != null) {
-            PersonalIdSessionManager.ConnectAppMangement.PersonalId
+            PersonalIdSessionManager.ConnectAppManagement.PersonalId
         } else {
-            PersonalIdSessionManager.ConnectAppMangement.Unmanaged
+            PersonalIdSessionManager.ConnectAppManagement.Unmanaged
         }
     }
 

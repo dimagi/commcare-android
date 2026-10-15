@@ -50,7 +50,7 @@ class PersonalIdSessionManager private constructor() {
         LoggedIn, // User Loggedin PersonalID
     }
 
-    enum class ConnectAppMangement {
+    enum class ConnectAppManagement {
         Unmanaged,
         PersonalId,
         Connect,

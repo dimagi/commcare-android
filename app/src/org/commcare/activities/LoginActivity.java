@@ -84,9 +84,9 @@ import org.commcare.utils.BiometricsHelper;
 
 import static org.commcare.activities.DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.PersonalId;
-import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppManagement.Connect;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppManagement.PersonalId;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppManagement.Unmanaged;
 import static org.commcare.utils.KeyboardHelper.hideVirtualKeyboard;
 
 /**
@@ -135,7 +135,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
      */
     private String presetAppId;
     private PersonalIdSessionManager personalIdManager;
-    private PersonalIdSessionManager.ConnectAppMangement connectAppState = Unmanaged;
+    private PersonalIdSessionManager.ConnectAppManagement connectAppState = Unmanaged;
     private Map<Integer, String> menuIdToAnalyticsParam;
 
     private LoginPhase currentLoginPhase;
@@ -698,7 +698,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private void handleFailedConnectSignIn() {
         if (loginManagedByPersonalId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-            PersonalIdSessionManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
+            PersonalIdSessionManager.ConnectAppManagement appState = PersonalIdAppStateEvaluator.evaluateAppState(
                     record.getUniqueId(),
                     getUniformUsername()
             );
@@ -1104,7 +1104,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     protected void evaluateConnectAppState() {
         if (personalIdManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            PersonalIdSessionManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
+            PersonalIdSessionManager.ConnectAppManagement appState = PersonalIdAppStateEvaluator.evaluateAppState(
                     seatedAppId,
                     uiController.getEnteredUsername()
             );
@@ -1127,7 +1127,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return connectAppState == PersonalId || connectAppState == Connect;
     }
 
-    public void setConnectAppState(PersonalIdSessionManager.ConnectAppMangement connectAppState) {
+    public void setConnectAppState(PersonalIdSessionManager.ConnectAppManagement connectAppState) {
         this.connectAppState = connectAppState;
     }
 
@@ -1141,7 +1141,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
         return BaseDrawerController.NavItemType.COMMCARE_APPS;
     }
 
-    protected PersonalIdSessionManager.ConnectAppMangement getConnectAppState() {
+    protected PersonalIdSessionManager.ConnectAppManagement getConnectAppState() {
         return connectAppState;
     }
 }

@@ -36,15 +36,15 @@ object AppLinkPromptHelper {
         callback: ConnectActivityCompleteListener,
     ) {
         when (PersonalIdAppStateEvaluator.evaluateAppState(appId, username)) {
-            PersonalIdSessionManager.ConnectAppMangement.Unmanaged -> {
+            PersonalIdSessionManager.ConnectAppManagement.Unmanaged -> {
                 promptToLinkUnmanagedApp(activity, appId, username, password, callback)
             }
 
-            PersonalIdSessionManager.ConnectAppMangement.PersonalId -> {
+            PersonalIdSessionManager.ConnectAppManagement.PersonalId -> {
                 promptToDelinkPersonalIdApp(activity, appId, username, personalIdManagedLogin, callback)
             }
 
-            PersonalIdSessionManager.ConnectAppMangement.Connect -> {
+            PersonalIdSessionManager.ConnectAppManagement.Connect -> {
                 callback.connectActivityComplete(true, null)
             }
         }

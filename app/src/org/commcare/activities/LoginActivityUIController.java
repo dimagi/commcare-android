@@ -1,8 +1,8 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
-import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdSessionManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppManagement.Connect;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppManagement.Unmanaged;
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -554,7 +554,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void refreshConnectView() {
-        PersonalIdSessionManager.ConnectAppMangement appState = activity.getConnectAppState();
+        PersonalIdSessionManager.ConnectAppManagement appState = activity.getConnectAppState();
         if (appState == Unmanaged) {
             loginButton.setText(Localization.get("login.button"));
             passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
