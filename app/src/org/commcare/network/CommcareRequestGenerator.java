@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
+import org.commcare.personalId.PersonalIdAppStateEvaluator;
 import org.commcare.personalId.PersonalIdCredentialProvider;
 import retrofit2.Response;
 
@@ -180,7 +181,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
             if (tokenAuth != null) {
                 return tokenAuth;
             } else {
-                if (PersonalIdManager.getInstance().isSeatedAppCongigureWithPersonalId(username)) {
+                if (PersonalIdAppStateEvaluator.isSeatedAppConfiguredWithPersonalId(username)) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("No token Auth available for a connect managed app"));
                 }

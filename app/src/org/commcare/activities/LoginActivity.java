@@ -76,6 +76,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import org.commcare.personalId.PersonalIdAppStateEvaluator;
 import org.commcare.personalId.PersonalIdCredentialProvider;
 import org.commcare.personalId.PersonalIdDeviceCompatibility;
 import org.commcare.utils.BiometricsHelper;
@@ -694,7 +695,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     private void handleFailedConnectSignIn() {
         if (loginManagedByPersonalId()) {
             ApplicationRecord record = CommCareApplication.instance().getCurrentApp().getAppRecord();
-            PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(
+            PersonalIdManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
                     record.getUniqueId(),
                     getUniformUsername()
             );
@@ -1100,7 +1101,7 @@ public class LoginActivity extends BaseDrawerActivity<LoginActivity>
     protected void evaluateConnectAppState() {
         if (personalIdManager.isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-            PersonalIdManager.ConnectAppMangement appState = personalIdManager.evaluateAppState(
+            PersonalIdManager.ConnectAppMangement appState = PersonalIdAppStateEvaluator.evaluateAppState(
                     seatedAppId,
                     uiController.getEnteredUsername()
             );
