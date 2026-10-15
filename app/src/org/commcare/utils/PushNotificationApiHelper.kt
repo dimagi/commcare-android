@@ -28,16 +28,20 @@ import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.PAYMENT_UUID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.connect.PersonalIdSessionManager
+import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
+import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.commcare.connect.network.personalId.parser.NotificationParseResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
+import org.commcare.preferences.ConnectMessagingPreferences
 import org.commcare.preferences.NotificationPrefs
 import org.commcare.utils.coroutines.DispatcherProvider
+import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -84,7 +88,15 @@ object PushNotificationApiHelper {
 
                     scheduleMessagingChannelsKeySync(context)
                     CoroutineScope(DispatcherProvider.io()).launch {
-                        val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
+                        val (savedNotifications, savedNotificationIds) =
+                            try {
+                                processParsedDataIntoDB(context, parseResult)
+                            } catch (e: IllegalStateException) {
+                                Logger.exception("Could not store retrieved notifications", e)
+                                continuation.resume(Result.failure(e))
+                                return@launch
+                            }
+                        ConnectMessagingAttachmentDownloadScheduler.scheduleQueuedDownloads(context)
 
                         // Update notification preferences and send broadcasts
                         if (savedNotificationIds.isNotEmpty()) {
@@ -139,6 +151,13 @@ object PushNotificationApiHelper {
         // Store messaging messages
         if (parseResult.messages.isNotEmpty()) {
             ConnectMessagingDatabaseHelper.storeMessagingMessages(context, parseResult.messages, false)
+        }
+
+        if (parseResult.attachments.isNotEmpty()) {
+            ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
+                parseResult.attachments,
+                ConnectMessagingPreferences.isAutomaticDownloadEnabled(context),
+            )
         }
 
         // Store non-messaging notifications

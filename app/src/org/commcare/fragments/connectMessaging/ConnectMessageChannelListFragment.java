@@ -6,12 +6,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -35,6 +40,7 @@ import static org.commcare.activities.connect.ConnectMessagingActivity.CHANNEL_I
 public class ConnectMessageChannelListFragment extends Fragment {
 
     public static boolean isActive;
+    private static final int MENU_SETTINGS = Menu.FIRST;
     private FragmentChannelListBinding binding;
     private ChannelAdapter channelAdapter;
 
@@ -69,6 +75,7 @@ public class ConnectMessageChannelListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setupMenuItems();
         String channelId = getArguments() != null ? getArguments().getString(CHANNEL_ID) : null;
         if (channelId != null) {
             getArguments().remove(CHANNEL_ID);
@@ -117,6 +124,30 @@ public class ConnectMessageChannelListFragment extends Fragment {
             refreshUi();
         }
     };
+
+    private void setupMenuItems() {
+        requireActivity().addMenuProvider(
+                new MenuProvider() {
+                    @Override
+                    public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                        menu.add(Menu.NONE, MENU_SETTINGS, Menu.NONE, R.string.menu_settings);
+                    }
+
+                    @Override
+                    public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                        if (menuItem.getItemId() != MENU_SETTINGS) {
+                            return false;
+                        }
+                        Navigation.findNavController(requireView()).navigate(
+                                ConnectMessageChannelListFragmentDirections
+                                        .actionChannelListFragmentToConnectMessagingSettingsFragment());
+                        return true;
+                    }
+                },
+                getViewLifecycleOwner(),
+                Lifecycle.State.RESUMED
+        );
+    }
 
     private void selectChannel(ConnectMessagingChannelRecord channel) {
         Navigation.findNavController(requireView())

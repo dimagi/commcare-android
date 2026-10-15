@@ -81,8 +81,8 @@ object ConnectTestUtils {
 
     /**
      * Write a signed-in PersonalId user. The status derives from that record, so no Connect lookup
-     * resolves unless PersonalId reports logged in. [PersonalIdSessionManager.init] is called to
-     * resolve it eagerly; since the status also resolves on demand, the call is belt and braces.
+     * resolves unless PersonalId reports logged in. The status resolves on demand, so nothing
+     * needs initialising first.
      *
      * The stored token is what keeps Connect API calls off the PersonalId token endpoint —
      * `getConnectToken()` returns an unexpired stored token without a round-trip.
@@ -91,9 +91,13 @@ object ConnectTestUtils {
      * disk, and the test Connect DB is in-memory. Reads and writes still go to that in-memory DB;
      * the empty file only makes the existence probe agree with it.
      */
-    fun signInToPersonalId(hasConnectAccess: Boolean = false) {
+    fun signInToPersonalId(
+        hasConnectAccess: Boolean = false,
+        userId: String = "",
+        password: String = "",
+    ) {
         createConnectDbFile()
-        val user = ConnectUserRecord("", "", "", "Test User", "", Date(), null, false, "", hasConnectAccess)
+        val user = ConnectUserRecord("", userId, password, "Test User", "", Date(), null, false, "", hasConnectAccess)
         user.updateConnectToken("test-connect-token", daysFromNow(1))
         ConnectUserDatabaseUtil.storeUser(user)
     }

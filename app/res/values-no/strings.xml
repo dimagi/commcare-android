@@ -445,4 +445,23 @@
     <string name="recording_notification_save_action">Lagre</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Gjenoppta</string>
+    <string name="connect_messaging_attachment_download">Last ned</string>
+    <string name="connect_messaging_attachment_downloading">Laster ned…</string>
+    <string name="connect_messaging_attachment_download_failed">Nedlastingen mislyktes</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Trykk for å prøve igjen</string>
+    <string name="connect_messaging_attachment_expired">Ikke lenger tilgjengelig</string>
+    <string name="connect_messaging_attachment_open_failed">Ingen app på denne telefonen kan åpne denne filen</string>
+    <string name="connect_messaging_audio_play">Spill av lyd</string>
+    <string name="connect_messaging_audio_pause">Sett lyden på pause</string>
+    <string name="connect_messaging_audio_play_failed">Lyden kunne ikke spilles av</string>
+    <string name="connect_messaging_update_app_notice">Android-appen din må oppdateres for å vise denne meldingen</string>
+    <string name="connect_messaging_update_app_banner">Oppdater appen for å se alle meldingene i denne kanalen</string>
+    <string name="connect_messaging_preview_update_app">[Oppdater appen for å se denne meldingen]</string>
+    <string name="connect_messaging_settings_title">Meldingsinnstillinger</string>
+    <string name="connect_messaging_settings_any_network">På Wi-Fi og mobildata</string>
+    <string name="connect_messaging_settings_tap_note">Vedlegg du trykker på, lastes alltid ned med en gang, på alle nettverk.</string>
+    <string name="connect_messaging_settings_auto_download_title">Last ned vedlegg automatisk</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Store vedlegg (over 1 MB) bare på Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Bare manuell nedlasting</string>
+    <string name="connect_messaging_preview_pending_download">[Mediemelding som må lastes ned]</string>
 </resources>

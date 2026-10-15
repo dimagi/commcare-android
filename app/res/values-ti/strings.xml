@@ -747,4 +747,23 @@
     <string name="recording_notification_save_action">ኣቐምጥ</string>
     <string name="recording_notification_pause_action">ደው በል</string>
     <string name="recording_notification_resume_action">ቐጽል</string>
+    <string name="connect_messaging_attachment_download">ኣውርድ</string>
+    <string name="connect_messaging_attachment_downloading">ይወርድ ኣሎ…</string>
+    <string name="connect_messaging_attachment_download_failed">ምውራድ ኣይተዓወተን</string>
+    <string name="connect_messaging_attachment_tap_to_retry">ደጊምካ ንምፍታን ጠውቕ</string>
+    <string name="connect_messaging_attachment_expired">ድሕሪ ሕጂ ኣይርከብን</string>
+    <string name="connect_messaging_attachment_open_failed">ነዚ ፋይል ክኸፍቶ ዝኽእል ኣፕ ኣብዚ ተሌፎን የለን</string>
+    <string name="connect_messaging_audio_play">ድምጺ ተጻወት</string>
+    <string name="connect_messaging_audio_pause">ድምጺ ደው ኣብል</string>
+    <string name="connect_messaging_audio_play_failed">እዚ ድምጺ ክጻወት ኣይከኣለን</string>
+    <string name="connect_messaging_update_app_notice">ነዚ መልእኽቲ ንምርኣይ ናይ Android ኣፕኻ ክሕደስ ኣለዎ</string>
+    <string name="connect_messaging_update_app_banner">ኣብዚ ቻነል ዘለዉ ኩሎም መልእኽቲታት ንምርኣይ ነቲ ኣፕ ኣሐድሶ</string>
+    <string name="connect_messaging_preview_update_app">[ነዚ መልእኽቲ ንምርኣይ ነቲ ኣፕ ኣሐድሶ]</string>
+    <string name="connect_messaging_settings_title">ቅጥዕታት መልእኽቲ</string>
+    <string name="connect_messaging_settings_any_network">ብዋይፋይን ሞባይል ዳታን</string>
+    <string name="connect_messaging_settings_tap_note">እትጠውቖም ተተሓሒዝቲ ኩሉ ግዜ ብዝኾነ መርበብ ብቕጽበት ይወርዱ።</string>
+    <string name="connect_messaging_settings_auto_download_title">ተተሓሒዝቲ ብኣውቶማቲክ ኣውርድ</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">ዓበይቲ ተተሓሒዝቲ (ካብ 1 MB ንላዕሊ) ብዋይፋይ ጥራይ</string>
+    <string name="connect_messaging_settings_manual_only">ብኢድ ምውራድ ጥራይ</string>
+    <string name="connect_messaging_preview_pending_download">[ዝወርድ መልእኽቲ ሚድያ]</string>
 </resources>
