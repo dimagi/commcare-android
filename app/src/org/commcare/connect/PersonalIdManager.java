@@ -91,7 +91,6 @@ public class PersonalIdManager {
 
     private static volatile PersonalIdManager manager = null;
     private volatile PersonalIdStatus personalIdStatus = PersonalIdStatus.NotIntroduced;
-    private int failedPinAttempts = 0;
 
     //Singleton, private constructor
     private PersonalIdManager() {
@@ -451,11 +450,6 @@ public class PersonalIdManager {
         activity.showAlertDialog(dialog);
     }
 
-    public boolean isLoginManagedByPersonalId(String appId, String userId) {
-        AuthInfo.ProvidedAuth auth = getCredentialsForApp(appId, userId);
-        return auth != null;
-    }
-
     private ConnectAppRecord getAppRecord(String appId) {
         return ConnectJobUtils.getAppRecord(appId);
     }
@@ -466,7 +460,7 @@ public class PersonalIdManager {
     }
 
     @Nullable
-    public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
+    private AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
         ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
                 appId,
                 userId
@@ -528,10 +522,6 @@ public class PersonalIdManager {
         return ConnectUserDatabaseUtil.getUser();
     }
 
-    public String getConnectUsername() {
-        return ConnectUserDatabaseUtil.getUser().getUserId();
-    }
-
     public boolean isSeatedAppCongigureWithPersonalId(String username) {
         try {
             if (isloggedIn()) {
@@ -562,10 +552,6 @@ public class PersonalIdManager {
                 appId,
                 ""
         ) == PersonalIdManager.ConnectAppMangement.Connect;
-    }
-
-    public boolean isLoggedInWithConnectApp(String appId) {
-        return isloggedIn() && isConnectApp(appId);
     }
 
     /**
@@ -617,7 +603,7 @@ public class PersonalIdManager {
         return false;
     }
 
-    public boolean isSeatedAppLinkedToPersonalId(String username) {
+    private boolean isSeatedAppLinkedToPersonalId(String username) {
         if (isloggedIn()) {
             String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
             return isPersonalIdLinkedApp(seatedAppId, username);
@@ -666,14 +652,6 @@ public class PersonalIdManager {
     public boolean checkDeviceCompability() {
         int smallestWidthDp = CommCareApplication.instance().getResources().getConfiguration().smallestScreenWidthDp;
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && smallestWidthDp < MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID;
-    }
-
-    public int getFailureAttempt() {
-        return failedPinAttempts;
-    }
-
-    public void setFailureAttempt(int failureAttempt) {
-        failedPinAttempts = failureAttempt;
     }
 
     public static void clearInstance() {
