@@ -80,8 +80,9 @@ object ConnectTestUtils {
     fun daysFromNow(days: Int): Date = Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(days.toLong()))
 
     /**
-     * Write a signed-in PersonalId user, then let [PersonalIdSessionManager.init] derive its status from
-     * that record: no Connect lookup resolves unless PersonalId reports logged in.
+     * Write a signed-in PersonalId user. The status derives from that record, so no Connect lookup
+     * resolves unless PersonalId reports logged in. [PersonalIdSessionManager.init] is called to
+     * resolve it eagerly; since the status also resolves on demand, the call is belt and braces.
      *
      * The stored token is what keeps Connect API calls off the PersonalId token endpoint —
      * `getConnectToken()` returns an unexpired stored token without a round-trip.
