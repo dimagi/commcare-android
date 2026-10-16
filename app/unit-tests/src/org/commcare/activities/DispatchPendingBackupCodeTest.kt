@@ -3,7 +3,7 @@ package org.commcare.activities
 import android.app.Activity
 import android.content.Intent
 import org.commcare.android.util.ActivityAssertions
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.personalId.profile.PersonalIdProfileActivity
 import org.junit.After
@@ -29,12 +29,12 @@ class DispatchPendingBackupCodeTest : BaseHomeScreenActivityTest() {
     @After
     fun tearDownPendingBackupCode() {
         PersonalIdUserPreferences.setPendingBackupCode(false)
-        PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.NotIntroduced)
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.NotIntroduced
     }
 
     private fun setUpLoggedIn() {
         PersonalIdUserPreferences.setPendingBackupCode(true)
-        PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn)
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
     }
 
     private fun buildAndResumeDispatch(): DispatchActivity =
@@ -51,7 +51,7 @@ class DispatchPendingBackupCodeTest : BaseHomeScreenActivityTest() {
         }
 
     @Test
-    fun `dispatch launches PersonalIdProfileActivity when pending backup code and PersonalIdManager logged in`() {
+    fun `dispatch launches PersonalIdProfileActivity when pending backup code and PersonalIdSessionManager logged in`() {
         setUpLoggedIn()
 
         val activity = buildAndResumeDispatch()
@@ -69,7 +69,7 @@ class DispatchPendingBackupCodeTest : BaseHomeScreenActivityTest() {
     }
 
     @Test
-    fun `dispatch does not launch PersonalIdProfileActivity when PersonalIdManager is not logged in`() {
+    fun `dispatch does not launch PersonalIdProfileActivity when PersonalIdSessionManager is not logged in`() {
         PersonalIdUserPreferences.setPendingBackupCode(true)
         val activity = buildAndResumeDispatch()
 

@@ -5,7 +5,6 @@ import android.view.View
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockkStatic
@@ -18,13 +17,14 @@ import org.commcare.activities.LoginActivity
 import org.commcare.activities.StandardHomeActivity
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.util.TestAppInstaller
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.personalId.PersonalIdDeviceCompatibility
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -46,18 +46,18 @@ import java.util.Date
  *
  * Mocking: MockK only. Mixing MockK with Mockito's static mocking in one JVM corrupts bytecode
  * instrumentation for unrelated classes later in the run, which is what this class used to do.
- * [PersonalIdManager] is not static-mocked at all — its singleton is a plain private static field,
+ * [PersonalIdSessionManager] is not static-mocked at all — its singleton is a plain private static field,
  * so [installSpyManager] writes a spy straight into it and `getInstance()` hands that back with no
  * instrumentation involved. The spy (rather than a mock) keeps every method it doesn't stub on real
- * behaviour, which is what `checkDeviceCompability()` needs so the per-test `@Config(sdk = ...)`
+ * behaviour, which is what `PersonalIdDeviceCompatibility.isSupported()` needs so the per-test `@Config(sdk = ...)`
  * actually decides the outcome.
 
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdDrawerVisibilityTest {
-    private lateinit var spyManager: PersonalIdManager
-    private var realManager: PersonalIdManager? = null
+    private lateinit var spyManager: PersonalIdSessionManager
+    private var realManager: PersonalIdSessionManager? = null
 
     @Before
     fun setUp() {
@@ -228,7 +228,7 @@ class PersonalIdDrawerVisibilityTest {
             activity.findViewById<View>(R.id.signout_view).visibility,
         )
 
-        // Recovery completes, and PersonalIdManager auto-opens the drawer
+        // Recovery completes, and PersonalIdSessionManager auto-opens the drawer
         setLoggedIn(true)
         activity.openDrawer()
 
@@ -258,23 +258,22 @@ class PersonalIdDrawerVisibilityTest {
     }
 
     /**
-     * Pin `checkDeviceCompability()` to [compatible] instead of letting the spy run its real
+     * Pin `PersonalIdDeviceCompatibility.isSupported()` to [compatible] instead of letting the spy run its real
      * `SDK_INT >= P` check. Only needed by the "previously shown" rows, where the first launch has to
      * disagree with the `@Config(sdk = ...)` the assertion itself runs under.
      */
     private fun setDeviceCompatible(compatible: Boolean) {
-        every { spyManager.checkDeviceCompability() } returns compatible
+        mockkStatic(PersonalIdDeviceCompatibility::class)
+        every { PersonalIdDeviceCompatibility.isSupported() } returns compatible
     }
 
     /**
-     * Seat a spy on the [PersonalIdManager] singleton. `getInstance()` just returns the private
+     * Seat a spy on the [PersonalIdSessionManager] singleton. `getInstance()` just returns the private
      * static `manager` field, so writing the spy there is enough — no static mocking needed.
-     * `init()` is stubbed to a no-op because its real body reads the Connect DB.
      */
     private fun installSpyManager() {
-        realManager = PersonalIdManager.getInstance()
+        realManager = PersonalIdSessionManager.getInstance()
         spyManager = spyk(realManager!!)
-        every { spyManager.init(any()) } just Runs
         setLoggedIn(false)
         singletonField().set(null, spyManager)
     }
@@ -289,7 +288,7 @@ class PersonalIdDrawerVisibilityTest {
     }
 
     private fun singletonField() =
-        PersonalIdManager::class.java
+        PersonalIdSessionManager::class.java
             .getDeclaredField("manager")
             .apply { isAccessible = true }
 

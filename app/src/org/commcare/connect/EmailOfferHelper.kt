@@ -17,7 +17,7 @@ object EmailOfferHelper {
     private const val DAYS_TO_SECOND_EMAIL_OFFER = 30L
 
     private fun shouldOfferEmail(context: Context): Boolean {
-        if (!PersonalIdManager.getInstance().isloggedIn()) {
+        if (!PersonalIdSessionManager.getInstance().isloggedIn()) {
             return false
         }
 

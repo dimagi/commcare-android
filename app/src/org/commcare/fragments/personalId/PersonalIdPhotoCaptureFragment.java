@@ -23,7 +23,7 @@ import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
@@ -156,7 +156,7 @@ public class PersonalIdPhotoCaptureFragment extends BasePersonalIdFragment {
         enableTakePhotoButton();
         disableSaveButton();
         personalIdSessionData.setPhotoBase64(photoAsBase64);
-        PersonalIdManager.getInstance().onAccountConfigurationSuccess(personalIdSessionData);
+        PersonalIdSessionManager.getInstance().onAccountConfigurationSuccess(personalIdSessionData);
         logAndShowAccountComplete();
     }
 

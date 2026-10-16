@@ -7,7 +7,7 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.commcare.CommCareTestApplication
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.network.connect.parser.ConnectReleaseTogglesParser
 import org.javarosa.core.model.utils.DateUtils
@@ -27,12 +27,12 @@ import java.io.ByteArrayInputStream
 class ConnectReleaseTogglesParserTest {
     private var context: Context = CommCareTestApplication.instance()
     private lateinit var parser: ConnectReleaseTogglesParser
-    private lateinit var savedPersonalIdStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedPersonalIdStatus: PersonalIdSessionManager.PersonalIdStatus
 
     @Before
     fun setUp() {
         parser = ConnectReleaseTogglesParser()
-        savedPersonalIdStatus = PersonalIdManager.getInstance().status
+        savedPersonalIdStatus = PersonalIdSessionManager.getInstance().status
         mockkStatic(ConnectAppDatabaseUtil::class)
 
         // Mock the DB storage call so it doesn't try to access a real DB.
@@ -42,15 +42,15 @@ class ConnectReleaseTogglesParserTest {
     @After
     fun tearDown() {
         unmockkStatic(ConnectAppDatabaseUtil::class)
-        PersonalIdManager.getInstance().status = savedPersonalIdStatus
+        PersonalIdSessionManager.getInstance().status = savedPersonalIdStatus
     }
 
     private fun setSignedIn(signedIn: Boolean) {
-        PersonalIdManager.getInstance().status =
+        PersonalIdSessionManager.getInstance().status =
             if (signedIn) {
-                PersonalIdManager.PersonalIdStatus.LoggedIn
+                PersonalIdSessionManager.PersonalIdStatus.LoggedIn
             } else {
-                PersonalIdManager.PersonalIdStatus.NotIntroduced
+                PersonalIdSessionManager.PersonalIdStatus.NotIntroduced
             }
     }
 

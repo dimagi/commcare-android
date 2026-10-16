@@ -27,7 +27,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.util.ConnectTestUtils
 import org.commcare.connect.ConnectLearnJobTestData
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.ConnectMockApiServer
@@ -64,7 +64,7 @@ import java.util.Locale
 class ConnectJobsListsFragmentTest {
     private lateinit var activity: ConnectActivity
     private lateinit var navHostFragment: NavHostFragment
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
     private val mockApi = ConnectMockApiServer()
 
     private val navController: NavController get() = navHostFragment.navController
@@ -72,8 +72,8 @@ class ConnectJobsListsFragmentTest {
 
     @Before
     fun setUp() {
-        savedStatus = PersonalIdManager.getInstance().status
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        savedStatus = PersonalIdSessionManager.getInstance().status
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
         mockApi.start()
         mockApi.server.dispatcher = alwaysEmptyJsonDispatcher()
         ConnectRepository.resetInstance()
@@ -103,7 +103,7 @@ class ConnectJobsListsFragmentTest {
         // Seeded before the activity exists: the list is the start destination and reads each
         // job's composite record straight back out of the database as it binds.
         ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
         seedOpportunities()
 
         // Record a just-completed sync so the offline-first flow serves its cache and skips the
@@ -133,7 +133,7 @@ class ConnectJobsListsFragmentTest {
     @After
     fun tearDown() {
         ConnectDatabaseHelper.teardown()
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         mockApi.shutdown()
         unmockkAll()
     }

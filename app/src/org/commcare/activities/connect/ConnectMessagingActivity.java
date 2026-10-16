@@ -10,8 +10,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
@@ -39,10 +40,9 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_messaging_title);
 
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
+        PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
 
-        if (personalIdManager.isloggedIn()) {
+        if (personalIdSessionManager.isloggedIn()) {
             handleRedirectIfAny();
         } else {
             Toast.makeText(
@@ -50,7 +50,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     R.string.personalid_not_login_from_fcm_error,
                     Toast.LENGTH_LONG
             ).show();
-            personalIdManager.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            ConnectNavHelper.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
     }
@@ -137,7 +137,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         String channelId = getIntent().getStringExtra(CHANNEL_ID);
 
         if (CCC_MESSAGE.equals(action)) {
-            PersonalIdManager.getInstance().init(this);
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
@@ -159,7 +158,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
             showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
             return;
         }
-        PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
+        PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
             if (success) {
                 String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
                 if (!TextUtils.isEmpty(notificationId)) {

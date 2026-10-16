@@ -3,7 +3,7 @@ package org.commcare.android.logging;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
@@ -13,6 +13,7 @@ import org.commcare.utils.SessionStateUninitException;
 import org.javarosa.core.services.Logger;
 
 import java.net.URL;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
 
 /**
  * Created by amstone326 on 2/11/16.
@@ -152,8 +153,8 @@ public class ReportingUtils {
 
     public static String getPersonalID() {
         try {
-            if (PersonalIdManager.getInstance().isloggedIn()) {
-                return PersonalIdManager.getInstance().getUser().getUserId();
+            if (PersonalIdSessionManager.getInstance().isloggedIn()) {
+                return ConnectUserDatabaseUtil.getUser().getUserId();
             }
         } catch (Exception ignored) {
         }
@@ -162,9 +163,9 @@ public class ReportingUtils {
 
     public static Boolean getIsPersonalIDDemoUser() {
         try {
-            PersonalIdManager manager = PersonalIdManager.getInstance();
+            PersonalIdSessionManager manager = PersonalIdSessionManager.getInstance();
             if (manager.isloggedIn()) {
-                return manager.getUser().getIsDemo();
+                return ConnectUserDatabaseUtil.getUser().getIsDemo();
             }
         } catch (Exception e) {
             Logger.exception("Error checking if PersonalID user is a demo user", e);

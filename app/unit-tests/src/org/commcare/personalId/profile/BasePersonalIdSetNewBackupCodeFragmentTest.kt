@@ -9,7 +9,8 @@ import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.EmailWorkFlow
@@ -34,7 +35,7 @@ class BasePersonalIdSetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     fun navigateToSetNewBackupCodeScreen() {
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<PersonalIdManager.ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
 
         // Prevent SharedPreferences lockout state from a previous test blocking navigation
@@ -209,7 +210,7 @@ class BasePersonalIdSetNewBackupCodeFragmentTest : BasePersonalIdProfileTest() {
     @Test
     fun `unlock failure does not submit and stays on screen`() {
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<PersonalIdManager.ConnectActivityCompleteListener>().connectActivityComplete(false)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(false, null)
         }
 
         setCodesAndContinue("654321")

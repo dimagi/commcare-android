@@ -6,6 +6,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.activities.PushNotificationActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.activities.connect.ConnectMessagingActivity
+import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
@@ -18,17 +19,28 @@ import org.commcare.personalId.UnlockPolicy
 import org.commcare.personalId.profile.PersonalIdProfileActivity
 
 object ConnectNavHelper {
+    @JvmStatic
+    fun launchPersonalId(
+        parent: CommCareActivity<*>,
+        requestCode: Int,
+    ) {
+        parent.startActivityForResult(Intent(parent, PersonalIdActivity::class.java), requestCode)
+    }
+
     private fun unlockAndGoTo(
         activity: CommCareActivity<*>,
         policy: UnlockPolicy,
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        PersonalIdUnlocker.unlock(activity, policy) { success ->
+        PersonalIdUnlocker.unlock(
+            activity,
+            policy,
+        ) { success, _ ->
             if (success) {
                 navigationAction(activity)
             }
-            listener.connectActivityComplete(success)
+            listener.connectActivityComplete(success, null)
         }
     }
 

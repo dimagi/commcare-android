@@ -8,14 +8,16 @@ import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToWorkHistory
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
 import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
+import org.commcare.personalId.PersonalIdDeviceCompatibility
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.utils.AppLogoutHelper
+import org.commcare.utils.BiometricsHelper
 import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
@@ -133,17 +135,12 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     private fun getDrawerNavigationListener() =
-        object : ConnectActivityCompleteListener {
-            override fun connectActivityComplete(
-                success: Boolean,
-                error: String?,
-            ) {
-                if (success) {
-                    closeDrawer()
-                    // A section is replaced by the one just opened rather than stacked beneath it.
-                    if (isSidebarSection) {
-                        finish()
-                    }
+        ConnectActivityCompleteListener { success, _ ->
+            if (success) {
+                closeDrawer()
+                // A section is replaced by the one just opened rather than stacked beneath it.
+                if (isSidebarSection) {
+                    finish()
                 }
             }
         }
@@ -175,11 +172,10 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             return true
         }
 
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(this)
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
         val showDrawer =
-            (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&
-                personalIdManager.checkDeviceCompability()
+            (!requirePersonalIDLogin || personalIdSessionManager.isloggedIn()) &&
+                PersonalIdDeviceCompatibility.isSupported()
 
         if (showDrawer) {
             setDrawerShown()

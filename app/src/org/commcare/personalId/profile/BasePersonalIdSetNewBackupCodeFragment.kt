@@ -82,10 +82,11 @@ abstract class BasePersonalIdSetNewBackupCodeFragment : BasePersonalIdBackupCode
         PersonalIdUnlocker.unlock(
             requireActivity() as CommCareActivity<*>,
             UnlockPolicy.ALWAYS,
-        ) { unlocked ->
-            if (!unlocked) return@unlock
-            enableContinueButton(false)
-            callSetBackupCodeApi(backupCode)
+        ) { success, _ ->
+            if (success) {
+                enableContinueButton(false)
+                callSetBackupCodeApi(backupCode)
+            }
         }
     }
 
