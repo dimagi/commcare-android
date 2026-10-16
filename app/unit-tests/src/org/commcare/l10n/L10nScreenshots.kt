@@ -66,6 +66,10 @@ object L10nScreenshots {
         ShadowLooper.idleMainLooper()
         val file = File(File(outDir, locale), "$screen.png")
         file.parentFile?.mkdirs()
-        controller.get().window.decorView.captureRoboImage(file.absolutePath)
+        controller
+            .get()
+            .window
+            .decorView
+            .captureRoboImage(file.absolutePath)
     }
 }

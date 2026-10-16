@@ -29,6 +29,5 @@ class L10nScreenshotsTest {
         assertTrue(L10nScreenshots.isRequested(localesOf("ti").single()))
     }
 
-    private fun localesOf(localeList: String?): List<String> =
-        L10nScreenshots.parametersFor(localeList).map { it.single() as String }
+    private fun localesOf(localeList: String?): List<String> = L10nScreenshots.parametersFor(localeList).map { it.single() as String }
 }
