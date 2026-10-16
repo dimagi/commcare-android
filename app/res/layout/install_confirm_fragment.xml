@@ -64,36 +64,17 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_start_install"
+                        style="@style/Widget.CommCare.Button.Filled"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/dp48"
-                        android:layout_marginTop="@dimen/standard_spacer_extra_large"
-                        android:fontFamily="sans-serif-medium"
-                        android:insetBottom="0dp"
-                        android:insetTop="0dp"
-                        android:stateListAnimator="@null"
-                        android:textAllCaps="false"
-                        android:textColor="@color/filled_button_text"
-                        android:textSize="@dimen/text_small"
-                        app:backgroundTint="@color/filled_button_background"
-                        app:cornerRadius="4dp"
-                        app:elevation="0dp" />
+                        android:layout_marginTop="@dimen/standard_spacer_extra_large" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_stop_install"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        style="@style/Widget.CommCare.Button.Outlined"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/dp48"
-                        android:layout_marginTop="@dimen/standard_spacer_double"
-                        android:fontFamily="sans-serif-medium"
-                        android:insetBottom="0dp"
-                        android:insetTop="0dp"
-                        android:textAllCaps="false"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="@dimen/text_small"
-                        app:backgroundTint="?attr/colorSurface"
-                        app:cornerRadius="4dp"
-                        app:strokeColor="?attr/colorPrimary"
-                        app:strokeWidth="1dp" />
+                        android:layout_marginTop="@dimen/standard_spacer_double" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

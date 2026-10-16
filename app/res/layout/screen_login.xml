@@ -83,20 +83,11 @@
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/connect_login_button"
+                                style="@style/Widget.CommCare.Button.Filled"
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/dp48"
-                                android:fontFamily="sans-serif-medium"
-                                android:insetBottom="0dp"
-                                android:insetTop="0dp"
-                                android:stateListAnimator="@null"
                                 android:text="@string/connect_button_logged_in"
-                                android:textAllCaps="false"
-                                android:textColor="?attr/colorOnPrimary"
-                                android:textSize="@dimen/text_small"
-                                android:visibility="gone"
-                                app:backgroundTint="?attr/colorPrimary"
-                                app:cornerRadius="4dp"
-                                app:elevation="0dp" />
+                                android:visibility="gone" />
 
                             <include
                                 android:id="@+id/login_or"
@@ -271,20 +262,11 @@
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/login_button"
+                                style="@style/Widget.CommCare.Button.Filled"
                                 android:layout_width="match_parent"
                                 android:layout_height="@dimen/dp48"
                                 android:layout_marginTop="28dp"
-                                android:fontFamily="sans-serif-medium"
-                                android:insetBottom="0dp"
-                                android:insetTop="0dp"
-                                android:nextFocusUp="@+id/edit_password"
-                                android:stateListAnimator="@null"
-                                android:textAllCaps="false"
-                                android:textColor="@color/filled_button_text"
-                                android:textSize="@dimen/text_small"
-                                app:backgroundTint="@color/filled_button_background"
-                                app:cornerRadius="4dp"
-                                app:elevation="0dp" />
+                                android:nextFocusUp="@+id/edit_password" />
 
                             <LinearLayout
                                 android:id="@+id/screen_login_error_view"
