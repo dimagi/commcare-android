@@ -18,9 +18,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
@@ -152,12 +150,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
      * instead of directly above the fragment's content.
      */
     protected open val statusBarContainerViewId: Int = View.NO_ID
-
-    /**
-     * Runs once the launched app is on screen. Override to change where back returns to; the
-     * default leaves this screen on the stack.
-     */
-    protected open fun onAppLaunched() = Unit
 
     fun getLastSyncTime(): Date? {
         val endpoint = getEndpoint() ?: return null
@@ -555,27 +547,12 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         } else {
             clearOwnedLaunch()
         }
-        runOnceHidden(::onAppLaunched)
     }
 
     private fun clearOwnedLaunch() {
         if (ownsAppInstall && installViewModel.installState.value == AppInstallState.Launching) {
             installViewModel.clear()
         }
-    }
-
-    /** Defers [action] to this fragment's next onStop, so the screen beneath never flashes. */
-    private fun runOnceHidden(action: () -> Unit) {
-        lifecycle.addObserver(
-            object : DefaultLifecycleObserver {
-                override fun onStop(owner: LifecycleOwner) {
-                    owner.lifecycle.removeObserver(this)
-                    if (!parentFragmentManager.isStateSaved) {
-                        action()
-                    }
-                }
-            },
-        )
     }
 
     /** The two install failures the user can only act on through a prompt of their own. */

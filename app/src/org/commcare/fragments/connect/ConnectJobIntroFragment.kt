@@ -30,11 +30,6 @@ import java.text.DateFormat
 class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
     private lateinit var viewModel: ConnectJobIntroViewModel
 
-    /** Best effort: the page also re-resolves on resume, which is what reliably moves it to learn progress. */
-    override fun onAppLaunched() {
-        OpportunityNavigator.hostOf(this)?.onPhaseChanged()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
