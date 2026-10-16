@@ -141,6 +141,7 @@
     <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
 
     <dimen name="connect_badge_icon_size">20dp</dimen>
+    <dimen name="connect_notification_icon_size">30dp</dimen>
 
     <dimen name="connect_info_card_corner_radius">8dp</dimen>
     <dimen name="connect_info_card_elevation">0dp</dimen>
