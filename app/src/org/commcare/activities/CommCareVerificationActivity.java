@@ -319,15 +319,13 @@ public class CommCareVerificationActivity
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.skip_verification_button:
-                Intent i = new Intent(getIntent());
-                setResult(RESULT_CANCELED, i);
-                finish();
-                break;
-            case R.id.screen_multimedia_retry:
-                verifyResourceInstall();
-                break;
+        int id = v.getId();
+        if (id == R.id.skip_verification_button) {
+            Intent i = new Intent(getIntent());
+            setResult(RESULT_CANCELED, i);
+            finish();
+        } else if (id == R.id.screen_multimedia_retry) {
+            verifyResourceInstall();
         }
     }
 

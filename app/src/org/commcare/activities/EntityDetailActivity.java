@@ -39,7 +39,7 @@ import java.util.HashMap;
 /**
  * @author ctsims
  */
-@ManagedUi(R.layout.entity_detail)
+@ManagedUi("entity_detail")
 public class EntityDetailActivity
         extends SessionAwareCommCareActivity {
 
@@ -62,13 +62,13 @@ public class EntityDetailActivity
     // controls whether swiping can toggle exit from case detail screen
     private boolean isFinalSwipeActionEnabled = false;
 
-    @UiElement(value = R.id.entity_detail)
+    @UiElement(value = "entity_detail")
     private RelativeLayout container;
 
-    @UiElement(value = R.id.entity_select_button, locale = "select.detail.confirm")
+    @UiElement(value = "entity_select_button", locale = "select.detail.confirm")
     private Button next;
 
-    @UiElement(value = R.id.entity_detail_tabs)
+    @UiElement(value = "entity_detail_tabs")
     private TabbedDetailView mDetailView;
 
     @Override

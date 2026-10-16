@@ -31,25 +31,25 @@ import org.javarosa.core.services.locale.Localization;
 /**
  * @author wspride
  */
-@ManagedUi(R.layout.screen_multimedia_inflater)
+@ManagedUi("screen_multimedia_inflater")
 public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> implements UnZipTaskListener {
     private static final String TAG = InstallArchiveActivity.class.getSimpleName();
 
     private static final int REQUEST_FILE_LOCATION = 1;
 
-    @UiElement(R.id.screen_multimedia_inflater_prompt)
+    @UiElement("screen_multimedia_inflater_prompt")
     private TextView txtDisplayPrompt;
 
-    @UiElement(value = R.id.screen_multimedia_install_messages, locale = "archive.install.state.empty")
+    @UiElement(value = "screen_multimedia_install_messages", locale = "archive.install.state.empty")
     private TextView txtInteractiveMessages;
 
-    @UiElement(R.id.screen_multimedia_inflater_location)
+    @UiElement("screen_multimedia_inflater_location")
     private EditText editFileLocation;
 
-    @UiElement(R.id.screen_multimedia_inflater_filefetch)
+    @UiElement("screen_multimedia_inflater_filefetch")
     private ImageButton btnFetchFiles;
 
-    @UiElement(R.id.screen_multimedia_inflater_install)
+    @UiElement("screen_multimedia_inflater_install")
     private Button btnInstallArchive;
 
     public static final String ARCHIVE_FILEPATH = "archive-filepath";

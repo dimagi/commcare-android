@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.views;
 
 import java.lang.annotation.ElementType;
@@ -14,7 +11,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface UiElement {
-    int value();
+    String value();
 
     String locale() default "";
 }

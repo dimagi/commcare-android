@@ -24,23 +24,23 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone (astone@dimagi.com)
  */
-@ManagedUi(R.layout.pin_auth_view)
+@ManagedUi("pin_auth_view")
 public class PinAuthenticationActivity extends
         SessionAwareCommCareActivity<PinAuthenticationActivity> {
 
-    @UiElement(R.id.pin_prompt_text)
+    @UiElement("pin_prompt_text")
     private TextView promptText;
 
-    @UiElement(R.id.pin_entry)
+    @UiElement("pin_entry")
     private EditText pinEntry;
 
-    @UiElement(R.id.password_entry)
+    @UiElement("password_entry")
     private EditText passwordEntry;
 
-    @UiElement(value = R.id.pin_confirm_button, locale = "pin.auth.enter.button")
+    @UiElement(value = "pin_confirm_button", locale = "pin.auth.enter.button")
     private Button enterButton;
 
-    @UiElement(value = R.id.pin_cancel_button, locale = "pin.auth.cancel.button")
+    @UiElement(value = "pin_cancel_button", locale = "pin.auth.cancel.button")
     private Button cancelButton;
 
     private LoginMode authMode;

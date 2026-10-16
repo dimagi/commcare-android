@@ -29,8 +29,6 @@ import org.commcare.suite.model.QueryPrompt
 import org.commcare.util.DateRangeUtils
 import org.commcare.utils.AndroidXUtils
 import org.commcare.utils.KeyboardHelper.hideVirtualKeyboard
-import org.commcare.views.ManagedUi
-import org.commcare.views.UiElement
 import org.commcare.views.ViewUtil
 import org.commcare.views.widgets.SpinnerWidget
 import org.commcare.views.widgets.WidgetUtils
@@ -43,11 +41,11 @@ import java.util.Hashtable
 import java.util.Vector
 import kotlin.collections.ArrayList
 
-@ManagedUi(R.layout.http_request_layout)
 class QueryRequestUiController(
     private val queryRequestActivity: QueryRequestActivity,
     private val remoteQuerySessionManager: RemoteQuerySessionManager,
-) : CommCareActivityUIController {
+) : QueryRequestUiControllerBase(),
+    CommCareActivityUIController {
     companion object {
         private const val APPEARANCE_BARCODE_SCAN = "barcode_scan"
         private const val DATE_PICKER_FRAGMENT_TAG = "date_picker_dialog"
@@ -55,12 +53,6 @@ class QueryRequestUiController(
 
     private var mPendingPromptId: String? = null
     private val promptsBoxes = Hashtable<String, View>()
-
-    @UiElement(value = R.id.request_button, locale = "query.button")
-    private lateinit var queryButton: Button
-
-    @UiElement(value = R.id.error_message)
-    private lateinit var errorTextView: TextView
 
     override fun setupUI() {
         buildPromptUI()
@@ -94,9 +86,11 @@ class QueryRequestUiController(
                 is EditText -> {
                     promptView.setText(entry.value)
                 }
+
                 is Spinner -> {
                     setSpinnerData(queryPrompt, promptView)
                 }
+
                 is LinearLayout -> {
                     if (promptView.tag == QueryPrompt.INPUT_TYPE_CHECKBOX) {
                         setCheckboxData(queryPrompt, promptView, entry.value)

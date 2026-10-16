@@ -38,21 +38,21 @@ import java.util.Vector;
  * @author wspride
  */
 
-@ManagedUi(R.layout.screen_form_dump)
+@ManagedUi("screen_form_dump")
 public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommCareFormDumpActivity> {
     private static final String TAG = CommCareFormDumpActivity.class.getSimpleName();
     public static final String DUMP_FORMS_ERROR = "DUMP_FORMS_ERROR";
 
-    @UiElement(value = R.id.screen_bulk_form_prompt, locale = "bulk.form.prompt")
+    @UiElement(value = "screen_bulk_form_prompt", locale = "bulk.form.prompt")
     TextView txtDisplayPrompt;
 
-    @UiElement(value = R.id.screen_bulk_form_dump, locale = "bulk.form.dump")
+    @UiElement(value = "screen_bulk_form_dump", locale = "bulk.form.dump")
     Button btnDumpForms;
 
-    @UiElement(value = R.id.screen_bulk_form_submit, locale = "bulk.form.submit")
+    @UiElement(value = "screen_bulk_form_submit", locale = "bulk.form.submit")
     Button btnSubmitForms;
 
-    @UiElement(value = R.id.screen_bulk_form_messages, locale = "bulk.form.messages")
+    @UiElement(value = "screen_bulk_form_messages", locale = "bulk.form.messages")
     TextView txtInteractiveMessages;
 
     public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
