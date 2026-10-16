@@ -660,8 +660,11 @@
         <item quantity="other">%1$s completadas hoy</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
-    <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
-    <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
+    <string name="install_get_started_title">Comience a usar CommCare</string>
+    <string name="install_get_started_message">Instale su primera aplicación para empezar.</string>
+    <string name="install_via_qr_code">Instalar con código QR</string>
+    <string name="install_via_app_code">Instalar con código de aplicación</string>
+    <string name="install_from_local">Instalar desde la red local</string>
     <string name="install_keep_trying">Continúe intentando si la conexión se interrumpe</string>
     <string name="install_manual">Por favor, ingrese la URL</string>
     <string name="install_ready_top">¡Casi listo!</string>
@@ -674,6 +677,7 @@
     <string name="install_bad_ref">No escaneó una URL válida. Por favor, inténtelo de nuevo.</string>
     <string name="install_bad_login">Iniciar Sesión en Aplicación Existente</string>
     <string name="install_appprofile">Ingrese su código de aplicación</string>
+    <string name="install_code_hint">Ingrese el código aquí</string>
     <string name="install_perms_rationale_message">CommCare requiere al menos permisos de lectura y escritura en almacenamiento externo para guardar los envíos de formularios.</string>
     <string name="install_perms_denied_message">Permisos cruciales denegados %1$s veces.\n\n Si solicitar permisos aquí falla, por favor habilite los permisos en la configuración de Android.</string>
     <string name="install_choose_local_app">Aplicaciones Disponibles</string>

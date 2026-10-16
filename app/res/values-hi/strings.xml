@@ -656,8 +656,11 @@ License.
         <item quantity="other">आज %1$s पूरी हुईं</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
-    <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
-    <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
+    <string name="install_get_started_title">CommCare के साथ शुरू करें</string>
+    <string name="install_get_started_message">शुरू करने के लिए अपना पहला ऐप इंस्टॉल करें।</string>
+    <string name="install_via_qr_code">QR कोड से इंस्टॉल करें</string>
+    <string name="install_via_app_code">ऐप कोड से इंस्टॉल करें</string>
+    <string name="install_from_local">स्थानीय नेटवर्क से इंस्टॉल करें</string>
     <string name="install_keep_trying">यदि कनेक्शन बाधित हो तो प्रयास करते रहें</string>
     <string name="install_manual">कृपया URL दर्ज करें</string>
     <string name="install_ready_top">लगभग हो गया!</string>
@@ -670,6 +673,7 @@ License.
     <string name="install_bad_ref">आपने एक मान्य URL स्कैन नहीं किया। कृपया पुनः प्रयास करें।</string>
     <string name="install_bad_login">मौजूदा ऐप में लॉगिन करें</string>
     <string name="install_appprofile">अपना ऐप कोड दर्ज करें</string>
+    <string name="install_code_hint">यहाँ कोड दर्ज करें</string>
     <string name="install_perms_rationale_message">CommCare को फॉर्म सबमिशन संग्रहीत करने के लिए कम से कम बाहरी संग्रहण पढ़ने और लिखने की अनुमतियों की आवश्यकता है।</string>
     <string name="install_perms_denied_message">महत्वपूर्ण अनुमतियाँ %1$s बार अस्वीकृत हुईं।\n\n यदि यहाँ अनुमतियाँ माँगने में विफल हो, तो कृपया Android की सेटिंग्स के अंतर्गत अनुमतियाँ सक्षम करें।</string>
     <string name="install_choose_local_app">उपलब्ध ऐप्स</string>

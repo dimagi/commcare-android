@@ -84,6 +84,7 @@
 
     <style name="AppEntryTheme" parent="ConnectTheme">
         <item name="connectOutlineVariant">@color/mist_gray</item>
+        <item name="connectPrimaryContainer">@color/periwinkle_mist</item>
         <item name="connectOutlineBrand">@color/cornflower_blue</item>
         <item name="connectOnSurfaceBrand">@color/deep_indigo</item>
     </style>
