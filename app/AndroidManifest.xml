@@ -260,7 +260,7 @@
             android:name="org.commcare.activities.CommCareSetupActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/CommonTheme.NoActionBar">
+            android:theme="@style/AppEntryTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

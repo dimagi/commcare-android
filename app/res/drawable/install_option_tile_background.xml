@@ -2,5 +2,5 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <corners android:radius="8dp" />
-    <solid android:color="@color/periwinkle_mist" />
+    <solid android:color="?attr/connectPrimaryContainer" />
 </shape>
