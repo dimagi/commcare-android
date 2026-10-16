@@ -651,6 +651,7 @@
     <string name="install_bad_ref">ቅኑዕ URL ኣይሰካንኩምን። በጃኹም እንደገና ፈትኑ።</string>
     <string name="install_bad_login">ናብ ዘሎ ኣፕሊኬሽን እተዉ</string>
     <string name="install_appprofile">ናይ ኣፕሊኬሽን ኮድኩም ኣእትዉ</string>
+    <string name="install_code_hint">ኮድ ኣብዚ ኣእትዉ</string>
     <string name="install_perms_rationale_message">CommCare ናይ ቅጥዒ ምቕራብ ንምዕቃብ ብውሕዱ ናይ ግዳማዊ ማከዘን ምንባብን ምፅሓፍን ፍቓዳት የድልዮ።</string>
     <string name="install_perms_denied_message">ኣገደስቲ ፍቓዳት %1$s ግዜ ተኸልኪሎም።\n\n ኣብዚ ፍቓዳት ምሕታት እንተ ፈሺሉ፡ በጃኹም ኣብ ናይ Android ቅንብር ፍቓዳት ኣብርሁ።</string>
     <string name="install_choose_local_app">ዘለዉ ኣፕሊኬሽናት</string>

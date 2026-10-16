@@ -497,6 +497,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="install_bad_ref">Ba ka leƙa wata URL mai inganci ba. Da fatan za a sake gwadawa.</string>
     <string name="install_bad_login">Shiga Manhaja Mai Akwai</string>
     <string name="install_appprofile">Shigar da lambar manhajarka</string>
+    <string name="install_code_hint">Shigar da lambar a nan</string>
     <string name="install_perms_rationale_message">CommCare yana buƙatar aƙalla izinin karantawa da rubutawa a ma\'aji na waje don adana ƙaddamarwar fom.</string>
     <string name="install_perms_denied_message">An ƙi izini masu mahimmanci sau %1$s.\n\n Idan neman izini a nan ya gaza, da fatan za a kunna izini a ƙarƙashin saitunan Android.</string>
     <string name="install_choose_local_app">Manhajojin da Ake Da Su</string>

@@ -362,6 +362,7 @@
     <string name="install_bad_ref">Nuskaitėte negaliojantį URL. Bandykite dar kartą.</string>
     <string name="install_bad_login">Prisijungti prie esamos programos</string>
     <string name="install_appprofile">Įveskite savo programos kodą</string>
+    <string name="install_code_hint">Įveskite kodą čia</string>
     <string name="install_perms_rationale_message">CommCare reikia bent išorinės atminties skaitymo ir rašymo leidimų, kad būtų galima saugoti formų pateikimus.</string>
     <string name="install_perms_denied_message">Svarbūs leidimai atmesti %1$s kartų.\n\n Jei prašymas suteikti leidimus čia nepavyksta, įjunkite leidimus „Android“ nustatymuose.</string>
     <string name="install_choose_local_app">Pasiekiamos programos</string>

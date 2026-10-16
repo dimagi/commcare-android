@@ -344,6 +344,7 @@
     <string name="install_bad_ref">Du skannet ikke en gyldig URL. Vennligst prøv igjen.</string>
     <string name="install_bad_login">Logg inn på eksisterende app</string>
     <string name="install_appprofile">Skriv inn appkoden din</string>
+    <string name="install_code_hint">Skriv inn koden her</string>
     <string name="install_perms_rationale_message">CommCare krever minst lese- og skrivetillatelser for ekstern lagring for å lagre skjemainnsendinger.</string>
     <string name="install_perms_denied_message">Viktige tillatelser nektet %1$s ganger.\n\n Hvis det å be om tillatelser her mislykkes, må du aktivere tillatelser under Androids innstillinger.</string>
     <string name="install_choose_local_app">Tilgjengelige apper</string>
