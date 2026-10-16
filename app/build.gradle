@@ -53,6 +53,7 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
     testImplementation "androidx.navigation:navigation-testing:$nav_version"
     testImplementation project(path: ':commcare-core', configuration: 'testsAsJar')
+    testImplementation 'io.github.takahirom.roborazzi:roborazzi:1.75.0'
 
     androidTestImplementation 'androidx.test:runner:1.6.2'
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
@@ -530,6 +531,15 @@ android {
             maxHeapSize = "2g"
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
+
+            def l10nLocale = project.findProperty('l10n.locale')
+            if (l10nLocale) {
+                systemProperty 'l10n.locale', l10nLocale
+                systemProperty 'l10n.outDir', project.findProperty('l10n.outDir') ?:
+                        project.layout.buildDirectory.dir('outputs/l10n-screenshots').get().asFile.absolutePath
+                systemProperty 'roborazzi.test.record', 'true'
+                outputs.upToDateWhen { false }
+            }
         }
         unitTests {
             includeAndroidResources = true
