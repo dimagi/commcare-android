@@ -171,6 +171,10 @@ class ConnectDeliveryDashboardFragmentTest {
             view.findViewById<TextView>(R.id.progress_card_title).text.toString(),
         )
         assertEquals(
+            activity.getString(R.string.connect_delivery_daily_visits),
+            view.findViewById<TextView>(R.id.progress_card_bar_label).text.toString(),
+        )
+        assertEquals(
             "2 of ${ConnectLearnJobTestData.MAX_DAILY_VISITS}",
             view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString(),
         )
@@ -189,6 +193,10 @@ class ConnectDeliveryDashboardFragmentTest {
         job = seedDeliveryJob(maxDailyVisits = ConnectJobRecord.NO_DAILY_LIMIT)
         val view = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 3))).requireView()
 
+        assertEquals(
+            activity.getString(R.string.connect_visits_completed_today),
+            view.findViewById<TextView>(R.id.progress_card_bar_label).text.toString(),
+        )
         assertEquals("3", view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString())
         assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_linear_bar).visibility)
         assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_bar_caption).visibility)

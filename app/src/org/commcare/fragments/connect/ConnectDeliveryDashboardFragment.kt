@@ -84,7 +84,14 @@ class ConnectDeliveryDashboardFragment :
                     ),
                 linearProgress =
                     ConnectProgressCard.State.LinearProgress(
-                        label = getString(R.string.connect_delivery_daily_visits),
+                        label =
+                            getString(
+                                if (job.hasDailyLimit()) {
+                                    R.string.connect_delivery_daily_visits
+                                } else {
+                                    R.string.connect_visits_completed_today
+                                },
+                            ),
                         current = visitsDoneToday,
                         max = maxDailyVisits,
                         caption =

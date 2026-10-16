@@ -616,6 +616,7 @@
     <string name="connect_delivery_visit_progress_title">ምዕባለ ምብጻሕ</string>
     <string name="connect_delivery_total_visits_completed">ጠቅላላ ዝተዛዘመ ምብጻሕ</string>
     <string name="connect_delivery_daily_visits">መዓልታዊ ምብጻሕ</string>
+    <string name="connect_visits_completed_today">ሎሚ ዝተዛዘመ ምብጻሕ</string>
     <string name="connect_delivery_your_progress">ምዕባለኻ</string>
     <string name="connect_delivery_total_earnings">ጠቅላላ እቶት</string>
     <string name="connect_delivery_amount_each">%1$s ንነፍሲ ወከፍ</string>
