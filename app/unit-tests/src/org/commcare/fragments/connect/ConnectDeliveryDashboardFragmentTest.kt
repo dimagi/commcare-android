@@ -255,6 +255,15 @@ class ConnectDeliveryDashboardFragmentTest {
     }
 
     @Test
+    fun `a single payment unit shows no breakdown below the overall daily visits row`() {
+        job = seedDeliveryJob(paymentUnitMaxDailies = listOf(ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY))
+        val view = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 1))).requireView()
+
+        assertEquals(View.VISIBLE, view.findViewById<View>(R.id.progress_card_overall_bar).visibility)
+        assertEquals(View.GONE, view.findViewById<View>(R.id.progress_card_breakdown).visibility)
+    }
+
+    @Test
     fun `three payment units are all shown without a toggle`() {
         job = seedDeliveryJob(paymentUnitMaxDailies = listOf(2, 2, null))
         val dashboard = launch(progressResponse())

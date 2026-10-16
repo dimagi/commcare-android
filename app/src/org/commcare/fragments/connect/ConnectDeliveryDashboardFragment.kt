@@ -102,6 +102,8 @@ class ConnectDeliveryDashboardFragment :
     }
 
     private fun getPaymentUnitDailyProgress(): List<ConnectProgressCard.State.LinearProgress> {
+        if (!job.isMultiPayment) return emptyList()
+
         val visitsTodayPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(true)
 
         return job.paymentUnits.map { paymentUnit ->
