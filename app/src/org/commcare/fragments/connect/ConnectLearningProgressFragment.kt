@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import org.commcare.AppUtils
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.opportunity.OpportunityNavigator
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
@@ -67,18 +68,37 @@ class ConnectLearningProgressFragment :
         binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
     }
 
+    /**
+     * Publishes the refreshed job to the host so Opportunity Home resolves against current data, and
+     * lets the page swap surfaces when the server says the opportunity has moved on.
+     */
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
-            { cached ->
-                job = cached
-                updateLearningUI()
-            },
-            { success ->
-                job = success
-                updateLearningUI()
-            },
+            { cached -> publishRefreshedJob(cached) },
+            { success -> publishRefreshedJob(success) },
         )
+    }
+
+    /** A refresh begun before the claim landed carries the pre-claim status and must not replace the claimed job. */
+    private fun publishRefreshedJob(refreshed: ConnectJobRecord) {
+        val claimed = viewModel.claimJob.value is DataState.Success
+        if (claimed && refreshed.status != ConnectJobRecord.STATUS_DELIVERING) {
+            return
+        }
+        setActiveJob(refreshed)
+        updateLearningUI()
+        OpportunityNavigator.hostOf(this)?.onPhaseChanged()
+    }
+
+    /**
+     * The job shown may be a copy a refresh published while the claim was in flight, so the stored
+     * job is published as delivering before the page resolves its surface.
+     */
+    private fun publishClaimedJob() {
+        val claimed = ConnectJobUtils.getCompositeJob(job.jobUUID) ?: job
+        claimed.status = ConnectJobRecord.STATUS_DELIVERING
+        setActiveJob(claimed)
     }
 
     /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */
@@ -117,8 +137,11 @@ class ConnectLearningProgressFragment :
                 is DataState.Success -> {
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
+                        publishClaimedJob()
                         if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
-                            Navigation.findNavController(requireView()).navigate(navigateToDeliveryProgress())
+                            OpportunityNavigator
+                                .hostOf(this@ConnectLearningProgressFragment)
+                                ?.onPhaseChanged()
                         } else {
                             launchApp(isLearning = false)
                         }
@@ -147,16 +170,15 @@ class ConnectLearningProgressFragment :
             PersonalIdOrConnectApiErrorHandler.handle(requireContext(), error.errorCode, error.throwable)
         }
 
-    private fun navigateToDeliveryProgress(): NavDirections =
-        ConnectLearningProgressFragmentDirections
-            .actionConnectJobLearningProgressFragmentToConnectDeliveryHomeFragment()
-
     override fun onAppInstallStateChanged(
         state: AppInstallState,
         isLearning: Boolean,
     ) {
         if (showLearningComplete) {
             binding.learnCompleteView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
+            if (state is AppInstallState.Failed) {
+                binding.learnCompleteView.isCtaEnabled = true
+            }
         } else {
             binding.learnProgressView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
         }

@@ -3,8 +3,6 @@ package org.commcare.connect.database;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN;
 import static org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_PAYMENTS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_DELIVERY_PROGRESS;
-import static org.commcare.connect.ConnectConstants.CCC_DEST_LEARN_PROGRESS;
 import static org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
 
 import android.content.Context;
@@ -578,6 +576,10 @@ public class ConnectJobUtils {
         return !record.getIsLearning() || job.getStatus() != ConnectJobRecord.STATUS_DELIVERING;
     }
 
+    /**
+     * Resolves a link that names only an opportunity: a payment when delivering with a payment id,
+     * otherwise the opportunity page; an unrecognised status keeps {@code currentAction}.
+     */
     public static String resolveGenericOpportunityDestination(
             String currentAction,
             ConnectJobRecord job,
@@ -590,10 +592,9 @@ public class ConnectJobUtils {
         if (status == ConnectJobRecord.STATUS_DELIVERING) {
             return (paymentUuid != null && !paymentUuid.isEmpty())
                     ? CCC_DEST_PAYMENTS
-                    : CCC_DEST_DELIVERY_PROGRESS;
-        } else if (status == ConnectJobRecord.STATUS_LEARNING) {
-            return CCC_DEST_LEARN_PROGRESS;
-        } else if (status == ConnectJobRecord.STATUS_AVAILABLE
+                    : CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
+        } else if (status == ConnectJobRecord.STATUS_LEARNING
+                || status == ConnectJobRecord.STATUS_AVAILABLE
                 || status == ConnectJobRecord.STATUS_AVAILABLE_NEW) {
             return CCC_DEST_OPPORTUNITY_SUMMARY_PAGE;
         } else {

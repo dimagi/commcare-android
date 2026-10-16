@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.commcare.adapters.ConnectDeliveryPaymentUnitAdapter
-import org.commcare.dalvik.R
+import org.commcare.connect.opportunity.OpportunityHomeFragmentDirections
+import org.commcare.connect.opportunity.OpportunityNavigator
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryVisitsBinding
 import org.commcare.fragments.RefreshableTab
 import org.commcare.models.connect.ConnectDeliveryDetails
@@ -59,14 +59,11 @@ class ConnectDeliveryVisitsFragment :
         }
     }
 
+    /** Opens the visits detail through the page hosting this tab. */
     private fun navigateToDeliveries(unitUuid: String) {
-        val navController = NavHostFragment.findNavController(this)
-        if (navController.currentDestination?.id != R.id.connect_delivery_home_fragment) {
-            return
-        }
-        navController.navigate(
-            ConnectDeliveryHomeFragmentDirections
-                .actionConnectDeliveryHomeFragmentToConnectDeliveryVisitsDetailFragment(unitUuid),
+        OpportunityNavigator.hostOf(this)?.navigateFromPage(
+            OpportunityHomeFragmentDirections
+                .actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(unitUuid),
         )
     }
 

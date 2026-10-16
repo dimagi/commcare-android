@@ -3,6 +3,8 @@ package org.commcare.fragments.connect
 import android.os.Build
 import android.view.View
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import io.mockk.every
@@ -14,26 +16,29 @@ import kotlinx.coroutines.flow.flow
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
-import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
-import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
+import org.commcare.engine.resource.AppInstallStatus
+import org.commcare.fragments.personalId.PersonalIdMessageFragment
+import org.commcare.fragments.personalId.PersonalIdMessageFragmentArgs
 import org.commcare.views.connect.ConnectInfoCard
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.text.DateFormat
-import java.util.Date
 
 /**
  * Robolectric UI tests for [ConnectJobIntroFragment]: verifies the job data renders into the
@@ -44,6 +49,8 @@ import java.util.Date
 @RunWith(AndroidJUnit4::class)
 class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     private fun launch(): ConnectJobIntroFragment = navigateToIntroFragment()
+
+    private val appContext get() = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
 
     private fun cardValue(
         fragment: ConnectJobIntroFragment,
@@ -194,6 +201,41 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     }
 
     @Test
+    fun `a non-network start-learning failure opens the message dialog with its arguments`() {
+        seedConnectUser()
+        val repo = ConnectRepository.getInstance()
+        every { repo.startLearning(any()) } returns
+            flow {
+                emit(
+                    DataState.Error(
+                        PersonalIdOrConnectApiErrorCodes.FORBIDDEN_ERROR,
+                        RuntimeException("forbidden"),
+                    ),
+                )
+            }
+
+        val fragment = launch()
+        val button = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
+
+        activity.runOnUiThread { button.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(
+            R.id.personalid_message_display_dialog,
+            navController.currentDestination?.id,
+        )
+
+        val dialog =
+            navHostFragment.childFragmentManager.fragments
+                .filterIsInstance<PersonalIdMessageFragment>()
+                .single()
+        val args = PersonalIdMessageFragmentArgs.fromBundle(dialog.requireArguments())
+        assertEquals(appContext.getString(R.string.error), args.title)
+        assertEquals(appContext.getString(R.string.ok), args.buttonText)
+        assertFalse("this dialog is raised on an error, so it is not dismissable", args.isCancellable)
+    }
+
+    @Test
     fun `tapping the footer button starts learning and navigates to downloading`() {
         seedConnectUser()
         mockkStatic(AppUtils::class)
@@ -223,7 +265,8 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         )
         verify { ConnectAppUtils.downloadApp(any(), any()) }
         assertEquals(
-            R.id.connect_job_intro_fragment,
+            "The install runs on the page, which does not navigate away",
+            R.id.opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertEquals(View.GONE, button.visibility)
@@ -233,27 +276,44 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         )
     }
 
-    /**
-     * Writes a real user through the Connect storage layer so [ConnectUserDatabaseUtil.getUser]
-     * returns it. [ConnectDatabaseHelper.dbExists] has to be stubbed because it probes for the
-     * on-disk connect db, which never exists under the in-memory test open helper.
-     */
-    private fun seedConnectUser() {
-        mockkStatic(ConnectDatabaseHelper::class)
-        every { ConnectDatabaseHelper.dbExists() } returns true
-        ConnectUserDatabaseUtil.storeUser(
-            ConnectUserRecord(
-                "1234567890",
-                "test-user-id",
-                "password",
-                "Test User",
-                "1234",
-                Date(),
-                null,
-                false,
-                PersonalIdSessionData.PIN,
-                true,
-            ),
-        )
+    @Test
+    fun `a failed learn install holds the intro and its cta retries the download only`() {
+        seedConnectUser()
+        mockkStatic(AppUtils::class)
+        every { AppUtils.isAppInstalled(any()) } returns false
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+        val repo = ConnectRepository.getInstance()
+        every { repo.startLearning(any()) } returns flow { emit(DataState.Success(Unit)) }
+
+        val fragment = launch()
+        val button = fragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        activity.runOnUiThread { button.performClick() }
+        ShadowLooper.idleMainLooper()
+        activity.runOnUiThread { installViewModel().failUnknown(AppInstallStatus.UnknownFailure) }
+        ShadowLooper.idleMainLooper()
+
+        activity.runOnUiThread {
+            activityController
+                .pause()
+                .stop()
+                .start()
+                .resume()
+        }
+        ShadowLooper.idleMainLooper()
+        assertSame(fragment, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
+        assertEquals(View.VISIBLE, fragment.requireView().findViewById<View>(R.id.cta_failure_card).visibility)
+
+        activity.runOnUiThread { button.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 1) { repo.startLearning(any()) }
+        verify(exactly = 2) { ConnectAppUtils.downloadApp(any(), any()) }
     }
+
+    private fun installViewModel(): ConnectAppInstallViewModel =
+        ViewModelProvider(
+            activity,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
+        )[ConnectAppInstallViewModel::class.java]
 }

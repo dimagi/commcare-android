@@ -37,6 +37,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
@@ -233,7 +234,7 @@ class ConnectDeliveryMoreFragmentTest {
         verify {
             ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any())
         }
-        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
         assertInstallDialogShowing(moreTab, R.string.connect_downloading_delivery)
     }
 
@@ -411,7 +412,7 @@ class ConnectDeliveryMoreFragmentTest {
         ShadowLooper.idleMainLooper()
 
         verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
-        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
         assertInstallDialogShowing(moreTab, R.string.connect_downloading_learn)
     }
 
@@ -485,7 +486,7 @@ class ConnectDeliveryMoreFragmentTest {
         activity.setActiveJob(job)
         activity.runOnUiThread {
             navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_delivery_home_fragment,
+                R.id.opportunity_home_fragment,
                 Bundle().apply {
                     putInt(ConnectDeliveryHomeFragment.TAB_POSITION, ConnectDeliveryHomeFragment.TAB_MORE)
                 },
@@ -521,8 +522,7 @@ class ConnectDeliveryMoreFragmentTest {
         layOutHierarchy()
     }
 
-    private fun getHomeFragment(): ConnectDeliveryHomeFragment =
-        navHostFragment.childFragmentManager.primaryNavigationFragment as ConnectDeliveryHomeFragment
+    private fun getHomeFragment(): ConnectDeliveryHomeFragment = navHostFragment.opportunityHomeSurface()
 
     private fun getMoreTabFragment(): ConnectDeliveryMoreFragment =
         getHomeFragment()

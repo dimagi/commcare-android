@@ -82,12 +82,8 @@ class ConnectOpportunityListFragment :
             ) { model ->
                 // protecting against double tap
                 if (!hasLeftJobsList()) {
-                    if (model.isNew) {
-                        setActiveJob(model.job)
-                        navigateToJobIntro()
-                    } else {
-                        launchAppForJob(model.job, model.isLearningApp)
-                    }
+                    setActiveJob(model.job)
+                    navigateToOpportunityHome()
                 }
             }
 
@@ -102,37 +98,11 @@ class ConnectOpportunityListFragment :
         return destination == null || destination.id != R.id.connect_jobs_list_fragment
     }
 
-    private fun navigateToJobIntro() {
+    /** Opens the opportunity's page, which picks the surface from the job's phase. */
+    private fun navigateToOpportunityHome() {
         binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
-                .actionConnectJobsListFragmentToConnectJobIntroFragment(),
-        )
-    }
-
-    private fun launchAppForJob(
-        job: ConnectJobRecord,
-        isLearning: Boolean,
-    ) {
-        setActiveJob(job)
-
-        if (isLearning) {
-            navigateToLearnProgress()
-        } else {
-            navigateToDeliveryProgress()
-        }
-    }
-
-    private fun navigateToDeliveryProgress() {
-        binding.root.findNavController().navigate(
-            ConnectOpportunityListFragmentDirections
-                .actionConnectJobsListFragmentToConnectDeliveryHomeFragment(),
-        )
-    }
-
-    private fun navigateToLearnProgress() {
-        binding.root.findNavController().navigate(
-            ConnectOpportunityListFragmentDirections
-                .actionConnectJobsListFragmentToConnectJobLearningProgressFragment(),
+                .actionConnectJobsListFragmentToOpportunityHomeFragment(),
         )
     }
 
@@ -160,11 +130,7 @@ class ConnectOpportunityListFragment :
                     createJobModel(
                         compositeJob,
                         JobListEntryType.DELIVERY,
-                        DELIVERY_APP,
                         isDeliverAppInstalled,
-                        isNew = false,
-                        isLearningApp = false,
-                        isDeliveryApp = true,
                         jobFinished = true,
                         userCompletedDelivery = userCompletedDelivery,
                     ),
@@ -178,30 +144,14 @@ class ConnectOpportunityListFragment :
                         createJobModel(
                             compositeJob,
                             JobListEntryType.NEW_OPPORTUNITY,
-                            NEW_APP,
                             isAppInstalled = true,
-                            isNew = true,
-                            isLearningApp = false,
-                            isDeliveryApp = false,
-                            jobFinished = false,
-                            userCompletedDelivery = false,
                         ),
                     )
                 }
 
                 STATUS_LEARNING -> {
                     inProgress.add(
-                        createJobModel(
-                            compositeJob,
-                            JobListEntryType.LEARNING,
-                            LEARN_APP,
-                            isLearnAppInstalled,
-                            isNew = false,
-                            isLearningApp = true,
-                            isDeliveryApp = false,
-                            jobFinished = false,
-                            userCompletedDelivery = false,
-                        ),
+                        createJobModel(compositeJob, JobListEntryType.LEARNING, isLearnAppInstalled),
                     )
                 }
 
@@ -210,12 +160,7 @@ class ConnectOpportunityListFragment :
                         createJobModel(
                             compositeJob,
                             JobListEntryType.DELIVERY,
-                            DELIVERY_APP,
                             isDeliverAppInstalled,
-                            isNew = false,
-                            isLearningApp = false,
-                            isDeliveryApp = true,
-                            jobFinished = false,
                             userCompletedDelivery = userCompletedDelivery,
                         )
 
@@ -243,37 +188,43 @@ class ConnectOpportunityListFragment :
         initRecyclerView()
     }
 
+    /** Builds a row for [job] as [jobType]; the app type and row-kind flags are derived from it. */
     private fun createJobModel(
         job: ConnectJobRecord,
         jobType: JobListEntryType,
-        appType: String,
         isAppInstalled: Boolean,
-        isNew: Boolean,
-        isLearningApp: Boolean,
-        isDeliveryApp: Boolean,
-        jobFinished: Boolean,
-        userCompletedDelivery: Boolean,
-    ): ConnectLoginJobListModel =
-        ConnectLoginJobListModel(
+        jobFinished: Boolean = false,
+        userCompletedDelivery: Boolean = false,
+    ): ConnectLoginJobListModel {
+        val appRecord = getAppRecord(job, jobType)
+        return ConnectLoginJobListModel(
             job.title,
             job.jobUUID,
-            getAppRecord(job, jobType).appId,
+            appRecord.appId,
             job.projectEndDate,
-            getAppRecord(job, jobType).description,
-            getAppRecord(job, jobType).organization,
+            appRecord.description,
+            appRecord.organization,
             isAppInstalled,
-            isNew,
-            isLearningApp,
-            isDeliveryApp,
+            jobType == JobListEntryType.NEW_OPPORTUNITY,
+            jobType == JobListEntryType.LEARNING,
+            jobType == JobListEntryType.DELIVERY,
             processJobRecords(job, jobType),
             job.getLearningPercentComplete(true),
             job.getDeliveryProgressPercentage(),
             jobType,
-            appType,
+            appTypeFor(jobType),
             job,
             jobFinished,
             userCompletedDelivery,
         )
+    }
+
+    private fun appTypeFor(jobType: JobListEntryType): String =
+        when (jobType) {
+            JobListEntryType.LEARNING -> LEARN_APP
+            JobListEntryType.DELIVERY -> DELIVERY_APP
+            JobListEntryType.NEW_OPPORTUNITY -> NEW_APP
+        }
 
     private fun getAppRecord(
         job: ConnectJobRecord,

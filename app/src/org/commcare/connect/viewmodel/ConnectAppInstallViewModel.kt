@@ -132,6 +132,20 @@ class ConnectAppInstallViewModel(
         _installState.value = AppInstallState.Launching
     }
 
+    /**
+     * Marks the launch of [target]'s already-installed app as in flight, so it holds the screen the
+     * way an install does. Answers false when an install is already running.
+     */
+    fun launch(target: AppInstallTarget): Boolean {
+        if (isInstalling) {
+            return false
+        }
+        this.target = target
+        failureHandled = false
+        _installState.value = AppInstallState.Launching
+        return true
+    }
+
     /** Clears the state once the screen has acted on it, so re-observing does not replay it. */
     fun clear() {
         target = null

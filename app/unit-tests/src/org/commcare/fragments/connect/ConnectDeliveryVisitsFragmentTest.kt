@@ -31,6 +31,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunity.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
@@ -255,6 +256,10 @@ class ConnectDeliveryVisitsFragmentTest {
         )
     }
 
+    /**
+     * Also covers the hosting: this tab sits two levels down inside Opportunity Home, so the current
+     * destination is that page rather than a delivery home the generated action could start from.
+     */
     @Test
     fun `tapping a card opens that unit's visits and lists only its own deliveries`() {
         val visits =
@@ -294,19 +299,13 @@ class ConnectDeliveryVisitsFragmentTest {
         deliveryProgressBody = responseBody
 
         activity.setActiveJob(job)
-        activity.runOnUiThread {
-            navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_delivery_home_fragment,
-            )
-        }
+        activity.runOnUiThread { navController.navigate(R.id.opportunity_home_fragment) }
         ShadowLooper.idleMainLooper()
 
         awaitDeliverySync()
         layOutHierarchy()
 
-        val home =
-            navHostFragment.childFragmentManager.primaryNavigationFragment
-                as ConnectDeliveryHomeFragment
+        val home = navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
         home
             .requireView()
             .findViewById<ViewPager2>(R.id.connect_delivery_home_view_pager)
