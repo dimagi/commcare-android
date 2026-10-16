@@ -1,7 +1,10 @@
 package org.commcare.connect.repository
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -162,5 +165,27 @@ class ConnectRequestManagerTest {
 
             // The request lambda must have completed despite caller cancellation
             assertTrue(requestCompleted)
+        }
+
+    @Test
+    fun `a request made as soon as an identical one completes executes again`() =
+        runBlocking {
+            val url = "/test"
+            val releaseFirstRequest = CompletableDeferred<Unit>()
+            var secondResult: Result<String>? = null
+
+            // Unconfined resumes the caller inline when the first request completes, before its coroutine finishes.
+            val caller =
+                launch(Dispatchers.Unconfined) {
+                    ConnectRequestManager.executeRequest(url) {
+                        releaseFirstRequest.await()
+                        Result.success("first")
+                    }
+                    secondResult = ConnectRequestManager.executeRequest(url) { Result.success("second") }
+                }
+            releaseFirstRequest.complete(Unit)
+            caller.join()
+
+            assertEquals("second", secondResult?.getOrNull())
         }
 }
