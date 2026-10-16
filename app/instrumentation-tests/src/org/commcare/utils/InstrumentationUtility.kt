@@ -4,10 +4,12 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
-import android.net.wifi.WifiManager
 import android.os.RemoteException
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.ListView
 import android.widget.TextView
@@ -324,32 +326,46 @@ object InstrumentationUtility {
     }
 
     /**
-     * This method will toggle the network state in mobile, both Wi-Fi and data. It will wait for the Wi-Fi state
-     * to be changed before returning.
+     * This method will toggle the network state in mobile, both Wi-Fi and data. It will wait for the
+     * device to actually reach the requested connectivity state before returning.
      */
     @JvmStatic
     fun setNetworkEnabled(enabled: Boolean) {
         val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        uiDevice.executeShellCommand(if (enabled) "svc wifi enable" else "svc wifi disable")
-        uiDevice.executeShellCommand("settings put global wifi_wakeup " + if (enabled) "1" else "0")
-        uiDevice.executeShellCommand(if (enabled) "svc data enable" else "svc data disable")
-        waitForWifiState(enabled)
+        uiDevice.executeShellCommand(if (enabled) "cmd connectivity airplane-mode disable" else "cmd connectivity airplane-mode enable")
+        Log.d(this::class.toString(), "=================network state changed to $enabled=================")
+        waitForNetworkConnectivity(enabled)
     }
 
-    private fun waitForWifiState(
-        expectedEnabled: Boolean,
+    /**
+     * Waits on the active network rather than on the Wi-Fi and telephony toggles, so a single check
+     * covers both transports and only returns once traffic behaves as expected.
+     */
+    private fun waitForNetworkConnectivity(
+        expectedConnected: Boolean,
         timeoutMs: Long = 10_000,
     ) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val deadline = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < deadline) {
-            if (wifiManager.isWifiEnabled == expectedEnabled) return
+            if (isNetworkConnected(connectivityManager) == expectedConnected) return
             sleep(2)
         }
         throw IllegalStateException(
-            "changeWifi did not reach state=${expectedEnabled.let { if (it) "enabled" else "disabled" }} within ${timeoutMs}ms",
+            "setNetworkEnabled did not reach state=${if (expectedConnected) "connected" else "disconnected"} " +
+                "within ${timeoutMs}ms",
         )
+    }
+
+    private fun isNetworkConnected(connectivityManager: ConnectivityManager): Boolean {
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork) ?: return false
+        Log.d(this::class.toString(), "==============NET_CAPABILITY_INTERNET:${capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)}")
+        Log.d(this::class.toString(), "==============NET_CAPABILITY_VALIDATED:${capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)}")
+        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
 
     /**
