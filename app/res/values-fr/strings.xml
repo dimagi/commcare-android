@@ -361,6 +361,11 @@ License.
     <string name="connect_progress_delivery">Livraison</string>
     <string name="semi_circle_progress_value_format">%1$d sur %2$d</string>
     <string name="connect_progress_count_format">%1$d sur %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Afficher %1$d de plus</item>
+        <item quantity="other">Afficher %1$d de plus</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Afficher moins</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
@@ -643,6 +648,15 @@ License.
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visite restante aujourd\'hui</item>
         <item quantity="other">%1$d visites restantes aujourd\'hui</item>
+    </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Aucun objectif quotidien de visites</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s sur %2$d effectuée aujourd\'hui</item>
+        <item quantity="other">%1$s sur %2$d effectuées aujourd\'hui</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s effectuée aujourd\'hui</item>
+        <item quantity="other">%1$s effectuées aujourd\'hui</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
     <string name="install_barcode_top">Bienvenue sur CommCare !</string>

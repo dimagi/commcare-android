@@ -80,9 +80,136 @@ class ConnectProgressCardTest {
         assertEquals(View.VISIBLE, label.visibility)
         assertEquals("Learning Progress", label.text.toString())
 
-        card.bind(State())
+        card.bind(State(linearProgress = State.LinearProgress()))
         assertEquals(View.GONE, label.visibility)
     }
+
+    @Test
+    fun `the overall bar is hidden when linear progress is absent`() {
+        val card = newCard()
+        val overallBar = card.findViewById<View>(R.id.progress_card_overall_bar)
+
+        card.bind(State(linearProgress = State.LinearProgress(current = 1, max = 5)))
+        assertEquals(View.VISIBLE, overallBar.visibility)
+
+        card.bind(State())
+        assertEquals(View.GONE, overallBar.visibility)
+    }
+
+    @Test
+    fun `breakdown is hidden when there are no rows`() {
+        val card = newCard()
+        val breakdown = card.findViewById<View>(R.id.progress_card_breakdown)
+
+        card.bind(State())
+
+        assertEquals(View.GONE, breakdown.visibility)
+    }
+
+    @Test
+    fun `breakdown rows show a bar only for rows with a max`() {
+        val card = newCard()
+
+        card.bind(
+            State(
+                breakdownRows =
+                    listOf(
+                        State.LinearProgress(label = "Registration", current = 1, max = 5, caption = "4 left"),
+                        State.LinearProgress(label = "Referral", current = 3, max = null, caption = "No target"),
+                    ),
+            ),
+        )
+
+        assertEquals(View.VISIBLE, card.findViewById<View>(R.id.progress_card_breakdown).visibility)
+        assertEquals(2, getBreakdownRowCount(card))
+
+        val capped = getBreakdownRow(card, 0)
+        assertEquals("Registration", capped.findViewById<TextView>(R.id.progress_card_bar_label).text.toString())
+        assertEquals("1 of 5", capped.findViewById<TextView>(R.id.progress_card_bar_count).text.toString())
+        assertEquals(View.VISIBLE, capped.findViewById<View>(R.id.progress_card_linear_bar).visibility)
+        assertEquals("4 left", capped.findViewById<TextView>(R.id.progress_card_bar_caption).text.toString())
+
+        val uncapped = getBreakdownRow(card, 1)
+        assertEquals("Referral", uncapped.findViewById<TextView>(R.id.progress_card_bar_label).text.toString())
+        assertEquals("3", uncapped.findViewById<TextView>(R.id.progress_card_bar_count).text.toString())
+        assertEquals(View.GONE, uncapped.findViewById<View>(R.id.progress_card_linear_bar).visibility)
+        assertEquals("No target", uncapped.findViewById<TextView>(R.id.progress_card_bar_caption).text.toString())
+    }
+
+    @Test
+    fun `breakdown shows every row and no toggle when within the collapsed count`() {
+        val card = newCard()
+        val toggle = card.findViewById<View>(R.id.progress_card_breakdown_toggle)
+
+        card.bind(State(breakdownRows = buildRows(3), collapsedBreakdownRowCount = 3))
+
+        assertEquals(3, getBreakdownRowCount(card))
+        assertEquals(View.GONE, toggle.visibility)
+    }
+
+    @Test
+    fun `breakdown collapses past the collapsed count and the toggle expands and collapses it`() {
+        val card = newCard()
+        val toggle = card.findViewById<TextView>(R.id.progress_card_breakdown_toggle)
+
+        card.bind(State(breakdownRows = buildRows(6), collapsedBreakdownRowCount = 3))
+
+        assertEquals(3, getBreakdownRowCount(card))
+        assertEquals(View.VISIBLE, toggle.visibility)
+        assertEquals("Show 3 more", toggle.text.toString())
+
+        toggle.performClick()
+        assertEquals(6, getBreakdownRowCount(card))
+        assertEquals("Show less", toggle.text.toString())
+
+        toggle.performClick()
+        assertEquals(3, getBreakdownRowCount(card))
+        assertEquals("Show 3 more", toggle.text.toString())
+    }
+
+    @Test
+    fun `an expanded breakdown stays expanded when the card is rebound`() {
+        val card = newCard()
+        val toggle = card.findViewById<TextView>(R.id.progress_card_breakdown_toggle)
+        val state = State(breakdownRows = buildRows(5), collapsedBreakdownRowCount = 3)
+
+        card.bind(state)
+        toggle.performClick()
+        card.bind(state)
+
+        assertEquals(5, getBreakdownRowCount(card))
+        assertEquals("Show less", toggle.text.toString())
+    }
+
+    @Test
+    fun `contentEnabled recolors the breakdown rows`() {
+        val card = newCard()
+        val disabled = card.context.themeColor(R.attr.connectOnSurfaceDisabled)
+        val accent = MaterialColors.getColor(card, com.google.android.material.R.attr.colorPrimary)
+        val content = State(breakdownRows = listOf(State.LinearProgress(caption = "Almost there")))
+
+        val toggle = card.findViewById<TextView>(R.id.progress_card_breakdown_toggle)
+
+        card.bind(content.copy(contentEnabled = false))
+        assertEquals(disabled, getBreakdownCaption(card).currentTextColor)
+        assertEquals(disabled, toggle.currentTextColor)
+
+        card.bind(content.copy(contentEnabled = true))
+        assertEquals(accent, getBreakdownCaption(card).currentTextColor)
+        assertEquals(accent, toggle.currentTextColor)
+    }
+
+    private fun buildRows(count: Int) = (1..count).map { State.LinearProgress(label = "Unit $it", current = 0, max = 2) }
+
+    private fun getBreakdownRowCount(card: ConnectProgressCard) = card.findViewById<ViewGroup>(R.id.progress_card_breakdown_rows).childCount
+
+    private fun getBreakdownRow(
+        card: ConnectProgressCard,
+        index: Int,
+    ) = card.findViewById<ViewGroup>(R.id.progress_card_breakdown_rows).getChildAt(index)
+
+    private fun getBreakdownCaption(card: ConnectProgressCard) =
+        getBreakdownRow(card, 0).findViewById<TextView>(R.id.progress_card_bar_caption)
 
     @Test
     fun `linear current and max drive the derived count label`() {
