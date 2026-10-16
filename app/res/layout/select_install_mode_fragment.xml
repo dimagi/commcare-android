@@ -158,7 +158,7 @@
 
                         <LinearLayout
                             android:id="@+id/btn_fetch_hub"
-                            android:layout_width="109dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/standard_spacer_large"
                             android:background="?attr/selectableItemBackground"
