@@ -642,6 +642,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Obrigatórias</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Conclua as tarefas para continuar a prestação de serviços.</string>
     <string name="connect_delivery_tasks_empty">Não há tarefas pendentes neste momento. Avisaremos quando uma nova tarefa estiver disponível.</string>
+    <string name="connect_delivery_visits_empty">Ainda não há visitas. Suas visitas concluídas aparecerão aqui.</string>
+    <string name="connect_delivery_visits_filter_empty">Nenhuma visita corresponde a este filtro.</string>
     <string name="connect_delivery_revisit_learning_title">Revisitar a formação</string>
     <string name="connect_delivery_revisit_learning_completed">Concluído em %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">O certificado ficará disponível após a próxima sincronização</string>
