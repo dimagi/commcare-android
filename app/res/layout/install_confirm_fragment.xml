@@ -28,14 +28,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="?attr/colorSurface"
-                app:cardCornerRadius="8dp"
+                app:cardCornerRadius="@dimen/connect_radius_card"
                 app:cardElevation="0dp"
-                app:contentPaddingBottom="40dp"
+                app:contentPaddingBottom="@dimen/connect_space_2xl"
                 app:contentPaddingLeft="@dimen/standard_spacer_large"
                 app:contentPaddingRight="@dimen/standard_spacer_large"
-                app:contentPaddingTop="40dp"
+                app:contentPaddingTop="@dimen/connect_space_2xl"
                 app:strokeColor="?attr/connectOutlineVariant"
-                app:strokeWidth="1dp">
+                app:strokeWidth="@dimen/connect_stroke_hairline">
 
                 <LinearLayout
                     android:id="@+id/screen_first_start_bottom"

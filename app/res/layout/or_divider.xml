@@ -7,7 +7,7 @@
 
     <View
         android:layout_width="0dp"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/connect_stroke_hairline"
         android:layout_weight="1"
         android:background="?attr/connectOutlineVariant" />
 
@@ -22,7 +22,7 @@
 
     <View
         android:layout_width="0dp"
-        android:layout_height="1dp"
+        android:layout_height="@dimen/connect_stroke_hairline"
         android:layout_weight="1"
         android:background="?attr/connectOutlineVariant" />
 </LinearLayout>
