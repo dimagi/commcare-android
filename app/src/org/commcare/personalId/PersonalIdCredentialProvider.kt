@@ -73,7 +73,12 @@ object PersonalIdCredentialProvider {
         return if (Date() < record.hqTokenExpiration) AuthInfo.TokenAuth(record.hqToken) else null
     }
 
-    private fun isSeatedAppLinkedToPersonalId(username: String): Boolean {
+    /**
+     * Whether PersonalID manages the login for the seated app — the `personalIdLinked` flag, set
+     * when the user accepts the link dialog. Not the same as being worker-linked, which is
+     * [PersonalIdAppStateEvaluator.isSeatedAppWorkerLinked].
+     */
+    private fun isSeatedAppLoginManagedByPersonalId(username: String): Boolean {
         if (!PersonalIdSessionManager.getInstance().isloggedIn()) return false
         val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
         return isPersonalIdLinkedApp(seatedAppId, username)
@@ -83,7 +88,7 @@ object PersonalIdCredentialProvider {
     @JvmStatic
     fun getHqTokenIfLinked(username: String): AuthInfo.TokenAuth? {
         val user = ConnectUserDatabaseUtil.getUser() ?: return null
-        if (!isSeatedAppLinkedToPersonalId(username)) return null
+        if (!isSeatedAppLoginManagedByPersonalId(username)) return null
         val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
         val appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(seatedAppId, username)
         return ConnectSsoSyncHelper.retrieveHqSsoTokenSync(

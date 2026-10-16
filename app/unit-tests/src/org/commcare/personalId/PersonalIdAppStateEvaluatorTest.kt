@@ -74,8 +74,8 @@ class PersonalIdAppStateEvaluatorTest {
     }
 
     @Test
-    fun `isSeatedAppConfiguredWithPersonalId is false while signed out`() {
-        assertFalse(PersonalIdAppStateEvaluator.isSeatedAppConfiguredWithPersonalId(username))
+    fun `isSeatedAppWorkerLinked is false while signed out`() {
+        assertFalse(PersonalIdAppStateEvaluator.isSeatedAppWorkerLinked(username))
     }
 
     @Test

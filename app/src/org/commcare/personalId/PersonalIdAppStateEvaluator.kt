@@ -29,9 +29,13 @@ object PersonalIdAppStateEvaluator {
         }
     }
 
-    /** Whether the seated app is linked to this PersonalID user as a worker. */
+    /**
+     * Whether the seated app is linked to this PersonalID user as a worker — the `workerLinked`
+     * flag, set by the HQ worker-link response. Not the same as PersonalID managing the login,
+     * which is [PersonalIdCredentialProvider.isPersonalIdLinkedApp].
+     */
     @JvmStatic
-    fun isSeatedAppConfiguredWithPersonalId(username: String): Boolean {
+    fun isSeatedAppWorkerLinked(username: String): Boolean {
         try {
             if (PersonalIdSessionManager.getInstance().isloggedIn()) {
                 val seatedAppId = CommCareApplication.instance().currentApp.uniqueId
