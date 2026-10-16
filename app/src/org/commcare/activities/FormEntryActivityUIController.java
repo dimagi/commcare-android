@@ -578,10 +578,19 @@ public class FormEntryActivityUIController implements CommCareActivityUIControll
         }
     }
 
+    /**
+     * Whether form navigation must not run, either because the form has not finished loading (the
+     * navigation controls are live before the FormController is delivered) or because a blocking
+     * action is in progress.
+     */
     protected boolean shouldIgnoreNavigationAction() {
-        return blockingActionsManager.isBlocked();
+        return FormEntryActivity.mFormController == null || blockingActionsManager.isBlocked();
     }
 
+    /**
+     * Whether a swipe must be ignored because a swipe animation is already running or a dialog is
+     * showing.
+     */
     protected boolean shouldIgnoreSwipeAction() {
         return isAnimatingSwipe || isDialogShowing;
     }
