@@ -264,6 +264,24 @@ class ConnectDeliveryDashboardFragmentTest {
     }
 
     @Test
+    fun `a payment unit with no visits left today shows today's count with no bar`() {
+        val perUnitTotal = ConnectLearnJobTestData.MAX_VISITS / ConnectLearnJobTestData.PAYMENT_UNIT_COUNT
+        val dashboard =
+            launch(
+                progressResponse(
+                    deliveries =
+                        deliveriesOnPastDays(unit = 1, count = perUnitTotal) +
+                            deliveriesToday(unit = 1, count = 2, startId = 100),
+                ),
+            )
+        val exhausted = getPaymentUnitRows(dashboard)[0]
+
+        assertEquals("2 completed today", exhausted.getCountText())
+        assertEquals(View.GONE, exhausted.findViewById<View>(R.id.progress_card_linear_bar).visibility)
+        assertEquals(getRemainingTodayText(0), exhausted.getCaptionText())
+    }
+
+    @Test
     fun `a job near its total limit lowers its overall daily limit to the visits it has left`() {
         val view =
             launch(

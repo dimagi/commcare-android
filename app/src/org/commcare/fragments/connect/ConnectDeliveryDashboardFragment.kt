@@ -94,13 +94,14 @@ class ConnectDeliveryDashboardFragment :
             job.maxDailyVisits
                 .takeIf { job.hasDailyLimit() }
                 ?.let { getDailyVisitLimit(it, job.maxVisits, visitsBeforeToday) }
+        val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
         val label = getString(R.string.connect_delivery_daily_visits)
         val caption = maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
 
         return ConnectProgressCard.State.LinearProgress(
             label = label,
             current = visitsDoneToday,
-            max = maxDailyVisits,
+            max = progressBarMax,
             caption = caption,
         )
     }
@@ -118,17 +119,18 @@ class ConnectDeliveryDashboardFragment :
                 paymentUnit.maxDaily
                     .takeIf { paymentUnit.hasDailyLimit() }
                     ?.let { getDailyVisitLimit(it, paymentUnit.maxTotal, visitsBeforeToday) }
+            val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
             val caption =
                 maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
                     ?: getString(R.string.connect_delivery_no_daily_visit_target)
             val countFormatRes =
-                maxDailyVisits?.let { R.plurals.connect_delivery_completed_today_of }
+                progressBarMax?.let { R.plurals.connect_delivery_completed_today_of }
                     ?: R.plurals.connect_delivery_completed_today
 
             ConnectProgressCard.State.LinearProgress(
                 label = paymentUnit.name,
                 current = visitsDoneToday,
-                max = maxDailyVisits,
+                max = progressBarMax,
                 caption = caption,
                 countFormatRes = countFormatRes,
             )
