@@ -49,4 +49,7 @@ interface HomeActivityHost : SavedStateRegistryOwner {
      * Per-action availability predicate for the action facade.
      */
     fun areAppActionsAvailable(): Boolean
+
+    /** The user session went away underneath this host, through expiration or logout. */
+    fun onSessionLost()
 }

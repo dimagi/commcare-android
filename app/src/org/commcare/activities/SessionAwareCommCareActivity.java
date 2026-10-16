@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.navdrawer.BaseDrawerActivity;
-import org.commcare.utils.SessionRegistrationHelper;
 
 /**
  * Manage redirection to login screen when session expiration occurs.
@@ -12,6 +11,8 @@ import org.commcare.utils.SessionRegistrationHelper;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class SessionAwareCommCareActivity<R> extends BaseDrawerActivity<R> implements SessionAwareInterface {
+
+    private final SessionExpirationHandler loginRedirect = new LoginRedirectingExpirationHandler(this);
 
     private boolean redirectedInOnCreate;
 
@@ -28,8 +29,8 @@ public abstract class SessionAwareCommCareActivity<R> extends BaseDrawerActivity
     @Override
     protected void onResume() {
         super.onResume();
-        SessionRegistrationHelper.registerSessionExpirationReceiver(this);
-        SessionAwareHelper.onResumeHelper(this, this, redirectedInOnCreate);
+        getSessionExpirationHandler().startListening();
+        SessionAwareHelper.onResumeHelper(this, getSessionExpirationHandler(), redirectedInOnCreate);
     }
 
     @Override
@@ -38,7 +39,8 @@ public abstract class SessionAwareCommCareActivity<R> extends BaseDrawerActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        SessionAwareHelper.onActivityResultHelper(this, this, requestCode, resultCode, intent);
+        SessionAwareHelper.onActivityResultHelper(this, this, getSessionExpirationHandler(),
+                requestCode, resultCode, intent);
     }
 
     @Override
@@ -48,6 +50,13 @@ public abstract class SessionAwareCommCareActivity<R> extends BaseDrawerActivity
     @Override
     protected void onPause() {
         super.onPause();
-        SessionRegistrationHelper.unregisterSessionExpirationReceiver(this);
+        getSessionExpirationHandler().stopListening();
+    }
+
+    /**
+     * How this activity responds to losing its session after onCreate. Defaults to redirecting to login.
+     */
+    protected SessionExpirationHandler getSessionExpirationHandler() {
+        return loginRedirect;
     }
 }

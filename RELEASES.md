@@ -31,6 +31,7 @@ This file is meant as an easy way for us to collate notes and change logs across
   - Confirm the name screen's app bar title reads "Name" and not "App Lock".
 - On every PersonalID sign-up, recovery and profile screen, including any message sheets that appear, confirm each screen has a heading and no text is oversized or clipped.
 - On the PersonalID phone number screen, tap Continue and immediately press back before the request finishes; the app should return to the previous screen without crashing.
+- Regression check on session expiration: when the session times out, whether on the home screen, in the background, or while in a form, returning to home still lands on the login screen.
 - After too many wrong email or phone OTP codes, the field clears, the message explains the OTP code can no longer be used, and Resend is offered straight away.
 - Requesting a new OTP code after that should report the remaining wait in minutes or hours, and Resend should stay hidden until it passes.
 - A single wrong OTP code still shows the usual incorrect OTP code error, and the option to proceed without email during sign-up is still reachable.
