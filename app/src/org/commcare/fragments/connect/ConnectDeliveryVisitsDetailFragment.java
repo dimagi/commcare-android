@@ -103,13 +103,15 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
         List<ConnectJobDeliveryRecord> filteredDeliveries = getFilteredDeliveries();
         adapter.updateDeliveries(filteredDeliveries);
 
-        int emptyTextVisibility = filteredDeliveries.isEmpty() ? View.VISIBLE : View.GONE;
-        getBinding().deliveryListEmpty.setVisibility(emptyTextVisibility);
-
-        int emptyTextResId = ALL_IDENTIFIER.equals(currentFilter)
-                ? R.string.connect_delivery_visits_empty
-                : R.string.connect_delivery_visits_filter_empty;
-        getBinding().deliveryListEmpty.setText(emptyTextResId);
+        if (filteredDeliveries.isEmpty()) {
+            int emptyTextResId = ALL_IDENTIFIER.equals(currentFilter)
+                    ? R.string.connect_delivery_visits_empty
+                    : R.string.connect_delivery_visits_filter_empty;
+            getBinding().deliveryListEmpty.setText(emptyTextResId);
+            getBinding().deliveryListEmpty.setVisibility(View.VISIBLE);
+        } else {
+            getBinding().deliveryListEmpty.setVisibility(View.GONE);
+        }
     }
 
     private void setupFilterControls() {
