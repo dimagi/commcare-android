@@ -200,6 +200,11 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_delivery">Isarwa</string>
     <string name="semi_circle_progress_value_format">%1$d daga %2$d</string>
     <string name="connect_progress_count_format">%1$d daga %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Nuna ƙarin %1$d</item>
+        <item quantity="other">Nuna ƙarin %1$d</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Nuna kaɗan</string>
     <string name="connect_progress_warning_ended">Aikin ya ƙare. Ba za ku sami wani ci gaba ba don ƙarin aiki.</string>
     <string name="connect_progress_warning_not_started">Aikin bai fara ba tukuna. Ba za ka sami wani ci gaba ba don aiki.</string>
     <string name="connect_progress_warning_max_reached_single">Ka kammala matsakaicin adadin ziyara. Ba za ka sami wani ci gaba ba don ƙarin aiki.</string>
@@ -476,6 +481,15 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">ziyara %1$d ta rage yau</item>
         <item quantity="other">ziyara %1$d suka rage yau</item>
+    </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Babu adadin ziyara na yau da kullun</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">An kammala %1$s daga %2$d yau</item>
+        <item quantity="other">An kammala %1$s daga %2$d yau</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">An kammala %1$s yau</item>
+        <item quantity="other">An kammala %1$s yau</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
