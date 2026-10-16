@@ -25,4 +25,6 @@ The Robolectric tests in `org.commcare.l10n` record PersonalID screens per local
 ./gradlew testCommcareDebugUnitTest --tests 'org.commcare.l10n.*' -Pl10n.locale=en,fr
 ```
 
+Each locale is an Android resource qualifier, as in the `values-<qualifier>` folder names: `fr` for a language, or `pt-rBR` for a region (not the BCP-47 form `pt-BR`).
+
 Images land in `app/build/outputs/l10n-screenshots/<locale>/` (override with `-Pl10n.outDir=<dir>`).
