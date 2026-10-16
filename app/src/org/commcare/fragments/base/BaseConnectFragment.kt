@@ -109,9 +109,11 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     /** True while the install in flight is one this screen started, rather than another screen's. */
     protected val ownsAppInstall get() = ownedAppInstallTarget != null
 
-    /** True while this screen shows the failure of an install it started, until the user dismisses it. */
-    val showsAppInstallFailure
-        get() = ownsAppInstall && installViewModel.installState.value is AppInstallState.Failed
+    /** True while an install this screen started is running or its failure is still shown. */
+    val holdsAppInstall
+        get() =
+            ownsAppInstall &&
+                (installViewModel.isInstalling || installViewModel.installState.value is AppInstallState.Failed)
 
     private val verificationLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

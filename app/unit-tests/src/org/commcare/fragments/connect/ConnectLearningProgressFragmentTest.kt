@@ -367,7 +367,7 @@ class ConnectLearningProgressFragmentTest {
         val otherJobScreen = launch(otherJob)
 
         assertNotSame(firstJobScreen, otherJobScreen)
-        assertFalse(otherJobScreen.showsAppInstallFailure)
+        assertFalse(otherJobScreen.holdsAppInstall)
         assertNotEquals(View.VISIBLE, learnCompleteFailureCard(otherJobScreen).visibility)
     }
 

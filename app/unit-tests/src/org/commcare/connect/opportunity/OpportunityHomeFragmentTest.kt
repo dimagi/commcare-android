@@ -20,6 +20,7 @@ import org.commcare.connect.ConnectAppLauncher
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
+import org.commcare.connect.viewmodel.AppInstallTarget
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
 import org.commcare.fragments.connect.BaseConnectJobIntroTest
@@ -296,6 +297,16 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         ShadowLooper.idleMainLooper()
 
         assertEquals(AppInstallState.Idle, installViewModel().installState.value)
+    }
+
+    @Test
+    fun `an install another screen started does not keep the page from showing a surface`() {
+        installViewModel().launch(AppInstallTarget("other-app", true, "other-screen"))
+        job.status = ConnectJobRecord.STATUS_LEARNING
+
+        openPage()
+
+        navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
     }
 
     /** The learn app is already on the device, and its launch never reports an outcome, so it stays in flight. */

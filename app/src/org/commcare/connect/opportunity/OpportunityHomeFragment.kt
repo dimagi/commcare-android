@@ -5,12 +5,10 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.base.BaseConnectFragment
@@ -26,13 +24,6 @@ class OpportunityHomeFragment :
     OpportunityNavigator,
     RefreshableFragment {
     private val stateController by lazy { OpportunityHomeStateController(this) }
-
-    private val installViewModel: ConnectAppInstallViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-        )[ConnectAppInstallViewModel::class.java]
-    }
 
     private val job: ConnectJobRecord
         get() =
@@ -63,9 +54,8 @@ class OpportunityHomeFragment :
     override fun phase(): OpportunityPhase = OpportunityPhase.of(job)
 
     override fun holdsSurface(): Boolean =
-        installViewModel.isInstalling ||
-            (childFragmentManager.findFragmentById(R.id.opportunity_home_container) as? BaseConnectFragment<*>)
-                ?.showsAppInstallFailure == true
+        (childFragmentManager.findFragmentById(R.id.opportunity_home_container) as? BaseConnectFragment<*>)
+            ?.holdsAppInstall == true
 
     override fun showState(state: OpportunityHomeState) {
         if (childFragmentManager.findFragmentByTag(state.name) != null) {
