@@ -576,6 +576,11 @@
     <string name="connect_progress_delivery">Delivery</string>
     <string name="semi_circle_progress_value_format" cc:translatable="true">%1$d of %2$d</string>
     <string name="connect_progress_count_format" cc:translatable="true">%1$d of %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Show %1$d more</item>
+        <item quantity="other">Show %1$d more</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Show less</string>
 
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
@@ -790,6 +795,15 @@
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visit remaining today</item>
         <item quantity="other">%1$d visits remaining today</item>
+    </plurals>
+    <string name="connect_delivery_no_daily_visit_target">No daily visit target</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s of %2$d completed today</item>
+        <item quantity="other">%1$s of %2$d completed today</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s completed today</item>
+        <item quantity="other">%1$s completed today</item>
     </plurals>
     <string name="connect_visit_type_title">%s Visits</string>
 

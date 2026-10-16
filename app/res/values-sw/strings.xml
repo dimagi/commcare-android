@@ -363,6 +363,11 @@
     <string name="connect_progress_delivery">Uwasilishaji</string>
     <string name="semi_circle_progress_value_format">%1$d kati ya %2$d</string>
     <string name="connect_progress_count_format">%1$d kati ya %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Onyesha %1$d zaidi</item>
+        <item quantity="other">Onyesha %1$d zaidi</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Onyesha kidogo</string>
     <string name="connect_progress_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_progress_warning_not_started">Kazi bado haijaanza. Hutapata maendeleo yoyote kwa kazi.</string>
     <string name="connect_progress_warning_max_reached_single">Umekamilisha idadi ya juu zaidi ya kutembelea. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
@@ -648,6 +653,15 @@
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">ziara %1$d imesalia leo</item>
         <item quantity="other">ziara %1$d zimesalia leo</item>
+    </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Hakuna lengo la ziara za kila siku</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s kati ya %2$d imekamilika leo</item>
+        <item quantity="other">%1$s kati ya %2$d zimekamilika leo</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s imekamilika leo</item>
+        <item quantity="other">%1$s zimekamilika leo</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_get_started_title">Anza kutumia CommCare</string>

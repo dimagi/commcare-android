@@ -361,6 +361,11 @@ License.
     <string name="connect_progress_delivery">वितरण</string>
     <string name="semi_circle_progress_value_format">%2$d में से %1$d</string>
     <string name="connect_progress_count_format">%2$d में से %1$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">%1$d और दिखाएँ</item>
+        <item quantity="other">%1$d और दिखाएँ</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">कम दिखाएँ</string>
     <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_progress_warning_not_started">नौकरी अभी शुरू नहीं हुई है। आपको कोई प्रगति नहीं मिलेगी।</string>
     <string name="connect_progress_warning_max_reached_single">आपने अधिकतम विज़िट पूरी कर ली हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>
@@ -640,6 +645,15 @@ License.
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">आज %1$d विज़िट शेष</item>
         <item quantity="other">आज %1$d विज़िट शेष</item>
+    </plurals>
+    <string name="connect_delivery_no_daily_visit_target">कोई दैनिक विज़िट लक्ष्य नहीं</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">आज %2$d में से %1$s पूरी हुई</item>
+        <item quantity="other">आज %2$d में से %1$s पूरी हुईं</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">आज %1$s पूरी हुई</item>
+        <item quantity="other">आज %1$s पूरी हुईं</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
     <string name="install_get_started_title">CommCare के साथ शुरू करें</string>
