@@ -80,6 +80,8 @@ public class IdentityCalloutHandler {
 
             // Empty out the registraion guid since no new registration has been performed
             storeValueFromCalloutInForm(formDef, responseToRefMap, intentQuestionRef, REF_GUID, "");
+
+            IntentCallout.setNodeValue(formDef, intentQuestionRef, getStrengthText(bestMatch.getMatchResult().getStrength()));
             return true;
         }
         return false;
