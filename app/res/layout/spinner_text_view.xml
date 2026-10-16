@@ -7,5 +7,5 @@
           android:lineSpacingExtra="4sp"
           android:maxLines="1"
           android:textAlignment="viewStart"
-          android:textColor="@color/deep_indigo"
+          android:textColor="?attr/connectOnSurfaceBrand"
           android:textSize="@dimen/text_small" />

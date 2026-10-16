@@ -21,10 +21,10 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.textfield.TextInputLayout;
 
 import org.commcare.CommCareApplication;
@@ -452,13 +452,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         int iconColor;
 
         if (hasError) {
-            strokeColor = ContextCompat.getColor(activity, R.color.red_600);
+            strokeColor = MaterialColors.getColor(usernameInputLayout, R.attr.connectStatusNegative);
             labelColor = strokeColor;
             iconColor = strokeColor;
         } else {
-            strokeColor = ContextCompat.getColor(activity, R.color.cornflower_blue);
-            labelColor = ContextCompat.getColor(activity, R.color.slate_gray);
-            iconColor = ContextCompat.getColor(activity, R.color.neon_blue);
+            strokeColor = MaterialColors.getColor(usernameInputLayout, R.attr.connectOutlineBrand);
+            labelColor = MaterialColors.getColor(usernameInputLayout, R.attr.connectOnSurfaceSecondary);
+            iconColor = MaterialColors.getColor(
+                    usernameInputLayout, com.google.android.material.R.attr.colorPrimary
+            );
         }
 
         final ColorStateList iconColors = ColorStateList.valueOf(iconColor);
@@ -586,11 +588,15 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         PersonalIdManager.ConnectAppMangement appState = activity.getConnectAppState();
         if (appState == Unmanaged) {
             loginButton.setText(Localization.get("login.button"));
-            passwordInputLayout.setBoxBackgroundColor(ContextCompat.getColor(activity, R.color.white));
+            passwordInputLayout.setBoxBackgroundColor(
+                    MaterialColors.getColor(passwordInputLayout, com.google.android.material.R.attr.colorSurface)
+            );
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         } else {
             loginButton.setText(activity.getString(R.string.personalid_login_with));
-            passwordInputLayout.setBoxBackgroundColor(ContextCompat.getColor(activity, R.color.grey_light));
+            passwordInputLayout.setBoxBackgroundColor(
+                    MaterialColors.getColor(passwordInputLayout, R.attr.connectDisabledContainer)
+            );
             passwordOrPin.setText(R.string.personalid_login_via);
             passwordOrPin.clearFocus();
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);

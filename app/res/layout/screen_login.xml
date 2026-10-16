@@ -12,7 +12,7 @@
             android:id="@+id/nav_drawer_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/cool_gray_50">
+            android:background="?attr/connectSurfaceContainerLow">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="fill_parent"
@@ -91,10 +91,10 @@
                                 android:stateListAnimator="@null"
                                 android:text="@string/connect_button_logged_in"
                                 android:textAllCaps="false"
-                                android:textColor="@color/white"
+                                android:textColor="?attr/colorOnPrimary"
                                 android:textSize="@dimen/text_small"
                                 android:visibility="gone"
-                                app:backgroundTint="@color/neon_blue"
+                                app:backgroundTint="?attr/colorPrimary"
                                 app:cornerRadius="4dp"
                                 app:elevation="0dp" />
 
@@ -112,7 +112,7 @@
                                     android:layout_width="0dp"
                                     android:layout_height="1dp"
                                     android:layout_weight="1"
-                                    android:background="@color/mist_gray" />
+                                    android:background="?attr/connectOutlineVariant" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -120,14 +120,14 @@
                                     android:layout_marginEnd="@dimen/standard_spacer_double"
                                     android:layout_marginStart="@dimen/standard_spacer_double"
                                     android:text="@string/login_choice_or"
-                                    android:textColor="@color/slate_gray"
+                                    android:textColor="?attr/connectOnSurfaceSecondary"
                                     android:textSize="@dimen/text_caption" />
 
                                 <View
                                     android:layout_width="0dp"
                                     android:layout_height="1dp"
                                     android:layout_weight="1"
-                                    android:background="@color/mist_gray" />
+                                    android:background="?attr/connectOutlineVariant" />
                             </LinearLayout>
 
                             <Spinner
@@ -148,7 +148,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:text="@string/personalid_login_via_connect"
-                                android:textColor="@color/cool_gray_900"
+                                android:textColor="?attr/connectOnSurfaceEmphasis"
                                 android:textSize="@dimen/text_small"
                                 android:visibility="gone" />
 
@@ -175,15 +175,15 @@
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:textColorHint="@color/slate_gray"
-                                    app:boxBackgroundColor="@color/white"
+                                    android:textColorHint="?attr/connectOnSurfaceSecondary"
+                                    app:boxBackgroundColor="?attr/colorSurface"
                                     app:boxCornerRadiusBottomEnd="4dp"
                                     app:boxCornerRadiusBottomStart="4dp"
                                     app:boxCornerRadiusTopEnd="4dp"
                                     app:boxCornerRadiusTopStart="4dp"
                                     app:boxStrokeWidth="1dp"
                                     app:boxStrokeWidthFocused="2dp"
-                                    app:hintTextColor="@color/slate_gray">
+                                    app:hintTextColor="?attr/connectOnSurfaceSecondary">
 
                                     <com.google.android.material.textfield.MaterialAutoCompleteTextView
                                         android:id="@+id/edit_username"
@@ -197,7 +197,7 @@
                                         android:paddingStart="@dimen/standard_spacer_double"
                                         android:paddingTop="14dp"
                                         android:textAlignment="viewStart"
-                                        android:textColor="@color/black"
+                                        android:textColor="?attr/connectOnSurfaceEmphasis"
                                         android:textSize="@dimen/text_small" />
                                 </com.google.android.material.textfield.TextInputLayout>
                             </LinearLayout>
@@ -231,15 +231,15 @@
                                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:textColorHint="@color/slate_gray"
-                                        app:boxBackgroundColor="@color/white"
+                                        android:textColorHint="?attr/connectOnSurfaceSecondary"
+                                        app:boxBackgroundColor="?attr/colorSurface"
                                         app:boxCornerRadiusBottomEnd="4dp"
                                         app:boxCornerRadiusBottomStart="4dp"
                                         app:boxCornerRadiusTopEnd="4dp"
                                         app:boxCornerRadiusTopStart="4dp"
                                         app:boxStrokeWidth="1dp"
                                         app:boxStrokeWidthFocused="2dp"
-                                        app:hintTextColor="@color/slate_gray">
+                                        app:hintTextColor="?attr/connectOnSurfaceSecondary">
 
                                         <com.google.android.material.textfield.TextInputEditText
                                             android:id="@+id/edit_password"
@@ -253,7 +253,7 @@
                                             android:paddingStart="@dimen/standard_spacer_double"
                                             android:paddingTop="14dp"
                                             android:textAlignment="viewStart"
-                                            android:textColor="@color/black"
+                                            android:textColor="?attr/connectOnSurfaceEmphasis"
                                             android:textSize="@dimen/text_small" />
                                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -268,7 +268,7 @@
                                         android:paddingEnd="@dimen/standard_spacer_double"
                                         android:paddingStart="@dimen/standard_spacer_double"
                                         android:textAllCaps="false"
-                                        android:textColor="@color/neon_blue"
+                                        android:textColor="?attr/colorPrimary"
                                         android:textSize="@dimen/text_small"
                                         android:visibility="invisible" />
                                 </FrameLayout>
@@ -288,7 +288,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/standard_spacer_double"
-                                android:textColor="@color/cool_gray_900"
+                                android:textColor="?attr/connectOnSurfaceEmphasis"
                                 android:textSize="@dimen/text_small"
                                 android:visibility="gone" />
 
@@ -303,9 +303,9 @@
                                 android:nextFocusUp="@+id/edit_password"
                                 android:stateListAnimator="@null"
                                 android:textAllCaps="false"
-                                android:textColor="@color/white"
+                                android:textColor="?attr/colorOnPrimary"
                                 android:textSize="@dimen/text_small"
-                                app:backgroundTint="@color/neon_blue"
+                                app:backgroundTint="?attr/colorPrimary"
                                 app:cornerRadius="4dp"
                                 app:elevation="0dp" />
 
@@ -323,7 +323,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:gravity="center"
-                                    android:textColor="@color/red_600"
+                                    android:textColor="?attr/connectStatusNegative"
                                     android:textSize="@dimen/text_small" />
 
                                 <FrameLayout

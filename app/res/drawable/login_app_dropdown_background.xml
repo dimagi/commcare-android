@@ -3,10 +3,10 @@
     <item>
         <shape android:shape="rectangle">
             <corners android:radius="8dp" />
-            <solid android:color="@color/ghost_white" />
+            <solid android:color="?attr/connectSurfaceContainerLow" />
             <stroke
                 android:width="1dp"
-                android:color="@color/mist_gray" />
+                android:color="?attr/connectOutlineVariant" />
         </shape>
     </item>
     <item
