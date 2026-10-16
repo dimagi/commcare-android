@@ -89,7 +89,11 @@ class ConnectDeliveryDashboardFragment :
 
     private fun getJobDailyProgress(): ConnectProgressCard.State.LinearProgress {
         val visitsDoneToday = job.numberOfDeliveriesToday()
-        val maxDailyVisits = job.maxDailyVisits.takeIf { job.hasDailyLimit() }
+        val visitsBeforeToday = job.deliveries.size - visitsDoneToday
+        val maxDailyVisits =
+            job.maxDailyVisits
+                .takeIf { job.hasDailyLimit() }
+                ?.let { getDailyVisitLimit(it, job.maxVisits, visitsBeforeToday) }
         val label = getString(R.string.connect_delivery_daily_visits)
         val caption = maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
 
@@ -105,10 +109,15 @@ class ConnectDeliveryDashboardFragment :
         if (!job.isMultiPayment) return emptyList()
 
         val visitsTodayPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(true)
+        val visitsPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(false)
 
         return job.paymentUnits.map { paymentUnit ->
             val visitsDoneToday = visitsTodayPerPaymentUnit[paymentUnit.unitUUID] ?: 0
-            val maxDailyVisits = paymentUnit.maxDaily.takeIf { paymentUnit.hasDailyLimit() }
+            val visitsBeforeToday = (visitsPerPaymentUnit[paymentUnit.unitUUID] ?: 0) - visitsDoneToday
+            val maxDailyVisits =
+                paymentUnit.maxDaily
+                    .takeIf { paymentUnit.hasDailyLimit() }
+                    ?.let { getDailyVisitLimit(it, paymentUnit.maxTotal, visitsBeforeToday) }
             val caption =
                 maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
                     ?: getString(R.string.connect_delivery_no_daily_visit_target)
@@ -125,6 +134,12 @@ class ConnectDeliveryDashboardFragment :
             )
         }
     }
+
+    private fun getDailyVisitLimit(
+        maxDailyVisits: Int,
+        maxTotalVisits: Int,
+        visitsBeforeToday: Int,
+    ): Int = minOf(maxDailyVisits, (maxTotalVisits - visitsBeforeToday).coerceAtLeast(0))
 
     private fun getVisitsRemainingTodayText(
         maxDailyVisits: Int,

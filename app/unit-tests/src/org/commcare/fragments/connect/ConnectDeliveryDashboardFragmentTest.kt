@@ -255,6 +255,31 @@ class ConnectDeliveryDashboardFragmentTest {
     }
 
     @Test
+    fun `a payment unit near its total limit lowers its daily limit to the visits it has left`() {
+        val dashboard = launch(progressResponse(deliveries = deliveriesOnPastDays(unit = 1, count = 17)))
+        val nearTotal = getPaymentUnitRows(dashboard)[0]
+
+        assertEquals("0 of 3 completed today", nearTotal.getCountText())
+        assertEquals(getRemainingTodayText(3), nearTotal.getCaptionText())
+    }
+
+    @Test
+    fun `a job near its total limit lowers its overall daily limit to the visits it has left`() {
+        val view =
+            launch(
+                progressResponse(
+                    deliveries =
+                        deliveriesOnPastDays(unit = 1, count = 18) +
+                            deliveriesOnPastDays(unit = 2, count = 18, startId = 100),
+                ),
+            ).requireView()
+        val overallBar = view.findViewById<View>(R.id.progress_card_overall_bar)
+
+        assertEquals("0 of 4", overallBar.getCountText())
+        assertEquals(getRemainingTodayText(4), overallBar.getCaptionText())
+    }
+
+    @Test
     fun `a single payment unit shows no breakdown below the overall daily visits row`() {
         job = seedDeliveryJob(paymentUnitMaxDailies = listOf(ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY))
         val view = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 1))).requireView()
