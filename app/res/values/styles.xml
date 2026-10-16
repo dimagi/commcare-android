@@ -506,7 +506,7 @@
         <item name="android:textColor">@color/filled_button_text</item>
         <item name="android:textSize">@dimen/text_small</item>
         <item name="backgroundTint">@color/filled_button_background</item>
-        <item name="cornerRadius">4dp</item>
+        <item name="cornerRadius">@dimen/connect_radius_xs</item>
         <item name="elevation">0dp</item>
     </style>
 
@@ -519,9 +519,9 @@
         <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:textSize">@dimen/text_small</item>
         <item name="backgroundTint">?attr/colorSurface</item>
-        <item name="cornerRadius">4dp</item>
+        <item name="cornerRadius">@dimen/connect_radius_xs</item>
         <item name="strokeColor">?attr/colorPrimary</item>
-        <item name="strokeWidth">1dp</item>
+        <item name="strokeWidth">@dimen/connect_stroke_hairline</item>
     </style>
 
 </resources>
