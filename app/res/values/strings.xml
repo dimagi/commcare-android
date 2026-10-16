@@ -115,6 +115,7 @@
     <string name="install_bad_ref">You did not scan a valid URL. Please try again.</string>
     <string name="install_bad_login">Login to Existing App</string>
     <string name="install_appprofile">Enter your app code</string>
+    <string name="install_code_hint">Enter code here</string>
     <string name="install_perms_rationale_message">CommCare requires at least external storage read &amp; write permissions in order to store form submissions.</string>
     <string name="install_perms_denied_message">Crucial permissions denied %1$s times.\n\n If requesting permissions here fails, please enable permissions under Android\'s settings.</string>
     <string name="install_choose_local_app">Available Apps</string>

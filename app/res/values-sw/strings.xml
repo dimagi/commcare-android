@@ -667,6 +667,7 @@
     <string name="install_bad_ref">Hukuwa umeskani URL halali. Tafadhali jaribu tena.</string>
     <string name="install_bad_login">Ingia katika Programu Iliyopo</string>
     <string name="install_appprofile">Ingiza msimbo wa programu yako</string>
+    <string name="install_code_hint">Ingiza msimbo hapa</string>
     <string name="install_perms_rationale_message">CommCare inahitaji angalau ruhusa za kusoma na kuandika kwenye hifadhi ya nje ili kuhifadhi mawasilisho ya fomu.</string>
     <string name="install_perms_denied_message">Ruhusa muhimu zimekataliwa mara %1$s.\n\n Ikiwa kuomba ruhusa hapa kunashindikana, tafadhali wezesha ruhusa chini ya mipangilio ya Android.</string>
     <string name="install_choose_local_app">Programu Zinazopatikana</string>

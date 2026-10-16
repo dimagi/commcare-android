@@ -659,6 +659,7 @@ License.
     <string name="install_bad_ref">आपने एक मान्य URL स्कैन नहीं किया। कृपया पुनः प्रयास करें।</string>
     <string name="install_bad_login">मौजूदा ऐप में लॉगिन करें</string>
     <string name="install_appprofile">अपना ऐप कोड दर्ज करें</string>
+    <string name="install_code_hint">यहाँ कोड दर्ज करें</string>
     <string name="install_perms_rationale_message">CommCare को फॉर्म सबमिशन संग्रहीत करने के लिए कम से कम बाहरी संग्रहण पढ़ने और लिखने की अनुमतियों की आवश्यकता है।</string>
     <string name="install_perms_denied_message">महत्वपूर्ण अनुमतियाँ %1$s बार अस्वीकृत हुईं।\n\n यदि यहाँ अनुमतियाँ माँगने में विफल हो, तो कृपया Android की सेटिंग्स के अंतर्गत अनुमतियाँ सक्षम करें।</string>
     <string name="install_choose_local_app">उपलब्ध ऐप्स</string>

@@ -663,6 +663,7 @@
     <string name="install_bad_ref">No escaneó una URL válida. Por favor, inténtelo de nuevo.</string>
     <string name="install_bad_login">Iniciar Sesión en Aplicación Existente</string>
     <string name="install_appprofile">Ingrese su código de aplicación</string>
+    <string name="install_code_hint">Ingrese el código aquí</string>
     <string name="install_perms_rationale_message">CommCare requiere al menos permisos de lectura y escritura en almacenamiento externo para guardar los envíos de formularios.</string>
     <string name="install_perms_denied_message">Permisos cruciales denegados %1$s veces.\n\n Si solicitar permisos aquí falla, por favor habilite los permisos en la configuración de Android.</string>
     <string name="install_choose_local_app">Aplicaciones Disponibles</string>

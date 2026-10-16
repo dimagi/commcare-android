@@ -662,6 +662,7 @@ License.
     <string name="install_bad_ref">Vous n\'avez pas scanné une URL valide. Veuillez réessayer.</string>
     <string name="install_bad_login">Se connecter à une application existante</string>
     <string name="install_appprofile">Saisissez votre code d\'application</string>
+    <string name="install_code_hint">Saisissez le code ici</string>
     <string name="install_perms_rationale_message">CommCare nécessite au moins les autorisations de lecture et d\'écriture sur le stockage externe pour enregistrer les soumissions de formulaires.</string>
     <string name="install_perms_denied_message">Autorisations cruciales refusées %1$s fois.\n\n Si la demande d\'autorisations échoue ici, veuillez activer les autorisations dans les paramètres d\'Android.</string>
     <string name="install_choose_local_app">Applications disponibles</string>
