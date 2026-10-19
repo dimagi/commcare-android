@@ -28,7 +28,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -178,13 +178,13 @@ class ConnectDeliveryDashboardFragmentTest {
             view.findViewById<TextView>(R.id.progress_card_bar_label).text.toString(),
         )
         assertEquals(
-            "2 of ${ConnectLearnJobTestData.MAX_DAILY_VISITS}",
+            "2 of ${ConnectJobTestData.MAX_DAILY_VISITS}",
             view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString(),
         )
 
         val semiCircle = view.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle)
         assertEquals(2, semiCircle.current)
-        assertEquals(ConnectLearnJobTestData.MAX_VISITS, semiCircle.max)
+        assertEquals(ConnectJobTestData.MAX_VISITS, semiCircle.max)
         assertEquals(
             activity.getString(R.string.connect_delivery_total_visits_completed),
             semiCircle.descriptionText.toString(),
@@ -221,9 +221,9 @@ class ConnectDeliveryDashboardFragmentTest {
     @Test
     fun `each payment unit shows its own daily progress`() {
         val dashboard = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 2)))
-        val max = ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY
+        val max = ConnectJobTestData.PAYMENT_UNIT_MAX_DAILY
 
-        assertEquals(ConnectLearnJobTestData.PAYMENT_UNIT_COUNT, getPaymentUnitRows(dashboard).size)
+        assertEquals(ConnectJobTestData.PAYMENT_UNIT_COUNT, getPaymentUnitRows(dashboard).size)
 
         val first = getPaymentUnitRows(dashboard)[0]
         assertEquals("Unit 1", first.getLabelText())
@@ -239,7 +239,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
     @Test
     fun `a payment unit without a daily limit shows only today's count`() {
-        job = seedDeliveryJob(paymentUnitMaxDailies = listOf(ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY, null))
+        job = seedDeliveryJob(paymentUnitMaxDailies = listOf(ConnectJobTestData.PAYMENT_UNIT_MAX_DAILY, null))
         val dashboard =
             launch(
                 progressResponse(
@@ -270,7 +270,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
     @Test
     fun `a payment unit with no visits left today shows today's count with no bar`() {
-        val perUnitTotal = ConnectLearnJobTestData.MAX_VISITS / ConnectLearnJobTestData.PAYMENT_UNIT_COUNT
+        val perUnitTotal = ConnectJobTestData.MAX_VISITS / ConnectJobTestData.PAYMENT_UNIT_COUNT
         val dashboard =
             launch(
                 progressResponse(
@@ -304,7 +304,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
     @Test
     fun `a single payment unit shows no breakdown below the overall daily visits row`() {
-        job = seedDeliveryJob(paymentUnitMaxDailies = listOf(ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY))
+        job = seedDeliveryJob(paymentUnitMaxDailies = listOf(ConnectJobTestData.PAYMENT_UNIT_MAX_DAILY))
         val view = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 1))).requireView()
 
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.progress_card_overall_bar).visibility)
@@ -360,7 +360,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
         assertEquals("The tap asks for delivery progress", requestsBefore + 1, deliveryProgressRequests)
         assertEquals(
-            "3 of ${ConnectLearnJobTestData.MAX_DAILY_VISITS}",
+            "3 of ${ConnectJobTestData.MAX_DAILY_VISITS}",
             view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString(),
         )
         assertEquals(3, view.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle).current)
@@ -371,7 +371,7 @@ class ConnectDeliveryDashboardFragmentTest {
         val dashboard = launch(progressResponse(deliveries = deliveriesToday(unit = 1, count = 2)))
         val cards = halfCards(dashboard)
 
-        assertEquals(ConnectLearnJobTestData.PAYMENT_UNIT_COUNT + 1, cards.size)
+        assertEquals(ConnectJobTestData.PAYMENT_UNIT_COUNT + 1, cards.size)
         assertEquals(
             activity.getString(R.string.connect_delivery_total_earnings),
             cards[0].titleText.toString(),
@@ -466,7 +466,7 @@ class ConnectDeliveryDashboardFragmentTest {
         val dashboard =
             launch(
                 progressResponse(
-                    deliveries = deliveriesToday(unit = 1, count = ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY),
+                    deliveries = deliveriesToday(unit = 1, count = ConnectJobTestData.PAYMENT_UNIT_MAX_DAILY),
                 ),
             )
         val view = dashboard.requireView()
@@ -489,7 +489,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
     @Test
     fun `a unit out of visits for good grays only that unit's card`() {
-        val perUnitTotal = ConnectLearnJobTestData.MAX_VISITS / ConnectLearnJobTestData.PAYMENT_UNIT_COUNT
+        val perUnitTotal = ConnectJobTestData.MAX_VISITS / ConnectJobTestData.PAYMENT_UNIT_COUNT
         val dashboard =
             launch(progressResponse(deliveries = deliveriesOnPastDays(unit = 1, count = perUnitTotal)))
         val cards = halfCards(dashboard)
@@ -501,7 +501,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
     @Test
     fun `every unit at its daily limit grays the figures`() {
-        val perUnit = ConnectLearnJobTestData.PAYMENT_UNIT_MAX_DAILY
+        val perUnit = ConnectJobTestData.PAYMENT_UNIT_MAX_DAILY
         val dashboard =
             launch(
                 progressResponse(
@@ -588,7 +588,7 @@ class ConnectDeliveryDashboardFragmentTest {
      * after the database write — then drains the main looper so the resulting UI update lands.
      */
     private fun awaitDeliverySync() {
-        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
+        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectJobTestData.JOB_UUID
         val prefs = ConnectSyncPreferences.getInstance()
         idleUntil("Delivery progress was never synced") { prefs.getLastSyncTime(syncKey) != null }
     }
@@ -704,17 +704,17 @@ class ConnectDeliveryDashboardFragmentTest {
      * dashboard both see the same record production would.
      */
     private fun seedDeliveryJob(
-        maxDailyVisits: Int = ConnectLearnJobTestData.MAX_DAILY_VISITS,
+        maxDailyVisits: Int = ConnectJobTestData.MAX_DAILY_VISITS,
         paymentUnitMaxDailies: List<Int?>? = null,
     ): ConnectJobRecord {
         val seeded =
-            ConnectLearnJobTestData.job().apply {
+            ConnectJobTestData.job().apply {
                 status = ConnectJobRecord.STATUS_DELIVERING
                 setMaxDailyVisits(maxDailyVisits)
                 paymentUnitMaxDailies?.let { paymentUnits = buildPaymentUnits(this, it) }
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
-        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+        return ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
     }
 
     private fun buildPaymentUnits(
@@ -728,7 +728,7 @@ class ConnectDeliveryDashboardFragmentTest {
                     put("id", id)
                     put("payment_unit_id", "unit-$id")
                     put("name", "Unit $id")
-                    put("max_total", ConnectLearnJobTestData.MAX_VISITS / maxDailies.size)
+                    put("max_total", ConnectJobTestData.MAX_VISITS / maxDailies.size)
                     maxDaily?.let { put("max_daily", it) }
                     put("amount", 25)
                 },

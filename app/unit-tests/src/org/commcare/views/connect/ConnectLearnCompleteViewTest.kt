@@ -15,7 +15,7 @@ import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.dalvik.R
 import org.junit.After
@@ -59,7 +59,7 @@ class ConnectLearnCompleteViewTest {
     }
 
     private fun bind(
-        job: ConnectJobRecord = ConnectLearnJobTestData.job(),
+        job: ConnectJobRecord = ConnectJobTestData.job(),
         onCta: () -> Unit = {},
     ): ConnectLearnCompleteView =
         ConnectLearnCompleteView(context).also { view ->
@@ -89,12 +89,12 @@ class ConnectLearnCompleteViewTest {
     fun `certificate shows the job title, learner name and passing score`() {
         val view = bind()
 
-        assertEquals(ConnectLearnJobTestData.JOB_TITLE, view.text(R.id.cert_subject_text))
+        assertEquals(ConnectJobTestData.JOB_TITLE, view.text(R.id.cert_subject_text))
         assertEquals(learnerName, view.text(R.id.cert_person_text))
         assertEquals(
             context.getString(
                 R.string.connect_learn_cert_score,
-                (ConnectLearnJobTestData.PASSING_SCORE + 10).toString(),
+                (ConnectJobTestData.PASSING_SCORE + 10).toString(),
             ),
             view.text(R.id.cert_score_text),
         )
@@ -103,21 +103,21 @@ class ConnectLearnCompleteViewTest {
 
     @Test
     fun `certificate score is hidden when no assessment was attempted`() {
-        val view = bind(ConnectLearnJobTestData.job(assessmentScore = null))
+        val view = bind(ConnectJobTestData.job(assessmentScore = null))
 
         assertEquals(View.GONE, view.findViewById<View>(R.id.cert_score_text).visibility)
     }
 
     @Test
     fun `delivery cards show visits, days remaining and maximum earnings`() {
-        val job = ConnectLearnJobTestData.job()
+        val job = ConnectJobTestData.job()
         val view = bind(job)
 
         assertEquals(job.maxPossibleVisits.toString(), view.card(R.id.card_total_visits).valueText)
         assertEquals(
             context.getString(
                 R.string.connect_opportunity_visits_per_day,
-                ConnectLearnJobTestData.MAX_DAILY_VISITS,
+                ConnectJobTestData.MAX_DAILY_VISITS,
             ),
             view.card(R.id.card_total_visits).subtitleText,
         )
@@ -129,8 +129,8 @@ class ConnectLearnCompleteViewTest {
         assertEquals(
             context.resources.getQuantityString(
                 R.plurals.connect_opportunity_payment_units,
-                ConnectLearnJobTestData.PAYMENT_UNIT_COUNT,
-                ConnectLearnJobTestData.PAYMENT_UNIT_COUNT,
+                ConnectJobTestData.PAYMENT_UNIT_COUNT,
+                ConnectJobTestData.PAYMENT_UNIT_COUNT,
             ),
             view.card(R.id.card_max_earnings).subtitleText,
         )
@@ -138,7 +138,7 @@ class ConnectLearnCompleteViewTest {
 
     @Test
     fun `the visits card drops the per-day subtitle when the job has no daily limit`() {
-        val job = ConnectLearnJobTestData.job().apply { setMaxDailyVisits(ConnectJobRecord.NO_DAILY_LIMIT) }
+        val job = ConnectJobTestData.job().apply { setMaxDailyVisits(ConnectJobRecord.NO_DAILY_LIMIT) }
         val view = bind(job)
 
         assertEquals(job.maxPossibleVisits.toString(), view.card(R.id.card_total_visits).valueText)
@@ -165,7 +165,7 @@ class ConnectLearnCompleteViewTest {
 
     @Test
     fun `cta offers go to app and hides the subtitle when the delivery app is installed`() {
-        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
+        every { AppUtils.isAppInstalled(ConnectJobTestData.DELIVERY_APP_ID) } returns true
         val view = bind()
 
         assertEquals(
@@ -177,7 +177,7 @@ class ConnectLearnCompleteViewTest {
 
     @Test
     fun `ended job shows the warning banner and an active job does not`() {
-        val ended = bind(ConnectLearnJobTestData.job(endDate = "2020-01-01"))
+        val ended = bind(ConnectJobTestData.job(endDate = "2020-01-01"))
         assertEquals(
             context.getString(R.string.connect_learn_warning_ended),
             ended.text(R.id.cta_info_banner),

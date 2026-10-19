@@ -24,7 +24,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.util.ReflectionUtils
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -72,7 +72,7 @@ class ConnectDeliveryVisitsFragmentTest {
     private val appContext get() = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
 
     /** Each unit's own cap, so a unit can be exhausted without ending the job. */
-    private val perUnitTotal = ConnectLearnJobTestData.MAX_VISITS / ConnectLearnJobTestData.PAYMENT_UNIT_COUNT
+    private val perUnitTotal = ConnectJobTestData.MAX_VISITS / ConnectJobTestData.PAYMENT_UNIT_COUNT
 
     @Before
     fun setUp() {
@@ -129,7 +129,7 @@ class ConnectDeliveryVisitsFragmentTest {
                 launchVisitsTab(deliveryProgressJson(deliveries = approvedDeliveriesFor(unit = 1, count = 2))),
             )
 
-        assertEquals(ConnectLearnJobTestData.PAYMENT_UNIT_COUNT, cards.size)
+        assertEquals(ConnectJobTestData.PAYMENT_UNIT_COUNT, cards.size)
         assertEquals("Unit 1", cards[0].title())
         assertEquals("Unit 2", cards[1].title())
     }
@@ -142,7 +142,7 @@ class ConnectDeliveryVisitsFragmentTest {
             )[0]
 
         assertEquals("2", card.approved())
-        assertEquals("50 ${ConnectLearnJobTestData.CURRENCY}", card.amount())
+        assertEquals("50 ${ConnectJobTestData.CURRENCY}", card.amount())
         assertEquals(
             appContext.getString(
                 R.string.connect_results_summary_remaining_days,
@@ -185,7 +185,7 @@ class ConnectDeliveryVisitsFragmentTest {
             )[0]
 
         assertEquals("2", card.approved())
-        assertEquals("50 ${ConnectLearnJobTestData.CURRENCY}", card.amount())
+        assertEquals("50 ${ConnectJobTestData.CURRENCY}", card.amount())
     }
 
     @Test
@@ -443,7 +443,7 @@ class ConnectDeliveryVisitsFragmentTest {
      * after the database write — then drains the main looper so the resulting UI update lands.
      */
     private fun awaitDeliverySync() {
-        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
+        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectJobTestData.JOB_UUID
         val prefs = ConnectSyncPreferences.getInstance()
         val deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS
 
@@ -510,11 +510,11 @@ class ConnectDeliveryVisitsFragmentTest {
      */
     private fun seedDeliveryJob(): ConnectJobRecord {
         val seeded =
-            ConnectLearnJobTestData.job().apply {
+            ConnectJobTestData.job().apply {
                 status = ConnectJobRecord.STATUS_DELIVERING
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
-        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+        return ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
     }
 
     /**

@@ -29,7 +29,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -130,7 +130,7 @@ class ConnectLearningProgressFragmentTest {
 
     @Test
     fun `learn complete state is shown before any refresh emission`() {
-        val fragment = launch(ConnectLearnJobTestData.job())
+        val fragment = launch(ConnectJobTestData.job())
         val view = fragment.requireView()
 
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnCompleteView).visibility)
@@ -139,7 +139,7 @@ class ConnectLearningProgressFragmentTest {
 
     @Test
     fun `toolbar shows the opportunity name and keeps the sync button`() {
-        val job = ConnectLearnJobTestData.job()
+        val job = ConnectJobTestData.job()
         launch(job)
         ShadowLooper.idleMainLooper()
 
@@ -167,7 +167,7 @@ class ConnectLearningProgressFragmentTest {
     @Test
     fun `progress state is shown while learning is incomplete`() {
         val fragment =
-            launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
+            launch(ConnectJobTestData.job(completedModules = 1, assessmentScore = null))
         val view = fragment.requireView()
 
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnProgressView).visibility)
@@ -176,7 +176,7 @@ class ConnectLearningProgressFragmentTest {
 
     @Test
     fun `progress state is shown when the assessment was failed`() {
-        val fragment = launch(ConnectLearnJobTestData.job(assessmentScore = 10))
+        val fragment = launch(ConnectJobTestData.job(assessmentScore = 10))
         val view = fragment.requireView()
 
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnProgressView).visibility)
@@ -186,14 +186,14 @@ class ConnectLearningProgressFragmentTest {
     @Test
     fun `tapping the progress cta downloads the learn app without leaving the screen`() {
         val fragment =
-            launch(ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null))
+            launch(ConnectJobTestData.job(completedModules = 1, assessmentScore = null))
 
         val requestsBefore = mockApi.server.requestCount
         val ctaButton = learnProgressCta(fragment)
         activity.runOnUiThread { ctaButton.performClick() }
         ShadowLooper.idleMainLooper()
 
-        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
+        verify { ConnectAppUtils.downloadApp(ConnectJobTestData.LEARN_APP_INSTALL_URL, any()) }
         assertEquals(
             R.id.connect_job_learning_progress_fragment,
             navController.currentDestination?.id,
@@ -204,7 +204,7 @@ class ConnectLearningProgressFragmentTest {
 
     @Test
     fun `tapping the cta claims the job and downloads the delivery app in place`() {
-        val job = ConnectLearnJobTestData.job()
+        val job = ConnectJobTestData.job()
         val fragment = launch(job)
 
         clickCta(fragment)
@@ -217,7 +217,7 @@ class ConnectLearningProgressFragmentTest {
             ConnectJobRecord.STATUS_DELIVERING,
             ConnectJobUtils.getCompositeJob(job.jobUUID)?.status,
         )
-        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        verify { ConnectAppUtils.downloadApp(ConnectJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
         assertEquals(
             R.id.connect_job_learning_progress_fragment,
             navController.currentDestination?.id,
@@ -227,8 +227,8 @@ class ConnectLearningProgressFragmentTest {
 
     @Test
     fun `tapping the cta navigates to delivery home when the delivery app is installed`() {
-        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
-        val job = ConnectLearnJobTestData.job()
+        every { AppUtils.isAppInstalled(ConnectJobTestData.DELIVERY_APP_ID) } returns true
+        val job = ConnectJobTestData.job()
         val fragment = launch(job)
 
         clickCta(fragment)
@@ -239,7 +239,7 @@ class ConnectLearningProgressFragmentTest {
 
     @Test
     fun `an already claimed job skips the claim call and navigates straight on`() {
-        val job = ConnectLearnJobTestData.job()
+        val job = ConnectJobTestData.job()
         job.status = ConnectJobRecord.STATUS_DELIVERING
         val fragment = launch(job)
         val requestsBefore = mockApi.server.requestCount
@@ -247,7 +247,7 @@ class ConnectLearningProgressFragmentTest {
         clickCta(fragment)
 
         assertEquals("No claim request should be sent", requestsBefore, mockApi.server.requestCount)
-        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        verify { ConnectAppUtils.downloadApp(ConnectJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
         assertEquals(
             R.id.connect_job_learning_progress_fragment,
             navController.currentDestination?.id,
@@ -256,7 +256,7 @@ class ConnectLearningProgressFragmentTest {
 
     @Test
     fun `a failed claim shows the failure card, re-enables the cta and stays on the screen`() {
-        val job = ConnectLearnJobTestData.job()
+        val job = ConnectJobTestData.job()
         val fragment = launch(job)
         val ctaButton = learnCompleteCta(fragment)
 
@@ -318,9 +318,9 @@ class ConnectLearningProgressFragmentTest {
      * failure the other tests drive, the job has to exist in the database.
      */
     private fun seedLearningJob(): ConnectJobRecord {
-        val seeded = ConnectLearnJobTestData.job(completedModules = 1, assessmentScore = null)
+        val seeded = ConnectJobTestData.job(completedModules = 1, assessmentScore = null)
         ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), listOf(seeded), true)
-        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+        return ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
     }
 
     private fun launch(job: ConnectJobRecord): ConnectLearningProgressFragment {

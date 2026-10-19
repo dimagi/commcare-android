@@ -30,7 +30,7 @@ import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectAppUtils
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -231,7 +231,7 @@ class ConnectDeliveryMoreFragmentTest {
         ShadowLooper.idleMainLooper()
 
         verify {
-            ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any())
+            ConnectAppUtils.downloadApp(ConnectJobTestData.DELIVERY_APP_INSTALL_URL, any())
         }
         assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
         assertInstallDialogShowing(moreTab, R.string.connect_downloading_delivery)
@@ -261,7 +261,7 @@ class ConnectDeliveryMoreFragmentTest {
         val title = moreTab.requireView().findViewById<TextView>(R.id.revisit_learning_title)
         val completedLine = moreTab.requireView().findViewById<TextView>(R.id.revisit_learning_completed)
 
-        assertEquals(ConnectLearnJobTestData.JOB_TITLE, title.text.toString())
+        assertEquals(ConnectJobTestData.JOB_TITLE, title.text.toString())
         assertEquals(
             activity.getString(
                 R.string.connect_delivery_revisit_learning_completed,
@@ -281,7 +281,7 @@ class ConnectDeliveryMoreFragmentTest {
 
         moreTab.performClick(R.id.revisit_learning_certificate_button)
         assertEquals(View.VISIBLE, certificate.visibility)
-        assertEquals(ConnectLearnJobTestData.JOB_TITLE, subject.text.toString())
+        assertEquals(ConnectJobTestData.JOB_TITLE, subject.text.toString())
 
         moreTab.performClick(R.id.revisit_learning_certificate_button)
         assertEquals(View.GONE, certificate.visibility)
@@ -298,7 +298,7 @@ class ConnectDeliveryMoreFragmentTest {
         assertEquals(
             activity.getString(
                 R.string.connect_learn_cert_score,
-                (ConnectLearnJobTestData.PASSING_SCORE + 10).toString(),
+                (ConnectJobTestData.PASSING_SCORE + 10).toString(),
             ),
             score.text.toString(),
         )
@@ -317,8 +317,8 @@ class ConnectDeliveryMoreFragmentTest {
 
     @Test
     fun `revisiting learning is offered even before the device has synced any learning`() {
-        ConnectJobUtils.storeAssessments(appContext, emptyList(), ConnectLearnJobTestData.JOB_UUID, true)
-        job = ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+        ConnectJobUtils.storeAssessments(appContext, emptyList(), ConnectJobTestData.JOB_UUID, true)
+        job = ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
 
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
         val view = moreTab.requireView()
@@ -345,8 +345,8 @@ class ConnectDeliveryMoreFragmentTest {
 
     @Test
     fun `offline the card says the certificate waits on a connection rather than a sync`() {
-        ConnectJobUtils.storeAssessments(appContext, emptyList(), ConnectLearnJobTestData.JOB_UUID, true)
-        job = ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+        ConnectJobUtils.storeAssessments(appContext, emptyList(), ConnectJobTestData.JOB_UUID, true)
+        job = ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
 
         val moreTab = openMoreTab(deliveryProgressJson(tasks = emptyList()))
         goOffline()
@@ -410,7 +410,7 @@ class ConnectDeliveryMoreFragmentTest {
         moreTab.performClick(R.id.revisit_learning_view_button)
         ShadowLooper.idleMainLooper()
 
-        verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
+        verify { ConnectAppUtils.downloadApp(ConnectJobTestData.LEARN_APP_INSTALL_URL, any()) }
         assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
         assertInstallDialogShowing(moreTab, R.string.connect_downloading_learn)
     }
@@ -611,7 +611,7 @@ class ConnectDeliveryMoreFragmentTest {
      * after the database write — then drains the main looper so the resulting UI update lands.
      */
     private fun awaitDeliverySync() {
-        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
+        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectJobTestData.JOB_UUID
         val prefs = ConnectSyncPreferences.getInstance()
         val deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS
 
@@ -667,17 +667,17 @@ class ConnectDeliveryMoreFragmentTest {
      */
     private fun seedDeliveryJob(): ConnectJobRecord {
         val seeded =
-            ConnectLearnJobTestData.job().apply {
+            ConnectJobTestData.job().apply {
                 status = ConnectJobRecord.STATUS_DELIVERING
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
         ConnectJobUtils.storeAssessments(
             appContext,
             seeded.assessments,
-            ConnectLearnJobTestData.JOB_UUID,
+            ConnectJobTestData.JOB_UUID,
             true,
         )
-        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+        return ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
     }
 
     /**
