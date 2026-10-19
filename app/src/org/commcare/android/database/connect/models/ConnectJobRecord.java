@@ -742,6 +742,32 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return paymentUnits;
     }
 
+    /**
+     * Payment units ordered by their latest visit of any status, newest first. Units without a dated
+     * visit keep the server's order at the end.
+     */
+    public List<ConnectPaymentUnitRecord> getPaymentUnitsByMostRecentVisit() {
+        HashMap<String, Date> latestVisitDates = new HashMap<>();
+        for (ConnectJobDeliveryRecord delivery : deliveries) {
+            Date visitDate = delivery.getDate();
+            Date latestVisitDate = latestVisitDates.get(delivery.getSlugUUID());
+            if (visitDate != null && (latestVisitDate == null || visitDate.after(latestVisitDate))) {
+                latestVisitDates.put(delivery.getSlugUUID(), visitDate);
+            }
+        }
+
+        List<ConnectPaymentUnitRecord> sorted = new ArrayList<>(paymentUnits);
+        Collections.sort(sorted, (first, second) -> {
+            Date firstVisitDate = latestVisitDates.get(first.getUnitUUID());
+            Date secondVisitDate = latestVisitDates.get(second.getUnitUUID());
+            if (firstVisitDate == null || secondVisitDate == null) {
+                return Boolean.compare(firstVisitDate == null, secondVisitDate == null);
+            }
+            return secondVisitDate.compareTo(firstVisitDate);
+        });
+        return sorted;
+    }
+
     public boolean isMultiPayment() {
         return paymentUnits.size() > 1;
     }
