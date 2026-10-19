@@ -296,7 +296,7 @@ class ConnectDeliveryVisitsFragmentTest {
         activity.setActiveJob(job)
         activity.runOnUiThread {
             navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_job_delivery_progress_fragment,
+                R.id.action_connect_jobs_list_fragment_to_connect_delivery_home_fragment,
             )
         }
         ShadowLooper.idleMainLooper()

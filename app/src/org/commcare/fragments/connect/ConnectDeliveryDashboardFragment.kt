@@ -62,8 +62,6 @@ class ConnectDeliveryDashboardFragment :
     }
 
     private fun bindVisitProgress(contentEnabled: Boolean) {
-        val doneToday = job.numberOfDeliveriesToday()
-        val remainingToday = (job.maxDailyVisits - doneToday).coerceAtLeast(0)
         val cardMessage: String? = job.getCardMessageText(requireContext())
         binding.deliveryProgressCard.bind(
             ConnectProgressCard.State(
@@ -82,19 +80,78 @@ class ConnectDeliveryDashboardFragment :
                         max = job.maxVisits,
                         description = getString(R.string.connect_delivery_total_visits_completed),
                     ),
-                linearProgress =
-                    ConnectProgressCard.State.LinearProgress(
-                        label = getString(R.string.connect_delivery_daily_visits),
-                        current = doneToday,
-                        max = job.maxDailyVisits,
-                        caption =
-                            resources.getQuantityString(
-                                R.plurals.connect_delivery_visits_remaining_today,
-                                remainingToday,
-                                remainingToday,
-                            ),
-                    ),
+                linearProgress = getJobDailyProgress(),
+                breakdownRows = getPaymentUnitDailyProgress(),
+                collapsedBreakdownRowCount = COLLAPSED_PAYMENT_UNIT_ROW_COUNT,
             ),
+        )
+    }
+
+    private fun getJobDailyProgress(): ConnectProgressCard.State.LinearProgress {
+        val visitsDoneToday = job.numberOfDeliveriesToday()
+        val visitsBeforeToday = job.deliveries.size - visitsDoneToday
+        val maxDailyVisits =
+            job.maxDailyVisits
+                .takeIf { job.hasDailyLimit() }
+                ?.let { getDailyVisitLimit(it, job.maxVisits, visitsBeforeToday) }
+        val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
+        val label = getString(R.string.connect_delivery_daily_visits)
+        val caption = maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
+
+        return ConnectProgressCard.State.LinearProgress(
+            label = label,
+            current = visitsDoneToday,
+            max = progressBarMax,
+            caption = caption,
+        )
+    }
+
+    private fun getPaymentUnitDailyProgress(): List<ConnectProgressCard.State.LinearProgress> {
+        if (!job.isMultiPayment) return emptyList()
+
+        val visitsTodayPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(true)
+        val visitsPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(false)
+
+        return job.paymentUnits.map { paymentUnit ->
+            val visitsDoneToday = visitsTodayPerPaymentUnit[paymentUnit.unitUUID] ?: 0
+            val visitsBeforeToday = (visitsPerPaymentUnit[paymentUnit.unitUUID] ?: 0) - visitsDoneToday
+            val maxDailyVisits =
+                paymentUnit.maxDaily
+                    .takeIf { paymentUnit.hasDailyLimit() }
+                    ?.let { getDailyVisitLimit(it, paymentUnit.maxTotal, visitsBeforeToday) }
+            val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
+            val caption =
+                maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
+                    ?: getString(R.string.connect_delivery_no_daily_visit_target)
+            val countFormatRes =
+                progressBarMax?.let { R.plurals.connect_delivery_completed_today_of }
+                    ?: R.plurals.connect_delivery_completed_today
+
+            ConnectProgressCard.State.LinearProgress(
+                label = paymentUnit.name,
+                current = visitsDoneToday,
+                max = progressBarMax,
+                caption = caption,
+                countFormatRes = countFormatRes,
+            )
+        }
+    }
+
+    private fun getDailyVisitLimit(
+        maxDailyVisits: Int,
+        maxTotalVisits: Int,
+        visitsBeforeToday: Int,
+    ): Int = minOf(maxDailyVisits, (maxTotalVisits - visitsBeforeToday).coerceAtLeast(0))
+
+    private fun getVisitsRemainingTodayText(
+        maxDailyVisits: Int,
+        visitsDoneToday: Int,
+    ): String {
+        val remainingToday = (maxDailyVisits - visitsDoneToday).coerceAtLeast(0)
+        return resources.getQuantityString(
+            R.plurals.connect_delivery_visits_remaining_today,
+            remainingToday,
+            remainingToday,
         )
     }
 
@@ -151,6 +208,16 @@ class ConnectDeliveryDashboardFragment :
         val grid = binding.deliveryProgressGrid
         grid.removeAllViews()
 
+        val earnings =
+            halfCard(
+                value = ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.paymentAccrued),
+                title = getString(R.string.connect_delivery_total_earnings),
+                subtitle = null,
+                iconRes = R.drawable.ic_connect_savings,
+                contentEnabled = contentEnabled,
+            )
+        grid.addView(earnings, cellParams(grid.childCount))
+
         val counts = job.getDeliveryCountsPerPaymentUnit(false)
         val unitsAtLimit = job.paymentUnitsAtLimit
         job.paymentUnits.forEach { unit ->
@@ -168,16 +235,6 @@ class ConnectDeliveryDashboardFragment :
                 )
             grid.addView(card, cellParams(grid.childCount))
         }
-
-        val earnings =
-            halfCard(
-                value = ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.paymentAccrued),
-                title = getString(R.string.connect_delivery_total_earnings),
-                subtitle = null,
-                iconRes = R.drawable.ic_connect_savings,
-                contentEnabled = contentEnabled,
-            )
-        grid.addView(earnings, cellParams(grid.childCount))
     }
 
     private fun halfCard(
@@ -216,6 +273,7 @@ class ConnectDeliveryDashboardFragment :
 
     companion object {
         private const val GRID_COLUMNS = 2
+        private const val COLLAPSED_PAYMENT_UNIT_ROW_COUNT = 3
 
         @JvmStatic
         fun newInstance() = ConnectDeliveryDashboardFragment()

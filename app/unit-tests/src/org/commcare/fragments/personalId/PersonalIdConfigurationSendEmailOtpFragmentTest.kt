@@ -36,11 +36,11 @@ class PersonalIdConfigurationSendEmailOtpFragmentTest : BasePersonalIdConfigurat
         )
     }
 
-    private fun sendButton(): MaterialButton = fragment.requireView().findViewById(R.id.personalid_send_email_otp_button)
+    private fun sendButton(): MaterialButton = fragment.requireView().findViewById(R.id.send_otp_button)
 
-    private fun emailText(): TextView = fragment.requireView().findViewById(R.id.personalid_send_email_otp_address)
+    private fun emailText(): TextView = fragment.requireView().findViewById(R.id.send_otp_address)
 
-    private fun errorText(): TextView = fragment.requireView().findViewById(R.id.personalid_send_email_otp_error)
+    private fun errorText(): TextView = fragment.requireView().findViewById(R.id.send_otp_error)
 
     @Test
     fun `masked email is displayed correctly`() {

@@ -23,8 +23,9 @@ import org.robolectric.annotation.Implements;
  * Written in Java rather than Kotlin because Robolectric discovers {@code @Implementation} methods
  * on the shadow class itself, and Kotlin's {@code @JvmStatic} bridge would not carry the annotation.
  * <p>
- * Reads the callbacks via {@code PhoneAuthOptions.zze()}, the only accessor Firebase exposes. That
- * name is obfuscated, so a firebase-auth upgrade may require updating it.
+ * Reads the callbacks via {@code PhoneAuthOptions.zze()} and the phone number via
+ * {@code PhoneAuthOptions.zzh()}, the only accessors Firebase exposes. Those names are obfuscated, so
+ * a firebase-auth upgrade may require updating them.
  */
 @Implements(PhoneAuthProvider.class)
 public class ShadowPhoneAuthProvider {
@@ -39,6 +40,7 @@ public class ShadowPhoneAuthProvider {
     private static FirebaseException failure;
     private static String sentVerificationId;
     private static int requestCount;
+    private static String lastPhoneNumber;
 
     /** Makes every subsequent verifyPhoneNumber call report {@code e} to onVerificationFailed. */
     public static void failWith(FirebaseException e) {
@@ -58,15 +60,22 @@ public class ShadowPhoneAuthProvider {
         return requestCount;
     }
 
+    /** Phone number of the most recent verifyPhoneNumber call, or null if there was none. */
+    public static String getLastPhoneNumber() {
+        return lastPhoneNumber;
+    }
+
     public static void reset() {
         failure = null;
         sentVerificationId = null;
         requestCount = 0;
+        lastPhoneNumber = null;
     }
 
     @Implementation
     public static void verifyPhoneNumber(PhoneAuthOptions options) {
         requestCount++;
+        lastPhoneNumber = options.zzh();
         if (requestCount > MAX_REQUESTS) {
             throw new AssertionError("Firebase was asked to send an OTP " + requestCount
                     + " times; the code under test is re-requesting without bound.");

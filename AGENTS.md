@@ -34,6 +34,7 @@ When planning or writing a spec for a new feature, consult [`docs/common-edge-ca
 - Any new classes should be written in Kotlin
 - Old classes can remain in Java unless it affects new code architecture significantly
 - Use standard Android APIs where applicable
+- Give variables and functions specific names that say what they hold or do (e.g. `retryCount` not `count`, `pendingUploads` not `list`); functions should usually start with an action verb (e.g. `getDisplayName`, `fetchProfile`, `validateEmail`)
 - Before creating a new resource (layout, drawable, image, icon, color, style, etc.), search all modules for an existing one that matches or can be reused, to avoid duplicates
 - In XML layouts, strictly use existing dimension and style resources instead of hardcoded values, and use theme color roles (`?attr/...`) instead of raw `@color/` or hex colors; if no suitable resource or role exists, flag it rather than hardcoding one
 - Do not add any in-code comments unless explicitly requested.

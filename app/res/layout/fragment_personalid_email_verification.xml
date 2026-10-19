@@ -5,7 +5,7 @@
     android:id="@+id/personalid_email_verification_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?attr/colorSurface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -14,32 +14,31 @@
         android:orientation="vertical">
 
         <TextView
+            style="@style/Widget.Connect.HeadingText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="@string/personalid_email_verification_title"
-            android:textColor="@color/connect_dark_blue_color"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:text="@string/personalid_email_verification_title" />
 
         <TextView
             android:id="@+id/email_verification_description"
+            style="@style/Widget.Connect.BodyText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             tools:text="Enter the 6-digit code sent to user@example.com" />
 
         <LinearLayout
             android:id="@+id/otp_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xl"
+            android:layout_marginEnd="@dimen/connect_space_lg"
             android:gravity="start"
             android:orientation="horizontal">
 
@@ -57,7 +56,7 @@
                 android:id="@+id/otp_code_view"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/connect_space_lg"
                 app:codeViewBorderColor="@color/connect_blue_color"
                 app:codeViewBorderRadius="4dp"
                 app:codeViewBorderWidth="0.5dp"
@@ -70,34 +69,31 @@
         </LinearLayout>
 
         <TextView
-            android:textStyle="bold"
             android:id="@+id/personalid_email_verify_error"
+            style="@style/Widget.Connect.ErrorText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/content_min_margin"
+            android:layout_marginHorizontal="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_xs"
             android:gravity="start"
-            android:textColor="@color/red"
-            android:textSize="14sp"
             android:visibility="gone" />
 
         <TextView
-            android:textStyle="bold"
             android:id="@+id/personalid_resend_countdown_text"
+            style="@style/Widget.Connect.HelperText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="80dp"
-            android:layout_marginTop="16dp"
-            tools:text="Resend OTP in 60s"
-            android:textColor="@android:color/holo_blue_dark"
-            android:textSize="12sp" />
+            android:layout_marginTop="@dimen/connect_space_xs"
+            tools:text="Resend OTP in 60s" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginStart="@dimen/connect_space_lg"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:layout_marginEnd="@dimen/connect_space_lg"
+            android:layout_marginBottom="@dimen/connect_space_lg"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -111,7 +107,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/personalid_email_verify_button"
-                style="@style/CustomButtonStyle"
+                style="@style/ConnectPrimaryButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"

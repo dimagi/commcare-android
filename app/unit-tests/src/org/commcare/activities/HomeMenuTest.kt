@@ -27,9 +27,6 @@ import org.robolectric.fakes.RoboMenu
  *
  * Every item `onOptionsItemSelected` handles has a routing row. Four leave an intent; the other three
  * open a dialog, asserted as the alert-dialog fragment the activity shows.
- *
- * Driven through [StandardHomeActivity] only; [RootMenuHomeActivity] overrides
- * `onOptionsItemSelected` and needs its own rows.
  */
 class HomeMenuTest : BaseHomeScreenActivityTest() {
     private val updateController = mockk<FlexibleAppUpdateController>(relaxed = true)

@@ -3,7 +3,9 @@ package org.commcare.connect.database;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
+import org.commcare.preferences.ConnectMessagingPreferences;
 
 public class ConnectUserDatabaseUtil {
 
@@ -27,6 +29,9 @@ public class ConnectUserDatabaseUtil {
     }
 
     public static void forgetUser() {
+        ConnectMessagingAttachmentDownloadScheduler.cancelDownloads(CommCareApplication.instance());
+        ConnectMessagingAttachmentFileStore.deleteAll(CommCareApplication.instance());
+        ConnectMessagingPreferences.clear(CommCareApplication.instance());
         DatabaseConnectOpenHelper.deleteDb();
         CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
         ConnectDatabaseHelper.dbBroken = false;

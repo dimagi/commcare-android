@@ -83,7 +83,7 @@ class ConnectLearnCompleteView
         private fun bindDeliveryCards(job: ConnectJobRecord) {
             binding.cardTotalVisits.valueText = job.maxPossibleVisits.toString()
             binding.cardTotalVisits.subtitleText =
-                context.getString(R.string.connect_opportunity_visits_per_day, job.maxDailyVisits)
+                if (job.hasDailyLimit()) context.getString(R.string.connect_opportunity_visits_per_day, job.maxDailyVisits) else null
 
             binding.cardDaysToComplete.valueText = job.daysRemaining.toString()
 

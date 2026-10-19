@@ -347,6 +347,17 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.RETRIEVE_NOTIFICATIONS);
     }
 
+    public static Call<ResponseBody> buildMessageAttachmentDownloadCall(
+            String userId,
+            String password,
+            String messageId,
+            String attachmentId
+    ) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        return PersonalIdApiClient.getClientApi().downloadMessageAttachment(tokenAuth, messageId, attachmentId);
+    }
+
     public static void updateNotifications(
             Context context,
             String userId,
@@ -371,20 +382,25 @@ public class ApiPersonalId {
     }
 
     /**
-     * Sends a phone OTP. Auth is the PersonalID session token during signup, or basic auth from
-     * the stored user in Manage Profile.
+     * Sends a phone OTP. Basic auth from the stored user (Manage Profile) uses validate_phone; the
+     * PersonalID session token (signup) uses send_session_otp.
      */
     public static void sendPhoneOtp(Context context, AuthInfo authInfo, IApiCallback callback) {
         String tokenAuth = HttpUtils.getCredential(authInfo);
         Objects.requireNonNull(tokenAuth);
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.sendSessionOtp(tokenAuth);
-        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.SEND_SESSION_OTP);
+        if (authInfo instanceof AuthInfo.ProvidedAuth) {
+            BaseApi.Companion.callApi(context, apiService.validatePhone(tokenAuth), callback,
+                    PersonalIdApiEndpoints.VALIDATE_PHONE);
+        } else {
+            BaseApi.Companion.callApi(context, apiService.sendSessionOtp(tokenAuth), callback,
+                    PersonalIdApiEndpoints.SEND_SESSION_OTP);
+        }
     }
 
     /**
-     * Validates a phone OTP. Auth is the PersonalID session token during signup, or basic auth from
-     * the stored user in Manage Profile.
+     * Validates a phone OTP. Basic auth from the stored user (Manage Profile) uses confirm_otp; the
+     * PersonalID session token (signup) uses confirm_session_otp.
      */
     public static void validatePhoneOtp(
             Context context,
@@ -396,11 +412,16 @@ public class ApiPersonalId {
         Objects.requireNonNull(tokenAuth);
 
         HashMap<String, String> params = new HashMap<>();
-        params.put("otp", otp);
-
         PersonalIdApiService apiService = PersonalIdApiClient.getClientApi();
-        Call<ResponseBody> call = apiService.validateSessionOtp(tokenAuth, params);
-        BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.VALIDATE_SESSION_OTP);
+        if (authInfo instanceof AuthInfo.ProvidedAuth) {
+            params.put("token", otp);
+            BaseApi.Companion.callApi(context, apiService.confirmOtp(tokenAuth, params), callback,
+                    PersonalIdApiEndpoints.CONFIRM_OTP);
+        } else {
+            params.put("otp", otp);
+            BaseApi.Companion.callApi(context, apiService.validateSessionOtp(tokenAuth, params),
+                    callback, PersonalIdApiEndpoints.VALIDATE_SESSION_OTP);
+        }
     }
 
     /**

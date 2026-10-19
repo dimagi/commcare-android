@@ -79,7 +79,7 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     fun `buildHomeLaunchIntent targets standard home with managed login enabled`() {
         // The precondition for everything else here: [buildHomeFromLogin] sets START_FROM_LOGIN
         // itself, so without this row the sequence could stop running in production, suite still
-        // green. form_nav_tests is a single-app profile, so useRootMenuHomeActivity() is false.
+        // green.
         val context = CommCareApplication.instance()
         val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(context)
 

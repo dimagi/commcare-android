@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.65">
+          android:versionName="2.66">
 
 
     <uses-permission android:name="android.permission.NFC"/>
@@ -190,18 +190,17 @@
         <activity
             android:name="org.commcare.activities.connect.PersonalIdActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <activity
             android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/AppEntryTheme"/>
         <activity
             android:name="org.commcare.activities.CrashWarningActivity"
             android:label="CommCare Forced Closure" />
         <activity android:name="org.commcare.activities.StandardHomeActivity"
             android:theme="@style/CommonTheme.NoActionBar"/>
-        <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
@@ -610,7 +609,7 @@
             android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
 
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"

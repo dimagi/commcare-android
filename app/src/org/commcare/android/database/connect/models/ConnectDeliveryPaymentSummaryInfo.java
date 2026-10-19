@@ -1,6 +1,8 @@
 package org.commcare.android.database.connect.models;
 
 public class ConnectDeliveryPaymentSummaryInfo {
+    public static final int NO_DAILY_LIMIT = -1;
+
     private String paymentUnitName;
     private int paymentUnitAmount;
     private int paymentUnitMaxDaily;
@@ -34,5 +36,9 @@ public class ConnectDeliveryPaymentSummaryInfo {
 
     public void setPaymentUnitMaxDaily(int paymentUnitMaxDaily) {
         this.paymentUnitMaxDaily = paymentUnitMaxDaily;
+    }
+
+    public boolean hasDailyLimit() {
+        return paymentUnitMaxDaily != NO_DAILY_LIMIT;
     }
 }

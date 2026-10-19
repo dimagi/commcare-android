@@ -91,6 +91,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public static final String META_JOB_UUID = "opportunity_id";
 
+    public static final int NO_DAILY_LIMIT = -1;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -205,7 +206,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.projectEndDate = JsonExtensions.requireDate(json, META_END_DATE);
         job.projectStartDate = JsonExtensions.requireDate(json, META_START_DATE);
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
-        job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
+        job.maxDailyVisits = JsonExtensions.optIntSafe(json, META_MAX_DAILY_VISITS, NO_DAILY_LIMIT);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
         String budgetPerUserKey = "budget_per_user";
         job.totalBudget = json.getInt(budgetPerUserKey);
@@ -345,6 +346,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
     public int getMaxDailyVisits() {
         return maxDailyVisits;
+    }
+
+    public boolean hasDailyLimit() {
+        return maxDailyVisits != NO_DAILY_LIMIT;
+    }
+
+    private boolean isDailyLimitReached() {
+        return hasDailyLimit() && numberOfDeliveriesToday() >= maxDailyVisits;
     }
 
     public Date getProjectStartDate() {
@@ -778,7 +787,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             // The job-level caps are checked ahead of the per-unit warnings: once the whole
             // opportunity is spent, which individual unit ran out first no longer matters.
             return context.getString(R.string.connect_progress_warning_max_reached_single);
-        } else if (numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+        } else if (isDailyLimitReached()) {
             return context.getString(R.string.connect_progress_warning_daily_max_reached_single);
         } else if (!getPaymentUnits().isEmpty()) {
             return getMultiVisitWarnings(context);
@@ -802,7 +811,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 totalMaxes.add(unit.getName());
             } else {
                 int todayCount = today.containsKey(key) ? today.get(key) : 0;
-                if (todayCount >= unit.getMaxDaily()) {
+                if (unit.isDailyLimitReached(todayCount)) {
                     dailyMaxes.add(unit.getName());
                 }
             }
@@ -841,8 +850,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         // The job-level caps bind whatever the payment units allow, so they are checked first.
-        if (getDeliveries().size() >= getMaxVisits()
-                || numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+        if (getDeliveries().size() >= getMaxVisits() || isDailyLimitReached()) {
             return true;
         }
 
@@ -866,7 +874,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             String key = unit.getUnitUUID();
             int totalCount = total.containsKey(key) ? total.get(key) : 0;
             int todayCount = today.containsKey(key) ? today.get(key) : 0;
-            if (totalCount >= unit.getMaxTotal() || todayCount >= unit.getMaxDaily()) {
+            if (totalCount >= unit.getMaxTotal() || unit.isDailyLimitReached(todayCount)) {
                 atLimit.add(key);
             }
         }

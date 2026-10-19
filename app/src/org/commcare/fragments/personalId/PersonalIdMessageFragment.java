@@ -41,6 +41,11 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
 
 
     @Override
+    public int getTheme() {
+        return com.google.android.material.R.style.ThemeOverlay_MaterialComponents_BottomSheetDialog;
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = ScreenPersonalidMessageBinding.inflate(inflater, container, false);

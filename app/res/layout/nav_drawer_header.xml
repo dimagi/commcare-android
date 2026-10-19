@@ -6,14 +6,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:background="@color/connect_blue_color">
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ConnectTheme">
         <ImageView
             android:contentDescription="@null"
             android:layout_gravity="center"
             android:layout_height="32dp"
             android:layout_width="match_parent"
             android:src="@drawable/commcare_by_dimagi"
-            app:tint="@color/white" />
+            app:tint="?attr/colorOnPrimary" />
         <androidx.cardview.widget.CardView
             android:id="@+id/profile_card"
             android:layout_width="match_parent"
@@ -32,7 +33,7 @@
                     android:layout_height="72dp"
                     app:cardCornerRadius="50dp"
                     app:cardElevation="0dp"
-                    app:strokeColor="@color/white"
+                    app:strokeColor="?attr/colorOnPrimary"
                     app:strokeWidth="2dp">
 
                     <ImageView
@@ -72,7 +73,8 @@
                         android:id="@+id/header_user_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.NavDrawerItem"/>
+                        style="@style/TextStyle.Connect.BodyM"
+                        android:textColor="?attr/connectNavDrawerForeground"/>
                     <TextView
                         android:id="@+id/header_manage_profile"
                         android:layout_width="wrap_content"
@@ -80,8 +82,8 @@
                         android:layout_marginTop="6dp"
                         android:background="?attr/selectableItemBackground"
                         android:text="@string/personalid_manage_profile"
-                        android:textColor="@color/white"
-                        android:textSize="12sp"/>
+                        android:textColor="?attr/colorOnPrimary"
+                        style="@style/TextStyle.Connect.LabelM"/>
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>

@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.dalvik.R
-import org.commcare.dalvik.databinding.FragmentPersonalidSendEmailOtpBinding
+import org.commcare.dalvik.databinding.FragmentPersonalidSendOtpBinding
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.fragments.personalId.EmailHelper.maskEmail
 import org.commcare.utils.CommCareAttemptCounter
@@ -16,7 +16,7 @@ import org.commcare.utils.CommCareAttemptCounter
  * Base fragment for screens that send an email OTP to the user
  */
 abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
-    protected lateinit var binding: FragmentPersonalidSendEmailOtpBinding
+    protected lateinit var binding: FragmentPersonalidSendOtpBinding
     protected lateinit var email: String
     protected var masked: Boolean = true
     protected lateinit var workflow: EmailWorkFlow
@@ -32,7 +32,7 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
-        binding = FragmentPersonalidSendEmailOtpBinding.inflate(inflater, container, false)
+        binding = FragmentPersonalidSendOtpBinding.inflate(inflater, container, false)
         setUpView()
         return binding.root
     }
@@ -45,8 +45,8 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
 
     open fun setUpView() {
         setAppBarTitle()
-        binding.personalidSendEmailOtpAddress.text = if (masked) maskEmail(email) else email
-        binding.personalidSendEmailOtpButton.setOnClickListener { sendCode() }
+        binding.sendOtpAddress.text = if (masked) maskEmail(email) else email
+        binding.sendOtpButton.setOnClickListener { sendCode() }
         clearError()
     }
 
@@ -55,7 +55,7 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
     }
 
     private fun sendCode() {
-        binding.personalidSendEmailOtpButton.isEnabled = false
+        binding.sendOtpButton.isEnabled = false
         clearError()
         EmailHelper.sendEmailOtp(
             activity = requireActivity(),
@@ -70,19 +70,19 @@ abstract class BasePersonalIdSendEmailOtpFragment : BasePersonalIdFragment() {
             onFailure = { failureCode, t ->
                 if (!hasLiveView()) return@sendEmailOtp
                 showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t))
-                binding.personalidSendEmailOtpButton.isEnabled = true
+                binding.sendOtpButton.isEnabled = true
             },
         )
     }
 
     protected fun clearError() {
-        binding.personalidSendEmailOtpError.visibility = View.GONE
-        binding.personalidSendEmailOtpError.text = ""
+        binding.sendOtpError.visibility = View.GONE
+        binding.sendOtpError.text = ""
     }
 
     protected fun showError(message: String) {
-        binding.personalidSendEmailOtpError.visibility = View.VISIBLE
-        binding.personalidSendEmailOtpError.text = message
+        binding.sendOtpError.visibility = View.VISIBLE
+        binding.sendOtpError.text = message
     }
 
     abstract fun getSessionData(): PersonalIdSessionData?

@@ -51,7 +51,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     private static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
     private static final String AUDIO_QUALITY_PROFILE = "cc-audio-quality-profile";
     private static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
-    private static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
     private static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
     private static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     private static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
@@ -398,10 +397,6 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
      */
     public static boolean isDetailTabSwipeActionEnabled() {
         return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, PrefValues.YES, PrefValues.YES);
-    }
-
-    public static boolean useRootModuleMenuAsHomeScreen() {
-        return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, PrefValues.NO, PrefValues.YES);
     }
 
 

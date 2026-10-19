@@ -38,7 +38,7 @@ class ConnectJobRecordWorkBlockedTest {
     private fun paymentUnit(
         id: Int,
         maxTotal: Int,
-        maxDaily: Int,
+        maxDaily: Int?,
     ): ConnectPaymentUnitRecord =
         ConnectPaymentUnitRecord.fromJson(
             JSONObject(
@@ -295,6 +295,37 @@ class ConnectJobRecordWorkBlockedTest {
                 delivery(1, 1, Date()),
                 delivery(2, 1, Date()),
                 delivery(3, 1, Date()),
+            )
+
+        assertTrue(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `a job without a daily limit is not blocked by today's visits`() {
+        val job = job(maxVisits = 10, maxDailyVisits = ConnectJobRecord.NO_DAILY_LIMIT)
+        job.deliveries = List(5) { delivery(it, 1, Date()) }
+
+        assertFalse(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `a payment unit without a daily limit is not at its limit from today's visits`() {
+        val job = job(maxVisits = 100, maxDailyVisits = ConnectJobRecord.NO_DAILY_LIMIT)
+        job.paymentUnits = listOf(paymentUnit(id = 1, maxTotal = 50, maxDaily = null))
+        job.deliveries = List(5) { delivery(it, 1, Date()) }
+
+        assertTrue(job.paymentUnitsAtLimit.isEmpty())
+        assertFalse(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `a payment unit without a daily limit is still blocked by its total limit`() {
+        val job = job(maxVisits = 100, maxDailyVisits = ConnectJobRecord.NO_DAILY_LIMIT)
+        job.paymentUnits = listOf(paymentUnit(id = 1, maxTotal = 2, maxDaily = null))
+        job.deliveries =
+            listOf(
+                delivery(1, 1, daysFromNow(-1)),
+                delivery(2, 1, daysFromNow(-1)),
             )
 
         assertTrue(job.isFurtherWorkBlocked)

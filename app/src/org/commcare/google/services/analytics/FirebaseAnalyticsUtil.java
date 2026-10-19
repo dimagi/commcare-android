@@ -654,17 +654,6 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_PAYMENT_CONFIRMATION, b);
     }
 
-    public static void reportCccPaymentConfirmationDisplayed() {
-        Bundle b = new Bundle();
-        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_DISPLAY, b);
-    }
-
-    public static void reportCccPaymentConfirmationInteraction(boolean positive) {
-        Bundle b = new Bundle();
-        b.putLong(CCAnalyticsParam.PARAM_API_SUCCESS, positive ? 1 : 0);
-        reportEvent(CCAnalyticsEvent.CCC_PAYMENT_CONFIRMATION_INTERACT, b);
-    }
-
 
     public static void reportPersonalIdAccountForgotten(String reason) {
         Bundle b = new Bundle();

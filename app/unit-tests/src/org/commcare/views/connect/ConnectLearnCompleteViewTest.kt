@@ -137,6 +137,15 @@ class ConnectLearnCompleteViewTest {
     }
 
     @Test
+    fun `the visits card drops the per-day subtitle when the job has no daily limit`() {
+        val job = ConnectLearnJobTestData.job().apply { setMaxDailyVisits(ConnectJobRecord.NO_DAILY_LIMIT) }
+        val view = bind(job)
+
+        assertEquals(job.maxPossibleVisits.toString(), view.card(R.id.card_total_visits).valueText)
+        assertTrue(view.card(R.id.card_total_visits).subtitleText.isNullOrEmpty())
+    }
+
+    @Test
     fun `cta offers the delivery download when the delivery app is missing`() {
         val view = bind()
 

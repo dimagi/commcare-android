@@ -17,11 +17,11 @@ class PersonalIdProfileSendEmailOtpFragment : BasePersonalIdSendEmailOtpFragment
     override fun setUpView() {
         super.setUpView()
         if (workflow == EmailWorkFlow.PENDING_BACKUP_CODE) {
-            binding.personalidSendEmailOtpTitle.setText(R.string.personalid_send_email_otp_pending_backup_code_title)
-            binding.personalidSendEmailOtpSubtitle.setText(R.string.personalid_send_email_otp_pending_backup_code_subtitle)
-            binding.personalidSendEmailOtpSubtitle.visibility = View.VISIBLE
+            binding.sendOtpTitle.setText(R.string.personalid_send_email_otp_pending_backup_code_title)
+            binding.sendOtpSubtitle.setText(R.string.personalid_send_email_otp_pending_backup_code_subtitle)
+            binding.sendOtpSubtitle.visibility = View.VISIBLE
         } else if (workflow == EmailWorkFlow.EXISTING_USER) {
-            binding.personalidSendEmailOtpTitle.setText(R.string.personalid_email_verification_title)
+            binding.sendOtpTitle.setText(R.string.personalid_email_verification_title)
         }
     }
 

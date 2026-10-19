@@ -115,7 +115,6 @@ License.
     <string name="please_wait_long">Veuillez patienter. Cela peut prendre quelques minutes.</string>
     <string name="quit_application">Sortie %s</string>
     <string name="quit_form_title">Formulaire de sortie ?</string>
-    <string name="refresh">Rafraîchir</string>
     <string name="replace_location">Remplacer l\'emplacement</string>
     <string name="required_answer_error">Désolé, cette réponse est obligatoire !</string>
     <string name="review">Continuer</string>
@@ -245,8 +244,8 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">Aucun Play Store trouvé sur votre appareil</string>
     <string name="fcm_default_notification_channel">canal de notification-notifications-push</string>
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
-    <string name="personalid_welcome_user">Bienvenue %s !</string>
     <string name="personalid_choice_or">_____________    OU    _____________</string>
+    <string name="login_choice_or">OU</string>
     <string name="connect_download_delivery">Télécharger Livraison</string>
     <string name="connect_app_install_setting_up">Configuration de l\'application…</string>
     <string name="connect_app_finishing_install">Finalisation de l\'installation…</string>
@@ -280,12 +279,12 @@ License.
     <string name="personalid_email_verification_appbar_title">Vérifier l\'e-mail</string>
     <string name="personalid_email_verification_title">Vérifiez votre adresse e-mail</string>
     <string name="personalid_email_verification_description">Saisissez le code à 6 chiffres envoyé à %1$s</string>
-    <string name="personalid_email_verify_button">Vérifier</string>
     <string name="personalid_email_otp_failed_title">Échec de la vérification</string>
     <string name="personalid_email_otp_failed_message">Vous avez utilisé toutes les tentatives pour ce code. Vous pouvez en demander un nouveau dans %1$s, ou ignorer l\'e-mail pour le moment.</string>
     <string name="personalid_email_otp_failed_wait">Attendre</string>
     <string name="personalid_email_otp_failed_skip">Continuer sans e-mail</string>
     <string name="personalid_otp_limit_exceeded">Vous avez utilisé toutes les tentatives pour ce code, il n\'est donc plus valide. Demandez un nouveau code pour continuer.</string>
+    <string name="personalid_otp_session_expired">Ce code n\'est plus valide. Demandez un nouveau code pour continuer.</string>
     <string name="personalid_rate_limited_retry_after">Trop de tentatives. Veuillez réessayer dans %1$s.</string>
     <string name="personalid_otp_resend_wait">Vous n\'avez pas reçu votre code ? Renvoyer dans %1$s</string>
     <string name="personalid_otp_request_new_code_wait">Attendez %1$s pour demander un nouveau code</string>
@@ -335,13 +334,11 @@ License.
     <string name="connect_verify_phone_resend">Vous n\'avez pas reçu votre code? Renvoyer</string>
     <string name="connect_verify_phone_change">Changer de numéro</string>
     <string name="connect_verify_phone_verify">Vérifier le code</string>
-    <string name="connect_last_update">Mis à jour: %s</string>
     <string name="connect_title">Connecter</string>
     <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
     <string name="connect_job_ended">Tâche terminée le %s</string>
     <string name="connect_learn_title">Progrès d\'apprentissage</string>
-    <string name="connect_fetch_learning_progress_error">Échec de la récupération de la progression de l\'apprentissage</string>
     <string name="connect_sms_invite_opportunity_not_found">Opportunité introuvable</string>
     <string name="connect_learn_complete">Complet</string>
     <string name="connect_learn_certificate">Certificat</string>
@@ -360,13 +357,15 @@ License.
     <string name="connect_learn_cta_complete_assessment">Terminer l\'évaluation</string>
     <string name="connect_learn_cta_take_assessment">Passer l\'évaluation</string>
     <string name="connect_learn_cta_start">Commencer</string>
-    <string name="connect_delivery_earn_multi">Paiement par visite :</string>
     <string name="connect_delivery_go">Accéder à l\'application</string>
     <string name="connect_progress_delivery">Livraison</string>
-    <string name="connect_progress_title">Progression de la livraison</string>
-    <string name="connect_progress_status">Vous avez effectué %d visites sur %d.</string>
     <string name="semi_circle_progress_value_format">%1$d sur %2$d</string>
     <string name="connect_progress_count_format">%1$d sur %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Afficher %1$d de plus</item>
+        <item quantity="other">Afficher %1$d de plus</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Afficher moins</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
@@ -382,9 +381,6 @@ License.
     <string name="connect_downloading_delivery">Téléchargement de Livraison</string>
     <string name="connect_results_summary_earned">Gagné</string>
     <string name="connect_results_summary_transferred">Transféré</string>
-    <string name="connect_payment_confirm_text">Avez-vous été payé(e) %d %s pour l\'opportunité %s ?</string>
-    <string name="connect_payment_confirm_yes">Oui!</string>
-    <string name="connect_payment_confirm_no">Plus tard</string>
     <string name="personalid_login_with">Connectez-vous avec PersonalId</string>
     <string name="personalid_link_app_title">Lien vers PersonalId ?</string>
     <string name="personalid_link_app_message">Souhaitez-vous associer cet identifiant à votre compte PersonalId? Vous n\'aurez plus besoin de saisir votre mot de passe à l\'avenir.</string>
@@ -427,10 +423,6 @@ License.
     <string name="personalid_profile_edit_discard_message">Vos modifications non enregistrées seront perdues.</string>
     <string name="personalid_profile_edit_discard_positive">Abandonner</string>
     <string name="personalid_profile_edit_discard_negative">Continuer la modification</string>
-    <string name="personalid_profile_edit_otp_confirm_title">Vérifiez votre nouvelle adresse e-mail</string>
-    <string name="personalid_profile_edit_otp_confirm_message">Nous enverrons un code à 6 chiffres à %1$s. Saisissez-le sur l\'écran suivant pour vérifier.</string>
-    <string name="personalid_profile_edit_otp_confirm_positive">Envoyer le code</string>
-    <string name="personalid_profile_edit_otp_confirm_negative">Annuler</string>
     <string name="personalid_profile_edit_save">Enregistrer</string>
     <string name="personalid_profile_edit_cancel">Annuler</string>
     <string name="personalid_profile_edit_save_success">Votre profil a été mis à jour avec succès.</string>
@@ -441,6 +433,7 @@ License.
     <string name="personalid_send_email_otp_pending_backup_code_title">Définir le code de secours</string>
     <string name="personalid_send_email_otp_pending_backup_code_subtitle">Votre compte n\'a pas encore de code de secours. Vérifiez votre adresse e-mail ci-dessous pour en créer un.</string>
     <string name="personalid_send_email_otp_title">Récupérer le code de sauvegarde</string>
+    <string name="personalid_send_phone_otp_title">Vérifiez votre numéro de téléphone</string>
     <string name="personalid_send_email_otp_description">Nous enverrons un code de vérification à :</string>
     <string name="personalid_send_email_otp_button">Envoyer le code</string>
     <string name="personalid_send_email_otp_address_label">E-mail de récupération</string>
@@ -461,20 +454,8 @@ License.
     <string name="personalid_set_backup_code_reminder_message">Vous n\'avez pas de code de sauvegarde configuré sur votre compte. Cliquez sur Confirmer pour en configurer un.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Définir le code de sauvegarde</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Veuillez définir un code de sauvegarde avant de quitter</string>
-    <string name="connect_job_info_delivery_detail">Détails de livraison</string>
-    <string name="connect_job_info_review_delivery">Vérifiez les détails de livraison</string>
-    <string name="connect_job_info_visit">%d visites maximum</string>
-    <string name="connect_job_info_days">%d jours pour terminer</string>
-    <string name="connect_job_info_max_visit">Nombre maximal de visites par jour %d</string>
-    <string name="connect_job_info_visit_charge">Gagnez jusqu\'à %s par visite</string>
-    <string name="connect_job_info_view_info">Voir les informations</string>
-    <string name="connect_job_info_view_resume">Reprendre</string>
-    <string name="connect_job_info_view_review">Réviser</string>
-    <string name="connect_job_info_view_proceed">Procéder</string>
     <string name="connect_progress">Progrès</string>
     <string name="connect_payment">Paiement</string>
-    <string name="connect_delivery_progress_description">Vous n\'avez terminé aucune leçon. Commencez votre apprentissage pour obtenir votre certificat.</string>
-    <string name="connect_click_to_sync_progress">Cliquez pour synchroniser la progression</string>
     <string name="connect_payment_received">Reçu</string>
     <string name="connect_payment_transferred">Transféré</string>
     <string name="connect_payment_confirm_transferred">Confirmer le paiement transféré</string>
@@ -521,7 +502,7 @@ License.
     <string name="personalid_location_permission_error">PersonalID nécessite que les services de localisation soient activés sur votre appareil. Veuillez les activer dans les paramètres de votre téléphone avant de continuer.</string>
     <string name="personalid_sync_menu_title">Synchroniser</string>
     <string name="connect_registration_subtitle">Entrez votre numéro de téléphone</string>
-    <string name="connect_backup_code_message_title">Code de sauvegarde PersonalId</string>
+    <string name="connect_backup_code_message_title">Code de sauvegarde PersonalID</string>
     <string name="connect_backup_code_message">Entrez votre code de sauvegarde à 6 chiffres</string>
     <string name="connect_messaging_send_message_fail_msg">Échec de l\'envoi du message</string>
     <string name="connect_messaging_retrieve_messages_fail">Échec de la récupération des messages</string>
@@ -546,10 +527,10 @@ License.
     <string name="connect_message_you">Toi</string>
     <string name="connect_message_them">Eux</string>
     <string name="fcm_sync_failed_body_text">Cliquez ici pour en savoir plus</string>
-    <string name="connect_corrupt_job_text">Impossible de charger cette opportunité</string>
-    <string name="personalid_login_via_connect">Prêt à vous connecter !\n</string>
+    <string name="personalid_login_via_connect">Prêt à vous connecter !</string>
     <string name="personalid_failed_to_login_with_connectid">Nous rencontrons une erreur irrécupérable lors de la connexion avec votre identifiant personnel. Veuillez vous connecter avec votre mot de passe ou restaurer votre identifiant personnel.</string>
     <string name="personalid_name_appbar_title">Nom</string>
+    <string name="personalid_name_fragment_title">Saisissez votre nom</string>
     <string name="personalid_name_fragment_subtitle">Veuillez saisir votre nom tel qu\'il apparaît sur votre pièce d\'identité émise par le gouvernement</string>
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
@@ -563,12 +544,12 @@ License.
     <string name="personalid_configuration_process_failed_temporary_unavailable">Erreur temporaire lors de la vérification de l\'éligibilité de votre appareil. Veuillez réessayer après un jour.</string>
     <string name="personalid_configuration_process_failed_network_error">Erreur réseau lors de la vérification de l\'éligibilité de votre appareil. Veuillez vous assurer que vous disposez d\'une bonne connexion réseau et réessayez.</string>
     <string name="personalid_configuration_process_failed_unexpected_error">Impossible de vérifier l\'éligibilité de l\'appareil en raison d\'une erreur inattendue. Veuillez contacter le support client si le problème persiste.</string>
-    <string name="personalid_photo_capture_title">Bienvenue %1$s</string>
+    <string name="personalid_photo_capture_title">Bienvenue, %1$s</string>
     <string name="personalid_photo_capture_subtitle">Veuillez prendre une photo de vous pour terminer la configuration de votre compte</string>
     <string name="personalid_photo_capture_take_photo_button">Prendre une photo</string>
     <string name="personalid_photo_capture_save_photo_button">Enregistrer la photo</string>
     <string name="personalid_this_is_not_me"><u>Ce n\'est pas moi</u></string>
-    <string name="personalid_welcome_back_msg">Bon retour %s</string>
+    <string name="personalid_welcome_back_msg">Bon retour, %s</string>
     <string name="personalid_wrong_backup_message">Vous avez saisi un code de sauvegarde incorrect. Veuillez réessayer. Votre compte sera bloqué après %d tentatives incorrectes supplémentaires.</string>
     <string name="personalid_second_device_login_title">Connexion sur un deuxième appareil</string>
     <string name="personalid_second_device_login_message">Vous avez été déconnecté(e) de %s, dernière utilisation le %s. L\'identifiant PersonalID ne peut être utilisé que sur un seul appareil à la fois.</string>
@@ -630,7 +611,6 @@ License.
     <string name="network_forbidden_error">Accès refusé. Veuillez contacter le service client si le problème persiste.</string>
     <string name="error">Erreur</string>
     <string name="failed_to_start_learning">Échec du démarrage de l\'apprentissage</string>
-    <string name="failed_to_update_payment">Échec de la mise à jour du paiement</string>
 
     <string name="personalid_biometric_error_cancelled">La configuration biométrique a été annulée. Veuillez contacter le support client si le problème persiste.</string>
     <string name="personalid_biometric_error_lockout">Trop de tentatives. Veuillez patienter et réessayer.</string>
@@ -641,8 +621,6 @@ License.
     <string name="connect_label_expires_on">Expire le</string>
     <string name="connect_label_completed_on">Terminé le</string>
     <string name="connect_label_expired_on">Expiré le</string>
-    <string name="connect_complete_by">La tâche se termine le %s</string>
-    <string name="connect_expired_on">La tâche s\'est terminée le %s</string>
     <string name="connect_dashboard">Tableau de bord</string>
     <string name="connect_visits">Visites</string>
     <string name="connect_more">Plus</string>
@@ -670,6 +648,15 @@ License.
     <plurals name="connect_delivery_visits_remaining_today">
         <item quantity="one">%1$d visite restante aujourd\'hui</item>
         <item quantity="other">%1$d visites restantes aujourd\'hui</item>
+    </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Aucun objectif quotidien de visites</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s sur %2$d effectuée aujourd\'hui</item>
+        <item quantity="other">%1$s sur %2$d effectuées aujourd\'hui</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s effectuée aujourd\'hui</item>
+        <item quantity="other">%1$s effectuées aujourd\'hui</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
     <string name="install_barcode_top">Bienvenue sur CommCare !</string>
@@ -716,7 +703,6 @@ License.
     <string name="menu_app_list_install">Voir les applications pour mon utilisateur</string>
     <string name="menu_app_list_install_other_user">Voir les applications pour un autre utilisateur</string>
     <string name="toggle_web_user_mode">Utilisateur Web</string>
-    <string name="toggle_mobile_user_mode">Utilisateur mobile</string>
     <string name="missing_fields">Veuillez remplir tous les champs obligatoires.</string>
     <string name="email_address_invalid">Veuillez saisir une adresse e-mail valide.</string>
     <string name="get_app_list_user_error_mobile">Un nom d\'utilisateur, un domaine ou un mot de passe non valide a été fourni. Veuillez vous assurer que tous les champs saisis sont corrects.</string>
@@ -786,4 +772,23 @@ License.
     <string name="recording_notification_save_action">Enregistrer</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Reprendre</string>
+    <string name="connect_messaging_attachment_download">Télécharger</string>
+    <string name="connect_messaging_attachment_downloading">Téléchargement…</string>
+    <string name="connect_messaging_attachment_download_failed">Échec du téléchargement</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Appuyez pour réessayer</string>
+    <string name="connect_messaging_attachment_expired">N\'est plus disponible</string>
+    <string name="connect_messaging_attachment_open_failed">Aucune application sur ce téléphone ne peut ouvrir ce fichier</string>
+    <string name="connect_messaging_audio_play">Lire l\'audio</string>
+    <string name="connect_messaging_audio_pause">Mettre l\'audio en pause</string>
+    <string name="connect_messaging_audio_play_failed">Impossible de lire cet audio</string>
+    <string name="connect_messaging_update_app_notice">Votre application Android doit être mise à jour pour afficher ce message</string>
+    <string name="connect_messaging_update_app_banner">Mettez l\'application à jour pour voir tous les messages de ce canal</string>
+    <string name="connect_messaging_preview_update_app">[Mettez l\'application à jour pour voir ce message]</string>
+    <string name="connect_messaging_settings_title">Paramètres de messagerie</string>
+    <string name="connect_messaging_settings_any_network">En Wi-Fi et données mobiles</string>
+    <string name="connect_messaging_settings_tap_note">Les pièces jointes sur lesquelles vous appuyez sont toujours téléchargées immédiatement, sur n\'importe quel réseau.</string>
+    <string name="connect_messaging_settings_auto_download_title">Télécharger automatiquement les pièces jointes</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Pièces jointes volumineuses (plus de 1 Mo) uniquement en Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Téléchargement manuel uniquement</string>
+    <string name="connect_messaging_preview_pending_download">[Message multimédia à télécharger]</string>
 </resources>

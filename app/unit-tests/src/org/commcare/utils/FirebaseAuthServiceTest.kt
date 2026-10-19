@@ -38,6 +38,28 @@ class FirebaseAuthServiceTest {
     }
 
     @Test
+    fun `expired verification session maps to SESSION_EXPIRED`() {
+        assertEquals(
+            OtpErrorType.SESSION_EXPIRED,
+            FirebaseAuthService.errorTypeFrom(
+                FirebaseAuthInvalidCredentialsException(
+                    "ERROR_SESSION_EXPIRED",
+                    "The sms code has expired. Please re-send the verification code to try again.",
+                ),
+            ),
+        )
+    }
+
+    @Test
+    fun `an expired code is classified as recoverable and does not trigger the fallback`() {
+        val errorType =
+            FirebaseAuthService.errorTypeFrom(
+                FirebaseAuthInvalidCredentialsException("ERROR_SESSION_EXPIRED", "expired"),
+            )
+        assertEquals(false, errorType.isNonRecoverable)
+    }
+
+    @Test
     fun `exhausted SMS quota maps to TOO_MANY_REQUESTS`() {
         assertEquals(
             OtpErrorType.TOO_MANY_REQUESTS,

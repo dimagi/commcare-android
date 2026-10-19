@@ -158,7 +158,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     private fun populateDeliveryCards() {
         binding.cardMaxVisits.valueText = job.maxPossibleVisits.toString()
         binding.cardMaxVisits.subtitleText =
-            getString(R.string.connect_opportunity_visits_per_day, job.maxDailyVisits)
+            if (job.hasDailyLimit()) getString(R.string.connect_opportunity_visits_per_day, job.maxDailyVisits) else null
 
         binding.cardDays.valueText = job.daysRemaining.toString()
 

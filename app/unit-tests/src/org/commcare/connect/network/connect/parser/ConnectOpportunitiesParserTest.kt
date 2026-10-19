@@ -19,7 +19,9 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -86,6 +88,22 @@ class ConnectOpportunitiesParserTest {
             put("install_url", "https://example.com/install")
             put("learn_modules", JSONArray())
         }
+
+    private fun paymentUnitJson(maxDaily: Any): JSONObject =
+        JSONObject().apply {
+            put("id", 7)
+            put("payment_unit_id", "unit-uuid-7")
+            put("name", "Registration")
+            put("max_total", 20)
+            put("max_daily", maxDaily)
+            put("amount", 100)
+        }
+
+    private fun parseSingleJob(job: JSONObject): ConnectJobRecord {
+        every { ConnectJobUtils.storeJobs(any(), any(), any()) } returns 1
+        every { ConnectReleaseTogglesWorker.scheduleOneTimeFetch(any()) } just Runs
+        return parser.parse(200, jsonArrayOf(job), null).single()
+    }
 
     private fun claimedJobJson(
         id: Int,
@@ -235,6 +253,46 @@ class ConnectOpportunitiesParserTest {
             parser.parse(200, inputStream, null)
         }
         verify(exactly = 1) { ConnectJobUtils.storeJobs(any(), match { it.isEmpty() }, true) }
+    }
+
+    @Test
+    fun `parse keeps the daily limits when the job and its payment unit have them`() {
+        val job =
+            parseSingleJob(
+                validJobJson(1).apply { put("payment_units", JSONArray().put(paymentUnitJson(5))) },
+            )
+
+        assertTrue(job.hasDailyLimit())
+        assertEquals(10, job.maxDailyVisits)
+        assertTrue(job.paymentUnits.single().hasDailyLimit())
+        assertEquals(5, job.paymentUnits.single().maxDaily)
+    }
+
+    @Test
+    fun `parse treats a null job daily limit as no daily limit`() {
+        val job = parseSingleJob(validJobJson(1).apply { put("daily_max_visits_per_user", JSONObject.NULL) })
+
+        assertFalse(job.hasDailyLimit())
+    }
+
+    @Test
+    fun `parse treats a null payment unit daily limit as no daily limit`() {
+        val job =
+            parseSingleJob(
+                validJobJson(1).apply {
+                    put("payment_units", JSONArray().put(paymentUnitJson(JSONObject.NULL)))
+                },
+            )
+
+        assertFalse(job.paymentUnits.single().hasDailyLimit())
+        assertEquals(20, job.paymentUnits.single().maxTotal)
+    }
+
+    @Test
+    fun `parse treats a missing job daily limit as no daily limit`() {
+        val job = parseSingleJob(validJobJson(1).apply { remove("daily_max_visits_per_user") })
+
+        assertFalse(job.hasDailyLimit())
     }
 
     @Test

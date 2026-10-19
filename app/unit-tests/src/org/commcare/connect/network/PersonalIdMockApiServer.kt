@@ -70,13 +70,14 @@ class PersonalIdMockApiServer(
 
     /**
      * Waits for the next request to reach the mock server and its response callback to be posted to
-     * the main looper, then drains UI work so the callback runs before assertions. Only meaningful
-     * in [CallbackMode.MAIN_LOOPER].
+     * the main looper, then drains UI work so the callback runs before assertions. Returns that
+     * request. Only meaningful in [CallbackMode.MAIN_LOOPER].
      */
-    fun drainHttp() {
-        takeRequestOrFail()
+    fun drainHttp(): RecordedRequest {
+        val request = takeRequestOrFail()
         awaitHttpCallbackPosted()
         ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
+        return request
     }
 
     /**

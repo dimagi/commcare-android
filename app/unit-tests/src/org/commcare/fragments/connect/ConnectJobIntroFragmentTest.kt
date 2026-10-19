@@ -137,6 +137,15 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     }
 
     @Test
+    fun `max visits card drops the per-day subtitle when the job has no daily limit`() {
+        job.setMaxDailyVisits(ConnectJobRecord.NO_DAILY_LIMIT)
+        val fragment = launch()
+
+        assertEquals("100", cardValue(fragment, R.id.card_max_visits))
+        assertEquals("", cardSubtitle(fragment, R.id.card_max_visits))
+    }
+
+    @Test
     fun `days card shows the days remaining`() {
         val fragment = launch()
         assertEquals(job.daysRemaining.toString(), cardValue(fragment, R.id.card_days))
