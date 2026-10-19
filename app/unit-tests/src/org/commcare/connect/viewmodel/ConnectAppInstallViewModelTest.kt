@@ -215,6 +215,36 @@ class ConnectAppInstallViewModelTest {
         assertFalse(viewModel.isInstalling)
     }
 
+    @Test
+    fun `launching an installed app holds the screen like an install`() {
+        assertTrue(viewModel.launch(buildAppInstallTarget()))
+
+        assertEquals(AppInstallState.Launching, viewModel.installState.value)
+        assertEquals(buildAppInstallTarget(), viewModel.target)
+        assertTrue(viewModel.isInstalling)
+        verify(exactly = 0) { ConnectAppUtils.downloadApp(any(), any()) }
+    }
+
+    @Test
+    fun `a launch is refused while an install is running`() {
+        viewModel.install(buildAppInstallTarget(), INSTALL_URL)
+
+        assertFalse(viewModel.launch(buildAppInstallTarget(appId = "other-app")))
+
+        assertEquals(AppInstallState.Downloading(0), viewModel.installState.value)
+        assertEquals(APP_ID, viewModel.target?.appId)
+    }
+
+    @Test
+    fun `a launch replaces a failure the user has not dismissed`() {
+        viewModel.failUnknown(AppInstallStatus.UnknownFailure)
+        viewModel.consumeFailure()
+
+        assertTrue(viewModel.launch(buildAppInstallTarget()))
+
+        assertEquals(AppInstallState.Launching, viewModel.installState.value)
+    }
+
     private fun getInstallStateAsDownloading() = viewModel.installState.value as AppInstallState.Downloading
 
     private fun buildAppInstallTarget(

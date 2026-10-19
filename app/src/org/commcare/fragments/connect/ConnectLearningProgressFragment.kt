@@ -180,6 +180,9 @@ class ConnectLearningProgressFragment :
     ) {
         if (showLearningComplete) {
             binding.learnCompleteView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
+            if (state is AppInstallState.Failed) {
+                binding.learnCompleteView.isCtaEnabled = true
+            }
         } else {
             binding.learnProgressView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
         }

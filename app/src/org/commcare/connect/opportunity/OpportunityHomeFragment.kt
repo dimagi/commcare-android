@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
@@ -13,6 +14,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
 import org.commcare.fragments.RefreshableFragment
+import org.commcare.fragments.base.BaseConnectFragment
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
@@ -25,13 +27,6 @@ class OpportunityHomeFragment :
     OpportunityNavigator,
     RefreshableFragment {
     private val stateController by lazy { OpportunityHomeStateController(this) }
-
-    private val installViewModel: ConnectAppInstallViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-        )[ConnectAppInstallViewModel::class.java]
-    }
 
     private val job: ConnectJobRecord
         get() =
@@ -52,6 +47,21 @@ class OpportunityHomeFragment :
                 }
             },
         )
+        observeAppInstall()
+    }
+
+    /** A surface held by an install or launch may no longer fit once that is over, however it ended. */
+    private fun observeAppInstall() {
+        ViewModelProvider(
+            requireActivity(),
+            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
+        )[ConnectAppInstallViewModel::class.java]
+            .installState
+            .observe(viewLifecycleOwner) {
+                if (viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                    onPhaseChanged()
+                }
+            }
     }
 
     override fun refresh(forceRefresh: Boolean) {
@@ -61,7 +71,9 @@ class OpportunityHomeFragment :
 
     override fun phase(): OpportunityPhase = OpportunityPhase.of(job)
 
-    override fun isBusyInstalling(): Boolean = installViewModel.isInstalling
+    override fun holdsSurface(): Boolean =
+        (childFragmentManager.findFragmentById(R.id.opportunity_home_container) as? BaseConnectFragment<*>)
+            ?.holdsAppInstall == true
 
     override fun showState(state: OpportunityHomeState) {
         if (childFragmentManager.findFragmentByTag(state.name) != null) {

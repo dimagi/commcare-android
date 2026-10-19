@@ -30,11 +30,6 @@ import java.text.DateFormat
 class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
     private lateinit var viewModel: ConnectJobIntroViewModel
 
-    /** Best effort: the page also re-resolves on resume, which is what reliably moves it to learn progress. */
-    override fun onAppLaunched() {
-        OpportunityNavigator.hostOf(this)?.onPhaseChanged()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -170,7 +165,12 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
             )
     }
 
+    /** Once learning has started, the CTA left up by a failed learn install retries that install. */
     private fun startLearning() {
+        if (job.status == ConnectJobRecord.STATUS_LEARNING) {
+            launchApp(isLearning = true)
+            return
+        }
         viewModel.startLearning(job.jobUUID)
     }
 

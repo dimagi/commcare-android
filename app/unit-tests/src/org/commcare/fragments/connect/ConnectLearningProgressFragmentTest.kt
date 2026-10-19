@@ -43,6 +43,7 @@ import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel
 import org.commcare.dalvik.R
+import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectSuccessFailureCard
@@ -50,6 +51,8 @@ import org.commcare.views.connect.ConnectSyncStatusCard
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -295,6 +298,21 @@ class ConnectLearningProgressFragmentTest {
     }
 
     @Test
+    fun `a delivery launch that fails after the install moves the page on to delivery`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        clickCta(fragment)
+        respondToClaim(responseCode = 200)
+
+        activity.runOnUiThread {
+            installViewModel().markLaunching()
+            installViewModel().clear()
+        }
+        ShadowLooper.idleMainLooper()
+
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
     fun `a refresh that leaves the job learning keeps the screen`() {
         val fragment = launch(ConnectLearnJobTestData.job())
 
@@ -324,6 +342,65 @@ class ConnectLearningProgressFragmentTest {
 
         verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
         navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `a failed delivery install keeps its failure on screen across a resume`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(fragment)
+
+        activity.runOnUiThread {
+            activityController
+                .pause()
+                .stop()
+                .start()
+                .resume()
+        }
+        ShadowLooper.idleMainLooper()
+
+        assertSame(fragment, navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>())
+        assertEquals(View.VISIBLE, learnCompleteFailureCard(fragment).visibility)
+        assertTrue("the failure leaves a retry", learnCompleteCta(fragment).isEnabled)
+    }
+
+    @Test
+    fun `dismissing a failed delivery install moves the page on to delivery`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(fragment)
+
+        activity.runOnUiThread {
+            learnCompleteFailureCard(fragment).findViewById<View>(R.id.success_failure_card_close).performClick()
+        }
+        ShadowLooper.idleMainLooper()
+
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `retrying after a failed delivery install downloads again without claiming again`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(fragment)
+        val requestsBefore = mockApi.server.requestCount
+        assertTrue("the failure leaves a retry", learnCompleteCta(fragment).isEnabled)
+
+        clickCta(fragment)
+
+        verify(exactly = 2) { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
+        assertEquals("the job is already claimed", requestsBefore, mockApi.server.requestCount)
+        assertCtaBarShowsDownload(fragment, R.id.learnCompleteView, R.string.connect_downloading_delivery)
+    }
+
+    @Test
+    fun `a failed install from one job does not show on another job's screen`() {
+        val firstJobScreen = launch(ConnectLearnJobTestData.job())
+        failDeliveryInstallAfterClaim(firstJobScreen)
+
+        val otherJob = ConnectLearnJobTestData.job().apply { jobUUID = "job-uuid-learn-2" }
+        val otherJobScreen = launch(otherJob)
+
+        assertNotSame(firstJobScreen, otherJobScreen)
+        assertFalse(otherJobScreen.holdsAppInstall)
+        assertNotEquals(View.VISIBLE, learnCompleteFailureCard(otherJobScreen).visibility)
     }
 
     @Test
@@ -427,6 +504,21 @@ class ConnectLearningProgressFragmentTest {
         ShadowLooper.idleMainLooper()
         viewModel.repository = ConnectRepository.getInstance()
     }
+
+    /** Claims the job, then has the installer report that the delivery app download failed. */
+    private fun failDeliveryInstallAfterClaim(fragment: ConnectLearningProgressFragment) {
+        clickCta(fragment)
+        respondToClaim(responseCode = 200)
+        activity.runOnUiThread { installViewModel().failUnknown(AppInstallStatus.UnknownFailure) }
+        ShadowLooper.idleMainLooper()
+        assertEquals(View.VISIBLE, learnCompleteFailureCard(fragment).visibility)
+    }
+
+    private fun learnCompleteFailureCard(fragment: ConnectLearningProgressFragment): View =
+        fragment
+            .requireView()
+            .findViewById<View>(R.id.learnCompleteView)
+            .findViewById(R.id.cta_failure_card)
 
     private fun installViewModel(): ConnectAppInstallViewModel =
         ViewModelProvider(

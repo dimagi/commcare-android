@@ -14,7 +14,7 @@ class OpportunityHomeStateControllerTest {
 
         override fun phase(): OpportunityPhase = phase
 
-        override fun isBusyInstalling(): Boolean = installing
+        override fun holdsSurface(): Boolean = installing
 
         override fun showState(state: OpportunityHomeState) {
             shown += state

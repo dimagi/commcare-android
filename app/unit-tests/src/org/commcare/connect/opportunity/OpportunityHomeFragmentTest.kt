@@ -2,14 +2,26 @@ package org.commcare.connect.opportunity
 
 import android.os.Build
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.android.material.button.MaterialButton
 import io.mockk.every
+import io.mockk.mockkConstructor
+import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectAppLauncher
 import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.AppInstallState
+import org.commcare.connect.viewmodel.AppInstallTarget
+import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
 import org.commcare.fragments.connect.BaseConnectJobIntroTest
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
@@ -17,6 +29,7 @@ import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -262,4 +275,74 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         ShadowLooper.idleMainLooper()
         assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
     }
+
+    @Test
+    fun `a lock during an installed app's launch keeps the intro until the launch is over`() {
+        val intro = startLaunchOfInstalledLearnApp()
+
+        activity.runOnUiThread { activityController.pause().stop() }
+        ShadowLooper.idleMainLooper()
+        activity.runOnUiThread { activityController.start().resume() }
+        ShadowLooper.idleMainLooper()
+
+        assertSame(intro, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
+        assertEquals(AppInstallState.Launching, installViewModel().installState.value)
+    }
+
+    @Test
+    fun `a failed launch moves the page on to the phase the job reached`() {
+        startLaunchOfInstalledLearnApp()
+
+        activity.runOnUiThread { installViewModel().clear() }
+        ShadowLooper.idleMainLooper()
+
+        navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+    }
+
+    @Test
+    fun `a launch cancelled with the screen's view leaves nothing in flight`() {
+        startLaunchOfInstalledLearnApp()
+
+        activity.runOnUiThread { navController.popBackStack() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(AppInstallState.Idle, installViewModel().installState.value)
+    }
+
+    @Test
+    fun `an install another screen started does not keep the page from showing a surface`() {
+        installViewModel().launch(AppInstallTarget("other-app", true, "other-screen"))
+        job.status = ConnectJobRecord.STATUS_LEARNING
+
+        openPage()
+
+        navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+    }
+
+    /** The learn app is already on the device, and its launch never reports an outcome, so it stays in flight. */
+    private fun startLaunchOfInstalledLearnApp(): ConnectJobIntroFragment {
+        seedConnectUser()
+        mockkStatic(AppUtils::class)
+        every { AppUtils.isAppInstalled(any()) } returns true
+        mockkConstructor(ConnectAppLauncher::class)
+        every { anyConstructed<ConnectAppLauncher>().start(any(), any(), any(), any(), any(), any()) } returns Job()
+        every { repository.startLearning(any()) } returns flowOf(DataState.Success(Unit))
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        openPage()
+
+        val intro = navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+        val cta = intro.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        activity.runOnUiThread { cta.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
+        assertEquals(AppInstallState.Launching, installViewModel().installState.value)
+        return intro
+    }
+
+    private fun installViewModel(): ConnectAppInstallViewModel =
+        ViewModelProvider(
+            activity,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
+        )[ConnectAppInstallViewModel::class.java]
 }
