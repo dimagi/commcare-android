@@ -11,6 +11,11 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 
+### QA Notes
+
+- On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
+- With the dashboard progress breakdown collapsed, confirm the three payment units shown are the most recently visited ones.
+
 ## CommCare 2.65
 
 ### Release Notes
