@@ -135,6 +135,16 @@ class ConnectDeliveryVisitsFragmentTest {
     }
 
     @Test
+    fun `cards are listed by their unit's most recent visit with unvisited units last`() {
+        val cards =
+            getPaymentUnitCards(
+                launchVisitsTab(deliveryProgressJson(deliveries = approvedDeliveriesFor(unit = 2, count = 1))),
+            )
+
+        assertEquals(listOf("Unit 2", "Unit 1"), cards.map { it.title() })
+    }
+
+    @Test
     fun `a card shows its unit's approved count, amount earned and visits remaining`() {
         val card =
             getPaymentUnitCards(
@@ -166,8 +176,8 @@ class ConnectDeliveryVisitsFragmentTest {
                 ),
             )
 
-        assertEquals("2", cards[0].approved())
-        assertEquals("3", cards[1].approved())
+        assertEquals("2", cards.findCardWithTitle("Unit 1").approved())
+        assertEquals("3", cards.findCardWithTitle("Unit 2").approved())
     }
 
     @Test
@@ -265,7 +275,7 @@ class ConnectDeliveryVisitsFragmentTest {
                             approvedDeliveriesFor(unit = 2, count = 3, startId = 50),
                 ),
             )
-        val unitTwoCard = getPaymentUnitCards(visits)[1]
+        val unitTwoCard = getPaymentUnitCards(visits).findCardWithTitle("Unit 2")
 
         activity.runOnUiThread { unitTwoCard.performClick() }
         ShadowLooper.idleMainLooper()
@@ -359,6 +369,8 @@ class ConnectDeliveryVisitsFragmentTest {
     }
 
     private fun View.title(): String = findViewById<TextView>(R.id.tvDeliveryTitle).text.toString()
+
+    private fun List<View>.findCardWithTitle(title: String): View = single { it.title() == title }
 
     private fun View.approved(): String = findViewById<TextView>(R.id.tvApproved).text.toString()
 

@@ -112,7 +112,7 @@ class ConnectDeliveryDashboardFragment :
         val visitsTodayPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(true)
         val visitsPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(false)
 
-        return job.paymentUnits.map { paymentUnit ->
+        return job.paymentUnitsByMostRecentVisit.map { paymentUnit ->
             val visitsDoneToday = visitsTodayPerPaymentUnit[paymentUnit.unitUUID] ?: 0
             val visitsBeforeToday = (visitsPerPaymentUnit[paymentUnit.unitUUID] ?: 0) - visitsDoneToday
             val maxDailyVisits =
@@ -220,7 +220,7 @@ class ConnectDeliveryDashboardFragment :
 
         val counts = job.getDeliveryCountsPerPaymentUnit(false)
         val unitsAtLimit = job.paymentUnitsAtLimit
-        job.paymentUnits.forEach { unit ->
+        job.paymentUnitsByMostRecentVisit.forEach { unit ->
             val card =
                 halfCard(
                     value = (counts[unit.unitUUID] ?: 0).toString(),

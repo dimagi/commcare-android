@@ -242,12 +242,14 @@ class ConnectDeliveryDashboardFragmentTest {
                 ),
             )
         val rows = getPaymentUnitRows(dashboard)
+        val withDailyLimit = rows.single { it.getLabelText() == "Unit 1" }
+        val withoutDailyLimit = rows.single { it.getLabelText() == "Unit 2" }
 
-        assertEquals(View.VISIBLE, rows[0].findViewById<View>(R.id.progress_card_linear_bar).visibility)
+        assertEquals(View.VISIBLE, withDailyLimit.findViewById<View>(R.id.progress_card_linear_bar).visibility)
 
-        assertEquals("4 completed today", rows[1].getCountText())
-        assertEquals(View.GONE, rows[1].findViewById<View>(R.id.progress_card_linear_bar).visibility)
-        assertEquals(activity.getString(R.string.connect_delivery_no_daily_visit_target), rows[1].getCaptionText())
+        assertEquals("4 completed today", withoutDailyLimit.getCountText())
+        assertEquals(View.GONE, withoutDailyLimit.findViewById<View>(R.id.progress_card_linear_bar).visibility)
+        assertEquals(activity.getString(R.string.connect_delivery_no_daily_visit_target), withoutDailyLimit.getCaptionText())
         assertEquals(
             View.GONE,
             dashboard.requireView().findViewById<View>(R.id.progress_card_info_message).visibility,
@@ -332,6 +334,28 @@ class ConnectDeliveryDashboardFragmentTest {
         assertEquals("Show less", toggle.text.toString())
     }
 
+    @Test
+    fun `payment units are listed by their most recent visit with unvisited units last`() {
+        job = seedDeliveryJob(paymentUnitMaxDailies = listOf(2, 2, 2, 2))
+        val dashboard =
+            launch(
+                progressResponse(
+                    deliveries =
+                        listOf(
+                            deliveryJson(id = 1, unit = 2, date = getDateDaysAgo(3)),
+                            deliveryJson(id = 2, unit = 4, date = getDateDaysAgo(1)),
+                        ),
+                ),
+            )
+        val expectedOrder = listOf("Unit 4", "Unit 2", "Unit 1", "Unit 3")
+
+        activity.runOnUiThread { getBreakdownToggle(dashboard).performClick() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(expectedOrder, getPaymentUnitRows(dashboard).map { it.getLabelText() })
+        assertEquals(expectedOrder, halfCards(dashboard).drop(1).map { it.titleText.toString() })
+    }
+
     /**
      * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
      * same delivery-progress call and land its result on the figures.
@@ -385,8 +409,8 @@ class ConnectDeliveryDashboardFragmentTest {
             )
         val cards = halfCards(dashboard)
 
-        assertEquals("2", cards[1].valueText.toString())
-        assertEquals("1", cards[2].valueText.toString())
+        assertEquals("2", cards.single { it.titleText.toString() == "Unit 1" }.valueText.toString())
+        assertEquals("1", cards.single { it.titleText.toString() == "Unit 2" }.valueText.toString())
     }
 
     @Test
@@ -758,6 +782,8 @@ class ConnectDeliveryDashboardFragmentTest {
     }
 
     private fun tomorrow(): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 1) }.time
+
+    private fun getDateDaysAgo(days: Int): Date = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -days) }.time
 
     private companion object {
         const val DELIVERY_PROGRESS_PATH = "/delivery_progress"

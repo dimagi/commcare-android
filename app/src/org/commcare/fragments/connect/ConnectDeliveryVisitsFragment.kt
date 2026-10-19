@@ -45,7 +45,7 @@ class ConnectDeliveryVisitsFragment :
                 .groupingBy { it.slugUUID }
                 .eachCount()
 
-        return job.paymentUnits.map { unit ->
+        return job.paymentUnitsByMostRecentVisit.map { unit ->
             val approved = approvedCounts[unit.unitUUID] ?: 0
             ConnectDeliveryDetails(
                 unitUUID = unit.unitUUID,
