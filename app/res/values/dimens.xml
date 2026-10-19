@@ -3,6 +3,7 @@
 
     <!-- Text sizes -->
     <dimen name="text_smaller">9sp</dimen>
+    <dimen name="text_caption">12sp</dimen>
     <dimen name="text_small">14sp</dimen>
     <dimen name="text_medium">18sp</dimen>
     <dimen name="text_large">21sp</dimen>
@@ -191,6 +192,7 @@
     <dimen name="connect_space_md">12dp</dimen>
     <dimen name="connect_space_lg">16dp</dimen>
     <dimen name="connect_space_xl">24dp</dimen>
+    <dimen name="connect_space_2xl">40dp</dimen>
     <dimen name="connect_chip_icon_size">20dp</dimen>
     <!-- Keeps a borderless text button wide enough to stay an easy tap target. -->
     <dimen name="connect_text_button_min_width">64dp</dimen>
@@ -203,6 +205,7 @@
     <dimen name="connect_icon_circle_lg">40dp</dimen>
     <dimen name="connect_icon_circle_padding_lg">10dp</dimen>
     <!-- Corner radii -->
+    <dimen name="connect_radius_xs">4dp</dimen>
     <dimen name="connect_radius_sm">5dp</dimen>
     <dimen name="connect_radius_card">8dp</dimen>
     <dimen name="connect_radius_lg">16dp</dimen>
@@ -214,6 +217,14 @@
     <dimen name="connect_button_elevation">3dp</dimen>
     <!-- Strokes -->
     <dimen name="connect_stroke_hairline">1dp</dimen>
+    <dimen name="connect_stroke_emphasis">2dp</dimen>
+
+    <dimen name="input_field_icon_tile_size">32dp</dimen>
+    <dimen name="input_field_icon_offset">14dp</dimen>
+    <dimen name="input_field_padding_vertical">14dp</dimen>
+    <dimen name="input_field_spacing">28dp</dimen>
+    <dimen name="login_dropdown_spacing">35dp</dimen>
+
     <!-- Opportunity list card -->
     <dimen name="connect_radius_md">12dp</dimen>
     <dimen name="connect_job_badge_ring_size">48dp</dimen>

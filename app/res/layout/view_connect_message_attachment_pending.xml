@@ -32,7 +32,7 @@
             android:visibility="gone"
             app:indicatorColor="@color/white"
             app:indicatorSize="@dimen/connect_message_progress_size"
-            app:trackColor="@color/connect_message_receiver_bg"
+            app:trackColor="@color/cornflower_blue"
             app:trackThickness="@dimen/connect_message_progress_thickness" />
     </FrameLayout>
 
