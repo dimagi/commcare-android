@@ -648,8 +648,11 @@
         <item quantity="other">ሎሚ %1$s ተዛዚሞም</item>
     </plurals>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
-    <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
-    <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
+    <string name="install_get_started_title">ብ CommCare ጀምሩ</string>
+    <string name="install_get_started_message">ንምጅማር ቀዳማይ ኣፕኩም ኣእትዉ።</string>
+    <string name="install_via_qr_code">ብ QR ኮድ ኣእትዉ</string>
+    <string name="install_via_app_code">ብ ኮድ ኣፕ ኣእትዉ</string>
+    <string name="install_from_local">ካብ ከባቢያዊ መርበብ ኣእትዉ</string>
     <string name="install_keep_trying">ርክብ እንተ ተቛሪጹ ክትፍትኑ ቀጽሉ</string>
     <string name="install_manual">በጃኹም URL ኣእትዉ</string>
     <string name="install_ready_top">ቀሪቡ!</string>
@@ -662,6 +665,7 @@
     <string name="install_bad_ref">ቅኑዕ URL ኣይሰካንኩምን። በጃኹም እንደገና ፈትኑ።</string>
     <string name="install_bad_login">ናብ ዘሎ ኣፕሊኬሽን እተዉ</string>
     <string name="install_appprofile">ናይ ኣፕሊኬሽን ኮድኩም ኣእትዉ</string>
+    <string name="install_code_hint">ኮድ ኣብዚ ኣእትዉ</string>
     <string name="install_perms_rationale_message">CommCare ናይ ቅጥዒ ምቕራብ ንምዕቃብ ብውሕዱ ናይ ግዳማዊ ማከዘን ምንባብን ምፅሓፍን ፍቓዳት የድልዮ።</string>
     <string name="install_perms_denied_message">ኣገደስቲ ፍቓዳት %1$s ግዜ ተኸልኪሎም።\n\n ኣብዚ ፍቓዳት ምሕታት እንተ ፈሺሉ፡ በጃኹም ኣብ ናይ Android ቅንብር ፍቓዳት ኣብርሁ።</string>
     <string name="install_choose_local_app">ዘለዉ ኣፕሊኬሽናት</string>

@@ -6,10 +6,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.views.SquareButtonWithText;
 
 /**
  * Fragment to start, update or cancel an app installation.
@@ -39,12 +39,12 @@ public class InstallConfirmFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.install_confirm_fragment, container, false);
 
-        SquareButtonWithText btnStartInstall = view.findViewById(R.id.btn_start_install);
+        Button btnStartInstall = view.findViewById(R.id.btn_start_install);
         btnStartInstall.setText(getString(R.string.install_button_start));
         btnStartInstall.setEnabled(true);
         btnStartInstall.setOnClickListener(v -> buttonCommands.onStartInstallClicked());
 
-        SquareButtonWithText btnStopInstall = view.findViewById(R.id.btn_stop_install);
+        Button btnStopInstall = view.findViewById(R.id.btn_stop_install);
         btnStopInstall.setText(getString(R.string.install_button_startover));
         btnStopInstall.setEnabled(true);
         btnStopInstall.setOnClickListener(v -> buttonCommands.onStopInstallClicked());
