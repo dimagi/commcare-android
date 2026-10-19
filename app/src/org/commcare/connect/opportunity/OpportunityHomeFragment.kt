@@ -3,6 +3,8 @@ package org.commcare.connect.opportunity
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
@@ -14,6 +16,7 @@ import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 /** Per-opportunity page that shows the status surface for the opportunity's current phase. */
 class OpportunityHomeFragment :
@@ -42,6 +45,13 @@ class OpportunityHomeFragment :
     ) {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycle.addObserver(stateController)
+        viewLifecycleOwner.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onResume(owner: LifecycleOwner) {
+                    reportCurrentSurface()
+                }
+            },
+        )
     }
 
     override fun refresh(forceRefresh: Boolean) {
@@ -68,7 +78,11 @@ class OpportunityHomeFragment :
         if (view == null || childFragmentManager.isStateSaved) {
             return
         }
+        val before = stateController.currentState
         stateController.reResolveState()
+        if (stateController.currentState != before) {
+            reportCurrentSurface()
+        }
     }
 
     override fun navigateFromPage(directions: NavDirections) {
@@ -87,6 +101,26 @@ class OpportunityHomeFragment :
             OpportunityHomeState.JOB_INTRO -> ConnectJobIntroFragment()
             OpportunityHomeState.LEARNING -> ConnectLearningProgressFragment()
             OpportunityHomeState.DELIVERY -> deliverySurface()
+        }
+
+    private fun reportCurrentSurface() {
+        val state = stateController.currentState ?: return
+        FirebaseAnalyticsUtil.reportScreenView(screenNameFor(state), surfaceClassFor(state).name)
+    }
+
+    /** The screen name each surface reported back when it was its own destination. */
+    private fun screenNameFor(state: OpportunityHomeState): String =
+        when (state) {
+            OpportunityHomeState.JOB_INTRO -> "fragment_connect_job_intro"
+            OpportunityHomeState.LEARNING -> "fragment_connect_learning_progress"
+            OpportunityHomeState.DELIVERY -> "fragment_connect_delivery_home"
+        }
+
+    private fun surfaceClassFor(state: OpportunityHomeState): Class<out Fragment> =
+        when (state) {
+            OpportunityHomeState.JOB_INTRO -> ConnectJobIntroFragment::class.java
+            OpportunityHomeState.LEARNING -> ConnectLearningProgressFragment::class.java
+            OpportunityHomeState.DELIVERY -> ConnectDeliveryHomeFragment::class.java
         }
 
     /** Passes a link's requested tab through to the delivery surface. */
