@@ -22,6 +22,7 @@ import org.json.JSONObject
 import org.junit.After
 import org.junit.Before
 import org.robolectric.Robolectric
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
 
 /**
@@ -30,6 +31,7 @@ import org.robolectric.shadows.ShadowLooper
  * (clicks, rendered text) rather than calling fragment methods directly.
  */
 abstract class BaseConnectJobIntroTest {
+    protected lateinit var activityController: ActivityController<ConnectActivity>
     protected lateinit var activity: ConnectActivity
     protected lateinit var navHostFragment: NavHostFragment
     protected val navController: NavController get() = navHostFragment.navController
@@ -63,14 +65,14 @@ abstract class BaseConnectJobIntroTest {
             }
         every { FirebaseAnalyticsUtil.reportCccApiStartLearning(any()) } returns Unit
 
-        activity =
+        activityController =
             Robolectric
                 .buildActivity(ConnectActivity::class.java)
                 .create()
                 .postCreate(null)
                 .start()
                 .resume()
-                .get()
+        activity = activityController.get()
 
         navHostFragment =
             activity.supportFragmentManager
