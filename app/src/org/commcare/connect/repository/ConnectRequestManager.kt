@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import org.commcare.connect.network.personalId.LoginInvalidatedException
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -41,15 +40,16 @@ object ConnectRequestManager {
         scope.launch {
             try {
                 val result = request()
+                inFlightRequests.remove(url, deferred)
                 deferred.complete(result as Result<Any>)
             } catch (e: CancellationException) {
+                inFlightRequests.remove(url, deferred)
                 deferred.cancel(e)
                 throw e
             } catch (e: Exception) {
+                inFlightRequests.remove(url, deferred)
                 deferred.completeExceptionally(e)
                 throw e
-            } finally {
-                inFlightRequests.remove(url)
             }
         }
 
