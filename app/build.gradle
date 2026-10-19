@@ -538,6 +538,8 @@ android {
                         project.layout.buildDirectory.dir('outputs/l10n-screenshots').get().asFile.absolutePath
                 systemProperty 'roborazzi.test.record', 'true'
                 outputs.upToDateWhen { false }
+            } else {
+                exclude 'org/commcare/l10n/*ScreenshotTest*'
             }
         }
         unitTests {
