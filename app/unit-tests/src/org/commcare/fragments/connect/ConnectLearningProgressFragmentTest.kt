@@ -1,6 +1,7 @@
 package org.commcare.fragments.connect
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.view.View
 import android.widget.TextView
@@ -27,6 +28,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectAppUtils
+import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectLearnJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
@@ -133,6 +135,33 @@ class ConnectLearningProgressFragmentTest {
 
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.learnCompleteView).visibility)
         assertEquals(View.GONE, view.findViewById<View>(R.id.learnProgressView).visibility)
+    }
+
+    @Test
+    fun `toolbar shows the opportunity name and keeps the sync button`() {
+        val job = ConnectLearnJobTestData.job()
+        launch(job)
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(job.title, activity.supportActionBar!!.title)
+        assertTrue(activity.isSyncMenuItemVisible())
+    }
+
+    @Test
+    fun `opening straight to learning progress keeps the opportunity name as the title`() {
+        val job = seedLearningJob()
+        mockApi.server.enqueue(MockResponse().setResponseCode(400).setBody("{}"))
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ConnectActivity::class.java).apply {
+                putExtra(ConnectConstants.GO_TO_JOB_STATUS, true)
+                putExtra(ConnectConstants.OPPORTUNITY_UUID, job.jobUUID)
+            }
+
+        val launched = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
+        ShadowLooper.idleMainLooper()
+        mockApi.awaitRequest()
+
+        assertEquals(job.title, launched.supportActionBar!!.title)
     }
 
     @Test

@@ -281,6 +281,7 @@
     <string name="connect_sms_invite_opportunity_not_found">Oportunidad no encontrada</string>
     <string name="connect_learn_complete">Completar</string>
     <string name="connect_learn_certificate">Certificado</string>
+    <string name="connect_learn_view_certificate">Ver certificado</string>
     <string name="connect_learn_completed">Completado el %s</string>
     <string name="connect_learn_cert_score">Puntuación: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Comenzar visitas</string>
@@ -558,6 +559,7 @@
     <string name="camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
+    <string name="personalid_backup_code_locked">Su código de respaldo ha sido bloqueado. Por favor, verifique su correo electrónico para establecer uno nuevo.</string>
     <string name="personalid_work_history_title">Mi Historial Laboral</string>
     <string name="personalid_work_history">Historial Laboral</string>
     <string name="personalid_work_history_learn_more">Más Información Sobre las Credenciales</string>
@@ -631,6 +633,7 @@
     <string name="connect_delivery_visit_progress_title">Progreso de visitas</string>
     <string name="connect_delivery_total_visits_completed">visitas totales completadas</string>
     <string name="connect_delivery_daily_visits">Visitas diarias</string>
+    <string name="connect_visits_completed_today">Visitas completadas hoy</string>
     <string name="connect_delivery_your_progress">Tu progreso</string>
     <string name="connect_delivery_total_earnings">Ganancias totales</string>
     <string name="connect_delivery_amount_each">%1$s cada una</string>
@@ -638,6 +641,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Obligatorias</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Complete las tareas para continuar con la entrega.</string>
     <string name="connect_delivery_tasks_empty">No hay tareas pendientes en este momento. Le avisaremos cuando haya una nueva tarea disponible.</string>
+    <string name="connect_delivery_visits_empty">Aún no hay visitas. Sus visitas completadas aparecerán aquí.</string>
+    <string name="connect_delivery_visits_filter_empty">Ninguna visita coincide con este filtro.</string>
     <string name="connect_delivery_revisit_learning_title">Repasar el aprendizaje</string>
     <string name="connect_delivery_revisit_learning_completed">Completado %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">El certificado estará disponible después de la próxima sincronización</string>
@@ -659,7 +664,6 @@
         <item quantity="one">%1$s completada hoy</item>
         <item quantity="other">%1$s completadas hoy</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
     <string name="install_get_started_title">Comience a usar CommCare</string>
     <string name="install_get_started_message">Instale su primera aplicación para empezar.</string>
     <string name="install_via_qr_code">Instalar con código QR</string>
