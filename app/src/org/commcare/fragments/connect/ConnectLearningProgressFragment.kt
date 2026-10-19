@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.AppUtils
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
@@ -66,19 +68,41 @@ class ConnectLearningProgressFragment :
         binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
     }
 
-    /** Publishes the refreshed job to the host so Opportunity Home resolves against current data. */
+    /**
+     * Publishes the refreshed job to the host so Opportunity Home resolves against current data, and
+     * lets the page swap surfaces when the server says the opportunity has moved on.
+     */
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
-            { cached ->
-                setActiveJob(cached)
-                updateLearningUI()
-            },
-            { success ->
-                setActiveJob(success)
-                updateLearningUI()
-            },
+            { cached -> publishRefreshedJob(cached) },
+            { success -> publishRefreshedJob(success) },
         )
+    }
+
+    /** A refresh begun before the claim landed carries the pre-claim status and must not replace the claimed job. */
+    private fun publishRefreshedJob(refreshed: ConnectJobRecord) {
+        val claimed = viewModel.claimJob.value is DataState.Success
+        if (claimed && refreshed.status != ConnectJobRecord.STATUS_DELIVERING) {
+            publishClaimedJob()
+            return
+        }
+        setActiveJob(refreshed)
+        updateLearningUI()
+        OpportunityNavigator.hostOf(this)?.onPhaseChanged()
+    }
+
+    /**
+     * A refresh racing the claim can write the pre-claim status back over the stored job, so the
+     * stored job is put back to delivering and published before the page resolves its surface.
+     */
+    private fun publishClaimedJob() {
+        val claimed = ConnectJobUtils.getCompositeJob(job.jobUUID) ?: job
+        if (claimed.status != ConnectJobRecord.STATUS_DELIVERING) {
+            claimed.status = ConnectJobRecord.STATUS_DELIVERING
+            ConnectJobUtils.upsertJob(claimed)
+        }
+        setActiveJob(claimed)
     }
 
     /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */
@@ -117,6 +141,7 @@ class ConnectLearningProgressFragment :
                 is DataState.Success -> {
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
+                        publishClaimedJob()
                         if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
                             OpportunityNavigator
                                 .hostOf(this@ConnectLearningProgressFragment)

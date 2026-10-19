@@ -222,6 +222,30 @@ class ConnectLearningProgressFragmentTest {
     }
 
     @Test
+    fun `a refresh landing while the claim is in flight does not stop the page swapping`() {
+        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.DELIVERY_APP_ID) } returns true
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        clickCta(fragment)
+        refreshFrom(fragment, ConnectLearnJobTestData.job())
+        respondToClaim(responseCode = 200)
+
+        assertEquals(ConnectJobRecord.STATUS_DELIVERING, activity.activeJob.status)
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `a refresh landing after the claim does not put back the learning status`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        clickCta(fragment)
+        respondToClaim(responseCode = 200)
+        refreshFrom(fragment, ConnectLearnJobTestData.job())
+
+        assertEquals(ConnectJobRecord.STATUS_DELIVERING, activity.activeJob.status)
+    }
+
+    @Test
     fun `a refreshed opportunity is published to the page, not kept on this screen`() {
         val fragment = launch(ConnectLearnJobTestData.job())
         val refreshed = ConnectLearnJobTestData.job()
@@ -232,6 +256,51 @@ class ConnectLearningProgressFragmentTest {
             refreshed,
             activity.activeJob,
         )
+    }
+
+    @Test
+    fun `a refresh saying the job is delivering swaps the page to the delivery surface`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        refreshFrom(fragment, ConnectLearnJobTestData.job().apply { status = ConnectJobRecord.STATUS_DELIVERING })
+
+        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
+    }
+
+    @Test
+    fun `a refresh saying an unclaimed job has ended keeps the learning surface`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        refreshFrom(fragment, ConnectLearnJobTestData.job(endDate = "2020-01-01"))
+
+        navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+    }
+
+    @Test
+    fun `a refresh that stored the pre-claim status is stored back as delivering`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+        clickCta(fragment)
+        respondToClaim(responseCode = 200)
+
+        val stale = ConnectLearnJobTestData.job()
+        ConnectJobUtils.upsertJob(stale)
+        refreshFrom(fragment, stale)
+
+        assertEquals(
+            ConnectJobRecord.STATUS_DELIVERING,
+            ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)?.status,
+        )
+        assertEquals(ConnectJobRecord.STATUS_DELIVERING, activity.activeJob.status)
+    }
+
+    @Test
+    fun `a refresh that leaves the job learning keeps the screen`() {
+        val fragment = launch(ConnectLearnJobTestData.job())
+
+        refreshFrom(fragment, ConnectLearnJobTestData.job())
+
+        assertSame(fragment, navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>())
     }
 
     @Test
@@ -351,11 +420,12 @@ class ConnectLearningProgressFragmentTest {
         val repository = mockk<ConnectRepository>(relaxed = true)
         every { repository.getLearningProgress(any(), any(), any()) } returns
             flowOf(DataState.Loading, DataState.Success(refreshed))
-        learningViewModel(fragment).repository = repository
+        val viewModel = learningViewModel(fragment)
+        viewModel.repository = repository
 
         activity.runOnUiThread { fragment.refresh(true) }
         ShadowLooper.idleMainLooper()
-        learningViewModel(fragment).repository = ConnectRepository.getInstance()
+        viewModel.repository = ConnectRepository.getInstance()
     }
 
     private fun installViewModel(): ConnectAppInstallViewModel =
