@@ -9,6 +9,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 #### What's New
 
 - The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
+- The delivery dashboard and Visits tab now list payment units by their most recent visit.
 
 ## CommCare 2.65
 
