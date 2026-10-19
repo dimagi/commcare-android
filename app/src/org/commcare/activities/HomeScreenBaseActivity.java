@@ -620,7 +620,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 ConnectJobUtils.getJobForSeatedApp(this),
                 "View Job Status pressed but no Connect job was found for the seated app"
         );
-        ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+        ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job);
     }
 
     @Override

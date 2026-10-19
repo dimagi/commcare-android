@@ -5,7 +5,6 @@ import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
@@ -167,7 +166,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
 
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
-        startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
         startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
                 getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false));
         if (!TextUtils.isEmpty(opportunityUuid)) {

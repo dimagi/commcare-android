@@ -55,7 +55,6 @@ object DeepLinkHelper {
         )
         connectIntent.putExtra(ConnectConstants.OPPORTUNITY_UUID, uuid)
         connectIntent.putExtra(ConnectConstants.FROM_SMS_INVITE_LINK, true)
-        connectIntent.putExtra(ConnectConstants.SHOW_LAUNCH_BUTTON, true)
 
         return connectIntent
     }
