@@ -174,6 +174,10 @@ class ConnectDeliveryDashboardFragmentTest {
             view.findViewById<TextView>(R.id.progress_card_title).text.toString(),
         )
         assertEquals(
+            activity.getString(R.string.connect_delivery_daily_visits),
+            view.findViewById<TextView>(R.id.progress_card_bar_label).text.toString(),
+        )
+        assertEquals(
             "2 of ${ConnectLearnJobTestData.MAX_DAILY_VISITS}",
             view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString(),
         )
@@ -194,6 +198,7 @@ class ConnectDeliveryDashboardFragmentTest {
         val overallBar = view.findViewById<View>(R.id.progress_card_overall_bar)
 
         assertEquals(View.VISIBLE, overallBar.visibility)
+        assertEquals(activity.getString(R.string.connect_visits_completed_today), overallBar.getLabelText())
         assertEquals("3", overallBar.getCountText())
         assertEquals(View.GONE, overallBar.findViewById<View>(R.id.progress_card_linear_bar).visibility)
         assertEquals(View.GONE, overallBar.findViewById<View>(R.id.progress_card_bar_caption).visibility)

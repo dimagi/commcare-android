@@ -16,6 +16,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/delivery_list_empty"
+        style="@style/TextStyle.Connect.BodyS"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/connect_space_lg"
+        android:gravity="center"
+        android:text="@string/connect_delivery_visits_empty"
+        android:textColor="?attr/connectOnSurfaceVariant"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/filterView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/filterView"
         android:layout_width="match_parent"

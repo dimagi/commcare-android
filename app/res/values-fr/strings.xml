@@ -342,6 +342,7 @@ License.
     <string name="connect_sms_invite_opportunity_not_found">Opportunité introuvable</string>
     <string name="connect_learn_complete">Complet</string>
     <string name="connect_learn_certificate">Certificat</string>
+    <string name="connect_learn_view_certificate">Voir le certificat</string>
     <string name="connect_learn_completed">Terminé le %s</string>
     <string name="connect_learn_cert_score">Score: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Commencer les visites</string>
@@ -534,6 +535,7 @@ License.
     <string name="personalid_name_fragment_subtitle">Veuillez saisir votre nom tel qu\'il apparaît sur votre pièce d\'identité émise par le gouvernement</string>
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
+    <string name="personalid_backup_code_locked">Votre code de secours a été bloqué. Veuillez vérifier votre e-mail pour en définir un nouveau.</string>
     <string name="personalid_configuration_process_failed_subtitle">Malheureusement, cet appareil n\'a pas réussi les contrôles de sécurité requis pour s\'inscrire à PersonalID. Veuillez réessayer sur un autre appareil.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">Le code PIN de cet appareil est actuellement indisponible. Veuillez réessayer plus tard.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">La biométrie n\'est pas actuellement activée sur cet appareil. Veuillez la configurer dans les paramètres du système Android avant de continuer.</string>
@@ -630,6 +632,7 @@ License.
     <string name="connect_delivery_visit_progress_title">Progression des visites</string>
     <string name="connect_delivery_total_visits_completed">visites totales effectuées</string>
     <string name="connect_delivery_daily_visits">Visites quotidiennes</string>
+    <string name="connect_visits_completed_today">Visites effectuées aujourd\'hui</string>
     <string name="connect_delivery_your_progress">Votre progression</string>
     <string name="connect_delivery_total_earnings">Gains totaux</string>
     <string name="connect_delivery_amount_each">%1$s chacune</string>
@@ -637,6 +640,8 @@ License.
     <string name="connect_delivery_tasks_mandatory_title">Obligatoires</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Terminez les tâches pour continuer la prestation.</string>
     <string name="connect_delivery_tasks_empty">Aucune tâche en attente pour le moment. Nous vous informerons dès qu\'une nouvelle tâche sera disponible.</string>
+    <string name="connect_delivery_visits_empty">Aucune visite pour le moment. Vos visites terminées apparaîtront ici.</string>
+    <string name="connect_delivery_visits_filter_empty">Aucune visite ne correspond à ce filtre.</string>
     <string name="connect_delivery_revisit_learning_title">Revoir la formation</string>
     <string name="connect_delivery_revisit_learning_completed">Terminé le %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Le certificat sera disponible après votre prochaine synchronisation</string>
@@ -658,7 +663,6 @@ License.
         <item quantity="one">%1$s effectuée aujourd\'hui</item>
         <item quantity="other">%1$s effectuées aujourd\'hui</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
     <string name="install_get_started_title">Commencez avec CommCare</string>
     <string name="install_get_started_message">Installez votre première application pour commencer.</string>
     <string name="install_via_qr_code">Installer via un code QR</string>

@@ -555,6 +555,7 @@
 
     <string name="connect_learn_complete">Complete</string>
     <string name="connect_learn_certificate">Certificate</string>
+    <string name="connect_learn_view_certificate">View Certificate</string>
 
     <string name="connect_learn_completed">Completed on %s</string>
     <string name="connect_learn_cert_score">Score: %s</string>
@@ -737,7 +738,6 @@
 
     <string name="connect_job_info_delivery_hours">Delivery Hours</string>
     <string name="connect_job_info_view_more">View More</string>
-    <string name="connect_job_info_view_opportunity">View Opportunity</string>
 
     <string name="connect_opportunity_badge_new">New Opportunity</string>
     <string name="connect_opportunity_expiry_label">Expires on</string>
@@ -777,6 +777,7 @@
     <string name="connect_delivery_visit_progress_title">Visit Progress</string>
     <string name="connect_delivery_total_visits_completed">total visits completed</string>
     <string name="connect_delivery_daily_visits">Daily Visits</string>
+    <string name="connect_visits_completed_today">Visits Completed Today</string>
     <string name="connect_delivery_your_progress">Your Progress</string>
     <string name="connect_delivery_total_earnings">Total earnings</string>
     <string name="connect_delivery_amount_each">%1$s each</string>
@@ -784,6 +785,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Mandatory</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Complete tasks to continue delivery.</string>
     <string name="connect_delivery_tasks_empty">No pending tasks available at the moment. We\'ll notify you when a new task is available.</string>
+    <string name="connect_delivery_visits_empty">No visits yet. Your completed visits will appear here.</string>
+    <string name="connect_delivery_visits_filter_empty">No visits match this filter.</string>
     <string name="connect_delivery_revisit_learning_title">Revisit Learning</string>
     <string name="connect_delivery_revisit_learning_completed">Completed %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Certificate available after your next sync</string>
@@ -839,6 +842,7 @@
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
+    <string name="personalid_backup_code_locked">Your backup code has been locked. Please verify your email to set a new one.</string>
     <string name="personalid_configuration_process_failed_subtitle">Unfortunately, this device did not pass the security checks required to sign up for PersonalID. Please try again on a different device.</string>
     <string name="personalid_configuration_process_failed_play_services">Please make sure Play Store is available on your device and is updated.</string>
     <string name="personalid_configuration_process_failed_temporary_unavailable">Temporary error in establishing your device eligibility. Please try again after a day.</string>

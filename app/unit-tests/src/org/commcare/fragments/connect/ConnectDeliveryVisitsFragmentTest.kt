@@ -296,6 +296,57 @@ class ConnectDeliveryVisitsFragmentTest {
         )
     }
 
+    @Test
+    fun `a unit with no visits shows the empty visits placeholder`() {
+        openDetailForPaymentUnit(index = 1, deliveries = approvedDeliveriesFor(unit = 1, count = 2))
+
+        assertEquals(emptyList<String>(), visitNamesOnDetailScreen())
+        assertEquals(View.VISIBLE, getDetailEmptyView().visibility)
+        assertEquals(
+            appContext.getString(R.string.connect_delivery_visits_empty),
+            getDetailEmptyView().text.toString(),
+        )
+    }
+
+    @Test
+    fun `a unit with visits hides the empty visits placeholder`() {
+        openDetailForPaymentUnit(index = 0, deliveries = approvedDeliveriesFor(unit = 1, count = 2))
+
+        assertEquals(View.GONE, getDetailEmptyView().visibility)
+    }
+
+    @Test
+    fun `a filter with no matching visits shows the filter placeholder`() {
+        openDetailForPaymentUnit(index = 0, deliveries = approvedDeliveriesFor(unit = 1, count = 2))
+
+        activity.runOnUiThread { getDetailView().findViewById<View>(R.id.rejectedFilterButton).performClick() }
+        ShadowLooper.idleMainLooper()
+        layOutHierarchy()
+
+        assertEquals(emptyList<String>(), visitNamesOnDetailScreen())
+        assertEquals(View.VISIBLE, getDetailEmptyView().visibility)
+        assertEquals(
+            appContext.getString(R.string.connect_delivery_visits_filter_empty),
+            getDetailEmptyView().text.toString(),
+        )
+    }
+
+    private fun openDetailForPaymentUnit(
+        index: Int,
+        deliveries: List<String>,
+    ) {
+        val card = getPaymentUnitCards(launchVisitsTab(deliveryProgressJson(deliveries = deliveries)))[index]
+        activity.runOnUiThread { card.performClick() }
+        ShadowLooper.idleMainLooper()
+        layOutHierarchy()
+    }
+
+    private fun getDetailView(): View =
+        (navHostFragment.childFragmentManager.primaryNavigationFragment as ConnectDeliveryVisitsDetailFragment)
+            .requireView()
+
+    private fun getDetailEmptyView(): TextView = getDetailView().findViewById(R.id.delivery_list_empty)
+
     /**
      * Navigates to the delivery home tabs, answers the delivery-progress request the screen fires on
      * resume with [responseBody], then selects the Visits tab and returns it once laid out.

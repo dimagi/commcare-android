@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.views.connect.NumericCodeView
@@ -30,7 +31,10 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         onUiThread {
             navController.navigate(
                 PersonalIdProfileFragmentDirections
-                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+                    .actionProfileToProfileBackupCode(
+                        EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+                        BackupCodeWorkflow.CHANGE_BACKUP_CODE,
+                    ),
             )
         }
     }
@@ -171,7 +175,10 @@ class PersonalIdProfileBackupCodeFragmentTest : BasePersonalIdProfileTest() {
         onUiThread {
             navController.navigate(
                 PersonalIdProfileFragmentDirections
-                    .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+                    .actionProfileToProfileBackupCode(
+                        EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+                        BackupCodeWorkflow.CHANGE_BACKUP_CODE,
+                    ),
             )
         }
         ShadowLooper.idleMainLooper()

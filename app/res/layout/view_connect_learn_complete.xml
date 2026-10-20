@@ -94,6 +94,7 @@
                         android:padding="@dimen/connect_space_md">
 
                         <TextView
+                            android:id="@+id/certificate_header_label"
                             style="@style/TextStyle.Connect.LabelM"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"

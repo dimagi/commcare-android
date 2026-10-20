@@ -142,6 +142,7 @@
     <color name="cool_gray_50">#F9FAFB</color>
     <color name="red_600">#DC3939</color>
     <color name="amber_800">#92400E</color>
+    <color name="amber_100">#FEF3C7</color>
     <color name="cool_gray_800">#1F2937</color>
     <color name="cool_gray_900">#111827</color>
     <color name="connect_divider_color">#E5E7EB</color>
@@ -171,7 +172,6 @@
     <color name="personal_id_work_history_yellow_pending">#C67E13</color>
     <color name="pale_buttery_cream">#FFF4CD</color>
     <color name="orange">#FFA500</color>
-    <color name="pn_item_grey_color">#E9E9E9</color>
     <color name="sapphire_blue">#3843CF</color>
     <color name="persian_indigo">#262a82</color>
     <color name="sonic_silver">#757575</color>
