@@ -189,7 +189,7 @@ class MenuTests : BaseTest() {
         openAdvancedOption(7)
         onView(withId(R.id.positive_button))
             .perform(click())
-        onView(withText("Welcome back! Please log in."))
+        onView(withId(R.id.login_button))
             .check(matches(isDisplayed()))
     }
 

@@ -97,8 +97,11 @@
     <string name="managed_configuration_profile_url_description">The URL to your CommCare Application from the CommCareHQ publish page</string>
     <string name="about_cc" cc:translatable="true">About CommCare</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
-    <string name="install_barcode_top">Welcome to CommCare!</string>
-    <string name="install_barcode_bottom">Please choose an installation method below</string>
+    <string name="install_get_started_title">Get started with CommCare</string>
+    <string name="install_get_started_message">Install your first app to begin.</string>
+    <string name="install_via_qr_code">Install via QR Code</string>
+    <string name="install_via_app_code">Install via App Code</string>
+    <string name="install_from_local">Install From Local</string>
 
     <string name="install_keep_trying">Keep trying if connection is interrupted</string>
     <string name="install_manual">Please enter the URL</string>
@@ -112,6 +115,7 @@
     <string name="install_bad_ref">You did not scan a valid URL. Please try again.</string>
     <string name="install_bad_login">Login to Existing App</string>
     <string name="install_appprofile">Enter your app code</string>
+    <string name="install_code_hint">Enter code here</string>
     <string name="install_perms_rationale_message">CommCare requires at least external storage read &amp; write permissions in order to store form submissions.</string>
     <string name="install_perms_denied_message">Crucial permissions denied %1$s times.\n\n If requesting permissions here fails, please enable permissions under Android\'s settings.</string>
     <string name="install_choose_local_app">Available Apps</string>
@@ -358,8 +362,8 @@
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your phone number</string>
 
-    <string name="personalid_welcome_user">Welcome %s!</string>
     <string name="personalid_choice_or">___________    OR    ___________</string>
+    <string name="login_choice_or">OR</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
 
@@ -572,6 +576,11 @@
     <string name="connect_progress_delivery">Delivery</string>
     <string name="semi_circle_progress_value_format" cc:translatable="true">%1$d of %2$d</string>
     <string name="connect_progress_count_format" cc:translatable="true">%1$d of %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Show %1$d more</item>
+        <item quantity="other">Show %1$d more</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Show less</string>
 
     <string name="connect_progress_warning_ended">The job has ended. You will not earn any progress for additional work.</string>
     <string name="connect_progress_warning_not_started">The job has not started yet. You will not earn any progress for work.</string>
@@ -787,6 +796,15 @@
         <item quantity="one">%1$d visit remaining today</item>
         <item quantity="other">%1$d visits remaining today</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">No daily visit target</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s of %2$d completed today</item>
+        <item quantity="other">%1$s of %2$d completed today</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s completed today</item>
+        <item quantity="other">%1$s completed today</item>
+    </plurals>
     <string name="connect_visit_type_title">%s Visits</string>
 
     <string name="connect_payment_received">Received</string>
@@ -814,7 +832,7 @@
 
     <string name="personalid_generic_error">A problem occurred, please configure your PersonalID account again by selecting Sign Up for PersonalID from the menu.</string>
     <string name="personalid_generic_error_title">Logged out of PersonalID</string>
-    <string name="personalid_login_via_connect">Ready to login!\n</string>
+    <string name="personalid_login_via_connect">Ready to login!</string>
     <string name="personalid_failed_to_login_with_connectid">We are facing an unrecoverable error when trying to login using your PersonalID. Please login with your password or restore your PersonalID login</string>
     <string name="personalid_name_appbar_title">Name</string>
     <string name="personalid_name_fragment_title">Enter your name</string>

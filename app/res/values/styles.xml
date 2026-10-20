@@ -128,12 +128,6 @@
         <item name="android:colorBackground">@color/cc_core_bg</item>
     </style>
 
-    <style name="LoginEditTextV2">
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:drawablePadding">8dp</item>
-        <item name="android:textColor">@color/grey</item>
-    </style>
-
     <style name="DefaultHorizontalPadding">
         <item name="android:paddingLeft">@dimen/content_start</item>
         <item name="android:paddingRight">@dimen/content_start</item>
@@ -183,9 +177,6 @@
         <item name="colorControlNormal">?attr/colorAccent</item>
         <item name="android:textSize">@dimen/abc_text_size_medium_material</item>
     </style>
-
-    <color name="login_edit_text_color">@color/cc_core_text</color>
-    <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
 
     <style name="FullScreenVideoButton">
         <item name="background">@null</item>
@@ -501,8 +492,36 @@
     <style name="ConnectMessageAttachmentActionCircle">
         <item name="android:background">@drawable/connect_message_white_circle</item>
         <item name="android:scaleType">center</item>
-        <item name="tint">@color/connect_message_receiver_bg</item>
+        <item name="tint">@color/cornflower_blue</item>
         <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Widget.CommCare.Button.Filled" parent="Widget.MaterialComponents.Button">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minHeight">@dimen/dp48</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">@color/filled_button_text</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="backgroundTint">@color/filled_button_background</item>
+        <item name="cornerRadius">@dimen/connect_radius_xs</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.CommCare.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minHeight">@dimen/dp48</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">@dimen/text_small</item>
+        <item name="backgroundTint">?attr/colorSurface</item>
+        <item name="cornerRadius">@dimen/connect_radius_xs</item>
+        <item name="strokeColor">?attr/colorPrimary</item>
+        <item name="strokeWidth">@dimen/connect_stroke_hairline</item>
     </style>
 
 </resources>

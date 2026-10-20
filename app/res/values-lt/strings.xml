@@ -327,6 +327,19 @@
         <item quantity="many">šiandien liko %1$d vizito</item>
         <item quantity="other">šiandien liko %1$d vizitų</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Nėra dienos vizitų tikslo</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">šiandien atlikta %1$s iš %2$d</item>
+        <item quantity="few">šiandien atlikta %1$s iš %2$d</item>
+        <item quantity="many">šiandien atlikta %1$s iš %2$d</item>
+        <item quantity="other">šiandien atlikta %1$s iš %2$d</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">šiandien atliktas %1$s</item>
+        <item quantity="few">šiandien atlikti %1$s</item>
+        <item quantity="many">šiandien atlikta %1$s</item>
+        <item quantity="other">šiandien atlikta %1$s</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_open_conversation_button_text">Atidaryti pokalbį</string>
@@ -362,6 +375,7 @@
     <string name="install_bad_ref">Nuskaitėte negaliojantį URL. Bandykite dar kartą.</string>
     <string name="install_bad_login">Prisijungti prie esamos programos</string>
     <string name="install_appprofile">Įveskite savo programos kodą</string>
+    <string name="install_code_hint">Įveskite kodą čia</string>
     <string name="install_perms_rationale_message">CommCare reikia bent išorinės atminties skaitymo ir rašymo leidimų, kad būtų galima saugoti formų pateikimus.</string>
     <string name="install_perms_denied_message">Svarbūs leidimai atmesti %1$s kartų.\n\n Jei prašymas suteikti leidimus čia nepavyksta, įjunkite leidimus „Android“ nustatymuose.</string>
     <string name="install_choose_local_app">Pasiekiamos programos</string>
@@ -417,6 +431,13 @@
 
     <string name="semi_circle_progress_value_format">%1$d iš %2$d</string>
     <string name="connect_progress_count_format">%1$d iš %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Rodyti dar %1$d</item>
+        <item quantity="few">Rodyti dar %1$d</item>
+        <item quantity="many">Rodyti dar %1$d</item>
+        <item quantity="other">Rodyti dar %1$d</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Rodyti mažiau</string>
 
     <string name="connect_opportunity_badge_new">Nauja galimybė</string>
     <string name="connect_opportunity_expiry_label">Galioja iki</string>
@@ -466,6 +487,12 @@
     <string name="connect_downloading_delivery">Atsisiunčiamas pristatymas</string>
     <string name="connect_opportunity_modules_footer_note">Užbaikite modulius, išlaikykite vertinimą ir gaukite savo pažymėjimą</string>
     <string name="connect_opportunity_footer_download_app">Atsisiųsti programą</string>
+    <string name="login_choice_or">ARBA</string>
+    <string name="install_get_started_title">Pradėkite naudotis CommCare</string>
+    <string name="install_get_started_message">Įdiekite pirmąją programėlę, kad pradėtumėte.</string>
+    <string name="install_via_qr_code">Įdiegti per QR kodą</string>
+    <string name="install_via_app_code">Įdiegti per programėlės kodą</string>
+    <string name="install_from_local">Įdiegti iš vietinio tinklo</string>
     <string name="recording_notification_save_action">Išsaugoti</string>
     <string name="recording_notification_pause_action">Pristabdyti</string>
     <string name="recording_notification_resume_action">Tęsti</string>

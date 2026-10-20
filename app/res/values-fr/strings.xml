@@ -244,8 +244,8 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">Aucun Play Store trouvé sur votre appareil</string>
     <string name="fcm_default_notification_channel">canal de notification-notifications-push</string>
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
-    <string name="personalid_welcome_user">Bienvenue %s !</string>
     <string name="personalid_choice_or">_____________    OU    _____________</string>
+    <string name="login_choice_or">OU</string>
     <string name="connect_download_delivery">Télécharger Livraison</string>
     <string name="connect_app_install_setting_up">Configuration de l\'application…</string>
     <string name="connect_app_finishing_install">Finalisation de l\'installation…</string>
@@ -361,6 +361,11 @@ License.
     <string name="connect_progress_delivery">Livraison</string>
     <string name="semi_circle_progress_value_format">%1$d sur %2$d</string>
     <string name="connect_progress_count_format">%1$d sur %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Afficher %1$d de plus</item>
+        <item quantity="other">Afficher %1$d de plus</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Afficher moins</string>
     <string name="connect_progress_warning_ended">Le travail est terminé. Vous ne progresserez pas si vous effectuez des tâches supplémentaires.</string>
     <string name="connect_progress_warning_not_started">Le travail n\'a pas encore commencé. Vous ne bénéficierez d\'aucune progression.</string>
     <string name="connect_progress_warning_max_reached_single">Vous avez effectué le nombre maximal de visites. Vous ne pourrez pas progresser pour des travaux supplémentaires.</string>
@@ -522,7 +527,7 @@ License.
     <string name="connect_message_you">Toi</string>
     <string name="connect_message_them">Eux</string>
     <string name="fcm_sync_failed_body_text">Cliquez ici pour en savoir plus</string>
-    <string name="personalid_login_via_connect">Prêt à vous connecter !\n</string>
+    <string name="personalid_login_via_connect">Prêt à vous connecter !</string>
     <string name="personalid_failed_to_login_with_connectid">Nous rencontrons une erreur irrécupérable lors de la connexion avec votre identifiant personnel. Veuillez vous connecter avec votre mot de passe ou restaurer votre identifiant personnel.</string>
     <string name="personalid_name_appbar_title">Nom</string>
     <string name="personalid_name_fragment_title">Saisissez votre nom</string>
@@ -644,9 +649,21 @@ License.
         <item quantity="one">%1$d visite restante aujourd\'hui</item>
         <item quantity="other">%1$d visites restantes aujourd\'hui</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Aucun objectif quotidien de visites</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s sur %2$d effectuée aujourd\'hui</item>
+        <item quantity="other">%1$s sur %2$d effectuées aujourd\'hui</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s effectuée aujourd\'hui</item>
+        <item quantity="other">%1$s effectuées aujourd\'hui</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Voir l\'opportunité</string>
-    <string name="install_barcode_top">Bienvenue sur CommCare !</string>
-    <string name="install_barcode_bottom">Veuillez choisir une méthode d\'installation ci-dessous</string>
+    <string name="install_get_started_title">Commencez avec CommCare</string>
+    <string name="install_get_started_message">Installez votre première application pour commencer.</string>
+    <string name="install_via_qr_code">Installer via un code QR</string>
+    <string name="install_via_app_code">Installer via un code d\'application</string>
+    <string name="install_from_local">Installer depuis le réseau local</string>
     <string name="install_keep_trying">Continuez à essayer si la connexion est interrompue</string>
     <string name="install_manual">Veuillez saisir l\'URL</string>
     <string name="install_ready_top">Presque terminé !</string>
@@ -659,6 +676,7 @@ License.
     <string name="install_bad_ref">Vous n\'avez pas scanné une URL valide. Veuillez réessayer.</string>
     <string name="install_bad_login">Se connecter à une application existante</string>
     <string name="install_appprofile">Saisissez votre code d\'application</string>
+    <string name="install_code_hint">Saisissez le code ici</string>
     <string name="install_perms_rationale_message">CommCare nécessite au moins les autorisations de lecture et d\'écriture sur le stockage externe pour enregistrer les soumissions de formulaires.</string>
     <string name="install_perms_denied_message">Autorisations cruciales refusées %1$s fois.\n\n Si la demande d\'autorisations échoue ici, veuillez activer les autorisations dans les paramètres d\'Android.</string>
     <string name="install_choose_local_app">Applications disponibles</string>

@@ -244,8 +244,8 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">आपके डिवाइस पर कोई Play Store नहीं मिला</string>
     <string name="fcm_default_notification_channel">अधिसूचना-चैनल-पुश-अधिसूचनाएं</string>
     <string name="personalid_login_via">PersonalId के माध्यम से (या यहां टैप करें)</string>
-    <string name="personalid_welcome_user">स्वागत है %s!</string>
     <string name="personalid_choice_or">_____________    या    _____________</string>
+    <string name="login_choice_or">या</string>
     <string name="connect_download_delivery">वितरण डाउनलोड करें</string>
     <string name="connect_app_install_setting_up">ऐप सेट किया जा रहा है…</string>
     <string name="connect_app_finishing_install">इंस्टॉलेशन पूरा किया जा रहा है…</string>
@@ -361,6 +361,11 @@ License.
     <string name="connect_progress_delivery">वितरण</string>
     <string name="semi_circle_progress_value_format">%2$d में से %1$d</string>
     <string name="connect_progress_count_format">%2$d में से %1$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">%1$d और दिखाएँ</item>
+        <item quantity="other">%1$d और दिखाएँ</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">कम दिखाएँ</string>
     <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_progress_warning_not_started">नौकरी अभी शुरू नहीं हुई है। आपको कोई प्रगति नहीं मिलेगी।</string>
     <string name="connect_progress_warning_max_reached_single">आपने अधिकतम विज़िट पूरी कर ली हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>
@@ -519,7 +524,7 @@ License.
     <string name="connect_messaging_channel_menu_item_unsubscribe">सदस्यता समाप्त करें</string>
     <string name="connect_send_message_hint">एक संदेश टाइप करें</string>
     <string name="connect_send_message_btn_desc">संदेश भेजने के लिए यहां टैप करें</string>
-    <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!\n</string>
+    <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!</string>
     <string name="personalid_failed_to_login_with_connectid">आपके व्यक्तिगत आईडी से लॉग इन करते समय हमें एक अप्राप्य त्रुटि का सामना करना पड़ रहा है। कृपया अपने पासवर्ड से लॉग इन करें या अपनी व्यक्तिगत आईडी पुनर्स्थापित करें।</string>
     <string name="personalid_name_appbar_title">नाम</string>
     <string name="personalid_name_fragment_title">अपना नाम दर्ज करें</string>
@@ -641,9 +646,21 @@ License.
         <item quantity="one">आज %1$d विज़िट शेष</item>
         <item quantity="other">आज %1$d विज़िट शेष</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">कोई दैनिक विज़िट लक्ष्य नहीं</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">आज %2$d में से %1$s पूरी हुई</item>
+        <item quantity="other">आज %2$d में से %1$s पूरी हुईं</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">आज %1$s पूरी हुई</item>
+        <item quantity="other">आज %1$s पूरी हुईं</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">अवसर देखें</string>
-    <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
-    <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
+    <string name="install_get_started_title">CommCare के साथ शुरू करें</string>
+    <string name="install_get_started_message">शुरू करने के लिए अपना पहला ऐप इंस्टॉल करें।</string>
+    <string name="install_via_qr_code">QR कोड से इंस्टॉल करें</string>
+    <string name="install_via_app_code">ऐप कोड से इंस्टॉल करें</string>
+    <string name="install_from_local">स्थानीय नेटवर्क से इंस्टॉल करें</string>
     <string name="install_keep_trying">यदि कनेक्शन बाधित हो तो प्रयास करते रहें</string>
     <string name="install_manual">कृपया URL दर्ज करें</string>
     <string name="install_ready_top">लगभग हो गया!</string>
@@ -656,6 +673,7 @@ License.
     <string name="install_bad_ref">आपने एक मान्य URL स्कैन नहीं किया। कृपया पुनः प्रयास करें।</string>
     <string name="install_bad_login">मौजूदा ऐप में लॉगिन करें</string>
     <string name="install_appprofile">अपना ऐप कोड दर्ज करें</string>
+    <string name="install_code_hint">यहाँ कोड दर्ज करें</string>
     <string name="install_perms_rationale_message">CommCare को फॉर्म सबमिशन संग्रहीत करने के लिए कम से कम बाहरी संग्रहण पढ़ने और लिखने की अनुमतियों की आवश्यकता है।</string>
     <string name="install_perms_denied_message">महत्वपूर्ण अनुमतियाँ %1$s बार अस्वीकृत हुईं।\n\n यदि यहाँ अनुमतियाँ माँगने में विफल हो, तो कृपया Android की सेटिंग्स के अंतर्गत अनुमतियाँ सक्षम करें।</string>
     <string name="install_choose_local_app">उपलब्ध ऐप्स</string>

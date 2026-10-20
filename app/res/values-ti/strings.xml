@@ -235,8 +235,8 @@
     <string name="dependency_missing_dialog_playstore_not_found">ኣብ መሳርሒኻ/ሞባልካ ዝኾነ ፕለይ ስቶር/ መከዘኒ ኣፕሊክሸናት ኣይተረኽበን።</string>
     <string name="fcm_default_notification_channel">ሓበሬታ መዘካከሪ-ቻነል-ደፍእ-ሓበሬታ መዘካከሪታት</string>
     <string name="personalid_login_via">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
-    <string name="personalid_welcome_user">እንቋዕ ብደሓን መጻእኩም %s!</string>
     <string name="personalid_choice_or">_____________ ወይ _____________</string>
+    <string name="login_choice_or">ወይ</string>
     <string name="connect_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_app_install_setting_up">መተግበሪ ይዳሎ ኣሎ…</string>
     <string name="connect_app_finishing_install">ምትካል ይውዳእ ኣሎ…</string>
@@ -357,6 +357,11 @@
     <string name="connect_progress_delivery">ምብፃሕ</string>
     <string name="semi_circle_progress_value_format">%1$d ናይ %2$d</string>
     <string name="connect_progress_count_format">%1$d ናይ %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">ተወሳኺ %1$d ኣርኢ</item>
+        <item quantity="other">ተወሳኺ %1$d ኣርኢ</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">ውሑድ ኣርኢ</string>
     <string name="connect_progress_warning_ended">እቲ ስራሕ ተዛዚሙ ኣሎ። ንተወሳኺ ስራሕ ዝኾነ ምዕባለ ኣይትረክብን ኢኻ።</string>
     <string name="connect_progress_warning_not_started">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
     <string name="connect_progress_ready_for_transition_to_delivery">ነቲ ገምጋም ሓሊፍካ ንምቕራብ ድሉው ኢኻ። ንኽትቅጽል ኩነታት ስራሕ ርአ።</string>
@@ -514,7 +519,7 @@
     <string name="connect_results_summary_pending">ኣብ ከይዲ</string>
     <string name="connect_results_summary_rejected">ተነጺጉ</string>
     <string name="connect_results_summary_approved">ጸዲቑ</string>
-    <string name="personalid_login_via_connect">ንምእታው ድሉው!\n</string>
+    <string name="personalid_login_via_connect">ንምእታው ድሉው!</string>
     <string name="personalid_failed_to_login_with_connectid">ውልቃዊ መለለዪ መንነትካ ተጠቒምካ ንምእታው ኣብ እንኣስረሉ እዋን ዘይምለስ ጌጋ የጋጥመና ኣሎ። በጃኻ ብፓስዎርድካ እቶ ወይ ድማ ውልቃዊ መለለዪ መእተዊኻ ምምላስ</string>
     <string name="personalid_name_appbar_title">ስም</string>
     <string name="personalid_name_fragment_title">ስምኩም ኣእትዉ</string>
@@ -633,9 +638,21 @@
         <item quantity="one">ሎሚ %1$d ምብጻሕ ተሪፉ</item>
         <item quantity="other">ሎሚ %1$d ምብጻሓት ተሪፎም</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">ዕለታዊ ዕላማ ምብጻሕ የለን</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">ሎሚ %1$s ካብ %2$d ተዛዚሙ</item>
+        <item quantity="other">ሎሚ %1$s ካብ %2$d ተዛዚሞም</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">ሎሚ %1$s ተዛዚሙ</item>
+        <item quantity="other">ሎሚ %1$s ተዛዚሞም</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">ዕድል ርአ</string>
-    <string name="install_barcode_top">ናብ CommCare እንቋዕ ብድሓን መጻእኩም!</string>
-    <string name="install_barcode_bottom">በጃኹም ኣብ ታሕቲ ዘሎ ሜላ ምትካል ምረጹ</string>
+    <string name="install_get_started_title">ብ CommCare ጀምሩ</string>
+    <string name="install_get_started_message">ንምጅማር ቀዳማይ ኣፕኩም ኣእትዉ።</string>
+    <string name="install_via_qr_code">ብ QR ኮድ ኣእትዉ</string>
+    <string name="install_via_app_code">ብ ኮድ ኣፕ ኣእትዉ</string>
+    <string name="install_from_local">ካብ ከባቢያዊ መርበብ ኣእትዉ</string>
     <string name="install_keep_trying">ርክብ እንተ ተቛሪጹ ክትፍትኑ ቀጽሉ</string>
     <string name="install_manual">በጃኹም URL ኣእትዉ</string>
     <string name="install_ready_top">ቀሪቡ!</string>
@@ -648,6 +665,7 @@
     <string name="install_bad_ref">ቅኑዕ URL ኣይሰካንኩምን። በጃኹም እንደገና ፈትኑ።</string>
     <string name="install_bad_login">ናብ ዘሎ ኣፕሊኬሽን እተዉ</string>
     <string name="install_appprofile">ናይ ኣፕሊኬሽን ኮድኩም ኣእትዉ</string>
+    <string name="install_code_hint">ኮድ ኣብዚ ኣእትዉ</string>
     <string name="install_perms_rationale_message">CommCare ናይ ቅጥዒ ምቕራብ ንምዕቃብ ብውሕዱ ናይ ግዳማዊ ማከዘን ምንባብን ምፅሓፍን ፍቓዳት የድልዮ።</string>
     <string name="install_perms_denied_message">ኣገደስቲ ፍቓዳት %1$s ግዜ ተኸልኪሎም።\n\n ኣብዚ ፍቓዳት ምሕታት እንተ ፈሺሉ፡ በጃኹም ኣብ ናይ Android ቅንብር ፍቓዳት ኣብርሁ።</string>
     <string name="install_choose_local_app">ዘለዉ ኣፕሊኬሽናት</string>

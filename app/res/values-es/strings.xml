@@ -183,8 +183,8 @@
     <string name="dependency_missing_dialog_playstore_not_found">No se encontró Play Store en tu dispositivo</string>
     <string name="fcm_default_notification_channel">canal-de-notificación-notificaciones-push</string>
     <string name="personalid_login_via">Vía PersonalId (o toca aquí)</string>
-    <string name="personalid_welcome_user">¡Bienvenido %s!</string>
     <string name="personalid_choice_or">_____________    O    _____________</string>
+    <string name="login_choice_or">O</string>
     <string name="connect_download_delivery">Descargar Entrega</string>
     <string name="connect_app_install_setting_up">Configurando la aplicación…</string>
     <string name="connect_app_finishing_install">Finalizando la instalación…</string>
@@ -300,6 +300,11 @@
     <string name="connect_progress_delivery">Entrega</string>
     <string name="semi_circle_progress_value_format">%1$d de %2$d</string>
     <string name="connect_progress_count_format">%1$d de %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Mostrar %1$d más</item>
+        <item quantity="other">Mostrar %1$d más</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Mostrar menos</string>
     <string name="connect_progress_warning_ended">El trabajo ha terminado. No progresarás si realizas tareas adicionales.</string>
     <string name="connect_progress_warning_not_started">El trabajo aún no ha comenzado. No obtendrás ningún progreso.</string>
     <string name="accept_location">Ubicacion de Dato</string>
@@ -523,7 +528,7 @@
     <string name="connect_messaging_channel_menu_item_unsubscribe">Darse de baja</string>
     <string name="connect_send_message_hint">Escribe un mensaje</string>
     <string name="connect_send_message_btn_desc">Toca aquí para enviar un mensaje</string>
-    <string name="personalid_login_via_connect">¡Listo para iniciar sesión!\n</string>
+    <string name="personalid_login_via_connect">¡Listo para iniciar sesión!</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos experimentando un error irrecuperable al iniciar sesión con tu PersonalId. Por favor, inicia sesión con tu contraseña o recupera tu PersonalId.</string>
     <string name="personalid_name_appbar_title">Nombre</string>
     <string name="personalid_name_fragment_title">Ingresa tu nombre</string>
@@ -645,9 +650,21 @@
         <item quantity="one">%1$d visita restante hoy</item>
         <item quantity="other">%1$d visitas restantes hoy</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Sin meta diaria de visitas</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s de %2$d completada hoy</item>
+        <item quantity="other">%1$s de %2$d completadas hoy</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s completada hoy</item>
+        <item quantity="other">%1$s completadas hoy</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Ver oportunidad</string>
-    <string name="install_barcode_top">¡Bienvenido a CommCare!</string>
-    <string name="install_barcode_bottom">Por favor, elija un método de instalación a continuación</string>
+    <string name="install_get_started_title">Comience a usar CommCare</string>
+    <string name="install_get_started_message">Instale su primera aplicación para empezar.</string>
+    <string name="install_via_qr_code">Instalar con código QR</string>
+    <string name="install_via_app_code">Instalar con código de aplicación</string>
+    <string name="install_from_local">Instalar desde la red local</string>
     <string name="install_keep_trying">Continúe intentando si la conexión se interrumpe</string>
     <string name="install_manual">Por favor, ingrese la URL</string>
     <string name="install_ready_top">¡Casi listo!</string>
@@ -660,6 +677,7 @@
     <string name="install_bad_ref">No escaneó una URL válida. Por favor, inténtelo de nuevo.</string>
     <string name="install_bad_login">Iniciar Sesión en Aplicación Existente</string>
     <string name="install_appprofile">Ingrese su código de aplicación</string>
+    <string name="install_code_hint">Ingrese el código aquí</string>
     <string name="install_perms_rationale_message">CommCare requiere al menos permisos de lectura y escritura en almacenamiento externo para guardar los envíos de formularios.</string>
     <string name="install_perms_denied_message">Permisos cruciales denegados %1$s veces.\n\n Si solicitar permisos aquí falla, por favor habilite los permisos en la configuración de Android.</string>
     <string name="install_choose_local_app">Aplicaciones Disponibles</string>

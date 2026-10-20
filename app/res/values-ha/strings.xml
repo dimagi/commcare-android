@@ -85,8 +85,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="playback_start_time">0:00</string>
     <string name="fcm_default_notification_channel">sanarwar-tashar-tura-sanarwa</string>
     <string name="personalid_login_via">Ta hanyar PersonalID (ko danna nan)</string>
-    <string name="personalid_welcome_user">Barka da zuwa %s!</string>
     <string name="personalid_choice_or">_________ KO _________</string>
+    <string name="login_choice_or">KO</string>
     <string name="connect_download_delivery">Sauke Isarwa</string>
     <string name="connect_app_install_setting_up">Ana saita manhaja…</string>
     <string name="connect_app_finishing_install">Ana kammala shigarwa…</string>
@@ -200,6 +200,11 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_progress_delivery">Isarwa</string>
     <string name="semi_circle_progress_value_format">%1$d daga %2$d</string>
     <string name="connect_progress_count_format">%1$d daga %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Nuna ƙarin %1$d</item>
+        <item quantity="other">Nuna ƙarin %1$d</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Nuna kaɗan</string>
     <string name="connect_progress_warning_ended">Aikin ya ƙare. Ba za ku sami wani ci gaba ba don ƙarin aiki.</string>
     <string name="connect_progress_warning_not_started">Aikin bai fara ba tukuna. Ba za ka sami wani ci gaba ba don aiki.</string>
     <string name="connect_progress_warning_max_reached_single">Ka kammala matsakaicin adadin ziyara. Ba za ka sami wani ci gaba ba don ƙarin aiki.</string>
@@ -363,7 +368,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="fcm_sync_failed_body_text">Danna nan don ƙarin sani</string>
     <string name="personalid_generic_error">Akwai matsala, da fatan za a saita asusunka na PersonalID ta zaben \'Yi rijista don PersonalID\' daga cikin menu.</string>
     <string name="personalid_generic_error_title">An fita daga PersonalID</string>
-    <string name="personalid_login_via_connect">A shirye don shiga!\n</string>
+    <string name="personalid_login_via_connect">A shirye don shiga!</string>
     <string name="personalid_failed_to_login_with_connectid">Muna fuskantar kuskuren da ba za a iya gyarawa ba yayin da muke haɗa shiga ta amfani da ID ɗinka na Sirri. Da fatan za a shiga da kalmar sirri ko a dawo da shiga ID ɗinka na Sirri</string>
     <string name="personalid_name_appbar_title">Suna</string>
     <string name="personalid_name_fragment_title">Shigar da sunanka</string>
@@ -477,11 +482,23 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
         <item quantity="one">ziyara %1$d ta rage yau</item>
         <item quantity="other">ziyara %1$d suka rage yau</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Babu adadin ziyara na yau da kullun</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">An kammala %1$s daga %2$d yau</item>
+        <item quantity="other">An kammala %1$s daga %2$d yau</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">An kammala %1$s yau</item>
+        <item quantity="other">An kammala %1$s yau</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
     <string name="please_wait">Da fatan za a jira wasu lokuta.</string>
-    <string name="install_barcode_top">Barka da zuwa CommCare!</string>
-    <string name="install_barcode_bottom">Da fatan za a zaɓi hanyar shigarwa a ƙasa</string>
+    <string name="install_get_started_title">Fara da CommCare</string>
+    <string name="install_get_started_message">Shigar da manhajarka ta farko don farawa.</string>
+    <string name="install_via_qr_code">Shigar ta lambar QR</string>
+    <string name="install_via_app_code">Shigar ta lambar manhaja</string>
+    <string name="install_from_local">Shigar daga cibiyar sadarwa ta gida</string>
     <string name="install_keep_trying">Ci gaba da kokari idan haɗin ya katse</string>
     <string name="install_manual">Da fatan za a shigar da URL</string>
     <string name="install_ready_top">Kusan an gama!</string>
@@ -494,6 +511,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="install_bad_ref">Ba ka leƙa wata URL mai inganci ba. Da fatan za a sake gwadawa.</string>
     <string name="install_bad_login">Shiga Manhaja Mai Akwai</string>
     <string name="install_appprofile">Shigar da lambar manhajarka</string>
+    <string name="install_code_hint">Shigar da lambar a nan</string>
     <string name="install_perms_rationale_message">CommCare yana buƙatar aƙalla izinin karantawa da rubutawa a ma\'aji na waje don adana ƙaddamarwar fom.</string>
     <string name="install_perms_denied_message">An ƙi izini masu mahimmanci sau %1$s.\n\n Idan neman izini a nan ya gaza, da fatan za a kunna izini a ƙarƙashin saitunan Android.</string>
     <string name="install_choose_local_app">Manhajojin da Ake Da Su</string>

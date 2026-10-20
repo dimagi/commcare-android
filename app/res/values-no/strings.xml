@@ -309,6 +309,15 @@
         <item quantity="one">%1$d besøk gjenstår i dag</item>
         <item quantity="other">%1$d besøk gjenstår i dag</item>
     </plurals>
+    <string name="connect_delivery_no_daily_visit_target">Ikke noe daglig besøksmål</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s av %2$d fullført i dag</item>
+        <item quantity="other">%1$s av %2$d fullført i dag</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s fullført i dag</item>
+        <item quantity="other">%1$s fullført i dag</item>
+    </plurals>
     <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>
@@ -344,6 +353,7 @@
     <string name="install_bad_ref">Du skannet ikke en gyldig URL. Vennligst prøv igjen.</string>
     <string name="install_bad_login">Logg inn på eksisterende app</string>
     <string name="install_appprofile">Skriv inn appkoden din</string>
+    <string name="install_code_hint">Skriv inn koden her</string>
     <string name="install_perms_rationale_message">CommCare krever minst lese- og skrivetillatelser for ekstern lagring for å lagre skjemainnsendinger.</string>
     <string name="install_perms_denied_message">Viktige tillatelser nektet %1$s ganger.\n\n Hvis det å be om tillatelser her mislykkes, må du aktivere tillatelser under Androids innstillinger.</string>
     <string name="install_choose_local_app">Tilgjengelige apper</string>
@@ -399,6 +409,11 @@
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
     <string name="connect_progress_count_format">%1$d av %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Vis %1$d til</item>
+        <item quantity="other">Vis %1$d til</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Vis mindre</string>
 
     <string name="connect_opportunity_badge_new">Ny mulighet</string>
     <string name="connect_opportunity_expiry_label">Utløpsdato</string>
@@ -442,6 +457,12 @@
     <string name="connect_downloading_delivery">Laster ned levering</string>
     <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
     <string name="connect_opportunity_footer_download_app">Last ned appen</string>
+    <string name="login_choice_or">ELLER</string>
+    <string name="install_get_started_title">Kom i gang med CommCare</string>
+    <string name="install_get_started_message">Installer din første app for å begynne.</string>
+    <string name="install_via_qr_code">Installer via QR-kode</string>
+    <string name="install_via_app_code">Installer via appkode</string>
+    <string name="install_from_local">Installer fra lokalt nettverk</string>
     <string name="recording_notification_save_action">Lagre</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Gjenoppta</string>
