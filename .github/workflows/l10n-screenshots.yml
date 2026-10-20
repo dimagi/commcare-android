@@ -1,0 +1,133 @@
+name: Localization screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commcare-android branch, tag or SHA to screenshot (blank: the branch picked above)'
+        required: false
+      locales:
+        description: 'Comma-separated resource qualifiers, e.g. en,fr,pt-rBR (blank: en and every values-* folder with a strings.xml)'
+        required: false
+      commcare_core_ref:
+        description: 'commcare-core ref (blank: the same-named branch if it exists, else master)'
+        required: false
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  screenshots:
+    name: Record screenshots
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      ANDROID_REF: ${{ inputs.ref || github.ref_name }}
+    steps:
+      - name: Checkout commcare-android
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.ANDROID_REF }}
+          path: commcare-android
+      - name: Resolve commcare-core ref
+        id: core
+        env:
+          CORE_REF_INPUT: ${{ inputs.commcare_core_ref }}
+        run: |
+          if [ -n "$CORE_REF_INPUT" ]; then
+            ref="$CORE_REF_INPUT"
+          elif git ls-remote --exit-code --heads https://github.com/dimagi/commcare-core.git "$ANDROID_REF" > /dev/null; then
+            ref="$ANDROID_REF"
+          else
+            ref=master
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+      - name: Checkout commcare-core
+        uses: actions/checkout@v6
+        with:
+          repository: dimagi/commcare-core
+          ref: ${{ steps.core.outputs.ref }}
+          path: commcare-core
+      - name: Resolve locales
+        id: locales
+        working-directory: commcare-android
+        env:
+          LOCALES_INPUT: ${{ inputs.locales }}
+        run: |
+          if [ ! -f app/unit-tests/src/org/commcare/l10n/L10nScreenshots.kt ]; then
+            echo "::error::$ANDROID_REF has no localization screenshot tests (added to master in #3975)"
+            exit 1
+          fi
+          locales="$(echo "$LOCALES_INPUT" | tr -d ' ')"
+          if [ -z "$locales" ]; then
+            locales="en$(for d in app/res/values-*/; do
+              q="$(basename "$d")"; q="${q#values-}"
+              if echo "$q" | grep -Eq '^[a-z]{2,3}(-r[A-Z]{2})?$' && [ -f "$d/strings.xml" ]; then printf ',%s' "$q"; fi
+            done)"
+          fi
+          if ! echo "$locales" | grep -Eq '^[a-z]{2,3}(-r[A-Z]{2})?(,[a-z]{2,3}(-r[A-Z]{2})?)*$'; then
+            echo "::error::Locales must be resource qualifiers such as fr or pt-rBR, comma-separated: $locales"
+            exit 1
+          fi
+          echo "locales=$locales" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Generate Gradle properties
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+          org.gradle.parallel=false
+          GOOGLE_CLOUD_PROJECT_NUMBER=${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
+          GOOGLE_SERVICES_API_KEY=${{ secrets.GOOGLE_SERVICES_API_KEY }}
+          FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
+          GOOGLE_PLAY_MAPS_API_KEY=${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}
+          MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
+          EOF
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Record screenshots
+        working-directory: commcare-android
+        env:
+          LOCALES: ${{ steps.locales.outputs.locales }}
+        run: ./gradlew testCommcareDebugUnitTest --tests 'org.commcare.l10n.*' "-Pl10n.locale=$LOCALES"
+      - name: Upload unit test report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: l10n-test-report
+          path: commcare-android/app/build/reports/tests/testCommcareDebugUnitTest
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Build contact sheet
+        env:
+          LOCALES: ${{ steps.locales.outputs.locales }}
+          CAPTION: ${{ format('commcare-android {0} ({1}), commcare-core {2}', env.ANDROID_REF, steps.locales.outputs.sha, steps.core.outputs.ref) }}
+        run: python3 commcare-android/scripts/l10n_contact_sheet.py commcare-android/app/build/outputs/l10n-screenshots "$LOCALES" "$CAPTION"
+      - name: Upload screenshots
+        id: upload
+        uses: actions/upload-artifact@v6
+        with:
+          name: l10n-screenshots-${{ steps.locales.outputs.sha }}
+          path: commcare-android/app/build/outputs/l10n-screenshots
+          if-no-files-found: error
+          retention-days: 30
+      - name: Summarize
+        env:
+          LOCALES: ${{ steps.locales.outputs.locales }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          SHA: ${{ steps.locales.outputs.sha }}
+          CORE_REF: ${{ steps.core.outputs.ref }}
+        run: |
+          {
+            echo "### Localization screenshots"
+            echo "commcare-android \`$ANDROID_REF\` (\`$SHA\`), commcare-core \`$CORE_REF\`"
+            echo ""
+            echo "Locales: \`$LOCALES\`"
+            echo ""
+            echo "[Download the screenshots]($ARTIFACT_URL), unzip, and open \`index.html\`. Kept for 30 days."
+          } >> "$GITHUB_STEP_SUMMARY"
