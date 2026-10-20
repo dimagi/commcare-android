@@ -840,6 +840,15 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     /**
+     * Whether the worker can earn something by opening the delivery app right now. Not the inverse
+     * of {@link #isFurtherWorkBlocked()}: an outstanding task also stops work, so callers pass the
+     * tasks they have already loaded and the delivery screens decide this the same way.
+     */
+    public boolean canWorkFurther(List<ConnectTaskRecord> pendingTasks) {
+        return !isFurtherWorkBlocked() && pendingTasks.isEmpty();
+    }
+
+    /**
      * Whether no further work on this job can earn progress, so progress displays should render as
      * disabled. For a multi-payment job this is only true once every payment unit is out of visits,
      * either for good or for today; while any unit is still workable the limits are informational.
