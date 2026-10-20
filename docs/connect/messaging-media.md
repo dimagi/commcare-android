@@ -1,0 +1,125 @@
+# Connect Messaging: rich messages and attachments
+
+PersonalID channel messages can carry encrypted attachments and a richer markdown text. Plain
+messages behave as before. Visual design: https://claude.ai/artifact/QvRs3amdJSEMwkgzpzxAam
+(private until shared).
+
+## Data flow
+
+1. **Sync.** `RetrieveNotificationsResponseParser` reads `version`, `rich_text`, `format`,
+   `expires_at` and `attachments` for version 2 messages. Wherever a version 2 message's text
+   appears (chat and channel preview), `rich_text` is shown whenever present; an empty string
+   (`"rich_text": ""`) marks a media-only message, which shows no text. `content` is not stored
+   when rich text is present; it is only the fallback when `rich_text` is absent or fails to
+   decrypt. Any entry that fails to parse, or an attachment whose message wasn't stored, fails
+   the whole sync, so nothing is acknowledged and the error stays visible until it's fixed.
+
+   **Unsupported versions** (anything but absent, 0 or 2) keep none of the message: only its id,
+   channel, timestamp and version are stored, and it is not acked. The server redelivers it on
+   every sync until an app that understands the version replaces the stored copy; read state is
+   kept while the version is unchanged. The chat shows a "Your Android app needs to be updated to
+   view this message" tile, plus a soft red banner (`error_banner_bg`) above the input while the
+   channel holds one; the channel list previews it as "[Update the app to see this message]".
+2. **Storage** (Connect DB v30). `ConnectMessagingMessageRecord` holds the rich fields;
+   `ConnectMessagingAttachmentRecord` (`connect_messaging_attachment`) holds one row per
+   attachment, keyed by the server's attachment id. Re-delivered attachments keep their state.
+   Decrypted files live in `filesDir/connect_messaging_attachments/<attachment id>` and are
+   deleted, with the download job cancelled, on PersonalID logout.
+3. **Download.** `ConnectMessagingAttachmentDownloadWorker` downloads queued attachments oldest
+   message first, checks the size, decrypts with the channel key (AES-256-GCM, nonce +
+   ciphertext + tag) and writes the file atomically. Automatic downloads run as unique work
+   scheduled after every sync; tapping a message gives each of its unfinished attachments its
+   own job, run at once without waiting for a network so a failure shows right away, and ahead
+   of automatic downloads. Each attachment downloads independently.
+4. **Chat.** A rich message with attachments stays hidden behind one generic tile, with no text
+   or attachment details, until every attachment is available; the channel list previews it as
+   "[Media message to download]". Every state change sends `com.dimagi.messaging.update`; only
+   the owning row redraws.
+
+## Automatic download setting
+
+Messaging home › ⋮ › Settings › "Download attachments automatically", stored in
+`ConnectMessagingPreferences` and cleared on PersonalID logout:
+
+| Option | Automatic downloads |
+|---|---|
+| On Wi-Fi and mobile data (default) | All attachments, any network |
+| Large attachments (over 1 MB) only on Wi-Fi | Up to 1 MB on any network; larger ones wait for an unmetered network |
+| Manual download only | None. New attachments start as `waiting`; switching to this returns queued downloads to `waiting` |
+
+Tapping a pending message always downloads it right away, whatever the setting.
+
+## Attachment states
+
+The message tile shows the combined state, in priority order: any `expired` part makes it "No
+longer available", a part downloading or just tapped shows the spinner, a failed part shows the
+retry tile, otherwise the download tile. It opens fully once every part is `available`. The
+spinner never stands for waiting on a network or a retry backoff.
+
+| State | Set when | Tile while the message is pending |
+|---|---|---|
+| `queued` | First stored, if automatic download is on, the message is under 7 days old and among the channel's newest 50 incoming messages | Download tile |
+| `waiting` | First stored, otherwise | Download tile |
+| `requested` | Tapped | Spinner tile |
+| `downloading` | A job is fetching it (marked `failed` if the job died) | Spinner tile |
+| `available` | Decrypted file on disk; kept after expiry | Shown as image, audio player or file chip once all parts are |
+| `failed` | Any unsuccessful attempt (network, HTTP error, size mismatch, decryption, 401/403) | Retry tile |
+| `expired` | `expires_at` passed or the server returned 410 before download | "No longer available" tile |
+
+A failed part stays eligible for background retry until its third counted failure. The
+automatic jobs retry on their usual backoff; a failed tap schedules its own retry, 3 minutes
+later once a network is available and backing off after that. Tapping retries at once and
+resets the count. 401/403 stop the pass without counting an attempt.
+
+## Design (dp)
+
+- **Row.** Messages with attachments drop the 70% text-bubble cap for media. Media first, text
+  below it, then the timestamp; the text wraps at the wider of the media and the normal 70% text
+  width, so a narrow portrait image doesn't squeeze it; narrower media is centered above the
+  text. Bubble padding 10, 8 between attachments and before the text.
+- **Image.** Shown at its natural size, one image pixel per dp: `w = min(maxW, maxH × aspect,
+  natural width)`, `h = w ÷ aspect`; `maxW` = list width − 38 (row margins, tail, bubble
+  padding), `maxH` = window height × 0.4 (about half the chat list with the keyboard closed,
+  and unaffected by it). An image under 48dp (`connect_touch_target_min`) in either dimension
+  is enlarged until its shorter side reaches 48dp, within those limits, and can't be tapped.
+  Dimensions follow the EXIF orientation, as Glide does when drawing. Corners 6. Loaded with
+  Glide without a disk cache, so no decrypted copies leave the attachment directory.
+- **Lightbox.** Tapping an image opens `ConnectMessageImageViewerFragment`: black background,
+  the message's date and time as the title, and the caption (up to 3 lines) on a `black_60`
+  strip. Subsampling Scale Image View shows the file in place. It opens at the smaller of
+  fit-to-screen and natural size in dp, and pinch-zooms to the larger of 2 screen pixels per
+  image pixel and twice the opening size; double-tap zooms to at least 1 screen pixel per
+  image pixel, within that limit. Only the image grows out of the tapped thumbnail and shrinks
+  back into it (a Material container transform on a stand-in image matching where the zoomable
+  view shows it). The black backdrop fades in across the screen while the image grows (the
+  chat fades out over the viewer's static backdrop, since the leaving fragment draws on top),
+  the caption appears once it's in place, and both fade out in place while it shrinks back.
+- **Audio.** Fills the bubble: 40 white play circle in a 48 touch target, seek bar (4 track,
+  14 thumb, white over white 40%), time 12sp. Idle shows the duration, then the position. One
+  track plays at a time and playback stops when the chat closes.
+- **Other files.** Chip with name and size; tapping opens it with `ACTION_VIEW` through the
+  app's `FileProvider`.
+- **Not downloaded.** One fixed 240-wide tile per message (min 128 high), corners 6,
+  `connect_blue_color`: 56 white circle with a `connect_message_receiver_bg` icon and a 12sp
+  white label; no text, names, sizes or media types. Spinner: 48 indeterminate ring, `connect_message_receiver_bg` track,
+  white indicator. Failed: "Download failed" in `connect_red_light` over "Tap to retry".
+
+Dimensions, styles and icons are prefixed `connect_message_` / `ConnectMessage` in `res/`.
+
+## Not built yet
+
+- `format` is stored but every value uses the default layout (no gallery strip).
+- Download progress is indeterminate; cancelling isn't possible.
+- The lightbox shows one image; there's no swiping between a message's images.
+
+## Edge cases
+
+- **Entry and back:** attachments live inside the existing chat screen; settings open from the
+  channel list menu and Back returns to the list. Back from the lightbox returns to the chat,
+  and the lightbox closes itself if the image file is gone.
+- **Session:** behind PersonalID like the rest of messaging; logout removes files and work.
+- **Lifecycle:** download state lives in the database, so it survives the app being killed.
+  Audio position is not kept across rotation or leaving the chat.
+- **Form factors:** phone, both orientations; image sizes follow the current list size.
+- **Connectivity:** automatic downloads wait for a network; every failure shows the retry tile
+  at once while background retries continue with backoff.

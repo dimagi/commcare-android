@@ -3,17 +3,22 @@ package org.commcare.views.connect
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.TypedArray
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.TextAppearanceSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup.MarginLayoutParams
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.PluralsRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.ImageViewCompat
 import com.google.android.material.color.MaterialColors
 import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.ViewConnectProgressCardBarBinding
 import org.commcare.dalvik.databinding.ViewConnectProgressCardBinding
 import org.commcare.util.LogTypes
 import org.commcare.utils.ProgressUtils
@@ -44,6 +49,9 @@ class ConnectProgressCard
         private val contentAccentColor: Int
         private val contentDisabledColor: Int
 
+        private val breakdownBars = mutableListOf<ViewConnectProgressCardBarBinding>()
+        private var breakdownExpanded = false
+
         /** The state currently bound to the card. */
         var state: State = State()
             private set
@@ -58,12 +66,15 @@ class ConnectProgressCard
             val linearProgress: LinearProgress? = null,
             val semiCircle: SemiCircle? = null,
             val info: Info? = null,
+            val breakdownRows: List<LinearProgress> = emptyList(),
+            val collapsedBreakdownRowCount: Int? = null,
         ) {
             data class LinearProgress(
                 val label: CharSequence? = null,
                 val current: Int = 0,
                 val max: Int? = 0,
                 val caption: CharSequence? = null,
+                @param:PluralsRes val countFormatRes: Int? = null,
             )
 
             data class SemiCircle(
@@ -78,7 +89,7 @@ class ConnectProgressCard
                 val onCtaClick: (() -> Unit)? = null,
                 val appearance: Appearance = Appearance.INFO,
             ) {
-                /** [WARNING] adds a warning icon and inverts the banner to blue-on-grey. */
+                /** [WARNING] adds a warning icon and switches the banner to the warning colours. */
                 enum class Appearance { INFO, WARNING }
             }
         }
@@ -115,8 +126,9 @@ class ConnectProgressCard
             this.state = state
             bindOptionalText(binding.progressCardTitle, state.title)
             bindSemiCircle(state.semiCircle)
-            bindLinearProgress(state.linearProgress)
+            bindLinearProgress(binding.progressCardOverallBar, state.linearProgress)
             bindBarRowSpacing()
+            bindBreakdown(state.breakdownRows, state.collapsedBreakdownRowCount)
             bindInfo(state.info)
             applyContentColors(state.contentEnabled)
         }
@@ -130,7 +142,7 @@ class ConnectProgressCard
             val hasContentAbove =
                 binding.progressCardTitle.visibility == VISIBLE ||
                     binding.progressCardSemiCircle.visibility == VISIBLE
-            binding.progressCardBarRow.updateLayoutParams<MarginLayoutParams> {
+            binding.progressCardOverallBar.progressCardBarRow.updateLayoutParams<MarginLayoutParams> {
                 topMargin =
                     if (hasContentAbove) resources.getDimensionPixelSize(R.dimen.connect_space_lg) else 0
             }
@@ -147,33 +159,129 @@ class ConnectProgressCard
             binding.progressCardSemiCircle.descriptionText = semiCircle.description
         }
 
-        private fun bindLinearProgress(linearProgress: State.LinearProgress?) {
-            bindOptionalText(binding.progressCardBarLabel, linearProgress?.label)
-            bindOptionalText(binding.progressCardBarCaption, linearProgress?.caption)
-
+        private fun bindLinearProgress(
+            bar: ViewConnectProgressCardBarBinding,
+            linearProgress: State.LinearProgress?,
+        ) {
             if (linearProgress == null) {
-                binding.progressCardLinearBar.visibility = VISIBLE
-                binding.progressCardLinearBar.setProgress(0f)
-                binding.progressCardBarCount.visibility = GONE
+                bar.root.visibility = GONE
                 return
             }
+            bar.root.visibility = VISIBLE
+            bindOptionalText(bar.progressCardBarLabel, linearProgress.label)
+            bindOptionalText(bar.progressCardBarCaption, linearProgress.caption)
 
             if (linearProgress.max == null) {
-                binding.progressCardLinearBar.visibility = GONE
-                binding.progressCardBarCount.text = linearProgress.current.coerceAtLeast(0).toString()
-                binding.progressCardBarCount.visibility = VISIBLE
+                bar.progressCardLinearBar.visibility = GONE
+                bindCount(bar, linearProgress.current.coerceAtLeast(0), null, linearProgress.countFormatRes)
                 return
             }
 
-            binding.progressCardLinearBar.visibility = VISIBLE
+            bar.progressCardLinearBar.visibility = VISIBLE
             val (current, max) = coerceProgress(linearProgress.current, linearProgress.max)
-            binding.progressCardLinearBar.setProgress(ProgressUtils.calculateProgress(current, max) * 100f)
+            bar.progressCardLinearBar.setProgress(ProgressUtils.calculateProgress(current, max) * 100f)
             if (max > 0) {
-                binding.progressCardBarCount.text =
-                    resources.getString(R.string.connect_progress_count_format, current, max)
-                binding.progressCardBarCount.visibility = VISIBLE
+                bindCount(bar, current, max, linearProgress.countFormatRes)
             } else {
-                binding.progressCardBarCount.visibility = GONE
+                bar.progressCardBarCount.visibility = GONE
+            }
+        }
+
+        private fun bindCount(
+            bar: ViewConnectProgressCardBarBinding,
+            current: Int,
+            max: Int?,
+            @PluralsRes countFormatRes: Int?,
+        ) {
+            bar.progressCardBarCount.text =
+                when {
+                    countFormatRes != null -> formatCountInWords(current, max, countFormatRes)
+                    max != null -> resources.getString(R.string.connect_progress_count_format, current, max)
+                    else -> current.toString()
+                }
+            bar.progressCardBarCount.visibility = VISIBLE
+        }
+
+        private fun formatCountInWords(
+            current: Int,
+            max: Int?,
+            @PluralsRes countFormatRes: Int,
+        ): CharSequence {
+            val template = resources.getQuantityString(countFormatRes, current, COUNT_PLACEHOLDER, max ?: 0)
+            val countStart = template.indexOf(COUNT_PLACEHOLDER)
+            if (countStart < 0) return template
+
+            val countText = "%d".format(current)
+
+            return SpannableStringBuilder(template).apply {
+                replace(countStart, countStart + COUNT_PLACEHOLDER.length, countText)
+                styleCountWords(this, 0, countStart)
+                styleCountWords(this, countStart + countText.length, length)
+            }
+        }
+
+        private fun styleCountWords(
+            text: SpannableStringBuilder,
+            start: Int,
+            end: Int,
+        ) {
+            // The count can start or end the phrase depending on the locale's word order, leaving
+            // this side empty, and an exclusive span over an empty range throws.
+            if (start >= end) return
+
+            text.setSpan(
+                TextAppearanceSpan(context, R.style.Widget_Connect_BodyText),
+                start,
+                end,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
+        }
+
+        private fun bindBreakdown(
+            rows: List<State.LinearProgress>,
+            collapsedRowCount: Int?,
+        ) {
+            binding.progressCardBreakdown.visibility = if (rows.isEmpty()) GONE else VISIBLE
+            binding.progressCardBreakdownRows.removeAllViews()
+            breakdownBars.clear()
+
+            val collapseAt = collapsedRowCount?.takeIf { rows.size > it }
+            val shownRows = if (collapseAt != null && !breakdownExpanded) rows.take(collapseAt) else rows
+            shownRows.forEach { row ->
+                val bar =
+                    ViewConnectProgressCardBarBinding.inflate(
+                        LayoutInflater.from(context),
+                        binding.progressCardBreakdownRows,
+                        true,
+                    )
+                bindLinearProgress(bar, row)
+                breakdownBars.add(bar)
+            }
+
+            bindBreakdownToggle(collapseAt != null, rows.size - shownRows.size)
+        }
+
+        private fun bindBreakdownToggle(
+            collapsible: Boolean,
+            hiddenRowCount: Int,
+        ) {
+            val toggle = binding.progressCardBreakdownToggle
+            toggle.visibility = if (collapsible) VISIBLE else GONE
+            if (!collapsible) return
+
+            toggle.text =
+                if (breakdownExpanded) {
+                    resources.getString(R.string.connect_progress_breakdown_show_less)
+                } else {
+                    resources.getQuantityString(
+                        R.plurals.connect_progress_breakdown_show_more,
+                        hiddenRowCount,
+                        hiddenRowCount,
+                    )
+                }
+            toggle.setOnClickListener {
+                breakdownExpanded = !breakdownExpanded
+                bind(state)
             }
         }
 
@@ -203,12 +311,12 @@ class ConnectProgressCard
             val background =
                 MaterialColors.getColor(
                     this,
-                    if (isWarning) R.attr.connectOutlineVariant else com.google.android.material.R.attr.colorPrimary,
+                    if (isWarning) R.attr.connectStatusWarningContainer else com.google.android.material.R.attr.colorPrimary,
                 )
             val foreground =
                 MaterialColors.getColor(
                     this,
-                    if (isWarning) com.google.android.material.R.attr.colorPrimary else com.google.android.material.R.attr.colorOnPrimary,
+                    if (isWarning) R.attr.connectStatusWarning else com.google.android.material.R.attr.colorOnPrimary,
                 )
 
             binding.progressCardInfoMessage.setCardBackgroundColor(background)
@@ -255,10 +363,13 @@ class ConnectProgressCard
             val accent = if (contentEnabled) contentAccentColor else contentDisabledColor
 
             binding.progressCardTitle.setTextColor(primary)
-            binding.progressCardBarLabel.setTextColor(primary)
-            binding.progressCardBarCount.setTextColor(accent)
-            binding.progressCardBarCaption.setTextColor(accent)
-            binding.progressCardLinearBar.setProgressColor(accent)
+            (listOf(binding.progressCardOverallBar) + breakdownBars).forEach { bar ->
+                bar.progressCardBarLabel.setTextColor(primary)
+                bar.progressCardBarCount.setTextColor(accent)
+                bar.progressCardBarCaption.setTextColor(accent)
+                bar.progressCardLinearBar.setProgressColor(accent)
+            }
+            binding.progressCardBreakdownToggle.setTextColor(accent)
             binding.progressCardSemiCircle.progressColor = accent
             binding.progressCardSemiCircle.valueTextColor = accent
             binding.progressCardSemiCircle.descriptionTextColor = primary
@@ -299,5 +410,9 @@ class ConnectProgressCard
                 semiCircle = semiCircle,
                 info = info,
             )
+        }
+
+        private companion object {
+            const val COUNT_PLACEHOLDER = "￼"
         }
     }

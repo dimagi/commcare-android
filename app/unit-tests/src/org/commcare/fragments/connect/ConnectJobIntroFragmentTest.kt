@@ -94,6 +94,15 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
     }
 
     @Test
+    fun `toolbar shows the opportunity name without the sync button`() {
+        launch()
+        ShadowLooper.idleMainLooper()
+
+        assertEquals("Infant Vaccination", activity.supportActionBar!!.title)
+        assertFalse(activity.isSyncMenuItemVisible())
+    }
+
+    @Test
     fun `expiry shows the short-formatted project end date`() {
         val fragment = launch()
         assertEquals(

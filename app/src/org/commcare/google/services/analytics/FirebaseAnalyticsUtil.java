@@ -685,6 +685,31 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_CONTINUE_CLICKED, params);
     }
 
+    /**
+     * Reports a step in a PersonalID backup-code or email journey. {@code workflow} says which
+     * journey (see {@link org.commcare.utils.AccountSecurityAnalyticsMapper}), {@code eventType}
+     * which step; the remaining params are omitted when null.
+     */
+    public static void reportPersonalIdAccountSecurityAction(String workflow,
+            String eventType,
+            @Nullable String outcome,
+            @Nullable String reason,
+            @Nullable Integer failedAttempts) {
+        Bundle params = new Bundle();
+        params.putString(CCAnalyticsParam.OTP_WORKFLOW, workflow);
+        params.putString(CCAnalyticsParam.OTP_EVENT_TYPE, eventType);
+        if (outcome != null) {
+            params.putString(CCAnalyticsParam.OTP_OUTCOME, outcome);
+        }
+        if (reason != null) {
+            params.putString(CCAnalyticsParam.REASON, reason);
+        }
+        if (failedAttempts != null) {
+            params.putLong(CCAnalyticsParam.OTP_FAILED_ATTEMPTS, failedAttempts);
+        }
+        reportEvent(CCAnalyticsEvent.PERSONAL_ID_ACCOUNT_SECURITY_ACTION, params);
+    }
+
     public static void reportUserPromptEvent(String type, String action, String info) {
         Bundle params = new Bundle();
         params.putString(CCAnalyticsParam.USER_PROMPT_TYPE, type);

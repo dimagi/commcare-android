@@ -43,6 +43,7 @@ import org.commcare.views.connect.ConnectCtaBar
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -212,6 +213,19 @@ class ConnectDeliveryHomeFragmentTest {
             app.getString(R.string.connect_downloading_delivery),
             view.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
         )
+    }
+
+    @Test
+    fun `a later screen's title replaces the delivery title and subtitle`() {
+        every { job.title } returns "Delivery Opportunity"
+        val activity = launchHome().requireActivity() as ConnectActivity
+        val actionBar = activity.supportActionBar!!
+        assertEquals("Delivery Opportunity", actionBar.title)
+
+        activity.setTitle(R.string.connect_learn_title)
+
+        assertEquals(app.getString(R.string.connect_learn_title), actionBar.title)
+        assertNull(actionBar.subtitle)
     }
 
     private fun launchHome(): ConnectDeliveryHomeFragment {

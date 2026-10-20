@@ -1,6 +1,8 @@
 package org.commcare.connect.network.personalId.parser
 
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.ByteArrayInputStream
 
 /**
@@ -99,6 +101,52 @@ object NotificationTestUtil {
             }
             """.trimIndent()
     }
+
+    fun createRichMessagingNotification(
+        notificationId: String,
+        messageId: String,
+        channel: String,
+        content: String,
+        version: Int = 2,
+        richText: String? = null,
+        format: String? = null,
+        expiresAt: String? = null,
+        attachments: List<String>? = emptyList(),
+        encryptionKey: String = TEST_ENCRYPTION_KEY,
+    ): String {
+        val json =
+            JSONObject(
+                createMessagingNotificationWithValidEncryption(
+                    notificationId = notificationId,
+                    messageId = messageId,
+                    channel = channel,
+                    messageContent = content,
+                    encryptionKey = encryptionKey,
+                ),
+            )
+        json.put("version", version)
+        richText?.let {
+            val encrypted = ConnectMessagingMessageRecord.encrypt(it, encryptionKey)
+            json.put(
+                "rich_text",
+                JSONObject()
+                    .put("ciphertext", encrypted[0])
+                    .put("nonce", encrypted[1])
+                    .put("tag", encrypted[2]),
+            )
+        }
+        format?.let { json.put("format", it) }
+        expiresAt?.let { json.put("expires_at", it) }
+        attachments?.let { json.put("attachments", JSONArray(it.joinToString(prefix = "[", postfix = "]"))) }
+        return json.toString()
+    }
+
+    fun createAttachmentJson(
+        id: String,
+        name: String,
+        type: String = "image/png",
+        size: Long = 100,
+    ): String = """{"id": "$id", "name": "$name", "type": "$type", "size": $size}"""
 
     fun createChannelJson(
         channelId: String,

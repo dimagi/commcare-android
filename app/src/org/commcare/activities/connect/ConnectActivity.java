@@ -69,6 +69,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
 
         super.onCreate(savedInstanceState);
+        setTitle(R.string.connect_title);
 
         PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
         personalIdManager.init(this);
@@ -105,9 +106,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     @Override
-    public void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        getSupportActionBar().setTitle(getString(R.string.connect_title));
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        setActionBarTitle(title);
     }
 
     @Override

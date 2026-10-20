@@ -247,8 +247,8 @@
     <string name="dependency_missing_dialog_playstore_not_found">Nenhuma Play Store encontrada no seu dispositivo</string>
     <string name="fcm_default_notification_channel">notificações-canal-notificações push</string>
     <string name="personalid_login_via">Via PersonalId (ou pressione aqui)</string>
-    <string name="personalid_welcome_user">Bemvindo %s!</string>
     <string name="personalid_choice_or">OU</string>
+    <string name="login_choice_or">OU</string>
     <string name="connect_download_delivery">Baixar entrega</string>
     <string name="connect_app_install_setting_up">Configurando o aplicativo…</string>
     <string name="connect_app_finishing_install">Concluindo a instalação…</string>
@@ -289,6 +289,7 @@
     <string name="personalid_email_otp_failed_wait">Aguardar</string>
     <string name="personalid_email_otp_failed_skip">Continuar sem e-mail</string>
     <string name="personalid_otp_limit_exceeded">Você usou todas as tentativas deste código, por isso ele não é mais válido. Solicite um novo código para continuar.</string>
+    <string name="personalid_otp_session_expired">Este código não é mais válido. Solicite um novo código para continuar.</string>
     <string name="personalid_rate_limited_retry_after">Muitas tentativas. Tente novamente em %1$s.</string>
     <string name="personalid_otp_resend_wait">Não recebeu seu código? Reenviar em %1$s</string>
     <string name="personalid_otp_request_new_code_wait">Aguarde %1$s para solicitar um novo código</string>
@@ -349,6 +350,7 @@
     <string name="connect_sms_invite_opportunity_not_found">Oportunidade não encontrada</string>
     <string name="connect_learn_complete">Concluída</string>
     <string name="connect_learn_certificate">CERTIFICADO DE CONCLUSÃO</string>
+    <string name="connect_learn_view_certificate">Ver certificado</string>
     <string name="connect_learn_completed">Concluído em %s</string>
     <string name="connect_learn_cert_score">Pontuação: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Iniciar visitas</string>
@@ -368,6 +370,11 @@
     <string name="connect_progress_delivery">Entrega</string>
     <string name="semi_circle_progress_value_format">%1$d de %2$d</string>
     <string name="connect_progress_count_format">%1$d de %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Mostrar mais %1$d</item>
+        <item quantity="other">Mostrar mais %1$d</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Mostrar menos</string>
     <string name="connect_progress_warning_ended">O trabalho terminou. Você não ganhará nenhum progresso por trabalho adicional.</string>
     <string name="connect_progress_warning_not_started">O trabalho ainda não começou. Você não ganhará nenhum progresso para o trabalho.</string>
     <string name="connect_progress_ready_for_transition_to_delivery">Você passou na avaliação e está pronto para entregar. Veja o status do trabalho para continuar.</string>
@@ -528,13 +535,14 @@
     <string name="connect_results_summary_pending">Pendente</string>
     <string name="connect_results_summary_rejected">Rejeitado</string>
     <string name="connect_results_summary_approved">Aprovado</string>
-    <string name="personalid_login_via_connect">Pronto para fazer login!\n</string>
+    <string name="personalid_login_via_connect">Pronto para fazer login!</string>
     <string name="personalid_failed_to_login_with_connectid">Estamos a deparar-nos com um erro irrecuperável ao tentar fazer login usando o seu ID Pessoal. Faça login com a sua palavra-passe ou restaure o seu login com o ID Pessoal.</string>
     <string name="personalid_name_appbar_title">Nome</string>
     <string name="personalid_name_fragment_title">Insira o seu nome</string>
     <string name="personalid_name_fragment_subtitle">Por favor, insira o seu nome tal como aparece na sua identificação emitida pelo governo</string>
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_locked_account">A sua conta foi bloqueada. Entre em contacto com o suporte</string>
+    <string name="personalid_backup_code_locked">O seu código de segurança foi bloqueado. Verifique o seu e-mail para definir um novo.</string>
     <string name="personalid_configuration_process_failed_subtitle">Lamentavelmente, este dispositivo não passou nas verificações de segurança necessárias para se inscrever no PersonalID. Por favor, tente novamente num dispositivo diferente.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">O PIN neste dispositivo está indisponível de momento. Por favor, tente novamente mais tarde.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">A biometria não está atualmente ativada neste dispositivo. Por favor, configure a biometria nas Definições do sistema Android antes de prosseguir.</string>
@@ -631,6 +639,7 @@
     <string name="connect_delivery_visit_progress_title">Progresso das visitas</string>
     <string name="connect_delivery_total_visits_completed">total de visitas concluídas</string>
     <string name="connect_delivery_daily_visits">Visitas diárias</string>
+    <string name="connect_visits_completed_today">Visitas concluídas hoje</string>
     <string name="connect_delivery_your_progress">Seu progresso</string>
     <string name="connect_delivery_total_earnings">Ganhos totais</string>
     <string name="connect_delivery_amount_each">%1$s cada</string>
@@ -638,6 +647,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Obrigatórias</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Conclua as tarefas para continuar a prestação de serviços.</string>
     <string name="connect_delivery_tasks_empty">Não há tarefas pendentes neste momento. Avisaremos quando uma nova tarefa estiver disponível.</string>
+    <string name="connect_delivery_visits_empty">Ainda não há visitas. Suas visitas concluídas aparecerão aqui.</string>
+    <string name="connect_delivery_visits_filter_empty">Nenhuma visita corresponde a este filtro.</string>
     <string name="connect_delivery_revisit_learning_title">Revisitar a formação</string>
     <string name="connect_delivery_revisit_learning_completed">Concluído em %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">O certificado ficará disponível após a próxima sincronização</string>
@@ -650,9 +661,20 @@
         <item quantity="one">%1$d visita restante hoje</item>
         <item quantity="other">%1$d visitas restantes hoje</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Ver oportunidade</string>
-    <string name="install_barcode_top">Bem-vindo ao CommCare!</string>
-    <string name="install_barcode_bottom">Por favor, escolha um método de instalação abaixo</string>
+    <string name="connect_delivery_no_daily_visit_target">Sem meta diária de visitas</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s de %2$d concluída hoje</item>
+        <item quantity="other">%1$s de %2$d concluídas hoje</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s concluída hoje</item>
+        <item quantity="other">%1$s concluídas hoje</item>
+    </plurals>
+    <string name="install_get_started_title">Comece a usar o CommCare</string>
+    <string name="install_get_started_message">Instale seu primeiro aplicativo para começar.</string>
+    <string name="install_via_qr_code">Instalar via código QR</string>
+    <string name="install_via_app_code">Instalar via código do aplicativo</string>
+    <string name="install_from_local">Instalar pela rede local</string>
     <string name="install_keep_trying">Continue tentando se a conexão for interrompida</string>
     <string name="install_manual">Por favor, insira a URL</string>
     <string name="install_ready_top">Quase lá!</string>
@@ -665,6 +687,7 @@
     <string name="install_bad_ref">Você não escaneou uma URL válida. Por favor, tente novamente.</string>
     <string name="install_bad_login">Entrar em Aplicativo Existente</string>
     <string name="install_appprofile">Insira o código do seu aplicativo</string>
+    <string name="install_code_hint">Insira o código aqui</string>
     <string name="install_perms_rationale_message">O CommCare requer pelo menos permissões de leitura e escrita no armazenamento externo para guardar os envios de formulários.</string>
     <string name="install_perms_denied_message">Permissões cruciais negadas %1$s vezes.\n\n Se solicitar permissões aqui falhar, por favor, ative as permissões nas configurações do Android.</string>
     <string name="install_choose_local_app">Aplicativos Disponíveis</string>
@@ -764,4 +787,23 @@
     <string name="recording_notification_save_action">Salvar</string>
     <string name="recording_notification_pause_action">Pausar</string>
     <string name="recording_notification_resume_action">Retomar</string>
+    <string name="connect_messaging_attachment_download">Baixar</string>
+    <string name="connect_messaging_attachment_downloading">Baixando…</string>
+    <string name="connect_messaging_attachment_download_failed">Falha no download</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Toque para tentar novamente</string>
+    <string name="connect_messaging_attachment_expired">Não está mais disponível</string>
+    <string name="connect_messaging_attachment_open_failed">Nenhum aplicativo neste telefone pode abrir este arquivo</string>
+    <string name="connect_messaging_audio_play">Reproduzir áudio</string>
+    <string name="connect_messaging_audio_pause">Pausar áudio</string>
+    <string name="connect_messaging_audio_play_failed">Não foi possível reproduzir este áudio</string>
+    <string name="connect_messaging_update_app_notice">Seu aplicativo Android precisa ser atualizado para ver esta mensagem</string>
+    <string name="connect_messaging_update_app_banner">Atualize o aplicativo para ver todas as mensagens deste canal</string>
+    <string name="connect_messaging_preview_update_app">[Atualize o aplicativo para ver esta mensagem]</string>
+    <string name="connect_messaging_settings_title">Configurações de mensagens</string>
+    <string name="connect_messaging_settings_any_network">No Wi-Fi e nos dados móveis</string>
+    <string name="connect_messaging_settings_tap_note">Os anexos que você tocar são sempre baixados na hora, em qualquer rede.</string>
+    <string name="connect_messaging_settings_auto_download_title">Baixar anexos automaticamente</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Anexos grandes (mais de 1 MB) somente no Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Somente download manual</string>
+    <string name="connect_messaging_preview_pending_download">[Mensagem de mídia para baixar]</string>
 </resources>

@@ -36,7 +36,7 @@ class ConnectLearningProgressFragment :
     ): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
 
-        requireActivity().setTitle(R.string.connect_learn_title)
+        requireActivity().title = job.title
         setWaitDialogEnabled(false)
         viewModel =
             ViewModelProvider(

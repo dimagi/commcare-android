@@ -554,9 +554,12 @@ public class ConnectJobUtils {
         return !expiry.before(today) && !expiry.after(upperBound);
     }
 
+    public static ConnectAppRecord getSeatedAppRecord() {
+        return getAppRecord(CommCareApplication.instance().getCurrentApp().getUniqueId());
+    }
+
     public static ConnectJobRecord getJobForSeatedApp(Context context) {
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord appRecord = getAppRecord(appId);
+        ConnectAppRecord appRecord = getSeatedAppRecord();
         if (appRecord == null) {
             return null;
         }

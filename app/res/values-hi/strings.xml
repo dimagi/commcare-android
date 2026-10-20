@@ -244,8 +244,8 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">आपके डिवाइस पर कोई Play Store नहीं मिला</string>
     <string name="fcm_default_notification_channel">अधिसूचना-चैनल-पुश-अधिसूचनाएं</string>
     <string name="personalid_login_via">PersonalId के माध्यम से (या यहां टैप करें)</string>
-    <string name="personalid_welcome_user">स्वागत है %s!</string>
     <string name="personalid_choice_or">_____________    या    _____________</string>
+    <string name="login_choice_or">या</string>
     <string name="connect_download_delivery">वितरण डाउनलोड करें</string>
     <string name="connect_app_install_setting_up">ऐप सेट किया जा रहा है…</string>
     <string name="connect_app_finishing_install">इंस्टॉलेशन पूरा किया जा रहा है…</string>
@@ -284,6 +284,7 @@ License.
     <string name="personalid_email_otp_failed_wait">प्रतीक्षा करें</string>
     <string name="personalid_email_otp_failed_skip">ईमेल के बिना आगे बढ़ें</string>
     <string name="personalid_otp_limit_exceeded">आपने इस कोड के सभी प्रयास उपयोग कर लिए हैं, इसलिए यह अब मान्य नहीं है। जारी रखने के लिए नया कोड माँगें।</string>
+    <string name="personalid_otp_session_expired">यह कोड अब मान्य नहीं है। जारी रखने के लिए नया कोड माँगें।</string>
     <string name="personalid_rate_limited_retry_after">बहुत अधिक प्रयास। कृपया %1$s में पुनः प्रयास करें।</string>
     <string name="personalid_otp_resend_wait">आपको अपना कोड नहीं मिला? %1$s में पुनः भेजें</string>
     <string name="personalid_otp_request_new_code_wait">नया कोड माँगने के लिए %1$s प्रतीक्षा करें</string>
@@ -341,6 +342,7 @@ License.
     <string name="connect_sms_invite_opportunity_not_found">अवसर नहीं मिला</string>
     <string name="connect_learn_complete">पूरा</string>
     <string name="connect_learn_certificate">प्रमाण पत्र</string>
+    <string name="connect_learn_view_certificate">प्रमाण पत्र देखें</string>
     <string name="connect_learn_completed">पूरा हुआ %s</string>
     <string name="connect_learn_cert_score">स्कोर: %s</string>
     <string name="connect_learn_complete_footer_start_visits">विज़िट शुरू करें</string>
@@ -360,6 +362,11 @@ License.
     <string name="connect_progress_delivery">वितरण</string>
     <string name="semi_circle_progress_value_format">%2$d में से %1$d</string>
     <string name="connect_progress_count_format">%2$d में से %1$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">%1$d और दिखाएँ</item>
+        <item quantity="other">%1$d और दिखाएँ</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">कम दिखाएँ</string>
     <string name="connect_progress_warning_ended">नौकरी समाप्त हो गई है। यदि आप अतिरिक्त कार्य करते हैं तो आप प्रगति नहीं करेंगे।</string>
     <string name="connect_progress_warning_not_started">नौकरी अभी शुरू नहीं हुई है। आपको कोई प्रगति नहीं मिलेगी।</string>
     <string name="connect_progress_warning_max_reached_single">आपने अधिकतम विज़िट पूरी कर ली हैं। आप अतिरिक्त नौकरियों के लिए प्रगति नहीं कर पाएंगे।</string>
@@ -518,7 +525,7 @@ License.
     <string name="connect_messaging_channel_menu_item_unsubscribe">सदस्यता समाप्त करें</string>
     <string name="connect_send_message_hint">एक संदेश टाइप करें</string>
     <string name="connect_send_message_btn_desc">संदेश भेजने के लिए यहां टैप करें</string>
-    <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!\n</string>
+    <string name="personalid_login_via_connect">लॉग इन करने के लिए तैयार!</string>
     <string name="personalid_failed_to_login_with_connectid">आपके व्यक्तिगत आईडी से लॉग इन करते समय हमें एक अप्राप्य त्रुटि का सामना करना पड़ रहा है। कृपया अपने पासवर्ड से लॉग इन करें या अपनी व्यक्तिगत आईडी पुनर्स्थापित करें।</string>
     <string name="personalid_name_appbar_title">नाम</string>
     <string name="personalid_name_fragment_title">अपना नाम दर्ज करें</string>
@@ -548,6 +555,7 @@ License.
     <string name="camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="personalid_backup_code_locked">आपका बैकअप कोड लॉक कर दिया गया है। नया कोड सेट करने के लिए कृपया अपना ईमेल सत्यापित करें।</string>
     <string name="personalid_work_history_title">मेरा कार्य इतिहास</string>
     <string name="personalid_work_history">कार्य इतिहास</string>
     <string name="personalid_work_history_learn_more">क्रेडेंशियल्स के बारे में और जानें</string>
@@ -621,6 +629,7 @@ License.
     <string name="connect_delivery_visit_progress_title">विज़िट प्रगति</string>
     <string name="connect_delivery_total_visits_completed">कुल विज़िट पूरी हुईं</string>
     <string name="connect_delivery_daily_visits">दैनिक विज़िट</string>
+    <string name="connect_visits_completed_today">आज पूरी हुईं विज़िट</string>
     <string name="connect_delivery_your_progress">आपकी प्रगति</string>
     <string name="connect_delivery_total_earnings">कुल कमाई</string>
     <string name="connect_delivery_amount_each">प्रत्येक %1$s</string>
@@ -628,6 +637,8 @@ License.
     <string name="connect_delivery_tasks_mandatory_title">अनिवार्य</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">सेवा वितरण जारी रखने के लिए कार्य पूरे करें।</string>
     <string name="connect_delivery_tasks_empty">इस समय कोई लंबित कार्य उपलब्ध नहीं है। नया कार्य उपलब्ध होने पर हम आपको सूचित करेंगे।</string>
+    <string name="connect_delivery_visits_empty">अभी तक कोई विज़िट नहीं। आपकी पूरी की गई विज़िट यहाँ दिखाई देंगी।</string>
+    <string name="connect_delivery_visits_filter_empty">इस फ़िल्टर से कोई विज़िट मेल नहीं खाती।</string>
     <string name="connect_delivery_revisit_learning_title">प्रशिक्षण दोबारा देखें</string>
     <string name="connect_delivery_revisit_learning_completed">%1$s को पूरा किया</string>
     <string name="connect_delivery_revisit_learning_unsynced">प्रमाणपत्र आपके अगले सिंक के बाद उपलब्ध होगा</string>
@@ -640,9 +651,20 @@ License.
         <item quantity="one">आज %1$d विज़िट शेष</item>
         <item quantity="other">आज %1$d विज़िट शेष</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">अवसर देखें</string>
-    <string name="install_barcode_top">CommCare में आपका स्वागत है!</string>
-    <string name="install_barcode_bottom">कृपया नीचे एक इंस्टॉलेशन विधि चुनें</string>
+    <string name="connect_delivery_no_daily_visit_target">कोई दैनिक विज़िट लक्ष्य नहीं</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">आज %2$d में से %1$s पूरी हुई</item>
+        <item quantity="other">आज %2$d में से %1$s पूरी हुईं</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">आज %1$s पूरी हुई</item>
+        <item quantity="other">आज %1$s पूरी हुईं</item>
+    </plurals>
+    <string name="install_get_started_title">CommCare के साथ शुरू करें</string>
+    <string name="install_get_started_message">शुरू करने के लिए अपना पहला ऐप इंस्टॉल करें।</string>
+    <string name="install_via_qr_code">QR कोड से इंस्टॉल करें</string>
+    <string name="install_via_app_code">ऐप कोड से इंस्टॉल करें</string>
+    <string name="install_from_local">स्थानीय नेटवर्क से इंस्टॉल करें</string>
     <string name="install_keep_trying">यदि कनेक्शन बाधित हो तो प्रयास करते रहें</string>
     <string name="install_manual">कृपया URL दर्ज करें</string>
     <string name="install_ready_top">लगभग हो गया!</string>
@@ -655,6 +677,7 @@ License.
     <string name="install_bad_ref">आपने एक मान्य URL स्कैन नहीं किया। कृपया पुनः प्रयास करें।</string>
     <string name="install_bad_login">मौजूदा ऐप में लॉगिन करें</string>
     <string name="install_appprofile">अपना ऐप कोड दर्ज करें</string>
+    <string name="install_code_hint">यहाँ कोड दर्ज करें</string>
     <string name="install_perms_rationale_message">CommCare को फॉर्म सबमिशन संग्रहीत करने के लिए कम से कम बाहरी संग्रहण पढ़ने और लिखने की अनुमतियों की आवश्यकता है।</string>
     <string name="install_perms_denied_message">महत्वपूर्ण अनुमतियाँ %1$s बार अस्वीकृत हुईं।\n\n यदि यहाँ अनुमतियाँ माँगने में विफल हो, तो कृपया Android की सेटिंग्स के अंतर्गत अनुमतियाँ सक्षम करें।</string>
     <string name="install_choose_local_app">उपलब्ध ऐप्स</string>
@@ -754,4 +777,23 @@ License.
     <string name="recording_notification_save_action">सहेजें</string>
     <string name="recording_notification_pause_action">रोकें</string>
     <string name="recording_notification_resume_action">फिर से शुरू करें</string>
+    <string name="connect_messaging_attachment_download">डाउनलोड करें</string>
+    <string name="connect_messaging_attachment_downloading">डाउनलोड हो रहा है…</string>
+    <string name="connect_messaging_attachment_download_failed">डाउनलोड विफल रहा</string>
+    <string name="connect_messaging_attachment_tap_to_retry">फिर से कोशिश करने के लिए टैप करें</string>
+    <string name="connect_messaging_attachment_expired">अब उपलब्ध नहीं है</string>
+    <string name="connect_messaging_attachment_open_failed">इस फ़ोन पर कोई भी ऐप यह फ़ाइल नहीं खोल सकता</string>
+    <string name="connect_messaging_audio_play">ऑडियो चलाएं</string>
+    <string name="connect_messaging_audio_pause">ऑडियो रोकें</string>
+    <string name="connect_messaging_audio_play_failed">यह ऑडियो नहीं चलाया जा सका</string>
+    <string name="connect_messaging_update_app_notice">यह संदेश देखने के लिए आपके Android ऐप को अपडेट करना होगा</string>
+    <string name="connect_messaging_update_app_banner">इस चैनल के सभी संदेश देखने के लिए ऐप अपडेट करें</string>
+    <string name="connect_messaging_preview_update_app">[यह संदेश देखने के लिए ऐप अपडेट करें]</string>
+    <string name="connect_messaging_settings_title">संदेश सेटिंग</string>
+    <string name="connect_messaging_settings_any_network">वाई-फ़ाई और मोबाइल डेटा पर</string>
+    <string name="connect_messaging_settings_tap_note">जिन अटैचमेंट पर आप टैप करते हैं, वे हमेशा किसी भी नेटवर्क पर तुरंत डाउनलोड होते हैं।</string>
+    <string name="connect_messaging_settings_auto_download_title">अटैचमेंट अपने-आप डाउनलोड करें</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">बड़े अटैचमेंट (1 MB से ज़्यादा) केवल वाई-फ़ाई पर</string>
+    <string name="connect_messaging_settings_manual_only">केवल मैन्युअल डाउनलोड</string>
+    <string name="connect_messaging_preview_pending_download">[डाउनलोड करने के लिए मीडिया संदेश]</string>
 </resources>

@@ -67,7 +67,7 @@
         <item name="connectOnSurfaceEmphasis">@color/cool_gray_900</item>
         <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
         <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
-        <item name="connectOnSurfaceSecondary">@color/connect_secondary_text</item>
+        <item name="connectOnSurfaceSecondary">@color/slate_gray</item>
         <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
         <item name="connectOnSurfaceDisabled">@color/cool_gray_900</item>
         <item name="connectDisabledContainer">@color/cool_gray_100</item>
@@ -80,6 +80,14 @@
         <item name="connectStatusPositiveContainer">@color/connect_light_green</item>
         <item name="connectStatusNegative">@color/red_600</item>
         <item name="connectStatusWarning">@color/amber_800</item>
+        <item name="connectStatusWarningContainer">@color/amber_100</item>
+    </style>
+
+    <style name="AppEntryTheme" parent="ConnectTheme">
+        <item name="connectOutlineVariant">@color/mist_gray</item>
+        <item name="connectPrimaryContainer">@color/periwinkle_mist</item>
+        <item name="connectOutlineBrand">@color/cornflower_blue</item>
+        <item name="connectOnSurfaceBrand">@color/deep_indigo</item>
     </style>
 
     <style name="AppBaseTheme" parent="CommonTheme" />

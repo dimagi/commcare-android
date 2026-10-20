@@ -226,6 +226,7 @@
     <string name="personalid_email_otp_failed_wait">Vent</string>
     <string name="personalid_email_otp_failed_skip">Fortsett uten e-post</string>
     <string name="personalid_otp_limit_exceeded">Du har brukt alle forsøkene for denne koden, så den er ikke lenger gyldig. Be om en ny kode for å fortsette.</string>
+    <string name="personalid_otp_session_expired">Denne koden er ikke lenger gyldig. Be om en ny kode for å fortsette.</string>
     <string name="personalid_rate_limited_retry_after">For mange forsøk. Prøv igjen om %1$s.</string>
     <string name="personalid_otp_resend_wait">Fikk du ikke koden? Send på nytt om %1$s</string>
     <string name="personalid_otp_request_new_code_wait">Vent %1$s for å be om en ny kode</string>
@@ -289,6 +290,7 @@
     <string name="connect_delivery_visit_progress_title">Besøksfremgang</string>
     <string name="connect_delivery_total_visits_completed">totalt antall fullførte besøk</string>
     <string name="connect_delivery_daily_visits">Daglige besøk</string>
+    <string name="connect_visits_completed_today">Fullførte besøk i dag</string>
     <string name="connect_delivery_your_progress">Din fremgang</string>
     <string name="connect_delivery_total_earnings">Total inntjening</string>
     <string name="connect_delivery_amount_each">%1$s hver</string>
@@ -296,6 +298,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Obligatoriske</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Fullfør oppgavene for å fortsette leveringen.</string>
     <string name="connect_delivery_tasks_empty">Ingen ventende oppgaver er tilgjengelige for øyeblikket. Vi varsler deg når en ny oppgave er tilgjengelig.</string>
+    <string name="connect_delivery_visits_empty">Ingen besøk ennå. Fullførte besøk vises her.</string>
+    <string name="connect_delivery_visits_filter_empty">Ingen besøk samsvarer med dette filteret.</string>
     <string name="connect_delivery_revisit_learning_title">Se opplæringen på nytt</string>
     <string name="connect_delivery_revisit_learning_completed">Fullført %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Sertifikatet blir tilgjengelig etter neste synkronisering</string>
@@ -308,7 +312,15 @@
         <item quantity="one">%1$d besøk gjenstår i dag</item>
         <item quantity="other">%1$d besøk gjenstår i dag</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Se mulighet</string>
+    <string name="connect_delivery_no_daily_visit_target">Ikke noe daglig besøksmål</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s av %2$d fullført i dag</item>
+        <item quantity="other">%1$s av %2$d fullført i dag</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s fullført i dag</item>
+        <item quantity="other">%1$s fullført i dag</item>
+    </plurals>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>
     <string name="connect_progress_relearn_tasks_completed">Alle nødvendige oppgaver er fullført. Du kan fortsette med leveringsaktiviteter.</string>
@@ -343,6 +355,7 @@
     <string name="install_bad_ref">Du skannet ikke en gyldig URL. Vennligst prøv igjen.</string>
     <string name="install_bad_login">Logg inn på eksisterende app</string>
     <string name="install_appprofile">Skriv inn appkoden din</string>
+    <string name="install_code_hint">Skriv inn koden her</string>
     <string name="install_perms_rationale_message">CommCare krever minst lese- og skrivetillatelser for ekstern lagring for å lagre skjemainnsendinger.</string>
     <string name="install_perms_denied_message">Viktige tillatelser nektet %1$s ganger.\n\n Hvis det å be om tillatelser her mislykkes, må du aktivere tillatelser under Androids innstillinger.</string>
     <string name="install_choose_local_app">Tilgjengelige apper</string>
@@ -398,6 +411,11 @@
 
     <string name="semi_circle_progress_value_format">%1$d av %2$d</string>
     <string name="connect_progress_count_format">%1$d av %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Vis %1$d til</item>
+        <item quantity="other">Vis %1$d til</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Vis mindre</string>
 
     <string name="connect_opportunity_badge_new">Ny mulighet</string>
     <string name="connect_opportunity_expiry_label">Utløpsdato</string>
@@ -435,13 +453,40 @@
     <string name="connect_learn_cta_complete_assessment">Fullfør vurderingen</string>
     <string name="connect_learn_cta_take_assessment">Ta vurderingen</string>
     <string name="connect_learn_cta_start">Start</string>
+    <string name="connect_learn_view_certificate">Vis sertifikat</string>
     <string name="connect_opportunity_footer_start_learning">Start læring</string>
     <string name="connect_download_learn">Last ned Læring</string>
     <string name="connect_downloading_learn">Laster ned Læring</string>
     <string name="connect_downloading_delivery">Laster ned levering</string>
     <string name="connect_opportunity_modules_footer_note">Fullfør modulene, bestå vurderingen og få sertifikatet ditt</string>
     <string name="connect_opportunity_footer_download_app">Last ned appen</string>
+    <string name="login_choice_or">ELLER</string>
+    <string name="install_get_started_title">Kom i gang med CommCare</string>
+    <string name="install_get_started_message">Installer din første app for å begynne.</string>
+    <string name="install_via_qr_code">Installer via QR-kode</string>
+    <string name="install_via_app_code">Installer via appkode</string>
+    <string name="install_from_local">Installer fra lokalt nettverk</string>
+    <string name="personalid_backup_code_locked">Sikkerhetskoden din er låst. Bekreft e-postadressen din for å angi en ny.</string>
     <string name="recording_notification_save_action">Lagre</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Gjenoppta</string>
+    <string name="connect_messaging_attachment_download">Last ned</string>
+    <string name="connect_messaging_attachment_downloading">Laster ned…</string>
+    <string name="connect_messaging_attachment_download_failed">Nedlastingen mislyktes</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Trykk for å prøve igjen</string>
+    <string name="connect_messaging_attachment_expired">Ikke lenger tilgjengelig</string>
+    <string name="connect_messaging_attachment_open_failed">Ingen app på denne telefonen kan åpne denne filen</string>
+    <string name="connect_messaging_audio_play">Spill av lyd</string>
+    <string name="connect_messaging_audio_pause">Sett lyden på pause</string>
+    <string name="connect_messaging_audio_play_failed">Lyden kunne ikke spilles av</string>
+    <string name="connect_messaging_update_app_notice">Android-appen din må oppdateres for å vise denne meldingen</string>
+    <string name="connect_messaging_update_app_banner">Oppdater appen for å se alle meldingene i denne kanalen</string>
+    <string name="connect_messaging_preview_update_app">[Oppdater appen for å se denne meldingen]</string>
+    <string name="connect_messaging_settings_title">Meldingsinnstillinger</string>
+    <string name="connect_messaging_settings_any_network">På Wi-Fi og mobildata</string>
+    <string name="connect_messaging_settings_tap_note">Vedlegg du trykker på, lastes alltid ned med en gang, på alle nettverk.</string>
+    <string name="connect_messaging_settings_auto_download_title">Last ned vedlegg automatisk</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Store vedlegg (over 1 MB) bare på Wi-Fi</string>
+    <string name="connect_messaging_settings_manual_only">Bare manuell nedlasting</string>
+    <string name="connect_messaging_preview_pending_download">[Mediemelding som må lastes ned]</string>
 </resources>

@@ -5,13 +5,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="@color/cc_core_bg"
+    android:background="?attr/connectSurfaceContainerLow"
     tools:viewBindingIgnore="true">
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/cc_core_bg"
+        android:background="?attr/connectSurfaceContainerLow"
         android:scrollbars="none">
 
         <LinearLayout
@@ -38,7 +38,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/content_min_margin"
                     android:gravity="center"
-                    android:text="Enter your app install address"
+                    android:text="@string/install_appprofile"
                     android:textSize="@dimen/text_medium"/>
 
 
@@ -56,7 +56,8 @@
                         android:id="@+id/edit_profile_location"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="Enter code here"
+                        android:backgroundTint="?attr/connectOutlineBrand"
+                        android:hint="@string/install_code_hint"
                         android:ellipsize="start"
                         android:layout_weight="1"
                         android:gravity="center_horizontal"
@@ -67,15 +68,13 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/start_install"
-                    android:layout_width="fill_parent"
+                    style="@style/Widget.CommCare.Button.Filled"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="@dimen/content_start"
+                    android:layout_marginTop="@dimen/standard_spacer_double"
                     android:enabled="false"
-                    android:paddingBottom="@dimen/content_start"
-                    android:layout_marginTop="@dimen/content_min_margin"
-                    android:layout_gravity="bottom"
-                    android:text="Start Install"
-                    android:nextFocusUp="@+id/edit_password" />
+                    android:nextFocusUp="@+id/edit_password"
+                    android:text="@string/install_button_start" />
 
             </LinearLayout>
         </LinearLayout>

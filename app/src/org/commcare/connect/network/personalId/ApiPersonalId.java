@@ -347,6 +347,17 @@ public class ApiPersonalId {
         BaseApi.Companion.callApi(context, call, callback, PersonalIdApiEndpoints.RETRIEVE_NOTIFICATIONS);
     }
 
+    public static Call<ResponseBody> buildMessageAttachmentDownloadCall(
+            String userId,
+            String password,
+            String messageId,
+            String attachmentId
+    ) {
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(userId, password, false);
+        String tokenAuth = HttpUtils.getCredential(authInfo);
+        return PersonalIdApiClient.getClientApi().downloadMessageAttachment(tokenAuth, messageId, attachmentId);
+    }
+
     public static void updateNotifications(
             Context context,
             String userId,

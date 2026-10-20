@@ -245,8 +245,8 @@
     <string name="dependency_missing_dialog_playstore_not_found">Hakuna Duka la Google Play lililopatikana kwenye kifaa chako</string>
     <string name="fcm_default_notification_channel">arifa-chaneli-kusukuma-arifa</string>
     <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
-    <string name="personalid_welcome_user">Karibu %s!</string>
     <string name="personalid_choice_or">____________ AU _____________</string>
+    <string name="login_choice_or">AU</string>
     <string name="connect_download_delivery">Pakua Uwasilishaji</string>
     <string name="connect_app_install_setting_up">Inasanidi programu…</string>
     <string name="connect_app_finishing_install">Inakamilisha usakinishaji…</string>
@@ -285,6 +285,7 @@
     <string name="personalid_email_otp_failed_wait">Subiri</string>
     <string name="personalid_email_otp_failed_skip">Endelea bila barua pepe</string>
     <string name="personalid_otp_limit_exceeded">Umetumia majaribio yote ya msimbo huu, kwa hivyo hauna tena uhalali. Omba msimbo mpya ili kuendelea.</string>
+    <string name="personalid_otp_session_expired">Msimbo huu hauna tena uhalali. Omba msimbo mpya ili kuendelea.</string>
     <string name="personalid_rate_limited_retry_after">Majaribio mengi mno. Tafadhali jaribu tena baada ya %1$s.</string>
     <string name="personalid_otp_resend_wait">Hukupokea msimbo wako? Tuma tena baada ya %1$s</string>
     <string name="personalid_otp_request_new_code_wait">Subiri %1$s ili kuomba msimbo mpya</string>
@@ -343,6 +344,7 @@
     <string name="connect_sms_invite_opportunity_not_found">Fursa haijapatikana</string>
     <string name="connect_learn_complete">Kamilisha</string>
     <string name="connect_learn_certificate">Cheti</string>
+    <string name="connect_learn_view_certificate">Tazama Cheti</string>
     <string name="connect_learn_completed">Ilikamilika mnamo %s</string>
     <string name="connect_learn_cert_score">Alama: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Anza Ziara</string>
@@ -362,6 +364,11 @@
     <string name="connect_progress_delivery">Uwasilishaji</string>
     <string name="semi_circle_progress_value_format">%1$d kati ya %2$d</string>
     <string name="connect_progress_count_format">%1$d kati ya %2$d</string>
+    <plurals name="connect_progress_breakdown_show_more">
+        <item quantity="one">Onyesha %1$d zaidi</item>
+        <item quantity="other">Onyesha %1$d zaidi</item>
+    </plurals>
+    <string name="connect_progress_breakdown_show_less">Onyesha kidogo</string>
     <string name="connect_progress_warning_ended">Kazi imeisha. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
     <string name="connect_progress_warning_not_started">Kazi bado haijaanza. Hutapata maendeleo yoyote kwa kazi.</string>
     <string name="connect_progress_warning_max_reached_single">Umekamilisha idadi ya juu zaidi ya kutembelea. Hutapata maendeleo yoyote kwa kazi ya ziada.</string>
@@ -527,13 +534,14 @@
     <string name="connect_message_you">Wewe</string>
     <string name="connect_message_them">Wao</string>
     <string name="fcm_sync_failed_body_text">Bofya hapa kujua zaidi</string>
-    <string name="personalid_login_via_connect">Tayari kuingia!\n</string>
+    <string name="personalid_login_via_connect">Tayari kuingia!</string>
     <string name="personalid_failed_to_login_with_connectid">Tunakabiliwa na hitilafu isiyoweza kurekebishwa wakati wa kuunganisha kuingia kwa kutumia Kitambulisho chako cha Kibinafsi. Tafadhali ingia na nenosiri lako au urejeshe kuingia kwa Kitambulisho chako cha Kibinafsi</string>
     <string name="personalid_name_appbar_title">Jina</string>
     <string name="personalid_name_fragment_title">Ingiza jina lako</string>
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
+    <string name="personalid_backup_code_locked">Msimbo wako wa akiba umefungwa. Tafadhali thibitisha barua pepe yako ili kuweka mpya.</string>
     <string name="personalid_configuration_process_failed_subtitle">Kwa bahati mbaya, kifaa hiki hakikufaulu ukaguzi wa usalama unaohitajika ili kujisajili kwa PersonalID. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">PIN kwenye kifaa hiki haipatikani kwa sasa. Tafadhali jaribu tena baadaye.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Bayometriki haiwashwi kwa sasa kwenye kifaa hiki. Tafadhali sanidi bayometriki katika Mipangilio ya Mfumo wa Android kabla ya kuendelea.</string>
@@ -629,6 +637,7 @@
     <string name="connect_delivery_visit_progress_title">Maendeleo ya ziara</string>
     <string name="connect_delivery_total_visits_completed">jumla ya ziara zilizokamilika</string>
     <string name="connect_delivery_daily_visits">Ziara za kila siku</string>
+    <string name="connect_visits_completed_today">Ziara zilizokamilika leo</string>
     <string name="connect_delivery_your_progress">Maendeleo yako</string>
     <string name="connect_delivery_total_earnings">Jumla ya mapato</string>
     <string name="connect_delivery_amount_each">%1$s kila moja</string>
@@ -636,6 +645,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Za lazima</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Kamilisha kazi ili kuendelea kutoa huduma.</string>
     <string name="connect_delivery_tasks_empty">Hakuna kazi zinazosubiri kwa sasa. Tutakujulisha kazi mpya inapopatikana.</string>
+    <string name="connect_delivery_visits_empty">Bado hakuna ziara. Ziara ulizokamilisha zitaonekana hapa.</string>
+    <string name="connect_delivery_visits_filter_empty">Hakuna ziara zinazolingana na kichujio hiki.</string>
     <string name="connect_delivery_revisit_learning_title">Pitia mafunzo tena</string>
     <string name="connect_delivery_revisit_learning_completed">Ilikamilishwa %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Cheti kitapatikana baada ya usawazishaji wako ujao</string>
@@ -648,9 +659,20 @@
         <item quantity="one">ziara %1$d imesalia leo</item>
         <item quantity="other">ziara %1$d zimesalia leo</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
-    <string name="install_barcode_top">Karibu CommCare!</string>
-    <string name="install_barcode_bottom">Tafadhali chagua njia ya usakinishaji hapa chini</string>
+    <string name="connect_delivery_no_daily_visit_target">Hakuna lengo la ziara za kila siku</string>
+    <plurals name="connect_delivery_completed_today_of">
+        <item quantity="one">%1$s kati ya %2$d imekamilika leo</item>
+        <item quantity="other">%1$s kati ya %2$d zimekamilika leo</item>
+    </plurals>
+    <plurals name="connect_delivery_completed_today">
+        <item quantity="one">%1$s imekamilika leo</item>
+        <item quantity="other">%1$s zimekamilika leo</item>
+    </plurals>
+    <string name="install_get_started_title">Anza kutumia CommCare</string>
+    <string name="install_get_started_message">Sakinisha programu yako ya kwanza ili kuanza.</string>
+    <string name="install_via_qr_code">Sakinisha kwa msimbo wa QR</string>
+    <string name="install_via_app_code">Sakinisha kwa msimbo wa programu</string>
+    <string name="install_from_local">Sakinisha kutoka mtandao wa ndani</string>
     <string name="install_keep_trying">Endelea kujaribu ikiwa muunganisho umekatika</string>
     <string name="install_manual">Tafadhali ingiza URL</string>
     <string name="install_ready_top">Karibu kumaliza!</string>
@@ -663,6 +685,7 @@
     <string name="install_bad_ref">Hukuwa umeskani URL halali. Tafadhali jaribu tena.</string>
     <string name="install_bad_login">Ingia katika Programu Iliyopo</string>
     <string name="install_appprofile">Ingiza msimbo wa programu yako</string>
+    <string name="install_code_hint">Ingiza msimbo hapa</string>
     <string name="install_perms_rationale_message">CommCare inahitaji angalau ruhusa za kusoma na kuandika kwenye hifadhi ya nje ili kuhifadhi mawasilisho ya fomu.</string>
     <string name="install_perms_denied_message">Ruhusa muhimu zimekataliwa mara %1$s.\n\n Ikiwa kuomba ruhusa hapa kunashindikana, tafadhali wezesha ruhusa chini ya mipangilio ya Android.</string>
     <string name="install_choose_local_app">Programu Zinazopatikana</string>
@@ -762,4 +785,23 @@
     <string name="recording_notification_save_action">Hifadhi</string>
     <string name="recording_notification_pause_action">Sitisha</string>
     <string name="recording_notification_resume_action">Endelea</string>
+    <string name="connect_messaging_attachment_download">Pakua</string>
+    <string name="connect_messaging_attachment_downloading">Inapakua…</string>
+    <string name="connect_messaging_attachment_download_failed">Upakuaji umeshindwa</string>
+    <string name="connect_messaging_attachment_tap_to_retry">Gusa ili ujaribu tena</string>
+    <string name="connect_messaging_attachment_expired">Haipatikani tena</string>
+    <string name="connect_messaging_attachment_open_failed">Hakuna programu kwenye simu hii inayoweza kufungua faili hili</string>
+    <string name="connect_messaging_audio_play">Cheza sauti</string>
+    <string name="connect_messaging_audio_pause">Sitisha sauti</string>
+    <string name="connect_messaging_audio_play_failed">Sauti hii haikuweza kuchezwa</string>
+    <string name="connect_messaging_update_app_notice">Programu yako ya Android inahitaji kusasishwa ili kuona ujumbe huu</string>
+    <string name="connect_messaging_update_app_banner">Sasisha programu ili kuona jumbe zote katika chaneli hii</string>
+    <string name="connect_messaging_preview_update_app">[Sasisha programu ili kuona ujumbe huu]</string>
+    <string name="connect_messaging_settings_title">Mipangilio ya ujumbe</string>
+    <string name="connect_messaging_settings_any_network">Kwenye Wi-Fi na data ya simu</string>
+    <string name="connect_messaging_settings_tap_note">Viambatisho unavyogusa hupakuliwa mara moja kila wakati, kwenye mtandao wowote.</string>
+    <string name="connect_messaging_settings_auto_download_title">Pakua viambatisho kiotomatiki</string>
+    <string name="connect_messaging_settings_large_on_wifi_only">Viambatisho vikubwa (zaidi ya MB 1) kwenye Wi-Fi pekee</string>
+    <string name="connect_messaging_settings_manual_only">Upakuaji wa mwenyewe pekee</string>
+    <string name="connect_messaging_preview_pending_download">[Ujumbe wa media wa kupakua]</string>
 </resources>

@@ -7,8 +7,11 @@ import android.text.style.ImageSpan;
 
 import androidx.core.content.ContextCompat;
 
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.messaging.ConnectMessagingMessagePackage;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.DimensionUtils;
@@ -43,10 +46,17 @@ public class ConnectMessagingDatabaseHelper {
             SpannableString preview;
 
             if (lastMessage != null && channel.getConsented()) {
-                String trimmed = lastMessage.getMessage().split("\n")[0];
-                int maxLength = 25;
-                if (trimmed.length() > maxLength) {
-                    trimmed = trimmed.substring(0, maxLength - 3) + "...";
+                String trimmed;
+                if (lastMessage.isUnsupportedVersion()) {
+                    trimmed = context.getString(R.string.connect_messaging_preview_update_app);
+                } else if (isAwaitingDownload(lastMessage)) {
+                    trimmed = context.getString(R.string.connect_messaging_preview_pending_download);
+                } else {
+                    trimmed = lastMessage.getDisplayText().split("\n")[0];
+                    int maxLength = 25;
+                    if (trimmed.length() > maxLength) {
+                        trimmed = trimmed.substring(0, maxLength - 3) + "...";
+                    }
                 }
 
                 preview = new SpannableString(
@@ -74,6 +84,17 @@ public class ConnectMessagingDatabaseHelper {
         }
 
         return channels;
+    }
+
+    private static boolean isAwaitingDownload(ConnectMessagingMessageRecord message) {
+        if (!message.isRich()) {
+            return false;
+        }
+        List<ConnectMessagingAttachmentRecord> attachments =
+                ConnectMessagingAttachmentDatabaseHelper.getAttachmentsForMessage(message.getMessageId());
+        return !attachments.isEmpty()
+                && ConnectMessagingMessagePackage.stateOfAttachments(attachments)
+                != ConnectMessagingAttachmentState.AVAILABLE;
     }
 
     public static ConnectMessagingChannelRecord getMessagingChannel(
@@ -222,6 +243,9 @@ public class ConnectMessagingDatabaseHelper {
             for (ConnectMessagingMessageRecord incoming : messages) {
                 if (existing.getMessageId().equals(incoming.getMessageId())) {
                     incoming.setID(existing.getID());
+                    if (incoming.getVersion() == existing.getVersion()) {
+                        incoming.setUserViewed(existing.getUserViewed());
+                    }
                     stillExists = true;
                     break;
                 }
