@@ -123,10 +123,12 @@ class ConnectLearnCompleteView
 
             if (expand) {
                 binding.certificate.root.visibility = VISIBLE
+                binding.certificateHeaderLabel.setText(R.string.connect_learn_certificate)
                 binding.certificateChevron.rotation = EXPANDED_CHEVRON_ROTATION
                 binding.certificateContainer.updatePadding(bottom = certificateBottomPadding)
             } else {
                 binding.certificate.root.visibility = GONE
+                binding.certificateHeaderLabel.setText(R.string.connect_learn_view_certificate)
                 binding.certificateChevron.rotation = 0f
                 binding.certificateContainer.updatePadding(bottom = 0)
             }

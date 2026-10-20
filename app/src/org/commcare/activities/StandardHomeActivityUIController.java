@@ -161,12 +161,11 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
 
     private void updateConnectJobMessage() {
         String messageText = null;
-        String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectJobUtils.getAppRecord(appId);
+        ConnectAppRecord record = ConnectJobUtils.getSeatedAppRecord();
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {
-            messageText = job.getCardMessageText(activity);
+            messageText = job.getCardMessageText(activity, !record.getIsLearning());
         }
 
         if (messageText != null) {
@@ -218,7 +217,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         syncJobCardVisibility(job);
 
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
-        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() ||
+        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() || isSeatedAppLearnApp() ||
                 ConnectTaskUtils.hasPendingTask(activity, job.getJobUUID())) {
             recyclerView.setVisibility(View.GONE);
         } else {
@@ -231,15 +230,23 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         //Adding more entries to the list would show multiple progress bars
         //(i.e. one for each payment type)
         List<ConnectDeliveryPaymentSummaryInfo> list = new ArrayList<>();
+        boolean hasDailyLimit = job.hasDailyLimit();
         list.add(new ConnectDeliveryPaymentSummaryInfo(
-                activity.getString(R.string.connect_job_tile_daily_visits),
+                activity.getString(hasDailyLimit
+                        ? R.string.connect_job_tile_daily_visits
+                        : R.string.connect_visits_completed_today),
                 job.numberOfDeliveriesToday(),
-                job.hasDailyLimit()
+                hasDailyLimit
                         ? job.getMaxDailyVisits()
                         : ConnectDeliveryPaymentSummaryInfo.NO_DAILY_LIMIT
         ));
 
         connectProgressJobSummaryAdapter.setDeliverySummaries(list);
+    }
+
+    private boolean isSeatedAppLearnApp() {
+        ConnectAppRecord record = ConnectJobUtils.getSeatedAppRecord();
+        return record != null && record.getIsLearning();
     }
 
     private Vector<String> getHiddenButtons() {

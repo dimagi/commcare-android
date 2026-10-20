@@ -62,7 +62,7 @@ class ConnectDeliveryDashboardFragment :
     }
 
     private fun bindVisitProgress(contentEnabled: Boolean) {
-        val cardMessage: String? = job.getCardMessageText(requireContext())
+        val cardMessage: String? = job.getCardMessageText(requireContext(), true)
         binding.deliveryProgressCard.bind(
             ConnectProgressCard.State(
                 title = getString(R.string.connect_delivery_visit_progress_title),
@@ -95,7 +95,14 @@ class ConnectDeliveryDashboardFragment :
                 .takeIf { job.hasDailyLimit() }
                 ?.let { getDailyVisitLimit(it, job.maxVisits, visitsBeforeToday) }
         val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
-        val label = getString(R.string.connect_delivery_daily_visits)
+        val label =
+            getString(
+                if (job.hasDailyLimit()) {
+                    R.string.connect_delivery_daily_visits
+                } else {
+                    R.string.connect_visits_completed_today
+                },
+            )
         val caption = maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
 
         return ConnectProgressCard.State.LinearProgress(

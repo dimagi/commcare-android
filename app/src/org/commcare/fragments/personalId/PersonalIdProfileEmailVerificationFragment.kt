@@ -4,6 +4,9 @@ import androidx.navigation.findNavController
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.AccountSecurityAnalyticsMapper
 import org.commcare.views.dialogs.StandardAlertDialog
 
 /**
@@ -24,6 +27,13 @@ class PersonalIdProfileEmailVerificationFragment : BasePersonalIdEmailVerificati
         val user = ConnectUserDatabaseUtil.getUser()
         user.email = enteredEmail
         ConnectUserDatabaseUtil.storeUser(user)
+        FirebaseAnalyticsUtil.reportPersonalIdAccountSecurityAction(
+            AccountSecurityAnalyticsMapper.accountSecurityWorkflow(resolveWorkflow()),
+            AnalyticsParamValue.ACCOUNT_SECURITY_EVENT_EMAIL_CHANGED,
+            AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
+            null,
+            null,
+        )
         showEmailAddedSuccessDialog()
     }
 

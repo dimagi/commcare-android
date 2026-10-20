@@ -344,6 +344,7 @@
     <string name="connect_sms_invite_opportunity_not_found">Fursa haijapatikana</string>
     <string name="connect_learn_complete">Kamilisha</string>
     <string name="connect_learn_certificate">Cheti</string>
+    <string name="connect_learn_view_certificate">Tazama Cheti</string>
     <string name="connect_learn_completed">Ilikamilika mnamo %s</string>
     <string name="connect_learn_cert_score">Alama: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Anza Ziara</string>
@@ -540,6 +541,7 @@
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
+    <string name="personalid_backup_code_locked">Msimbo wako wa akiba umefungwa. Tafadhali thibitisha barua pepe yako ili kuweka mpya.</string>
     <string name="personalid_configuration_process_failed_subtitle">Kwa bahati mbaya, kifaa hiki hakikufaulu ukaguzi wa usalama unaohitajika ili kujisajili kwa PersonalID. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">PIN kwenye kifaa hiki haipatikani kwa sasa. Tafadhali jaribu tena baadaye.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Bayometriki haiwashwi kwa sasa kwenye kifaa hiki. Tafadhali sanidi bayometriki katika Mipangilio ya Mfumo wa Android kabla ya kuendelea.</string>
@@ -635,6 +637,7 @@
     <string name="connect_delivery_visit_progress_title">Maendeleo ya ziara</string>
     <string name="connect_delivery_total_visits_completed">jumla ya ziara zilizokamilika</string>
     <string name="connect_delivery_daily_visits">Ziara za kila siku</string>
+    <string name="connect_visits_completed_today">Ziara zilizokamilika leo</string>
     <string name="connect_delivery_your_progress">Maendeleo yako</string>
     <string name="connect_delivery_total_earnings">Jumla ya mapato</string>
     <string name="connect_delivery_amount_each">%1$s kila moja</string>
@@ -642,6 +645,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Za lazima</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Kamilisha kazi ili kuendelea kutoa huduma.</string>
     <string name="connect_delivery_tasks_empty">Hakuna kazi zinazosubiri kwa sasa. Tutakujulisha kazi mpya inapopatikana.</string>
+    <string name="connect_delivery_visits_empty">Bado hakuna ziara. Ziara ulizokamilisha zitaonekana hapa.</string>
+    <string name="connect_delivery_visits_filter_empty">Hakuna ziara zinazolingana na kichujio hiki.</string>
     <string name="connect_delivery_revisit_learning_title">Pitia mafunzo tena</string>
     <string name="connect_delivery_revisit_learning_completed">Ilikamilishwa %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Cheti kitapatikana baada ya usawazishaji wako ujao</string>
@@ -663,7 +668,6 @@
         <item quantity="one">%1$s imekamilika leo</item>
         <item quantity="other">%1$s zimekamilika leo</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Tazama Fursa</string>
     <string name="install_get_started_title">Anza kutumia CommCare</string>
     <string name="install_get_started_message">Sakinisha programu yako ya kwanza ili kuanza.</string>
     <string name="install_via_qr_code">Sakinisha kwa msimbo wa QR</string>
