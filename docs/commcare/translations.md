@@ -19,7 +19,7 @@ This is where you should add any user-visible strings today using following guid
 
 ## Localization screenshots
 
-The Robolectric tests in `org.commcare.l10n` record PersonalID screens per locale and are skipped unless locales are given:
+The Robolectric tests in `org.commcare.l10n` record PersonalID and Connect screens per locale and are skipped unless locales are given:
 
 ```bash
 ./gradlew testCommcareDebugUnitTest --tests 'org.commcare.l10n.*' -Pl10n.locale=en,fr
