@@ -37,7 +37,7 @@ img {{ width: 180px; display: block; }}
 
 def ordered_locales(root, requested):
     found = {d.name for d in root.iterdir() if d.is_dir()}
-    listed = [locale for locale in requested if locale in found]
+    listed = list(dict.fromkeys(requested))
     return listed + sorted(found - set(listed))
 
 
@@ -51,7 +51,7 @@ def cell(root, locale, screen):
 
 def write_contact_sheet(root, requested, caption):
     locales = ordered_locales(root, requested)
-    screens = sorted({png.stem for locale in locales for png in (root / locale).glob("*.png")})
+    screens = sorted({png.stem for png in root.glob("*/*.png")})
     locale_headers = "".join(f"<th>{html.escape(locale)}</th>" for locale in locales)
     rows = "\n".join(
         f"<tr><th>{html.escape(screen)}</th>{''.join(cell(root, locale, screen) for locale in locales)}</tr>"

@@ -29,6 +29,12 @@ jobs:
         with:
           ref: ${{ env.ANDROID_REF }}
           path: commcare-android
+      - name: Checkout the contact sheet script
+        uses: actions/checkout@v6
+        with:
+          path: workflow-scripts
+          sparse-checkout: scripts/l10n_contact_sheet.py
+          sparse-checkout-cone-mode: false
       - name: Resolve commcare-core ref
         id: core
         env:
@@ -36,7 +42,7 @@ jobs:
         run: |
           if [ -n "$CORE_REF_INPUT" ]; then
             ref="$CORE_REF_INPUT"
-          elif git ls-remote --exit-code --heads https://github.com/dimagi/commcare-core.git "$ANDROID_REF" > /dev/null; then
+          elif git ls-remote --exit-code --heads https://github.com/dimagi/commcare-core.git "refs/heads/$ANDROID_REF" > /dev/null; then
             ref="$ANDROID_REF"
           else
             ref=master
@@ -69,6 +75,12 @@ jobs:
             echo "::error::Locales must be resource qualifiers such as fr or pt-rBR, comma-separated: $locales"
             exit 1
           fi
+          for locale in $(echo "$locales" | tr ',' ' '); do
+            if [ "$locale" != en ] && [ ! -f "app/res/values-$locale/strings.xml" ] && [ ! -f "app/res/values-${locale%-r??}/strings.xml" ]; then
+              echo "::error::No strings.xml for $locale under app/res/values-$locale or its base language"
+              exit 1
+            fi
+          done
           echo "locales=$locales" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
       - name: Generate Gradle properties
@@ -77,11 +89,6 @@ jobs:
           cat > ~/.gradle/gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.parallel=false
-          GOOGLE_CLOUD_PROJECT_NUMBER=${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
-          GOOGLE_SERVICES_API_KEY=${{ secrets.GOOGLE_SERVICES_API_KEY }}
-          FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
-          GOOGLE_PLAY_MAPS_API_KEY=${{ secrets.GOOGLE_PLAY_MAPS_API_KEY }}
-          MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
           EOF
       - name: Setup JDK
         uses: actions/setup-java@v5
@@ -107,7 +114,7 @@ jobs:
         env:
           LOCALES: ${{ steps.locales.outputs.locales }}
           CAPTION: ${{ format('commcare-android {0} ({1}), commcare-core {2}', env.ANDROID_REF, steps.locales.outputs.sha, steps.core.outputs.ref) }}
-        run: python3 commcare-android/scripts/l10n_contact_sheet.py commcare-android/app/build/outputs/l10n-screenshots "$LOCALES" "$CAPTION"
+        run: python3 workflow-scripts/scripts/l10n_contact_sheet.py commcare-android/app/build/outputs/l10n-screenshots "$LOCALES" "$CAPTION"
       - name: Upload screenshots
         id: upload
         uses: actions/upload-artifact@v6
