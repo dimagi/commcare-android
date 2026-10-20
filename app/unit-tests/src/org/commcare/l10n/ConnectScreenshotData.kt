@@ -3,6 +3,7 @@ package org.commcare.l10n
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat
@@ -21,6 +22,23 @@ object ConnectScreenshotData {
     private const val LEARN_MODULES = 5
     private const val MAX_VISITS = 40
     const val CONVERSATION_CHANNEL_ID = "showcase-channel-partners"
+
+    /** A PersonalID user with a full name, a Kenyan phone number and an email. */
+    fun user(hasConnectAccess: Boolean = false): ConnectUserRecord =
+        ConnectUserRecord(
+            "+254712345678",
+            "showcase-user-id",
+            "showcase-password",
+            "Amina Wanjiru Otieno",
+            "",
+            Date(),
+            null,
+            false,
+            "",
+            hasConnectAccess,
+        ).apply {
+            email = "amina.otieno@example.org"
+        }
 
     /** One opportunity per state the opportunity list shows, with a long title and an expiry warning among them. */
     fun opportunities(): List<ConnectJobRecord> =
@@ -92,6 +110,36 @@ object ConnectScreenshotData {
             message("showcase-channel-support", 1, minutesAgo = 30 * 60, outgoing = true, "My photo upload keeps failing, can you help?"),
             message("showcase-channel-malaria", 1, minutesAgo = 6 * 24 * 60, outgoing = false, "The training modules are now available."),
         )
+
+    /** The credentials response for Work History: one entry per activity level, newest first once sorted. */
+    fun workHistoryResponse(): String =
+        JSONObject()
+            .put(
+                "credentials",
+                JSONArray().apply {
+                    listOf(
+                        Triple("Maternal Health Home Visits", "12MON_ACTIVE", "2026-09-30T09:00:00Z"),
+                        Triple("Household Malaria Prevention Survey", "6MON_ACTIVE", "2026-07-14T09:00:00Z"),
+                        Triple("Child Growth Monitoring and Nutrition Counselling, Kisumu County", "3MON_ACTIVE", "2026-05-02T09:00:00Z"),
+                        Triple("Community Vaccination Awareness Campaign", "1MON_ACTIVE", "2026-02-20T09:00:00Z"),
+                    ).forEachIndexed { index, (title, level, issued) ->
+                        put(
+                            JSONObject().apply {
+                                put("uuid", "showcase-credential-$index")
+                                put("app_id", "showcase-deliver-$index")
+                                put("opp_id", "showcase-opportunity-$index")
+                                put("date", issued)
+                                put("title", title)
+                                put("issuer", ORGANIZATION)
+                                put("level", level)
+                                put("type", "DELIVER")
+                                put("issuer_environment", "production")
+                                put("slug", "showcase-credential-$index")
+                            },
+                        )
+                    }
+                },
+            ).toString()
 
     private fun channel(
         channelId: String,

@@ -3,6 +3,7 @@ package org.commcare.l10n
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.test.core.app.ApplicationProvider
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
@@ -16,6 +17,7 @@ import org.commcare.android.util.ConnectTestUtils
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdManager
 import org.commcare.connect.database.ConnectDatabaseHelper
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectRequestManager
@@ -27,7 +29,7 @@ import org.junit.Rule
 import org.junit.rules.TestRule
 
 /**
- * A signed-in Connect user whose screens read seeded data from the local database, with every
+ * The showcase user signed in to Connect, whose screens read seeded data from the local database, with every
  * network call answered empty so none of it is pruned.
  */
 abstract class BaseConnectScreenshotTest(
@@ -46,7 +48,13 @@ abstract class BaseConnectScreenshotTest(
         ConnectRequestManager.cancelAll()
         mockOutsideWorld()
 
-        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
+        ConnectTestUtils.createConnectDbFile()
+        ConnectUserDatabaseUtil.storeUser(
+            ConnectScreenshotData.user(hasConnectAccess = true).apply {
+                updateConnectToken("showcase-connect-token", ConnectTestUtils.daysFromNow(1))
+            },
+        )
+        PersonalIdManager.getInstance().init(ApplicationProvider.getApplicationContext())
         PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
     }
 

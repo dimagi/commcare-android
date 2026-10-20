@@ -21,7 +21,7 @@ class ProfileScreenshotTest(
     @get:Rule
     val localeRule: TestRule = L10nScreenshots.localeRule(locale)
 
-    override fun buildUser(): ConnectUserRecord = showcaseUser()
+    override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.user()
 
     @Test
     fun profile() = L10nScreenshots.capture(activityController, locale, "40_personalid_profile")
@@ -42,7 +42,7 @@ class ProfileEditScreenshotTest(
     @get:Rule
     val localeRule: TestRule = L10nScreenshots.localeRule(locale)
 
-    override fun buildUser(): ConnectUserRecord = showcaseUser()
+    override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.user()
 
     @Test
     fun profileEdit() {
@@ -56,19 +56,3 @@ class ProfileEditScreenshotTest(
         fun locales() = L10nScreenshots.parameters()
     }
 }
-
-private fun showcaseUser(): ConnectUserRecord =
-    ConnectUserRecord(
-        "+254712345678",
-        "showcase-user-id",
-        "showcase-password",
-        "Amina Wanjiru Otieno",
-        "",
-        null,
-        null,
-        false,
-        "",
-        false,
-    ).apply {
-        email = "amina.otieno@example.org"
-    }
