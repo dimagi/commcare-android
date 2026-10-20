@@ -85,6 +85,7 @@ class ConnectAppInstallViewModel(
         get() =
             _installState.value.let {
                 it is AppInstallState.Downloading ||
+                    it is AppInstallState.Installed ||
                     it is AppInstallState.Verifying ||
                     it is AppInstallState.Launching
             }

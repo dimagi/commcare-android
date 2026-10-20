@@ -83,8 +83,8 @@ class ConnectAppInstallViewModelTest {
     }
 
     /**
-     * Only [AppInstallState.Downloading] and [AppInstallState.Verifying] block a new install, so a
-     * finished one leaves the door open for the next app the user asks for.
+     * Only an install still in flight blocks a new one, so a finished one leaves the door open for
+     * the next app the user asks for.
      */
     @Test
     fun `an install can run again once the previous one has finished`() {

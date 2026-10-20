@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import io.mockk.every
 import io.mockk.mockkConstructor
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
@@ -17,6 +18,7 @@ import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectAppLauncher
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
@@ -307,6 +309,26 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         ShadowLooper.idleMainLooper()
 
         assertEquals(AppInstallState.Idle, installViewModel().installState.value)
+    }
+
+    @Test
+    fun `a finished download keeps the intro through the hand-off to verification`() {
+        seedConnectUser()
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+        every { repository.startLearning(any()) } returns flowOf(DataState.Success(Unit))
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        openPage()
+        val intro = navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+        val cta = intro.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        activity.runOnUiThread { cta.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        activity.runOnUiThread { installViewModel().reportSuccess(true) }
+        ShadowLooper.idleMainLooper()
+
+        assertSame(intro, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
+        assertEquals(AppInstallState.Verifying, installViewModel().installState.value)
     }
 
     @Test
