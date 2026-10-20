@@ -10,6 +10,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
 import java.io.File
+import java.util.Locale
 
 /**
  * Settings for the opt-in localization screenshot tests, read from the system properties the
@@ -51,10 +52,22 @@ object L10nScreenshots {
                     if (locale != DEFAULT_LOCALE) {
                         RuntimeEnvironment.setQualifiers("+$locale")
                     }
-                    base.evaluate()
+                    val savedDefault = Locale.getDefault()
+                    Locale.setDefault(javaLocaleOf(locale))
+                    try {
+                        base.evaluate()
+                    } finally {
+                        Locale.setDefault(savedDefault)
+                    }
                 }
             }
         }
+
+    /** The Java locale for a resource qualifier such as `fr` or `pt-rBR`, which dates and numbers format with. */
+    fun javaLocaleOf(qualifier: String): Locale {
+        val parts = qualifier.split("-r", limit = 2)
+        return if (parts.size == 2) Locale(parts[0], parts[1]) else Locale(qualifier)
+    }
 
     /** Records the activity's window as `<outDir>/<locale>/<screen>.png`. */
     fun capture(
