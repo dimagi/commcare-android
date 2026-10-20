@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="@dimen/connect_space_lg"
+            android:paddingVertical="@dimen/connect_space_xl">
+
+            <include
+                android:id="@+id/profile_header"
+                layout="@layout/personalid_profile_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/Widget.Connect.SectionHeadingText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_spacer_extra_large"
+                android:text="@string/personalid_profile_section_personal_information" />
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_name" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_name"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                app:boxStrokeErrorColor="?attr/connectStatusNegative"
+                app:errorTextColor="?attr/connectStatusNegative"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/profile_name_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionNext"
+                    android:inputType="textPersonName|textCapWords"
+                    android:maxLines="1"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_phone" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_phone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                android:enabled="false"
+                app:boxBackgroundColor="@color/grey_light"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/profile_phone_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textColor="?attr/connectOnSurfaceMuted"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_email" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/profile_email_otp_notice"
+                style="@style/Widget.Connect.WarningText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_xs"
+                android:drawablePadding="6dp"
+                android:gravity="center_vertical"
+                android:text="@string/personalid_profile_edit_email_otp_notice"
+                app:drawableStartCompat="@drawable/ic_personalid_warning_transparent" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_email"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                app:boxStrokeErrorColor="?attr/connectStatusNegative"
+                app:errorTextColor="?attr/connectStatusNegative"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/profile_email_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:imeOptions="actionDone"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/connect_blue_color_10"
+        android:gravity="end|center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/connect_space_lg"
+        android:paddingVertical="@dimen/connect_space_md">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/personalid_profile_edit_cancel"
+            android:textAllCaps="false"
+            android:textColor="@color/cc_brand_color"
+            android:textSize="14sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save"
+            style="@style/ConnectPrimaryButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/connect_space_sm"
+            android:enabled="false"
+            android:text="@string/personalid_profile_edit_save"
+            android:textAllCaps="false"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

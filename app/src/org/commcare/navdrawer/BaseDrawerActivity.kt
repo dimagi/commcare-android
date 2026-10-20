@@ -9,21 +9,35 @@ import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToMessaging
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToWorkHistory
 import org.commcare.connect.PersonalIdManager
+import org.commcare.dalvik.R
 import org.commcare.navdrawer.BaseDrawerController.NavItemType
 import org.commcare.navdrawer.NavDrawerHelper.drawerShownBefore
 import org.commcare.navdrawer.NavDrawerHelper.setDrawerShown
+import org.commcare.personalId.photo.PersonalIdPhotoUpdater
 import org.commcare.pn.helper.NotificationBroadcastHelper
+import org.commcare.utils.AppLogoutHelper
 import org.javarosa.core.services.Logger
 
 abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private var drawerController: BaseDrawerController? = null
+    private val photoUpdater =
+        PersonalIdPhotoUpdater(
+            this,
+            this,
+            onSuccess = { photoBase64 -> drawerController!!.onPhotoUpdateSuccess(photoBase64) },
+            onFailure = { _, _ -> drawerController!!.onPhotoUpdateFailure() },
+        )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onContentChanged() {
+        super.onContentChanged()
         checkForDrawerSetUp()
+    }
+
+    override fun onPostCreate(savedInstanceState: Bundle?) {
+        super.onPostCreate(savedInstanceState)
         if (drawerController != null) {
             NotificationBroadcastHelper.registerForNotifications(this, this) {
-                drawerController?.refreshDrawerContent()
+                refreshDrawer()
             }
         }
     }
@@ -42,9 +56,11 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
 
     protected open fun shouldShowDrawer(): Boolean = false
 
-    protected open fun shouldHighlightSeatedApp(): Boolean = false
+    protected open val currentDrawerSection: NavItemType? = null
 
-    fun checkForDrawerSetUp() {
+    protected open val isSidebarSection: Boolean = false
+
+    private fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
             setupDrawerController()
         }
@@ -57,26 +73,39 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
             BaseDrawerController(
                 this,
                 drawerRefs,
-                shouldHighlightSeatedApp(),
-            ) { navItemType: NavItemType, recordId: String? ->
-                handleDrawerItemClick(navItemType, recordId)
+                photoUpdater,
+            ) { navItemType: NavItemType ->
+                handleDrawerItemClick(navItemType)
             }
         drawerController!!.setupDrawer()
     }
 
-    protected open fun handleDrawerItemClick(
-        itemType: NavItemType,
-        recordId: String?,
-    ) {
+    protected open fun handleDrawerItemClick(itemType: NavItemType) {
+        if (itemType == currentDrawerSection) {
+            closeDrawer()
+            return
+        }
+
         when (itemType) {
             NavItemType.OPPORTUNITIES -> {
                 navigateToConnectMenu()
             }
-            NavItemType.COMMCARE_APPS -> { /* No nav, expands/collapses menu */ }
+
+            NavItemType.COMMCARE_APPS -> {
+                closeDrawer()
+                AppLogoutHelper.promptToReturnToLogin(
+                    this,
+                    R.string.nav_drawer_switch_app_from_section_dialog_title,
+                    R.string.nav_drawer_switch_app_from_section_dialog_message,
+                )
+            }
+
             NavItemType.PAYMENTS -> {}
+
             NavItemType.MESSAGING -> {
                 navigateToMessaging()
             }
+
             NavItemType.WORK_HISTORY -> {
                 navigateToWorkHistory()
             }
@@ -92,52 +121,32 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     }
 
     protected fun navigateToConnectMenu() {
-        unlockAndGoToConnectJobsList(
-            this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
-                    }
-                }
-            },
-        )
+        unlockAndGoToConnectJobsList(this, listener = getDrawerNavigationListener())
     }
 
     protected fun navigateToMessaging() {
-        unlockAndGoToMessaging(
-            this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
-                    }
-                }
-            },
-        )
+        unlockAndGoToMessaging(this, listener = getDrawerNavigationListener())
     }
 
     protected fun navigateToWorkHistory() {
-        unlockAndGoToWorkHistory(
-            this,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) {
-                    if (success) {
-                        closeDrawer()
+        unlockAndGoToWorkHistory(this, listener = getDrawerNavigationListener())
+    }
+
+    private fun getDrawerNavigationListener() =
+        object : ConnectActivityCompleteListener {
+            override fun connectActivityComplete(
+                success: Boolean,
+                error: String?,
+            ) {
+                if (success) {
+                    closeDrawer()
+                    // A section is replaced by the one just opened rather than stacked beneath it.
+                    if (isSidebarSection) {
+                        finish()
                     }
                 }
-            },
-        )
-    }
+            }
+        }
 
     protected fun closeDrawer() {
         if (drawerController == null) {
@@ -161,7 +170,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         drawerController?.openDrawer()
     }
 
-    protected fun shouldShowDrawerAfterCheck(): Boolean {
+    protected fun shouldShowDrawerAfterCheck(requirePersonalIDLogin: Boolean): Boolean {
         if (drawerShownBefore()) {
             return true
         }
@@ -169,7 +178,7 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         val personalIdManager = PersonalIdManager.getInstance()
         personalIdManager.init(this)
         val showDrawer =
-            personalIdManager.isloggedIn() &&
+            (!requirePersonalIDLogin || personalIdManager.isloggedIn()) &&
                 personalIdManager.checkDeviceCompability()
 
         if (showDrawer) {
@@ -179,7 +188,9 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return showDrawer
     }
 
-	fun isShowingGlobalError(): Boolean {
-        return drawerController?.isShowingError() ?: false
+    protected fun setDrawerTopLevel(isTopLevel: Boolean) {
+        drawerController?.setTopLevel(isTopLevel)
     }
+
+    fun isShowingGlobalError(): Boolean = drawerController?.isShowingError() ?: false
 }

@@ -3,7 +3,10 @@
 
     <!-- Text sizes -->
     <dimen name="text_smaller">9sp</dimen>
+    <dimen name="text_caption">12sp</dimen>
     <dimen name="text_small">14sp</dimen>
+    <dimen name="text_headline">22sp</dimen>
+    <dimen name="install_option_tile_size">84dp</dimen>
     <dimen name="text_medium">18sp</dimen>
     <dimen name="text_large">21sp</dimen>
     <dimen name="text_larger">28sp</dimen>
@@ -19,8 +22,10 @@
     <dimen name="spacer_small">5dp</dimen>
     <dimen name="standard_spacer_half">4dp</dimen>
     <dimen name="standard_spacer">8dp</dimen>
+    <dimen name="standard_spacer_one_and_half">12dp</dimen>
     <dimen name="standard_spacer_double">16dp</dimen>
     <dimen name="standard_spacer_large">24dp</dimen>
+    <dimen name="standard_spacer_extra_large">32dp</dimen>
     <dimen name="standard_title_margin_bottom">20dp</dimen>
     <dimen name="min_button_height">52dp</dimen>
     <dimen name="min_button_width">88dp</dimen>
@@ -125,15 +130,117 @@
     <dimen name="dp60">60dp</dimen>
     <dimen name="dp48">48dp</dimen>
 
-    <dimen name="progress_ring_thickness">5dp</dimen>
 
     <dimen name="connect_message_input_corner_radius">50dp</dimen>
     <dimen name="connect_message_input_stroke_width">0.5dp</dimen>
+    <dimen name="reticle_stroke_width">3dp</dimen>
+    <dimen name="reticle_outline_width">1dp</dimen>
     <dimen name="connect_message_corner_radius">16dp</dimen>
+    <dimen name="connect_message_bubble_padding">10dp</dimen>
+    <dimen name="connect_message_timestamp_spacing">3dp</dimen>
+    <dimen name="connect_message_media_corner_radius">6dp</dimen>
+    <dimen name="connect_message_audio_inset">2dp</dimen>
+    <dimen name="connect_message_audio_thumb_radius">7dp</dimen>
+    <dimen name="connect_message_audio_track_height">4dp</dimen>
+    <dimen name="connect_message_pending_tile_width">240dp</dimen>
+    <dimen name="connect_message_pending_tile_min_height">128dp</dimen>
+    <dimen name="connect_message_pending_button_size">56dp</dimen>
+    <dimen name="connect_message_progress_size">48dp</dimen>
+    <dimen name="connect_message_progress_thickness">4dp</dimen>
 
     <dimen name="corner_radius_small_5dp">5dp</dimen>
     <dimen name="nav_drawer_width">264dp</dimen>
 
     <dimen name="side_nav_horizontal_padding">10dp</dimen>
     <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
+
+    <dimen name="connect_badge_icon_size">20dp</dimen>
+
+    <dimen name="connect_info_card_corner_radius">8dp</dimen>
+    <dimen name="connect_info_card_elevation">0dp</dimen>
+
+    <dimen name="connect_sync_card_badge_size">40dp</dimen>
+    <dimen name="connect_sync_card_badge_icon_inset">9dp</dimen>
+    <dimen name="connect_sync_card_subtext_spacing">2dp</dimen>
+
+    <dimen name="semi_circle_progress_default_width">240dp</dimen>
+    <dimen name="semi_circle_progress_stroke_width">14dp</dimen>
+    <dimen name="semi_circle_progress_value_text_size">22sp</dimen>
+    <dimen name="semi_circle_progress_description_text_size">16sp</dimen>
+
+    <!-- Connect progress card -->
+    <!-- Keeps the main card above the info banner that tucks up behind it. Kept to a hairline so
+         the shadow stays within the card's bounds rather than needing reserved padding. -->
+    <dimen name="connect_progress_card_elevation">1dp</dimen>
+    <dimen name="connect_progress_card_semi_circle_inset">48dp</dimen>
+    <dimen name="connect_progress_card_bar_height">8dp</dimen>
+    <dimen name="connect_progress_card_info_overlap">-20dp</dimen>
+    <!-- Overlap (20dp) plus the 12dp the content sits below the banner's visible top edge. Keep in
+         step with connect_progress_card_info_overlap. -->
+    <dimen name="connect_progress_card_info_padding_top">32dp</dimen>
+
+    <!-- Connect/PersonalID shared tokens -->
+    <!-- Text -->
+    <dimen name="connect_text_badge">10sp</dimen>
+    <dimen name="connect_text_tab">14sp</dimen>
+    <dimen name="connect_text_label">11sp</dimen>
+    <dimen name="connect_text_caption">12sp</dimen>
+    <dimen name="connect_text_body">14sp</dimen>
+    <dimen name="connect_text_title">16sp</dimen>
+    <dimen name="connect_text_headline">22sp</dimen>
+    <!-- Spacing / padding -->
+    <dimen name="connect_space_xs">4dp</dimen>
+    <dimen name="connect_space_sm">8dp</dimen>
+    <dimen name="connect_space_md">12dp</dimen>
+    <dimen name="connect_space_lg">16dp</dimen>
+    <dimen name="connect_space_xl">24dp</dimen>
+    <dimen name="connect_space_2xl">40dp</dimen>
+    <dimen name="connect_chip_icon_size">20dp</dimen>
+    <!-- Keeps a borderless text button wide enough to stay an easy tap target. -->
+    <dimen name="connect_text_button_min_width">64dp</dimen>
+    <dimen name="connect_touch_target_min">48dp</dimen>
+    <!-- Half of the gap between grid cards; the full 16dp gap is two of these. -->
+    <dimen name="connect_grid_gutter_half">8dp</dimen>
+    <!-- Circles holding a 20dp glyph; the padding is what sizes the glyph down to 20dp. -->
+    <dimen name="connect_icon_circle_sm">28dp</dimen>
+    <dimen name="connect_tab_badge_size">16dp</dimen>
+    <dimen name="connect_icon_circle_lg">40dp</dimen>
+    <dimen name="connect_icon_circle_padding_lg">10dp</dimen>
+    <!-- Corner radii -->
+    <dimen name="connect_radius_xs">4dp</dimen>
+    <dimen name="connect_radius_sm">5dp</dimen>
+    <dimen name="connect_radius_card">8dp</dimen>
+    <dimen name="connect_radius_lg">16dp</dimen>
+    <dimen name="connect_radius_pill">24dp</dimen>
+    <!-- Elevation -->
+    <dimen name="connect_card_elevation_low">2dp</dimen>
+    <dimen name="connect_card_elevation_medium">5dp</dimen>
+    <dimen name="connect_card_elevation_high">10dp</dimen>
+    <dimen name="connect_button_elevation">3dp</dimen>
+    <!-- Strokes -->
+    <dimen name="connect_stroke_hairline">1dp</dimen>
+    <dimen name="connect_stroke_emphasis">2dp</dimen>
+
+    <dimen name="input_field_icon_tile_size">32dp</dimen>
+    <dimen name="input_field_icon_offset">14dp</dimen>
+    <dimen name="input_field_padding_vertical">14dp</dimen>
+    <dimen name="input_field_spacing">28dp</dimen>
+    <dimen name="login_dropdown_spacing">35dp</dimen>
+
+    <!-- Opportunity list card -->
+    <dimen name="connect_radius_md">12dp</dimen>
+    <dimen name="connect_job_badge_ring_size">48dp</dimen>
+    <dimen name="connect_job_badge_ring_stroke">4dp</dimen>
+    <dimen name="connect_job_badge_icon_in_ring">28dp</dimen>
+    <dimen name="connect_job_badge_icon_standalone">32dp</dimen>
+    <dimen name="connect_job_expiry_warning_size">16dp</dimen>
+
+    <!-- Audio Recording -->
+    <dimen name="audio_recording_button_size">110dp</dimen>
+    <dimen name="audio_recording_progress_size">190dp</dimen>
+    <dimen name="audio_recording_timer_text_size">40sp</dimen>
+    <dimen name="audio_recording_dialog_max_width">420dp</dimen>
+    <dimen name="audio_recording_header_text_size">16sp</dimen>
+    <dimen name="audio_recording_capture_label_text_size">32sp</dimen>
+    <dimen name="audio_recording_close_button_size">40dp</dimen>
 </resources>

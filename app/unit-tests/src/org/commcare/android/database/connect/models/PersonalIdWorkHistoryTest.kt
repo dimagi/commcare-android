@@ -12,7 +12,6 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdWorkHistoryTest {
-
     private fun buildValidJson(
         uuid: String = "uuid-001",
         appId: String = "app-123",

@@ -12,7 +12,6 @@ public class ConnectConstants {
     public static final int NETWORK_ACTIVITY_ID = 7000;
     public static final int NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID = 8000;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
-    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
 
     public static final String PIN = "PIN";
     public static final String CONNECT_KEY_TOKEN = "access_token";
@@ -30,6 +29,7 @@ public class ConnectConstants {
     public static final String SHOW_LAUNCH_BUTTON = "show_launch_button";
     public static final String OPPORTUNITY_ID = "opportunity_id";
     public static final String OPPORTUNITY_UUID = "opportunity_uuid";
+    public static final String FROM_SMS_INVITE_LINK = "from_sms_invite_link";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_UUID = "payment_uuid";
     public static final String NOTIFICATION_KEY = "key";
@@ -39,8 +39,7 @@ public class ConnectConstants {
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
-    public final static int PERSONALID_NO_ACTIVITY =
-            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
+    public final static int PERSONAL_ID_USER_STATUS_REGISTERED = 1000;
     public final static int PERSONALID_REGISTRATION_SUCCESS =
             ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
     public final static int PERSONALID_RECOVERY_SUCCESS =

@@ -5,6 +5,7 @@ import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ScrollView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -96,6 +97,10 @@ abstract class BasePersonalIdFragment : Fragment() {
                 false
             }
         }
+    }
+
+    protected fun setTitle(titleResId: Int) {
+        (requireActivity() as AppCompatActivity).supportActionBar!!.setTitle(titleResId)
     }
 
     protected open fun keyboardEnterPressed() = Unit

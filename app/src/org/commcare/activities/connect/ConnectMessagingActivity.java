@@ -4,21 +4,22 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
 
@@ -32,7 +33,6 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     public static final String CHANNEL_ID = "channel_id";
     private static final String KEY_PROGRESS_DIALOG_FRAGMENT = "progress_dialog_fragment";
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +56,18 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     }
 
     @Override
-    public void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        NavigationUI.setupActionBarWithNavController(this, navController);
+    protected boolean shouldShowDrawer() {
+        return shouldShowDrawerAfterCheck(true);
+    }
+
+    @Override
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
+        return BaseDrawerController.NavItemType.MESSAGING;
+    }
+
+    @Override
+    protected boolean isSidebarSection() {
+        return true;
     }
 
     @Override
@@ -125,6 +134,8 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
 
     private void handleRedirectIfAny() {
         String action = getIntent().getStringExtra(REDIRECT_ACTION);
+        String channelId = getIntent().getStringExtra(CHANNEL_ID);
+
         if (CCC_MESSAGE.equals(action)) {
             PersonalIdManager.getInstance().init(this);
             FirebaseAnalyticsUtil.reportNotificationEvent(
@@ -133,28 +144,38 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                     getNotificationActionFromIntent(getIntent()),
                     getIntent().getStringExtra(NOTIFICATION_ID)
             );
-            PersonalIdManager.getInstance().unlockConnect(this, success -> {
-                if (success) {
-                    String channelId = getIntent().getStringExtra(
-                            ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
-                    String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
-                    if (!TextUtils.isEmpty(notificationId)) {
-                        NotificationRecordDatabaseHelper.INSTANCE
-                                .updateReadStatus(this, notificationId, true);
-                    }
-                    if (TextUtils.isEmpty(channelId)) {
-                        showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
-                    } else {
-                        handleChannelForValidity(channelId);
-                    }
-                }
-            });
+            channelId = getIntent().getStringExtra(
+                    ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID);
         }
+
+        boolean redirect = CCC_MESSAGE.equals(action) || !TextUtils.isEmpty(channelId);
+        if (redirect) {
+            unlockAndNavigateToChannel(channelId);
+        }
+    }
+
+    private void unlockAndNavigateToChannel(String channelId) {
+        if (TextUtils.isEmpty(channelId)) {
+            showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
+            return;
+        }
+        PersonalIdUnlocker.INSTANCE.unlock(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, success -> {
+            if (success) {
+                String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
+                if (!TextUtils.isEmpty(notificationId)) {
+                    NotificationRecordDatabaseHelper.INSTANCE
+                            .updateReadStatus(this, notificationId, true);
+                }
+                handleChannelForValidity(channelId);
+            } else {
+                finish();
+            }
+        });
     }
 
     private void handleChannelForValidity(String channelId) {
         ConnectMessagingChannelRecord connectMessagingChannelRecord =
-                ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
+                ConnectMessagingDatabaseHelper.getMessagingChannel(channelId);
         if (connectMessagingChannelRecord == null) {
             handleNoChannel(channelId); //This happens if local DB doesn't have the channel yet
         } else {
@@ -166,7 +187,7 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
         MessageManager.retrieveMessages(this, (success, error) -> {
             // This is required to update the local DB for channels
             ConnectMessagingChannelRecord connectMessagingChannelRecord =
-                    ConnectMessagingDatabaseHelper.getMessagingChannel(this, channelId);
+                    ConnectMessagingDatabaseHelper.getMessagingChannel(channelId);
             if (connectMessagingChannelRecord == null) {
                 showFailureMessage(getString(R.string.connect_messaging_pn_wrong_channel));
             } else {

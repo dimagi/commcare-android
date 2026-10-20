@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
-import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 
 import android.content.Intent;
@@ -13,9 +11,11 @@ import androidx.annotation.NonNull;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.EmailOfferHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -26,6 +26,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ApkDependenciesUtils;
+import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -49,8 +50,6 @@ public class StandardHomeActivity
     private Map<Integer, String> menuIdToAnalyticsParam;
     private boolean personalIdManagedLogin = false;
 
-    private boolean rootContainerReadyToShowDrawer = false;
-
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -58,6 +57,7 @@ public class StandardHomeActivity
         uiController.setupUI();
         personalIdManagedLogin = getIntent()
                 .getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
+        EmailOfferHelper.checkEmailCollection(this);
     }
 
     @Override
@@ -166,7 +166,8 @@ public class StandardHomeActivity
         menu.findItem(R.id.action_preferences).setVisible(enableMenus);
         menu.findItem(R.id.action_advanced).setVisible(enableMenus);
         menu.findItem(R.id.action_about).setVisible(enableMenus);
-        menu.findItem(R.id.action_update_commcare).setVisible(enableMenus && showCommCareUpdateMenu);
+        menu.findItem(R.id.action_update_commcare).setVisible(
+                enableMenus && getCoordinator().getAppUpdate().getShowCommCareUpdateMenu());
         preparePinMenu(menu, enableMenus);
         return true;
     }
@@ -195,7 +196,7 @@ public class StandardHomeActivity
                 menuIdToAnalyticsParam.get(item.getItemId()));
         int itemId = item.getItemId();
         if (itemId == R.id.action_update) {
-            launchUpdateActivity(false);
+            getCoordinator().getAppUpdate().launchUpdateActivity(false);
             return true;
         } else if (itemId == R.id.action_saved_forms) {
             goToFormArchive(false);
@@ -216,7 +217,7 @@ public class StandardHomeActivity
             launchPinAuthentication();
             return true;
         } else if (itemId == R.id.action_update_commcare) {
-            startCommCareUpdate();
+            getCoordinator().getAppUpdate().startCommCareUpdate();
             return true;
         }
 
@@ -243,21 +244,15 @@ public class StandardHomeActivity
     }
 
     @Override
-    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType, String recordId) {
+    protected void handleDrawerItemClick(@NonNull BaseDrawerController.NavItemType itemType) {
         switch (itemType) {
             case COMMCARE_APPS -> {
-                if(recordId != null) {
-                    String currentSeatedId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-                    if(!recordId.equals(currentSeatedId)) {
-                        //Navigate to LoginActivity for selected app
-                        CommCareApplication.instance().closeUserSession();
-                        Intent i = new Intent();
-                        i.putExtra(EXTRA_APP_ID, recordId);
-                        i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, false);
-                        setResult(RESULT_OK, i);
-                        finish();
-                    }
-                }
+                closeDrawer();
+                AppLogoutHelper.promptToReturnToLogin(
+                        this,
+                        R.string.nav_drawer_switch_app_dialog_title,
+                        R.string.nav_drawer_switch_app_dialog_message
+                );
             }
             case OPPORTUNITIES -> {
                 if(personalIdManagedLogin) {
@@ -269,7 +264,7 @@ public class StandardHomeActivity
             }
             case MESSAGING -> {
                 if(personalIdManagedLogin) {
-                    ConnectNavHelper.INSTANCE.goToMessaging(this);
+                    ConnectNavHelper.INSTANCE.goToMessaging(this, null);
                     closeDrawer();
                 } else {
                     navigateToMessaging();
@@ -316,26 +311,9 @@ public class StandardHomeActivity
     }
 
 
-    /**
-     * Its not good idea to have such patches but its seems like no choice here.
-     * BaseDrawerActivity is trying to add the drawer before root view of this activity is created. Reason for this is
-     * this home activity is going through lot of process for sessions and then creating root view from `home_screen.xml`
-     * @param status
-     */
-    protected void toggleDrawerSetUp(boolean status){
-        this.rootContainerReadyToShowDrawer = status;
-    }
-
     @Override
     protected boolean shouldShowDrawer() {
-        if (!rootContainerReadyToShowDrawer)
-            return false;   // wait for root content to get load through xml
-        return shouldShowDrawerAfterCheck();
-    }
-
-    @Override
-    protected boolean shouldHighlightSeatedApp() {
-        return true;
+        return shouldShowDrawerAfterCheck(true);
     }
 
     @Override
@@ -343,15 +321,19 @@ public class StandardHomeActivity
         uiController.refreshView();
     }
 
+    /**
+     * The home actions live in this activity's options menu, so re-preparing the menu re-evaluates
+     * all of them: the demo-user gating, the CommCare-update item and the PIN item's set/change title.
+     */
     @Override
-    void refreshCCUpdateOption() {
+    public void refreshActionSurface() {
         invalidateOptionsMenu();
     }
 
     public void fetchJobProgressOverNetwork() {
         ConnectJobRecord job = getActiveJob();
         if(job != null && job.getStatus() == ConnectJobRecord.STATUS_DELIVERING) {
-            ConnectJobHelper.INSTANCE.updateDeliveryProgress(this, job, null,null,(success, error) -> {
+            ConnectRepository.getInstance().updateDeliveryProgressForJava(job, (success, error) -> {
                 if (success) {
                     uiController.updateConnectJobProgress();
                 }
@@ -360,6 +342,6 @@ public class StandardHomeActivity
     }
 
     public ConnectJobRecord getActiveJob() {
-        return ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
+        return ConnectJobUtils.getJobForSeatedApp(this);
     }
 }

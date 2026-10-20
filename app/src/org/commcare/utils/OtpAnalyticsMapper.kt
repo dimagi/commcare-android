@@ -1,6 +1,7 @@
 package org.commcare.utils
 
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
@@ -21,12 +22,21 @@ object OtpAnalyticsMapper {
     @JvmStatic
     fun methodFromSmsMethod(otpMethod: String?): String? =
         when {
-            otpMethod == null -> AnalyticsParamValue.OTP_METHOD_FIREBASE
-            otpMethod.equals(OtpManager.SMS_METHOD_PERSONAL_ID, ignoreCase = true) ->
-                AnalyticsParamValue.OTP_METHOD_PERSONAL_ID
-            otpMethod.equals(OtpManager.SMS_METHOD_FIREBASE, ignoreCase = true) ->
+            otpMethod == null -> {
                 AnalyticsParamValue.OTP_METHOD_FIREBASE
-            else -> "UNKNOWN-$otpMethod"
+            }
+
+            otpMethod.equals(OtpManager.SMS_METHOD_PERSONAL_ID, ignoreCase = true) -> {
+                AnalyticsParamValue.OTP_METHOD_PERSONAL_ID
+            }
+
+            otpMethod.equals(OtpManager.SMS_METHOD_FIREBASE, ignoreCase = true) -> {
+                AnalyticsParamValue.OTP_METHOD_FIREBASE
+            }
+
+            else -> {
+                "UNKNOWN-$otpMethod"
+            }
         }
 
     /**
@@ -43,18 +53,39 @@ object OtpAnalyticsMapper {
     @JvmStatic
     fun reasonFrom(errorCode: PersonalIdOrConnectApiErrorCodes?): String? = errorCode?.name?.lowercase()
 
+    /**
+     * Maps the email [EmailWorkFlow] (registration / recovery / existing-user) to a stable
+     * lowercase analytics string logged with the email OTP events.
+     */
+    @JvmStatic
+    fun workflowParam(workflow: EmailWorkFlow): String = workflow.name.lowercase()
+
     /** Which OTP call is currently in flight, used to attribute the next callback. */
     enum class OtpOp {
-        REQUEST,
-        VERIFY,
+        REQUEST_PHONE,
+        VERIFY_PHONE,
+        REQUEST_EMAIL,
+        VERIFY_EMAIL,
     }
 
     @JvmStatic
     fun getEventType(currentOtpOp: OtpOp?): String? =
         when {
-            OtpOp.REQUEST == currentOtpOp -> AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST
+            OtpOp.REQUEST_PHONE == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST
+            }
 
-            OtpOp.VERIFY == currentOtpOp -> AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY
+            OtpOp.VERIFY_PHONE == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY
+            }
+
+            OtpOp.REQUEST_EMAIL == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_REQUEST_EMAIL
+            }
+
+            OtpOp.VERIFY_EMAIL == currentOtpOp -> {
+                AnalyticsParamValue.OTP_EVENT_TYPE_VERIFY_EMAIL
+            }
 
             else -> {
                 Logger.log(

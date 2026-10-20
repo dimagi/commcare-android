@@ -33,18 +33,20 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.integrity.StandardIntegrityManager;
 import com.google.android.play.core.integrity.model.IntegrityDialogTypeCode;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.android.integrity.IntegrityTokenApiRequestHelper;
 import org.commcare.android.integrity.IntegrityTokenViewModel;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.base.BaseApiHandler;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidPhonenoBinding;
+import org.commcare.fragments.extensions.FragmentExtensionsKt;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.location.CommCareLocationController;
@@ -61,8 +63,11 @@ import org.javarosa.core.services.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 import static com.google.android.play.core.integrity.model.IntegrityDialogResponseCode.DIALOG_SUCCESSFUL;
+
+import static org.commcare.connect.ConnectConstants.NETWORK_ACTIVITY_ID;
 import static org.commcare.utils.Permissions.shouldShowPermissionRationale;
 
 public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements CommCareLocationListener {
@@ -80,6 +85,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private ActivityResultLauncher<IntentSenderRequest> resolutionLauncher;
     private String playServicesError;
     private ActivityResultLauncher<IntentSenderRequest> playServicesResolutionLauncher;
+    private boolean isRequestInProgress = false;
 
     private static final String[] REQUIRED_PERMISSIONS = new String[]{
             Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
@@ -278,7 +284,9 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void updateContinueButtonState() {
-        enableContinueButton(allowedToContinue());
+        if (!isRequestInProgress) {
+            enableContinueButton(allowedToContinue());
+        }
     }
 
     private boolean allowedToContinue() {
@@ -313,7 +321,8 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     private void onContinueClicked() {
         FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(
                 this.getClass().getSimpleName(),
-                null
+                null,
+                PersonalIdWorkflow.CONFIGURATION
         );
         enableContinueButton(false);
         startConfigurationRequest();
@@ -324,6 +333,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
     }
 
     private void startConfigurationRequest() {
+        setRequestProgressState(true);
         clearError();
         phone = PhoneNumberHelper.buildPhoneNumber(
                 binding.countryCode.getText().toString(),
@@ -341,30 +351,11 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             body.put("device", model);
         }
 
-        integrityTokenApiRequestHelper.withIntegrityToken(
-                body,
-                new IntegrityTokenViewModel.IntegrityTokenCallback() {
-                    @Override
-                    public void onTokenReceived(
-                            @NotNull String requestHash,
-                            @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokenResponse
-                    ) {
-                        makeStartConfigurationCall(requestHash, body, integrityTokenResponse);
-                    }
-
-                    @Override
-                    public void onTokenFailure(@NotNull Exception exception) {
-                        String errorCode = IntegrityTokenApiRequestHelper.Companion.getCodeForException(
-                                exception
-                        );
-                        FirebaseAnalyticsUtil.reportPersonalIdConfigurationIntegritySubmission(
-                                errorCode
-                        );
-
-                        makeStartConfigurationCall(null, body, null);
-                    }
-                }
-        );
+        fetchIntegrityTokenAndStartConfiguration(body, exception -> {
+            String errorCode = IntegrityTokenApiRequestHelper.Companion.getCodeForException(exception);
+            FirebaseAnalyticsUtil.reportPersonalIdConfigurationIntegritySubmission(errorCode);
+            makeStartConfigurationCall(null, body, null);
+        });
     }
 
     @Override
@@ -511,6 +502,10 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         new PersonalIdApiHandler<PersonalIdSessionData>() {
             @Override
             public void onSuccess(PersonalIdSessionData sessionData) {
+                if (!hasLiveView()) {
+                    return;
+                }
+                setRequestProgressState(false);
                 personalIdSessionDataViewModel.getPersonalIdSessionData().setPhoneNumber(phone);
 
                 FirebaseAnalyticsUtil.flagPersonalIDDemoUser(sessionData.getDemoUser());
@@ -537,16 +532,17 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                     @NonNull PersonalIdOrConnectApiErrorCodes failureCode,
                     @Nullable Throwable t
             ) {
+                if (!hasLiveView()) {
+                    return;
+                }
+                setRequestProgressState(false);
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
 
                 switch (failureCode) {
                     case FORBIDDEN_ERROR:
-                        onConfigurationFailure(
-                                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
-                                getString(R.string.personalid_configuration_process_failed_subtitle)
-                        );
+                        onIntegrityConfigurationError();
                         break;
                     case INTEGRITY_ERROR:
                         handleIntegritySubError(
@@ -554,12 +550,57 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
                                 personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode()
                         );
                         break;
+                    case MISSING_DATA_ERROR: {
+                        String subCode = personalIdSessionDataViewModel.getPersonalIdSessionData().getSessionFailureSubcode();
+                        boolean isIntegrityHeadersMissing = PersonalIdApiSubErrorCodes.INTEGRITY_HEADERS.name().equals(subCode);
+                        if (isIntegrityHeadersMissing) {
+                            if (!token.isEmpty()) {
+                                Logger.exception("Missing Data error related to Integrity check headers",
+                                        new Exception("Missing integrity headers even when token is present"));
+                            } else {
+                                Logger.exception("Missing Data error related to Integrity check headers",
+                                        new Exception("Missing integrity headers due to an empty token"));
+                            }
+                            onIntegrityConfigurationError();
+                        } else {
+                            Logger.exception("Personal ID start configuration failed",
+                                    new Exception("Missing Data error with subcode "
+                                            + subCode));
+                            navigateFailure(failureCode, t);
+                        }
+                        break;
+                    }
                     default:
                         navigateFailure(failureCode, t);
                         break;
                 }
             }
         }.makeStartConfigurationCall(requireActivity(), body, token, requestHash, newSessionData);
+    }
+
+    private boolean hasLiveView() {
+        return FragmentExtensionsKt.hasLiveView(this);
+    }
+
+    private void setRequestProgressState(boolean inProgress) {
+        isRequestInProgress = inProgress;
+        Activity activity = getActivity();
+        if (activity != null) {
+            activity.runOnUiThread(() -> {
+                if (inProgress) {
+                    ((CommCareActivity<?>)activity).showProgressDialogIfNeeded(NETWORK_ACTIVITY_ID);
+                } else {
+                    ((CommCareActivity<?>)activity).dismissProgressDialogForTask(NETWORK_ACTIVITY_ID);
+                }
+            });
+        }
+    }
+
+    private void onIntegrityConfigurationError() {
+        onConfigurationFailure(
+                AnalyticsParamValue.START_CONFIGURATION_INTEGRITY_CHECK_FAILURE,
+                getString(R.string.personalid_configuration_process_failed_subtitle)
+        );
     }
 
     private void handleIntegritySubError(
@@ -606,6 +647,30 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
             // Dialog failed to launch or some error occurred
             handleIntegrityFailure(subError, "Integrity dialog failed to launch " + e.getMessage());
         });
+    }
+
+    private void fetchIntegrityTokenAndStartConfiguration(
+            HashMap<String, String> body,
+            Consumer<Exception> onTokenFailure
+    ) {
+        integrityTokenApiRequestHelper.withIntegrityToken(
+                body,
+                new IntegrityTokenViewModel.IntegrityTokenCallback() {
+                    @Override
+                    public void onTokenReceived(
+                            @NotNull String requestHash,
+                            @NotNull StandardIntegrityManager.StandardIntegrityToken integrityTokenResponse
+                    ) {
+                        makeStartConfigurationCall(requestHash, body, integrityTokenResponse);
+                    }
+
+
+                    @Override
+                    public void onTokenFailure(@NotNull Exception exception) {
+                        onTokenFailure.accept(exception);
+                    }
+                }
+        );
     }
 
     private void handleIntegrityFailure(String subError, String logMessage) {

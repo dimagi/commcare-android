@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/connect_space_lg"
+        android:paddingVertical="@dimen/connect_space_xl">
+
+        <include
+            android:id="@+id/profile_header"
+            layout="@layout/personalid_profile_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            style="@style/Widget.Connect.SectionHeadingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_extra_large"
+            android:text="@string/personalid_profile_section_personal_information" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_name" />
+
+        <TextView
+            android:id="@+id/profile_value_name"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_phone" />
+
+        <TextView
+            android:id="@+id/profile_value_phone"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_email" />
+
+        <TextView
+            android:id="@+id/profile_value_email"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/standard_spacer_extra_large"
+            android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profile_change_backup_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/personalid_profile_change_backup_code"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:backgroundTint="?attr/colorPrimary"
+                app:icon="@drawable/ic_key_round"
+                app:iconGravity="textStart"
+                app:iconTint="@null" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/profile_btn_forget_personalid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_md"
+                android:text="@string/personalid_profile_forget_account"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:backgroundTint="@color/red_700"
+                app:icon="@drawable/ic_personalid_forget_warning"
+                app:iconGravity="textStart"
+                app:iconTint="@null" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

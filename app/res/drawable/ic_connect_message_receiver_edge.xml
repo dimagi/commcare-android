@@ -6,5 +6,5 @@
     android:viewportHeight="8">
   <path
       android:pathData="M8,8V0C8,0 8,0 2.3324,0C-5.2245,0 8,8 8,8Z"
-      android:fillColor="@color/connect_message_receiver_bg"/>
+      android:fillColor="@color/cornflower_blue"/>
 </vector>

@@ -45,8 +45,12 @@ public class SessionAwareHelper {
                                                  int requestCode, int resultCode, Intent intent) {
         boolean redirectedToLogin =
                 SessionRegistrationHelper.handleSessionExpiration(a);
-        if (!redirectedToLogin) {
-            sessionAware.onActivityResultSessionSafe(requestCode, resultCode, intent);
+        if (redirectedToLogin) {
+            return;
         }
+        if (a.getActivityResultRegistry().dispatchResult(requestCode, resultCode, intent)) {
+            return;
+        }
+        sessionAware.onActivityResultSessionSafe(requestCode, resultCode, intent);
     }
 }

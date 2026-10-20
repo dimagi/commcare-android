@@ -48,7 +48,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_manager);
-        ((ListView)this.findViewById(R.id.apps_list_view)).setOnItemClickListener(this);
+        ListView appsList = this.findViewById(R.id.apps_list_view);
+        appsList.addHeaderView(
+                getLayoutInflater().inflate(R.layout.app_manager_header, appsList, false), null, false);
+        appsList.setOnItemClickListener(this);
         FirebaseAnalyticsUtil.reportAppManagerAction(AnalyticsParamValue.OPEN_APP_MANAGER);
     }
 
@@ -61,9 +64,9 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_ABOUT, 0, Localization.get("app.manager.menu.about")).setIcon(
+        menu.add(0, MENU_ABOUT, 0, getString(R.string.app_manager_menu_about)).setIcon(
                 android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_ADVANCED_SETTINGS, 1, Localization.get("app.manager.advanced.settings.option"))
+        menu.add(0, MENU_ADVANCED_SETTINGS, 1, getString(R.string.app_manager_advanced_settings_option))
                 .setIcon(android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 2, Localization.get("home.menu.connection.diagnostic"))
                 .setIcon(android.R.drawable.ic_menu_preferences);
@@ -100,7 +103,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         mDeveloperModeClicks++;
         if (mDeveloperModeClicks == 4) {
             AppManagerDeveloperPreferences.setDeveloperPreferencesEnabled(true);
-            Toast.makeText(this, Localization.get("app.manager.developer.options.enabled"),
+            Toast.makeText(this, getString(R.string.app_manager_developer_options_enabled),
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -184,7 +187,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 SingleAppManagerActivity.class);
         // Pass to SingleAppManager the index of the app that was selected, so it knows which
         // app to display information for
-        i.putExtra("position", position);
+        i.putExtra("position", position - ((ListView)parent).getHeaderViewsCount());
         startActivity(i);
     }
 

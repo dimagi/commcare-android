@@ -36,8 +36,9 @@ object CCPerfMonitoring {
     fun startTracing(traceName: String): Trace? {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
-            trace.putAttribute(ATTR_CC_APP,
-                ReportingUtils.getDomain() + "|" + ReportingUtils.getAppId() + "|" + ReportingUtils.getAppName()
+            trace.putAttribute(
+                ATTR_CC_APP,
+                ReportingUtils.getDomain() + "|" + ReportingUtils.getAppId() + "|" + ReportingUtils.getAppName(),
             )
             trace.putAttribute(CCAnalyticsParam.USERNAME, ReportingUtils.getUser())
             trace.start()
@@ -48,7 +49,10 @@ object CCPerfMonitoring {
         return null
     }
 
-    fun stopTracing(trace: Trace?, attrs: MutableMap<String, String>?) {
+    fun stopTracing(
+        trace: Trace?,
+        attrs: MutableMap<String, String>?,
+    ) {
         if (trace == null) return
         try {
             attrs?.forEach { (key, value) -> trace.putAttribute(key, value) }
@@ -62,17 +66,17 @@ object CCPerfMonitoring {
         trace: Trace?,
         fileSizeBytes: Long,
         fileExtension: String,
-        keystoreEncrypted: Boolean
+        keystoreEncrypted: Boolean,
+        isLogsFile: Boolean,
     ) {
         try {
             val attrs: MutableMap<String, String> = HashMap()
             attrs[ATTR_FILE_SIZE_BYTES] = fileSizeBytes.toString()
-            attrs[ATTR_FILE_TYPE] = fileExtension
+            attrs[ATTR_FILE_TYPE] = fileExtension + (if (isLogsFile) "_logs" else "")
             attrs[ATTR_FILE_KEYSTORE_ENCRYPTED] = keystoreEncrypted.toString()
             stopTracing(trace, attrs)
         } catch (e: java.lang.Exception) {
             Logger.exception("Failed to stop tracing: $TRACE_FILE_ENCRYPTION_TIME", e)
         }
     }
-
 }

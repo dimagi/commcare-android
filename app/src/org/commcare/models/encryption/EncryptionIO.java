@@ -50,6 +50,7 @@ public class EncryptionIO {
                 trace,
                 fileSize,
                 FilenameUtils.getExtension(sourceFilePath),
+                false,
                 false
         );
     }

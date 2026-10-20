@@ -20,9 +20,11 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.commcare.utils.InstrumentationUtility.waitForView;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.endsWith;
 
@@ -126,6 +128,8 @@ public class CaseClaimTest extends BaseTest {
                 .perform(click());
 
         // Close the new case of cordelia with this user.
+        onView(withId(R.id.screen_entity_select_list))
+                .perform(waitForView(withText(name), 10000, true));
         onView(withText(name))
                 .perform(click());
         onView(withText("Continue"))

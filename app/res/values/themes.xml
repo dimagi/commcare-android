@@ -46,6 +46,49 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <!--
+        The only place a Connect colour acquires meaning. Layouts reference these roles via
+        ?attr/…; they should not name a colour directly.
+    -->
+    <style name="ConnectTheme" parent="CommonTheme.NoActionBar">
+        <item name="colorPrimary">@color/neon_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/connect_text_color</item>
+        <item name="appBarLayoutStyle">@style/Widget.Connect.AppBarLayout</item>
+        <item name="toolbarStyle">@style/Widget.Connect.Toolbar</item>
+        <item name="connectNavDrawerForeground">@color/nav_drawer_text</item>
+
+        <item name="connectBackground">@color/connect_background_color</item>
+        <item name="connectSurfaceContainerLow">@color/cool_gray_50</item>
+        <item name="connectPrimaryContainer">@color/light_lavender</item>
+        <item name="connectOnPrimaryContainer">@color/neon_blue</item>
+        <item name="connectInversePrimary">@color/cc_brand_color</item>
+        <item name="connectOnSurfaceEmphasis">@color/cool_gray_900</item>
+        <item name="connectOnSurfaceStrong">@color/cool_gray_800</item>
+        <item name="connectOnSurfaceVariant">@color/connect_dark_grey</item>
+        <item name="connectOnSurfaceSecondary">@color/slate_gray</item>
+        <item name="connectOnSurfaceMuted">@color/connect_subtext_color</item>
+        <item name="connectOnSurfaceDisabled">@color/cool_gray_900</item>
+        <item name="connectDisabledContainer">@color/cool_gray_100</item>
+        <item name="connectOnDisabledContainer">@color/connect_subtext_color</item>
+        <item name="connectCtaButtonBackground">@color/connect_cta_button_background</item>
+        <item name="connectCtaButtonForeground">@color/connect_cta_button_foreground</item>
+        <item name="connectOutline">@color/connect_grey</item>
+        <item name="connectOutlineVariant">@color/connect_light_grey</item>
+        <item name="connectStatusPositive">@color/connect_green</item>
+        <item name="connectStatusPositiveContainer">@color/connect_light_green</item>
+        <item name="connectStatusNegative">@color/red_600</item>
+        <item name="connectStatusWarning">@color/amber_800</item>
+    </style>
+
+    <style name="AppEntryTheme" parent="ConnectTheme">
+        <item name="connectOutlineVariant">@color/mist_gray</item>
+        <item name="connectPrimaryContainer">@color/periwinkle_mist</item>
+        <item name="connectOutlineBrand">@color/cornflower_blue</item>
+        <item name="connectOnSurfaceBrand">@color/deep_indigo</item>
+    </style>
+
     <style name="AppBaseTheme" parent="CommonTheme" />
 
     <style name="PreferenceTheme" parent="AppBaseTheme">
@@ -107,6 +150,22 @@
 
     <style name="WhiteNavIcon" parent="@style/Widget.AppCompat.Toolbar.Button.Navigation">
         <item name="android:tint">@color/white</item>
+    </style>
+
+    <!--
+        The Connect tab strip sits directly under the toolbar in the same colour, so the app bar's
+        default lift shadow reads as a dark line between them. Applied via ConnectTheme so the
+        shared appbar_layout keeps its shadow everywhere else.
+    -->
+    <style name="Widget.Connect.AppBarLayout" parent="Widget.MaterialComponents.AppBarLayout.Primary">
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="Widget.Connect.Toolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="titleTextAppearance">@style/TextStyle.Connect.TitleM</item>
+        <item name="subtitleTextAppearance">@style/TextStyle.Connect.LabelS</item>
     </style>
 
     <style name="ToolbarThemeOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">

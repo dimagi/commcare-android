@@ -34,6 +34,7 @@
             android:background="@null"
             android:padding="@dimen/entity_item_image_margins"
             app:srcCompat="@drawable/close_cross_icon"
+            android:contentDescription="@string/clear_search_button_description"
             android:layout_alignParentEnd="true" />
     </RelativeLayout>
 

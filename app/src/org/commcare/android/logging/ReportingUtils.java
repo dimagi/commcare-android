@@ -153,7 +153,7 @@ public class ReportingUtils {
     public static String getPersonalID() {
         try {
             if (PersonalIdManager.getInstance().isloggedIn()) {
-                return PersonalIdManager.getInstance().getUser(CommCareApplication.instance()).getUserId();
+                return PersonalIdManager.getInstance().getUser().getUserId();
             }
         } catch (Exception ignored) {
         }
@@ -164,7 +164,7 @@ public class ReportingUtils {
         try {
             PersonalIdManager manager = PersonalIdManager.getInstance();
             if (manager.isloggedIn()) {
-                return manager.getUser(CommCareApplication.instance()).getIsDemo();
+                return manager.getUser().getIsDemo();
             }
         } catch (Exception e) {
             Logger.exception("Error checking if PersonalID user is a demo user", e);

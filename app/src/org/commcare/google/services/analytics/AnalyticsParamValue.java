@@ -16,6 +16,7 @@ public class AnalyticsParamValue {
     public static final String DIRECTION_BACKWARD = "backward";
     public static final String NAV_BUTTON_PRESS = "nav_button_press";
     public static final String BACK_BUTTON_PRESS = "back_button_press";
+    public static final String PUSH_NOTIFICATION_TAP = "push_notification_tap";
     public static final String SWIPE = "swipe";
 
     // Param values for options menu items
@@ -164,6 +165,7 @@ public class AnalyticsParamValue {
 
     // Param values for connect recovery
     public static final String CCC_RECOVERY_METHOD_BACKUPCODE = "backup_code";
+    public static final String CCC_RECOVERY_METHOD_EMAIL_OTP = "email_otp";
 
     // Param values for Form Submission Event
     public static final String USER_TRIGGERED = "user_triggered";
@@ -173,7 +175,17 @@ public class AnalyticsParamValue {
             "user_initiated_from_login_page";
     public static final String PERSONAL_ID_FORGOT_USER_SETUP_PAGE =
             "user_initiated_from_setup_page";
+    public static final String PERSONAL_ID_FORGOT_USER_PROFILE_PAGE =
+            "user_initiated_from_profile_page";
     public static final String PERSONAL_ID_FORGOT_USER_DB_ERROR = "global_connect_error";
+
+    // Param values for Manage Profile actions
+    public static final String MANAGE_PROFILE_ACTION_PHOTO_UPDATED = "photo_updated";
+    public static final String MANAGE_PROFILE_ACTION_NAME_UPDATED = "name_updated";
+    public static final String MANAGE_PROFILE_ACTION_CHANGES_DISCARDED = "changes_discarded";
+    public static final String MANAGE_PROFILE_ACTION_EMAIL_UPDATE_INITIATED = "email_update_initiated";
+    public static final String MANAGE_PROFILE_OUTCOME_SUCCESS = "success";
+    public static final String MANAGE_PROFILE_OUTCOME_FAILURE = "failure";
 
     // Param values for PersonalID configuration failure
     public static final String START_CONFIGURATION_INTEGRITY_CHECK_FAILURE =
@@ -219,4 +231,27 @@ public class AnalyticsParamValue {
     public static final String OTP_OUTCOME_FAILURE = "failure";
     public static final String OTP_EVENT_TYPE_REQUEST = "request";
     public static final String OTP_EVENT_TYPE_VERIFY = "verify";
+    public static final String OTP_METHOD_EMAIL = "email";
+    public static final String OTP_EVENT_TYPE_REQUEST_EMAIL = "request_email";
+    public static final String OTP_EVENT_TYPE_VERIFY_EMAIL = "verify_email";
+
+    // Param values for user prompt analytics
+    public static final String USER_PROMPT_TYPE_EMAIL = "email";
+    public static final String USER_PROMPT_ACTION_ACCEPT = "accept";
+    public static final String USER_PROMPT_ACTION_SKIP = "skip";
+    public static final String USER_PROMPT_ACTION_RETRY = "retry";
+    public static final String USER_PROMPT_ACTION_PROCEED_WITHOUT_EMAIL = "proceed_without_email";
+    public static final String USER_PROMPT_ACTION_CANCEL = "cancel";
+    public static final String USER_PROMPT_INFO_EXISTING_USER_REMINDER = "existing_user_reminder";
+    public static final String USER_PROMPT_INFO_EMAIL_VERIFICATION_FAILURE_RETRY =
+            "email_verification_failure_retry";
+    public static final String USER_PROMPT_INFO_MANAGE_PROFILE_EMAIL_UPDATE =
+            "manage_profile_email_update";
+
+    // Param values for SMS invite link analytics
+    public static final String OPP_INVITE_LINK = "opp_invite_link";
+    public static final String OPP_INVITE_PUSH_NOTIFICATION = "opp_invite_push_notification";
+    public static final String OPP_INVITE_LINK_PERSONAL_ID_NOT_CONFIGURED = "personalid_not_configured";
+    public static final String OPP_INVITE_LINK_OPPORTUNITY_NOT_FOUND = "opportunity_not_found";
+    public static final String OPP_INVITE_LINK_NETWORK_FAILURE = "network_failure";
 }

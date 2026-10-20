@@ -12,18 +12,19 @@ import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
 import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.personalId.PersonalIdUserPreferences
+import org.commcare.personalId.UnlockPolicy
+import org.commcare.personalId.profile.PersonalIdProfileActivity
 
 object ConnectNavHelper {
     private fun unlockAndGoTo(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy,
         listener: ConnectActivityCompleteListener,
         navigationAction: (Context) -> Unit,
     ) {
-        val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
-        personalIdManager.unlockConnect(
-            activity,
-        ) { success: Boolean ->
+        PersonalIdUnlocker.unlock(activity, policy) { success ->
             if (success) {
                 navigationAction(activity)
             }
@@ -33,13 +34,21 @@ object ConnectNavHelper {
 
     fun unlockAndGoToMessaging(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
+        channelId: String? = null,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToMessaging)
+        unlockAndGoTo(activity, policy, listener) { context -> goToMessaging(context, channelId) }
     }
 
-    fun goToMessaging(context: Context) {
+    fun goToMessaging(
+        context: Context,
+        channelId: String? = null,
+    ) {
         val i = Intent(context, ConnectMessagingActivity::class.java)
+        if (!channelId.isNullOrEmpty()) {
+            i.putExtra(ConnectMessagingActivity.CHANNEL_ID, channelId)
+        }
         context.startActivity(i)
     }
 
@@ -51,9 +60,10 @@ object ConnectNavHelper {
 
     fun unlockAndGoToWorkHistory(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
         listener: ConnectActivityCompleteListener,
     ) {
-        unlockAndGoTo(activity, listener, ::goToWorkHistory)
+        unlockAndGoTo(activity, policy, listener, ::goToWorkHistory)
     }
 
     fun goToWorkHistory(context: Context) {
@@ -61,27 +71,71 @@ object ConnectNavHelper {
         context.startActivity(i)
     }
 
-    fun unlockAndGoToConnectJobsList(
+    fun unlockAndGoToProfile(
         activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.ALWAYS,
         listener: ConnectActivityCompleteListener,
+        initiateBackupCodeRecovery: Boolean = false,
     ) {
-        unlockAndGoTo(activity, listener, ::goToConnectJobsList)
+        unlockAndGoTo(
+            activity,
+            policy,
+            listener,
+            { context -> goToProfile(context, initiateBackupCodeRecovery) },
+        )
     }
 
-    fun goToConnectJobsList(context: Context) {
+    fun goToProfile(
+        context: Context,
+        initiateBackupCodeRecovery: Boolean = false,
+        pendingBackupCode: Boolean = false,
+    ) {
+        val i = Intent(context, PersonalIdProfileActivity::class.java)
+        if (initiateBackupCodeRecovery) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_INITIATE_BACKUP_CODE_RECOVERY, true)
+        }
+        if (pendingBackupCode) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true)
+        }
+        context.startActivity(i)
+    }
+
+    @JvmStatic
+    fun goToProfileForPendingBackupCode(context: Context) {
+        PersonalIdUserPreferences.setPendingBackupCode(false)
+        goToProfile(context, pendingBackupCode = true)
+    }
+
+    fun unlockAndGoToConnectJobsList(
+        activity: CommCareActivity<*>,
+        policy: UnlockPolicy = UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
+        listener: ConnectActivityCompleteListener,
+    ) {
+        unlockAndGoTo(activity, policy, listener, ::goToConnectJobsList)
+    }
+
+    @JvmOverloads
+    fun goToConnectJobsList(
+        context: Context,
+        clearTop: Boolean = false,
+    ) {
         checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
+        if (clearTop) {
+            // Drop any Connect/app screens stacked above the opportunities list so back lands there cleanly.
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
         context.startActivity(i)
     }
 
     private fun checkConnectAccess(context: Context) {
-        if (!ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+        if (!ConnectUserDatabaseUtil.hasConnectAccess()) {
             throw IllegalStateException("Cannot navigate to Connect Jobs List without access")
         }
     }
 
     fun goToConnectJobsListChecked(context: Context) {
-        if (ConnectUserDatabaseUtil.hasConnectAccess(context)) {
+        if (ConnectUserDatabaseUtil.hasConnectAccess()) {
             goToConnectJobsList(context)
         }
     }

@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.ColorRes;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,11 +23,14 @@ import org.commcare.adapters.HomeScreenAdapter;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummaryInfo;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
+import org.commcare.android.database.connect.models.ConnectTaskRecord;
 import org.commcare.connect.ConnectDateUtils;
-import org.commcare.connect.ConnectJobHelper;
+import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectTaskUtils;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.personalId.UnlockPolicy;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.suite.model.Profile;
@@ -48,6 +52,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
     private View viewJobCard;
     private CardView connectMessageCard;
     private ImageView connectMessageWarningIcon;
+    private AppCompatButton acbOpenConversation;
     private ConnectProgressJobSummaryAdapter connectProgressJobSummaryAdapter;
 
     private HomeScreenAdapter adapter;
@@ -61,10 +66,8 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         activity.setContentView(R.layout.home_screen);
 
         setupConnectJobTile();
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), StandardHomeActivity.isDemoUser());
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
         setupGridView();
-        activity.toggleDrawerSetUp(true);
-        activity.checkForDrawerSetUp();
         setUpToolBar();
     }
 
@@ -84,6 +87,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         viewJobCard = activity.findViewById(R.id.viewJobCard);
         connectMessageCard = activity.findViewById(R.id.cvConnectMessage);
         connectMessageWarningIcon = activity.findViewById(R.id.ivConnectMessageWarningIcon);
+        acbOpenConversation = viewJobCard.findViewById(R.id.acb_open_conversation);
         connectProgressJobSummaryAdapter = new ConnectProgressJobSummaryAdapter(new ArrayList<>());
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
@@ -98,10 +102,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             TextView tvJobTitle = viewJobCard.findViewById(R.id.tv_job_title);
             TextView tvViewMore = viewJobCard.findViewById(R.id.tv_view_more);
             TextView tvJobDescription = viewJobCard.findViewById(R.id.tv_job_description);
-            TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
-            TextView tvJobTime = viewJobCard.findViewById(R.id.tv_job_time);
             TextView connectJobEndDate = viewJobCard.findViewById(R.id.connect_job_end_date);
-            CardView cvRelearnTasksPending = viewJobCard.findViewById(R.id.cv_relearn_tasks_pending);
 
             tvJobTitle.setText(job.getTitle());
             tvViewMore.setVisibility(View.GONE);
@@ -112,31 +113,56 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             String formattedEndDate = ConnectDateUtils.INSTANCE.formatDate(job.getProjectEndDate());
             connectJobEndDate.setText(activity.getString(dateMessageStringRes, formattedEndDate));
 
-            String workingHours = job.getWorkingHours();
-            boolean showHours = workingHours != null;
-            if (job.isRelearnTaskPending()) {
-                cvRelearnTasksPending.setVisibility(View.VISIBLE);
-                tvJobTime.setVisibility(View.GONE);
-                hoursTitle.setVisibility(View.GONE);
-            } else if (showHours) {
-                tvJobTime.setText(workingHours);
-                cvRelearnTasksPending.setVisibility(View.GONE);
-                tvJobTime.setVisibility(View.VISIBLE);
-                hoursTitle.setVisibility(View.VISIBLE);
-            } else {
-                cvRelearnTasksPending.setVisibility(View.GONE);
-                tvJobTime.setVisibility(View.GONE);
-                hoursTitle.setVisibility(View.GONE);
-            }
-
+            syncJobCardVisibility(job);
             updateConnectJobProgress();
+        }
+    }
+
+    private void syncJobCardVisibility(ConnectJobRecord job) {
+        CardView cvRelearnTasksPending = viewJobCard.findViewById(R.id.cv_relearn_tasks_pending);
+        TextView tvJobTime = viewJobCard.findViewById(R.id.tv_job_time);
+        TextView hoursTitle = viewJobCard.findViewById(R.id.tvDailyVisitTitle);
+
+        String workingHours = job.getWorkingHours();
+        if (ConnectTaskUtils.hasPendingTask(activity, job.getJobUUID())) {
+            cvRelearnTasksPending.setVisibility(View.VISIBLE);
+            tvJobTime.setVisibility(View.GONE);
+            hoursTitle.setVisibility(View.GONE);
+        } else if (workingHours != null) {
+            tvJobTime.setText(workingHours);
+            cvRelearnTasksPending.setVisibility(View.GONE);
+            tvJobTime.setVisibility(View.VISIBLE);
+            hoursTitle.setVisibility(View.VISIBLE);
+        } else {
+            cvRelearnTasksPending.setVisibility(View.GONE);
+            tvJobTime.setVisibility(View.GONE);
+            hoursTitle.setVisibility(View.GONE);
+        }
+        setOpenConversationButtonVisibility(job);
+    }
+
+    private void setOpenConversationButtonVisibility(ConnectJobRecord job) {
+        ConnectTaskRecord messagingTask = ConnectTaskUtils.getValidPendingOcsTask(activity, job);
+        if (messagingTask == null) {
+            acbOpenConversation.setVisibility(View.GONE);
+        } else {
+            acbOpenConversation.setVisibility(View.VISIBLE);
+            acbOpenConversation.setOnClickListener(v ->
+                    ConnectNavHelper.INSTANCE.unlockAndGoToMessaging(
+                            activity,
+                            UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
+                            messagingTask.getConnectChannelId(),
+                            (success, error) -> {
+                            }
+                    )
+            );
         }
     }
 
     private void updateConnectJobMessage() {
         String messageText = null;
         String appId = CommCareApplication.instance().getCurrentApp().getUniqueId();
-        ConnectAppRecord record = ConnectJobUtils.getAppRecord(activity, appId);
+        ConnectAppRecord record = ConnectJobUtils.getAppRecord(appId);
         ConnectJobRecord job = activity.getActiveJob();
 
         if (job != null && record != null) {
@@ -151,7 +177,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
                 textColorRes = R.color.rich_amber_gold;
                 backgroundColorRes = R.color.pale_buttery_cream;
                 connectMessageWarningIcon.setVisibility(View.VISIBLE);
-            } else if (job.readyToTransitionToDelivery() || job.shouldShowRelearnTasksCompletedMessage()) {
+            } else if (job.readyToTransitionToDelivery() || ConnectTaskUtils.shouldShowTasksCompletedMessage(activity, job)) {
                 textColorRes = R.color.connect_green;
                 backgroundColorRes = R.color.connect_light_green;
                 connectMessageWarningIcon.setVisibility(View.GONE);
@@ -189,8 +215,11 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
             return;
         }
 
+        syncJobCardVisibility(job);
+
         RecyclerView recyclerView = viewJobCard.findViewById(R.id.rdDeliveryTypeList);
-        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() || job.isRelearnTaskPending()) {
+        if (job.getStatus() != STATUS_DELIVERING || job.isFinished() ||
+                ConnectTaskUtils.hasPendingTask(activity, job.getJobUUID())) {
             recyclerView.setVisibility(View.GONE);
         } else {
             recyclerView.setVisibility(View.VISIBLE);
@@ -205,7 +234,9 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         list.add(new ConnectDeliveryPaymentSummaryInfo(
                 activity.getString(R.string.connect_job_tile_daily_visits),
                 job.numberOfDeliveriesToday(),
-                job.getMaxDailyVisits()
+                job.hasDailyLimit()
+                        ? job.getMaxDailyVisits()
+                        : ConnectDeliveryPaymentSummaryInfo.NO_DAILY_LIMIT
         ));
 
         connectProgressJobSummaryAdapter.setDeliverySummaries(list);
@@ -230,7 +261,7 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         if (!CommCareApplication.instance().getCurrentApp().hasVisibleTrainingContent()) {
             hiddenButtons.add("training");
         }
-        if (!ConnectJobHelper.INSTANCE.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
+        if (!ConnectJobUtils.shouldShowJobStatus(activity, ccApp.getUniqueId())) {
             hiddenButtons.add("connect");
         }
         return hiddenButtons;

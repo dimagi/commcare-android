@@ -6,6 +6,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.utils.InstrumentationUtility
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -14,8 +15,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
 @BrowserstackTests
-class DemoUserOfflineTest: DemoUserTest() {
-
+class DemoUserOfflineTest : DemoUserTest() {
     companion object {
         const val CCZ_NAME = "demo_user_test_1.ccz"
         const val APP_NAME = "Demo User Restore Test"
@@ -23,8 +23,13 @@ class DemoUserOfflineTest: DemoUserTest() {
 
     @Before
     fun setup() {
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         installApp(APP_NAME, CCZ_NAME, true)
+    }
+
+    @After
+    fun teardown() {
+        InstrumentationUtility.setNetworkEnabled(true)
     }
 
     @Test
@@ -35,11 +40,10 @@ class DemoUserOfflineTest: DemoUserTest() {
     @Test
     fun testPracticeMode_withUpdatedApp_offline() {
         // Briefly turn the internet back on to allow us to log in
-        InstrumentationUtility.changeWifi(true)
+        InstrumentationUtility.setNetworkEnabled(true)
         updateApp("test_user_3", "123")
         // Internet back off
-        InstrumentationUtility.changeWifi(false)
+        InstrumentationUtility.setNetworkEnabled(false)
         testPracticeMode_withUpdatedApp()
     }
-
 }
