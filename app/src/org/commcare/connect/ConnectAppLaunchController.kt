@@ -64,160 +64,158 @@ internal object LaunchProgressMapper {
  * have to manage cleanup themselves. Home is started on success; every terminal result is handed to
  * [listener], which owns how the screen reacts to a failure.
  */
-class ConnectAppLaunchController
-    @JvmOverloads
-    constructor(
-        private val fragment: Fragment,
-        private val listener: ConnectAppLaunchListener,
-        private val launcher: ConnectAppLauncher = ConnectAppLauncher(),
+class ConnectAppLaunchController(
+    private val fragment: Fragment,
+    private val listener: ConnectAppLaunchListener,
+    private val launcher: ConnectAppLauncher = ConnectAppLauncher(),
+) {
+    private var launchDialog: CustomProgressDialog? = null
+    private var showingSyncDialog = false
+    private var observedLifecycle: Lifecycle? = null
+    private var failedAttempts = 0
+    private var lastTarget: LaunchTarget? = null
+
+    fun launchApp(
+        appId: String,
+        isLearning: Boolean,
     ) {
-        private var launchDialog: CustomProgressDialog? = null
-        private var showingSyncDialog = false
-        private var observedLifecycle: Lifecycle? = null
-        private var failedAttempts = 0
-        private var lastTarget: LaunchTarget? = null
-
-        fun launchApp(
-            appId: String,
-            isLearning: Boolean,
-        ) {
-            failedAttempts = 0
-            launch(LaunchTarget(appId, isLearning))
-        }
-
-        /** Replays the last launch, counting toward [LaunchOutcomeRouter.MAX_LAUNCH_ATTEMPTS]. */
-        fun retryLaunch() {
-            lastTarget?.let { launch(it) }
-        }
-
-        private fun launch(target: LaunchTarget) {
-            lastTarget = target
-            if (fragment.view == null) {
-                return
-            }
-            val activity = fragment.requireActivity()
-            val owner = fragment.viewLifecycleOwner
-            registerDialogCleanup(owner)
-            showOrUpdateDialog(LaunchProgressMapper.map(LoginProgress(LoginPhase.Seating)))
-            launcher.start(
-                owner,
-                activity,
-                target.appId,
-                target.isLearning,
-                { progress -> activity.runOnUiThread { updateLaunchProgress(progress) } },
-                { outcome -> handleLaunchOutcome(outcome, activity, target) },
-            )
-        }
-
-        private fun updateLaunchProgress(progress: LoginProgress) {
-            if (!fragment.isAdded) {
-                return
-            }
-            showOrUpdateDialog(LaunchProgressMapper.map(progress))
-        }
-
-        private fun handleLaunchOutcome(
-            outcome: LaunchOutcome,
-            activity: Activity,
-            target: LaunchTarget,
-        ) {
-            if (!fragment.isAdded) {
-                return
-            }
-            if (outcome is LaunchOutcome.Retryable) {
-                failedAttempts++
-            }
-            LaunchOutcomeRouter.dispatch(
-                outcome,
-                failedAttempts,
-                object : LaunchActions {
-                    override fun dismissProgress() = dismissLaunchDialog()
-
-                    override fun launchHome(alreadyLoggedIn: Boolean) {
-                        (activity as ConnectActivity).markAppLaunchedFromConnect()
-                        listener.onLaunchSucceeded()
-
-                        val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(activity)
-                        if (alreadyLoggedIn) {
-                            // Already signed in, so reuse this app's existing Home. Home is shared across
-                            // apps, so an unconditional reorder could surface a different app's instance.
-                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        }
-                        activity.startActivity(intent)
-                    }
-
-                    override fun handleFailure(failure: AppLaunchFailure) {
-                        val reason =
-                            when (failure) {
-                                AppLaunchFailure.SeatFailed -> failure::class.java.simpleName
-                                is AppLaunchFailure.Retryable -> failure.error::class.java.simpleName
-                            }
-                        Logger.log(
-                            LogTypes.TYPE_ERROR_WORKFLOW,
-                            "Connect launch failed for app ${target.appId}: $reason",
-                        )
-                        FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(target.appId)
-                        listener.onLaunchFailed(failure)
-                    }
-                },
-            )
-        }
-
-        private fun showOrUpdateDialog(state: LaunchDialogState) {
-            val title = fragment.getString(state.titleRes)
-            val message = state.overrideMessage ?: fragment.getString(state.messageRes)
-
-            if (launchDialog == null || state.showSyncDialog != showingSyncDialog) {
-                // Showing the dialog after the host fragment has saved its state (e.g. backgrounded
-                // or being recreated) would throw an IllegalStateException, so skip it.
-                if (fragment.childFragmentManager.isStateSaved) {
-                    return
-                }
-
-                dismissLaunchDialog()
-                launchDialog =
-                    CustomProgressDialog
-                        .newInstance(title, message, LAUNCH_DIALOG_TASK_ID)
-                        .apply { if (state.showSyncDialog) addProgressBar() }
-                showingSyncDialog = state.showSyncDialog
-                launchDialog?.showNow(fragment.childFragmentManager, LAUNCH_DIALOG_TAG)
-            } else {
-                launchDialog?.updateTitle(title)
-                launchDialog?.updateMessage(message)
-            }
-
-            state.percent?.let { launchDialog?.updateProgressBar(it, PROGRESS_BAR_MAX) }
-        }
-
-        private fun dismissLaunchDialog() {
-            launchDialog?.let {
-                if (it.isAdded) {
-                    it.dismissAllowingStateLoss()
-                }
-            }
-            launchDialog = null
-        }
-
-        private fun registerDialogCleanup(owner: LifecycleOwner) {
-            if (observedLifecycle === owner.lifecycle) {
-                return
-            }
-            observedLifecycle = owner.lifecycle
-            owner.lifecycle.addObserver(
-                object : DefaultLifecycleObserver {
-                    override fun onDestroy(owner: LifecycleOwner) {
-                        dismissLaunchDialog()
-                        observedLifecycle = null
-                    }
-                },
-            )
-        }
-
-        companion object {
-            private const val LAUNCH_DIALOG_TAG = "connect_launch_progress"
-
-            // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
-            private const val LAUNCH_DIALOG_TASK_ID = -10
-            private const val PROGRESS_BAR_MAX = 100
-        }
+        failedAttempts = 0
+        launch(LaunchTarget(appId, isLearning))
     }
+
+    /** Replays the last launch, counting toward [LaunchOutcomeRouter.MAX_LAUNCH_ATTEMPTS]. */
+    fun retryLaunch() {
+        lastTarget?.let { launch(it) }
+    }
+
+    private fun launch(target: LaunchTarget) {
+        lastTarget = target
+        if (fragment.view == null) {
+            return
+        }
+        val activity = fragment.requireActivity()
+        val owner = fragment.viewLifecycleOwner
+        registerDialogCleanup(owner)
+        showOrUpdateDialog(LaunchProgressMapper.map(LoginProgress(LoginPhase.Seating)))
+        launcher.start(
+            owner,
+            activity,
+            target.appId,
+            target.isLearning,
+            { progress -> activity.runOnUiThread { updateLaunchProgress(progress) } },
+            { outcome -> handleLaunchOutcome(outcome, activity, target) },
+        )
+    }
+
+    private fun updateLaunchProgress(progress: LoginProgress) {
+        if (!fragment.isAdded) {
+            return
+        }
+        showOrUpdateDialog(LaunchProgressMapper.map(progress))
+    }
+
+    private fun handleLaunchOutcome(
+        outcome: LaunchOutcome,
+        activity: Activity,
+        target: LaunchTarget,
+    ) {
+        if (!fragment.isAdded) {
+            return
+        }
+        if (outcome is LaunchOutcome.Retryable) {
+            failedAttempts++
+        }
+        LaunchOutcomeRouter.dispatch(
+            outcome,
+            failedAttempts,
+            object : LaunchActions {
+                override fun dismissProgress() = dismissLaunchDialog()
+
+                override fun launchHome(alreadyLoggedIn: Boolean) {
+                    (activity as ConnectActivity).markAppLaunchedFromConnect()
+                    listener.onLaunchSucceeded()
+
+                    val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(activity)
+                    if (alreadyLoggedIn) {
+                        // Already signed in, so reuse this app's existing Home. Home is shared across
+                        // apps, so an unconditional reorder could surface a different app's instance.
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    }
+                    activity.startActivity(intent)
+                }
+
+                override fun handleFailure(failure: AppLaunchFailure) {
+                    val reason =
+                        when (failure) {
+                            AppLaunchFailure.SeatFailed -> failure::class.java.simpleName
+                            is AppLaunchFailure.Retryable -> failure.error::class.java.simpleName
+                        }
+                    Logger.log(
+                        LogTypes.TYPE_ERROR_WORKFLOW,
+                        "Connect launch failed for app ${target.appId}: $reason",
+                    )
+                    FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(target.appId)
+                    listener.onLaunchFailed(failure)
+                }
+            },
+        )
+    }
+
+    private fun showOrUpdateDialog(state: LaunchDialogState) {
+        val title = fragment.getString(state.titleRes)
+        val message = state.overrideMessage ?: fragment.getString(state.messageRes)
+
+        if (launchDialog == null || state.showSyncDialog != showingSyncDialog) {
+            // Showing the dialog after the host fragment has saved its state (e.g. backgrounded
+            // or being recreated) would throw an IllegalStateException, so skip it.
+            if (fragment.childFragmentManager.isStateSaved) {
+                return
+            }
+
+            dismissLaunchDialog()
+            launchDialog =
+                CustomProgressDialog
+                    .newInstance(title, message, LAUNCH_DIALOG_TASK_ID)
+                    .apply { if (state.showSyncDialog) addProgressBar() }
+            showingSyncDialog = state.showSyncDialog
+            launchDialog?.showNow(fragment.childFragmentManager, LAUNCH_DIALOG_TAG)
+        } else {
+            launchDialog?.updateTitle(title)
+            launchDialog?.updateMessage(message)
+        }
+
+        state.percent?.let { launchDialog?.updateProgressBar(it, PROGRESS_BAR_MAX) }
+    }
+
+    private fun dismissLaunchDialog() {
+        launchDialog?.let {
+            if (it.isAdded) {
+                it.dismissAllowingStateLoss()
+            }
+        }
+        launchDialog = null
+    }
+
+    private fun registerDialogCleanup(owner: LifecycleOwner) {
+        if (observedLifecycle === owner.lifecycle) {
+            return
+        }
+        observedLifecycle = owner.lifecycle
+        owner.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onDestroy(owner: LifecycleOwner) {
+                    dismissLaunchDialog()
+                    observedLifecycle = null
+                }
+            },
+        )
+    }
+
+    companion object {
+        private const val LAUNCH_DIALOG_TAG = "connect_launch_progress"
+
+        // Negative so it can't collide with the positive task ids CommCareActivity assigns to real tasks.
+        private const val LAUNCH_DIALOG_TASK_ID = -10
+        private const val PROGRESS_BAR_MAX = 100
+    }
+}
