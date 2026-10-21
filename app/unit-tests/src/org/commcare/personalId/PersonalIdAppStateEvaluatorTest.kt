@@ -79,8 +79,8 @@ class PersonalIdAppStateEvaluatorTest {
     }
 
     @Test
-    fun `isSessionLoggedIntoApp is false when no user session is active`() {
+    fun `isCurrentPersonalIdUserLoggedIntoApp is false when no user session is active`() {
         signIn()
-        assertFalse(PersonalIdAppStateEvaluator.isSessionLoggedIntoApp(appId))
+        assertFalse(PersonalIdAppStateEvaluator.isCurrentPersonalIdUserLoggedIntoApp(appId))
     }
 }

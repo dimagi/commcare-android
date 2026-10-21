@@ -54,7 +54,7 @@ object PersonalIdAppStateEvaluator {
      * previously launched app or a different user.
      */
     @JvmStatic
-    fun isSessionLoggedIntoApp(appId: String): Boolean {
+    fun isCurrentPersonalIdUserLoggedIntoApp(appId: String): Boolean {
         if (!CommCareApplication.isSessionActive()) return false
 
         val instance = CommCareApplication.instance()
