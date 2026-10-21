@@ -109,13 +109,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     /** True while the install in flight is one this screen started, rather than another screen's. */
     protected val ownsAppInstall get() = ownedAppInstallTarget != null
 
-    private val appLaunchController by lazy {
+    private val appLaunchController: ConnectAppLaunchController by lazy {
         ConnectAppLaunchController(
             this,
             object : ConnectAppLaunchListener {
                 override fun onLaunchSucceeded() = runOnceHidden(::onAppLaunched)
 
-                override fun onLaunchFailed(failure: AppLaunchFailure) = onAppLaunchFailed(failure)
+                override fun onLaunchFailed(failure: AppLaunchFailure) =
+                    onAppLaunchFailed(failure, appLaunchController::retryLaunch, ::endAppLaunch)
             },
         )
     }
@@ -541,12 +542,17 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     /**
      * Reacts to a launch that terminally failed. The default offers a retry until attempts are
      * exhausted, then a dismiss-only error, and routes a seat failure through [DispatchActivity] to
-     * reach recovery. An override owns ending the launch with [endAppLaunch] once it gives up.
+     * reach recovery. [retryLaunch] replays the launch toward the same attempt limit; [endLaunch]
+     * releases the busy state and must be called once the screen gives up on the launch.
      */
-    protected open fun onAppLaunchFailed(failure: AppLaunchFailure) {
+    protected open fun onAppLaunchFailed(
+        failure: AppLaunchFailure,
+        retryLaunch: () -> Unit,
+        endLaunch: () -> Unit,
+    ) {
         when (failure) {
             AppLaunchFailure.SeatFailed -> {
-                endAppLaunch()
+                endLaunch()
                 val dispatchIntent =
                     Intent(requireActivity(), DispatchActivity::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -556,7 +562,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
             is AppLaunchFailure.Retryable -> {
                 if (failure.attemptsExhausted) {
-                    endAppLaunch()
+                    endLaunch()
                     showLaunchFailedDialog(
                         R.string.connect_app_launch_failed_dialog_persistent_error_message,
                         R.string.connect_app_launch_failed_dialog_ok,
@@ -565,16 +571,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
                     showLaunchFailedDialog(
                         R.string.connect_app_launch_failed_dialog_message,
                         R.string.connect_app_launch_failed_dialog_retry,
-                        onPositive = appLaunchController::retryLaunch,
-                        onCancel = ::endAppLaunch,
+                        onPositive = retryLaunch,
+                        onCancel = endLaunch,
                     )
                 }
             }
         }
     }
 
-    /** Releases the busy state a launch holds, restoring the screen's launch CTA. */
-    protected fun endAppLaunch() = installViewModel.clear()
+    private fun endAppLaunch() = installViewModel.clear()
 
     private fun showLaunchFailedDialog(
         @StringRes messageRes: Int,
