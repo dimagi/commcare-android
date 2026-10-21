@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
  * An unmanaged app is offered twice: once on first sight, then again after
  * [DAYS_TO_SECOND_OFFER]. After the second offer it is never offered again.
  */
-object AppLinkPromptHelper {
+object PersonalIdAppLinkPromptHelper {
     private const val DAYS_TO_SECOND_OFFER = 30L
 
     @JvmStatic

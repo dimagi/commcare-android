@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
  * Owns the PersonalID session: what state it is in, and the transitions between those states.
  *
  * Anything that merely needs PersonalID data rather than session state lives elsewhere —
- * see PersonalIdCredentialProvider, PersonalIdAppStateEvaluator and AppLinkPromptHelper.
+ * see PersonalIdCredentialProvider, PersonalIdAppStateEvaluator and PersonalIdAppLinkPromptHelper.
  *
  * @author dviggiano
  */

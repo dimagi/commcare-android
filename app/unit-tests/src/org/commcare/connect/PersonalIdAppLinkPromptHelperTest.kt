@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 import java.util.Date
 
 /**
- * [AppLinkPromptHelper] offers to link an unmanaged app to PersonalID, twice at most: once on
+ * [PersonalIdAppLinkPromptHelper] offers to link an unmanaged app to PersonalID, twice at most: once on
  * first sight, then again 30 days later. These cover that schedule and the dispatch around it.
  *
  * Note the offer date is only written to the database once the user answers the dialog — the
@@ -28,7 +28,7 @@ import java.util.Date
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-class AppLinkPromptHelperTest {
+class PersonalIdAppLinkPromptHelperTest {
     private val appId = "test-app-id"
     private val username = "test-user"
     private val password = "app-password"
@@ -60,7 +60,7 @@ class AppLinkPromptHelperTest {
         val activity = mockActivity()
         val callback = mockk<ConnectActivityCompleteListener>(relaxed = true)
 
-        AppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
+        PersonalIdAppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
 
         verify(exactly = 1) { activity.showAlertDialog(any()) }
     }
@@ -74,7 +74,7 @@ class AppLinkPromptHelperTest {
         val activity = mockActivity()
         val callback = mockk<ConnectActivityCompleteListener>(relaxed = true)
 
-        AppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
+        PersonalIdAppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
 
         verify(exactly = 0) { activity.showAlertDialog(any()) }
         verify { callback.connectActivityComplete(false, null) }
@@ -89,7 +89,7 @@ class AppLinkPromptHelperTest {
         val activity = mockActivity()
         val callback = mockk<ConnectActivityCompleteListener>(relaxed = true)
 
-        AppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
+        PersonalIdAppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
 
         verify(exactly = 1) { activity.showAlertDialog(any()) }
     }
@@ -104,7 +104,7 @@ class AppLinkPromptHelperTest {
         val activity = mockActivity()
         val callback = mockk<ConnectActivityCompleteListener>(relaxed = true)
 
-        AppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
+        PersonalIdAppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
 
         verify(exactly = 0) { activity.showAlertDialog(any()) }
         verify { callback.connectActivityComplete(false, null) }
@@ -116,7 +116,7 @@ class AppLinkPromptHelperTest {
         val activity = mockActivity()
         val callback = mockk<ConnectActivityCompleteListener>(relaxed = true)
 
-        AppLinkPromptHelper.checkPersonalIdLink(activity, true, appId, username, password, callback)
+        PersonalIdAppLinkPromptHelper.checkPersonalIdLink(activity, true, appId, username, password, callback)
 
         verify(exactly = 0) { activity.showAlertDialog(any()) }
         verify { callback.connectActivityComplete(false, null) }
@@ -128,7 +128,7 @@ class AppLinkPromptHelperTest {
         val activity = mockActivity()
         val callback = mockk<ConnectActivityCompleteListener>(relaxed = true)
 
-        AppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
+        PersonalIdAppLinkPromptHelper.checkPersonalIdLink(activity, false, appId, username, password, callback)
 
         verify(exactly = 1) { activity.showAlertDialog(any()) }
     }
