@@ -35,4 +35,7 @@ Screens render at `w360dp-h800dp-xhdpi`. To render other screen sizes, list thei
 
 Images land in `app/build/outputs/l10n-screenshots/<locale>/`, or `<locale>/<size>/` when more than one size is listed (override the root with `-Pl10n.outDir=<dir>`).
 
-To record them in CI, run the **Localization screenshots** workflow from the Actions tab. It uploads the images with an `index.html` that lays out each screen across locales.
+To record them in CI, run one of these workflows from the Actions tab. Each uploads the images with an `index.html` that lays out each screen side by side:
+
+- **Localization screenshots**: every translated locale at the default size.
+- **Screen size screenshots**: one locale at a list of sizes, small phones first, drawn to scale to check for cramped layouts.
