@@ -284,6 +284,11 @@ The key wired into `recaptchaConfig` is `6Le4epkt…` — *Android - CommCare re
 two windows is the package list. Re-read on 2026-10-13: unchanged, both for the key above and for
 `recaptchaConfig`.
 
+**Changed 2026-10-20.** `org.commcare.dalvik.debug` and `org.commcare.lts.debug` were added, giving
+all four names. Everything else on the key is untouched. Readings taken from 20 October onwards are
+therefore not comparable with the two windows above — see
+[Debug packages added to the key](#debug-packages-added-to-the-key--20-october).
+
 > [!NOTE]
 > Three further keys named *Key for Identity Platform reCAPTCHA integration* (web, iOS, Android) were
 > auto-provisioned on 2026-08-27. The Android one carries `allowAllPackageNames: true`, but it is
@@ -495,9 +500,101 @@ It fails app verification on both available paths, and the package allow-list is
    is not registered on the Firebase project.
 
 Separately, `applicationIdSuffix '.debug'` makes the package `org.commcare.dalvik.debug`, which is not
-in the key's `allowedPackageNames` either. But that is not what this test exercised: the build fails
-earlier, on app identity. **Adding LTS to the key was never going to help debug builds**, and adding
-the `.debug` package names alone would not fix them either while the certificate hash is unregistered.
+in the key's `allowedPackageNames` either. **Adding LTS to the key was never going to help debug
+builds.**
+
+> [!WARNING]
+> **The last sentence of this section was wrong, and the 20 October test below disproves it.** It
+> claimed the `.debug` package names would not help while the certificate hash was unregistered. In
+> fact the package allow-list was the only thing blocking the token: once `.debug` was added, a debug
+> build minted a valid token with its certificate still unregistered. reCAPTCHA token minting does
+> not consult the Firebase certificate list — the `INVALID_CERT_HASH` seen here is a `GetProjectConfig`
+> result, a different call on a different path. Point 2 above describes a real failure, but not the
+> one that caused the missing tokens.
+
+### Debug packages added to the key — 20 October
+
+`org.commcare.dalvik.debug` and `org.commcare.lts.debug` were added to the key's
+`allowedPackageNames` at **2026-10-20T05:54:51Z**, leaving all four names in place. Earlier attempts
+on 13 October had returned HTTP 200 and silently reverted; this one held, confirmed by re-reading the
+key. Same method as the two tests above, same developer device, same unregistered debug certificate —
+the only variable changed is the package list.
+
+| `token_state` | Baseline `10:50:55Z` | After `10:53:12Z` | Delta |
+| --- | --- | --- | --- |
+| `valid` | 47 | 48 | **+1** |
+| `missing` | 1 | 1 | +0 |
+| `invalid` | 1 | 1 | +0 |
+| `expired` | 0 | 0 | +0 |
+
+**The debug build minted a valid token.** Both previous runs produced `+2 missing` and `+0 valid`.
+
+Attribution is certain rather than correlational, because the assessment log names the package:
+
+| Field | Value |
+| --- | --- |
+| `tokenProperties.valid` | `true` |
+| `tokenProperties.invalidReason` | none |
+| `tokenProperties.androidPackageName` | `org.commcare.dalvik.debug` |
+| `riskAnalysis.score` | 0.9 |
+| timestamp | 2026-10-20T10:52:22Z |
+
+The call sequence has no failures in it at all:
+
+```
+10:52:20  GetRecaptchaConfig     SUCCESS
+10:52:26  SendVerificationCode   SUCCESS
+10:52:45  SignInWithPhoneNumber  SUCCESS
+10:52:45  GetAccountInfo         SUCCESS
+```
+
+On 13 October the same device failed three times in this sequence. All three failures are gone:
+
+| 13 October | 20 October |
+| --- | --- |
+| `SendVerificationCode` → `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` | SUCCESS |
+| `GetProjectConfig` → `INVALID_CERT_HASH` | call never made |
+| `SendVerificationCode` → `INVALID_APP_CREDENTIAL` | SUCCESS |
+
+The OTP arrived and the sign-in finished. Neither earlier run got that far.
+
+**What this proves.** The only thing that changed is the package list. The debug certificate is still
+unregistered, and the token was accepted anyway. So the package list was the whole problem, and
+developers do not need to register their debug certificates.
+
+`INVALID_CERT_HASH` was a red herring. The app only calls `GetProjectConfig` as a fallback after
+reCAPTCHA fails. Once reCAPTCHA works, that call never happens, so the certificate is never checked.
+
+**What it means for the missing tokens.** Every developer running a `.debug` build before today was
+sending no token, purely because `applicationIdSuffix '.debug'` kept the package off the key. The
+30 September and 13 October tests suspected this; this one confirms it.
+
+**Attribution is still not solved.** `tokenProperties.androidPackageName` names the package, but
+only on assessments that succeeded. Comparing the two sources over the 7 days to 2026-10-20 shows it
+plainly — the failures are entirely absent from the log:
+
+| `token_state` | Metric | Assessment log |
+| --- | --- | --- |
+| `valid` | 373 | 374 |
+| `missing` | 49 | 0 |
+| `invalid` | 1 | 0 |
+| **Total** | **423** | **374** |
+
+(The one-entry difference on `valid` is the window boundary.) Those 7 days had 50 failures and not
+one produced an assessment entry. A missing token has nothing to assess, and an invalid one cannot
+be decoded far enough to read the package. So the field proves *this* debug request worked; it
+cannot count the ones that fail.
+
+Two approaches remain, both still unsatisfactory:
+
+- `callerSuppliedUserAgent` — only a device model. It caused the wrong conclusion that "69 of 88
+  failing devices also succeed, so they are release installs"; one developer running both builds on
+  one phone looks exactly like that.
+- Matching against team test phone numbers (below) — workable, but reads field users' numbers.
+
+The cheapest measurement is now the simplest one: the `.debug` packages are allowed from
+2026-10-20T05:54:51Z, so **any sustained fall in the daily missing rate is the developer share**,
+with no attribution needed. That requires several days of data.
 
 ### How much of the residual this accounts for
 
@@ -514,10 +611,15 @@ failures would. The 13 October repeat confirms the two-per-attempt ratio holds, 
 roughly 131 sign-in attempts over 20 days, about 6.5 a day. That is consistent with the hypothesis
 above but still does not measure it; the phone-number matching below remains the way to settle it.
 
-The `SendVerificationCode` log does carry `jsonPayload.request.phoneNumber` on every entry. Since
-developers and testers reuse known numbers and field users do not, matching the failing requests
-against a supplied list of team test numbers would bound the developer share without exposing any
-field user's number. That is the cheapest way to close this.
+**Superseded 2026-10-20.** Package attribution *is* available after all —
+`tokenProperties.androidPackageName` on each assessment log entry names the calling package, so the
+developer share can be counted rather than inferred. The phone-number matching described in earlier
+revisions of this section is no longer needed, and should not be used, since it would read field
+users' numbers to answer a question the package name already answers.
+
+Sizing still needs several days of data: the daily missing rate ranged 3.8%–21% over the ten days to
+20 October, so the drop has to clear that spread before it means anything. The 20 October figure of
+1 missing in 50 is a single partial day and 11 October reached 4.2% with no change in place at all.
 
 > [!IMPORTANT]
 > **`token_state=missing` and the `MISSING_RECAPTCHA_TOKEN` status are different measurements.**
@@ -621,7 +723,7 @@ What this does and does not change for `ENFORCE`:
 
 | Point | Description | Action |
 | --- | --- | --- |
-| **#1** Missing / invalid reCAPTCHA token | **Still open, one source identified.** LTS was added to the key on 2026-09-24 and `missing` fell from 23% to 15%, but 262 requests over the 20 days since still carry no token. A [controlled test on 2026-09-30](#what-produces-a-missing-token--controlled-test-30-september) confirmed debug builds as one source — they fail Play Integrity *and* carry an unregistered signing cert, so they can never mint a token. The share they account for is unmeasured. | Bound the developer share by matching failing requests against known team test numbers. |
+| **#1** Missing / invalid reCAPTCHA token | **Still open, cause fixed for one source.** LTS was added on 2026-09-24 and `missing` fell from 23% to 15%, but 262 requests over the following 20 days still carried no token. Debug builds were confirmed as one source, and on 2026-10-20 the `.debug` packages were added to the key: a debug build then minted a valid token (score 0.9) with its signing cert still unregistered, so the package allow-list — not the cert — was what blocked them. The share they account for is still unmeasured. | Track the daily missing rate for several days from 2026-10-20; a sustained fall below the 3.8%–21% spread measures the developer share without needing attribution. |
 | **#2** Enabling reCAPTCHA on CommCare LTS | **Done 2026-09-24.** `org.commcare.lts` is in `allowedPackageNames` on the key referenced by `recaptchaConfig`; no regression over the 20 days since — success rate 82.4% against 80.5% before. | Closed. |
 | **#3** Valid tokens now scoring at or above the threshold | **New, opened 2026-10-13.** 34 valid tokens scored `≥ 0.8` between 2026-09-29 and 2026-10-13, confirmed by `passed` being exactly `valid` minus 34. `AUDIT` let them through; `ENFORCE` would block them — 2.2% of scored traffic, where the previous read measured none. The distribution shifted upward on 2026-09-29 with no configuration change, so the cause is unidentified. | Establish whether these are genuine fraud or false positives before `ENFORCE`, and re-check whether `0.8` is the right threshold. |
 
