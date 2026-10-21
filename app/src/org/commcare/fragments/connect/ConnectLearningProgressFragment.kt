@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.Navigation
 import org.commcare.AppUtils
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
@@ -51,7 +51,7 @@ class ConnectLearningProgressFragment :
 
     override fun onResume() {
         super.onResume()
-        if (PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdSessionManager.getInstance().isloggedIn()) {
             refresh(false)
         }
     }

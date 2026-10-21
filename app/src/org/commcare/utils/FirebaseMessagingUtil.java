@@ -36,7 +36,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingMessageRecor
 import org.commcare.android.database.connect.models.PushNotificationRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.BuildConfig;
@@ -652,9 +652,8 @@ public class FirebaseMessagingUtil {
     }
 
     public static boolean cccCheckPassed(Context context){
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(context);
-        return personalIdManager.isloggedIn();
+        PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
+        return personalIdSessionManager.isloggedIn();
     }
 
     public static String getNotificationActionFromPayload(Map<String, String> payload) {

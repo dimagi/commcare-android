@@ -13,7 +13,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.util.ConnectTestUtils
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
@@ -803,7 +803,7 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
                 oauthPassword = "test-oauth-pwd",
             )
         ConnectTestUtils.createConnectDbFile()
-        PersonalIdManager.getInstance().onAccountConfigurationSuccess(sessionData)
+        PersonalIdSessionManager.getInstance().onAccountConfigurationSuccess(sessionData)
         navigateToFragment(sessionData, R.id.personalid_email_verification, args)
         activity.runOnUiThread {
             installTestNavController(

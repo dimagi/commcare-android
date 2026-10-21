@@ -3,7 +3,7 @@ package org.commcare.personalId
 import android.app.Activity
 import org.commcare.CommCareNoficationManager
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -24,7 +24,7 @@ object PersonalIdRecoveryCompleter {
         sessionData: PersonalIdSessionData,
         recoveryMethod: String,
     ) {
-        PersonalIdManager.getInstance().onAccountConfigurationSuccess(sessionData)
+        PersonalIdSessionManager.getInstance().onAccountConfigurationSuccess(sessionData)
         logRecoverySuccessResult(recoveryMethod)
         notifySecondDeviceLoginIfApplicable(activity, sessionData)
     }

@@ -41,21 +41,7 @@ abstract class BasePersonalIdProfileTest {
     @Before
     fun setUp() {
         connectUserDatabaseUtilMock = Mockito.mockStatic(ConnectUserDatabaseUtil::class.java)
-        user =
-            ConnectUserRecord(
-                "+11234567890",
-                "test-user-id",
-                "test-password",
-                "Ada Lovelace",
-                "",
-                null,
-                null,
-                false,
-                "",
-                false,
-            ).apply {
-                email = "ada@example.com"
-            }
+        user = buildUser()
         connectUserDatabaseUtilMock
             .`when`<ConnectUserRecord> { ConnectUserDatabaseUtil.getUser() }
             .thenReturn(user)
@@ -77,6 +63,22 @@ abstract class BasePersonalIdProfileTest {
         firebaseAnalyticsUtilMock.close()
         mockApiServer.shutdown()
     }
+
+    protected open fun buildUser(): ConnectUserRecord =
+        ConnectUserRecord(
+            "+11234567890",
+            "test-user-id",
+            "test-password",
+            "Ada Lovelace",
+            "",
+            null,
+            null,
+            false,
+            "",
+            false,
+        ).apply {
+            email = "ada@example.com"
+        }
 
     private fun launchProfileActivity() {
         activityController = Robolectric.buildActivity(PersonalIdProfileActivity::class.java)

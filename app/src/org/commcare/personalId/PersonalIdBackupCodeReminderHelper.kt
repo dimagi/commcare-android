@@ -1,7 +1,7 @@
 package org.commcare.personalId
 
 import org.commcare.activities.CommCareActivity
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
@@ -35,7 +35,7 @@ object PersonalIdBackupCodeReminderHelper {
 
     @JvmStatic
     fun checkAndShowReminder(activity: CommCareActivity<*>) {
-        if (PersonalIdManager.getInstance().isloggedIn() && isDue()) {
+        if (PersonalIdSessionManager.getInstance().isloggedIn() && isDue()) {
             BackupCodeReminderDialog.show(activity)
             scheduleNext()
         }
