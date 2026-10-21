@@ -535,6 +535,10 @@ android {
             def l10nLocale = project.findProperty('l10n.locale')
             if (l10nLocale) {
                 systemProperty 'l10n.locale', l10nLocale
+                def l10nSizes = project.findProperty('l10n.sizes')
+                if (l10nSizes) {
+                    systemProperty 'l10n.sizes', l10nSizes
+                }
                 systemProperty 'l10n.outDir', project.findProperty('l10n.outDir') ?:
                         project.layout.buildDirectory.dir('outputs/l10n-screenshots').get().asFile.absolutePath
                 systemProperty 'roborazzi.test.record', 'true'

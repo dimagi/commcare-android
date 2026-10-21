@@ -16,8 +16,8 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ChannelListScreenshotTest(
-    locale: String,
-) : BaseConnectScreenshotTest(locale) {
+    target: ScreenshotTarget,
+) : BaseConnectScreenshotTest(target) {
     @Before
     fun seedMessaging() {
         val context = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
@@ -34,7 +34,7 @@ class ChannelListScreenshotTest(
                 .postCreate(null)
                 .start()
                 .resume()
-        L10nScreenshots.capture(controller, locale, "30_connect_channel_list")
+        L10nScreenshots.capture(controller, target, "30_connect_channel_list")
     }
 
     companion object {

@@ -33,10 +33,10 @@ import org.junit.rules.TestRule
  * network call answered empty so none of it is pruned.
  */
 abstract class BaseConnectScreenshotTest(
-    protected val locale: String,
+    protected val target: ScreenshotTarget,
 ) {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     private val mockApi = ConnectMockApiServer()
 
