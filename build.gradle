@@ -34,7 +34,7 @@ ext {
     markwon_version = '4.6.2'
     lifecycle_version = '2.5.1'
     cameraX_version = '1.4.0'
-    okhttp_version = '4.11.0'
+    okhttp_version = '5.5.0'
     retrofit_version = '2.9.0'
     espresso_version = '3.6.1'
     work_version = '2.10.3'
