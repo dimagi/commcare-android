@@ -9,7 +9,7 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.personalId.PersonalIdUnlocker
@@ -55,7 +55,7 @@ class PersonalIdAccountConfigSetNewBackupCodeFragmentTest :
             )
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<PersonalIdManager.ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
         // State left behind by the email OTP step of the forgot-backup-code recovery flow.
         PersonalIdUserPreferences.setPendingBackupCode(true)

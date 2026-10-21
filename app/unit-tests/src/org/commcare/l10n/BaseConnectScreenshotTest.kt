@@ -3,7 +3,6 @@ package org.commcare.l10n
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.test.core.app.ApplicationProvider
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
@@ -15,7 +14,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.AppUtils
 import org.commcare.android.util.ConnectTestUtils
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
@@ -54,8 +53,7 @@ abstract class BaseConnectScreenshotTest(
                 updateConnectToken("showcase-connect-token", ConnectTestUtils.daysFromNow(1))
             },
         )
-        PersonalIdManager.getInstance().init(ApplicationProvider.getApplicationContext())
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
     }
 
     @After
