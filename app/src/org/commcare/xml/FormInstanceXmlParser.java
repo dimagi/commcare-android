@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.FileUtil;
@@ -81,7 +82,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
         FormRecord formRecord = new FormRecord(FormRecord.STATUS_UNINDEXED,
                 xmlns,
-                CommCareApplication.instance().createNewSymmetricKey().getEncoded(),
+                CommCareKeyManager.generateLegacyKeyOrEmpty(),
                 null,
                 new Date(0),
                 CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId());
