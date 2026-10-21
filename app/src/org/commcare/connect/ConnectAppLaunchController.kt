@@ -149,7 +149,26 @@ class ConnectAppLaunchController
                         activity.startActivity(intent)
                     }
 
-                    override fun recoverFromSeatFailure() {
+                    override fun handleFailure(failure: AppLaunchFailure) {
+                        val reason =
+                            when (failure) {
+                                AppLaunchFailure.SeatFailed -> failure::class.java.simpleName
+                                is AppLaunchFailure.Retryable -> failure.error::class.java.simpleName
+                            }
+                        Logger.log(
+                            LogTypes.TYPE_ERROR_WORKFLOW,
+                            "Connect launch failed for app ${target.appId}: $reason",
+                        )
+                        FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(target.appId)
+                        when (failure) {
+                            AppLaunchFailure.SeatFailed -> recoverFromSeatFailure()
+                            is AppLaunchFailure.Retryable -> {
+                                if (failure.attemptsExhausted) showPersistentError() else promptRetry()
+                            }
+                        }
+                    }
+
+                    private fun recoverFromSeatFailure() {
                         onLaunchFailed?.run()
                         val intent =
                             Intent(activity, DispatchActivity::class.java)
@@ -158,7 +177,7 @@ class ConnectAppLaunchController
                         activity.finish()
                     }
 
-                    override fun promptRetry() {
+                    private fun promptRetry() {
                         val host = activity as CommCareActivity<*>
                         val dialog =
                             StandardAlertDialog(
@@ -180,7 +199,7 @@ class ConnectAppLaunchController
                         host.showAlertDialog(dialog)
                     }
 
-                    override fun showPersistentError() {
+                    private fun showPersistentError() {
                         onLaunchFailed?.run()
                         val host = activity as CommCareActivity<*>
                         val dialog =
@@ -194,14 +213,6 @@ class ConnectAppLaunchController
                             host.dismissAlertDialog()
                         }
                         host.showAlertDialog(dialog)
-                    }
-
-                    override fun reportFailure(reason: String) {
-                        Logger.log(
-                            LogTypes.TYPE_ERROR_WORKFLOW,
-                            "Connect launch failed for app ${target.appId}: $reason",
-                        )
-                        FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(target.appId)
                     }
                 },
             )
