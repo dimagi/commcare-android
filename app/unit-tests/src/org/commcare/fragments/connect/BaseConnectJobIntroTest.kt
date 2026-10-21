@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -35,12 +35,12 @@ abstract class BaseConnectJobIntroTest {
     protected val navController: NavController get() = navHostFragment.navController
     protected lateinit var job: ConnectJobRecord
 
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
 
     @Before
     open fun setUp() {
-        savedStatus = PersonalIdManager.getInstance().status
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        savedStatus = PersonalIdSessionManager.getInstance().status
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
@@ -82,7 +82,7 @@ abstract class BaseConnectJobIntroTest {
 
     @After
     open fun tearDown() {
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         unmockkAll()
     }
 

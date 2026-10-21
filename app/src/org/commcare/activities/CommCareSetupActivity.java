@@ -19,7 +19,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.ConnectNavHelper;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.personalId.UnlockPolicy;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -183,9 +183,6 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         fromManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (checkForMultipleAppsViolation()) {
             return;
-        }
-        if (!fromManager) {
-            PersonalIdManager.getInstance().init(this);
         }
         loadIntentAndInstanceState(savedInstanceState);
         persistCommCareAppState();
@@ -439,7 +436,9 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 finish();
                 return;
             case ConnectConstants.PERSONAL_ID_SIGN_UP_LAUNCH:
-                PersonalIdManager.getInstance().handleFinishedActivity(this, resultCode);
+                if (resultCode == RESULT_OK) {
+                    openDrawer();
+                }
                 return;
             default:
                 return;
@@ -512,12 +511,12 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         super.onPrepareOptionsMenu(menu);
         MenuItem forgetItem = menu.findItem(MENU_PERSONAL_ID_FORGET);
         if (forgetItem != null) {
-            forgetItem.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
+            forgetItem.setVisible(!fromManager && !fromExternal && PersonalIdSessionManager.getInstance().isloggedIn());
         }
         MenuItem refreshItem = menu.findItem(MENU_REFRESH_OPPORTUNITIES);
         if (refreshItem != null) {
             boolean showRefreshMenu = !fromExternal &&
-                    PersonalIdManager.getInstance().isloggedIn() &&
+                    PersonalIdSessionManager.getInstance().isloggedIn() &&
                     !ConnectUserDatabaseUtil.hasConnectAccess();
             refreshItem.setVisible(showRefreshMenu);
         }
@@ -650,7 +649,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 startActivityForResult(i, GET_APPS_FROM_HQ);
                 break;
             case MENU_PERSONAL_ID_FORGET:
-                PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
+                PersonalIdSessionManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_SETUP_PAGE);
                 updateConnectButton();
                 break;
             case MENU_REFRESH_OPPORTUNITIES:
@@ -671,7 +670,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     private void updateConnectButton() {
-        boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
+        boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdSessionManager.getInstance().isloggedIn()
                 && ConnectUserDatabaseUtil.hasConnectAccess();
         installFragment.updateConnectButton(isConnectEnabled, v -> {
             ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {

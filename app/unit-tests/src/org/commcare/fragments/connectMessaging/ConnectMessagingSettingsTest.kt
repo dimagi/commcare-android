@@ -13,7 +13,7 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.android.util.ConnectTestUtils.signInToPersonalId
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler
 import org.commcare.connect.network.PersonalIdMockApiServer
@@ -37,7 +37,7 @@ class ConnectMessagingSettingsTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val mockApi = PersonalIdMockApiServer()
     private lateinit var activity: ConnectMessagingActivity
-    private lateinit var savedPersonalIdStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedPersonalIdStatus: PersonalIdSessionManager.PersonalIdStatus
 
     @Before
     fun setUp() {
@@ -45,7 +45,7 @@ class ConnectMessagingSettingsTest {
         repeat(SYNC_RESPONSES) {
             mockApi.server.enqueue(MockResponse().setBody("""{"notifications": [], "channels": []}"""))
         }
-        savedPersonalIdStatus = PersonalIdManager.getInstance().status
+        savedPersonalIdStatus = PersonalIdSessionManager.getInstance().status
         signInToPersonalId(userId = "test-user", password = "test-password")
     }
 
@@ -55,7 +55,7 @@ class ConnectMessagingSettingsTest {
         ConnectMessagingAttachmentDownloadScheduler.cancelDownloads(context)
         ConnectMessagingPreferences.clear(context)
         ConnectDatabaseHelper.teardown()
-        PersonalIdManager.getInstance().status = savedPersonalIdStatus
+        PersonalIdSessionManager.getInstance().status = savedPersonalIdStatus
     }
 
     @Test

@@ -19,7 +19,7 @@ This is where you should add any user-visible strings today using following guid
 
 ## Localization screenshots
 
-The Robolectric tests in `org.commcare.l10n` record PersonalID screens per locale and are skipped unless locales are given:
+The Robolectric tests in `org.commcare.l10n` record PersonalID and Connect screens per locale and are skipped unless locales are given:
 
 ```bash
 ./gradlew testCommcareDebugUnitTest --tests 'org.commcare.l10n.*' -Pl10n.locale=en,fr
@@ -28,3 +28,5 @@ The Robolectric tests in `org.commcare.l10n` record PersonalID screens per local
 Each locale is an Android resource qualifier, as in the `values-<qualifier>` folder names: `fr` for a language, or `pt-rBR` for a region (not the BCP-47 form `pt-BR`).
 
 Images land in `app/build/outputs/l10n-screenshots/<locale>/` (override with `-Pl10n.outDir=<dir>`).
+
+To record them in CI, run the **Localization screenshots** workflow from the Actions tab. It uploads the images with an `index.html` that lays out each screen across locales.

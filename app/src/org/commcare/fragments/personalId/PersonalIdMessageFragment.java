@@ -19,7 +19,6 @@ import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 import org.commcare.utils.GeoUtils;
 
@@ -127,13 +126,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
                 SettingsHelper.launchSecuritySettings(activity);
                 break;
             case ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE:
-                if (PersonalIdManager.getInstance().getFailureAttempt() > 2) {
-                    directions = navigateToPhoneVerify();
-                    PersonalIdManager.getInstance().setFailureAttempt(0);
-                } else {
-                    directions = navigateToBackupCode();
-                }
-
+                directions = navigateToBackupCode();
                 break;
             case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
@@ -155,10 +148,6 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         if (directions != null) {
             NavHostFragment.findNavController(this).navigate(directions);
         }
-    }
-
-    private NavDirections navigateToPhoneVerify() {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPhoneVerify();
     }
 
     private NavDirections navigateToBackupCode() {

@@ -17,7 +17,8 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdMockApiServer
@@ -289,7 +290,7 @@ class PersonalIdProfileActivityTest {
         // Mock PersonalIdUnlocker so the biometric prompt resolves immediately in tests.
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<PersonalIdManager.ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
 
         // Enter backup code and confirm code, enqueue the set-backup-code API response,
