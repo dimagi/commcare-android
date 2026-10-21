@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
@@ -12,12 +14,16 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.tasks.LatestTaskExecutor;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.utils.SyncDetailCalculations;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Vector;
+
+import androidx.lifecycle.LifecycleOwnerKt;
 
 
 /**
@@ -29,6 +35,8 @@ public class HomeButtons {
 
     private final static String[] buttonNames =
             new String[]{"start", "training", "saved", "incomplete", "connect", "sync", "report", "logout"};
+
+    private static LatestTaskExecutor<Integer> incompleteFormsExecutor;
 
     /**
      * Note: The order in which home cards are returned by this method should be consistent with
@@ -173,25 +181,51 @@ public class HomeButtons {
         };
     }
 
+    private static LatestTaskExecutor<Integer> getIncompleteFormsExecutor() {
+        if (incompleteFormsExecutor == null) {
+            incompleteFormsExecutor = new LatestTaskExecutor<>();
+        }
+        return incompleteFormsExecutor;
+    }
+
+    private static void updateIncompleteFormsUI(
+            StandardHomeActivity activity,
+            TextView squareButtonText,
+            Integer numIncompleteForms
+    ) {
+        if (numIncompleteForms > 0) {
+            Spannable incompleteIndicator =
+                    (activity.localize("home.forms.incomplete.indicator",
+                            new String[]{String.valueOf(numIncompleteForms),
+                                    Localization.get("home.forms.incomplete")}));
+            squareButtonText.setText(incompleteIndicator);
+        } else {
+            squareButtonText.setText(activity.localize("home.forms.incomplete"));
+        }
+    }
+
     private static TextSetter getIncompleteButtonTextSetter(final StandardHomeActivity activity) {
         return (cardDisplayData, squareButtonViewHolder, context, notificationText) -> {
-            int numIncompleteForms;
-            try {
-                numIncompleteForms = StorageUtils.getNumIncompleteForms();
-            } catch (SessionUnavailableException e) {
-                // stop button setup, since redirection to login is imminent
-                return;
-            }
+            getIncompleteFormsExecutor().submit(
+                    LifecycleOwnerKt.getLifecycleScope(activity),
+                    StorageUtils::getNumIncompleteForms,
+                    new LatestTaskExecutor.Callback<>() {
+                        @Override
+                        public void onResult(Integer numIncompleteForms) {
+                            if (activity.isFinishing() || activity.isDestroyed()) {
+                                return;
+                            }
+                            updateIncompleteFormsUI(activity, squareButtonViewHolder.textView, numIncompleteForms);
+                        }
 
-            if (numIncompleteForms > 0) {
-                Spannable incompleteIndicator =
-                        (activity.localize("home.forms.incomplete.indicator",
-                                new String[]{String.valueOf(numIncompleteForms),
-                                        Localization.get("home.forms.incomplete")}));
-                squareButtonViewHolder.textView.setText(incompleteIndicator);
-            } else {
-                squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
-            }
+                        @Override
+                        public void onError(@NonNull Exception exception) {
+                            if (!(exception instanceof SessionUnavailableException)) {
+                                Logger.exception("Failed to retrieve incomplete forms count ", exception);
+                            }
+                        }
+                    });
+
             squareButtonViewHolder.textView.setTextColor(context.getResources()
                     .getColor(cardDisplayData.textColor));
             squareButtonViewHolder.subTextView.setVisibility(View.GONE);

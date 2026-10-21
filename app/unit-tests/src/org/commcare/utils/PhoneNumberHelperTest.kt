@@ -222,20 +222,35 @@ class PhoneNumberHelperTest {
         assertTrue("Should return empty string for negative", formatted.isEmpty())
     }
 
+    // ========== Display Formatting Tests ==========
+
+    @Test
+    fun `formatForDisplay formats a valid number in international form`() {
+        val formatted = phoneNumberHelper.formatForDisplay("+919876543210")
+
+        assertEquals("+91 98765 43210", formatted)
+    }
+
+    @Test
+    fun `formatForDisplay returns the input unchanged when it cannot be parsed`() {
+        val formatted = phoneNumberHelper.formatForDisplay("not-a-phone")
+
+        assertEquals("not-a-phone", formatted)
+    }
+
+    @Test
+    fun `formatForDisplay returns empty string for empty input`() {
+        val formatted = phoneNumberHelper.formatForDisplay("")
+
+        assertEquals("", formatted)
+    }
+
     // ========== Locale-Based Country Code Tests ==========
 
     @Test
+    @Config(qualifiers = "en-rIN")
     fun testGetDefaultCountryCode_indiaLocale() {
-        // Arrange
-        val locale = java.util.Locale.forLanguageTag("en-IN")
-        val configuration = android.content.res.Configuration(context.resources.configuration)
-        configuration.setLocale(locale)
-        val localizedContext = context.createConfigurationContext(configuration)
-
-        // Act
-        val defaultCountryCode = phoneNumberHelper.getDefaultCountryCode(localizedContext)
-
-        // Assert
+        val defaultCountryCode = phoneNumberHelper.defaultCountryCode
         assertEquals("Should return +91 for India locale", "+91", defaultCountryCode)
     }
 }

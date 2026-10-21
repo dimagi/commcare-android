@@ -7,10 +7,11 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.PushNotificationRecord
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_REQUIRE_APP_SYNC
+import org.commcare.android.database.connect.models.PushNotificationRecord.Companion.META_SESSION_ENDPOINT_ID
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_CHANNEL_ID
@@ -26,15 +27,21 @@ import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.PAYMENT_ID
 import org.commcare.connect.ConnectConstants.PAYMENT_UUID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
+import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.database.NotificationRecordDatabaseHelper
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
-import org.commcare.connect.network.connectId.parser.NotificationParseResult
+import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler
+import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
+import org.commcare.connect.network.personalId.parser.NotificationParseResult
 import org.commcare.pn.helper.NotificationBroadcastHelper
 import org.commcare.pn.workers.MessagingChannelsKeySyncWorker
+import org.commcare.preferences.ConnectMessagingPreferences
 import org.commcare.preferences.NotificationPrefs
+import org.commcare.utils.coroutines.DispatcherProvider
+import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -47,15 +54,15 @@ object PushNotificationApiHelper {
         context: Context,
         listener: ConnectActivityCompleteListener,
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(DispatcherProvider.io()).launch {
             retrieveLatestPushNotifications(context)
                 .onSuccess {
-                    withContext(Dispatchers.Main) {
+                    withContext(DispatcherProvider.main()) {
                         //  switching to main to touch views
                         listener.connectActivityComplete(true)
                     }
                 }.onFailure {
-                    withContext(Dispatchers.Main) {
+                    withContext(DispatcherProvider.main()) {
                         //  switching to main to touch views
                         listener.connectActivityComplete(false)
                     }
@@ -69,14 +76,27 @@ object PushNotificationApiHelper {
     }
 
     private suspend fun callPushNotificationApi(context: Context): Result<List<PushNotificationRecord>> {
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
         return suspendCoroutine { continuation ->
 
             object : PersonalIdApiHandler<NotificationParseResult>() {
                 override fun onSuccess(parseResult: NotificationParseResult) {
+                    if (!PersonalIdManager.getInstance().isloggedIn()) {
+                        continuation.resume(Result.success(emptyList()))
+                        return
+                    }
+
                     scheduleMessagingChannelsKeySync(context)
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val (savedNotifications, savedNotificationIds) = processParsedDataIntoDB(context, parseResult)
+                    CoroutineScope(DispatcherProvider.io()).launch {
+                        val (savedNotifications, savedNotificationIds) =
+                            try {
+                                processParsedDataIntoDB(context, parseResult)
+                            } catch (e: IllegalStateException) {
+                                Logger.exception("Could not store retrieved notifications", e)
+                                continuation.resume(Result.failure(e))
+                                return@launch
+                            }
+                        ConnectMessagingAttachmentDownloadScheduler.scheduleQueuedDownloads(context)
 
                         // Update notification preferences and send broadcasts
                         if (savedNotificationIds.isNotEmpty()) {
@@ -133,6 +153,13 @@ object PushNotificationApiHelper {
             ConnectMessagingDatabaseHelper.storeMessagingMessages(context, parseResult.messages, false)
         }
 
+        if (parseResult.attachments.isNotEmpty()) {
+            ConnectMessagingAttachmentDatabaseHelper.storeNewAttachments(
+                parseResult.attachments,
+                ConnectMessagingPreferences.isAutomaticDownloadEnabled(context),
+            )
+        }
+
         // Store non-messaging notifications
         val savedNotificationIds =
             if (parseResult.nonMessagingNotifications.isNotEmpty()) {
@@ -157,7 +184,7 @@ object PushNotificationApiHelper {
         if (savedNotificationIds.isEmpty()) {
             return true
         }
-        val user = ConnectUserDatabaseUtil.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<Boolean>() {
                 override fun onSuccess(result: Boolean) {
@@ -206,6 +233,8 @@ object PushNotificationApiHelper {
         pn.put(PAYMENT_ID, "" + pnRecord.paymentId)
         pn.put(NOTIFICATION_KEY, pnRecord.key)
         pn.put(OPPORTUNITY_STATUS, pnRecord.opportunityStatus)
+        pn.put(META_SESSION_ENDPOINT_ID, pnRecord.sessionEndpointId)
+        pn.put(META_REQUIRE_APP_SYNC, pnRecord.requireAppSync.toString())
         return pn
     }
 

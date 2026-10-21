@@ -8,29 +8,38 @@ import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.connect.ConnectDateUtils.convertIsoDate
 import org.commcare.dalvik.databinding.ItemEarnedWorkHistoryBinding
 import org.commcare.utils.StringUtils
+import java.text.DateFormat
 
 class WorkHistoryEarnedAdapter(
-    private val listener: OnWorkHistoryItemClickListener,private val profilePic:String?
+    private val listener: OnWorkHistoryItemClickListener,
+    private val profilePic: String?,
 ) : RecyclerView.Adapter<WorkHistoryEarnedAdapter.WorkHistoryViewHolder>() {
-
     private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class WorkHistoryViewHolder(val binding: ItemEarnedWorkHistoryBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    inner class WorkHistoryViewHolder(
+        val binding: ItemEarnedWorkHistoryBinding,
+    ) : RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkHistoryViewHolder {
-        val binding = ItemEarnedWorkHistoryBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): WorkHistoryViewHolder {
+        val binding =
+            ItemEarnedWorkHistoryBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            )
         return WorkHistoryViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: WorkHistoryViewHolder, position: Int) {
+    override fun onBindViewHolder(
+        holder: WorkHistoryViewHolder,
+        position: Int,
+    ) {
         val item = workHistoryList[position]
         val formattedIssuedDate: String =
-            convertIsoDate(item.issuedDate, "dd/MM/yyyy")
+            convertIsoDate(item.issuedDate, DateFormat.SHORT)
 
         with(holder.binding) {
             tvAppName.text = item.title

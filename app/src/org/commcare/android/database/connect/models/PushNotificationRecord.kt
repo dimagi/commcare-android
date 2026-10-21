@@ -96,6 +96,15 @@ class PushNotificationRecord :
     @OpportunityStatusType
     var opportunityStatus: String = ""
 
+    @Persisting(18)
+    @MetaField(META_SESSION_ENDPOINT_ID)
+    var sessionEndpointId: String = ""
+
+    // if we do need to do an app sync, only matters when a session endpoint id is present.
+    @Persisting(19)
+    @MetaField(META_REQUIRE_APP_SYNC)
+    var requireAppSync: Boolean = true
+
     fun getNotificationActionFromRecord() =
         if (CCC_GENERIC_OPPORTUNITY.equals(action) &&
             !TextUtils.isEmpty(key)
@@ -130,6 +139,8 @@ class PushNotificationRecord :
         const val META_PAYMENT_UUID = "payment_uuid"
         const val META_KEY = "key"
         const val META_OPPORTUNITY_STATUS = "opportunity_status"
+        const val META_SESSION_ENDPOINT_ID = "session_endpoint_id"
+        const val META_REQUIRE_APP_SYNC = "require_app_sync"
 
         fun fromJson(obj: JSONObject): PushNotificationRecord =
             PushNotificationRecord().apply {
@@ -150,27 +161,31 @@ class PushNotificationRecord :
                 paymentUUID = obj.optString(META_PAYMENT_UUID, "")
                 key = obj.optString(META_KEY, "")
                 opportunityStatus = obj.optString(META_OPPORTUNITY_STATUS, "")
+                sessionEndpointId = obj.optString(META_SESSION_ENDPOINT_ID, "")
+                requireAppSync = obj.optBoolean(META_REQUIRE_APP_SYNC, true)
             }
 
-        fun fromV23(pushNotificationRecordV23: PushNotificationRecordV23): PushNotificationRecord =
+        fun fromV24(v24: PushNotificationRecordV24): PushNotificationRecord =
             PushNotificationRecord().apply {
-                notificationId = pushNotificationRecordV23.notificationId
-                title = pushNotificationRecordV23.title
-                body = pushNotificationRecordV23.body
-                notificationType = pushNotificationRecordV23.notificationType
-                confirmationStatus = pushNotificationRecordV23.confirmationStatus
-                paymentId = pushNotificationRecordV23.paymentId
-                readStatus = pushNotificationRecordV23.readStatus
-                createdDate = pushNotificationRecordV23.createdDate
-                connectMessageId = pushNotificationRecordV23.connectMessageId
-                channel = pushNotificationRecordV23.channel
-                action = pushNotificationRecordV23.action
-                acknowledged = pushNotificationRecordV23.acknowledged
-                opportunityId = pushNotificationRecordV23.opportunityId
-                opportunityUUID = pushNotificationRecordV23.opportunityUUID
-                paymentUUID = pushNotificationRecordV23.paymentUUID
-                key = ""
-                opportunityStatus = ""
+                notificationId = v24.notificationId
+                title = v24.title
+                body = v24.body
+                notificationType = v24.notificationType
+                confirmationStatus = v24.confirmationStatus
+                paymentId = v24.paymentId
+                readStatus = v24.readStatus
+                createdDate = v24.createdDate
+                connectMessageId = v24.connectMessageId
+                channel = v24.channel
+                action = v24.action
+                acknowledged = v24.acknowledged
+                opportunityId = v24.opportunityId
+                opportunityUUID = v24.opportunityUUID
+                paymentUUID = v24.paymentUUID
+                key = v24.key
+                opportunityStatus = v24.opportunityStatus
+                sessionEndpointId = ""
+                requireAppSync = true
             }
     }
 }

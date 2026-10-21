@@ -39,7 +39,6 @@ class CommCareProviderLocationController(
     private val mLocationListener =
         object : LocationListener {
             override fun onLocationChanged(location: Location) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE, "Received location update")
                 onLocationReceived(location, mListener) { mCurrentLocation = it }
             }
 

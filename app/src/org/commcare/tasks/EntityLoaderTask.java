@@ -19,6 +19,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathException;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -121,7 +122,7 @@ public class EntityLoaderTask
                         return;
                     }
 
-                    if (result == null) {
+                    if (result == null || listener.shouldAbortDelivery()) {
                         return;
                     }
 

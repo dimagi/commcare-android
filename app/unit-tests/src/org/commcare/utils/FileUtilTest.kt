@@ -38,7 +38,7 @@ class FileUtilTest {
 
         // Unfortunately, MimeTypeMap.getSingleton() inside FileUtils returns a shadow implementation
         // And I'm not sure how to make robolectric use the actual implementation rather than a shadow.
-        Shadows.shadowOf(MimeTypeMap.getSingleton()).addExtensionMimeTypMapping("jpg", "image/jpeg")
+        Shadows.shadowOf(MimeTypeMap.getSingleton()).addExtensionMimeTypeMapping("jpg", "image/jpeg")
     }
 
     @Test

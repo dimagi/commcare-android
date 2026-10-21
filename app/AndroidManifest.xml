@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:versionCode="106"
-          android:versionName="2.62">
+          android:versionName="2.66">
+
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -159,6 +160,22 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="connect.dimagi.com" />
+                <data android:pathPrefix="/users/invite_redirect/" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="connect-staging.dimagi.com" />
+                <data android:pathPrefix="/users/invite_redirect/" />
+            </intent-filter>
         </activity>
         <activity
             android:name="org.commcare.activities.AppManagerActivity"
@@ -173,24 +190,23 @@
         <activity
             android:name="org.commcare.activities.connect.PersonalIdActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <activity
             android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/AppEntryTheme"/>
         <activity
             android:name="org.commcare.activities.CrashWarningActivity"
             android:label="CommCare Forced Closure" />
         <activity android:name="org.commcare.activities.StandardHomeActivity"
             android:theme="@style/CommonTheme.NoActionBar"/>
-        <activity android:name="org.commcare.activities.RootMenuHomeActivity" />
         <activity android:name="org.commcare.activities.MenuActivity" />
         <activity
             android:name="org.commcare.activities.connect.ConnectActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
         <service android:name="com.google.android.gms.metadata.ModuleDependencies"
             android:enabled="false"
             android:exported="false"
@@ -239,21 +255,12 @@
         <activity
             android:name="org.commcare.activities.FullscreenVideoViewActivity"
             android:theme="@style/FullscreenTheme" />
-        <activity
-            android:name="org.commcare.activities.DotsEntryActivity"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="org.commcare.dalvik.action.DotsEntry" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name="org.commcare.activities.CallOutActivity" />
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
-            android:theme="@style/CommonTheme.NoActionBar">
+            android:theme="@style/AppEntryTheme">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -358,6 +365,12 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name="org.commcare.activities.PushNotificationLaunchActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance" />
+        <activity
             android:name="org.commcare.activities.DrawActivity"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -387,6 +400,14 @@
 
         <uses-library
             android:name="com.google.android.maps"
+            android:required="false" />
+        
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
             android:required="false" />
 
         <activity android:name="org.commcare.activities.MessageActivity" />
@@ -512,9 +533,7 @@
         <activity
             android:name="org.commcare.activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name="org.commcare.activities.CommCareWiFiDirectActivity"
-            android:screenOrientation="portrait" />
+        <activity android:name="org.commcare.activities.CommCareWiFiDirectActivity" />
         <activity android:name="org.commcare.activities.RecoveryActivity" />
         <activity
             android:name="org.commcare.print.TemplatePrinterActivity"
@@ -549,8 +568,9 @@
         <activity android:name="org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity"/>
         <activity android:name="org.commcare.activities.PromptCCReinstallActivity"/>
         <activity
-            android:name="org.commcare.fragments.MicroImageActivity"
-            android:screenOrientation="portrait"/>
+            android:name="org.commcare.activities.camera.MicroImageActivity"/>
+        <activity
+            android:name="org.commcare.activities.camera.CameraOverlayActivity"/>
         <!-- Start Collect Manifest -->
 
         <meta-data
@@ -585,6 +605,12 @@
             android:name="org.commcare.activities.connect.PersonalIdWorkHistoryActivity"
             android:theme="@style/CommonTheme.NoActionBar"/>
 
+        <activity
+            android:name="org.commcare.personalId.profile.PersonalIdProfileActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/ConnectTheme"/>
+
         <service
             android:name="org.commcare.services.CommCareFirebaseMessagingService"
             android:exported="false">
@@ -594,7 +620,7 @@
         </service>
 
         <activity android:name="org.commcare.activities.PushNotificationActivity"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
     </application>
 
 </manifest>

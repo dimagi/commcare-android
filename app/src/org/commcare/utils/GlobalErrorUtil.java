@@ -3,7 +3,7 @@ package org.commcare.utils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
-import org.commcare.connect.network.LoginInvalidatedException;
+import org.commcare.connect.network.personalId.LoginInvalidatedException;
 import org.commcare.models.database.SqlStorage;
 
 import java.util.Vector;
@@ -13,7 +13,7 @@ public class GlobalErrorUtil {
     private static final int ERROR_EXPIRATION_HOURS = 24;
 
     public static boolean triggerGlobalError(GlobalErrors error) {
-        if (FormEntryActivity.mFormController != null) {
+        if (FormEntryActivity.isFormEntryInProgress()) {
             return false;
         }
 

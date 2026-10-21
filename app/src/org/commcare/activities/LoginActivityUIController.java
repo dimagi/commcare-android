@@ -5,8 +5,8 @@ import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect
 import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -18,9 +18,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.core.graphics.ColorUtils;
+import androidx.preference.PreferenceManager;
+
+import com.google.android.material.color.MaterialColors;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
@@ -34,7 +39,6 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.preferences.LocalePreferences;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
@@ -48,11 +52,6 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 import javax.annotation.Nullable;
-
-import androidx.preference.PreferenceManager;
-
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
 
 /**
  * Handles login activity UI
@@ -77,8 +76,26 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.connect_login_button)
     private Button connectLoginButton;
 
-    @UiElement(value = R.id.edit_username, locale = "login.username")
+    @UiElement(value = R.id.username_wrapper)
+    private View usernameWrapper;
+
+    @UiElement(value = R.id.username_input_layout)
+    private TextInputLayout usernameInputLayout;
+
+    @UiElement(value = R.id.username_icon)
+    private ImageView usernameIcon;
+
+    @UiElement(value = R.id.edit_username)
     private AutoCompleteTextView username;
+
+    @UiElement(value = R.id.password_input_layout)
+    private TextInputLayout passwordInputLayout;
+
+    @UiElement(value = R.id.password_icon)
+    private ImageView passwordIcon;
+
+    @UiElement(value = R.id.password_input_field)
+    private View passwordInputField;
 
     @UiElement(value = R.id.edit_password)
     private EditText passwordOrPin;
@@ -98,20 +115,17 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
 
-    @UiElement(R.id.welcome_msg)
-    private TextView welcomeMessage;
-
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
 
     @UiElement(value = R.id.login_or)
-    private TextView orLabel;
+    private View orDivider;
 
     @UiElement(value = R.id.login_via_connect)
     private TextView loginViaConnectLabel;
 
     @UiElement(value = R.id.password_wrapper)
-    private RelativeLayout passwordWrapper;
+    private View passwordWrapper;
 
     protected final LoginActivity activity;
 
@@ -159,7 +173,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @Override
     public void setupUI() {
         setupUsernameEntryBox();
-        setLoginBoxesColorNormal();
+        setLoginInputFieldsError(false);
         setTextChangeListeners();
         setBannerLayoutLogic();
 
@@ -203,7 +217,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private void setupUsernameEntryBox() {
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        username.setHint(Localization.get("login.username"));
+        usernameInputLayout.setHint(Localization.get("login.username"));
     }
 
     private void setBannerLayoutLogic() {
@@ -318,9 +332,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Refresh UI for potential new language
         ManagedUiFramework.loadUiElements(activity);
-
-        // Refresh welcome msg separately bc cannot set a single locale for its UiElement
-        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+        usernameInputLayout.setHint(Localization.get("login.username"));
     }
 
     private void requestFocusIfNoError(EditText view) {
@@ -378,7 +390,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private void setPrimedLoginMode() {
         loginMode = LoginMode.PRIMED;
         loginPrimedMessage.setVisibility(View.VISIBLE);
-        passwordOrPin.setVisibility(View.GONE);
+        setPasswordInputFieldVisible(false);
         manuallySwitchedToPasswordMode = false;
 
         // Switch focus to a dummy (invisible) LinearLayout so that the keyboard doesn't show
@@ -389,8 +401,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     protected void setNormalPasswordMode() {
         loginMode = LoginMode.PASSWORD;
         loginPrimedMessage.setVisibility(View.GONE);
-        passwordOrPin.setVisibility(View.VISIBLE);
-        passwordOrPin.setHint(Localization.get("login.password"));
+        setPasswordInputFieldVisible(true);
+        passwordInputLayout.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         new PasswordShow(showPasswordButton, passwordOrPin).setupPasswordVisibility();
         manuallySwitchedToPasswordMode = false;
@@ -399,10 +411,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private void setPinPasswordMode() {
         loginMode = LoginMode.PIN;
         loginPrimedMessage.setVisibility(View.GONE);
-        passwordOrPin.setVisibility(View.VISIBLE);
-        passwordOrPin.setHint(Localization.get("login.pin.password"));
+        setPasswordInputFieldVisible(true);
+        passwordInputLayout.setHint(Localization.get("login.pin.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         manuallySwitchedToPasswordMode = false;
+    }
+
+    private void setPasswordInputFieldVisible(boolean visible) {
+        int visibility = visible ? View.VISIBLE : View.GONE;
+        passwordIcon.setVisibility(visibility);
+        passwordInputField.setVisibility(visibility);
     }
 
     protected void manualSwitchToPasswordMode() {
@@ -421,41 +439,54 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void setErrorMessageUI(String message, boolean showNotificationButton) {
-        setLoginBoxesColorError();
-
-        username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg),
-                null, null, null);
-        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(
-                getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
+        setLoginInputFieldsError(true);
 
         errorContainer.setVisibility(View.VISIBLE);
         errorTextView.setText(message);
         notificationButtonView.setVisibility(showNotificationButton ? View.VISIBLE : View.GONE);
     }
 
-    private void setLoginBoxesColorNormal() {
-        int normalColor = getResources().getColor(R.color.login_edit_text_color);
-        username.setTextColor(normalColor);
-        passwordOrPin.setTextColor(normalColor);
-    }
+    private void setLoginInputFieldsError(boolean hasError) {
+        int strokeColor;
+        int labelColor;
+        int iconColor;
 
-    private void setLoginBoxesColorError() {
-        int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
-        username.setTextColor(errorColor);
-        passwordOrPin.setTextColor(errorColor);
+        if (hasError) {
+            strokeColor = MaterialColors.getColor(usernameInputLayout, R.attr.connectStatusNegative);
+            labelColor = strokeColor;
+            iconColor = strokeColor;
+        } else {
+            strokeColor = MaterialColors.getColor(usernameInputLayout, R.attr.connectOutlineBrand);
+            labelColor = MaterialColors.getColor(usernameInputLayout, R.attr.connectOnSurfaceSecondary);
+            iconColor = MaterialColors.getColor(
+                    usernameInputLayout, com.google.android.material.R.attr.colorPrimary
+            );
+        }
+
+        final ColorStateList iconColors = ColorStateList.valueOf(iconColor);
+        final ColorStateList iconTileColors = ColorStateList.valueOf(ColorUtils.setAlphaComponent(iconColor, 51));
+        // A single-color list only colors the focused border, so the resting state is listed explicitly too
+        final ColorStateList strokeColors = new ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_focused}, new int[]{}},
+                new int[]{strokeColor, strokeColor}
+        );
+        final ColorStateList labelColors = ColorStateList.valueOf(labelColor);
+
+        usernameIcon.setImageTintList(iconColors);
+        usernameIcon.setBackgroundTintList(iconTileColors);
+        usernameInputLayout.setBoxStrokeColorStateList(strokeColors);
+        usernameInputLayout.setDefaultHintTextColor(labelColors);
+        usernameInputLayout.setHintTextColor(labelColors);
+
+        passwordIcon.setImageTintList(iconColors);
+        passwordIcon.setBackgroundTintList(iconTileColors);
+        passwordInputLayout.setBoxStrokeColorStateList(strokeColors);
+        passwordInputLayout.setDefaultHintTextColor(labelColors);
+        passwordInputLayout.setHintTextColor(labelColors);
     }
 
     private void setStyleDefault() {
-        setLoginBoxesColorNormal();
-        Drawable usernameDrawable = getResources().getDrawable(R.drawable.icon_user_neutral50);
-        Drawable passwordDrawable = getResources().getDrawable(R.drawable.icon_lock_neutral50);
-        if (LocalePreferences.isLocaleRTL()) {
-            username.setCompoundDrawablesWithIntrinsicBounds(null, null, usernameDrawable, null);
-            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(null, null, passwordDrawable, null);
-        } else {
-            username.setCompoundDrawablesWithIntrinsicBounds(usernameDrawable, null, null, null);
-            passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(passwordDrawable, null, null, null);
-        }
+        setLoginInputFieldsError(false);
         if (loginButton.isEnabled()) {
             clearErrorMessage();
         }
@@ -467,12 +498,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setSingleAppUIState() {
         spinner.setVisibility(View.GONE);
-        welcomeMessage.setText(Localization.get("login.welcome.single"));
     }
 
     protected void setMultipleAppsUiState(ArrayList<String> appNames, int position) {
-        welcomeMessage.setText(Localization.get("login.welcome.multiple"));
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
                 R.layout.spinner_text_view, appNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -539,7 +567,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setConnectButtonVisible(Boolean visible) {
         connectLoginButton.setVisibility(visible ? View.VISIBLE : View.GONE);
-        orLabel.setVisibility(visible ? View.VISIBLE : View.GONE);
+        orDivider.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     protected boolean isAppSelectorVisible() {
@@ -551,7 +579,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     public void setLoginInputsVisibility(boolean visible) {
-        username.setVisibility(visible ? View.VISIBLE : View.GONE);
+        usernameWrapper.setVisibility(visible ? View.VISIBLE : View.GONE);
         passwordWrapper.setVisibility(visible ? View.VISIBLE : View.GONE);
         loginViaConnectLabel.setVisibility(visible ? View.GONE : View.VISIBLE);
     }
@@ -560,26 +588,22 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         PersonalIdManager.ConnectAppMangement appState = activity.getConnectAppState();
         if (appState == Unmanaged) {
             loginButton.setText(Localization.get("login.button"));
-            passwordOrPin.setBackgroundColor(getResources().getColor(R.color.white));
+            passwordInputLayout.setBoxBackgroundColor(
+                    MaterialColors.getColor(passwordInputLayout, com.google.android.material.R.attr.colorSurface)
+            );
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         } else {
             loginButton.setText(activity.getString(R.string.personalid_login_with));
-            passwordOrPin.setBackgroundColor(getResources().getColor(R.color.grey_light));
+            passwordInputLayout.setBoxBackgroundColor(
+                    MaterialColors.getColor(passwordInputLayout, R.attr.connectDisabledContainer)
+            );
             passwordOrPin.setText(R.string.personalid_login_via);
             passwordOrPin.clearFocus();
             passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         setLoginInputsVisibility(appState != Connect);
-        boolean isPersonalIdLoggedIn = PersonalIdManager.getInstance().isloggedIn();
-        if (isPersonalIdLoggedIn) {
-            setWelcomeMessage();
-        }
-        setConnectButtonVisible(isPersonalIdLoggedIn && ConnectUserDatabaseUtil.hasConnectAccess(activity));
-    }
-
-    private void setWelcomeMessage() {
-        String welcomeText = activity.getString(R.string.personalid_welcome_user,
-                ConnectUserDatabaseUtil.getUser(activity).getName());
-        welcomeMessage.setText(welcomeText);
+        setConnectButtonVisible(
+                PersonalIdManager.getInstance().isloggedIn() && ConnectUserDatabaseUtil.hasConnectAccess()
+        );
     }
 }

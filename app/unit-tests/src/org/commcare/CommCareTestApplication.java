@@ -27,6 +27,7 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.database.UnencryptedDatabaseAdapter;
 import org.commcare.models.database.app.DatabaseAppOpenHelperMock;
+import org.commcare.models.database.connect.DatabaseConnectOpenHelperMock;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelperMock;
 import org.commcare.models.database.user.DatabaseUserOpenHelperMock;
 import org.commcare.models.encryption.ByteEncrypter;
@@ -54,6 +55,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.WorkManager;
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -73,12 +76,14 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private String cachedUserPassword;
 
     private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
-    private boolean skipWorkManager = false;
 
     @Override
     public void onCreate() {
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
+
+        // initialize work manager before super.onCreate() to avoid IllegalStateException when WorkManager is used in onCreate() of CommCareApplication
+        initWorkManager();
 
         super.onCreate();
 
@@ -112,8 +117,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         } catch (IllegalStateException e) {
             Configuration config = new Configuration.Builder()
                     .setMinimumLoggingLevel(Log.DEBUG)
+                    .setExecutor(new SynchronousExecutor())
                     .build();
-            WorkManager.initialize(context, config);
+            WorkManagerTestInitHelper.initializeTestWorkManager(context, config);
         }
     }
 
@@ -334,7 +340,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     public void setSkipWorkManager() {
-        skipWorkManager = true;
+    }
+
+    @Override
+    public IDatabase getConnectDbOpenHelper() {
+        return new UnencryptedDatabaseAdapter(new DatabaseConnectOpenHelperMock(this));
     }
 
     @Override

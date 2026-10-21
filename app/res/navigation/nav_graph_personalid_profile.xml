@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_personalid_profile"
+    app:startDestination="@id/personalid_profile_fragment">
+
+    <fragment
+        android:id="@+id/personalid_profile_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileFragment"
+        android:label="@string/personalid_profile_title">
+        <action
+            android:id="@+id/action_profile_to_profile_edit"
+            app:destination="@id/personalid_profile_edit_fragment" />
+        <action
+            android:id="@+id/action_profile_to_profile_backup_code"
+            app:destination="@id/personalid_profile_backup_code_fragment" />
+        <action
+            android:id="@+id/action_profile_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_edit_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileEditFragment"
+        android:label="@string/personalid_profile_edit_title">
+        <action
+            android:id="@+id/action_profile_edit_to_backup_code"
+            app:destination="@id/personalid_profile_backup_code_fragment" />
+        <action
+            android:id="@+id/action_profile_edit_to_profile_send_phone_otp"
+            app:destination="@id/personalid_profile_send_phone_otp_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_email_verification_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdProfileEmailVerificationFragment"
+        android:label="@string/personalid_email_verification_appbar_title"
+        tools:layout="@layout/fragment_personalid_email_verification">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <argument
+            android:name="emailOtpRequestCount"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_email_verification_forgot_backup_code_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdEmailVerificationForgotBackupCodeFragment"
+        android:label="@string/personalid_email_verification_appbar_title"
+        tools:layout="@layout/fragment_personalid_email_verification">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="emailOtpRequestCount"
+            app:argType="integer" />
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <action
+            android:id="@+id/action_email_verification_forgot_backup_code_to_set_new_backup_code"
+            app:destination="@id/personalid_profile_set_new_backup_code_fragment"
+            app:popUpTo="@id/personalid_profile_fragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_backup_code_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileBackupCodeFragment"
+        android:label="@string/connect_backup_code_title_confirm">
+        <argument
+            android:name="pendingEmail"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="emailWorkflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <argument
+            android:name="backupCodeWorkflow"
+            app:argType="org.commcare.fragments.personalId.BackupCodeWorkflow" />
+        <action
+            android:id="@+id/action_profile_backup_code_to_set_new_backup_code"
+            app:destination="@id/personalid_profile_set_new_backup_code_fragment" />
+        <action
+            android:id="@+id/action_profile_backup_code_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment" />
+        <action
+            android:id="@+id/action_profile_backup_code_to_profile_send_phone_otp"
+            app:destination="@id/personalid_profile_send_phone_otp_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_send_phone_otp_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileSendPhoneOtpFragment"
+        android:label="@string/connect_verify_phone_title"
+        tools:layout="@layout/fragment_personalid_send_otp">
+        <argument
+            android:name="pendingEmail"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_profile_send_phone_otp_to_profile_phone_verification"
+            app:destination="@id/personalid_profile_phone_verification_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_phone_verification_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfilePhoneVerificationFragment"
+        android:label="@string/connect_verify_phone_title"
+        tools:layout="@layout/screen_personalid_phone_verify">
+        <argument
+            android:name="pendingEmail"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_profile_phone_verification_to_send_email_otp"
+            app:destination="@id/personalid_send_email_otp_fragment"
+            app:popUpTo="@id/personalid_profile_send_phone_otp_fragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_send_email_otp_fragment"
+        android:name="org.commcare.fragments.personalId.PersonalIdProfileSendEmailOtpFragment">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="masked"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        <argument
+            android:name="workflow"
+            app:argType="org.commcare.fragments.personalId.EmailWorkFlow" />
+        <action
+            android:id="@+id/action_personalid_send_email_otp_to_email_verification_forgot_backup_code"
+            app:destination="@id/personalid_email_verification_forgot_backup_code_fragment" />
+        <action
+            android:id="@+id/action_personalid_send_email_otp_to_profile_email_verification"
+            app:destination="@id/personalid_email_verification_fragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/personalid_profile_set_new_backup_code_fragment"
+        android:name="org.commcare.personalId.profile.PersonalIdProfileSetNewBackupCodeFragment"
+        android:label="@string/personalid_set_new_backup_code_title">
+        <argument
+            android:name="backupCodeWorkflow"
+            app:argType="org.commcare.fragments.personalId.BackupCodeWorkflow" />
+    </fragment>
+
+</navigation>

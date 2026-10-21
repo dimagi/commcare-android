@@ -276,7 +276,13 @@ public class SaveToDiskTask extends
             StreamsUtil.writeFromInputToOutput(is, output);
         } finally {
             output.close();
-            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(trace, payload.getLength(), XML_EXTENSION, symetricKey == null);
+            CCPerfMonitoring.INSTANCE.stopFileEncryptionTracing(
+                    trace,
+                    payload.getLength(),
+                    XML_EXTENSION,
+                    symetricKey == null,
+                    false
+            );
         }
     }
 

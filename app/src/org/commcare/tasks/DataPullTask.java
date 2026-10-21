@@ -13,8 +13,8 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.util.InvalidCaseGraphException;
-import org.commcare.connect.network.LoginInvalidatedException;
-import org.commcare.connect.network.TokenUnavailableException;
+import org.commcare.connect.network.personalId.LoginInvalidatedException;
+import org.commcare.connect.network.personalId.TokenUnavailableException;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.CaptivePortalRedirectException;
@@ -168,6 +168,7 @@ public abstract class DataPullTask<R>
         byte[] wrappedEncryptionKey = getEncryptionKey();
         if (wrappedEncryptionKey == null) {
             this.publishProgress(PROGRESS_DONE);
+            Logger.exception("Encryption Key Failure", new Exception("Failed to get or generate encryption key for data pull sync"));
             return new ResultAndError<>(PullTaskResult.ENCRYPTION_FAILURE,
                     "Unable to get or generate encryption key");
         }

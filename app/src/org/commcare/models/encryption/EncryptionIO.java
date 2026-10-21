@@ -67,7 +67,8 @@ public class EncryptionIO {
                 trace,
                 fileSize,
                 FilenameUtils.getExtension(sourceFilePath),
-                isKeyFromKeystore
+                isKeyFromKeystore,
+                false
         );
     }
 

@@ -3,48 +3,10 @@ package org.commcare.connect;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.connect.PersonalIdActivity;
-import org.commcare.android.database.connect.models.ConnectAppRecord;
-import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
-import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.android.security.AndroidKeyStore;
-import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
-import org.commcare.connect.database.ConnectJobUtils;
-import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.ConnectSsoHelper;
-import org.commcare.connect.network.ConnectSsoSyncHelper;
-import org.commcare.connect.network.TokenExceptionHandler;
-import org.commcare.connect.workers.ConnectHeartbeatWorker;
-import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
-import org.commcare.core.network.AuthInfo;
-import org.commcare.dalvik.R;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.navdrawer.BaseDrawerActivity;
-import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
-import org.commcare.preferences.NotificationPrefs;
-import org.commcare.util.LogTypes;
-import org.commcare.utils.BiometricsHelper;
-import org.commcare.utils.CrashUtil;
-import org.commcare.utils.EncryptionKeyProvider;
-import org.commcare.utils.GlobalErrorUtil;
-import org.commcare.utils.GlobalErrors;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.javarosa.core.services.Logger;
-
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -52,6 +14,49 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.connect.PersonalIdActivity;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
+import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
+import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
+import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.connect.database.ConnectAppDatabaseUtil;
+import org.commcare.connect.database.ConnectDatabaseHelper;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.database.ConnectUserDatabaseUtil;
+import org.commcare.connect.repository.ConnectSyncPreferences;
+import org.commcare.connect.network.personalId.ConnectSsoHelper;
+import org.commcare.connect.network.personalId.ConnectSsoSyncHelper;
+import org.commcare.connect.network.personalId.TokenExceptionHandler;
+import org.commcare.connect.workers.ConnectHeartbeatWorker;
+import org.commcare.connect.workers.ConnectReleaseTogglesWorker;
+import org.commcare.core.network.AuthInfo;
+import org.commcare.dalvik.R;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.personalId.PersonalIdBackupCodeReminderHelper;
+import org.commcare.personalId.PersonalIdUnlocker;
+import org.commcare.personalId.PersonalIdUserPreferences;
+import org.commcare.personalId.UnlockPolicy;
+import org.commcare.pn.workermanager.NotificationsSyncWorkerManager;
+import org.commcare.preferences.NotificationPrefs;
+import org.commcare.util.LogTypes;
+import org.commcare.utils.CrashUtil;
+import org.commcare.utils.GlobalErrorUtil;
+import org.commcare.utils.GlobalErrors;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.javarosa.core.services.Logger;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_UNLOCK_FAILED;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.FAILURE_USER_DENIED;
@@ -63,7 +68,6 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.SYNC_SU
  * @author dviggiano
  */
 public class PersonalIdManager {
-    public static final String BIOMETRIC_INVALIDATION_KEY = "biometric-invalidation-key";
     private static final long DAYS_TO_SECOND_OFFER = 30;
 
     /**
@@ -83,10 +87,11 @@ public class PersonalIdManager {
     private static final long PERIODICITY_FOR_HEARTBEAT_IN_HOURS = 4;
     private static final long BACKOFF_DELAY_FOR_HEARTBEAT_RETRY = 5 * 60 * 1000L; // 5 mins
     private static final String CONNECT_HEARTBEAT_REQUEST_NAME = "connect_hearbeat_periodic_request";
+    private static final int MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID = 600;
     private BiometricManager biometricManager;
 
     private static volatile PersonalIdManager manager = null;
-    private PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
+    private volatile PersonalIdStatus personalIdSatus = PersonalIdStatus.NotIntroduced;
     private Context parentActivity;
     private int failedPinAttempts = 0;
 
@@ -112,9 +117,9 @@ public class PersonalIdManager {
     public void init(Context parent) {
         parentActivity = parent;
         if (personalIdSatus == PersonalIdStatus.NotIntroduced) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
             if (user != null) {
-                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONALID_NO_ACTIVITY;
+                boolean registering = user.getRegistrationPhase() != ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
                 personalIdSatus = registering ? PersonalIdStatus.Registering : PersonalIdStatus.LoggedIn;
                 CrashUtil.registerUserData();
             } else if (ConnectDatabaseHelper.isDbBroken()) {
@@ -129,82 +134,29 @@ public class PersonalIdManager {
             Constraints constraints = new Constraints.Builder().setRequiredNetworkType(
                     NetworkType.CONNECTED).setRequiresBatteryNotLow(true).build();
 
-            PeriodicWorkRequest heartbeatRequest = new PeriodicWorkRequest.Builder(ConnectHeartbeatWorker.class,
-                    PERIODICITY_FOR_HEARTBEAT_IN_HOURS, TimeUnit.HOURS).addTag(
-                    CONNECT_HEARTBEAT_WORKER).setConstraints(constraints).setBackoffCriteria(
-                    BackoffPolicy.EXPONENTIAL, BACKOFF_DELAY_FOR_HEARTBEAT_RETRY, TimeUnit.MILLISECONDS).build();
+            PeriodicWorkRequest heartbeatRequest = new PeriodicWorkRequest.Builder(
+                    ConnectHeartbeatWorker.class,
+                    PERIODICITY_FOR_HEARTBEAT_IN_HOURS,
+                    TimeUnit.HOURS
+            ).addTag(CONNECT_HEARTBEAT_WORKER).setConstraints(constraints).setBackoffCriteria(
+                    BackoffPolicy.EXPONENTIAL,
+                    BACKOFF_DELAY_FOR_HEARTBEAT_RETRY,
+                    TimeUnit.MILLISECONDS
+            ).build();
 
+            // UPDATE rather than REPLACE: REPLACE cancels and re-enqueues, which makes the worker
+            // eligible to run immediately on every unlock. An in-flight run started that way can
+            // land after a subsequent sign-out and write to a deleted Connect DB.
             WorkManager.getInstance(CommCareApplication.instance()).enqueueUniquePeriodicWork(
-                    CONNECT_HEARTBEAT_REQUEST_NAME, ExistingPeriodicWorkPolicy.REPLACE, heartbeatRequest);
+                    CONNECT_HEARTBEAT_REQUEST_NAME,
+                    ExistingPeriodicWorkPolicy.UPDATE,
+                    heartbeatRequest
+            );
         }
     }
-
 
     public boolean isloggedIn() {
         return personalIdSatus == PersonalIdStatus.LoggedIn;
-    }
-
-    public void unlockConnect(CommCareActivity<?> activity, ConnectActivityCompleteListener callback) {
-        logBiometricInvalidations();
-
-        BiometricPrompt.AuthenticationCallback callbacks = new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                callback.connectActivityComplete(false);
-            }
-
-            @Override
-            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                userUnlockedPersonalId();
-                callback.connectActivityComplete(true);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                callback.connectActivityComplete(false);
-            }
-        };
-
-
-        BiometricManager bioManager = getBiometricManager(activity);
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-        if (BiometricsHelper.isFingerprintConfigured(activity, bioManager)) {
-            boolean allowOtherOptions = BiometricsHelper.isPinConfigured(activity, bioManager)
-                    && PersonalIdSessionData.PIN.equals(user.getRequiredLock());
-            BiometricsHelper.authenticateFingerprint(activity, bioManager, callbacks, allowOtherOptions);
-        } else if (BiometricsHelper.isPinConfigured(activity, bioManager) && PersonalIdSessionData.PIN.equals(
-                user.getRequiredLock())) {
-            BiometricsHelper.authenticatePin(activity, bioManager, callbacks);
-        } else {
-            callback.connectActivityComplete(false);
-            Logger.exception("No unlock method available when trying to unlock PersonalId",
-                    new Exception("No unlock option"));
-            Toast.makeText(activity, activity.getString(R.string.connect_unlock_unavailable),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void logBiometricInvalidations() {
-        if (AndroidKeyStore.INSTANCE.doesKeyExist(BIOMETRIC_INVALIDATION_KEY)) {
-            EncryptionKeyProvider encryptionKeyProvider = new EncryptionKeyProvider(parentActivity, true,
-                    BIOMETRIC_INVALIDATION_KEY);
-            if (!encryptionKeyProvider.isKeyValid()) {
-                FirebaseAnalyticsUtil.reportBiometricInvalidated();
-
-                // reset key
-                encryptionKeyProvider.deleteKey();
-                encryptionKeyProvider.getKeyForEncryption();
-            }
-        }
-    }
-
-
-    public void completeSignin() {
-        personalIdSatus = PersonalIdStatus.LoggedIn;
-        userUnlockedPersonalId();
-        if (parentActivity instanceof BaseDrawerActivity) {
-            ((BaseDrawerActivity<?>)parentActivity).openDrawer();
-        }
     }
 
     public void userUnlockedPersonalId() {
@@ -217,7 +169,9 @@ public class PersonalIdManager {
     public void handleFinishedActivity(CommCareActivity<?> activity, int resultCode) {
         parentActivity = activity;
         if (resultCode == AppCompatActivity.RESULT_OK) {
-            completeSignin();
+            if (parentActivity instanceof BaseDrawerActivity) {
+                ((BaseDrawerActivity<?>)parentActivity).openDrawer();
+            }
         }
     }
 
@@ -225,26 +179,33 @@ public class PersonalIdManager {
         if (ConnectDatabaseHelper.dbExists()) {
             FirebaseAnalyticsUtil.reportPersonalIdAccountForgotten(reason);
         }
-        ConnectUserDatabaseUtil.forgetUser();
+
         personalIdSatus = PersonalIdStatus.NotIntroduced;
 
         // Cancel periodic push notification retrieval when user logs out
         NotificationsSyncWorkerManager.cancelPeriodicPushNotificationRetrieval(CommCareApplication.instance());
 
+        ConnectUserDatabaseUtil.forgetUser();
+
         // remove notification read / unread preferences
         NotificationPrefs.INSTANCE.removeNotificationReadPref(CommCareApplication.instance());
 
         ConnectReleaseTogglesWorker.Companion.cancelPeriodicFetch(CommCareApplication.instance());
+        PersonalIdUnlocker.INSTANCE.resetSession();
+        PersonalIdUserPreferences.clear();
+        CommCareApplication.instance().closeUserSession();
     }
 
     public AuthInfo.TokenAuth getConnectToken() {
         if (isloggedIn()) {
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(parentActivity);
+            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
             Date currentDate = new Date();
             if (user != null && currentDate.compareTo(user.getConnectTokenExpiration()) < 0) {
-                Logger.log(LogTypes.TYPE_MAINTENANCE,
+                Logger.log(
+                        LogTypes.TYPE_MAINTENANCE,
                         "Found a valid existing Connect Token with current date set to " + currentDate
-                                + " and record expiration date being " + user.getConnectTokenExpiration());
+                                + " and record expiration date being " + user.getConnectTokenExpiration()
+                );
                 return new AuthInfo.TokenAuth(user.getConnectToken());
             } else if (user != null) {
                 Logger.log(LogTypes.TYPE_MAINTENANCE, "Existing Connect token is not valid");
@@ -259,31 +220,39 @@ public class PersonalIdManager {
         parent.startActivityForResult(intent, requestCode);
     }
 
-    public void updateAppAccess(CommCareActivity<?> activity, String appId, String username) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId,
-                username);
-        if (record != null) {
-            record.setLastAccessed(new Date());
-            ConnectAppDatabaseUtil.storeApp(activity, record);
-        }
-    }
-
-    public void checkPersonalIdLink(CommCareActivity<?> activity, boolean personalIdManagedLogin, String appId,
-                                    String username, String password, ConnectActivityCompleteListener callback) {
-        switch (evaluateAppState(activity, appId, username)) {
+    public void checkPersonalIdLink(
+            CommCareActivity<?> activity,
+            boolean personalIdManagedLogin,
+            String appId,
+            String username,
+            String password,
+            ConnectActivityCompleteListener callback
+    ) {
+        switch (evaluateAppState(appId, username)) {
             case Unmanaged ->
                     promptTolinkUnmanagedApp(activity, appId, username, password, callback);
-            case PersonalId ->
-                    promptToDelinkPersonalIdApp(activity, appId, username, personalIdManagedLogin,
-                            callback);
+            case PersonalId -> promptToDelinkPersonalIdApp(
+                    activity,
+                    appId,
+                    username,
+                    personalIdManagedLogin,
+                    callback
+            );
             case Connect -> callback.connectActivityComplete(true);
         }
     }
 
-    private void promptTolinkUnmanagedApp(CommCareActivity<?> activity, String appId, String username,
-                                          String password, ConnectActivityCompleteListener callback) {
-        ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity, appId,
-                username);
+    private void promptTolinkUnmanagedApp(
+            CommCareActivity<?> activity,
+            String appId,
+            String username,
+            String password,
+            ConnectActivityCompleteListener callback
+    ) {
+        ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                appId,
+                username
+        );
         OfferCheckResult offerCheck = evaluateLinkOffer(linkedApp);
 
         if (!offerCheck.shouldOffer) {
@@ -292,7 +261,13 @@ public class PersonalIdManager {
         }
 
         if (linkedApp == null) {
-            linkedApp = ConnectAppDatabaseUtil.storeApp(activity, appId, username, false, "", false, false);
+            linkedApp = ConnectAppDatabaseUtil.storeApp(
+                    appId,
+                    username,
+                    false,
+                    "",
+                    false
+            );
         }
 
         updateLinkOfferDate(linkedApp, offerCheck.isSecondOffer);
@@ -337,63 +312,96 @@ public class PersonalIdManager {
         }
     }
 
-
-    private void showLinkDialog(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp, String username,
-                                String password, ConnectActivityCompleteListener callback) {
+    private void showLinkDialog(
+            CommCareActivity<?> activity,
+            ConnectLinkedAppRecord linkedApp,
+            String username,
+            String password,
+            ConnectActivityCompleteListener callback
+    ) {
         StandardAlertDialog dialog = new StandardAlertDialog(
                 activity.getString(R.string.personalid_link_app_title),
-                activity.getString(R.string.personalid_link_app_message));
+                activity.getString(R.string.personalid_link_app_message)
+        );
 
-        dialog.setPositiveButton(activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
-            activity.dismissAlertDialog();
-            unlockAndLinkConnect(activity, linkedApp, username, password, callback);
-        });
+        dialog.setPositiveButton(
+                activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
+                    activity.dismissAlertDialog();
+                    unlockAndLinkConnect(activity, linkedApp, username, password, callback);
+                }
+        );
 
-        dialog.setNegativeButton(activity.getString(R.string.personalid_link_app_no), (d, w) -> {
-            activity.dismissAlertDialog();
-            ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
-            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_USER_DENIED);
-            callback.connectActivityComplete(false);
-        });
+        dialog.setNegativeButton(
+                activity.getString(R.string.personalid_link_app_no), (d, w) -> {
+                    activity.dismissAlertDialog();
+                    ConnectAppDatabaseUtil.storeApp(linkedApp);
+                    FirebaseAnalyticsUtil.reportPersonalIDLinking(
+                            linkedApp.getAppId(),
+                            FAILURE_USER_DENIED
+                    );
+                    callback.connectActivityComplete(false);
+                }
+        );
 
         activity.showAlertDialog(dialog);
     }
 
-    private void unlockAndLinkConnect(CommCareActivity<?> activity, ConnectLinkedAppRecord linkedApp,
-                                      String username, String password, ConnectActivityCompleteListener callback) {
-        unlockConnect(activity, success -> {
-            if (!success) {
-                callback.connectActivityComplete(false);
-                FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), FAILURE_UNLOCK_FAILED);
-                return;
-            }
+    private void unlockAndLinkConnect(
+            CommCareActivity<?> activity,
+            ConnectLinkedAppRecord linkedApp,
+            String username,
+            String password,
+            ConnectActivityCompleteListener callback
+    ) {
+        PersonalIdUnlocker.INSTANCE.unlock(
+                activity, UnlockPolicy.ALWAYS, success -> {
+                    if (!success) {
+                        callback.connectActivityComplete(false);
+                        FirebaseAnalyticsUtil.reportPersonalIDLinking(
+                                linkedApp.getAppId(),
+                                FAILURE_UNLOCK_FAILED
+                        );
+                        return;
+                    }
 
-            linkedApp.linkToPersonalId(password);
-            FirebaseAnalyticsUtil.reportPersonalIDLinking(linkedApp.getAppId(), SYNC_SUCCESS);
-            ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
+                    linkedApp.linkToPersonalId(password);
+                    FirebaseAnalyticsUtil.reportPersonalIDLinking(
+                            linkedApp.getAppId(),
+                            SYNC_SUCCESS
+                    );
+                    ConnectAppDatabaseUtil.storeApp(linkedApp);
 
-            ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-            ConnectSsoHelper.retrieveHqSsoToken(activity, user, linkedApp, username, true,
-                    new ConnectSsoHelper.TokenCallback() {
-                        public void tokenRetrieved(AuthInfo.TokenAuth token) {
-                            callback.connectActivityComplete(false);
-                        }
+                    ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
+                    ConnectSsoHelper.retrieveHqSsoToken(
+                            activity, user, linkedApp, username, true,
+                            new ConnectSsoHelper.TokenCallback() {
+                                public void tokenRetrieved(AuthInfo.TokenAuth token) {
+                                    callback.connectActivityComplete(false);
+                                }
 
-                        public void tokenUnavailable() {
-                            TokenExceptionHandler.INSTANCE.handleTokenUnavailableException(activity);
-                            callback.connectActivityComplete(false);
-                        }
+                                public void tokenUnavailable() {
+                                    TokenExceptionHandler.INSTANCE.handleTokenUnavailableException(
+                                            activity);
+                                    callback.connectActivityComplete(false);
+                                }
 
-                        public void tokenRequestDenied() {
-                            TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
-                            callback.connectActivityComplete(false);
-                        }
-                    });
-        });
+                                public void tokenRequestDenied() {
+                                    TokenExceptionHandler.INSTANCE.handleTokenDeniedException();
+                                    callback.connectActivityComplete(false);
+                                }
+                            }
+                    );
+                }
+        );
     }
 
-    private void promptToDelinkPersonalIdApp(CommCareActivity<?> activity, String appId, String username,
-                                             boolean personalIdManagedLogin, ConnectActivityCompleteListener callback) {
+    private void promptToDelinkPersonalIdApp(
+            CommCareActivity<?> activity,
+            String appId,
+            String username,
+            boolean personalIdManagedLogin,
+            ConnectActivityCompleteListener callback
+    ) {
         // we only want to prompt when user chose non connect Id managed login
         if (personalIdManagedLogin) {
             callback.connectActivityComplete(false);
@@ -402,30 +410,37 @@ public class PersonalIdManager {
 
         StandardAlertDialog dialog = new StandardAlertDialog(
                 activity.getString(R.string.personalid_unlink_app_title),
-                activity.getString(R.string.personalid_unlink_app_message));
+                activity.getString(R.string.personalid_unlink_app_message)
+        );
 
-        dialog.setPositiveButton(activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
-            activity.dismissAlertDialog();
-            unlockConnect(activity, success -> {
-                if (success) {
-                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(activity,
-                            appId, username);
-                    if (linkedApp != null) {
-                        linkedApp.severPersonalIdLink();
-                        ConnectAppDatabaseUtil.storeApp(activity, linkedApp);
-                    }
+        dialog.setPositiveButton(
+                activity.getString(R.string.personalid_link_app_yes), (d, w) -> {
+                    activity.dismissAlertDialog();
+                    PersonalIdUnlocker.INSTANCE.unlock(
+                            activity, UnlockPolicy.ALWAYS, success -> {
+                                if (success) {
+                                    ConnectLinkedAppRecord linkedApp = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                                            appId, username
+                                    );
+                                    if (linkedApp != null) {
+                                        linkedApp.severPersonalIdLink();
+                                        ConnectAppDatabaseUtil.storeApp(linkedApp);
+                                    }
+                                }
+                                callback.connectActivityComplete(false);
+                            }
+                    );
                 }
-                callback.connectActivityComplete(false);
-            });
-        });
+        );
 
-        dialog.setNegativeButton(activity.getString(R.string.personalid_link_app_no), (d, w) -> {
-            activity.dismissAlertDialog();
-            callback.connectActivityComplete(false);
-        });
+        dialog.setNegativeButton(
+                activity.getString(R.string.personalid_link_app_no), (d, w) -> {
+                    activity.dismissAlertDialog();
+                    callback.connectActivityComplete(false);
+                }
+        );
 
         activity.showAlertDialog(dialog);
-
     }
 
     public boolean isLoginManagedByPersonalId(String appId, String userId) {
@@ -433,8 +448,8 @@ public class PersonalIdManager {
         return auth != null;
     }
 
-    private ConnectAppRecord getAppRecord(Context context, String appId) {
-        return ConnectJobUtils.getAppRecord(context, appId);
+    private ConnectAppRecord getAppRecord(String appId) {
+        return ConnectJobUtils.getAppRecord(appId);
     }
 
     public String getStoredPasswordForApp(String appId, String userId) {
@@ -444,8 +459,10 @@ public class PersonalIdManager {
 
     @Nullable
     public AuthInfo.ProvidedAuth getCredentialsForApp(String appId, String userId) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
-                userId);
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                appId,
+                userId
+        );
         if (isPersonalIdLinkedApp(appId, userId) && !record.getPassword().isEmpty()) {
             return new AuthInfo.ProvidedAuth(record.getUserId(), record.getPassword(), false);
         }
@@ -454,8 +471,10 @@ public class PersonalIdManager {
 
     public AuthInfo.TokenAuth getTokenCredentialsForApp(String appId, String userId) {
         if (isloggedIn()) {
-            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(parentActivity, appId,
-                    userId);
+            ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                    appId,
+                    userId
+            );
             if (record != null && (new Date()).compareTo(record.getHqTokenExpiration()) < 0) {
                 return new AuthInfo.TokenAuth(record.getHqToken());
             }
@@ -472,16 +491,41 @@ public class PersonalIdManager {
         personalIdSatus = status;
     }
 
+    public void onAccountConfigurationSuccess(PersonalIdSessionData sessionData) {
+        createAndSaveConnectUser(sessionData);
+        PersonalIdBackupCodeReminderHelper.initialize();
+        setStatus(PersonalIdStatus.LoggedIn);
+        List<ConnectReleaseToggleRecord> toggles = sessionData.getFeatureReleaseToggles();
+        if (toggles != null) {
+            ConnectAppDatabaseUtil.storeReleaseToggles(toggles);
+        }
+        ConnectSyncPreferences.Companion.getInstance().markSessionStart();
+        userUnlockedPersonalId();
+    }
+
+    private void createAndSaveConnectUser(PersonalIdSessionData sessionData) {
+        ConnectDatabaseHelper.handleReceivedDbPassphrase(sessionData.getDbKey());
+        ConnectUserRecord user = new ConnectUserRecord(sessionData.getPhoneNumber(),
+                sessionData.getPersonalId(),
+                sessionData.getOauthPassword(), sessionData.getUserName(),
+                String.valueOf(sessionData.getBackupCode()), new Date(), sessionData.getPhotoBase64(),
+                sessionData.getDemoUser(),sessionData.getRequiredLock(),
+                sessionData.getInvitedUser());
+        user.setEmail(sessionData.getEmail());
+        user.setRegistrationPhase(ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED);
+        ConnectUserDatabaseUtil.storeUser(user);
+    }
+
     public void setParent(Context parent) {
         parentActivity = parent;
     }
 
-    public ConnectUserRecord getUser(Context context) {
-        return ConnectUserDatabaseUtil.getUser(context);
+    public ConnectUserRecord getUser() {
+        return ConnectUserDatabaseUtil.getUser();
     }
 
-    public String getConnectUsername(Context context) {
-        return ConnectUserDatabaseUtil.getUser(context).getUserId();
+    public String getConnectUsername() {
+        return ConnectUserDatabaseUtil.getUser().getUserId();
     }
 
     public boolean isSeatedAppCongigureWithPersonalId(String username) {
@@ -489,7 +533,7 @@ public class PersonalIdManager {
             if (isloggedIn()) {
                 String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
                 ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                        CommCareApplication.instance(), seatedAppId, username);
+                        seatedAppId, username);
                 return appRecord != null && appRecord.getWorkerLinked();
             }
         } catch (Exception e) {
@@ -499,8 +543,8 @@ public class PersonalIdManager {
         return false;
     }
 
-    public ConnectAppMangement evaluateAppState(Context context, String appId, String userId) {
-        ConnectAppRecord record = getAppRecord(context, appId);
+    public ConnectAppMangement evaluateAppState(String appId, String userId) {
+        ConnectAppRecord record = getAppRecord(appId);
         if (record != null) {
             return ConnectAppMangement.Connect;
         }
@@ -509,18 +553,61 @@ public class PersonalIdManager {
                 : ConnectAppMangement.Unmanaged;
     }
 
-    private boolean isConnectApp(Context context, String appId) {
-        return evaluateAppState(context, appId, "") == PersonalIdManager.ConnectAppMangement.Connect;
+    private boolean isConnectApp(String appId) {
+        return evaluateAppState(
+                appId,
+                ""
+        ) == PersonalIdManager.ConnectAppMangement.Connect;
     }
 
-    public boolean isLoggedInWithConnectApp(Context context, String appId) {
-        return isloggedIn() && isConnectApp(context, appId);
+    public boolean isLoggedInWithConnectApp(String appId) {
+        return isloggedIn() && isConnectApp(appId);
+    }
+
+    /**
+     * Whether the active session is genuinely the current user logged into an app — i.e. the app is
+     * seated and the session's key record belongs to that user, not a stale session left over from a
+     * previously launched app or a different user.
+     */
+    public boolean isSessionLoggedIntoApp(String appId) {
+        if (!CommCareApplication.isSessionActive()) {
+            return false;
+        }
+
+        CommCareApplication instance = CommCareApplication.instance();
+        CommCareApp currentApp = instance.getCurrentApp();
+        if (currentApp == null || !appId.equals(currentApp.getUniqueId())) {
+            return false;
+        }
+
+        String sessionUuid = instance.getSession().getUserKeyRecordUUID();
+        if (sessionUuid == null) {
+            return false;
+        }
+
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
+        if (user == null || user.getUserId() == null) {
+            return false;
+        }
+
+        String currentUsername = user.getUserId().trim().toLowerCase(Locale.ROOT);
+        Vector<UserKeyRecord> userKeyRecords = instance
+                .getAppStorage(UserKeyRecord.class)
+                .getRecordsForValue(UserKeyRecord.META_SANDBOX_ID, sessionUuid);
+
+        for (UserKeyRecord record : userKeyRecords) {
+            if (currentUsername.equals(record.getUsername())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isPersonalIdLinkedApp(String appId, String username) {
         if (isloggedIn()) {
             ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
-                    manager.parentActivity, appId, username);
+                    appId, username);
             return record != null && record.getPersonalIdLinked();
         }
         return false;
@@ -539,7 +626,7 @@ public class PersonalIdManager {
             return null;
         }
 
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(manager.parentActivity);
+        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser();
         if (user == null) {
             return null;
         }
@@ -550,11 +637,18 @@ public class PersonalIdManager {
             return null;
         }
 
-        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(manager.parentActivity,
-                seatedAppId, username);
+        ConnectLinkedAppRecord appRecord = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(
+                seatedAppId,
+                username
+        );
 
-        return ConnectSsoSyncHelper.INSTANCE.retrieveHqSsoTokenSync(CommCareApplication.instance(), user, appRecord, username,
-                false);
+        return ConnectSsoSyncHelper.INSTANCE.retrieveHqSsoTokenSync(
+                CommCareApplication.instance(),
+                user,
+                appRecord,
+                username,
+                false
+        );
     }
 
     public BiometricManager getBiometricManager(FragmentActivity parent) {
@@ -566,7 +660,8 @@ public class PersonalIdManager {
     }
 
     public boolean checkDeviceCompability() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+        int smallestWidthDp = CommCareApplication.instance().getResources().getConfiguration().smallestScreenWidthDp;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && smallestWidthDp < MAX_SCREEN_WIDTH_DP_FOR_PERSONAL_ID;
     }
 
     public int getFailureAttempt() {
@@ -575,6 +670,10 @@ public class PersonalIdManager {
 
     public void setFailureAttempt(int failureAttempt) {
         failedPinAttempts = failureAttempt;
+    }
+
+    public static void clearInstance() {
+        manager = null;
     }
 
     /**

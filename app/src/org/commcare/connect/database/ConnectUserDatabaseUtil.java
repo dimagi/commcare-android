@@ -1,56 +1,53 @@
 package org.commcare.connect.database;
 
-import android.content.Context;
-
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.ConnectKeyRecord;
+import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
+import org.commcare.preferences.ConnectMessagingPreferences;
 
 public class ConnectUserDatabaseUtil {
 
-    public static ConnectUserRecord getUser(Context context) {
-        if (context == null) {
-            throw new IllegalArgumentException("Context must not be null");
-        }
+    public static ConnectUserRecord getUser() {
         if (!ConnectDatabaseHelper.dbExists()) {
             return null;
         }
         Iterable<ConnectUserRecord> records = ConnectDatabaseHelper.getConnectStorage(
-                context, ConnectUserRecord.class);
+                ConnectUserRecord.class);
         if (records.iterator().hasNext()) {
             return records.iterator().next();
         }
         return null;
     }
 
-    public static void storeUser(Context context, ConnectUserRecord user) {
-        if (context == null) {
-            throw new IllegalArgumentException("Context must not be null");
-        }
+    public static void storeUser(ConnectUserRecord user) {
         if (user == null) {
             throw new IllegalArgumentException("User must not be null");
         }
-        ConnectDatabaseHelper.getConnectStorage(context, ConnectUserRecord.class).write(user);
+        ConnectDatabaseHelper.getConnectStorage(ConnectUserRecord.class).write(user);
     }
 
     public static void forgetUser() {
+        ConnectMessagingAttachmentDownloadScheduler.cancelDownloads(CommCareApplication.instance());
+        ConnectMessagingAttachmentFileStore.deleteAll(CommCareApplication.instance());
+        ConnectMessagingPreferences.clear(CommCareApplication.instance());
         DatabaseConnectOpenHelper.deleteDb();
         CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
         ConnectDatabaseHelper.dbBroken = false;
         ConnectDatabaseHelper.teardown();
     }
 
-    public static boolean hasConnectAccess(Context context) {
-        ConnectUserRecord user = getUser(context);
+    public static boolean hasConnectAccess() {
+        ConnectUserRecord user = getUser();
         return user != null && user.hasConnectAccess();
     }
 
-    public static void turnOnConnectAccess(Context context) {
-        ConnectUserRecord user = getUser(context);
+    public static void turnOnConnectAccess() {
+        ConnectUserRecord user = getUser();
         if (user != null && !user.hasConnectAccess()) {
             user.setHasConnectAccess(true);
-            storeUser(context, user);
+            storeUser(user);
         }
     }
 }

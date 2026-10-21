@@ -3,17 +3,15 @@ package org.commcare.connect.database;
 import android.content.Context;
 
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.global.models.GlobalErrorRecord;
 import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.network.SsoToken;
+import org.commcare.connect.network.personalId.SsoToken;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.CommCareApplication;
 import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.EncryptedDatabaseAdapter;
 import org.commcare.models.database.IDatabase;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
-import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.modern.database.Table;
 import org.commcare.utils.GlobalErrorUtil;
 import org.commcare.utils.GlobalErrors;
@@ -33,8 +31,8 @@ public class ConnectDatabaseHelper {
     public static IDatabase connectDatabase;
     static boolean dbBroken = false;
 
-    public static void handleReceivedDbPassphrase(Context context, String passphrase) {
-        ConnectDatabaseUtils.storeConnectDbPassphrase(context, passphrase);
+    public static void handleReceivedDbPassphrase(String passphrase) {
+        ConnectDatabaseUtils.storeConnectDbPassphrase(passphrase);
     }
 
     public static boolean dbExists() {
@@ -45,20 +43,15 @@ public class ConnectDatabaseHelper {
         return dbBroken;
     }
 
-    public static <T extends Persistable> SqlStorage<T> getConnectStorage(Context context, Class<T> c) {
+    public static <T extends Persistable> SqlStorage<T> getConnectStorage(Class<T> c) {
+        Context context = CommCareApplication.instance().getApplicationContext();
         return new SqlStorage<>(c.getAnnotation(Table.class).value(), c, new AndroidDbHelper(context) {
             @Override
             public IDatabase getHandle() {
                 synchronized (connectDbHandleLock) {
                     if (connectDatabase == null || !connectDatabase.isOpen()) {
                         try {
-                            byte[] passphrase = ConnectDatabaseUtils.getConnectDbPassphrase(context);
-                            if (passphrase == null || passphrase.length == 0) {
-                                throw new IllegalStateException("Attempting to access Connect DB without a passphrase");
-                            }
-
-                            connectDatabase = new EncryptedDatabaseAdapter(new DatabaseConnectOpenHelper(
-                                    this.c, UserSandboxUtils.getSqlCipherEncodedKey(passphrase)));
+                            connectDatabase = CommCareApplication.instance().getConnectDbOpenHelper();
                         } catch (Exception e) {
                             //Flag the DB as broken if we hit an error opening it (usually means corrupted or bad encryption)
                             dbBroken = true;
@@ -86,19 +79,9 @@ public class ConnectDatabaseHelper {
         PersonalIdManager.getInstance().forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_DB_ERROR);
     }
 
-    public static void storeHqToken(Context context, String appId, String userId, SsoToken token) {
-        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(context, appId, userId);
+    public static void storeHqToken(String appId, String userId, SsoToken token) {
+        ConnectLinkedAppRecord record = ConnectAppDatabaseUtil.getConnectLinkedAppRecord(appId, userId);
         record.updateHqToken(token);
-        getConnectStorage(context, ConnectLinkedAppRecord.class).write(record);
+        getConnectStorage(ConnectLinkedAppRecord.class).write(record);
     }
-
-    public static void setRegistrationPhase(Context context, int phase) {
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(context);
-        if (user != null) {
-            user.setRegistrationPhase(phase);
-            ConnectUserDatabaseUtil.storeUser(context, user);
-        }
-    }
-
-
 }

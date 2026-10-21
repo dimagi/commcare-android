@@ -1,0 +1,288 @@
+package org.commcare.fragments.connect
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.GridLayout
+import androidx.annotation.DrawableRes
+import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import org.commcare.activities.CommCareActivity
+import org.commcare.android.database.connect.models.ConnectTaskRecord
+import org.commcare.connect.ConnectDateUtils
+import org.commcare.connect.ConnectMoneyUtils
+import org.commcare.connect.database.ConnectTaskUtils
+import org.commcare.dalvik.R
+import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding
+import org.commcare.fragments.RefreshableTab
+import org.commcare.views.connect.ConnectInfoHalfCard
+import org.commcare.views.connect.ConnectProgressCard
+import org.commcare.views.connect.ConnectSyncStatusCard
+import org.commcare.views.connect.ConnectTaskPresenter
+import java.text.DateFormat
+
+/**
+ * Dashboard tab of a delivery opportunity: visit progress, a sync card that re-syncs on tap, and a
+ * per-payment-unit breakdown of the worker's own progress.
+ *
+ * Figures render disabled once no further work earns progress, and an individual payment unit's card
+ * also dims on its own once that unit is out of visits.
+ */
+class ConnectDeliveryDashboardFragment :
+    ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>(),
+    RefreshableTab {
+    private val host get() = requireParentFragment() as ConnectDeliveryHomeFragment
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        updateView()
+        return view
+    }
+
+    override fun updateView() {
+        reloadActiveJob()
+        val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
+        val contentEnabled = !job.isFurtherWorkBlocked && pendingTasks.isEmpty()
+        bindHeader()
+        bindVisitProgress(contentEnabled)
+        bindBlockingTask(pendingTasks.firstOrNull())
+        bindSyncCard(host.syncStatus, host.isSynced)
+        bindProgressGrid(contentEnabled)
+    }
+
+    private fun bindHeader() {
+        binding.deliveryJobTitle.text = job.title
+        binding.deliveryExpiryValue.text =
+            ConnectDateUtils.formatDate(job.projectEndDate, DateFormat.SHORT)
+    }
+
+    private fun bindVisitProgress(contentEnabled: Boolean) {
+        val cardMessage: String? = job.getCardMessageText(requireContext(), true)
+        binding.deliveryProgressCard.bind(
+            ConnectProgressCard.State(
+                title = getString(R.string.connect_delivery_visit_progress_title),
+                contentEnabled = contentEnabled,
+                info =
+                    cardMessage?.let { message ->
+                        ConnectProgressCard.State.Info(
+                            message = message,
+                            appearance = ConnectProgressCard.State.Info.Appearance.WARNING,
+                        )
+                    },
+                semiCircle =
+                    ConnectProgressCard.State.SemiCircle(
+                        current = job.completedVisits,
+                        max = job.maxVisits,
+                        description = getString(R.string.connect_delivery_total_visits_completed),
+                    ),
+                linearProgress = getJobDailyProgress(),
+                breakdownRows = getPaymentUnitDailyProgress(),
+                collapsedBreakdownRowCount = COLLAPSED_PAYMENT_UNIT_ROW_COUNT,
+            ),
+        )
+    }
+
+    private fun getJobDailyProgress(): ConnectProgressCard.State.LinearProgress {
+        val visitsDoneToday = job.numberOfDeliveriesToday()
+        val visitsBeforeToday = job.deliveries.size - visitsDoneToday
+        val maxDailyVisits =
+            job.maxDailyVisits
+                .takeIf { job.hasDailyLimit() }
+                ?.let { getDailyVisitLimit(it, job.maxVisits, visitsBeforeToday) }
+        val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
+        val label =
+            getString(
+                if (job.hasDailyLimit()) {
+                    R.string.connect_delivery_daily_visits
+                } else {
+                    R.string.connect_visits_completed_today
+                },
+            )
+        val caption = maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
+
+        return ConnectProgressCard.State.LinearProgress(
+            label = label,
+            current = visitsDoneToday,
+            max = progressBarMax,
+            caption = caption,
+        )
+    }
+
+    private fun getPaymentUnitDailyProgress(): List<ConnectProgressCard.State.LinearProgress> {
+        if (!job.isMultiPayment) return emptyList()
+
+        val visitsTodayPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(true)
+        val visitsPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(false)
+
+        return job.paymentUnits.map { paymentUnit ->
+            val visitsDoneToday = visitsTodayPerPaymentUnit[paymentUnit.unitUUID] ?: 0
+            val visitsBeforeToday = (visitsPerPaymentUnit[paymentUnit.unitUUID] ?: 0) - visitsDoneToday
+            val maxDailyVisits =
+                paymentUnit.maxDaily
+                    .takeIf { paymentUnit.hasDailyLimit() }
+                    ?.let { getDailyVisitLimit(it, paymentUnit.maxTotal, visitsBeforeToday) }
+            val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
+            val caption =
+                maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
+                    ?: getString(R.string.connect_delivery_no_daily_visit_target)
+            val countFormatRes =
+                progressBarMax?.let { R.plurals.connect_delivery_completed_today_of }
+                    ?: R.plurals.connect_delivery_completed_today
+
+            ConnectProgressCard.State.LinearProgress(
+                label = paymentUnit.name,
+                current = visitsDoneToday,
+                max = progressBarMax,
+                caption = caption,
+                countFormatRes = countFormatRes,
+            )
+        }
+    }
+
+    private fun getDailyVisitLimit(
+        maxDailyVisits: Int,
+        maxTotalVisits: Int,
+        visitsBeforeToday: Int,
+    ): Int = minOf(maxDailyVisits, (maxTotalVisits - visitsBeforeToday).coerceAtLeast(0))
+
+    private fun getVisitsRemainingTodayText(
+        maxDailyVisits: Int,
+        visitsDoneToday: Int,
+    ): String {
+        val remainingToday = (maxDailyVisits - visitsDoneToday).coerceAtLeast(0)
+        return resources.getQuantityString(
+            R.plurals.connect_delivery_visits_remaining_today,
+            remainingToday,
+            remainingToday,
+        )
+    }
+
+    /**
+     * Only the task falling due first is shown here; the rest stay on the More tab, so the dashboard
+     * asks for one thing at a time.
+     */
+    private fun bindBlockingTask(task: ConnectTaskRecord?) {
+        binding.deliveryTaskCard.isVisible = task != null
+        if (task == null) return
+
+        binding.deliveryTaskCard.bind(
+            ConnectTaskPresenter.state(
+                context = requireContext(),
+                task = task,
+                highlighted = true,
+                showExpiry = false,
+                chipLabel = getString(R.string.connect_task_pending_chip),
+                subtitle = getString(R.string.connect_task_blocking_subtitle),
+                iconOnCircle = false,
+                onClick = { openTask(task) },
+            ),
+        )
+    }
+
+    private fun openTask(task: ConnectTaskRecord) =
+        ConnectTaskPresenter.open(requireActivity() as CommCareActivity<*>, task) {
+            launchApp(isLearning = false)
+        }
+
+    /** Called by the host, which owns the delivery sync and so learns its status first. */
+    fun updateSyncStatus(
+        syncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        bindSyncCard(syncStatus, synced)
+    }
+
+    private fun bindSyncCard(
+        syncStatus: CharSequence,
+        synced: Boolean,
+    ) {
+        binding.deliverySyncCard.bind(
+            ConnectSyncStatusCard.State(
+                statusText = getString(R.string.connect_sync_card_press_to_sync),
+                statusSubtext = syncStatus,
+                warning = !synced,
+            ),
+        )
+        binding.deliverySyncCard.onCardClick = { host.refresh(true) }
+    }
+
+    private fun bindProgressGrid(contentEnabled: Boolean) {
+        val grid = binding.deliveryProgressGrid
+        grid.removeAllViews()
+
+        val earnings =
+            halfCard(
+                value = ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.paymentAccrued),
+                title = getString(R.string.connect_delivery_total_earnings),
+                subtitle = null,
+                iconRes = R.drawable.ic_connect_savings,
+                contentEnabled = contentEnabled,
+            )
+        grid.addView(earnings, cellParams(grid.childCount))
+
+        val counts = job.getDeliveryCountsPerPaymentUnit(false)
+        val unitsAtLimit = job.paymentUnitsAtLimit
+        job.paymentUnits.forEach { unit ->
+            val card =
+                halfCard(
+                    value = (counts[unit.unitUUID] ?: 0).toString(),
+                    title = unit.name,
+                    subtitle =
+                        getString(
+                            R.string.connect_delivery_amount_each,
+                            ConnectMoneyUtils.moneyStringWithSymbol(job.currency, unit.amount),
+                        ),
+                    iconRes = R.drawable.ic_connect_footprint,
+                    contentEnabled = contentEnabled && !unitsAtLimit.contains(unit.unitUUID),
+                )
+            grid.addView(card, cellParams(grid.childCount))
+        }
+    }
+
+    private fun halfCard(
+        value: CharSequence,
+        title: CharSequence,
+        subtitle: CharSequence?,
+        @DrawableRes iconRes: Int,
+        contentEnabled: Boolean,
+    ) = ConnectInfoHalfCard(requireContext()).apply {
+        valueText = value
+        titleText = title
+        subtitleText = subtitle
+        icon = ContextCompat.getDrawable(context, iconRes)
+        this.contentEnabled = contentEnabled
+    }
+
+    /**
+     * Neighbouring cards each contribute half the gap horizontally, so the row gap is doubled from
+     * the same dimension to keep the spacing square whatever the display density rounds to.
+     */
+    private fun cellParams(index: Int) =
+        GridLayout.LayoutParams().apply {
+            width = 0
+            height = GridLayout.LayoutParams.WRAP_CONTENT
+            columnSpec = GridLayout.spec(index % GRID_COLUMNS, 1, 1f)
+            rowSpec = GridLayout.spec(index / GRID_COLUMNS, 1, GridLayout.FILL)
+            val halfGutter = resources.getDimensionPixelSize(R.dimen.connect_grid_gutter_half)
+            if (index % GRID_COLUMNS == 0) marginEnd = halfGutter else marginStart = halfGutter
+            bottomMargin = halfGutter * 2
+        }
+
+    override fun inflateBinding(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+    ): FragmentConnectDeliveryDashboardBinding = FragmentConnectDeliveryDashboardBinding.inflate(inflater, container, false)
+
+    companion object {
+        private const val GRID_COLUMNS = 2
+        private const val COLLAPSED_PAYMENT_UNIT_ROW_COUNT = 3
+
+        @JvmStatic
+        fun newInstance() = ConnectDeliveryDashboardFragment()
+    }
+}

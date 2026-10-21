@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import org.commcare.android.storage.framework.Persisted;
+import org.commcare.connect.database.ConnectTaskUtils;
 import org.commcare.dalvik.R;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -21,10 +22,14 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -85,6 +90,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public static final String META_USER_SUSPENDED = "is_user_suspended";
 
     public static final String META_JOB_UUID = "opportunity_id";
+
+    public static final int NO_DAILY_LIMIT = -1;
 
     @Persisting(1)
     @MetaField(META_JOB_ID)
@@ -176,7 +183,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     private ConnectAppRecord learnAppInfo;
     private ConnectAppRecord deliveryAppInfo;
     private List<ConnectPaymentUnitRecord> paymentUnits;
-    static Date startDate = new Date();
 
     private boolean claimed;
 
@@ -190,14 +196,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         dailyFinishTime = "";
     }
 
-    public static ConnectJobRecord corruptJobFromJson(JSONObject json) throws JSONException {
-        ConnectJobRecord job = new ConnectJobRecord();
-        job.title = json.has(META_NAME) ? json.getString(META_NAME) : "";
-        job.description = json.has(META_DESCRIPTION) ? json.getString(META_DESCRIPTION) : "";
-        job.organization = json.has(META_ORGANIZATION) ? json.getString(META_ORGANIZATION) : "";
-        return job;
-    }
-
     public static ConnectJobRecord fromJson(JSONObject json) throws JSONException {
         ConnectJobRecord job = new ConnectJobRecord();
         job.jobId = json.getInt(META_JOB_ID);   //  This will be eventually removed
@@ -205,13 +203,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.title = json.getString(META_NAME);
         job.description = json.getString(META_DESCRIPTION);
         job.organization = json.getString(META_ORGANIZATION);
-        job.projectEndDate = DateUtils.parseDate(json.getString(META_END_DATE));
-        job.projectStartDate = DateUtils.parseDate(json.getString(META_START_DATE));
-        if (job.projectStartDate != null && job.projectStartDate.after(startDate)) {
-            startDate = job.projectStartDate;
-        }
+        job.projectEndDate = JsonExtensions.requireDate(json, META_END_DATE);
+        job.projectStartDate = JsonExtensions.requireDate(json, META_START_DATE);
         job.maxVisits = json.getInt(META_MAX_VISITS_PER_USER);
-        job.maxDailyVisits = json.getInt(META_MAX_DAILY_VISITS);
+        job.maxDailyVisits = JsonExtensions.optIntSafe(json, META_MAX_DAILY_VISITS, NO_DAILY_LIMIT);
         job.budgetPerVisit = json.getInt(META_BUDGET_PER_VISIT);
         String budgetPerUserKey = "budget_per_user";
         job.totalBudget = json.getInt(budgetPerUserKey);
@@ -224,7 +219,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.assessments = new ArrayList<>();
         job.completedVisits = json.getInt(META_DELIVERY_PROGRESS);
 
-        job.claimed = json.has(META_CLAIM) && !json.isNull(META_CLAIM);
+        job.claimed = JsonExtensions.hasNonNull(json, META_CLAIM);
 
         job.isActive = json.optBoolean(META_IS_ACTIVE, true);
 
@@ -232,7 +227,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         //verification_flags -> {"form_submission_start":"07:30:00","form_submission_end":"18:45:00"}
         String flagsKey = "verification_flags";
-        JSONObject flags = json.has(flagsKey) && !json.isNull(flagsKey) ? json.getJSONObject(flagsKey) : null;
+        JSONObject flags = JsonExtensions.hasNonNull(json, flagsKey)
+                ? json.getJSONObject(flagsKey) : null;
         if (flags != null) {
             job.dailyStartTime = JsonExtensions.optStringSafe(flags, META_DAILY_START_TIME, "");
             job.dailyFinishTime = JsonExtensions.optStringSafe(flags, META_DAILY_FINISH_TIME, "");
@@ -241,7 +237,10 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         JSONArray unitsJson = json.getJSONArray(META_PAYMENT_UNITS);
         job.paymentUnits = new ArrayList<>();
         for (int i = 0; i < unitsJson.length(); i++) {
-            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(unitsJson.getJSONObject(i), job);
+            ConnectPaymentUnitRecord payment = ConnectPaymentUnitRecord.fromJson(
+                    unitsJson.getJSONObject(i),
+                    job
+            );
             if (payment != null) {
                 job.paymentUnits.add(payment);
             }
@@ -255,11 +254,11 @@ public class ConnectJobRecord extends Persisted implements Serializable {
             }
 
             if (claim.has(META_END_DATE)) {
-                job.projectEndDate = DateUtils.parseDate(claim.getString(META_END_DATE));
+                job.projectEndDate = JsonExtensions.requireDate(claim, META_END_DATE);
             }
 
             if (claim.has(META_CLAIM_DATE)) {
-                job.dateClaimed = DateUtils.parseDate(claim.getString(META_CLAIM_DATE));
+                job.dateClaimed = JsonExtensions.requireDate(claim, META_CLAIM_DATE);
             }
 
             if (claim.has(META_PAYMENT_UNITS)) {
@@ -283,8 +282,16 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         job.numLearningModules = learning.getInt(META_LEARN_MODULES);
         job.learningModulesCompleted = learning.getInt(META_COMPLETED_MODULES);
 
-        job.learnAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_LEARN_APP), job, true);
-        job.deliveryAppInfo = ConnectAppRecord.fromJson(json.getJSONObject(META_DELIVER_APP), job, false);
+        job.learnAppInfo = ConnectAppRecord.fromJson(
+                json.getJSONObject(META_LEARN_APP),
+                job,
+                true
+        );
+        job.deliveryAppInfo = ConnectAppRecord.fromJson(
+                json.getJSONObject(META_DELIVER_APP),
+                job,
+                false
+        );
 
         job.status = STATUS_AVAILABLE;
         if (job.getLearningPercentComplete(true) > 0) {
@@ -341,6 +348,14 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return maxDailyVisits;
     }
 
+    public boolean hasDailyLimit() {
+        return maxDailyVisits != NO_DAILY_LIMIT;
+    }
+
+    private boolean isDailyLimitReached() {
+        return hasDailyLimit() && numberOfDeliveriesToday() >= maxDailyVisits;
+    }
+
     public Date getProjectStartDate() {
         return projectStartDate;
     }
@@ -354,7 +369,8 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getPaymentAccrued() {
-        return paymentAccrued == null || paymentAccrued.isEmpty() ? 0 : Integer.parseInt(paymentAccrued);
+        return paymentAccrued == null || paymentAccrued.isEmpty()
+                ? 0 : Integer.parseInt(paymentAccrued);
     }
 
     /**
@@ -366,7 +382,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
      */
     public int getLearningPercentComplete(boolean includeAssessmentModule) {
         int totalModules = numLearningModules;
-        int modulesCompleted = learningModulesCompleted;
+        int modulesCompleted = Math.min(learningModulesCompleted, numLearningModules);
 
         if (includeAssessmentModule) {
             // Add 1 to the calculation to represent the assessment module.
@@ -470,7 +486,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public int getDaysRemaining() {
-        long millis = projectEndDate.getTime() - (startDate).getTime();
+        long millis = projectEndDate.getTime() - new Date().getTime();
         //End date has 00:00 time, but project is valid until midnight
         //So add just under one day to the difference
         millis += 86399999; //one ms less than 24 hours
@@ -489,11 +505,17 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         }
 
         try {
-            SimpleDateFormat utcFormat = new SimpleDateFormat(WORKING_HOURS_SOURCE_FORMAT, Locale.getDefault());
+            SimpleDateFormat utcFormat = new SimpleDateFormat(
+                    WORKING_HOURS_SOURCE_FORMAT,
+                    Locale.getDefault()
+            );
             utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date startTime = utcFormat.parse(dailyStart);
             Date endTime = utcFormat.parse(dailyFinish);
-            SimpleDateFormat localFormat = new SimpleDateFormat(WORKING_HOURS_TARGET_FORMAT, Locale.getDefault());
+            SimpleDateFormat localFormat = new SimpleDateFormat(
+                    WORKING_HOURS_TARGET_FORMAT,
+                    Locale.getDefault()
+            );
 
             String startTimeLocal = localFormat.format(startTime);
             String endTimeLocal = localFormat.format(endTime);
@@ -515,13 +537,132 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return total > 0 ? (100 * completed / total) : 100;
     }
 
+    /**
+     * Whether any learning module is still unfinished.
+     */
+    public boolean ifModulesRemining() {
+        return learningModulesCompleted < numLearningModules;
+    }
+
     public boolean attemptedAssessment() {
         return assessments != null && !assessments.isEmpty();
+    }
+
+    /**
+     * The most recent learning activity: the latest assessment date, or the latest completed module
+     * if the user never took an assessment. Callers that have established learning is complete read
+     * this as the completion date. Null when this device holds no dated record of either, which is
+     * the case until it has run a learn sync.
+     */
+    @Nullable
+    public Date getLatestLearningActivityDate() {
+        List<Date> dates = new ArrayList<>();
+
+        if (attemptedAssessment()) {
+            for (ConnectJobAssessmentRecord record : assessments) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        } else if (getLearnings() != null) {
+            for (ConnectJobLearningRecord record : getLearnings()) {
+                if (record.getDate() != null) {
+                    dates.add(record.getDate());
+                }
+            }
+        }
+
+        return dates.isEmpty() ? null : Collections.max(dates);
+    }
+
+    public List<ConnectLearnModuleSummaryRecord> getSortedLearnModules() {
+        List<ConnectLearnModuleSummaryRecord> modules = learnModules();
+        List<ConnectLearnModuleSummaryRecord> sorted = new ArrayList<>(modules);
+        sorted.sort(Comparator
+                .comparingInt(ConnectLearnModuleSummaryRecord::getModuleId)
+                .thenComparingInt(ConnectLearnModuleSummaryRecord::getModuleIndex));
+        return sorted;
+    }
+
+    /**
+     * Return false if any of the learn modules is not identifiable i.e. missing module id from server
+     */
+    public boolean isLearnModulesIdentifiable() {
+        for (ConnectLearnModuleSummaryRecord module : learnModules()) {
+            if (module.getModuleId() == ConnectLearnModuleSummaryRecord.UNKNOWN_MODULE_ID) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Return the most recent completed learn module
+     */
+    @Nullable
+    public ConnectLearnModuleSummaryRecord findLastCompletedLearnModule(
+            List<ConnectLearnModuleSummaryRecord> modules) {
+        if (learnings == null) {
+            return null;
+        }
+
+        ConnectJobLearningRecord latest = null;
+        for (ConnectJobLearningRecord learning : learnings) {
+            if (latest == null || learning.getDate().after(latest.getDate())) {
+                latest = learning;
+            }
+        }
+        if (latest == null) {
+            return null;
+        }
+
+        for (ConnectLearnModuleSummaryRecord module : modules) {
+            if (module.getModuleId() == latest.getModuleId()) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The first module with no completion record, or null when every one has been
+     * completed
+     */
+    @Nullable
+    public ConnectLearnModuleSummaryRecord findNextIncompleteLearnModule(
+            List<ConnectLearnModuleSummaryRecord> modules) {
+        Set<Integer> completedIds = new HashSet<>();
+        if (learnings != null) {
+            for (ConnectJobLearningRecord learning : learnings) {
+                completedIds.add(learning.getModuleId());
+            }
+        }
+
+        for (ConnectLearnModuleSummaryRecord module : modules) {
+            if (!completedIds.contains(module.getModuleId())) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    private List<ConnectLearnModuleSummaryRecord> learnModules() {
+        List<ConnectLearnModuleSummaryRecord> modules = learnAppInfo == null
+                ? null : learnAppInfo.getLearnModules();
+        return modules == null ? new ArrayList<>() : modules;
     }
 
     public boolean passedAssessment() {
         return status == STATUS_DELIVERING
                 || getAssessmentScore() >= getLearnAppInfo().getPassingScore();
+    }
+
+    /**
+     * Whether the user has finished everything required before claiming the job:
+     * every learn module submitted, and a passing assessment score
+     */
+    public boolean isLearningComplete() {
+        return getLearningPercentComplete(true) >= 100;
     }
 
     public int getAssessmentScore() {
@@ -585,7 +726,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return String.format(Locale.getDefault(), "%d%s", value, currency);
     }
 
-
     public int numberOfDeliveriesToday() {
         int dailyVisitCount = 0;
         Date today = new Date();
@@ -605,7 +745,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public boolean isMultiPayment() {
         return paymentUnits.size() > 1;
     }
-
 
     public HashMap<String, Integer> getDeliveryCountsPerPaymentUnit(boolean todayOnly) {
         HashMap<String, Integer> paymentCounts = new HashMap<>();
@@ -629,25 +768,34 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     }
 
     public boolean readyToTransitionToDelivery() {
-        return status == STATUS_LEARNING && passedAssessment();
+        return status == STATUS_LEARNING && isLearningComplete();
     }
 
+    /**
+     * Pass {@code includeDeliveryWarnings = false} on surfaces that don't deliver visits, such as the learn app.
+     */
     @Nullable
-    public String getCardMessageText(Context context) {
+    public String getCardMessageText(Context context, boolean includeDeliveryWarnings) {
         if (isFinished()) {
             return context.getString(R.string.connect_progress_warning_ended);
         } else if (getIsUserSuspended()) {
             return context.getString(R.string.user_suspended);
-        } else if (status == STATUS_DELIVERING && getProjectStartDate().after(new Date())) {
+        } else if (includeDeliveryWarnings && getProjectStartDate().after(new Date())) {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
-        } else if (isMultiPayment()) {
-            return getMultiVisitWarnings(context);
+        } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(context, this)) {
+            return context.getString(R.string.connect_progress_relearn_tasks_completed);
+        } else if (!includeDeliveryWarnings) {
+            return null;
         } else if (getDeliveries().size() >= getMaxVisits()) {
+            // The job-level caps are checked ahead of the per-unit warnings: once the whole
+            // opportunity is spent, which individual unit ran out first no longer matters.
             return context.getString(R.string.connect_progress_warning_max_reached_single);
-        } else if (numberOfDeliveriesToday() >= getMaxDailyVisits()) {
+        } else if (isDailyLimitReached()) {
             return context.getString(R.string.connect_progress_warning_daily_max_reached_single);
+        } else if (!getPaymentUnits().isEmpty()) {
+            return getMultiVisitWarnings(context);
         }
 
         return null;
@@ -668,7 +816,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
                 totalMaxes.add(unit.getName());
             } else {
                 int todayCount = today.containsKey(key) ? today.get(key) : 0;
-                if (todayCount >= unit.getMaxDaily()) {
+                if (unit.isDailyLimitReached(todayCount)) {
                     dailyMaxes.add(unit.getName());
                 }
             }
@@ -676,16 +824,67 @@ public class ConnectJobRecord extends Persisted implements Serializable {
 
         List<String> lines = new ArrayList<>();
         if (!totalMaxes.isEmpty()) {
-            lines.add(context.getString(R.string.connect_progress_warning_max_reached_multi,
-                    TextUtils.join(", ", totalMaxes)));
+            lines.add(
+                    context.getString(
+                            R.string.connect_progress_warning_max_reached_multi,
+                            TextUtils.join(", ", totalMaxes)
+                    )
+            );
         }
 
         if (!dailyMaxes.isEmpty()) {
-            lines.add(context.getString(R.string.connect_progress_warning_daily_max_reached_multi,
-                    TextUtils.join(", ", dailyMaxes)));
+            lines.add(
+                    context.getString(
+                            R.string.connect_progress_warning_daily_max_reached_multi,
+                            TextUtils.join(", ", dailyMaxes)
+                    )
+            );
         }
 
         return lines.isEmpty() ? null : TextUtils.join("\n", lines);
+    }
+
+    /**
+     * Whether no further work on this job can earn progress, so progress displays should render as
+     * disabled. For a multi-payment job this is only true once every payment unit is out of visits,
+     * either for good or for today; while any unit is still workable the limits are informational.
+     */
+    public boolean isFurtherWorkBlocked() {
+        if (isFinished() || getIsUserSuspended()) {
+            return true;
+        }
+
+        // The job-level caps bind whatever the payment units allow, so they are checked first.
+        if (getDeliveries().size() >= getMaxVisits() || isDailyLimitReached()) {
+            return true;
+        }
+
+        // Any job with payment units is blocked once they are all at a limit, single unit included:
+        // with nothing left to deliver against, room under the job-level cap earns nothing. The
+        // empty check matters, otherwise a job with no units compares 0 == 0 and blocks forever.
+        List<ConnectPaymentUnitRecord> units = getPaymentUnits();
+        return !units.isEmpty() && getPaymentUnitsAtLimit().size() == units.size();
+    }
+
+    /**
+     * UUIDs of the payment units that cannot earn another visit right now, because they are out of
+     * visits either for good or for today.
+     */
+    public Set<String> getPaymentUnitsAtLimit() {
+        HashMap<String, Integer> total = getDeliveryCountsPerPaymentUnit(false);
+        HashMap<String, Integer> today = getDeliveryCountsPerPaymentUnit(true);
+        Set<String> atLimit = new HashSet<>();
+
+        for (ConnectPaymentUnitRecord unit : getPaymentUnits()) {
+            String key = unit.getUnitUUID();
+            int totalCount = total.containsKey(key) ? total.get(key) : 0;
+            int todayCount = today.containsKey(key) ? today.get(key) : 0;
+            if (totalCount >= unit.getMaxTotal() || unit.isDailyLimitReached(todayCount)) {
+                atLimit.add(key);
+            }
+        }
+
+        return atLimit;
     }
 
     public static ConnectJobRecord fromV21(ConnectJobRecordV21 oldRecord) {
@@ -837,14 +1036,6 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         this.jobUUID = modelId;
     }
 
-    public static Date getStartDate() {
-        return startDate;
-    }
-
-    public static void setStartDate(Date startDate) {
-        ConnectJobRecord.startDate = startDate;
-    }
-
     public boolean isClaimed() {
         return claimed;
     }
@@ -852,4 +1043,7 @@ public class ConnectJobRecord extends Persisted implements Serializable {
     public void setClaimed(boolean claimed) {
         this.claimed = claimed;
     }
+
+
 }
+

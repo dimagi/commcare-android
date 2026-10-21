@@ -15,14 +15,14 @@ import android.widget.Toast;
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.connect.models.ConnectUserRecord;
+import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.PersonalIdManager;
+import org.commcare.personalId.UnlockPolicy;
+import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
-import org.commcare.connect.network.PersonalIdOrConnectApiErrorHandler;
-import org.commcare.connect.network.connect.ConnectApiHandler;
-import org.commcare.connect.network.connect.models.ConnectOpportunitiesResponseModel;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
@@ -39,6 +39,7 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.navdrawer.BaseDrawerActivity;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InvalidResourceException;
@@ -68,7 +69,6 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -313,7 +313,12 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     @Override
     protected boolean shouldShowDrawer() {
-        return PersonalIdManager.getInstance().checkDeviceCompability();
+        return shouldShowDrawerAfterCheck(false);
+    }
+
+    @Override
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
+        return BaseDrawerController.NavItemType.COMMCARE_APPS;
     }
 
     @Override
@@ -460,7 +465,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             }
         } catch (InvalidReferenceException ire) {
             incomingRef = null;
-            fail(Localization.get("install.bad.ref"));
+            fail(getString(R.string.install_bad_ref));
         }
     }
 
@@ -495,9 +500,9 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
-        menu.add(0, MENU_OFFLINE_INSTALL, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
-        menu.add(0, MENU_INSTALL_FROM_LIST, 2, Localization.get("menu.app.list.install"));
-        menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.personalid_forget_user));
+        menu.add(0, MENU_OFFLINE_INSTALL, 0, getString(R.string.menu_archive)).setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_INSTALL_FROM_LIST, 2, getString(R.string.menu_app_list_install));
+        menu.add(0, MENU_PERSONAL_ID_FORGET, 3, getString(R.string.personalid_profile_forget_account));
         menu.add(0, MENU_REFRESH_OPPORTUNITIES, 4, getString(R.string.connect_refresh_opportunities));
         return true;
     }
@@ -505,16 +510,15 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        MenuItem item = menu.findItem(MENU_PERSONAL_ID_FORGET);
-        if (item != null) {
-            item.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
+        MenuItem forgetItem = menu.findItem(MENU_PERSONAL_ID_FORGET);
+        if (forgetItem != null) {
+            forgetItem.setVisible(!fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn());
         }
-
         MenuItem refreshItem = menu.findItem(MENU_REFRESH_OPPORTUNITIES);
         if (refreshItem != null) {
             boolean showRefreshMenu = !fromExternal &&
                     PersonalIdManager.getInstance().isloggedIn() &&
-                    !ConnectUserDatabaseUtil.hasConnectAccess(this);
+                    !ConnectUserDatabaseUtil.hasConnectAccess();
             refreshItem.setVisible(showRefreshMenu);
         }
         return true;
@@ -586,7 +590,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                                 receiver.startResourceInstall();
                             } else {
                                 // only notify if this was manually triggered
-                                receiver.displayError(Localization.get("menu.sms.not.found"));
+                                receiver.displayError(receiver.getString(R.string.menu_sms_not_found));
                             }
                         } else {
                             if (result != null) {
@@ -594,7 +598,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                                 receiver.uiState = UiState.READY_TO_INSTALL;
                                 receiver.lastInstallMode = INSTALL_MODE_SMS;
                                 receiver.uiStateScreenTransition();
-                                Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+                                Toast.makeText(receiver, receiver.getString(R.string.menu_sms_ready), Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -607,10 +611,10 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                     protected void deliverError(CommCareSetupActivity receiver, Exception e) {
                         if (e instanceof SignatureException) {
                             e.printStackTrace();
-                            receiver.fail(Localization.get("menu.sms.not.verified"));
+                            receiver.fail(receiver.getString(R.string.menu_sms_not_verified));
                         } else if (e instanceof IOException) {
                             e.printStackTrace();
-                            receiver.fail(Localization.get("menu.sms.not.retrieved"));
+                            receiver.fail(receiver.getString(R.string.menu_sms_not_retrieved));
                         } else {
                             e.printStackTrace();
                             receiver.fail(Localization.get("notification.install.unknown.title"));
@@ -619,6 +623,11 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
                 };
         smsProcessTask.connect(this);
         smsProcessTask.executeParallel();
+    }
+
+    @Override
+    public boolean usesGenericApplicationTitle() {
+        return true;
     }
 
     @Override
@@ -663,9 +672,9 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
 
     private void updateConnectButton() {
         boolean isConnectEnabled = !fromManager && !fromExternal && PersonalIdManager.getInstance().isloggedIn()
-                && ConnectUserDatabaseUtil.hasConnectAccess(this);
+                && ConnectUserDatabaseUtil.hasConnectAccess();
         installFragment.updateConnectButton(isConnectEnabled, v -> {
-            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, (success, error) -> {
+            ConnectNavHelper.INSTANCE.unlockAndGoToConnectJobsList(this, UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
             });
         });
     }
@@ -740,7 +749,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             Intent i = new Intent(getIntent());
             setResult(RESULT_OK, i);
         } else
-            fail(Localization.get("install.invalid.launch"));
+            fail(getString(R.string.install_invalid_launch));
 
         finish();
     }
@@ -748,7 +757,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     @Override
     public void failMissingResource(UnresolvedResourceException ure, AppInstallStatus statusMissing) {
         if (lastInstallMode == INSTALL_MODE_URL && ResourceManager.ApplicationDescriptor.equals(ure.getResource().getDescriptor())) {
-            fail(Localization.get("install.wrong.code"));
+            fail(getString(R.string.install_wrong_code));
         } else {
             fail(NotificationMessageFactory.message(statusMissing, new String[]{null, ure.getResource().getDescriptor(), ure.getMessage()}), ure.isMessageUseful());
         }
@@ -819,13 +828,13 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     private CustomProgressDialog generateNormalInstallDialog(int taskId) {
-        String title = Localization.get("updates.resources.initialization");
-        String message = Localization.get("updates.resources.profile");
+        String title = getString(R.string.updates_resources_initialization);
+        String message = getString(R.string.updates_resources_profile);
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
 
         CustomProgressDialog lastDialog = getCurrentProgressDialog();
         boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
-        String checkboxText = Localization.get("install.keep.trying");
+        String checkboxText = getString(R.string.install_keep_trying);
         dialog.addCheckbox(checkboxText, isChecked);
 
         dialog.setCancelable(false);
@@ -863,7 +872,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             incomingRef = url;
             uiState = UiState.READY_TO_INSTALL;
             uiStateScreenTransition();
-            Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.menu_sms_ready), Toast.LENGTH_LONG).show();
         }
         // Do not notify that url was null here because the install attempt was not user-triggered
     }
@@ -876,7 +885,7 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
             uiStateScreenTransition();
             startResourceInstall();
         } else {
-            displayError(Localization.get("menu.sms.not.found"));
+            displayError(getString(R.string.menu_sms_not_found));
         }
     }
 
@@ -885,10 +894,10 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
         String errorMsg;
         if (e instanceof SignatureException) {
             e.printStackTrace();
-            errorMsg = Localization.get("menu.sms.not.verified");
+            errorMsg = getString(R.string.menu_sms_not_verified);
         } else if (e instanceof IOException) {
             e.printStackTrace();
-            errorMsg = Localization.get("menu.sms.not.retrieved");
+            errorMsg = getString(R.string.menu_sms_not_retrieved);
         } else {
             e.printStackTrace();
             errorMsg = Localization.get("notification.install.unknown.title");
@@ -994,30 +1003,24 @@ public class CommCareSetupActivity extends BaseDrawerActivity<CommCareSetupActiv
     }
 
     private void refreshOpportunities() {
-        CommCareActivity activity = this;
-        ConnectUserRecord user = ConnectUserDatabaseUtil.getUser(activity);
-        new ConnectApiHandler<ConnectOpportunitiesResponseModel>() {
-
-            @Override
-            public void onFailure(@NonNull PersonalIdOrConnectApiErrorCodes errorCode, @Nullable Throwable t) {
-                String error = PersonalIdOrConnectApiErrorHandler.handle(activity, errorCode, t);
-                Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onSuccess(ConnectOpportunitiesResponseModel data) {
-                boolean connectAccess = !data.getValidJobs().isEmpty() || !data.getCorruptJobs().isEmpty();
-                String toastMessage = getString(R.string.setup_refresh_opportunities_no_jobs);
-                if (connectAccess) {
-                    ConnectUserDatabaseUtil.turnOnConnectAccess(activity);
-
-                    updateConnectButton();
-                    refreshDrawer();
-
-                    toastMessage = getString(R.string.setup_refresh_opportunities_with_jobs);
+        ConnectRepository.getInstance().retrieveOpportunitiesForJava(
+                (success, error) -> {
+                    if (success) {
+                        boolean connectAccess = !ConnectJobUtils.getCompositeJobs(
+                                ConnectJobRecord.STATUS_ALL_JOBS, null).isEmpty();
+                        if (connectAccess) {
+                            ConnectUserDatabaseUtil.turnOnConnectAccess();
+                            updateConnectButton();
+                            refreshDrawer();
+                        }
+                        String toastMessage = connectAccess
+                                ? getString(R.string.setup_refresh_opportunities_with_jobs)
+                                : getString(R.string.setup_refresh_opportunities_no_jobs);
+                        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
+                    }
                 }
-                Toast.makeText(activity, toastMessage, Toast.LENGTH_LONG).show();
-            }
-        }.getConnectOpportunities(activity, user);
+        );
     }
 }

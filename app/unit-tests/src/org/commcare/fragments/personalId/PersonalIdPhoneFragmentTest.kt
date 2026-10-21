@@ -49,6 +49,13 @@ class PersonalIdPhoneFragmentTest : BasePersonalIdPhoneFragmentTest() {
     }
 
     @Test
+    fun testInitialState_countryCodeAutoPopulatedFromLocale() {
+        // Robolectric default locale is en_US, so country code should be +1
+        val countryCode = fragment.view?.findViewById<EditText>(R.id.countryCode)
+        assertEquals("+1", countryCode!!.text.toString())
+    }
+
+    @Test
     fun testInitialState_locationToolTipInvisible() {
         val tooltipGroup = fragment.view?.findViewById<View>(R.id.group_tooltip)
         assertEquals("Tooltip should be invisible at start", View.GONE, tooltipGroup!!.visibility)

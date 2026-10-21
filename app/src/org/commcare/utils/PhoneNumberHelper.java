@@ -1,5 +1,7 @@
 package org.commcare.utils;
 
+import static org.commcare.cases.util.StringUtils.isEmpty;
+
 import android.app.Activity;
 import android.content.Context;
 
@@ -9,8 +11,6 @@ import androidx.activity.result.IntentSenderRequest;
 import com.google.android.gms.auth.api.identity.GetPhoneNumberHintIntentRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 
-import java.util.Locale;
-
 import io.michaelrocks.libphonenumber.android.NumberParseException;
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil;
 import io.michaelrocks.libphonenumber.android.Phonenumber;
@@ -19,6 +19,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
+import org.commcare.util.LogTypes;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -58,13 +59,34 @@ public class PhoneNumberHelper {
     }
 
     /**
+     * Formats a phone number for display in international form.
+     * Returns the original input unchanged if it cannot be parsed.
+     */
+    public String formatForDisplay(String phone) {
+        if (isEmpty(phone)) {
+            return "";
+        }
+        try {
+            Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
+            return phoneNumberUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+        } catch (NumberParseException e) {
+            return phone;
+        }
+    }
+
+    /**
      * Validates whether the given phone number is valid.
      */
     public boolean isValidPhoneNumber(String phone) {
+        if (isEmpty(phone)) {
+            return false;
+        }
         try {
             Phonenumber.PhoneNumber phoneNumber = phoneNumberUtil.parse(phone, null);
             return phoneNumberUtil.isValidNumber(phoneNumber);
         } catch (NumberParseException e) {
+            String redactedPhone = phone.length() < 4 ? "<redacted>" : "***" + phone.substring(phone.length() - 4);
+            Logger.log(LogTypes.TYPE_MAINTENANCE, "Parse exception for phone " + redactedPhone);
             Logger.exception("Exception occurred while verifying phone number", e);
             return false;
         }
@@ -100,20 +122,48 @@ public class PhoneNumberHelper {
         return -1;
     }
 
-    private int getCountryCodeFromLocale(Context context) {
-        Locale locale = context.getResources().getConfiguration().locale;
-        return phoneNumberUtil.getCountryCodeForRegion(locale.getCountry());
-    }
-
     /**
-     * Retrieves the country code for the user's current locale.
+     * Converts a 2-letter ISO country code (e.g., "in", "US") to a formatted
+     * dialing code string (e.g., "+91", "+1"). Returns "" if the ISO code
+     * is null, empty, or not recognized.
      */
-    public String getDefaultCountryCode(Context context) {
-        int code = getCountryCodeFromLocale(context);
+    private String getCountryCodeForIso(String iso) {
+        if (iso == null || iso.isEmpty()) {
+            return "";
+        }
+        int code = phoneNumberUtil.getCountryCodeForRegion(iso.toUpperCase());
         if (code > 0) {
             return "+" + code;
         }
         return "";
+    }
+
+    /**
+     * Retrieves the best country code by trying signals in priority order:
+     * SIM > Network > Locale. Uses the provided signal provider.
+     */
+    public String getDefaultCountryCode(CountryCodeSignalProvider provider) {
+        String[] signals = {
+            provider.getSimCountryIso(),
+            provider.getNetworkCountryIso(),
+            provider.getLocaleCountry()
+        };
+
+        for (String iso : signals) {
+            String code = getCountryCodeForIso(iso);
+            if (!code.isEmpty()) {
+                return code;
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Retrieves the best country code using real device signals.
+     * Convenience overload for production use.
+     */
+    public String getDefaultCountryCode() {
+        return getDefaultCountryCode(new CountryCodeSignalProvider());
     }
 
     /**

@@ -16,6 +16,7 @@ import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.Nullable;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.NoSuchPaddingException;
@@ -73,6 +74,14 @@ public class EncryptedFileBody extends RequestBody {
         try (CipherInputStream cis = new CipherInputStream(fis, cipher)) {
             StreamsUtil.writeFromInputToOutputUnmanaged(cis, sink.outputStream());
         } catch (InputIOException iioe) {
+            // This is to investigate an issue causing 'pad block corrupted' errors when decrypting files.
+            Throwable cause = iioe.getWrapped() != null ? iioe.getWrapped().getCause() : null;
+            if (cause instanceof BadPaddingException) {
+                Logger.exception(
+                        "Bad padding exception when decrypting file: " + file.getName() + " length=" + file.length(),
+                        iioe.getWrapped()
+                );
+            }
             //Here we want to retain the fundamental problem of the _input_ being responsible for the issue
             //so we can differentiate between bad reads and bad network
             throw iioe;
