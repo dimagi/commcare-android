@@ -12,9 +12,6 @@ on:
       commcare_core_ref:
         description: 'commcare-core ref (blank: the same-named branch if it exists, else master)'
         required: false
-concurrency:
-  group: ${{ github.workflow }}-${{ inputs.ref || github.ref }}
-  cancel-in-progress: true
 jobs:
   screenshots:
     name: Record screenshots
