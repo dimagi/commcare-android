@@ -8,7 +8,8 @@ import androidx.biometric.BiometricPrompt
 import org.commcare.activities.CommCareActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.security.AndroidKeyStore
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.ConnectActivityCompleteListener
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
@@ -38,7 +39,7 @@ object PersonalIdUnlocker {
     fun unlock(
         activity: CommCareActivity<*>,
         policy: UnlockPolicy,
-        callback: PersonalIdManager.ConnectActivityCompleteListener,
+        callback: ConnectActivityCompleteListener,
     ) {
         when (policy) {
             UnlockPolicy.ALWAYS -> {
@@ -49,7 +50,7 @@ object PersonalIdUnlocker {
                 if (requiresUnlockForSession()) {
                     performUnlock(activity, callback)
                 } else {
-                    callback.connectActivityComplete(true)
+                    callback.connectActivityComplete(true, null)
                 }
             }
         }
@@ -57,19 +58,18 @@ object PersonalIdUnlocker {
 
     private fun performUnlock(
         activity: CommCareActivity<*>,
-        callback: PersonalIdManager.ConnectActivityCompleteListener,
+        callback: ConnectActivityCompleteListener,
     ) {
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(activity)
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
         if (BuildConfig.IS_QA_AUTOMATION) {
             lastUnlockTime = SystemClock.elapsedRealtime()
-            personalIdManager.userUnlockedPersonalId()
-            callback.connectActivityComplete(true)
+            personalIdSessionManager.userUnlockedPersonalId()
+            callback.connectActivityComplete(true, null)
             return
         }
 
         logBiometricInvalidations(activity)
-        val bioManager = personalIdManager.getBiometricManager(activity)
+        val bioManager = BiometricsHelper.getBiometricManager(activity)
         val user = ConnectUserDatabaseUtil.getUser()
 
         val callbacks =
@@ -78,7 +78,7 @@ object PersonalIdUnlocker {
                     errorCode: Int,
                     errString: CharSequence,
                 ) {
-                    callback.connectActivityComplete(false)
+                    callback.connectActivityComplete(false, null)
                     val fingerprintConfigured =
                         BiometricsHelper.isFingerprintConfigured(
                             activity,
@@ -97,8 +97,8 @@ object PersonalIdUnlocker {
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     lastUnlockTime = SystemClock.elapsedRealtime()
-                    personalIdManager.userUnlockedPersonalId()
-                    callback.connectActivityComplete(true)
+                    personalIdSessionManager.userUnlockedPersonalId()
+                    callback.connectActivityComplete(true, null)
                 }
 
                 // A recoverable failure (e.g. an unrecognized fingerprint). The system
@@ -120,7 +120,7 @@ object PersonalIdUnlocker {
             }
 
             else -> {
-                callback.connectActivityComplete(false)
+                callback.connectActivityComplete(false, null)
                 Logger.exception(
                     "No unlock method available when trying to unlock PersonalId",
                     Exception("No unlock option"),

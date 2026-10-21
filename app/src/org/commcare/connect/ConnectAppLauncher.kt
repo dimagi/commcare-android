@@ -20,6 +20,7 @@ import org.commcare.login.LoginProgressListener
 import org.commcare.login.LoginRequest
 import org.commcare.login.LoginResult
 import org.commcare.login.SeatResult
+import org.commcare.personalId.PersonalIdAppStateEvaluator
 import org.commcare.utils.GlobalErrorUtil
 import org.commcare.utils.GlobalErrors
 import org.javarosa.core.services.Logger
@@ -60,7 +61,7 @@ class ConnectAppLauncher internal constructor(
         seatApp = { appId, listener -> AppSeater().seatIfNeeded(appId, listener) },
         performLogin = { context, request, listener -> LoginController(context).performLogin(request, listener) },
         connectUsername = { context -> ConnectUserDatabaseUtil.getUser()?.userId },
-        isLoggedIntoApp = { appId -> PersonalIdManager.getInstance().isSessionLoggedIntoApp(appId) },
+        isLoggedIntoApp = { appId -> PersonalIdAppStateEvaluator.isCurrentPersonalIdUserLoggedIntoApp(appId) },
     )
 
     fun interface OutcomeCallback {

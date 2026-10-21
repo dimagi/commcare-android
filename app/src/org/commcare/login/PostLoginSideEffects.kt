@@ -4,7 +4,7 @@ import android.content.Context
 import org.commcare.CommCareApplication
 import org.commcare.activities.LoginActivity
 import org.commcare.connect.ConnectAppUtils
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.utils.CrashUtil
@@ -15,7 +15,7 @@ import org.commcare.utils.CrashUtil
  */
 internal class PostLoginSideEffects(
     private val context: Context,
-    private val personalIdManager: PersonalIdManager = PersonalIdManager.getInstance(),
+    private val personalIdSessionManager: PersonalIdSessionManager = PersonalIdSessionManager.getInstance(),
     private val repository: ConnectRepository = ConnectRepository.getInstance(),
 ) {
     suspend fun runOnSuccess(username: String): PostLoginOutcome {
@@ -24,7 +24,7 @@ internal class PostLoginSideEffects(
             .notificationManager()
             .clearNotifications(LoginActivity.NOTIFICATION_MESSAGE_LOGIN)
 
-        if (!personalIdManager.isloggedIn()) {
+        if (!personalIdSessionManager.isloggedIn()) {
             return PostLoginOutcome(redirectToConnectOpportunityInfo = false)
         }
 

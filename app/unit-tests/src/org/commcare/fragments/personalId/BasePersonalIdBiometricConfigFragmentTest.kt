@@ -4,9 +4,13 @@ import androidx.annotation.CallSuper
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.navigation.NavController
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
+import org.commcare.utils.BiometricsHelper
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
@@ -22,13 +26,13 @@ import org.mockito.MockitoAnnotations
 abstract class BasePersonalIdBiometricConfigFragmentTest :
     BasePersonalIdConfigurationTest<TestablePersonalIdBiometricConfigFragment>() {
     protected lateinit var mocksCloseable: AutoCloseable
-    protected lateinit var personalIdManagerMock: MockedStatic<PersonalIdManager>
+    protected lateinit var biometricsHelperMock: MockedStatic<BiometricsHelper>
 
     @Mock
     protected lateinit var mockBiometricManager: BiometricManager
 
     @Mock
-    protected lateinit var mockPersonalIdManager: PersonalIdManager
+    protected lateinit var mockPersonalIdSessionManager: PersonalIdSessionManager
 
     @Before
     @CallSuper
@@ -40,12 +44,13 @@ abstract class BasePersonalIdBiometricConfigFragmentTest :
     }
 
     private fun mockBiometricManager() {
-        personalIdManagerMock = Mockito.mockStatic(PersonalIdManager::class.java)
-        personalIdManagerMock
-            .`when`<PersonalIdManager> { PersonalIdManager.getInstance() }
-            .thenReturn(mockPersonalIdManager)
-        Mockito
-            .`when`(mockPersonalIdManager.getBiometricManager(Mockito.any()))
+        mockkObject(PersonalIdSessionManager.Companion)
+        every { PersonalIdSessionManager.getInstance() } returns mockPersonalIdSessionManager
+        // CALLS_REAL_METHODS so only getBiometricManager is stubbed; the fragment relies on the
+        // real checkFingerprintStatus / checkPinStatus
+        biometricsHelperMock = Mockito.mockStatic(BiometricsHelper::class.java, Mockito.CALLS_REAL_METHODS)
+        biometricsHelperMock
+            .`when`<BiometricManager> { BiometricsHelper.getBiometricManager(Mockito.any()) }
             .thenReturn(mockBiometricManager)
     }
 
@@ -65,7 +70,8 @@ abstract class BasePersonalIdBiometricConfigFragmentTest :
     override fun tearDown() {
         activityController.pause().stop().destroy()
         mocksCloseable.close()
-        personalIdManagerMock.close()
+        unmockkObject(PersonalIdSessionManager.Companion)
+        biometricsHelperMock.close()
         MockAndroidKeyStoreProvider.deregisterProvider()
         super.tearDown()
     }
