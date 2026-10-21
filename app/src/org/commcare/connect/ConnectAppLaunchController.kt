@@ -7,8 +7,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import org.commcare.activities.CommCareActivity
-import org.commcare.activities.DispatchActivity
 import org.commcare.activities.HomeScreenBaseActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.dalvik.R
@@ -17,7 +15,6 @@ import org.commcare.login.LoginPhase
 import org.commcare.login.LoginProgress
 import org.commcare.util.LogTypes
 import org.commcare.views.dialogs.CustomProgressDialog
-import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 
 /** The app a Connect launch is targeting; [isLearning] selects the learn vs delivery app type. */
@@ -64,37 +61,37 @@ internal object LaunchProgressMapper {
  * [LaunchOutcomeRouter].
  *
  * The dialog is dismissed automatically when the fragment's view is destroyed, so callers don't
- * have to manage cleanup themselves. [onLaunchSucceeded] is invoked once Home has been started so the
- * caller can manage its own fragment lifecycle (e.g. remove itself from the back stack);
- * [onLaunchFailed] is invoked when the launch terminally fails (retries exhausted, or a seat failure)
- * so the caller can update its own UI. The controller still owns the failure dialogs/recovery.
+ * have to manage cleanup themselves. Home is started on success; every terminal result is handed to
+ * [listener], which owns how the screen reacts to a failure.
  */
 class ConnectAppLaunchController
     @JvmOverloads
     constructor(
         private val fragment: Fragment,
+        private val listener: ConnectAppLaunchListener,
         private val launcher: ConnectAppLauncher = ConnectAppLauncher(),
     ) {
         private var launchDialog: CustomProgressDialog? = null
         private var showingSyncDialog = false
         private var observedLifecycle: Lifecycle? = null
         private var failedAttempts = 0
-        private var onLaunchSucceeded: Runnable? = null
-        private var onLaunchFailed: Runnable? = null
+        private var lastTarget: LaunchTarget? = null
 
-        @JvmOverloads
         fun launchApp(
             appId: String,
             isLearning: Boolean,
-            onLaunchSucceeded: Runnable? = null,
-            onLaunchFailed: Runnable? = null,
         ) {
-            this.onLaunchSucceeded = onLaunchSucceeded
-            this.onLaunchFailed = onLaunchFailed
+            failedAttempts = 0
             launch(LaunchTarget(appId, isLearning))
         }
 
+        /** Replays the last launch, counting toward [LaunchOutcomeRouter.MAX_LAUNCH_ATTEMPTS]. */
+        fun retryLaunch() {
+            lastTarget?.let { launch(it) }
+        }
+
         private fun launch(target: LaunchTarget) {
+            lastTarget = target
             if (fragment.view == null) {
                 return
             }
@@ -138,7 +135,7 @@ class ConnectAppLaunchController
 
                     override fun launchHome(alreadyLoggedIn: Boolean) {
                         (activity as ConnectActivity).markAppLaunchedFromConnect()
-                        onLaunchSucceeded?.run()
+                        listener.onLaunchSucceeded()
 
                         val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(activity)
                         if (alreadyLoggedIn) {
@@ -160,59 +157,7 @@ class ConnectAppLaunchController
                             "Connect launch failed for app ${target.appId}: $reason",
                         )
                         FirebaseAnalyticsUtil.reportCccAppFailedAutoLogin(target.appId)
-                        when (failure) {
-                            AppLaunchFailure.SeatFailed -> recoverFromSeatFailure()
-                            is AppLaunchFailure.Retryable -> {
-                                if (failure.attemptsExhausted) showPersistentError() else promptRetry()
-                            }
-                        }
-                    }
-
-                    private fun recoverFromSeatFailure() {
-                        onLaunchFailed?.run()
-                        val intent =
-                            Intent(activity, DispatchActivity::class.java)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        fragment.startActivity(intent)
-                        activity.finish()
-                    }
-
-                    private fun promptRetry() {
-                        val host = activity as CommCareActivity<*>
-                        val dialog =
-                            StandardAlertDialog(
-                                activity.getString(R.string.connect_app_launch_failed_dialog_title),
-                                activity.getString(R.string.connect_app_launch_failed_dialog_message),
-                            )
-                        dialog.setPositiveButton(
-                            activity.getString(R.string.connect_app_launch_failed_dialog_retry),
-                        ) { _, _ ->
-                            host.dismissAlertDialog()
-                            launch(target)
-                        }
-                        dialog.setNegativeButton(
-                            activity.getString(R.string.connect_app_launch_failed_dialog_cancel),
-                        ) { _, _ ->
-                            host.dismissAlertDialog()
-                            onLaunchFailed?.run()
-                        }
-                        host.showAlertDialog(dialog)
-                    }
-
-                    private fun showPersistentError() {
-                        onLaunchFailed?.run()
-                        val host = activity as CommCareActivity<*>
-                        val dialog =
-                            StandardAlertDialog(
-                                activity.getString(R.string.connect_app_launch_failed_dialog_title),
-                                activity.getString(R.string.connect_app_launch_failed_dialog_persistent_error_message),
-                            )
-                        dialog.setPositiveButton(
-                            activity.getString(R.string.connect_app_launch_failed_dialog_ok),
-                        ) { _, _ ->
-                            host.dismissAlertDialog()
-                        }
-                        host.showAlertDialog(dialog)
+                        listener.onLaunchFailed(failure)
                     }
                 },
             )
