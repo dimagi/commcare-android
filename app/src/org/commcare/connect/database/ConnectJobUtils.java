@@ -19,7 +19,7 @@ import org.commcare.android.database.connect.models.ConnectJobPaymentRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.ConnectJobPreferences;
 import org.javarosa.xform.util.CalendarUtils;
@@ -498,7 +498,7 @@ public class ConnectJobUtils {
     }
 
     public static ConnectAppRecord getAppRecord(String appId) {
-        if (PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdSessionManager.getInstance().isloggedIn()) {
             Vector<ConnectAppRecord> records = ConnectDatabaseHelper.getConnectStorage(
                     ConnectAppRecord.class
             ).getRecordsForValues(

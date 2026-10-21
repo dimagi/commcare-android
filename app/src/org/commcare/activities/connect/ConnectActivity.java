@@ -28,7 +28,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -71,10 +71,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_title);
 
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
+        PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
 
-        if(personalIdManager.isloggedIn()){
+        if(personalIdSessionManager.isloggedIn()){
             NotificationBroadcastHelper.INSTANCE.registerForNotifications(
                     this,
                     this,
@@ -98,7 +97,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             retrieveMessages();
         }else{
             Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
-            personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            ConnectNavHelper.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
 
@@ -150,7 +149,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private int handleSecureRedirect(Bundle startArgs) {
         //Entering from a notification, so we may need to initialize
-        PersonalIdManager.getInstance().init(this);
         String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
         if (!TextUtils.isEmpty(notificationId)) {
             NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);

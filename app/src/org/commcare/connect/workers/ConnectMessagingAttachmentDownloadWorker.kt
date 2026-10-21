@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler
 import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloader
@@ -20,7 +20,7 @@ class ConnectMessagingAttachmentDownloadWorker(
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         val user = ConnectUserDatabaseUtil.getUser()
-        if (!PersonalIdManager.getInstance().isloggedIn() || user == null) {
+        if (!PersonalIdSessionManager.getInstance().isloggedIn() || user == null) {
             return Result.success()
         }
         val requestedAttachmentId = inputData.getString(KEY_ATTACHMENT_ID)

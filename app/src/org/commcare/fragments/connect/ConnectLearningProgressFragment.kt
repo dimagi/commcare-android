@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
@@ -52,7 +52,7 @@ class ConnectLearningProgressFragment :
 
     override fun onResume() {
         super.onResume()
-        if (PersonalIdManager.getInstance().isloggedIn()) {
+        if (PersonalIdSessionManager.getInstance().isloggedIn()) {
             refresh(false)
         }
     }

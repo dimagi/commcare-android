@@ -42,13 +42,13 @@ class SmsInviteLinkFlowTest {
     private val uuid = "opp-uuid-1234"
     private val validUri: Uri =
         Uri.parse("https://${BuildConfig.CCC_HOST}/users/invite_redirect/$uuid")
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
 
     @Before
     fun setUp() {
-        val manager = PersonalIdManager.getInstance()
+        val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
-        manager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every {
@@ -74,7 +74,7 @@ class SmsInviteLinkFlowTest {
 
     @After
     fun tearDown() {
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         unmockkStatic(FirebaseAnalyticsUtil::class)
         unmockkStatic(ConnectJobUtils::class)
         unmockkStatic(MessageManager::class)
@@ -176,7 +176,7 @@ class SmsInviteLinkFlowTest {
 
     @Test
     fun `SMS link click while not logged in clears URI, reports analytics, and falls through to the landing page`() {
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.NotIntroduced
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.NotIntroduced
         val intent = Intent(Intent.ACTION_VIEW, validUri)
 
         assertRoutedToLoginOrSetupPage(intent)

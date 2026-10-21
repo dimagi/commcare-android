@@ -21,7 +21,7 @@ import org.commcare.connect.ConnectConstants.CCC_MESSAGE
 import org.commcare.connect.ConnectConstants.CCC_PAYMENT_INFO_CONFIRMATION
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
 import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.pn.workers.NotificationsSyncWorker
 import org.commcare.pn.workers.NotificationsSyncWorker.Companion.ACTION
 import org.commcare.pn.workers.NotificationsSyncWorker.Companion.NOTIFICATION_PAYLOAD
@@ -48,9 +48,8 @@ class NotificationsSyncWorkerManager(
          */
         @JvmStatic
         fun schedulePeriodicPushNotificationRetrievalChecked(context: Context) {
-            val perosnalIdManager = PersonalIdManager.getInstance()
-            perosnalIdManager.init(context)
-            if (perosnalIdManager.isloggedIn()) {
+            val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+            if (personalIdSessionManager.isloggedIn()) {
                 schedulePeriodicPushNotificationRetrieval(context)
             }
         }

@@ -34,8 +34,9 @@ import org.commcare.android.database.connect.models.ConnectMessagingChannelRecor
 import org.commcare.android.util.ActivityAssertions.assertStarted
 import org.commcare.android.util.ActivityAssertions.assertStartedNothing
 import org.commcare.android.util.ConnectTestUtils.signInToPersonalId
+import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.dalvik.R
 import org.commcare.personalId.PersonalIdUnlocker
@@ -58,7 +59,7 @@ class SidebarSectionNavigationTest : BaseHomeScreenActivityTest() {
         signInToPersonalId(hasConnectAccess = true)
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<PersonalIdManager.ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } just Runs
@@ -91,7 +92,7 @@ class SidebarSectionNavigationTest : BaseHomeScreenActivityTest() {
 
     @Test
     fun `messaging closes without a sidebar when signed out of PersonalID`() {
-        PersonalIdManager.getInstance().forgetUser("sidebar test")
+        PersonalIdSessionManager.getInstance().forgetUser("sidebar test")
 
         val messagingScreen = buildMessagingScreen()
 

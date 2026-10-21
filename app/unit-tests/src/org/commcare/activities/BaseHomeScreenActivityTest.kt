@@ -17,7 +17,7 @@ import org.commcare.android.database.app.models.UserKeyRecord
 import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.dalvik.R
 import org.commcare.models.database.user.DemoUserBuilder
@@ -69,9 +69,9 @@ abstract class BaseHomeScreenActivityTest {
     @After
     fun baseTearDown() {
         unmockkAll()
-        // PersonalIdManager is a process-wide singleton holding its own login status, so a test that
+        // PersonalIdSessionManager is a process-wide singleton holding its own login status, so a test that
         // signs in would otherwise leave the next one logged in.
-        PersonalIdManager.getInstance().forgetUser("home test teardown")
+        PersonalIdSessionManager.getInstance().forgetUser("home test teardown")
         ConnectDatabaseHelper.teardown()
         clearPrefs()
         clearPendingNotifications()

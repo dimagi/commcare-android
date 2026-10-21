@@ -65,12 +65,7 @@ object ConnectTaskPresenter {
             activity,
             UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
             task.connectChannelId,
-            object : ConnectActivityCompleteListener {
-                override fun connectActivityComplete(
-                    success: Boolean,
-                    error: String?,
-                ) = Unit
-            },
+            ConnectActivityCompleteListener { _, _ -> },
         )
     }
 }

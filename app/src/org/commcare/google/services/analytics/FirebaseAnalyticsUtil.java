@@ -16,7 +16,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.DiskUtils;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.opportunity.OpportunityHomeFragment;
 import org.commcare.fragments.personalId.PersonalIdWorkflow;
 import org.commcare.dalvik.BuildConfig;
@@ -130,7 +130,7 @@ public class FirebaseAnalyticsUtil {
 
         analyticsInstance.setUserProperty(
                 CCAnalyticsParam.CCC_ENABLED,
-                String.valueOf(PersonalIdManager.getInstance().isloggedIn())
+                String.valueOf(PersonalIdSessionManager.getInstance().isloggedIn())
         );
 
         String personalId = ReportingUtils.getPersonalID();

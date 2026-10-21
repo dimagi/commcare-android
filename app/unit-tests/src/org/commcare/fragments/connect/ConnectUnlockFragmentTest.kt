@@ -23,7 +23,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
@@ -46,13 +46,13 @@ import org.robolectric.annotation.Config
 class ConnectUnlockFragmentTest {
     private val uuid = "opp-uuid-1234"
     private val app = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
 
     @Before
     fun setUp() {
-        val manager = PersonalIdManager.getInstance()
+        val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
-        manager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
@@ -78,7 +78,7 @@ class ConnectUnlockFragmentTest {
 
         mockkObject(PersonalIdUnlocker)
         every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
-            thirdArg<PersonalIdManager.ConnectActivityCompleteListener>().connectActivityComplete(true)
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
 
         val repository = mockk<ConnectRepository>(relaxed = true)
@@ -96,7 +96,7 @@ class ConnectUnlockFragmentTest {
 
     @After
     fun tearDown() {
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         unmockkAll()
     }
 

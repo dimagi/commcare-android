@@ -53,10 +53,6 @@
             app:destination="@id/personalid_backup_code"
             app:popUpTo="@id/personalid_message_display" />
         <action
-            android:id="@+id/action_personalid_message_to_personalid_phone_verify"
-            app:destination="@id/personalid_otp_page"
-            app:popUpTo="@id/personalid_message_display" />
-        <action
             android:id="@+id/action_personalid_message_self"
             app:destination="@id/personalid_message_display"
             app:popUpTo="@id/personalid_phone_fragment"

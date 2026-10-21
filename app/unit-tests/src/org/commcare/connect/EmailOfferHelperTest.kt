@@ -3,7 +3,9 @@ package org.commcare.connect
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
+import io.mockk.unmockkObject
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.commcare.CommCareTestApplication
@@ -35,9 +37,9 @@ class EmailOfferHelperTest {
     fun setUp() {
         mockkStatic(ConnectAppDatabaseUtil::class)
         mockkStatic(ConnectUserDatabaseUtil::class)
-        mockkStatic(PersonalIdManager::class)
+        mockkObject(PersonalIdSessionManager.Companion)
         // Default: a logged-in PersonalID user. Individual tests can override.
-        every { PersonalIdManager.getInstance().isloggedIn() } returns true
+        every { PersonalIdSessionManager.getInstance().isloggedIn() } returns true
         PersonalIdUserPreferences.clear()
     }
 
@@ -45,13 +47,13 @@ class EmailOfferHelperTest {
     fun tearDown() {
         unmockkStatic(ConnectAppDatabaseUtil::class)
         unmockkStatic(ConnectUserDatabaseUtil::class)
-        unmockkStatic(PersonalIdManager::class)
+        unmockkObject(PersonalIdSessionManager.Companion)
         PersonalIdUserPreferences.clear()
     }
 
     @Test
     fun `checkEmailCollection does nothing when the user is not logged in to PersonalID`() {
-        every { PersonalIdManager.getInstance().isloggedIn() } returns false
+        every { PersonalIdSessionManager.getInstance().isloggedIn() } returns false
         setEmailToggle(active = true)
         setUserEmail(null)
         val activity = mockActivity()

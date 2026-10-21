@@ -15,7 +15,7 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareNoficationManager
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectAppUtils
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
@@ -27,7 +27,7 @@ import org.junit.Test
 
 class PostLoginSideEffectsTest {
     private val context = mockk<Context>(relaxed = true)
-    private val personalIdManager = mockk<PersonalIdManager>(relaxed = true)
+    private val personalIdSessionManager = mockk<PersonalIdSessionManager>(relaxed = true)
     private val notificationManager = mockk<CommCareNoficationManager>(relaxed = true)
     private val commCareApplication = mockk<CommCareApplication>(relaxed = true)
     private val currentApp = mockk<CommCareApp>(relaxed = true)
@@ -55,9 +55,9 @@ class PostLoginSideEffectsTest {
     @Test
     fun `not logged into PersonalID runs only basic side effects and returns false`() =
         runTest {
-            every { personalIdManager.isloggedIn() } returns false
+            every { personalIdSessionManager.isloggedIn() } returns false
 
-            val outcome = PostLoginSideEffects(context, personalIdManager, mockRepository).runOnSuccess("alice")
+            val outcome = PostLoginSideEffects(context, personalIdSessionManager, mockRepository).runOnSuccess("alice")
 
             assertEquals(PostLoginOutcome(redirectToConnectOpportunityInfo = false), outcome)
             verify { CrashUtil.registerUserData() }
@@ -68,10 +68,10 @@ class PostLoginSideEffectsTest {
     @Test
     fun `personalID logged in with no job does not update app access and flags link check`() =
         runTest {
-            every { personalIdManager.isloggedIn() } returns true
+            every { personalIdSessionManager.isloggedIn() } returns true
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns null
 
-            val outcome = PostLoginSideEffects(context, personalIdManager, mockRepository).runOnSuccess("alice")
+            val outcome = PostLoginSideEffects(context, personalIdSessionManager, mockRepository).runOnSuccess("alice")
 
             assertEquals(
                 PostLoginOutcome(redirectToConnectOpportunityInfo = false, needsPersonalIdLinkCheck = true),
@@ -85,12 +85,12 @@ class PostLoginSideEffectsTest {
     @Test
     fun `personalID logged in with job updates app access and job progress`() =
         runTest {
-            every { personalIdManager.isloggedIn() } returns true
+            every { personalIdSessionManager.isloggedIn() } returns true
             val job = mockk<ConnectJobRecord>(relaxed = true)
             every { ConnectJobUtils.getJobForApp(context, "app-1") } returns job
             every { mockRepository.syncJobProgress(job) } returns flowOf(DataState.Success(job))
 
-            PostLoginSideEffects(context, personalIdManager, mockRepository).runOnSuccess("alice")
+            PostLoginSideEffects(context, personalIdSessionManager, mockRepository).runOnSuccess("alice")
 
             verify { commCareApplication.setConnectJobIdForAnalytics(job) }
             verify { ConnectAppUtils.updateLastAccessed(context, "app-1", "alice") }
