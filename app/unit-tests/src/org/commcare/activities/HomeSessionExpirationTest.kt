@@ -1,5 +1,6 @@
 package org.commcare.activities
 
+import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import org.commcare.CommCareApplication
@@ -30,31 +31,33 @@ class HomeSessionExpirationTest : BaseHomeScreenActivityTest() {
 
         controller.resume()
 
-        val intent = assertStarted(controller.get(), DispatchActivity::class.java)
-        assertEquals(Intent.FLAG_ACTIVITY_CLEAR_TOP, intent.flags and Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        assertRedirectedToLogin(controller.get())
         assertFalse(SessionRegistrationHelper.consumePendingExpiration())
     }
 
     @Test
     fun `expiration broadcast redirects to login`() {
-        val home = buildVisibleHome()
-        drainStartedActivities(home)
+        val homeScreen = buildVisibleHome()
+        drainStartedActivities(homeScreen)
 
         broadcastExpiration()
 
-        assertStarted(home, DispatchActivity::class.java)
+        assertRedirectedToLogin(homeScreen)
         assertFalse(SessionRegistrationHelper.consumePendingExpiration())
     }
 
     @Test
     fun `pending expiration skips the activity result`() {
-        val home = buildVisibleHome()
-        drainStartedActivities(home)
+        val homeScreen = buildVisibleHome()
+        drainStartedActivities(homeScreen)
         SessionRegistrationHelper.registerSessionExpiration()
 
-        shadowOf(home).callOnActivityResult(HomeScreenBaseActivity.CREATE_PIN, RESULT_OK, Intent())
+        homeScreen.startActivityForResult(Intent(), HomeScreenBaseActivity.CREATE_PIN)
+        val pinRequest = shadowOf(homeScreen).nextStartedActivityForResult.intent
 
-        assertStarted(home, DispatchActivity::class.java)
+        shadowOf(homeScreen).receiveResult(pinRequest, RESULT_OK, Intent())
+
+        assertRedirectedToLogin(homeScreen)
         assertNull(ShadowToast.getTextOfLatestToast())
     }
 
@@ -68,8 +71,14 @@ class HomeSessionExpirationTest : BaseHomeScreenActivityTest() {
         ShadowLooper.idleMainLooper()
     }
 
-    private fun drainStartedActivities(home: StandardHomeActivity) {
-        while (shadowOf(home).nextStartedActivity != null) {
+    /** Login is reached through [DispatchActivity], so the redirect shows as a cleared-top start of it. */
+    private fun assertRedirectedToLogin(activity: Activity) {
+        val intent = assertStarted(activity, DispatchActivity::class.java)
+        assertEquals(Intent.FLAG_ACTIVITY_CLEAR_TOP, intent.flags and Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    }
+
+    private fun drainStartedActivities(homeScreen: StandardHomeActivity) {
+        while (shadowOf(homeScreen).nextStartedActivity != null) {
             continue
         }
     }

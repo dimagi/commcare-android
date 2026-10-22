@@ -10,7 +10,7 @@ import android.os.Bundle;
  */
 public abstract class SessionAwareListActivity extends CommcareListActivity implements SessionAwareInterface {
 
-    private final SessionExpirationHandler loginRedirect = new LoginRedirectingExpirationHandler(this);
+    private final SessionExpirationHandler loginRedirectHandler = new LoginRedirectingExpirationHandler(this);
 
     private boolean redirectedInOnCreate;
 
@@ -27,8 +27,8 @@ public abstract class SessionAwareListActivity extends CommcareListActivity impl
     @Override
     protected void onResume() {
         super.onResume();
-        loginRedirect.startListening();
-        SessionAwareHelper.onResumeHelper(this, loginRedirect, redirectedInOnCreate);
+        loginRedirectHandler.startListening();
+        SessionAwareHelper.onResumeHelper(this, loginRedirectHandler, redirectedInOnCreate);
     }
 
     @Override
@@ -38,7 +38,7 @@ public abstract class SessionAwareListActivity extends CommcareListActivity impl
     @Override
     protected void onPause() {
         super.onPause();
-        loginRedirect.stopListening();
+        loginRedirectHandler.stopListening();
     }
 
     @Override

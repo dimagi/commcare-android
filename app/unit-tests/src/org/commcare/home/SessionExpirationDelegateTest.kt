@@ -22,9 +22,9 @@ class SessionExpirationDelegateTest {
     private var pendingExpiration = false
     private val delegate =
         SessionExpirationDelegate(host) {
-            val pending = pendingExpiration
+            val wasExpirationPending = pendingExpiration
             pendingExpiration = false
-            pending
+            wasExpirationPending
         }
 
     @After
@@ -86,8 +86,13 @@ class SessionExpirationDelegateTest {
     }
 
     @Test
-    fun `stopping without listening does nothing`() {
+    fun `stopping without listening leaves the delegate able to listen`() {
         delegate.stopListening()
+        delegate.startListening()
+
+        broadcastExpiration()
+
+        assertEquals(1, host.sessionLostCount)
     }
 
     private fun broadcastExpiration() {

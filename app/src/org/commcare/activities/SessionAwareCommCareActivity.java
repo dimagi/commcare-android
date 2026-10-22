@@ -12,7 +12,7 @@ import org.commcare.navdrawer.BaseDrawerActivity;
  */
 public abstract class SessionAwareCommCareActivity<R> extends BaseDrawerActivity<R> implements SessionAwareInterface {
 
-    private final SessionExpirationHandler loginRedirect = new LoginRedirectingExpirationHandler(this);
+    private final SessionExpirationHandler loginRedirectHandler = new LoginRedirectingExpirationHandler(this);
 
     private boolean redirectedInOnCreate;
 
@@ -57,6 +57,6 @@ public abstract class SessionAwareCommCareActivity<R> extends BaseDrawerActivity
      * How this activity responds to losing its session after onCreate. Defaults to redirecting to login.
      */
     protected SessionExpirationHandler getSessionExpirationHandler() {
-        return loginRedirect;
+        return loginRedirectHandler;
     }
 }

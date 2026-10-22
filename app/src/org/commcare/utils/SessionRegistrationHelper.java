@@ -58,9 +58,9 @@ public class SessionRegistrationHelper {
      */
     public static boolean consumePendingExpiration() {
         synchronized (registrationLock) {
-            boolean pending = unredirectedSessionExpiration;
+            boolean wasExpirationPending = unredirectedSessionExpiration;
             unredirectedSessionExpiration = false;
-            return pending;
+            return wasExpirationPending;
         }
     }
 
