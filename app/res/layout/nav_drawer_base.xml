@@ -2,7 +2,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@color/connect_blue_color"
+    android:background="?attr/colorPrimary"
+    android:theme="@style/ConnectTheme"
     android:layout_gravity="start"
     android:paddingHorizontal="@dimen/side_nav_horizontal_padding"
     xmlns:android="http://schemas.android.com/apk/res/android">
@@ -11,7 +12,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
-            android:background="@color/connect_blue_color">
+            android:background="?attr/colorPrimary">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -37,9 +38,11 @@
                         android:layout_gravity="center">
 
                         <ImageView
+                            android:id="@+id/nav_drawer_signed_out_avatar"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:src="@drawable/nav_drawer_logged_out_avatar"/>
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_personalid_avatar_placeholder"/>
 
                         <ImageView
                             android:id="@+id/nav_drawer_error_icon"
@@ -60,9 +63,10 @@
                         android:focusable="true"
                         android:layout_gravity="center"
                         android:textAlignment="center"
-                        android:paddingVertical="16dp"
+                        android:paddingVertical="@dimen/connect_space_lg"
                         android:clickable="true"
-                        android:textAppearance="@style/TextAppearance.NavDrawerItem"
+                        style="@style/TextStyle.Connect.BodyM"
+                        android:textColor="?attr/connectNavDrawerForeground"
                         android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
 
                     <FrameLayout
@@ -151,17 +155,11 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/nav_drawer_sign_in_button"
+                        style="@style/Widget.Connect.NavDrawerButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:backgroundTint="@color/cc_brand_color"
-                        android:paddingStart="24dp"
-                        android:paddingTop="16dp"
-                        android:paddingEnd="24dp"
-                        android:text="@string/nav_drawer_signin_register"
-                        android:textAppearance="@style/TextAppearance.NavDrawerItem"
-                        app:icon="@drawable/connect_right_arrow"
-                        app:iconGravity="end" />
+                        android:text="@string/nav_drawer_signin_register" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -170,7 +168,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:nestedScrollingEnabled="false"
-                    android:background="@color/connect_blue_color" />
+                    android:background="?attr/colorPrimary" />
 
                 <include
                     android:id="@+id/nav_drawer_footer"
