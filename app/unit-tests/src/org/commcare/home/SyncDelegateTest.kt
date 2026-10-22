@@ -2,13 +2,13 @@ package org.commcare.home
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
-import org.commcare.activities.CommCareActivity
 import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_APP_PATH
 import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_PASSWORD
 import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_USER
+import org.commcare.activities.CommCareActivity
 import org.commcare.android.mocks.FormAndDataSyncerFake
-import org.commcare.android.util.TestAppInstaller
 import org.commcare.android.util.ReflectionUtils
+import org.commcare.android.util.TestAppInstaller
 import org.commcare.sync.ProcessAndSendTask
 import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.DataPullTask.PullTaskResult
