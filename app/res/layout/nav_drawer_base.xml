@@ -32,29 +32,13 @@
                     android:visibility="gone"
                     android:layout_weight="1">
 
-                    <FrameLayout
+                    <ImageView
+                        android:id="@+id/nav_drawer_signed_out_avatar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center">
-
-                        <ImageView
-                            android:id="@+id/nav_drawer_signed_out_avatar"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_personalid_avatar_placeholder"/>
-
-                        <ImageView
-                            android:id="@+id/nav_drawer_error_icon"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_gravity="bottom|end"
-                            android:layout_marginEnd="8dp"
-                            android:layout_marginBottom="4dp"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_exclamation_red"
-                            android:visibility="gone" />
-                    </FrameLayout>
+                        android:layout_gravity="center"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_personalid_avatar_placeholder"/>
 
                     <TextView
                         android:id="@+id/nav_drawer_signed_out_text"
@@ -73,79 +57,70 @@
                         android:id="@+id/nav_drawer_error_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="16dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginHorizontal="@dimen/connect_space_lg"
+                        android:layout_marginTop="@dimen/connect_space_lg"
                         android:visibility="gone">
 
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            app:cardBackgroundColor="@color/dark_red_brick_red"
-                            app:cardCornerRadius="20dp"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="0dp" />
+                            app:cardBackgroundColor="?attr/connectStatusNegative"
+                            app:cardCornerRadius="@dimen/connect_radius_lg"
+                            app:cardElevation="@dimen/connect_info_card_elevation" />
 
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            app:cardBackgroundColor="@color/light_indigo"
-                            app:cardCornerRadius="20dp"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="0dp">
+                            android:layout_marginTop="@dimen/connect_space_xs"
+                            app:cardBackgroundColor="?attr/connectNavDrawerErrorCard"
+                            app:cardCornerRadius="@dimen/connect_radius_lg"
+                            app:cardElevation="@dimen/connect_info_card_elevation">
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 android:gravity="center_horizontal"
-                                android:padding="16dp">
+                                android:padding="@dimen/connect_space_lg">
 
                                 <TextView
                                     android:id="@+id/nav_drawer_error_title"
+                                    style="@style/TextStyle.Connect.TitleM"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:textAlignment="center"
-                                    android:textColor="@color/white"
-                                    android:textSize="18sp"
-                                    android:textStyle="bold" />
+                                    android:textColor="?attr/connectNavDrawerForeground" />
 
                                 <TextView
                                     android:id="@+id/nav_drawer_error_message"
+                                    style="@style/TextStyle.Connect.BodyM"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:textAppearance="@style/TextAppearance.NavDrawerItem"
+                                    android:layout_marginTop="@dimen/connect_space_sm"
                                     android:textAlignment="center"
-                                    android:textColor="@color/white" />
+                                    android:textColor="?attr/connectNavDrawerForeground" />
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/nav_drawer_reconfigure_button"
+                                    style="@style/Widget.Connect.NavDrawerButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="12dp"
-                                    android:backgroundTint="@color/connect_blue_color"
-                                    android:paddingStart="24dp"
-                                    android:paddingTop="16dp"
-                                    android:paddingEnd="24dp"
+                                    android:layout_marginTop="@dimen/connect_space_md"
                                     android:text="@string/personalid_reconfigure"
-                                    android:textAppearance="@style/TextAppearance.NavDrawerItem"
-                                    app:icon="@drawable/connect_right_arrow"
-                                    app:iconGravity="end" />
+                                    app:backgroundTint="?attr/colorPrimary" />
 
                                 <TextView
                                     android:id="@+id/nav_drawer_dismiss_link"
+                                    style="@style/TextStyle.Connect.LabelM"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center_horizontal"
-                                    android:layout_marginTop="12dp"
+                                    android:layout_marginTop="@dimen/connect_space_md"
                                     android:background="?attr/selectableItemBackground"
                                     android:clickable="true"
                                     android:focusable="true"
                                     android:text="@string/personalid_dismiss"
-                                    android:textColor="@color/pale_violet_blue"
-                                    android:textSize="12sp"
-                                    android:textStyle="italic" />
+                                    android:textColor="?attr/connectNavDrawerForeground" />
 
                             </LinearLayout>
 

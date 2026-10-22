@@ -141,6 +141,9 @@
     <color name="connect_dark_grey">#4B5563</color>
     <color name="cool_gray_50">#F9FAFB</color>
     <color name="red_600">#DC3939</color>
+    <color name="misty_rose">#F2E3E4</color>
+    <color name="dark_maroon">#58181C</color>
+    <color name="medium_slate_blue">#7075CC</color>
     <color name="amber_800">#92400E</color>
     <color name="amber_100">#FEF3C7</color>
     <color name="cool_gray_800">#1F2937</color>
