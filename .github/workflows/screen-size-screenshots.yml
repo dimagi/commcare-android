@@ -1,0 +1,31 @@
+name: Screen size screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commcare-android branch, tag or SHA to screenshot (blank: the branch picked above)'
+        required: false
+      locale:
+        description: 'Resource qualifier of the language to render, e.g. fr or pt-rBR'
+        required: true
+        default: 'en'
+      sizes:
+        description: 'Comma-separated screen qualifiers, smallest first'
+        required: true
+        default: 'w320dp-h534dp-hdpi,w360dp-h640dp-xhdpi,w360dp-h800dp-xhdpi,w411dp-h891dp-xxhdpi'
+      commcare_core_ref:
+        description: 'commcare-core ref (blank: the same-named branch if it exists, else master)'
+        required: false
+jobs:
+  screenshots:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/l10n-screenshots-run.yml
+    with:
+      title: Screen size screenshots
+      artifact_prefix: screen-size-screenshots
+      ref: ${{ inputs.ref }}
+      locales: ${{ inputs.locale }}
+      sizes: ${{ inputs.sizes }}
+      commcare_core_ref: ${{ inputs.commcare_core_ref }}
