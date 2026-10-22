@@ -24,7 +24,6 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.ConnectivityStatus;
@@ -39,7 +38,7 @@ import java.util.Map;
  * Normal CommCare home screen
  */
 public class StandardHomeActivity
-        extends HomeScreenBaseActivity<StandardHomeActivity>
+        extends HomeScreenBaseActivity
         implements WithUIController {
 
     private static final String TAG = StandardHomeActivity.class.getSimpleName();
@@ -102,13 +101,13 @@ public class StandardHomeActivity
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(StandardHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(StandardHomeActivity.this)) {
-                handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
+                getSyncDelegate().handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
                 CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.Sync_AirplaneMode,
                                 AIRPLANE_MODE_CATEGORY));
             } else {
-                handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
+                getSyncDelegate().handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
                 CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.Sync_NoConnections,
@@ -123,7 +122,7 @@ public class StandardHomeActivity
         }
         fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        sendFormsOrSync(true);
+        getSyncDelegate().sendFormsOrSync(true);
     }
 
     void syncSubTextPressed() {
@@ -133,7 +132,7 @@ public class StandardHomeActivity
     }
 
     @Override
-    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
+    public void updateUiAfterDataPullOrSend(@NonNull String message, boolean success) {
         displayToast(message);
         uiController.updateSyncButtonMessage(message);
         uiController.updateConnectJobProgress();
@@ -292,11 +291,8 @@ public class StandardHomeActivity
     }
 
     @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
-                                     boolean userTriggeredSync, boolean formsToSend,
-                                     boolean usingRemoteKeyManagement) {
-        super.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend,
-                usingRemoteKeyManagement);
+    public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
+        super.onPullTaskFinished(result);
         uiController.refreshView();
     }
 

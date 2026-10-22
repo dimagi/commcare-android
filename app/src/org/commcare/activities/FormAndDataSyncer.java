@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
+import org.commcare.home.SyncDelegate;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.mocks.LocalFilePullResponseFactory;
@@ -13,6 +14,7 @@ import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
@@ -24,11 +26,11 @@ import java.io.File;
  */
 public class FormAndDataSyncer {
 
-    protected FormAndDataSyncer() {
+    public FormAndDataSyncer() {
     }
 
-    void startUnsentFormsTask(
-            SyncCapableCommCareActivity activity,
+    public void startUnsentFormsTask(
+            SyncDelegate receiver,
             final boolean syncAfterwards,
             boolean userTriggered
     ) {
@@ -38,22 +40,22 @@ public class FormAndDataSyncer {
             HiddenPreferences.updateLastUploadSyncAttemptTime();
         }
 
-        processAndSendForms(activity, syncAfterwards, userTriggered);
+        processAndSendForms(receiver, syncAfterwards, userTriggered);
     }
 
     @SuppressLint("NewApi")
     protected void processAndSendForms(
-            final SyncCapableCommCareActivity activity,
+            final SyncDelegate receiver,
             final boolean syncAfterwards,
             final boolean userTriggered
     ) {
-
-        ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
-                new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, syncAfterwards) {
+        CommCareActivity<?> connector = receiver.getConnector();
+        ProcessAndSendTask<SyncDelegate> processAndSendTask =
+                new ProcessAndSendTask<SyncDelegate>(connector, syncAfterwards) {
 
                     @Override
                     protected void deliverResult(
-                            SyncCapableCommCareActivity receiver,
+                            SyncDelegate receiver,
                             FormUploadResult result
                     ) {
                         if (CommCareApplication.instance().isConsumerApp()) {
@@ -62,13 +64,14 @@ public class FormAndDataSyncer {
                             return;
                         }
 
+                        CommCareActivity<?> activity = receiver.getConnector();
                         if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
-                            receiver.finish();
+                            activity.finish();
                             return;
                         }
 
-                        if (receiver instanceof WithUIController) {
-                            ((WithUIController)receiver).getUIController().refreshView();
+                        if (activity instanceof WithUIController) {
+                            ((WithUIController)activity).getUIController().refreshView();
                         }
 
                         receiver.handleFormUploadResult(
@@ -84,13 +87,13 @@ public class FormAndDataSyncer {
 
                     @Override
                     protected void deliverUpdate(
-                            SyncCapableCommCareActivity receiver,
+                            SyncDelegate receiver,
                             Long... update
                     ) {
                     }
 
                     @Override
-                    protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
+                    protected void deliverError(SyncDelegate receiver, Exception e) {
                         receiver.handleFormUploadResult(
                                 FormUploadResult.UNSENT,
                                 getLabelForFormsSent(),
@@ -99,7 +102,7 @@ public class FormAndDataSyncer {
                     }
 
                     @Override
-                    protected void handleCancellation(SyncCapableCommCareActivity receiver) {
+                    protected void handleCancellation(SyncDelegate receiver) {
                         super.handleCancellation(receiver);
                         receiver.handleFormUploadResult(
                                 FormUploadResult.CANCELLED,
@@ -114,12 +117,12 @@ public class FormAndDataSyncer {
                     CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
         }
 
-        processAndSendTask.connect(activity);
+        processAndSendTask.connect((CommCareTaskConnector)connector);
         processAndSendTask.executeParallel();
     }
 
     public void syncDataForLoggedInUser(
-            final SyncCapableCommCareActivity activity,
+            final SyncDelegate receiver,
             final boolean formsToSend,
             final boolean userTriggeredSync
     ) {
@@ -129,16 +132,16 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.has.forms"));
+                    receiver.handleSyncNotAttempted(Localization.get("main.sync.demo.has.forms"));
                 } else {
-                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.no.forms"));
+                    receiver.handleSyncNotAttempted(Localization.get("main.sync.demo.no.forms"));
                 }
             }
             return;
         }
 
         syncData(
-                activity,
+                receiver.getConnector(),
                 formsToSend,
                 userTriggeredSync,
                 ServerUrls.getDataServerKey(),
@@ -148,8 +151,8 @@ public class FormAndDataSyncer {
         );
     }
 
-    public <I extends CommCareActivity & PullTaskResultReceiver> void performCustomRestoreFromFile(
-            I context,
+    public void performCustomRestoreFromFile(
+            CommCareActivity<?> context,
             File incomingRestoreFile
     ) {
         User u = CommCareApplication.instance().getSession().getLoggedInUser();
@@ -169,8 +172,8 @@ public class FormAndDataSyncer {
         );
     }
 
-    public <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
-            final I activity,
+    public void syncData(
+            final CommCareActivity<?> activity,
             final boolean formsToSend,
             final boolean userTriggeredSync,
             String server,
@@ -192,8 +195,8 @@ public class FormAndDataSyncer {
         );
     }
 
-    private <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
-            final I activity,
+    private void syncData(
+            final CommCareActivity<?> activity,
             final boolean formsToSend,
             final boolean userTriggeredSync,
             String server,
@@ -241,7 +244,7 @@ public class FormAndDataSyncer {
             }
         };
 
-        dataPullTask.connect(activity);
+        dataPullTask.connect((CommCareTaskConnector)activity);
         dataPullTask.executeParallel();
     }
 }

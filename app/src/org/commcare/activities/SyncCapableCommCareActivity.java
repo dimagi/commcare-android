@@ -1,267 +1,28 @@
 package org.commcare.activities;
 
-import android.os.Bundle;
 import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.preferences.HiddenPreferences;
-import org.commcare.sync.ProcessAndSendTask;
+import androidx.annotation.NonNull;
+
+import org.commcare.home.SyncDelegate;
+import org.commcare.home.SyncHost;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.PrimeEntityCacheHelper;
-import org.commcare.tasks.PullTaskResultReceiver;
-import org.commcare.tasks.ResultAndError;
-import org.commcare.utils.FormUploadResult;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.dialogs.StandardAlertDialog;
-import org.commcare.views.notifications.NotificationActionButtonInfo;
-import org.commcare.views.notifications.NotificationMessageFactory;
-import org.javarosa.core.services.locale.Localization;
 
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
-        implements PullTaskResultReceiver {
+        implements SyncHost {
 
-    private static final boolean SUCCESS = true;
-    private static final boolean FAIL = false;
+    protected abstract SyncDelegate getSyncDelegate();
 
-    protected boolean isSyncUserLaunched = false;
-    protected FormAndDataSyncer formAndDataSyncer;
-
+    @NonNull
     @Override
-    public void onCreateSessionSafe(Bundle savedInstanceState) {
-        formAndDataSyncer = new FormAndDataSyncer();
-    }
-
-    /**
-     * Attempts first to send unsent forms to the server.  If any forms are sent, a sync will be
-     * triggered after they are submitted. If no forms are sent, triggers a sync explicitly.
-     */
-    protected void sendFormsOrSync(boolean userTriggeredSync) {
-        startUnsentFormsTask(true, userTriggeredSync);
-    }
-
-    protected void startUnsentFormsTask(boolean syncAfterwards, boolean userTriggered) {
-        isSyncUserLaunched = userTriggered;
-        formAndDataSyncer.startUnsentFormsTask(this, syncAfterwards, userTriggered);
+    public CommCareActivity<?> getSyncConnector() {
+        return this;
     }
 
     @Override
-    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
-                                     boolean userTriggeredSync, boolean formsToSend,
-                                     boolean usingRemoteKeyManagement) {
-        if (CommCareApplication.instance().isConsumerApp()) {
-            return;
-        }
-
-        DataPullTask.PullTaskResult result = resultAndError.data;
-        switch (result) {
-            case EMPTY_URL:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.empty.url"), FAIL);
-                break;
-            case TOKEN_UNAVAILABLE:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.token.unavailable"), FAIL);
-                break;
-            case TOKEN_DENIED:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.token.denied"), FAIL);
-                break;
-            case AUTH_FAILED:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.auth.loggedin"), FAIL);
-                break;
-            case BAD_DATA:
-            case BAD_DATA_REQUIRES_INTERVENTION:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.data"), FAIL);
-                break;
-            case DOWNLOAD_SUCCESS:
-                CommCareApplication.notificationManager().clearNotifications(
-                        NotificationMessageFactory.StockMessages.BadSslCertificate
-                                .getCategory());
-                updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS);
-                break;
-            case SERVER_ERROR:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.server.error"), FAIL);
-                break;
-            case RATE_LIMITED_SERVER_ERROR:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.rate.limited.server.error"), FAIL);
-                break;
-            case UNREACHABLE_HOST:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.bad.network"), FAIL);
-                break;
-            case CONNECTION_TIMEOUT:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.timeout"), FAIL);
-                break;
-            case UNKNOWN_FAILURE:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
-                break;
-            case CANCELLED:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.cancelled"), FAIL);
-                break;
-            case ENCRYPTION_FAILURE:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.encryption.failure"), FAIL);
-                break;
-            case SESSION_EXPIRE:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.session.expire"), FAIL);
-                break;
-            case RECOVERY_FAILURE:
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.recovery.failure"), FAIL);
-                break;
-            case ACTIONABLE_FAILURE:
-                updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL);
-                break;
-            case AUTH_OVER_HTTP:
-                updateUiAfterDataPullOrSend(Localization.get("auth.over.http"), FAIL);
-                break;
-            case CAPTIVE_PORTAL:
-                updateUiAfterDataPullOrSend(Localization.get("connection.captive_portal.action"), FAIL);
-                break;
-            case BAD_CERTIFICATE:
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.BadSslCertificate,
-                                NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
-                updateUiAfterDataPullOrSend(Localization.get("sync.fail.badcert"), FAIL);
-                break;
-        }
-
-        String syncTriggerParam =
-                userTriggeredSync ? AnalyticsParamValue.SYNC_TRIGGER_USER : AnalyticsParamValue.SYNC_TRIGGER_AUTO;
-
-        String syncModeParam = formsToSend ?
-                AnalyticsParamValue.SYNC_MODE_SEND_FORMS :
-                AnalyticsParamValue.SYNC_MODE_JUST_PULL_DATA;
-
-        FirebaseAnalyticsUtil.reportSyncResult(result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS,
-                syncTriggerParam,
-                syncModeParam,
-                result.analyticsFailureReasonParam);
+    public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
     }
-
-    @Override
-    public void handlePullTaskUpdate(Integer... update) {
-        handleSyncUpdate(this, update);
-    }
-
-    public static void handleSyncUpdate(CommCareActivity activity,
-                                        Integer... update) {
-        int progressCode = update[0];
-        if (progressCode == DataPullTask.PROGRESS_STARTED) {
-            activity.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_CLEANED) {
-            activity.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBarVisibility(false);
-        } else if (progressCode == DataPullTask.PROGRESS_AUTHED) {
-            activity.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBarVisibility(false);
-        } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING) {
-            activity.updateProgress(
-                    Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}),
-                    Localization.get("sync.downloading.title"),
-                    DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
-            activity.hideTaskCancelButton();
-        } else if (progressCode == DataPullTask.PROGRESS_PROCESSING) {
-            activity.updateProgress(
-                    getSyncProgressMessage(update),
-                    Localization.get("sync.processing.title"),
-                    DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-            activity.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-            activity.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (progressCode == DataPullTask.PROGRESS_SERVER_PROCESSING) {
-            activity.updateProgress(
-                    getSyncProgressMessage(update),
-                    Localization.get("sync.waiting.title"),
-                    DataPullTask.DATA_PULL_TASK_ID);
-            activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-        }
-    }
-
-    private static String getSyncProgressMessage(Integer[] update) {
-        Integer numerator = update[1];
-        Integer denominator = update[2];
-        // If denominator is less than the numerator, use numerator instead to avoid confusion
-        denominator = Math.max(numerator, denominator);
-        return Localization.get("sync.progress", new String[]{String.valueOf(numerator),
-                String.valueOf(denominator)});
-    }
-
-    @Override
-    public void handlePullTaskError() {
-        updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL);
-    }
-
-    public void handleSyncNotAttempted(String message) {
-        displayToast(message);
-    }
-
-    public void handleFormUploadResult(FormUploadResult result, String formLabel, boolean userTriggered) {
-        switch (result) {
-            case FULL_SUCCESS:
-                updateUiForFormUploadResult(formLabel, true);
-                break;
-            case BAD_CERTIFICATE:
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.BadSslCertificate,
-                                NotificationActionButtonInfo.ButtonAction.LAUNCH_DATE_SETTINGS));
-
-                updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
-                break;
-            case ACTIONABLE_FAILURE:
-                updateUiForFormUploadResult(result.getErrorMessage(), false);
-                break;
-            case RATE_LIMITED:
-                showRateLimitError(userTriggered);
-                break;
-            case CANCELLED:
-                updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase())
-                        + " " + formLabel, false);
-                break;
-            case AUTH_FAILURE:
-            case TRANSPORT_FAILURE:
-            case PROCESSING_FAILURE:
-            case RECORD_FAILURE:
-            case INVALID_CASE_GRAPH:
-            case FAILURE:
-            default:
-                updateUiForFormUploadResult(Localization.get(result.getLocaleKeyBase()), false);
-                break;
-        }
-        PrimeEntityCacheHelper.scheduleEntityCacheInvalidation();
-    }
-
-    public void updateUiForFormUploadResult(String message, boolean success) {
-        updateUiAfterDataPullOrSend(message, success);
-        if (success) {
-            // Since we know that we just had connectivity, now is a great time to try this
-            CommCareApplication.instance().getSession().initHeartbeatLifecycle();
-        }
-    }
-
-    public void showRateLimitError(boolean userTriggered) {
-        if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
-            updateUiForFormUploadResult(Localization.get(FormUploadResult.RATE_LIMITED.getLocaleKeyBase()), false);
-            return;
-        }
-        String title = Localization.get("form.send.rate.limit.error.title");
-        String message = Localization.get("form.send.rate.limit.error.message");
-        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(title,
-                message, null);
-
-        dialog.setNegativeButton(Localization.get("rate.limit.error.dialog.do.not.show"), (dialog1, which) -> {
-            HiddenPreferences.disableRateLimitPopup(true);
-            dialog1.dismiss();
-        });
-        dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close"), (dialog1, which) -> {
-            dialog1.dismiss();
-        });
-
-        showAlertDialog(dialog);
-    }
-
-    abstract void updateUiAfterDataPullOrSend(String message, boolean success);
 
     protected void displayToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -269,37 +30,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title;
-        String message;
-        CustomProgressDialog dialog;
-        switch (taskId) {
-            case ProcessAndSendTask.SEND_PHASE_ID:
-                title = Localization.get("sync.progress.submitting.title");
-                message = Localization.get("sync.progress.submitting");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                dialog.addCancelButton();
-                break;
-            case ProcessAndSendTask.PROCESSING_PHASE_ID:
-                title = Localization.get("form.entry.processing.title");
-                message = Localization.get("form.entry.processing");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                dialog.addProgressBar();
-                dialog.addCancelButton();
-                break;
-            case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.communicating.title");
-                message = Localization.get("sync.progress.purge");
-                dialog = CustomProgressDialog.newInstance(title, message, taskId);
-                if (isSyncUserLaunched) {
-                    // allow users to cancel syncs that they launched
-                    dialog.addCancelButton();
-                }
-                isSyncUserLaunched = false;
-                break;
-            default:
-                return null;
-        }
-        return dialog;
+        return getSyncDelegate().generateProgressDialog(taskId);
     }
-
 }

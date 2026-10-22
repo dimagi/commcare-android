@@ -28,6 +28,9 @@ class HomeActivityCoordinator(
     /** Owns the binary and content app updates. Session-independent, registered on the host lifecycle. */
     val appUpdate = AppUpdateDelegate(host = host, session = session)
 
+    /** Owns form sending and data pulls; the host's task receiver. */
+    val sync = SyncDelegate(host = host)
+
     /** Activity was launched by an external app, so form submission may redispatch back to it. */
     var wasExternal: Boolean
         get() {

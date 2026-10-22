@@ -15,6 +15,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
 - With the dashboard progress breakdown collapsed, confirm the three payment units shown are the most recently visited ones.
+- Regression check on sync from the home screen: tapping Sync with unsent forms sends them and then syncs, and the progress dialog can be cancelled; the sync button shows the success or failure message; finishing a form sends it in the background; and a post-update sync and a sync requested by a push notification while logged out both run on the next login.
+- Regression check on remote posts: a form or menu that posts to a server (for example a case claim) still syncs afterwards and returns to where it was, and shows an error with Retry when the post or the sync fails.
 
 ## CommCare 2.65
 

@@ -3,12 +3,15 @@ package org.commcare.activities
 import org.commcare.CommCareApplication
 import org.commcare.android.util.ActivityAssertions.assertStarted
 import org.commcare.android.util.ReflectionUtils
+import org.commcare.network.CommcareRequestEndpointsMock
+import org.commcare.network.LocalReferencePullResponseFactory
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.DataPullTask.PullTaskResult
 import org.commcare.tasks.PullTaskResultReceiver
 import org.commcare.tasks.ResultAndError
 import org.commcare.utils.FormUploadResult
+import org.commcare.utils.RobolectricUtil
 import org.commcare.views.notifications.NotificationActionButtonInfo
 import org.commcare.views.notifications.NotificationMessageFactory
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
@@ -84,6 +87,21 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         clickHomeButton(controller.get(), Localization.get("home.sync"))
 
         assertEquals(1, fakeSyncer.formSendCount)
+    }
+
+    @Test
+    fun `a real sync from the sync button reports back to the home screen`() {
+        val home = buildVisibleHome()
+        home.setFormAndDataSyncer(FormAndDataSyncer())
+        CommcareRequestEndpointsMock.setCaseFetchResponseCodes(arrayOf(200))
+        LocalReferencePullResponseFactory.setRequestPayloads(arrayOf("$APP_RESOURCES/simple_data_restore.xml"))
+
+        clickHomeButton(home, Localization.get("home.sync"))
+        RobolectricUtil.flushAllBackgroundTasks(home)
+
+        val expected = Localization.get("sync.success.synced")
+        assertEquals(expected, ShadowToast.getTextOfLatestToast())
+        assertEquals(expected, homeButtonSubText(home, Localization.get("home.sync")))
     }
 
     // endregion
@@ -231,8 +249,7 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
 
     // endregion
 
-    @Suppress("UNCHECKED_CAST")
-    private fun receiverOf(home: StandardHomeActivity): PullTaskResultReceiver = home.receiver as PullTaskResultReceiver
+    private fun receiverOf(home: StandardHomeActivity): PullTaskResultReceiver = home.receiver
 
     private fun deliverPullResult(
         home: StandardHomeActivity,
@@ -248,7 +265,7 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         formLabel: String,
         userTriggered: Boolean,
     ) {
-        home.handleFormUploadResult(result, formLabel, userTriggered)
+        home.receiver.handleFormUploadResult(result, formLabel, userTriggered)
         ShadowLooper.idleMainLooper()
     }
 
@@ -262,4 +279,8 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
     }
 
     private fun badCertificateTitle(): String = NotificationMessageFactory.message(StockMessages.BadSslCertificate).title
+
+    private companion object {
+        const val APP_RESOURCES = "jr://resource/commcare-apps/form_nav_tests"
+    }
 }

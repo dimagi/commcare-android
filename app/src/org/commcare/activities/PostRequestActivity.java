@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
@@ -15,9 +17,12 @@ import org.commcare.core.network.AuthenticationInterceptor;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
+import org.commcare.home.SyncDelegate;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ModernHttpTask;
+import org.commcare.tasks.PullTaskResultReceiver;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -41,7 +46,7 @@ import okhttp3.RequestBody;
 @ManagedUi(R.layout.http_request_layout)
 public class PostRequestActivity
         extends SyncCapableCommCareActivity<PostRequestActivity>
-        implements ConnectorWithHttpResponseProcessor<PostRequestActivity> {
+        implements ConnectorWithHttpResponseProcessor<PostRequestActivity>, PullTaskResultReceiver {
     private static final String TAG = PostRequestActivity.class.getSimpleName();
 
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
@@ -62,6 +67,8 @@ public class PostRequestActivity
     private String errorMessage;
     private boolean hasTaskLaunched;
     private boolean inErrorState;
+
+    private final SyncDelegate syncDelegate = new SyncDelegate(this);
 
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
@@ -105,8 +112,31 @@ public class PostRequestActivity
         retryButton.setOnClickListener(v -> retryPost());
     }
 
+    @Override
+    protected SyncDelegate getSyncDelegate() {
+        return syncDelegate;
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError,
+                                     boolean userTriggeredSync, boolean formsToSend,
+                                     boolean usingRemoteKeyManagement) {
+        syncDelegate.handlePullTaskResult(resultAndError, userTriggeredSync, formsToSend,
+                usingRemoteKeyManagement);
+    }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        syncDelegate.handlePullTaskUpdate(update);
+    }
+
+    @Override
+    public void handlePullTaskError() {
+        syncDelegate.handlePullTaskError();
+    }
+
     private void performSync() {
-        formAndDataSyncer.syncDataForLoggedInUser(this, false, false);
+        syncDelegate.syncDataForLoggedInUser(false);
     }
 
     private void makePostRequest() {
@@ -164,7 +194,7 @@ public class PostRequestActivity
     }
 
     @Override
-    protected void updateUiAfterDataPullOrSend(String message, boolean success) {
+    public void updateUiAfterDataPullOrSend(@NonNull String message, boolean success) {
         if (success) {
             setResult(RESULT_OK);
             finish();
