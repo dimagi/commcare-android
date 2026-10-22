@@ -242,14 +242,4 @@ public class PostRequestActivity
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
 
-    @Override
-    public boolean shouldShowSyncItemInActionBar() {
-        return false;
-    }
-
-    @Override
-    public boolean usesSubmissionProgressBar() {
-        return false;
-    }
-
 }

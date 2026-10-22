@@ -300,16 +300,6 @@ public class StandardHomeActivity
         uiController.refreshView();
     }
 
-    @Override
-    public boolean shouldShowSyncItemInActionBar() {
-        return false;
-    }
-
-    @Override
-    public boolean usesSubmissionProgressBar() {
-        return false;
-    }
-
 
     @Override
     protected boolean shouldShowDrawer() {

@@ -1,23 +1,11 @@
 package org.commcare.activities;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.AnimRes;
-import androidx.annotation.LayoutRes;
-
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.interfaces.UiLoadedListener;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
@@ -25,7 +13,6 @@ import org.commcare.tasks.PrimeEntityCacheHelper;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
-import org.commcare.utils.SyncDetailCalculations;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
@@ -35,43 +22,15 @@ import org.javarosa.core.services.locale.Localization;
 public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCareActivity<T>
         implements PullTaskResultReceiver {
 
-    protected static final int MENU_SYNC = Menu.FIRST;
-    private static final int MENU_GROUP_SYNC_ACTION = Menu.FIRST;
-
     private static final boolean SUCCESS = true;
     private static final boolean FAIL = false;
-
-    private static final String KEY_LAST_ICON_TRIGGER = "last-icon-trigger";
 
     protected boolean isSyncUserLaunched = false;
     protected FormAndDataSyncer formAndDataSyncer;
 
-    private SyncIconState syncStateForIcon;
-    private SyncIconTrigger lastIconTrigger;
-    private MenuItem currentSyncMenuItem;
-
-    private UiLoadedListener uiLoadedListener;
-
     @Override
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         formAndDataSyncer = new FormAndDataSyncer();
-        computeSyncState(savedInstanceState == null ?
-                SyncIconTrigger.NO_ANIMATION :
-                (SyncIconTrigger)savedInstanceState.getSerializable(KEY_LAST_ICON_TRIGGER));
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(KEY_LAST_ICON_TRIGGER, lastIconTrigger);
-    }
-
-    @Override
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        if (uiLoadedListener != null) {
-            uiLoadedListener.onUiLoaded();
-        }
     }
 
     /**
@@ -309,146 +268,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
     }
 
     @Override
-    public void startBlockingForTask(int id) {
-        super.startBlockingForTask(id);
-        if (isProcessAndSendTaskId(id)) {
-            triggerSyncIconRefresh(SyncIconTrigger.ANIMATE_SEND_FORMS);
-        } else if (id == DataPullTask.DATA_PULL_TASK_ID) {
-            triggerSyncIconRefresh(SyncIconTrigger.ANIMATE_DATA_PULL);
-        }
-    }
-
-    @Override
-    public void stopBlockingForTask(int id) {
-        super.stopBlockingForTask(id);
-        if (isProcessAndSendTaskId(id) || id == DataPullTask.DATA_PULL_TASK_ID) {
-            triggerSyncIconRefresh(SyncIconTrigger.NO_ANIMATION);
-        }
-    }
-
-    private static boolean isProcessAndSendTaskId(int id) {
-        return id == ProcessAndSendTask.SEND_PHASE_ID_NO_DIALOG ||
-                id == ProcessAndSendTask.PROCESSING_PHASE_ID_NO_DIALOG ||
-                id == ProcessAndSendTask.PROCESSING_PHASE_ID ||
-                id == ProcessAndSendTask.SEND_PHASE_ID;
-    }
-
-    private void triggerSyncIconRefresh(SyncIconTrigger trigger) {
-        if (shouldShowSyncItemInActionBar()) {
-            computeSyncState(trigger);
-            rebuildOptionsMenu();
-        }
-    }
-
-    private void computeSyncState(SyncIconTrigger trigger) {
-        lastIconTrigger = trigger;
-        switch (trigger) {
-            case NO_ANIMATION:
-                if (SyncDetailCalculations.getNumUnsentForms() > 0) {
-                    syncStateForIcon = SyncIconState.FORMS_PENDING;
-                } else {
-                    syncStateForIcon = SyncIconState.UP_TO_DATE;
-                }
-                break;
-            case ANIMATE_DATA_PULL:
-                syncStateForIcon = SyncIconState.PULLING_DATA;
-                break;
-            case ANIMATE_SEND_FORMS:
-                syncStateForIcon = SyncIconState.SENDING_FORMS;
-                break;
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == MENU_SYNC) {
-            sendFormsOrSync(true);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        addSyncItemToActionBar(menu);
-        return true;
-    }
-
-    private void addSyncItemToActionBar(Menu menu) {
-        if (shouldShowSyncItemInActionBar()) {
-            currentSyncMenuItem = menu.add(MENU_GROUP_SYNC_ACTION, MENU_SYNC, MENU_SYNC, "Sync");
-            currentSyncMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-            switch (syncStateForIcon) {
-                case PULLING_DATA:
-                    addDataPullAnimation(currentSyncMenuItem);
-                    break;
-                case SENDING_FORMS:
-                    addFormSendAnimation(currentSyncMenuItem);
-                    break;
-                case FORMS_PENDING:
-                    currentSyncMenuItem.setIcon(R.drawable.ic_forms_pending_action_bar);
-                    break;
-                case UP_TO_DATE:
-                    currentSyncMenuItem.setIcon(R.drawable.ic_sync_action_bar);
-                    break;
-            }
-        }
-    }
-
-    @Override
-    public void rebuildOptionsMenu() {
-        clearCurrentAnimation(currentSyncMenuItem);
-        super.rebuildOptionsMenu();
-    }
-
-    private void addDataPullAnimation(MenuItem menuItem) {
-        addAnimationToMenuItem(menuItem, R.layout.data_pull_action_view, R.anim.slide_down_repeat);
-    }
-
-    private void addFormSendAnimation(MenuItem menuItem) {
-        addAnimationToMenuItem(menuItem, R.layout.send_forms_action_view, R.anim.slide_up_repeat);
-    }
-
-    private void addAnimationToMenuItem(MenuItem menuItem, @LayoutRes int layoutResource,
-                                        @AnimRes int animationId) {
-        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ImageView iv = (ImageView)inflater.inflate(layoutResource, null);
-        Animation animation = AnimationUtils.loadAnimation(this, animationId);
-        iv.startAnimation(animation);
-        menuItem.setActionView(iv);
-    }
-
-    private void clearCurrentAnimation(MenuItem item) {
-        if (item != null && item.getActionView() != null) {
-            item.getActionView().clearAnimation();
-            item.setActionView(null);
-        }
-    }
-
-    /**
-     * If true, the action bar of this activity will show an icon or animation at all times
-     * indicating the current sync state of the app (1 of either sending forms, pulling data,
-     * has pending forms to send, or up-to-date)
-     */
-    public abstract boolean shouldShowSyncItemInActionBar();
-
-    /**
-     * If true, a progress bar will show beneath the action bar during form submission. In order
-     * to successfully enable this for an activity, the layout file for that activity must also
-     * contain the progress bar element that FormSubmissionProgressBarListener expects.
-     */
-    public abstract boolean usesSubmissionProgressBar();
-
-    public void setUiLoadedListener(UiLoadedListener listener) {
-        this.uiLoadedListener = listener;
-    }
-
-    public void removeUiLoadedListener() {
-        this.uiLoadedListener = null;
-    }
-
-    @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title;
         String message;
@@ -481,15 +300,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
                 return null;
         }
         return dialog;
-    }
-
-
-    private enum SyncIconState {
-        UP_TO_DATE, PULLING_DATA, SENDING_FORMS, FORMS_PENDING
-    }
-
-    private enum SyncIconTrigger {
-        ANIMATE_DATA_PULL, ANIMATE_SEND_FORMS, NO_ANIMATION
     }
 
 }

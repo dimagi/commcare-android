@@ -11,7 +11,6 @@ import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.sync.ProcessAndSendTask;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadResult;
@@ -113,11 +112,6 @@ public class FormAndDataSyncer {
         if (CommCareApplication.notificationManager().areNotificationsEnabled()) {
             processAndSendTask.addSubmissionListener(
                     CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
-        }
-
-        if (activity.usesSubmissionProgressBar()) {
-            processAndSendTask.addProgressBarSubmissionListener(
-                    new FormSubmissionProgressBarListener(activity));
         }
 
         processAndSendTask.connect(activity);
