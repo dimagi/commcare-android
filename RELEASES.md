@@ -15,6 +15,9 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
 - With the dashboard progress breakdown collapsed, confirm the three payment units shown are the most recently visited ones.
+- Signed out of PersonalID, open the sidebar and confirm the avatar, "You are not signed in" text and Sign In / Register button match the rest of the sidebar's styling.
+  - With a PersonalID error showing (e.g. after signing in to the same account on another device), confirm the avatar turns red, the error card's text and Reconfigure button are readable, and Dismiss clears the card.
+- Signed in to PersonalID, confirm the sidebar looks the same as before.
 
 ## CommCare 2.65
 
