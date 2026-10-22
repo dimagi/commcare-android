@@ -50,6 +50,6 @@ interface HomeActivityHost : SavedStateRegistryOwner {
      */
     fun areAppActionsAvailable(): Boolean
 
-    /** The user session went away underneath this host, through expiration or logout. */
+    /** The user session expired, or was found missing on resume, underneath this host. */
     fun onSessionLost()
 }
