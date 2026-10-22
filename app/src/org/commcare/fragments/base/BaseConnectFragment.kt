@@ -20,7 +20,6 @@ import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import org.commcare.AppUtils
 import org.commcare.activities.CommCareActivity
@@ -87,7 +86,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     private var installDialog: CustomProgressDialog? = null
 
-    /** Set once a launch has opened its app, so the next stop can drop the launching state. */
+    /** Set once the launched app has opened; the onStop that follows, as the app covers this screen, drops the launching state. */
     private var launchHandedOff = false
 
     /**
@@ -96,10 +95,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
      * merely watching it.
      */
     private val installViewModel: ConnectAppInstallViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-        )[ConnectAppInstallViewModel::class.java]
+        ConnectAppInstallViewModel.of(requireActivity())
     }
 
     /** Stable across recreation, so a screen reclaims the install it started before a rotation. */
@@ -121,7 +117,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         ConnectAppLaunchController(
             this,
             object : ConnectAppLaunchListener {
-                override fun onLaunchSucceeded() = onLaunchHandedOff()
+                override fun onLaunchSucceeded() = holdLaunchUntilHidden()
 
                 override fun onLaunchFailed(failure: AppLaunchFailure) =
                     onAppLaunchFailed(failure, appLaunchController::retryLaunch, ::clearOwnedLaunch)
@@ -617,7 +613,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         host.showAlertDialog(dialog)
     }
 
-    private fun onLaunchHandedOff() {
+    private fun holdLaunchUntilHidden() {
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
             launchHandedOff = true
         } else {

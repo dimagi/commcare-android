@@ -9,7 +9,7 @@ interface OpportunityNavigator {
     fun onPhaseChanged()
 
     /** Follows one of the page's own nav actions; ignored once the page has been left. */
-    fun navigateFromPage(directions: NavDirections)
+    fun navigateFromOpportunityHost(directions: NavDirections)
 
     companion object {
         /** The page hosting [fragment], or null when it is not on one. */

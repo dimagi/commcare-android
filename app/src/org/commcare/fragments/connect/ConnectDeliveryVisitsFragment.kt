@@ -61,7 +61,7 @@ class ConnectDeliveryVisitsFragment :
 
     /** Opens the visits detail through the page hosting this tab. */
     private fun navigateToDeliveries(unitUuid: String) {
-        OpportunityNavigator.hostOf(this)?.navigateFromPage(
+        OpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(
             OpportunityHomeFragmentDirections
                 .actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(unitUuid),
         )

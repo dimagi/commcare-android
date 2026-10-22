@@ -17,7 +17,6 @@ import org.commcare.DiskUtils;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.PersonalIdSessionManager;
-import org.commcare.connect.opportunity.OpportunityHomeFragment;
 import org.commcare.fragments.personalId.PersonalIdWorkflow;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -729,7 +728,7 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.PERSONAL_ID_LINKING, bundle);
     }
 
-    /** Logs a screen view per destination, except Opportunity Home, which reports its own surfaces. */
+    // logs screen view events when set to a navigation controller
     public static NavController.OnDestinationChangedListener getNavControllerPageChangeLoggingListener() {
         return (navController, navDestination, args) -> {
             String currentFragmentClassName = "UnknownDestination";
@@ -737,9 +736,6 @@ public class FirebaseAnalyticsUtil {
             if (destination instanceof FragmentNavigator.Destination) {
                 currentFragmentClassName =
                         ((FragmentNavigator.Destination)destination).getClassName();
-            }
-            if (OpportunityHomeFragment.class.getName().equals(currentFragmentClassName)) {
-                return;
             }
 
             CharSequence label = navDestination.getLabel();
@@ -750,7 +746,7 @@ public class FirebaseAnalyticsUtil {
         };
     }
 
-    /** Reports a screen view, including for a screen that is not its own navigation destination. */
+    /** Reports a screen view, including for a screen hosted inside another destination. */
     public static void reportScreenView(String screenName, String screenClass) {
         Bundle bundle = new Bundle();
         bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);

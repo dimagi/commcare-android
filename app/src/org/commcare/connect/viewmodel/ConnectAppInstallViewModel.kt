@@ -1,9 +1,11 @@
 package org.commcare.connect.viewmodel
 
 import android.app.Application
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.dalvik.R
 import org.commcare.engine.resource.AppInstallStatus
@@ -240,4 +242,14 @@ class ConnectAppInstallViewModel(
         }
 
     private fun unknownErrorMessage() = getApplication<Application>().getString(R.string.connect_app_install_unknown_error)
+
+    companion object {
+        /** The one instance shared by every Connect screen in [activity]. */
+        @JvmStatic
+        fun of(activity: FragmentActivity): ConnectAppInstallViewModel =
+            ViewModelProvider(
+                activity,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
+            )[ConnectAppInstallViewModel::class.java]
+    }
 }

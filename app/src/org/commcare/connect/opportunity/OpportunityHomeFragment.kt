@@ -3,10 +3,7 @@ package org.commcare.connect.opportunity
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import org.commcare.activities.connect.ConnectActivity
@@ -18,7 +15,7 @@ import org.commcare.fragments.base.BaseConnectFragment
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
-import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.fragments.extensions.hasLiveView
 
 /** Per-opportunity page that shows the status surface for the opportunity's current phase. */
 class OpportunityHomeFragment :
@@ -39,29 +36,21 @@ class OpportunityHomeFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        viewLifecycleOwner.lifecycle.addObserver(stateController)
-        viewLifecycleOwner.lifecycle.addObserver(
-            object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    reportCurrentSurface()
-                }
-            },
-        )
         observeAppInstall()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateState()
     }
 
     /** A surface held by an install or launch may no longer fit once that is over, however it ended. */
     private fun observeAppInstall() {
-        ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-        )[ConnectAppInstallViewModel::class.java]
-            .installState
-            .observe(viewLifecycleOwner) {
-                if (viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                    onPhaseChanged()
-                }
+        ConnectAppInstallViewModel.of(requireActivity()).installState.observe(viewLifecycleOwner) {
+            if (viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                onPhaseChanged()
             }
+        }
     }
 
     override fun refresh(forceRefresh: Boolean) {
@@ -69,35 +58,21 @@ class OpportunityHomeFragment :
             ?.refresh(forceRefresh)
     }
 
-    override fun phase(): OpportunityPhase = OpportunityPhase.of(job)
+    override fun jobStatus(): Int = job.status
 
-    override fun holdsSurface(): Boolean =
+    override fun shouldBlockPhaseTransition(): Boolean =
         (childFragmentManager.findFragmentById(R.id.opportunity_home_container) as? BaseConnectFragment<*>)
             ?.holdsAppInstall == true
 
-    override fun showState(state: OpportunityHomeState) {
-        if (childFragmentManager.findFragmentByTag(state.name) != null) {
-            return
-        }
-        childFragmentManager
-            .beginTransaction()
-            .replace(R.id.opportunity_home_container, surfaceFor(state), state.name)
-            .commit()
-    }
-
     /** Ignored while the page cannot swap surfaces; the next resume re-resolves instead. */
     override fun onPhaseChanged() {
-        if (view == null || childFragmentManager.isStateSaved) {
+        if (!hasLiveView() || childFragmentManager.isStateSaved) {
             return
         }
-        val before = stateController.currentState
-        stateController.reResolveState()
-        if (stateController.currentState != before) {
-            reportCurrentSurface()
-        }
+        updateState()
     }
 
-    override fun navigateFromPage(directions: NavDirections) {
+    override fun navigateFromOpportunityHost(directions: NavDirections) {
         if (!isAdded) {
             return
         }
@@ -108,31 +83,27 @@ class OpportunityHomeFragment :
         navController.navigate(directions)
     }
 
+    private fun updateState() {
+        if (stateController.reResolveState()) {
+            stateController.currentState?.let(::showState)
+        }
+    }
+
+    private fun showState(state: OpportunityHomeState) {
+        if (childFragmentManager.findFragmentByTag(state.name) != null) {
+            return
+        }
+        childFragmentManager
+            .beginTransaction()
+            .replace(R.id.opportunity_home_container, surfaceFor(state), state.name)
+            .commit()
+    }
+
     private fun surfaceFor(state: OpportunityHomeState): Fragment =
         when (state) {
             OpportunityHomeState.JOB_INTRO -> ConnectJobIntroFragment()
             OpportunityHomeState.LEARNING -> ConnectLearningProgressFragment()
             OpportunityHomeState.DELIVERY -> deliverySurface()
-        }
-
-    private fun reportCurrentSurface() {
-        val state = stateController.currentState ?: return
-        FirebaseAnalyticsUtil.reportScreenView(screenNameFor(state), surfaceClassFor(state).name)
-    }
-
-    /** The screen name each surface reported back when it was its own destination. */
-    private fun screenNameFor(state: OpportunityHomeState): String =
-        when (state) {
-            OpportunityHomeState.JOB_INTRO -> "fragment_connect_job_intro"
-            OpportunityHomeState.LEARNING -> "fragment_connect_learning_progress"
-            OpportunityHomeState.DELIVERY -> "fragment_connect_delivery_home"
-        }
-
-    private fun surfaceClassFor(state: OpportunityHomeState): Class<out Fragment> =
-        when (state) {
-            OpportunityHomeState.JOB_INTRO -> ConnectJobIntroFragment::class.java
-            OpportunityHomeState.LEARNING -> ConnectLearningProgressFragment::class.java
-            OpportunityHomeState.DELIVERY -> ConnectDeliveryHomeFragment::class.java
         }
 
     /** Passes a link's requested tab through to the delivery surface. */

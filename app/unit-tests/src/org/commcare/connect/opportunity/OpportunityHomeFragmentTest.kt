@@ -2,7 +2,6 @@ package org.commcare.connect.opportunity
 
 import android.os.Build
 import android.os.Bundle
-import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import io.mockk.every
@@ -176,27 +175,9 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         }
     }
 
-    /** The nav listener's own skip is stubbed out in [BaseConnectJobIntroTest.setUp]; this covers only the page's own reporting. */
-    @Test
-    fun `the page's own reporting never includes itself as a screen`() {
-        job.status = ConnectJobRecord.STATUS_DELIVERING
-        openVisitsDetailAndReturn(openPage())
-        activity.runOnUiThread {
-            activityController
-                .pause()
-                .stop()
-                .start()
-                .resume()
-        }
-        ShadowLooper.idleMainLooper()
-
-        verify(exactly = 0) { FirebaseAnalyticsUtil.reportScreenView("fragment_opportunity_home", any()) }
-        verify(exactly = 0) { FirebaseAnalyticsUtil.reportScreenView(any(), OpportunityHomeFragment::class.java.name) }
-    }
-
     private fun openVisitsDetailAndReturn(page: OpportunityHomeFragment) {
         activity.runOnUiThread {
-            page.navigateFromPage(
+            page.navigateFromOpportunityHost(
                 OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
                     "unit-1",
                 ),
@@ -231,7 +212,7 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         val page = openPage()
 
         activity.runOnUiThread {
-            page.navigateFromPage(
+            page.navigateFromOpportunityHost(
                 OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
                     "unit-1",
                 ),
@@ -267,8 +248,8 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
             OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectLearnModulesBottomSheet()
 
         activity.runOnUiThread {
-            page.navigateFromPage(directions)
-            page.navigateFromPage(directions)
+            page.navigateFromOpportunityHost(directions)
+            page.navigateFromOpportunityHost(directions)
         }
         ShadowLooper.idleMainLooper()
         assertEquals(R.id.connect_learn_modules_bottom_sheet, navController.currentDestination?.id)
@@ -362,9 +343,5 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         return intro
     }
 
-    private fun installViewModel(): ConnectAppInstallViewModel =
-        ViewModelProvider(
-            activity,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
-        )[ConnectAppInstallViewModel::class.java]
+    private fun installViewModel(): ConnectAppInstallViewModel = ConnectAppInstallViewModel.of(activity)
 }

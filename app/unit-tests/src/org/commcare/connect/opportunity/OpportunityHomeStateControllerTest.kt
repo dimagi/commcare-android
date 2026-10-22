@@ -1,106 +1,62 @@
 package org.commcare.connect.opportunity
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
+import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OpportunityHomeStateControllerTest {
     private class FakeHost : OpportunityHomeHost {
-        var phase: OpportunityPhase = OpportunityPhase.LEARNING
+        var status: Int = ConnectJobRecord.STATUS_LEARNING
         var installing: Boolean = false
-        val shown = mutableListOf<OpportunityHomeState>()
 
-        override fun phase(): OpportunityPhase = phase
+        override fun jobStatus(): Int = status
 
-        override fun holdsSurface(): Boolean = installing
-
-        override fun showState(state: OpportunityHomeState) {
-            shown += state
-        }
-    }
-
-    private class FakeOwner : LifecycleOwner {
-        val registry = LifecycleRegistry.createUnsafe(this)
-
-        override val lifecycle: Lifecycle get() = registry
-
-        fun resume() {
-            registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            registry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-            registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        }
-    }
-
-    private fun controllerFor(host: FakeHost): Pair<OpportunityHomeStateController, FakeOwner> {
-        val controller = OpportunityHomeStateController(host)
-        val owner = FakeOwner()
-        owner.registry.addObserver(controller)
-        return controller to owner
+        override fun shouldBlockPhaseTransition(): Boolean = installing
     }
 
     @Test
-    fun `resolves and shows the surface on first resume`() {
-        val host = FakeHost()
-        val (controller, owner) = controllerFor(host)
+    fun `the first resolve reports a change`() {
+        val controller = OpportunityHomeStateController(FakeHost())
 
-        owner.resume()
-
+        assertTrue(controller.reResolveState())
         assertEquals(OpportunityHomeState.LEARNING, controller.currentState)
-        assertEquals(listOf(OpportunityHomeState.LEARNING), host.shown)
     }
 
     @Test
-    fun `re-resolving to the same state does not swap the surface again`() {
-        val host = FakeHost()
-        val (controller, owner) = controllerFor(host)
-        owner.resume()
-
-        controller.reResolveState()
+    fun `re-resolving to the same state reports no change`() {
+        val controller = OpportunityHomeStateController(FakeHost())
         controller.reResolveState()
 
-        assertEquals(1, host.shown.size)
+        assertFalse(controller.reResolveState())
     }
 
     @Test
-    fun `a phase change swaps the surface`() {
+    fun `a status change resolves to the new state`() {
         val host = FakeHost()
-        val (controller, owner) = controllerFor(host)
-        owner.resume()
-
-        host.phase = OpportunityPhase.DELIVERY
+        val controller = OpportunityHomeStateController(host)
         controller.reResolveState()
 
-        assertEquals(listOf(OpportunityHomeState.LEARNING, OpportunityHomeState.DELIVERY), host.shown)
+        host.status = ConnectJobRecord.STATUS_DELIVERING
+
+        assertTrue(controller.reResolveState())
+        assertEquals(OpportunityHomeState.DELIVERY, controller.currentState)
     }
 
     @Test
-    fun `a running install defers the re-resolve rather than swapping the surface`() {
+    fun `a running install defers the re-resolve`() {
         val host = FakeHost()
-        val (controller, owner) = controllerFor(host)
-        owner.resume()
+        val controller = OpportunityHomeStateController(host)
+        controller.reResolveState()
 
         host.installing = true
-        host.phase = OpportunityPhase.DELIVERY
-        controller.reResolveState()
-        assertEquals(listOf(OpportunityHomeState.LEARNING), host.shown)
+        host.status = ConnectJobRecord.STATUS_DELIVERING
+        assertFalse(controller.reResolveState())
+        assertEquals(OpportunityHomeState.LEARNING, controller.currentState)
 
         host.installing = false
-        controller.reResolveState()
-        assertEquals(OpportunityHomeState.DELIVERY, host.shown.last())
-    }
-
-    @Test
-    fun `a phase change made while away is shown on the next resume`() {
-        val host = FakeHost().apply { phase = OpportunityPhase.AVAILABLE }
-        val (_, owner) = controllerFor(host)
-        owner.resume()
-
-        owner.registry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        host.phase = OpportunityPhase.LEARNING
-        owner.registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-
-        assertEquals(listOf(OpportunityHomeState.JOB_INTRO, OpportunityHomeState.LEARNING), host.shown)
+        assertTrue(controller.reResolveState())
+        assertEquals(OpportunityHomeState.DELIVERY, controller.currentState)
     }
 }

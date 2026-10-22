@@ -1,25 +1,7 @@
 package org.commcare.connect.opportunity
 
 import org.commcare.android.database.connect.models.ConnectJobRecord
-
-/** The stage of an opportunity, which decides the surface Opportunity Home shows. */
-enum class OpportunityPhase {
-    AVAILABLE,
-    LEARNING,
-    DELIVERY,
-    ;
-
-    companion object {
-        /** A finished opportunity keeps its status's phase; an unrecognised status falls back to [AVAILABLE]. */
-        @JvmStatic
-        fun of(job: ConnectJobRecord): OpportunityPhase =
-            when (job.status) {
-                ConnectJobRecord.STATUS_LEARNING -> LEARNING
-                ConnectJobRecord.STATUS_DELIVERING -> DELIVERY
-                else -> AVAILABLE
-            }
-    }
-}
+import org.javarosa.core.services.Logger
 
 /** The surface Opportunity Home shows. */
 enum class OpportunityHomeState {
@@ -29,12 +11,22 @@ enum class OpportunityHomeState {
     ;
 
     companion object {
+        /** A finished opportunity keeps its status's surface; an unrecognised status falls back to [JOB_INTRO]. */
         @JvmStatic
-        fun resolve(phase: OpportunityPhase): OpportunityHomeState =
-            when (phase) {
-                OpportunityPhase.AVAILABLE -> JOB_INTRO
-                OpportunityPhase.LEARNING -> LEARNING
-                OpportunityPhase.DELIVERY -> DELIVERY
+        fun resolve(jobStatus: Int): OpportunityHomeState =
+            when (jobStatus) {
+                ConnectJobRecord.STATUS_AVAILABLE_NEW, ConnectJobRecord.STATUS_AVAILABLE -> JOB_INTRO
+                ConnectJobRecord.STATUS_LEARNING -> LEARNING
+                ConnectJobRecord.STATUS_DELIVERING -> DELIVERY
+                else -> resolveUnrecognised(jobStatus)
             }
+
+        private fun resolveUnrecognised(jobStatus: Int): OpportunityHomeState {
+            Logger.exception(
+                "Opportunity Home resolved an unrecognised job status",
+                IllegalStateException("Job status $jobStatus"),
+            )
+            return JOB_INTRO
+        }
     }
 }

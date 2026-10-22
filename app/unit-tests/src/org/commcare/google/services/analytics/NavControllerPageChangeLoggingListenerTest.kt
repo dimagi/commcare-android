@@ -12,7 +12,6 @@ import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import org.commcare.CommCareTestApplication
-import org.commcare.connect.opportunity.OpportunityHomeFragment
 import org.commcare.fragments.connect.ConnectDeliveryVisitsDetailFragment
 import org.junit.After
 import org.junit.Before
@@ -47,13 +46,6 @@ class NavControllerPageChangeLoggingListenerTest {
                 ConnectDeliveryVisitsDetailFragment::class.java.name,
             )
         }
-    }
-
-    @Test
-    fun `opportunity home is left to report its own surfaces`() {
-        navigateTo(OpportunityHomeFragment::class.java.name, "fragment_opportunity_home")
-
-        verify(exactly = 0) { FirebaseAnalyticsUtil.reportScreenView(any(), any()) }
     }
 
     private fun navigateTo(

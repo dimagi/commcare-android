@@ -70,6 +70,11 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+        FirebaseAnalyticsUtil.reportScreenView("fragment_connect_job_intro", javaClass.name)
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         (requireActivity() as AppCompatActivity).supportActionBar!!.setHomeAsUpIndicator(0)
@@ -164,7 +169,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                 totalHours,
             )
         binding.cardLearnModules.onCardClick = {
-            navigateFromPage(
+            navigateFromOpportunityHost(
                 OpportunityHomeFragmentDirections
                     .actionOpportunityHomeFragmentToConnectLearnModulesBottomSheet(),
             )
@@ -218,7 +223,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         isCancellable: Boolean,
         buttonText: Int,
     ) {
-        navigateFromPage(
+        navigateFromOpportunityHost(
             OpportunityHomeFragmentDirections
                 .actionOpportunityHomeFragmentToPersonalidMessageDisplayDialog(
                     title,
@@ -230,7 +235,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     }
 
     /** Runs [directions] through the host page, so its already-navigated-away guard applies. */
-    private fun navigateFromPage(directions: NavDirections) {
-        OpportunityNavigator.hostOf(this)?.navigateFromPage(directions)
+    private fun navigateFromOpportunityHost(directions: NavDirections) {
+        OpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(directions)
     }
 }

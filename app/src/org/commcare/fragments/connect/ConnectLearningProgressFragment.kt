@@ -52,6 +52,7 @@ class ConnectLearningProgressFragment :
 
     override fun onResume() {
         super.onResume()
+        FirebaseAnalyticsUtil.reportScreenView("fragment_connect_learning_progress", javaClass.name)
         if (PersonalIdSessionManager.getInstance().isloggedIn()) {
             refresh(false)
         }
@@ -68,10 +69,6 @@ class ConnectLearningProgressFragment :
         binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
     }
 
-    /**
-     * Publishes the refreshed job to the host so Opportunity Home resolves against current data, and
-     * lets the page swap surfaces when the server says the opportunity has moved on.
-     */
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
@@ -80,29 +77,18 @@ class ConnectLearningProgressFragment :
         )
     }
 
-    /** A refresh begun before the claim landed carries the pre-claim status and must not replace the claimed job. */
+    /** A refresh begun before the claim landed carries the pre-claim job, so once claimed it is dropped. */
     private fun publishRefreshedJob(refreshed: ConnectJobRecord) {
-        val claimed = viewModel.claimJob.value is DataState.Success
-        if (claimed && refreshed.status != ConnectJobRecord.STATUS_DELIVERING) {
-            publishClaimedJob()
+        if (viewModel.claimJob.value is DataState.Success) {
             return
         }
         setActiveJob(refreshed)
         updateLearningUI()
-        OpportunityNavigator.hostOf(this)?.onPhaseChanged()
     }
 
-    /**
-     * A refresh racing the claim can write the pre-claim status back over the stored job, so the
-     * stored job is put back to delivering and published before the page resolves its surface.
-     */
+    /** Read back from storage, since a refresh may have replaced the job instance the claim updated. */
     private fun publishClaimedJob() {
-        val claimed = ConnectJobUtils.getCompositeJob(job.jobUUID) ?: job
-        if (claimed.status != ConnectJobRecord.STATUS_DELIVERING) {
-            claimed.status = ConnectJobRecord.STATUS_DELIVERING
-            ConnectJobUtils.upsertJob(claimed)
-        }
-        setActiveJob(claimed)
+        setActiveJob(requireNotNull(ConnectJobUtils.getCompositeJob(job.jobUUID)))
     }
 
     /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */
