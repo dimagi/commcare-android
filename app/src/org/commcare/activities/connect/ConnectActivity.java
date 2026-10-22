@@ -144,7 +144,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private int handleInfoRedirect() {
         Objects.requireNonNull(job);
-        return R.id.opportunity_home_fragment;
+        return R.id.connect_opportunity_home_fragment;
     }
 
     private int handleSecureRedirect(Bundle startArgs) {

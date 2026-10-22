@@ -1,10 +1,10 @@
-package org.commcare.connect.opportunity
+package org.commcare.connect
 
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDirections
 
-/** How a status surface hosted by [OpportunityHomeFragment] reaches the page. */
-interface OpportunityNavigator {
+/** How a status surface hosted by [ConnectOpportunityHomeFragment] reaches the page. */
+interface ConnectOpportunityNavigator {
     /** The opportunity moved to a different phase, so the surface shown may no longer fit. */
     fun onPhaseChanged()
 
@@ -14,9 +14,9 @@ interface OpportunityNavigator {
     companion object {
         /** The page hosting [fragment], or null when it is not on one. */
         @JvmStatic
-        fun hostOf(fragment: Fragment): OpportunityNavigator? =
+        fun hostOf(fragment: Fragment): ConnectOpportunityNavigator? =
             generateSequence(fragment.parentFragment) { it.parentFragment }
-                .filterIsInstance<OpportunityNavigator>()
+                .filterIsInstance<ConnectOpportunityNavigator>()
                 .firstOrNull()
     }
 }

@@ -18,7 +18,7 @@ import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
-import org.commcare.connect.opportunity.opportunityHomeSurface
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -100,7 +100,7 @@ abstract class BaseConnectJobIntroTest {
      */
     protected fun navigateToIntroFragment(): ConnectJobIntroFragment {
         activity.runOnUiThread {
-            navController.navigate(R.id.opportunity_home_fragment)
+            navController.navigate(R.id.connect_opportunity_home_fragment)
         }
         ShadowLooper.idleMainLooper()
         return navHostFragment.opportunityHomeSurface()

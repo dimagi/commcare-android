@@ -102,28 +102,28 @@ class ConnectUnlockFragmentTest {
 
     @Test
     fun `an opportunity summary link opens opportunity home on the dashboard`() =
-        assertUnlockOpensOpportunityHome(
+        assertUnlockOpensConnectOpportunityHome(
             ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
             ConnectDeliveryHomeFragment.TAB_DASHBOARD,
         )
 
     @Test
     fun `a learn progress link opens opportunity home on the dashboard`() =
-        assertUnlockOpensOpportunityHome(
+        assertUnlockOpensConnectOpportunityHome(
             ConnectConstants.CCC_DEST_LEARN_PROGRESS,
             ConnectDeliveryHomeFragment.TAB_DASHBOARD,
         )
 
     @Test
     fun `a delivery progress link opens opportunity home on the dashboard`() =
-        assertUnlockOpensOpportunityHome(
+        assertUnlockOpensConnectOpportunityHome(
             ConnectConstants.CCC_DEST_DELIVERY_PROGRESS,
             ConnectDeliveryHomeFragment.TAB_DASHBOARD,
         )
 
     @Test
     fun `a payments link opens opportunity home on the payment tab`() =
-        assertUnlockOpensOpportunityHome(
+        assertUnlockOpensConnectOpportunityHome(
             ConnectConstants.CCC_DEST_PAYMENTS,
             ConnectDeliveryHomeFragment.TAB_PAYMENT,
         )
@@ -136,13 +136,13 @@ class ConnectUnlockFragmentTest {
         assertNull(navController.previousBackStackEntry)
     }
 
-    private fun assertUnlockOpensOpportunityHome(
+    private fun assertUnlockOpensConnectOpportunityHome(
         redirectAction: String,
         expectedTab: Int,
     ) {
         val navController = unlockWith(redirectAction)
 
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(
             expectedTab,
             navController.currentBackStackEntry

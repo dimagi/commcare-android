@@ -1,4 +1,4 @@
-package org.commcare.connect.opportunity
+package org.commcare.connect
 
 import android.os.Build
 import android.os.Bundle
@@ -16,8 +16,6 @@ import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
-import org.commcare.connect.ConnectAppLauncher
-import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
@@ -39,7 +37,7 @@ import org.robolectric.shadows.ShadowLooper
 
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
 @RunWith(AndroidJUnit4::class)
-class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
+class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
     private val repository get() = ConnectRepository.getInstance()
 
     @Before
@@ -49,11 +47,11 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         every { repository.getDeliveryProgress(any(), any(), any()) } returns emptyFlow()
     }
 
-    private fun openPage(args: Bundle? = null): OpportunityHomeFragment {
-        activity.runOnUiThread { navController.navigate(R.id.opportunity_home_fragment, args) }
+    private fun openPage(args: Bundle? = null): ConnectOpportunityHomeFragment {
+        activity.runOnUiThread { navController.navigate(R.id.connect_opportunity_home_fragment, args) }
         ShadowLooper.idleMainLooper()
         return navHostFragment.childFragmentManager.fragments
-            .filterIsInstance<OpportunityHomeFragment>()
+            .filterIsInstance<ConnectOpportunityHomeFragment>()
             .single()
     }
 
@@ -102,7 +100,7 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         ShadowLooper.idleMainLooper()
 
         navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(1, page.childFragmentManager.fragments.size)
     }
 
@@ -175,10 +173,10 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         }
     }
 
-    private fun openVisitsDetailAndReturn(page: OpportunityHomeFragment) {
+    private fun openVisitsDetailAndReturn(page: ConnectOpportunityHomeFragment) {
         activity.runOnUiThread {
             page.navigateFromOpportunityHost(
-                OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
+                ConnectOpportunityHomeFragmentDirections.actionConnectOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
                     "unit-1",
                 ),
             )
@@ -213,7 +211,7 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
 
         activity.runOnUiThread {
             page.navigateFromOpportunityHost(
-                OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
+                ConnectOpportunityHomeFragmentDirections.actionConnectOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(
                     "unit-1",
                 ),
             )
@@ -226,7 +224,7 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         val deliveryFragments =
             page.childFragmentManager.fragments.filterIsInstance<ConnectDeliveryHomeFragment>()
         assertEquals(1, deliveryFragments.size)
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
     }
 
     @Test
@@ -245,7 +243,7 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         job.status = ConnectJobRecord.STATUS_AVAILABLE
         val page = openPage()
         val directions =
-            OpportunityHomeFragmentDirections.actionOpportunityHomeFragmentToConnectLearnModulesBottomSheet()
+            ConnectOpportunityHomeFragmentDirections.actionConnectOpportunityHomeFragmentToConnectLearnModulesBottomSheet()
 
         activity.runOnUiThread {
             page.navigateFromOpportunityHost(directions)
@@ -256,7 +254,7 @@ class OpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
 
         activity.runOnUiThread { navController.popBackStack() }
         ShadowLooper.idleMainLooper()
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
     }
 
     @Test

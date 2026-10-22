@@ -35,7 +35,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
-import org.commcare.connect.opportunity.opportunityHomeSurface
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
@@ -448,7 +448,7 @@ class ConnectDeliveryDashboardFragmentTest {
         activity.runOnUiThread { unitCard.performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
     }
 
     @Test
@@ -552,7 +552,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
         activity.setActiveJob(job)
         activity.runOnUiThread {
-            navController.navigate(R.id.opportunity_home_fragment)
+            navController.navigate(R.id.connect_opportunity_home_fragment)
         }
         ShadowLooper.idleMainLooper()
 

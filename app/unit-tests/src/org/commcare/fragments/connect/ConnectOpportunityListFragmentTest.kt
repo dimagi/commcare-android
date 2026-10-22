@@ -32,7 +32,7 @@ import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.ConnectMockApiServer
-import org.commcare.connect.opportunity.opportunityHomeSurface
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectRequestManager
 import org.commcare.connect.repository.ConnectSyncPreferences
@@ -239,26 +239,26 @@ class ConnectOpportunityListFragmentTest {
      * phase, so the list no longer decides between the intro, learn progress and delivery home.
      */
     @Test
-    fun `tapping a new opportunity opens opportunity home`() = assertRowOpensOpportunityHome<ConnectJobIntroFragment>(NEW_UUID)
+    fun `tapping a new opportunity opens opportunity home`() = assertRowOpensConnectOpportunityHome<ConnectJobIntroFragment>(NEW_UUID)
 
     @Test
     fun `tapping a learning opportunity opens opportunity home`() =
-        assertRowOpensOpportunityHome<ConnectLearningProgressFragment>(LEARNING_UUID)
+        assertRowOpensConnectOpportunityHome<ConnectLearningProgressFragment>(LEARNING_UUID)
 
     @Test
     fun `tapping a delivering opportunity opens opportunity home`() =
-        assertRowOpensOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRING_SOON_UUID)
+        assertRowOpensConnectOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRING_SOON_UUID)
 
     @Test
     fun `tapping a finished opportunity that was never claimed opens the learning surface`() =
-        assertRowOpensOpportunityHome<ConnectLearningProgressFragment>(EXPIRED_LEARNING_UUID)
+        assertRowOpensConnectOpportunityHome<ConnectLearningProgressFragment>(EXPIRED_LEARNING_UUID)
 
     /** Taps [uuid]'s row, checks where it landed, then navigates back so nothing is left mounted. */
-    private inline fun <reified T : Fragment> assertRowOpensOpportunityHome(uuid: String) {
+    private inline fun <reified T : Fragment> assertRowOpensConnectOpportunityHome(uuid: String) {
         activity.runOnUiThread { getRowForJobUuid(uuid).performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(uuid, activity.activeJob?.jobUUID)
         navHostFragment.opportunityHomeSurface<T>()
 

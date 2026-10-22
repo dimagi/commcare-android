@@ -1,10 +1,10 @@
-package org.commcare.connect.opportunity
+package org.commcare.connect
 
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.javarosa.core.services.Logger
 
 /** The surface Opportunity Home shows. */
-enum class OpportunityHomeState {
+enum class ConnectOpportunityHomeState {
     JOB_INTRO,
     LEARNING,
     DELIVERY,
@@ -13,7 +13,7 @@ enum class OpportunityHomeState {
     companion object {
         /** A finished opportunity keeps its status's surface; an unrecognised status falls back to [JOB_INTRO]. */
         @JvmStatic
-        fun resolve(jobStatus: Int): OpportunityHomeState =
+        fun resolve(jobStatus: Int): ConnectOpportunityHomeState =
             when (jobStatus) {
                 ConnectJobRecord.STATUS_AVAILABLE_NEW, ConnectJobRecord.STATUS_AVAILABLE -> JOB_INTRO
                 ConnectJobRecord.STATUS_LEARNING -> LEARNING
@@ -21,7 +21,7 @@ enum class OpportunityHomeState {
                 else -> resolveUnrecognised(jobStatus)
             }
 
-        private fun resolveUnrecognised(jobStatus: Int): OpportunityHomeState {
+        private fun resolveUnrecognised(jobStatus: Int): ConnectOpportunityHomeState {
             Logger.exception(
                 "Opportunity Home resolved an unrecognised job status",
                 IllegalStateException("Job status $jobStatus"),

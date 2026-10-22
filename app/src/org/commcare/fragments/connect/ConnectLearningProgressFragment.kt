@@ -7,12 +7,12 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.AppUtils
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectOpportunityNavigator
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.opportunity.OpportunityNavigator
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
@@ -129,7 +129,7 @@ class ConnectLearningProgressFragment :
                     if (hasLiveView()) {
                         publishClaimedJob()
                         if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
-                            OpportunityNavigator
+                            ConnectOpportunityNavigator
                                 .hostOf(this@ConnectLearningProgressFragment)
                                 ?.onPhaseChanged()
                         } else {

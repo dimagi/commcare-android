@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.commcare.adapters.ConnectDeliveryPaymentUnitAdapter
-import org.commcare.connect.opportunity.OpportunityHomeFragmentDirections
-import org.commcare.connect.opportunity.OpportunityNavigator
+import org.commcare.connect.ConnectOpportunityHomeFragmentDirections
+import org.commcare.connect.ConnectOpportunityNavigator
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryVisitsBinding
 import org.commcare.fragments.RefreshableTab
 import org.commcare.models.connect.ConnectDeliveryDetails
@@ -61,9 +61,9 @@ class ConnectDeliveryVisitsFragment :
 
     /** Opens the visits detail through the page hosting this tab. */
     private fun navigateToDeliveries(unitUuid: String) {
-        OpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(
-            OpportunityHomeFragmentDirections
-                .actionOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(unitUuid),
+        ConnectOpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(
+            ConnectOpportunityHomeFragmentDirections
+                .actionConnectOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(unitUuid),
         )
     }
 

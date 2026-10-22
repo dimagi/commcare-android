@@ -83,7 +83,7 @@ class ConnectOpportunityListFragment :
                 // protecting against double tap
                 if (!hasLeftJobsList()) {
                     setActiveJob(model.job)
-                    navigateToOpportunityHome()
+                    navigateToConnectOpportunityHome()
                 }
             }
 
@@ -99,10 +99,10 @@ class ConnectOpportunityListFragment :
     }
 
     /** Opens the opportunity's page, which picks the surface from the job's phase. */
-    private fun navigateToOpportunityHome() {
+    private fun navigateToConnectOpportunityHome() {
         binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
-                .actionConnectJobsListFragmentToOpportunityHomeFragment(),
+                .actionConnectJobsListFragmentToConnectOpportunityHomeFragment(),
         )
     }
 

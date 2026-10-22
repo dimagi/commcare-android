@@ -37,7 +37,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
-import org.commcare.connect.opportunity.opportunityHomeSurface
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
@@ -234,7 +234,7 @@ class ConnectDeliveryMoreFragmentTest {
         verify {
             ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any())
         }
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertInstallDialogShowing(moreTab, R.string.connect_downloading_delivery)
     }
 
@@ -412,7 +412,7 @@ class ConnectDeliveryMoreFragmentTest {
         ShadowLooper.idleMainLooper()
 
         verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertInstallDialogShowing(moreTab, R.string.connect_downloading_learn)
     }
 
@@ -486,7 +486,7 @@ class ConnectDeliveryMoreFragmentTest {
         activity.setActiveJob(job)
         activity.runOnUiThread {
             navController.navigate(
-                R.id.opportunity_home_fragment,
+                R.id.connect_opportunity_home_fragment,
                 Bundle().apply {
                     putInt(ConnectDeliveryHomeFragment.TAB_POSITION, ConnectDeliveryHomeFragment.TAB_MORE)
                 },

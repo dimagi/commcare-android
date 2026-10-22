@@ -141,11 +141,11 @@ public class ConnectUnlockFragment extends Fragment {
         if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)
                 || redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)
                 || redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
-            fragmentId = R.id.opportunity_home_fragment;
+            fragmentId = R.id.connect_opportunity_home_fragment;
             bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
                     ConnectDeliveryHomeFragment.TAB_DASHBOARD);
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
-            fragmentId = R.id.opportunity_home_fragment;
+            fragmentId = R.id.connect_opportunity_home_fragment;
             bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
                     ConnectDeliveryHomeFragment.TAB_PAYMENT);
         } else {

@@ -14,10 +14,10 @@ import androidx.navigation.NavDirections
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
+import org.commcare.connect.ConnectOpportunityHomeFragmentDirections
+import org.commcare.connect.ConnectOpportunityNavigator
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
-import org.commcare.connect.opportunity.OpportunityHomeFragmentDirections
-import org.commcare.connect.opportunity.OpportunityNavigator
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.ConnectJobIntroViewModel
@@ -170,8 +170,8 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
             )
         binding.cardLearnModules.onCardClick = {
             navigateFromOpportunityHost(
-                OpportunityHomeFragmentDirections
-                    .actionOpportunityHomeFragmentToConnectLearnModulesBottomSheet(),
+                ConnectOpportunityHomeFragmentDirections
+                    .actionConnectOpportunityHomeFragmentToConnectLearnModulesBottomSheet(),
             )
         }
     }
@@ -224,8 +224,8 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         buttonText: Int,
     ) {
         navigateFromOpportunityHost(
-            OpportunityHomeFragmentDirections
-                .actionOpportunityHomeFragmentToPersonalidMessageDisplayDialog(
+            ConnectOpportunityHomeFragmentDirections
+                .actionConnectOpportunityHomeFragmentToPersonalidMessageDisplayDialog(
                     title,
                     message,
                     getString(buttonText),
@@ -236,6 +236,6 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
 
     /** Runs [directions] through the host page, so its already-navigated-away guard applies. */
     private fun navigateFromOpportunityHost(directions: NavDirections) {
-        OpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(directions)
+        ConnectOpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(directions)
     }
 }

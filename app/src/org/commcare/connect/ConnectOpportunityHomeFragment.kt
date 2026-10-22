@@ -1,4 +1,4 @@
-package org.commcare.connect.opportunity
+package org.commcare.connect
 
 import android.os.Bundle
 import android.view.View
@@ -18,12 +18,12 @@ import org.commcare.fragments.connect.ConnectLearningProgressFragment
 import org.commcare.fragments.extensions.hasLiveView
 
 /** Per-opportunity page that shows the status surface for the opportunity's current phase. */
-class OpportunityHomeFragment :
-    Fragment(R.layout.fragment_opportunity_home),
-    OpportunityHomeHost,
-    OpportunityNavigator,
+class ConnectOpportunityHomeFragment :
+    Fragment(R.layout.fragment_connect_opportunity_home),
+    ConnectOpportunityHomeHost,
+    ConnectOpportunityNavigator,
     RefreshableFragment {
-    private val stateController by lazy { OpportunityHomeStateController(this) }
+    private val stateController by lazy { ConnectOpportunityHomeStateController(this) }
 
     private val job: ConnectJobRecord
         get() =
@@ -54,14 +54,14 @@ class OpportunityHomeFragment :
     }
 
     override fun refresh(forceRefresh: Boolean) {
-        (childFragmentManager.findFragmentById(R.id.opportunity_home_container) as? RefreshableFragment)
+        (childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container) as? RefreshableFragment)
             ?.refresh(forceRefresh)
     }
 
     override fun jobStatus(): Int = job.status
 
     override fun shouldBlockPhaseTransition(): Boolean =
-        (childFragmentManager.findFragmentById(R.id.opportunity_home_container) as? BaseConnectFragment<*>)
+        (childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container) as? BaseConnectFragment<*>)
             ?.holdsAppInstall == true
 
     /** Ignored while the page cannot swap surfaces; the next resume re-resolves instead. */
@@ -77,7 +77,7 @@ class OpportunityHomeFragment :
             return
         }
         val navController = findNavController()
-        if (navController.currentDestination?.id != R.id.opportunity_home_fragment) {
+        if (navController.currentDestination?.id != R.id.connect_opportunity_home_fragment) {
             return
         }
         navController.navigate(directions)
@@ -89,21 +89,21 @@ class OpportunityHomeFragment :
         }
     }
 
-    private fun showState(state: OpportunityHomeState) {
+    private fun showState(state: ConnectOpportunityHomeState) {
         if (childFragmentManager.findFragmentByTag(state.name) != null) {
             return
         }
         childFragmentManager
             .beginTransaction()
-            .replace(R.id.opportunity_home_container, surfaceFor(state), state.name)
+            .replace(R.id.connect_opportunity_home_container, surfaceFor(state), state.name)
             .commit()
     }
 
-    private fun surfaceFor(state: OpportunityHomeState): Fragment =
+    private fun surfaceFor(state: ConnectOpportunityHomeState): Fragment =
         when (state) {
-            OpportunityHomeState.JOB_INTRO -> ConnectJobIntroFragment()
-            OpportunityHomeState.LEARNING -> ConnectLearningProgressFragment()
-            OpportunityHomeState.DELIVERY -> deliverySurface()
+            ConnectOpportunityHomeState.JOB_INTRO -> ConnectJobIntroFragment()
+            ConnectOpportunityHomeState.LEARNING -> ConnectLearningProgressFragment()
+            ConnectOpportunityHomeState.DELIVERY -> deliverySurface()
         }
 
     /** Passes a link's requested tab through to the delivery surface. */

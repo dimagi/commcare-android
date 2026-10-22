@@ -1,4 +1,4 @@
-package org.commcare.connect.opportunity
+package org.commcare.connect
 
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.NavHostFragment
@@ -7,7 +7,7 @@ import androidx.navigation.fragment.NavHostFragment
 inline fun <reified T : Fragment> NavHostFragment.opportunityHomeSurface(): T {
     val home =
         childFragmentManager.fragments
-            .filterIsInstance<OpportunityHomeFragment>()
+            .filterIsInstance<ConnectOpportunityHomeFragment>()
             .firstOrNull()
             ?: throw AssertionError("Opportunity Home is not the current destination")
     return home.childFragmentManager.fragments

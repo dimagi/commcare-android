@@ -21,7 +21,7 @@ import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
-import org.commcare.connect.opportunity.opportunityHomeSurface
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
@@ -275,7 +275,7 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
         verify { ConnectAppUtils.downloadApp(any(), any()) }
         assertEquals(
             "The install runs on the page, which does not navigate away",
-            R.id.opportunity_home_fragment,
+            R.id.connect_opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertEquals(View.GONE, button.visibility)

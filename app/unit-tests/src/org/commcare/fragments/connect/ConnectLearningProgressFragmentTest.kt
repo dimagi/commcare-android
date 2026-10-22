@@ -38,7 +38,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
-import org.commcare.connect.opportunity.opportunityHomeSurface
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectRequestManager
 import org.commcare.connect.repository.DataState
@@ -208,7 +208,7 @@ class ConnectLearningProgressFragmentTest {
         verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.LEARN_APP_INSTALL_URL, any()) }
         assertEquals(
             "The install runs on the page, which does not navigate away",
-            R.id.opportunity_home_fragment,
+            R.id.connect_opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertCtaBarShowsDownload(fragment, R.id.learnProgressView, R.string.connect_downloading_learn)
@@ -233,7 +233,7 @@ class ConnectLearningProgressFragmentTest {
         verify { ConnectAppUtils.downloadApp(ConnectLearnJobTestData.DELIVERY_APP_INSTALL_URL, any()) }
         assertEquals(
             "The install runs on the page, which does not navigate away",
-            R.id.opportunity_home_fragment,
+            R.id.connect_opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertCtaBarShowsDownload(fragment, R.id.learnCompleteView, R.string.connect_downloading_delivery)
@@ -248,7 +248,7 @@ class ConnectLearningProgressFragmentTest {
         clickCta(fragment)
         respondToClaim(responseCode = 200)
 
-        assertEquals(R.id.opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(ConnectJobRecord.STATUS_DELIVERING, job.status)
         navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
     }
@@ -428,7 +428,7 @@ class ConnectLearningProgressFragmentTest {
         assertTrue("CTA should be re-enabled after a failure", ctaButton.isEnabled)
         assertEquals(
             "The install runs on the page, which does not navigate away",
-            R.id.opportunity_home_fragment,
+            R.id.connect_opportunity_home_fragment,
             navController.currentDestination?.id,
         )
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
@@ -481,7 +481,7 @@ class ConnectLearningProgressFragmentTest {
         // seeded job state intact (the observer ignores DataState.Error updates to the job field).
         mockApi.server.enqueue(MockResponse().setResponseCode(400).setBody("{}"))
         activity.runOnUiThread {
-            navController.navigate(R.id.opportunity_home_fragment)
+            navController.navigate(R.id.connect_opportunity_home_fragment)
         }
         ShadowLooper.idleMainLooper()
         // getLearningProgress finishes on ConnectRequestManager's background scope, so the result
