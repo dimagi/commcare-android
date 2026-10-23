@@ -1,0 +1,1 @@
+should we clear binding in onDestroyView or does it cleared by itself ?
