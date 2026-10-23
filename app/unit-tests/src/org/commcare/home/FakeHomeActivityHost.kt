@@ -30,6 +30,7 @@ class FakeHomeActivityHost : HomeActivityHost {
     var actionsAvailable: Boolean = true
     var refreshActionSurfaceCount: Int = 0
     var refreshHostUiCount: Int = 0
+    var sessionLostCount: Int = 0
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
 
@@ -77,6 +78,10 @@ class FakeHomeActivityHost : HomeActivityHost {
     override fun isDemoUser(): Boolean = demoUser
 
     override fun areAppActionsAvailable(): Boolean = actionsAvailable
+
+    override fun onSessionLost() {
+        sessionLostCount++
+    }
 
     /** `ComponentActivity.onCreate` step 1: restore the registry. Must precede [dispatchOnCreate]. */
     fun performRestore(savedState: Bundle? = null) {

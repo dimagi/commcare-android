@@ -455,7 +455,6 @@ License.
     <string name="personalid_set_backup_code_reminder_message">आपके खाते पर कोई बैकअप कोड सेट नहीं है। एक सेट करने के लिए पुष्टि करें पर क्लिक करें।</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">बैकअप कोड सेट करें</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">बाहर निकलने से पहले कृपया बैकअप कोड सेट करें</string>
-    <string name="connect_progress">प्रगति</string>
     <string name="connect_payment">भुगतान</string>
     <string name="connect_payment_received">प्राप्त</string>
     <string name="connect_payment_transferred">स्थानांतरित</string>

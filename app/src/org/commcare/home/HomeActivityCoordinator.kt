@@ -31,6 +31,9 @@ class HomeActivityCoordinator(
     /** Owns form sending and data pulls; the host's task receiver. */
     val sync = SyncDelegate(host = host)
 
+    /** Reports session loss to the host. Driven by the session-aware activity chain, not the lifecycle. */
+    val sessionExpiration = SessionExpirationDelegate(host = host)
+
     /** Activity was launched by an external app, so form submission may redispatch back to it. */
     var wasExternal: Boolean
         get() {

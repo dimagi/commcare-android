@@ -73,6 +73,7 @@ import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -192,6 +193,16 @@ public abstract class HomeScreenBaseActivity extends SyncCapableCommCareActivity
     @Override
     public SyncDelegate getReceiver() {
         return coordinator.getSync();
+    }
+
+    @Override
+    protected SessionExpirationHandler getSessionExpirationHandler() {
+        return coordinator.getSessionExpiration();
+    }
+
+    @Override
+    public void onSessionLost() {
+        SessionRegistrationHelper.redirectToLogin(this);
     }
 
     @Override
@@ -605,7 +616,7 @@ public abstract class HomeScreenBaseActivity extends SyncCapableCommCareActivity
                 ConnectJobUtils.getJobForSeatedApp(this),
                 "View Job Status pressed but no Connect job was found for the seated app"
         );
-        ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+        ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job);
     }
 
     @Override

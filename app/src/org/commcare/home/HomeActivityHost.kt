@@ -51,4 +51,7 @@ interface HomeActivityHost :
      * Per-action availability predicate for the action facade.
      */
     fun areAppActionsAvailable(): Boolean
+
+    /** The user session expired, or was found missing on resume, underneath this host. */
+    fun onSessionLost()
 }

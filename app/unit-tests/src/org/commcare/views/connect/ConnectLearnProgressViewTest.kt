@@ -18,7 +18,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecordV28
 import org.commcare.connect.ConnectDateUtils
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.dalvik.R
 import org.json.JSONObject
 import org.junit.After
@@ -40,8 +40,8 @@ class ConnectLearnProgressViewTest {
     private lateinit var context: Context
 
     /** Server ids the test data assigns: `MODULE_ID_BASE + n` for "Module n". */
-    private val moduleOneId = ConnectLearnJobTestData.MODULE_ID_BASE + 1
-    private val moduleTwoId = ConnectLearnJobTestData.MODULE_ID_BASE + 2
+    private val moduleOneId = ConnectJobTestData.MODULE_ID_BASE + 1
+    private val moduleTwoId = ConnectJobTestData.MODULE_ID_BASE + 2
 
     @Before
     fun setUp() {
@@ -63,20 +63,20 @@ class ConnectLearnProgressViewTest {
 
     /** Modules still outstanding: only [completedModuleIds] are done. */
     private fun inProgressJob(vararg completedModuleIds: Int): ConnectJobRecord =
-        ConnectLearnJobTestData
+        ConnectJobTestData
             .job(completedModules = completedModuleIds.size, assessmentScore = null)
             .withLearnings(*completedModuleIds)
 
     /** Every module done, assessment not yet attempted. */
     private fun assessmentPendingJob(): ConnectJobRecord =
-        ConnectLearnJobTestData
-            .job(completedModules = ConnectLearnJobTestData.TOTAL_MODULES, assessmentScore = null)
+        ConnectJobTestData
+            .job(completedModules = ConnectJobTestData.TOTAL_MODULES, assessmentScore = null)
             .withLearnings(moduleOneId, moduleTwoId)
 
     /** Every module done, assessment attempted and failed. */
     private fun assessmentFailedJob(): ConnectJobRecord =
-        ConnectLearnJobTestData
-            .job(completedModules = ConnectLearnJobTestData.TOTAL_MODULES, assessmentScore = 10)
+        ConnectJobTestData
+            .job(completedModules = ConnectJobTestData.TOTAL_MODULES, assessmentScore = 10)
             .withLearnings(moduleOneId, moduleTwoId)
 
     /**
@@ -163,7 +163,7 @@ class ConnectLearnProgressViewTest {
         val job = inProgressJob(moduleOneId)
         val view = bind(job)
 
-        assertEquals(ConnectLearnJobTestData.JOB_TITLE, view.text(R.id.learn_progress_job_title))
+        assertEquals(ConnectJobTestData.JOB_TITLE, view.text(R.id.learn_progress_job_title))
         assertEquals(
             ConnectDateUtils.formatDate(job.projectEndDate, DateFormat.SHORT),
             view.text(R.id.learn_progress_expiry_value),
@@ -182,7 +182,7 @@ class ConnectLearnProgressViewTest {
             context.getString(
                 R.string.connect_progress_count_format,
                 1,
-                ConnectLearnJobTestData.TOTAL_MODULES,
+                ConnectJobTestData.TOTAL_MODULES,
             ),
             view.text(R.id.progress_card_bar_count),
         )
@@ -250,8 +250,8 @@ class ConnectLearnProgressViewTest {
     @Test
     fun `the last completed module is the most recent one, not the last in order`() {
         val job =
-            ConnectLearnJobTestData
-                .job(completedModules = ConnectLearnJobTestData.TOTAL_MODULES, assessmentScore = 10)
+            ConnectJobTestData
+                .job(completedModules = ConnectJobTestData.TOTAL_MODULES, assessmentScore = 10)
                 .withLearnings(moduleTwoId, moduleOneId)
         val view = bind(job)
 
@@ -261,11 +261,11 @@ class ConnectLearnProgressViewTest {
     /** The learning-state wording is the installed bar's; a missing app shows download wording instead. */
     @Test
     fun `cta subtitle tracks the learning state`() {
-        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.LEARN_APP_ID) } returns true
+        every { AppUtils.isAppInstalled(ConnectJobTestData.LEARN_APP_ID) } returns true
         assertEquals(
             context.resources.getQuantityString(
                 R.plurals.connect_opportunity_learn_modules_label,
-                ConnectLearnJobTestData.TOTAL_MODULES,
+                ConnectJobTestData.TOTAL_MODULES,
             ),
             bind(inProgressJob(moduleOneId)).text(R.id.cta_subtitle_text),
         )
@@ -295,7 +295,7 @@ class ConnectLearnProgressViewTest {
             missing.text(R.id.cta_button),
         )
 
-        every { AppUtils.isAppInstalled(ConnectLearnJobTestData.LEARN_APP_ID) } returns true
+        every { AppUtils.isAppInstalled(ConnectJobTestData.LEARN_APP_ID) } returns true
         val installed = bind(inProgressJob(moduleOneId))
         assertEquals(
             context.getString(R.string.connect_learn_continue),
@@ -310,7 +310,7 @@ class ConnectLearnProgressViewTest {
     @Test
     fun `an ended job shows the warning banner and an active job does not`() {
         val ended =
-            ConnectLearnJobTestData
+            ConnectJobTestData
                 .job(completedModules = 1, assessmentScore = null, endDate = "2020-01-01")
                 .withLearnings(moduleOneId)
         val endedView = bind(ended)
