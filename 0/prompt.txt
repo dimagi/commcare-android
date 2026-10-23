@@ -1,0 +1,1 @@
+1. After a claim, server would return the status as delivery and we should respect that. Mostly we want to respect server Opp status everywhere and not make decisions locally. 3. drop the cards entirely 6. right
