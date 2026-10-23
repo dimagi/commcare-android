@@ -1,0 +1,1 @@
+Yes, It's a new kind of Opportunity that won't have either a learn app or deliver app (CommCare App) but the bottom start CTA on learn and deliver pages will just direct user to the Personal ID messaging screen. In this model, there is no connection from Connect learn and deliver pages to the CommCare App
