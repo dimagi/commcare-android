@@ -1,0 +1,1 @@
+ktlint PersonalIdProfileSendEmailOtpFragment and PersonalIdProfileEditFragment, PersonalIdProfileFragment
