@@ -1,0 +1,1 @@
+Install the /no-ai-slop skill globally from https://github.com/petergyang/no-ai-slop
