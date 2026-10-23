@@ -1,0 +1,1 @@
+clear gradle properties cache and run PersonalIdPlayServicesTest.kt
