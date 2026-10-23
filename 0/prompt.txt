@@ -1,0 +1,1 @@
+remove any tests that are made redundant by wrong PersonalID code shows an error, then the right code verifies through confirm_otp and wrong Firebase code shows an error, then the right code verifies through validate_firebase_id_token
