@@ -1,0 +1,1 @@
+we added   requireActivity().setTitle(titleResId) in the base fragment which is not what we set out to do right ?
