@@ -1,0 +1,1 @@
+I want to separate out 529fc5fd9a4a48ae51965e69ba92eb21928a154c in a new branch, ccct-2713_skip_dialog_email , do not change the string keys i.e. use existing string keys but change their translations . In other words keep using personalid_email_skip_confirm_* nomenaclature for dialog strings instead of personalid_email_skip_protect_*
