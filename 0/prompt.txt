@@ -1,0 +1,1 @@
+remove appBarTitle method but just use Espresso APIs when possible to detect text, save it to my memory
