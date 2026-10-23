@@ -1,0 +1,3 @@
+/dev-utils:git-rebase restructure commits on my branch for a commit by commit review, put any refactors or renames ahead of functional commits and merge fixups into their original commits
+
+ARGUMENTS: Reorder branch commits (since master) to: 6 (ccde1f6d41 Send phone OTP screen), 1 (33489dfc27 phone OTP fallback when adding email), 4 (86bae1de90 email change → phone OTP when no backup code), 5 (0a51809bbf basic-auth endpoints), 7 (16beb373ee route both entry points through Send phone OTP), 8 (9c3979c9a1 wrap line), 9 (fbe76e6e34 double-tap guard + test drain), 2 (449d6f8a43 email analytics), 3 (baf086ce06 leftForward recreation fix + analytics coverage). Remove back-and-forth: nothing added in one commit should be overwritten in a later one.
