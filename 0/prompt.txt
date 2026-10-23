@@ -1,0 +1,56 @@
+<task-notification>
+<task-id>aa6fd29337345db64</task-id>
+<tool-use-id>toolu_01NAL9h5oh5HnmYBtQkzkh4L</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/32d98a81-a2a2-444a-9d17-834707351408/tasks/aa6fd29337345db64.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 3 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Spec Compliance
+- ✅ Spec compliant. I compared the base class plus subclass against the removed fragment path by path. They match.
+  - **OTP method selection:** `setupOtpManager` in `BasePersonalIdPhoneVerificationFragment.kt:473-489` has the same branches as the old code. The only change is that `personalIdSessionData.otpFallback`, `.smsMethod` and `.token` are now read through `isFallbackAllowed()`, `defaultSmsMethod()` and `buildAuthInfo()`. `onCreate` still restores `lastOtpMethod` before the first `setupOtpManager` call (`:156-174`).
+  - **Auto-switch on non-recoverable errors:** `shouldAutoSwitchToPersonalIdAuth` (`:267-272`) and its guard `&amp;&amp; setupOtpManager(true)` (`:209`) are unchanged. The failed attempt is still recorded and reported before the `otpCallback == null` check in `onFailure`, and after it in `onPersonalIdApiFailure`. That asymmetry was in the old code too.
+  - **Resend fallback:** `attemptCounter().requestCount == 1` (`:311`) is the same check as the old `personalIdSessionData.otpAttempts == 1`, because the subclass counter reads and writes those same session fields (`PersonalIdPhoneVerificationFragment.kt:672-800` in the diff).
+  - **Attempt counters:** the request is still counted after `otpManager.requestOtp` (`:428-429`). Failed attempts are still counted only when the current operation is `VERIFY_PHONE` (`:403-407`).
+  - **Analytics:** `reportOtpEvent` gets the same seven arguments. `workflowParam(REGISTRATION)` and `reportPersonalIDContinueClicked(..., CONFIGURATION)` still come through, via `analyticsWorkflow()` and `continueClickedWorkflow()`. `javaClass.simpleName` still returns the subclass name, because it is resolved at runtime.
+  - **Error messages:** the `when` mapping is identical, including the `FAILED_AUTH_ERROR` override. `handleApiFailure` calls `handleCommonSignupFailures` exactly as before.
+  - **Lifecycle:** receiver registration and unregistration, the resend timer, the keyboard call, and nulling `otpCallback` in `onDestroyView` are unchanged.
+  - **Saved state:** same keys, same restore order.
+  - **Navigation:** `findNavController(binding.root)` replaces `findNavController(binding.connectResendButton)`. Both resolve to the same controller.
+  - `OtpAttemptCounter` and the `AttemptTracker : OtpAttemptCounter` change match Step 1 exactly.
+- ⚠️ Cannot verify from diff:
+  - That `ReflectionHelpers.getField` finds the private fields now in the superclass. The report's JUnit counts (9/9 and 5/5, no test edits) support it; I did not re-run.
+  - That the `message.orEmpty()` Safe Args signature is right. It depends on Task 1 and is outside this diff.
+
+### Strengths
+- The subclass is thin and contains only signup-specific decisions. All shared behaviour sits in one place in the base class.
+- The subclass counter is backed directly by the `PersonalIdSessionData` fields. That keeps the session-scoped counting semantics of the old code, including values surviving across fragment instances.
+- The `lazy` session lookup is first evaluated in `onCreate` (through `getPhoneNumber()` and `buildAuthInfo()`), which is the same point the old code read it.
+- The base class keeps the field names `otpManager` and `lastOtpMethod`, which the tests read by reflection.
+- Registering `smsConsentLauncher` once in `onCreate` is cleaner than re-registering it on every `onCreateView`, and it is still registered before STARTED.
+
+### Issues
+#### Critical (Must Fix)
+None.
+
+#### Important (Should Fix)
+None.
+
+#### Minor (Nice to Have)
+1. **Mismatched hook defaults** (`BasePersonalIdPhoneVerificationFragment.kt:152-154`). `showChangeNumberLink()` defaults to `true` while `onChangeNumberClicked()` defaults to doing nothing. A subclass that overrides neither shows an underlined link that does nothing when tapped. Either default the link to hidden or make `onChangeNumberClicked` abstract. This matters for the Manage Profile subclass next task.
+2. **Inaccurate rationale for the `otpRequestTime?.toString()` change** (`:392`). The brief says it replaces a Java NPE. The removed code was Kotlin, where `otpRequestTime.toString()` on a null value writes the string `"null"`, and restoring it then crashes in `DateTime.parse("null")`. The change is still a safe fix, but it is a real behaviour change, not an NPE fix. The commit or design notes should describe it accurately.
+3. **`binding` is a `protected lateinit var`** (`:108`), so subclasses can reassign it. `protected lateinit var binding: ... ; private set` would prevent that. The brief mandates the current form, so this is optional.
+4. **No test covers the new hook branches**, such as `showChangeNumberLink() == false` or `sessionDataOrNull() == null`. This is acceptable for a refactor gate, since the brief says no test edits, but the next task should cover them.
+
+**Hook check for the next task's subclass** (no `PersonalIdSessionData`, basic auth, counter restored before `super.onCreate`):
+- **No session data:** `sessionDataOrNull()` returns a nullable type, and nothing in the base class dereferences it.
+- **Basic auth:** `buildAuthInfo()` can return `AuthInfo.ProvidedAuth`. It is first called inside `super.onCreate` (from `setupOtpManager`), so the user credentials must be available by then or loaded lazily.
+- **Counter restore:** the base `onCreate` never calls `attemptCounter()`. The first `recordRequest` happens in `onCreateView`. So a subclass that reassigns a `var tracker = AttemptTracker(...)` from saved state before calling `super.onCreate` works.
+- **Saving the counter:** `onSaveInstanceState` is `open`. The base class's keys are private, so the subclass needs its own distinct keys, which is fine.
+
+No hook makes that subclass impossible or awkward. The only friction is Minor item 1.
+
+### Assessment
+**Task quality:** Approved
+**Reasoning:** The base class plus subclass behave the same as the removed fragment on every path the brief lists. The only deviations are the two the brief intended (launcher registration moved to `onCreate`, null-safe request-time save), and both are safe. The hooks will work for the Manage Profile subclass; only minor polish remains.</result>
+<usage><subagent_tokens>80602</subagent_tokens><tool_uses>3</tool_uses><duration_ms>60388</duration_ms></usage>
+</task-notification>
