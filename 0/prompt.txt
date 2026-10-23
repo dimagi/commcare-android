@@ -1,0 +1,1 @@
+B, server will accept basic auth for send_session_otp / confirm_session_otp, always fallback for the moment
