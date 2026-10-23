@@ -1,0 +1,1 @@
+append to last commit, reword commit and push,  delete old remote branch
