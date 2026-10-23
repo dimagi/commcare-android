@@ -1,0 +1,1 @@
+we will need to add  a new field on the Opportunity model called delivery_type which will be say "messaging" for this opportunity type
