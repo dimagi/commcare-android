@@ -1,0 +1,1 @@
+I have 3 commits on my branch , the third one overwrites a lot of 1, is there a better way to restructure commits to minimize diff ?
