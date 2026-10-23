@@ -1,0 +1,1 @@
+give me the data model of ConnectOpportunitiesParser as a xml
