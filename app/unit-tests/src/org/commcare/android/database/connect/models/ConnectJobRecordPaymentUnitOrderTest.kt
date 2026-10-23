@@ -2,7 +2,7 @@ package org.commcare.android.database.connect.models
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -127,7 +127,7 @@ class ConnectJobRecordPaymentUnitOrderTest {
         unitCount: Int,
         visits: List<Pair<String, String>> = emptyList(),
     ): ConnectJobRecord =
-        ConnectLearnJobTestData.job().apply {
+        ConnectJobTestData.job().apply {
             paymentUnits = (1..unitCount).map { buildPaymentUnit(this, it) }
             deliveries = visits.mapIndexed { index, (unitUUID, date) -> buildDelivery(this, index, unitUUID, date) }
         }

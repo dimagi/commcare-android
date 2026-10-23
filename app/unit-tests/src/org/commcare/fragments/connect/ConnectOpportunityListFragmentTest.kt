@@ -26,7 +26,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.util.ConnectTestUtils
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -304,7 +304,7 @@ class ConnectOpportunityListFragmentTest {
                     "Completed Opportunity",
                     ConnectJobRecord.STATUS_DELIVERING,
                     PAST_DATE,
-                ).apply { completedVisits = ConnectLearnJobTestData.MAX_VISITS },
+                ).apply { completedVisits = ConnectJobTestData.MAX_VISITS },
                 opportunity(EXPIRED_UUID, 5, "Expired Opportunity", ConnectJobRecord.STATUS_DELIVERING, PAST_DATE),
                 opportunity(
                     EXPIRED_LEARNING_UUID,
@@ -324,7 +324,7 @@ class ConnectOpportunityListFragmentTest {
         status: Int,
         endDate: String,
     ): ConnectJobRecord =
-        ConnectLearnJobTestData.job(endDate = endDate).apply {
+        ConnectJobTestData.job(endDate = endDate).apply {
             jobUUID = uuid
             jobId = id
             this.title = title

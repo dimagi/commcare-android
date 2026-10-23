@@ -18,8 +18,8 @@ import org.robolectric.shadows.ShadowLooper
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class WorkHistoryScreenshotTest(
-    locale: String,
-) : BaseConnectScreenshotTest(locale) {
+    target: ScreenshotTarget,
+) : BaseConnectScreenshotTest(target) {
     private val personalIdApi = PersonalIdMockApiServer(PersonalIdMockApiServer.CallbackMode.MAIN_LOOPER)
 
     @Before
@@ -44,7 +44,7 @@ class WorkHistoryScreenshotTest(
                 .resume()
         personalIdApi.drainHttp()
         ShadowLooper.idleMainLooper()
-        L10nScreenshots.capture(controller, locale, "50_personalid_work_history")
+        L10nScreenshots.capture(controller, target, "50_personalid_work_history")
     }
 
     companion object {

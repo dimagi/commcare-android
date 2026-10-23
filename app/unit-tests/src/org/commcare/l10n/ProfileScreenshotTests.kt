@@ -16,15 +16,15 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ProfileScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdProfileTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.user()
 
     @Test
-    fun profile() = L10nScreenshots.capture(activityController, locale, "40_personalid_profile")
+    fun profile() = L10nScreenshots.capture(activityController, target, "40_personalid_profile")
 
     companion object {
         @JvmStatic
@@ -37,17 +37,17 @@ class ProfileScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ProfileEditScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdProfileTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.user()
 
     @Test
     fun profileEdit() {
         onUiThread { navController.navigate(R.id.action_profile_to_profile_edit) }
-        L10nScreenshots.capture(activityController, locale, "41_personalid_profile_edit")
+        L10nScreenshots.capture(activityController, target, "41_personalid_profile_edit")
     }
 
     companion object {
