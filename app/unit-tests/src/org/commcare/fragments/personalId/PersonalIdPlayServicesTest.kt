@@ -129,14 +129,15 @@ class PersonalIdPlayServicesTest : BasePersonalIdConfigurationTest<PersonalIdPho
             ShadowGoogleApiAvailability.showErrorDialogCalled,
         )
 
+        val hostNavController = navHostFragment.navController
         assertEquals(
             "Should navigate to message display screen for non-resolvable error",
             R.id.personalid_message_display,
-            navHostFragment.navController.currentDestination!!.id,
+            hostNavController.currentDestination!!.id,
         )
 
         val expectedMessage = activity.getString(R.string.play_service_update_error)
-        val actualMessage = navHostFragment.navController.currentBackStackEntry!!.arguments!!.getString("message")
+        val actualMessage = hostNavController.currentBackStackEntry!!.arguments!!.getString("message")
 
         assertEquals(
             "Message should indicate play services error",
