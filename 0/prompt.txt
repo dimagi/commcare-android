@@ -1,0 +1,41 @@
+<task-notification>
+<task-id>a05af6bdf3405dc5c</task-id>
+<tool-use-id>toolu_018rQvLwiNSbkSiyKKS4QKXR</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/32d98a81-a2a2-444a-9d17-834707351408/tasks/a05af6bdf3405dc5c.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 2 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Spec Compliance
+- ✅ Spec compliant: All produced interfaces match the brief exactly — `ApiPersonalId.validateFirebaseIdToken(AuthInfo, Context, String, IApiCallback)`, `sendPhoneOtp(Context, AuthInfo, IApiCallback)`, `validatePhoneOtp(Context, AuthInfo, String, IApiCallback)` (`ApiPersonalId.java:237,377,389`); `PersonalIdApiHandler`'s three wrappers take `AuthInfo` plus `@Nullable PersonalIdSessionData` (`PersonalIdApiHandler.java:244,353,361`); `PersonalIdAuthService.kt:8`, `FirebaseAuthService.java:38`, and `OtpManager.java:24` all take the specified constructor shape, with `OtpManager`'s old 3-arg/4-arg constructors fully removed, leaving the single 5-arg one as required.
+- Signup fragment (`PersonalIdPhoneVerificationFragment.kt:450-468`) builds `AuthInfo.TokenAuth(personalIdSessionData.token)` and threads it through both branches of `setupOtpManager`, matching the brief's Step 8 code verbatim.
+- New test `ApiPersonalIdPhoneOtpAuthTest.kt` and rewritten `OtpManagerTest.kt` match the brief's prescribed test bodies exactly.
+- Commit message verified via `git log -1 --format=%B b2ce0ca699`: title uses `refactor(ccct-2713):` prefix and ends with the exact required `Co-Authored-By: Claude Opus 5.5 (1M context) &lt;noreply@anthropic.com&gt;` trailer, satisfying the global constraint.
+- Call-site sweep (`grep -rn "sendPhoneOtp\|validatePhoneOtp\|validateFirebaseIdToken\|OtpManager("` and a broader repo-wide search for `OtpManager` outside `app/src`/`app/unit-tests`) found no stragglers on the old signatures — the report's claim on this point checks out.
+- `PersonalIdPhoneVerificationFragmentTest` was not edited (absent from the diff), satisfying "must pass without edits."
+- Confirmed `androidx.annotation.Nullable` is already imported in `PersonalIdApiHandler.java` (pre-existing, not added by this diff) so the new `@Nullable` usages compile without a missing-import risk.
+- Confirmed `createCallback(sessionData, null)` calls `onSuccess((T) sessionData)` unconditionally (`PersonalIdApiHandler.java:80`), so passing a `null` session in the profile flow does not NPE — the brief's and report's claim about `onSuccess(null)` holds up.
+- ⚠️ Cannot verify from diff: whether Manage Profile UI actually calls these methods with `AuthInfo.ProvidedAuth` — out of scope for this task (task 2 is API-layer threading only; wiring Manage Profile is presumably a later task), so this is not a gap in this task, just unverifiable here.
+
+### Strengths
+- Faithful, disciplined implementation — no unrequested deviations, all signatures match the brief exactly including parameter order.
+- Nullability correctly threaded (`@Nullable PersonalIdSessionData`, nullable Kotlin type) with a documented rationale tied to the reflection-based Firebase test dependency, and verified against actual `createCallback` behavior rather than assumed.
+- New `ApiPersonalIdPhoneOtpAuthTest` pins the actual `Authorization` header per auth type against a real mock server rather than mocking `HttpUtils`, so it verifies real behavior, not just that a method was called.
+- `OtpManagerTest` was cleanly adapted to the new single-constructor reality (explicit method tests) rather than left testing removed behavior.
+
+### Issues
+
+#### Critical (Must Fix)
+None found.
+
+#### Important (Should Fix)
+None found.
+
+#### Minor (Nice to Have)
+- `PersonalIdApiHandler.validateFirebaseIdToken`'s `authInfo` parameter lacks a `@NonNull` annotation, unlike other params/methods in the same class that are otherwise annotated (`PersonalIdApiHandler.java:247`). Cosmetic only — brief prescribed this exact signature.
+- `ApiPersonalId.validateFirebaseIdToken` puts `authInfo` first while `sendPhoneOtp`/`validatePhoneOtp` put `context` first (`ApiPersonalId.java:237` vs `377`), an inconsistent parameter ordering across the same class. This was mandated verbatim by the brief, so it's not the implementer's choice, just a wart worth noting for anyone touching this file next.
+
+### Assessment
+**Task quality:** Approved
+**Reasoning:** Every produced interface, test, and the commit message match the brief and global constraints exactly, a live call-site sweep found zero stale callers of the old signatures, and the one behavioral claim worth independently checking (null-session `onSuccess` handling) verified correctly against the actual `createCallback` code.</result>
+<usage><subagent_tokens>87111</subagent_tokens><tool_uses>14</tool_uses><duration_ms>118109</duration_ms></usage>
+</task-notification>
