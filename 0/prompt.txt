@@ -1,0 +1,1 @@
+learn_app and deliver_app will be null , learn_progress API will be there but we should never call it if learn_app is null
