@@ -1,0 +1,68 @@
+Base directory for this skill: /Users/dimagi/.claude/plugins/cache/dimagi-claude-workflows/commcare-tech/0.6.4/skills/writing-commits-and-prs
+
+# Writing Commits and PRs
+
+## Overview
+
+Conventions for branches, commits, PR titles, descriptions, and the diff itself — aimed at a PR that's a pleasure to review.
+
+**Be proportionate to non-obviousness.** Title, description, commit messages, comments — each should focus on the central, non-obvious information. No explanation beats explaining the obvious. The rules below are applications of this principle.
+
+Repo-level `CLAUDE.md` overrides this skill. Skill-specific formats (e.g. `dependency-upgrade`) also override.
+
+## Branches
+
+- Never commit directly on `master`/`main` — always work on a branch.
+- Branch prefix: the one the author uses most on local branches, else their initials from `git config user.name`.
+
+## Commits
+
+Each commit has **one clear purpose**. Read in order, the commits tell a coherent story.
+
+- **Build in a single direction.** No fixup/backtracking commits left in the history — squash and reorder before pushing.
+- **Keep these categories in their own commits**, never mixed:
+  - **Functional changes** — new behavior, bug fixes
+  - **Refactors** — behavior-preserving
+  - **Renames / verbatim moves** — pure relocation, byte-for-byte content
+  - **Scripted changes** — auto-format, import sort, codegen, mass-rename
+- Things that only make sense together belong together: a new module and its tests; a migration and its model change.
+- **Commit messages name the central thing each commit does** — without restating the diff or file paths.
+- **Where it helps, place the commit in the PR's larger story** (usually subtly). A commit that intentionally breaks tests to motivate the following commits should say so, so the break reads as deliberate rather than as a mistake.
+
+## PR titles
+
+Describe **what the change lets you do** (intent), not **how it's implemented** (flag names, file names, internal symbols).
+
+| ✅ Intent-driven | ❌ Mechanism-driven |
+|---|---|
+| Support non-interactive `cchq secrets edit` | Add `--from-stdin` flag to `cchq secrets edit` |
+| Stop double-charging on plan upgrade | Fix off-by-one in `BillingRecord.compute_charges` |
+
+A teammate scanning a list of PR titles six months from now should be able to tell what changed for users. When the work has an originating Jira ticket, consider mirroring its framing.
+
+## PR descriptions
+
+- **Explain the problem and the solution** — what was wrong or missing, and how this change addresses it. Don't narrate the diff; reviewers can read it.
+- **Set expectations for the diff when something needs flagging** — surprises the reviewer should know about. For example, "the change is smaller than it looks because XYZ," or anything unexpected you had to do to make it work. Skip when the diff speaks for itself; many PRs don't need this.
+- **On a large PR with well-organized commits, sketching the arc of the work can help** — the shape, not a per-commit description. Most PRs don't need this. If a per-commit description feels necessary, that's a sign to rework the commits or sharpen the messages instead; the arc sketch is a complement to good commit hygiene, not a substitute.
+- **Convey why we can be confident the change works** — proportionate to how non-obvious it is that the PR works. A typo fix needs nothing; a subtle concurrency change needs a test plan, manual verification, screenshots, or before/after evidence the reviewer can't easily dismiss.
+- Use the repo's PR template if one exists. Default to **draft PR** unless told otherwise.
+
+### Editing an existing PR description
+
+**Always fetch the current body before editing.** PR descriptions get edited out-of-band by the author, reviewers, and automation; a blind `gh pr edit --body` overwrites everything that's there.
+
+```bash
+gh pr view <num> --json body --jq '.body'
+```
+
+Read the live body, merge your intended change into it, then push the new version. Same principle applies to any external system where someone else can edit between your reads.
+
+## The diff itself
+
+Author choices that make a diff easier to review:
+
+- **Proportionate to the problem.** The size and complexity of the change should match the size and complexity of the problem. Big diffs for small problems are a smell.
+- **No "main character syndrome."** Don't push your concerns into shared code paths so that other callers have to know about — or work around — your change. An edge case for a single downstream usage belongs at that usage site, not in a shared function the other 100 callers now have to navigate.
+- **Follows established patterns.** If the codebase already does something one way, do it that way unless you have a reason to deviate — and call out the deviation in the PR description.
+- **Comments explain *why*, not *what*.** The code shows what it does. Comments earn their place by capturing intent, constraints, or non-obvious reasoning that the code can't express.
