@@ -71,6 +71,7 @@ jobs:
           org.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.parallel=false
           TEST_BUILD_TYPE=release
+          ALLOW_DEBUG_SIGNED_RELEASE=true
           RELEASE_STORE_FILE=/home/runner/.gradle/commcare-odk-keys.keystore
           RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
           RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
@@ -120,7 +121,10 @@ jobs:
           use_oidc: true
           fail_ci_if_error: false
       - name: Restore Keystore
-        run: echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+        run: |
+          if [ -n "$SIGNING_KEY" ]; then
+            echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+          fi
         env:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
       - name: Assemble Release apk
