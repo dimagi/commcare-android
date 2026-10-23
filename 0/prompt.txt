@@ -1,0 +1,1 @@
+what's the difference here between activity.setTitle vs getSupportActionBar.setTitle ? Why can't we use one in both flows?
