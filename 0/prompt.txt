@@ -1,0 +1,1 @@
+can we DRY PersonalIdProfileActivityToolbarTitleTest and PersonalIdActivityToolbarTitleTest by using a base class
