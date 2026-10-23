@@ -1,0 +1,3 @@
+<task-notification>
+<summary>Stop hook feedback</summary>
+</task-notification>
