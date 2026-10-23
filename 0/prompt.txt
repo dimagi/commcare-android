@@ -1,0 +1,1 @@
+Question on RCA and fix made - If we just call  supportActionBar.setTitle(x)   from all places, would it solve the issue without overriding onTitleChanged ?
