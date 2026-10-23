@@ -1,0 +1,1 @@
+I just appended these changes to last commit, can you edit the commit message to reflect the updated approach
