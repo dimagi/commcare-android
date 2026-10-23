@@ -1,0 +1,1 @@
+in commit 2, app/unit-tests/src/org/commcare/connect/network/personalId/ApiPersonalIdPhoneOtpAuthTest.kt should also add tests on validatePhoneOtp and validateFirebaseIdToken with token auth
