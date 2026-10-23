@@ -1,0 +1,1 @@
+write tests checking for title tool bar title for all fragments in nav_graph_personalid.xml and nav_graph_personalid_profile.xml as safety story on PR , also make sure title updates when pressing back to the pages
