@@ -1,0 +1,37 @@
+<task-notification>
+<task-id>aa9613f117d3b8010</task-id>
+<tool-use-id>toolu_011BVd1EKEjCm23GRkKeXe3Q</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/32d98a81-a2a2-444a-9d17-834707351408/tasks/aa9613f117d3b8010.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 6 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>### Spec Compliance
+- ✅ Spec compliant. Every constant, class, and hook the brief specifies is implemented with matching names, signatures, and call sites. Add/update decision reads the stored user record at report time (`ProfileEmailAnalytics.isAddingEmail()`, `ProfileEmailAnalytics.kt:32`); the success report happens before the new email is stored (`PersonalIdProfileEmailVerificationFragment.kt:26-29`); cancellation logic (`leftForward` flag, `onResume`/`onDestroy`, gated to `EmailWorkFlow.EXISTING_USER`) matches the brief's code verbatim (`PersonalIdProfileBackupCodeFragment.kt:250-274`, `297`, `318`, `340`, `346`).
+- The controller-ruled deviation (leaving `PersonalIdProfileEditFragmentTest.kt` unedited while still making the `PersonalIdProfileEditFragment.kt` production change) is present and correctly isolated: that test file is absent from the diff, and the one resulting known failure (`navigating to backup code gate fires the email update initiated analytics`, asserting a stale `SUCCESS` outcome) is exactly what the ruling anticipates. Confirmed by reading the still-unedited test at `app/unit-tests/src/org/commcare/personalId/profile/PersonalIdProfileEditFragmentTest.kt:215-224`.
+
+**Named risks checked:**
+- `onVerifyOtpFailed`/`onSendCodeFailed` hooks: three subclasses each of `BasePersonalIdEmailVerificationFragment` (`PersonalIdConfigurationEmailVerificationFragment`, `PersonalIdEmailVerificationForgotBackupCodeFragment`, `PersonalIdProfileEmailVerificationFragment`) and `BasePersonalIdSendEmailOtpFragment` (`PersonalIdConfigurationSendEmailOtpFragment`, `PersonalIdProfileSendEmailOtpFragment`) exist. Only the two Profile subclasses override the new hooks; the signup/forgot-backup-code subclasses inherit the no-op default, so signup/forgot-backup-code behavior is unchanged. No collisions.
+- `ProfileEmailAnalytics` reachability from backup-code/forgot-backup-code workflows: traced the nav graph (`app/res/navigation/nav_graph_personalid_profile.xml:16-17,67-86`) and call sites — `PersonalIdProfileFragment.kt:72` enters `PersonalIdProfileBackupCodeFragment` with `emailWorkflow = FORGOT_BACKUP_CODE_EXISTING_USER` (the "forgot backup code from profile" entry point unrelated to email), while `PersonalIdProfileEditFragment.kt:167` enters it with `EXISTING_USER` (the email-change path). The `onDestroy` cancel-report gate (`args.emailWorkflow == EmailWorkFlow.EXISTING_USER`) and the `onSendCodeFailed` gate in `PersonalIdProfileSendEmailOtpFragment.kt:20` (`workflow == EmailWorkFlow.EXISTING_USER`) correctly exclude the forgot-backup-code path. `PersonalIdEmailVerificationForgotBackupCodeFragment.kt` has no `ProfileEmailAnalytics` reference at all. No leakage found.
+
+### Strengths
+- The add/update and success/failure/cancelled logic is centralized in one small `ProfileEmailAnalytics` object, used consistently from all four call sites, with no duplicated decision logic.
+- The `leftForward` flag threading through all four forward-navigation call sites was verified individually against the brief's enumerated list; none were missed, and the toast/back branch correctly leaves it unset.
+- Test additions in the two permitted test files are literal, exact matches of the brief's specified tests (RED/GREEN evidence in the report is consistent with what the diff produces).
+- Success-before-storage ordering is exactly as required, verified by reading the actual line order rather than trusting the report.
+
+### Issues
+
+#### Critical (Must Fix)
+None.
+
+#### Important (Should Fix)
+None.
+
+#### Minor (Nice to Have)
+- `ProfileEmailAnalytics.kt:32`'s private `isAddingEmail()` (reads stored user email) and `PersonalIdProfileBackupCodeFragment.kt`'s pre-existing private `isAddingEmail()` (reads `args.emailWorkflow`/`pendingEmail`) share a name but check different things in different classes. Both are private and the former has a clarifying doc comment, so this is not a functional risk — just a naming overlap a future reader could momentarily trip on.
+
+### Assessment
+**Task quality:** Approved
+**Reasoning:** Implementation matches the brief exactly (including the literal cancellation-flag code), the controller's test-file carve-out is correctly honored and isolated, and both named risks (hook collisions, analytics leakage into unrelated workflows) were traced through the nav graph and confirmed clean.</result>
+<usage><subagent_tokens>88658</subagent_tokens><tool_uses>17</tool_uses><duration_ms>171540</duration_ms></usage>
+</task-notification>
