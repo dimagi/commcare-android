@@ -1,0 +1,1 @@
+can I get currentDrawerSection any other way, like from the drawer adapter itself , it just tracks what current drawer item the user is on and I feel it doesn't need to come from class implementations, thoughts ?
