@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>bozp98dig</task-id>
+<tool-use-id>toolu_01T5SPpNGpritwRETfLci3eP</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/5fbd3d0d-5e97-41a5-b0ec-0eec54ef343b/tasks/bozp98dig.output</output-file>
+<status>completed</status>
+<summary>Background command "Run PersonalID suites at each rebased commit in a temp worktree" completed (exit code 0)</summary>
+</task-notification>
