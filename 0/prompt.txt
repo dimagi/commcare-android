@@ -1,0 +1,1 @@
+this breaks the title bar in the profile flow, now the Recover backup code doesn't show the title as "Recover backup code" in the profile flow, also run existign profile tests to see if there is already a test that checks for it and is failing , if not, add a test to confirm this
