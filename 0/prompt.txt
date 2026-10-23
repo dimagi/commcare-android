@@ -1,0 +1,1 @@
+Now fix KT lint issues from https://github.com/dimagi/commcare-android/actions/runs/39930897195 in a separate commit and push
