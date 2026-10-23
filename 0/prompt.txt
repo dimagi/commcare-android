@@ -1,0 +1,1 @@
+disable https://github.com/dimagi/commcare-android/actions/workflows/pr-comment-handler.lock.yml
