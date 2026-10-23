@@ -1,0 +1,1 @@
+"NavigationUI calls supportActionBar.setTitle(label) on every navigation", is this Android code or code on app side ?
