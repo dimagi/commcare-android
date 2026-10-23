@@ -1,12 +1,10 @@
 package org.commcare.android.util
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import org.commcare.CommCareApplication
 import org.commcare.android.database.connect.models.ConnectAppRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.models.database.connect.ConnectDatabaseSchemaManager
@@ -82,8 +80,9 @@ object ConnectTestUtils {
     fun daysFromNow(days: Int): Date = Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(days.toLong()))
 
     /**
-     * Write a signed-in PersonalId user, then let [PersonalIdManager.init] derive its status from
-     * that record: no Connect lookup resolves unless PersonalId reports logged in.
+     * Write a signed-in PersonalId user. The status derives from that record, so no Connect lookup
+     * resolves unless PersonalId reports logged in. The status resolves on demand, so nothing
+     * needs initialising first.
      *
      * The stored token is what keeps Connect API calls off the PersonalId token endpoint —
      * `getConnectToken()` returns an unexpired stored token without a round-trip.
@@ -97,12 +96,10 @@ object ConnectTestUtils {
         userId: String = "",
         password: String = "",
     ) {
-        val context = ApplicationProvider.getApplicationContext<Context>()
         createConnectDbFile()
         val user = ConnectUserRecord("", userId, password, "Test User", "", Date(), null, false, "", hasConnectAccess)
         user.updateConnectToken("test-connect-token", daysFromNow(1))
         ConnectUserDatabaseUtil.storeUser(user)
-        PersonalIdManager.getInstance().init(context)
     }
 
     fun createConnectDbFile() {

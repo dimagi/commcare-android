@@ -12,7 +12,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 
@@ -45,7 +44,6 @@ public class SetupEnterURLFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setup_enter_url, container, false);
         Button installButton = view.findViewById(R.id.start_install);
-        installButton.setText(getString(R.string.install_button_start));
         profileLocation = view.findViewById(R.id.edit_profile_location);
         profileLocation.addTextChangedListener(new TextWatcher() {
             @Override
@@ -59,9 +57,6 @@ public class SetupEnterURLFragment extends Fragment {
                 installButton.setEnabled(s.length() > 0);
             }
         });
-        TextView appProfile = view.findViewById(R.id.app_profile_txt_view);
-        appProfile.setText(getString(R.string.install_appprofile));
-
         installButton.setOnClickListener(v -> {
             getFragmentManager().popBackStack(); // equivalent to pressing the "back" button
             // no need for a null check because onAttach is called before onCreateView

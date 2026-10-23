@@ -42,7 +42,7 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 PersonalIdSessionDataViewModel.class).getPersonalIdSessionData();
 
         activity = requireActivity();
-        activity.setTitle(R.string.personalid_name_appbar_title);
+        setTitle(R.string.personalid_name_appbar_title);
         activity.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         setListeners();
         setUpEnterKeyAction(binding.nameTextValue);

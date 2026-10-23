@@ -24,10 +24,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import org.commcare.AppUtils
+import org.commcare.activities.CommCareActivity
 import org.commcare.activities.CommCareVerificationActivity
+import org.commcare.activities.DispatchActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.AppLaunchFailure
 import org.commcare.connect.ConnectAppLaunchController
+import org.commcare.connect.ConnectAppLaunchListener
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.personalId.TokenExceptionHandler.handleTokenDeniedException
 import org.commcare.connect.repository.ConnectSyncPreferences
@@ -46,6 +50,7 @@ import org.commcare.interfaces.base.BaseConnectView
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.NetworkStatusBarViewController
 import org.commcare.views.dialogs.CustomProgressDialog
+import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 import java.util.Date
 
@@ -103,6 +108,18 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     /** True while the install in flight is one this screen started, rather than another screen's. */
     protected val ownsAppInstall get() = ownedAppInstallTarget != null
+
+    private val appLaunchController: ConnectAppLaunchController by lazy {
+        ConnectAppLaunchController(
+            this,
+            object : ConnectAppLaunchListener {
+                override fun onLaunchSucceeded() = runOnceHidden(::onAppLaunched)
+
+                override fun onLaunchFailed(failure: AppLaunchFailure) =
+                    onAppLaunchFailed(failure, appLaunchController::retryLaunch, ::endAppLaunch)
+            },
+        )
+    }
 
     private val verificationLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -519,12 +536,74 @@ abstract class BaseConnectFragment<B : ViewBinding> :
      * [onStop] drops the state once this screen is off-screen and the revert cannot be seen.
      */
     private fun launchInstalledApp(target: AppInstallTarget) {
-        ConnectAppLaunchController(this).launchApp(
-            target.appId,
-            target.isLearning,
-            Runnable { runOnceHidden(::onAppLaunched) },
-            { installViewModel.clear() },
-        )
+        appLaunchController.launchApp(target.appId, target.isLearning)
+    }
+
+    /**
+     * Reacts to a launch that terminally failed. The default offers a retry until attempts are
+     * exhausted, then a dismiss-only error, and routes a seat failure through [DispatchActivity] to
+     * reach recovery. [retryLaunch] replays the launch toward the same attempt limit; [endLaunch]
+     * releases the busy state and must be called once the screen gives up on the launch.
+     */
+    protected open fun onAppLaunchFailed(
+        failure: AppLaunchFailure,
+        retryLaunch: () -> Unit,
+        endLaunch: () -> Unit,
+    ) {
+        when (failure) {
+            AppLaunchFailure.SeatFailed -> {
+                endLaunch()
+                val dispatchIntent =
+                    Intent(requireActivity(), DispatchActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(dispatchIntent)
+                requireActivity().finish()
+            }
+
+            is AppLaunchFailure.Retryable -> {
+                if (failure.attemptsExhausted) {
+                    endLaunch()
+                    showLaunchFailedDialog(
+                        R.string.connect_app_launch_failed_dialog_persistent_error_message,
+                        R.string.connect_app_launch_failed_dialog_ok,
+                    )
+                } else {
+                    showLaunchFailedDialog(
+                        R.string.connect_app_launch_failed_dialog_message,
+                        R.string.connect_app_launch_failed_dialog_retry,
+                        onPositive = retryLaunch,
+                        onCancel = endLaunch,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun endAppLaunch() = installViewModel.clear()
+
+    private fun showLaunchFailedDialog(
+        @StringRes messageRes: Int,
+        @StringRes positiveButtonRes: Int,
+        onPositive: () -> Unit = {},
+        onCancel: (() -> Unit)? = null,
+    ) {
+        val host = requireActivity() as CommCareActivity<*>
+        val dialog =
+            StandardAlertDialog(
+                getString(R.string.connect_app_launch_failed_dialog_title),
+                getString(messageRes),
+            )
+        dialog.setPositiveButton(getString(positiveButtonRes)) { _, _ ->
+            host.dismissAlertDialog()
+            onPositive()
+        }
+        onCancel?.let {
+            dialog.setNegativeButton(getString(R.string.connect_app_launch_failed_dialog_cancel)) { _, _ ->
+                host.dismissAlertDialog()
+                it()
+            }
+        }
+        host.showAlertDialog(dialog)
     }
 
     /** Defers [action] to this fragment's next onStop, so the screen beneath never flashes. */

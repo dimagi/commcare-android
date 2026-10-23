@@ -94,7 +94,7 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
     private int invalidTaskIdMessageThrown = -2;
     private TaskConnectorViewModel<R> stateHolder;
 
-    CompositeDisposable disposableEventHost = new CompositeDisposable();
+    private final CompositeDisposable disposableEventHost = new CompositeDisposable();
 
 
     // Fields for implementing task transitions for CommCareTaskConnector

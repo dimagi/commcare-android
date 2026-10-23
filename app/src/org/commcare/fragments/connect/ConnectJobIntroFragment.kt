@@ -2,9 +2,13 @@ package org.commcare.fragments.connect
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
@@ -43,7 +47,8 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         savedInstanceState: Bundle?,
     ): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        requireActivity().setTitle(R.string.connect_job_info_view_opportunity)
+        requireActivity().title = job.title
+        hideSyncMenuItem()
 
         (requireActivity() as AppCompatActivity)
             .supportActionBar!!
@@ -75,6 +80,24 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
     override fun onDestroyView() {
         super.onDestroyView()
         (requireActivity() as AppCompatActivity).supportActionBar!!.setHomeAsUpIndicator(0)
+    }
+
+    private fun hideSyncMenuItem() {
+        requireActivity().addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(
+                    menu: Menu,
+                    menuInflater: MenuInflater,
+                ) = Unit
+
+                override fun onPrepareMenu(menu: Menu) {
+                    menu.findItem(R.id.action_sync)?.isVisible = false
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem) = false
+            },
+            viewLifecycleOwner,
+        )
     }
 
     private fun observeStartLearning() {

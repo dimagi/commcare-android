@@ -181,6 +181,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_sms_invite_opportunity_not_found">Ba a sami damar ba</string>
     <string name="connect_learn_complete">Kammalawa</string>
     <string name="connect_learn_certificate">Takardar Shaidar</string>
+    <string name="connect_learn_view_certificate">Duba Takardar Shaida</string>
     <string name="connect_learn_completed">An kammala a ranar %s</string>
     <string name="connect_learn_cert_score">Maki: %s</string>
     <string name="connect_learn_complete_footer_start_visits">Fara Ziyarce-ziyarce</string>
@@ -375,6 +376,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_name_fragment_subtitle">Da fatan za a shigar da sunanka kamar yadda ya bayyana a katin shaidar da gwamnati ta bayar</string>
     <string name="personalid_configuration_process_failed_title">Tsarin aiki ya gaza</string>
     <string name="personalid_configuration_locked_account">An kulle asusunka. Da fatan za a tuntuɓi tallafi</string>
+    <string name="personalid_backup_code_locked">An kulle lambar ajiyarka. Da fatan za a tabbatar da imel ɗinka don saita sabuwa.</string>
     <string name="personalid_configuration_process_failed_subtitle">Abin takaici, wannan na\'urar ba ta wuce binciken tsaro da ake buƙata don yin rijistar PersonalID ba. Da fatan za a sake gwadawa akan wata na\'ura daban.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">Lambar PIN ɗin da ke kan wannan na\'urar ba ta samuwa a halin yanzu. Da fatan za a sake gwadawa daga baya.</string>
     <string name="personalid_configuration_process_biometric_unavailable_message">Ba a kunna Biometrics a wannan na\'urar a halin yanzu. Da fatan za a saita biometrics a cikin Saitunan Tsarin Android don ci gaba.</string>
@@ -463,6 +465,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_delivery_visit_progress_title">Ci gaban ziyara</string>
     <string name="connect_delivery_total_visits_completed">jimillar ziyarar da aka kammala</string>
     <string name="connect_delivery_daily_visits">Ziyara na kowace rana</string>
+    <string name="connect_visits_completed_today">Ziyarar da aka kammala yau</string>
     <string name="connect_delivery_your_progress">Ci gabanka</string>
     <string name="connect_delivery_total_earnings">Jimillar kuɗin shiga</string>
     <string name="connect_delivery_amount_each">%1$s kowanne</string>
@@ -470,6 +473,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_delivery_tasks_mandatory_title">Wajibi</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Kammala ayyukan don ci gaba da isar da sabis.</string>
     <string name="connect_delivery_tasks_empty">Babu ayyukan da ke jiran kammalawa a yanzu. Za mu sanar da kai idan sabon aiki ya samu.</string>
+    <string name="connect_delivery_visits_empty">Babu ziyara tukuna. Ziyarce-ziyarcen da ka kammala za su bayyana a nan.</string>
+    <string name="connect_delivery_visits_filter_empty">Babu ziyarar da ta dace da wannan tacewa.</string>
     <string name="connect_delivery_revisit_learning_title">Sake duba karatu</string>
     <string name="connect_delivery_revisit_learning_completed">An kammala %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Takardar shaida za ta samu bayan aiki tare na gaba</string>
@@ -491,11 +496,13 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
         <item quantity="one">An kammala %1$s yau</item>
         <item quantity="other">An kammala %1$s yau</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Duba Dama</string>
     <string name="about_cc">Game da CommCare</string>
     <string name="please_wait">Da fatan za a jira wasu lokuta.</string>
-    <string name="install_barcode_top">Barka da zuwa CommCare!</string>
-    <string name="install_barcode_bottom">Da fatan za a zaɓi hanyar shigarwa a ƙasa</string>
+    <string name="install_get_started_title">Fara da CommCare</string>
+    <string name="install_get_started_message">Shigar da manhajarka ta farko don farawa.</string>
+    <string name="install_via_qr_code">Shigar ta lambar QR</string>
+    <string name="install_via_app_code">Shigar ta lambar manhaja</string>
+    <string name="install_from_local">Shigar daga cibiyar sadarwa ta gida</string>
     <string name="install_keep_trying">Ci gaba da kokari idan haɗin ya katse</string>
     <string name="install_manual">Da fatan za a shigar da URL</string>
     <string name="install_ready_top">Kusan an gama!</string>
@@ -508,6 +515,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="install_bad_ref">Ba ka leƙa wata URL mai inganci ba. Da fatan za a sake gwadawa.</string>
     <string name="install_bad_login">Shiga Manhaja Mai Akwai</string>
     <string name="install_appprofile">Shigar da lambar manhajarka</string>
+    <string name="install_code_hint">Shigar da lambar a nan</string>
     <string name="install_perms_rationale_message">CommCare yana buƙatar aƙalla izinin karantawa da rubutawa a ma\'aji na waje don adana ƙaddamarwar fom.</string>
     <string name="install_perms_denied_message">An ƙi izini masu mahimmanci sau %1$s.\n\n Idan neman izini a nan ya gaza, da fatan za a kunna izini a ƙarƙashin saitunan Android.</string>
     <string name="install_choose_local_app">Manhajojin da Ake Da Su</string>

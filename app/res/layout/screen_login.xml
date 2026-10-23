@@ -89,37 +89,14 @@
                                 android:text="@string/connect_button_logged_in"
                                 android:visibility="gone" />
 
-                            <LinearLayout
+                            <include
                                 android:id="@+id/login_or"
+                                layout="@layout/or_divider"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="@dimen/standard_spacer_double"
                                 android:layout_marginTop="@dimen/standard_spacer_double"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:visibility="gone">
-
-                                <View
-                                    android:layout_width="0dp"
-                                    android:layout_height="@dimen/connect_stroke_hairline"
-                                    android:layout_weight="1"
-                                    android:background="?attr/connectOutlineVariant" />
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginEnd="@dimen/standard_spacer_double"
-                                    android:layout_marginStart="@dimen/standard_spacer_double"
-                                    android:text="@string/login_choice_or"
-                                    android:textColor="?attr/connectOnSurfaceSecondary"
-                                    android:textSize="@dimen/text_caption" />
-
-                                <View
-                                    android:layout_width="0dp"
-                                    android:layout_height="@dimen/connect_stroke_hairline"
-                                    android:layout_weight="1"
-                                    android:background="?attr/connectOutlineVariant" />
-                            </LinearLayout>
+                                android:visibility="gone" />
 
                             <Spinner
                                 android:id="@+id/app_selection_spinner"

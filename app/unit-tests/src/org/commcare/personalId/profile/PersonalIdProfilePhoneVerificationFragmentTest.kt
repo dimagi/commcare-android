@@ -24,6 +24,7 @@ import org.commcare.android.util.FirebaseTestUtils
 import org.commcare.connect.network.personalId.PersonalIdApiEndpoints
 import org.commcare.core.network.AuthInfo
 import org.commcare.dalvik.R
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.fragments.personalId.PersonalIdProfileSendEmailOtpFragmentArgs
 import org.commcare.network.HttpUtils
@@ -293,7 +294,7 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
     private fun openFromForgotBackupCode() {
         val backupCodeArgs =
             PersonalIdProfileBackupCodeFragmentArgs
-                .Builder(EmailWorkFlow.EXISTING_USER)
+                .Builder(EmailWorkFlow.EXISTING_USER, BackupCodeWorkflow.EMAIL_CHANGE)
                 .setPendingEmail(pendingEmail)
                 .build()
                 .toBundle()

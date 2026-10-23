@@ -5,6 +5,8 @@
     <dimen name="text_smaller">9sp</dimen>
     <dimen name="text_caption">12sp</dimen>
     <dimen name="text_small">14sp</dimen>
+    <dimen name="text_headline">22sp</dimen>
+    <dimen name="install_option_tile_size">84dp</dimen>
     <dimen name="text_medium">18sp</dimen>
     <dimen name="text_large">21sp</dimen>
     <dimen name="text_larger">28sp</dimen>
@@ -153,6 +155,7 @@
     <dimen name="side_nav_sign_out_top_margin">32dp</dimen>
 
     <dimen name="connect_badge_icon_size">20dp</dimen>
+    <dimen name="connect_notification_icon_size">30dp</dimen>
 
     <dimen name="connect_info_card_corner_radius">8dp</dimen>
     <dimen name="connect_info_card_elevation">0dp</dimen>

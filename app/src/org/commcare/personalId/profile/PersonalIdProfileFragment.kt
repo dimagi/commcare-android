@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.PersonalidProfileScreenBinding
+import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 
 class PersonalIdProfileFragment : BasePersonalIdProfileFragment() {
@@ -69,7 +70,10 @@ class PersonalIdProfileFragment : BasePersonalIdProfileFragment() {
     private fun navigateToProfileBackupCode() {
         findNavController().navigate(
             PersonalIdProfileFragmentDirections
-                .actionProfileToProfileBackupCode(EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER),
+                .actionProfileToProfileBackupCode(
+                    EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+                    BackupCodeWorkflow.CHANGE_BACKUP_CODE,
+                ),
         )
     }
 

@@ -1,8 +1,8 @@
 package org.commcare.activities;
 
 import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Connect;
-import static org.commcare.connect.PersonalIdManager.ConnectAppMangement.Unmanaged;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppManagement.Connect;
+import static org.commcare.connect.PersonalIdSessionManager.ConnectAppManagement.Unmanaged;
 
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -31,7 +31,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -585,7 +585,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void refreshConnectView() {
-        PersonalIdManager.ConnectAppMangement appState = activity.getConnectAppState();
+        PersonalIdSessionManager.ConnectAppManagement appState = activity.getConnectAppState();
         if (appState == Unmanaged) {
             loginButton.setText(Localization.get("login.button"));
             passwordInputLayout.setBoxBackgroundColor(
@@ -603,7 +603,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
         setLoginInputsVisibility(appState != Connect);
         setConnectButtonVisible(
-                PersonalIdManager.getInstance().isloggedIn() && ConnectUserDatabaseUtil.hasConnectAccess()
+                PersonalIdSessionManager.getInstance().isloggedIn() && ConnectUserDatabaseUtil.hasConnectAccess()
         );
     }
 }

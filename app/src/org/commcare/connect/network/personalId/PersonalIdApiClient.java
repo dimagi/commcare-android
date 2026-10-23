@@ -8,7 +8,7 @@ import org.commcare.connect.network.base.BaseApiClient;
  */
 public class PersonalIdApiClient {
     public static final String BASE_URL = "https://connectid.dimagi.com";
-    public static final String API_VERSION = "2.0";
+    public static final String API_VERSION = "3.0";
     private static volatile PersonalIdApiService apiService;
 
     private PersonalIdApiClient() {

@@ -30,6 +30,7 @@ import org.mockito.Mockito.mockStatic
 import org.mockito.kotlin.eq
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowToast
 
 /**
  * Tests [PersonalIdBackupCodeFragment] in account recovery mode.
@@ -294,6 +295,28 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
             title = fragment.getString(R.string.personalid_configuration_process_failed_title),
             message = fragment.getString(R.string.personalid_configuration_locked_account),
             phase = ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED,
+        )
+    }
+
+    @Test
+    fun `a locked account with a masked email shows a toast and starts forgot backup code email flow`() {
+        val maskedEmail = "u***@example.com"
+        launchBackupCodeFragment(buildSessionData(accountExists = true, maskedEmail = maskedEmail))
+        mockWebServer.enqueue(MockResponse().setResponseCode(400).setBody("""{"error_code":"LOCKED_ACCOUNT"}"""))
+
+        enterBackupCode(TEST_BACKUP_CODE)
+        drainHttp()
+
+        assertEquals(
+            fragment.getString(R.string.personalid_backup_code_locked),
+            ShadowToast.getTextOfLatestToast(),
+        )
+        assertEquals(R.id.personalid_send_email_otp_fragment, navController.currentDestination!!.id)
+        val args = navController.backStack.last().arguments
+        assertEquals(maskedEmail, args?.getString("email"))
+        assertEquals(
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
+            PersonalIdConfigurationSendEmailOtpFragmentArgs.fromBundle(args!!).workflow,
         )
     }
 

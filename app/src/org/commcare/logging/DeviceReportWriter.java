@@ -12,6 +12,7 @@ import org.commcare.google.services.analytics.CCPerfMonitoring;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.xmlpull.v1.XmlSerializer;
@@ -115,6 +116,7 @@ public class DeviceReportWriter {
                 );
                 countingOutputStream.close();
             } catch (IOException e) {
+                Logger.exception("Error closing device report output stream", e);
             }
         }
     }

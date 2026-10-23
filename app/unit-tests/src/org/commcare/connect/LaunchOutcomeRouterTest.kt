@@ -27,16 +27,15 @@ class LaunchOutcomeRouterTest {
     }
 
     @Test
-    fun `app seat failure reports and routes to recovery`() {
+    fun `app seat failure handles a seat failure`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.AppSeatFailed, 0, actions)
 
         verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.reportFailure("AppSeatFailed") }
-        verify(exactly = 1) { actions.recoverFromSeatFailure() }
+        verify(exactly = 1) { actions.handleFailure(AppLaunchFailure.SeatFailed) }
     }
 
     @Test
-    fun `retryable below the attempt limit reports the error name and prompts retry`() {
+    fun `retryable below the attempt limit handles a retryable failure`() {
         LaunchOutcomeRouter.dispatch(
             LaunchOutcome.Retryable(LoginError.BadCredentials),
             LaunchOutcomeRouter.MAX_LAUNCH_ATTEMPTS - 1,
@@ -44,13 +43,13 @@ class LaunchOutcomeRouterTest {
         )
 
         verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.reportFailure("BadCredentials") }
-        verify(exactly = 1) { actions.promptRetry() }
-        verify(exactly = 0) { actions.showPersistentError() }
+        verify(exactly = 1) {
+            actions.handleFailure(AppLaunchFailure.Retryable(LoginError.BadCredentials, attemptsExhausted = false))
+        }
     }
 
     @Test
-    fun `retryable at the attempt limit shows the persistent error instead of retry`() {
+    fun `retryable at the attempt limit handles a failure with attempts exhausted`() {
         LaunchOutcomeRouter.dispatch(
             LaunchOutcome.Retryable(LoginError.NetworkUnavailable),
             LaunchOutcomeRouter.MAX_LAUNCH_ATTEMPTS,
@@ -58,8 +57,8 @@ class LaunchOutcomeRouterTest {
         )
 
         verify(exactly = 1) { actions.dismissProgress() }
-        verify(exactly = 1) { actions.reportFailure("NetworkUnavailable") }
-        verify(exactly = 1) { actions.showPersistentError() }
-        verify(exactly = 0) { actions.promptRetry() }
+        verify(exactly = 1) {
+            actions.handleFailure(AppLaunchFailure.Retryable(LoginError.NetworkUnavailable, attemptsExhausted = true))
+        }
     }
 }

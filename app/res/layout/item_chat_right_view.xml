@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Some dummy text message from user A"
-                android:textColor="@color/connect_message_sender_text_color"
+                android:textColor="@color/dark_slate"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -53,7 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     tools:text="12:00 AM"
-                    android:textColor="@color/connect_message_sender_text_color"
+                    android:textColor="@color/dark_slate"
                     android:textSize="11sp" />
 
                 <ImageView

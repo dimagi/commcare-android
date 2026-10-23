@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.BuildConfig
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -37,9 +37,8 @@ object DeepLinkHelper {
         // Clear the URI immediately so future dispatch() doesn't reprocess this link
         intent.data = null
 
-        val personalIdManager = PersonalIdManager.getInstance()
-        personalIdManager.init(context)
-        if (!personalIdManager.isloggedIn()) {
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+        if (!personalIdSessionManager.isloggedIn()) {
             FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(
                 AnalyticsParamValue.OPP_INVITE_LINK,
                 false,
