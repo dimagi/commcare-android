@@ -1,0 +1,1 @@
+add one more test that 1. sends otp using firebase 2. user verify using wrong otp and gets error, match error 3. user puts a correct otp and click verify and this goes through the validate_firebase_id_token path and passes
