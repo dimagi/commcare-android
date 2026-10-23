@@ -1,0 +1,1 @@
+I would like handleForgotBackupCode to take into account different workflows that can be passes and use a when check on workflow rather than if else, mostly how I can write this better to make the state management easier in future
