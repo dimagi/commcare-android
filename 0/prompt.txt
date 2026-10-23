@@ -1,0 +1,1 @@
+why running codex here throws an error while it doesn't in iterm
