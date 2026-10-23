@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>bqyepa2e2</task-id>
+<tool-use-id>toolu_01RaywF5S3iaH7Jr9tkuNMnq</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/5fbd3d0d-5e97-41a5-b0ec-0eec54ef343b/tasks/bqyepa2e2.output</output-file>
+<status>completed</status>
+<summary>Background command "./gradlew :app:testCommcareDebugUnitTest --rerun &gt; /private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/6bafa45d-badd-4cb9-8b34-22a85597952c/scratchpad/full_run.log 2&gt;&amp;1; grep -E " FAILED|tests completed|BUILD" /private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/6bafa45d-badd-4cb9-8b34-22a85597952c/scratchpad/full_run.log" completed (exit code 0)</summary>
+</task-notification>
