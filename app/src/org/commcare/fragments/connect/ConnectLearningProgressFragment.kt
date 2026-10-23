@@ -88,7 +88,7 @@ class ConnectLearningProgressFragment :
 
     /** Read back from storage, since a refresh may have replaced the job instance the claim updated. */
     private fun publishClaimedJob() {
-        setActiveJob(requireNotNull(ConnectJobUtils.getCompositeJob(job.jobUUID)))
+        setActiveJob(ConnectJobUtils.getCompositeJob(job.jobUUID))
     }
 
     /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */

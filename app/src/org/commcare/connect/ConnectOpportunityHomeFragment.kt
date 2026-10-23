@@ -17,7 +17,13 @@ import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
 import org.commcare.fragments.extensions.hasLiveView
 
-/** Per-opportunity page that shows the status surface for the opportunity's current phase. */
+/**
+ * Per-opportunity page that shows the status surface for the opportunity's current phase.
+ *
+ * Unlike other Connect pages it does not extend [BaseConnectFragment] or `ConnectJobFragment`: it only
+ * hosts the surfaces, which already bring the binding, network bar, sync and install handling, and it
+ * resolves against the activity's current active job rather than a snapshot taken in `onCreate`.
+ */
 class ConnectOpportunityHomeFragment :
     Fragment(R.layout.fragment_connect_opportunity_home),
     ConnectOpportunityHomeHost,
