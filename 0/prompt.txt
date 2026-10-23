@@ -1,0 +1,1 @@
+address comments on PR - https://github.com/dimagi/commcare-android/pull/3948/changes#diff-4cc5db9badca008f7251bde956439b25d3dc3adde3994c71d44cb1d209f836a9 , lets go one by one and ask me for approval, lets go over renaming comments first as I would like to commit them all in a single commit
