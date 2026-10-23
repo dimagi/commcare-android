@@ -1,0 +1,1 @@
+run ktlint on the kotlin files in commit 3 too
