@@ -1,0 +1,1 @@
+remove reportSkipPromptEvent from my last commit, update app/unit-tests/src/org/commcare/fragments/personalId/PersonalIdEmailFragmentTest.kt and force push if everything passes
