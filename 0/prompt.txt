@@ -1,0 +1,1 @@
+yes, approach 1 but I want both fragments to use Firebase auth first and fallback to PersonalID only after Firebase auth fails
