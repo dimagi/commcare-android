@@ -80,40 +80,28 @@ class SmsInviteLinkFlowTest {
         unmockkStatic(MessageManager::class)
     }
 
+    /**
+     * An invite link never names a payment, so every phase resolves to the same place: the phase
+     * picks the surface once the page is open, not which destination to open.
+     */
     @Test
     @Config(sdk = [Build.VERSION_CODES.Q])
-    fun `SMS link to job in delivery status lands on delivery progress screen`() {
-        assertEquals(
-            ConnectConstants.CCC_DEST_DELIVERY_PROGRESS,
-            launchSmsInvite(validUri, jobWithStatus(ConnectJobRecord.STATUS_DELIVERING)),
-        )
-    }
+    fun `SMS link to a job in any active phase resolves to the opportunity page`() {
+        val phases =
+            listOf(
+                ConnectJobRecord.STATUS_DELIVERING,
+                ConnectJobRecord.STATUS_LEARNING,
+                ConnectJobRecord.STATUS_AVAILABLE,
+                ConnectJobRecord.STATUS_AVAILABLE_NEW,
+            )
 
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.Q])
-    fun `SMS link to job in learning status lands on learn progress screen`() {
-        assertEquals(
-            ConnectConstants.CCC_DEST_LEARN_PROGRESS,
-            launchSmsInvite(validUri, jobWithStatus(ConnectJobRecord.STATUS_LEARNING)),
-        )
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.Q])
-    fun `SMS link to available job lands on opportunity summary screen`() {
-        assertEquals(
-            ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
-            launchSmsInvite(validUri, jobWithStatus(ConnectJobRecord.STATUS_AVAILABLE)),
-        )
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.Q])
-    fun `SMS link to new available job lands on opportunity summary screen`() {
-        assertEquals(
-            ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
-            launchSmsInvite(validUri, jobWithStatus(ConnectJobRecord.STATUS_AVAILABLE_NEW)),
-        )
+        phases.forEach { status ->
+            assertEquals(
+                "status $status should not change which destination the link opens",
+                ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE,
+                launchSmsInvite(validUri, jobWithStatus(status)),
+            )
+        }
     }
 
     @Test
@@ -205,9 +193,9 @@ class SmsInviteLinkFlowTest {
     }
 
     /**
-     * Drives the SMS-invite click flow end-to-end for [uri] and returns the REDIRECT_ACTION
-     * argument that ConnectActivity passes to its start destination — i.e. the destination
-     * the user would land on after the nav graph resolves.
+     * Drives the SMS-invite click flow for [uri] and returns the REDIRECT_ACTION argument that
+     * ConnectActivity passes to its start destination — the destination the unlock fragment will
+     * route to once it has unlocked.
      */
     private fun launchSmsInvite(
         uri: Uri,
@@ -230,7 +218,6 @@ class SmsInviteLinkFlowTest {
         )
 
         assertTrue(connectIntent.getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false))
-        assertTrue(connectIntent.getBooleanExtra(ConnectConstants.SHOW_LAUNCH_BUTTON, false))
         assertEquals(uuid, connectIntent.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
 
         every { ConnectJobUtils.getCompositeJob(eq(uuid)) } returns jobInDb

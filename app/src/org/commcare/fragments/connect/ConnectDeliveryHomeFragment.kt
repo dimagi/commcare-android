@@ -282,6 +282,7 @@ class ConnectDeliveryHomeFragment :
 
     override fun onResume() {
         super.onResume()
+        FirebaseAnalyticsUtil.reportScreenView("fragment_connect_delivery_home", javaClass.name)
         updateActionBarTitle()
         refresh(false)
     }

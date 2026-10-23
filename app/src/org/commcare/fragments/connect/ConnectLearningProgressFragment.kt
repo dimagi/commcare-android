@@ -5,10 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDirections
-import androidx.navigation.Navigation
 import org.commcare.AppUtils
+import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectOpportunityNavigator
 import org.commcare.connect.PersonalIdSessionManager
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
@@ -51,6 +52,7 @@ class ConnectLearningProgressFragment :
 
     override fun onResume() {
         super.onResume()
+        FirebaseAnalyticsUtil.reportScreenView("fragment_connect_learning_progress", javaClass.name)
         if (PersonalIdSessionManager.getInstance().isloggedIn()) {
             refresh(false)
         }
@@ -70,15 +72,23 @@ class ConnectLearningProgressFragment :
     private fun observeLearningProgress() {
         observeDataState(
             viewModel.learningProgress,
-            { cached ->
-                job = cached
-                updateLearningUI()
-            },
-            { success ->
-                job = success
-                updateLearningUI()
-            },
+            { cached -> publishRefreshedJob(cached) },
+            { success -> publishRefreshedJob(success) },
         )
+    }
+
+    /** A refresh begun before the claim landed carries the pre-claim job, so once claimed it is dropped. */
+    private fun publishRefreshedJob(refreshed: ConnectJobRecord) {
+        if (viewModel.claimJob.value is DataState.Success) {
+            return
+        }
+        setActiveJob(refreshed)
+        updateLearningUI()
+    }
+
+    /** Read back from storage, since a refresh may have replaced the job instance the claim updated. */
+    private fun publishClaimedJob() {
+        setActiveJob(ConnectJobUtils.getCompositeJob(job.jobUUID))
     }
 
     /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */
@@ -117,8 +127,11 @@ class ConnectLearningProgressFragment :
                 is DataState.Success -> {
                     FirebaseAnalyticsUtil.reportCccApiClaimJob(true)
                     if (hasLiveView()) {
+                        publishClaimedJob()
                         if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
-                            Navigation.findNavController(requireView()).navigate(navigateToDeliveryProgress())
+                            ConnectOpportunityNavigator
+                                .hostOf(this@ConnectLearningProgressFragment)
+                                ?.onPhaseChanged()
                         } else {
                             launchApp(isLearning = false)
                         }
@@ -147,16 +160,15 @@ class ConnectLearningProgressFragment :
             PersonalIdOrConnectApiErrorHandler.handle(requireContext(), error.errorCode, error.throwable)
         }
 
-    private fun navigateToDeliveryProgress(): NavDirections =
-        ConnectLearningProgressFragmentDirections
-            .actionConnectJobLearningProgressFragmentToConnectDeliveryHomeFragment()
-
     override fun onAppInstallStateChanged(
         state: AppInstallState,
         isLearning: Boolean,
     ) {
         if (showLearningComplete) {
             binding.learnCompleteView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
+            if (state is AppInstallState.Failed) {
+                binding.learnCompleteView.isCtaEnabled = true
+            }
         } else {
             binding.learnProgressView.renderAppInstallState(state, isLearning, ::forgetInstallFailure)
         }
