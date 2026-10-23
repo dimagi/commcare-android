@@ -1,0 +1,36 @@
+<task-notification>
+<task-id>a3a9f3b3a7888078d</task-id>
+<tool-use-id>toolu_0166MUMiX3wLXi3PTaqrMFZb</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/32d98a81-a2a2-444a-9d17-834707351408/tasks/a3a9f3b3a7888078d.output</output-file>
+<status>completed</status>
+<summary>Agent "Review Task 4 (spec + quality)" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Fine, endpoint constant exists as referenced by the test. Review complete.
+
+### Spec Compliance
+- ✅ Spec compliant. Every artifact named in the brief was produced: the nav-graph destination/action, `PersonalIdProfilePhoneVerificationFragment` with all required hooks, the `handleForgotBackupCode` three-way branch plus `isAddingEmail()` guard, `masked=false` on the existing-email path, and both test files — all matching the brief's code samples essentially verbatim.
+- No items I could not verify from the diff plus the (previous-task) base class it depends on.
+
+### Strengths
+- The new fragment implements exactly the hook contract described in the task context (`getPhoneNumber`/`buildAuthInfo` read during `super.onCreate`, `attemptCounter` first touched in `onCreateView` via `requestOtp()`), and initializes `attemptTracker` before calling `super.onCreate()` so the ordering is safe (`app/src/org/commcare/personalId/profile/PersonalIdProfilePhoneVerificationFragment.kt:163-171`).
+- `navigateToMessageDisplay` override was correctly identified as necessary (it's `protected abstract` in `BasePersonalIdFragment.kt:50`), not an unrequested addition — the implementer's own note downgrading this to "not really a deviation" checks out.
+- Test additions in `PersonalIdProfileBackupCodeChangeEmailFragmentTest.kt` correctly replace the toast-based assertion with a routing assertion and add the `masked=false`/email argument checks on the "correct code" path, matching brief items (a) and (b) exactly, including the required `sdk=[31]`/`ShadowPhoneAuthProvider` config and unused `ShadowToast` import cleanup.
+- `continueClickedWorkflow()` hardcodes `PersonalIdWorkflow.EDIT_PROFILE` rather than deriving it from `EmailWorkFlow` via `PersonalIdWorkflow.fromEmailWorkFlow` — this is per the brief's literal snippet and is a defensible choice since this fragment only ever runs in the profile-edit context.
+- `isAddingEmail()` gating (`args.emailWorkflow == EmailWorkFlow.EXISTING_USER &amp;&amp; pendingEmail.isNotEmpty()`) correctly restricts the new phone-verification route to only the "adding an email" entry point, leaving the change-backup-code toast path (out of scope per brief) untouched.
+
+### Issues
+#### Critical (Must Fix)
+None.
+
+#### Important (Should Fix)
+None.
+
+#### Minor (Nice to Have)
+- `PersonalIdProfileBackupCodeChangeEmailFragmentTest.kt:264-273`: the brief asked for a separate `@Before` for the Firebase/shadow reset; the implementer folded it into the existing `navigateToBackupCodeForEmailChange` `@Before` instead. Functionally identical (still runs before navigation), just a cosmetic deviation from the brief's literal instruction — not worth blocking on.
+- New test `starts with Firebase and sends to the stored phone number` (`PersonalIdProfilePhoneVerificationFragmentTest.kt:421-426`) checks only the OTP method and request count, not that the number sent matches `user.primaryPhone` — a weaker assertion than the test name implies, though this mirrors the equivalent signup test's style per the class doc comment.
+
+### Assessment
+**Task quality:** Approved
+**Reasoning:** The diff is a faithful, verified implementation of the brief — nav graph, fragment hooks, routing branch, and both test files all check out against the base class's actual abstract/open contract (confirmed by reading `BasePersonalIdPhoneVerificationFragment.kt` and `BasePersonalIdFragment.kt`), and the implementer's one disclosed "deviation" turned out not to be one.</result>
+<usage><subagent_tokens>89742</subagent_tokens><tool_uses>13</tool_uses><duration_ms>110092</duration_ms></usage>
+</task-notification>
