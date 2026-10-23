@@ -1,0 +1,1 @@
+the param `otp' is called 'token' for `confirmOtp` API , alos update any relevant tests
