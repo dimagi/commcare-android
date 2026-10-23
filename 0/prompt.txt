@@ -1,0 +1,1 @@
+I am still seeing lint errors - https://github.com/dimagi/commcare-android/actions/runs/37464950355
