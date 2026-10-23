@@ -6,10 +6,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Builds real [ConnectJobRecord]s for the learning screens, so tests exercise the same parsing and
- * progress calculations as production instead of stubbing the record.
+ * Builds real [ConnectJobRecord]s for the learning and delivery screens, so tests exercise the same
+ * parsing and progress calculations as production instead of stubbing the record.
  */
-object ConnectLearnJobTestData {
+object ConnectJobTestData {
     const val JOB_UUID = "job-uuid-learn-1"
     const val JOB_TITLE = "Infant Vaccine Check"
     const val LEARN_APP_ID = "learn-app-001"
