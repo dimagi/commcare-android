@@ -1,0 +1,1 @@
+adds a similar test for validate_firebase_id_token api path
