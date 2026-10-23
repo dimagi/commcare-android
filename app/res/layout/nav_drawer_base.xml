@@ -50,7 +50,7 @@
                         android:paddingVertical="@dimen/connect_space_lg"
                         android:clickable="true"
                         style="@style/TextStyle.Connect.BodyM"
-                        android:textColor="?attr/connectNavDrawerForeground"
+                        android:textColor="?attr/colorOnPrimary"
                         android:text="@string/nav_drawer_not_signed_in_to_personal_id"/>
 
                     <FrameLayout
@@ -72,7 +72,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/connect_space_xs"
-                            app:cardBackgroundColor="?attr/connectNavDrawerErrorCard"
+                            app:cardBackgroundColor="?attr/connectBrandMedium"
                             app:cardCornerRadius="@dimen/connect_radius_lg"
                             app:cardElevation="@dimen/connect_info_card_elevation">
 
@@ -89,7 +89,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:textAlignment="center"
-                                    android:textColor="?attr/connectNavDrawerForeground" />
+                                    android:textColor="?attr/colorOnPrimary" />
 
                                 <TextView
                                     android:id="@+id/nav_drawer_error_message"
@@ -98,7 +98,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="@dimen/connect_space_sm"
                                     android:textAlignment="center"
-                                    android:textColor="?attr/connectNavDrawerForeground" />
+                                    android:textColor="?attr/colorOnPrimary" />
 
                                 <com.google.android.material.button.MaterialButton
                                     android:id="@+id/nav_drawer_reconfigure_button"
@@ -120,7 +120,7 @@
                                     android:clickable="true"
                                     android:focusable="true"
                                     android:text="@string/personalid_dismiss"
-                                    android:textColor="?attr/connectNavDrawerForeground" />
+                                    android:textColor="?attr/colorOnPrimary" />
 
                             </LinearLayout>
 

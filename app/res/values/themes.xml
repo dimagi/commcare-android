@@ -57,8 +57,7 @@
         <item name="colorOnSurface">@color/connect_text_color</item>
         <item name="appBarLayoutStyle">@style/Widget.Connect.AppBarLayout</item>
         <item name="toolbarStyle">@style/Widget.Connect.Toolbar</item>
-        <item name="connectNavDrawerForeground">@color/nav_drawer_text</item>
-        <item name="connectNavDrawerErrorCard">@color/medium_slate_blue</item>
+        <item name="connectBrandMedium">@color/medium_slate_blue</item>
 
         <item name="connectBackground">@color/connect_background_color</item>
         <item name="connectSurfaceContainerLow">@color/cool_gray_50</item>
