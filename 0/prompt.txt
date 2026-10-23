@@ -1,0 +1,1 @@
+merge app/unit-tests/src/org/commcare/personalId/profile/PersonalIdProfileSendPhoneOtpMaskTest.kt with app/unit-tests/src/org/commcare/personalId/profile/PersonalIdProfileSendPhoneOtpFragmentTest.kt
