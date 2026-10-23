@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>bxg0oqo8f</task-id>
+<tool-use-id>toolu_011jsWBtiF3UiP62VWHudWgi</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/5fbd3d0d-5e97-41a5-b0ec-0eec54ef343b/tasks/bxg0oqo8f.output</output-file>
+<status>completed</status>
+<summary>Background command "Run PersonalID suites at each rebased commit in a temp worktree" completed (exit code 0)</summary>
+</task-notification>
