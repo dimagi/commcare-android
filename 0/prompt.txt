@@ -1,0 +1,1 @@
+I would like these tests to run independent of GOOGLE_CLOUD_PROJECT_NUMBER being defined
