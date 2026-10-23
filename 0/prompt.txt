@@ -1,0 +1,7 @@
+<task-notification>
+<task-id>bvcoqfbit</task-id>
+<tool-use-id>toolu_01RLdS3yHKDFNEVXsDM5QwpA</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/5fbd3d0d-5e97-41a5-b0ec-0eec54ef343b/tasks/bvcoqfbit.output</output-file>
+<status>completed</status>
+<summary>Background command "Run PersonalID suites at each rebuilt commit" completed (exit code 0)</summary>
+</task-notification>
