@@ -1,0 +1,1 @@
+firebase flows remain the same with existing API endpoints, first send goes to firebase and verification happens using `validate_firebase_id_token`, and we only use PerosnalID endpoints as fallbacks, we are just replacing the existing Perosnal ID endpoints with new ones as the existing ones are specific to session token auth and do not accept basic auth
