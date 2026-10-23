@@ -15,9 +15,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
 - With the dashboard progress breakdown collapsed, confirm the three payment units shown are the most recently visited ones.
-
-### QA Notes
-
+- Regression check on sync: from the home screen, Sync with unsent forms sends them and then syncs, and the sync button shows the result; finishing a form still sends it in the background.
+- Regression check on case claim: a successful claim still syncs and continues, and a failed one shows the error with Retry.
 - Regression check on session expiration: when the session times out, whether on the home screen, in the background, or while in a form, returning to home still lands on the login screen.
 
 ## CommCare 2.65

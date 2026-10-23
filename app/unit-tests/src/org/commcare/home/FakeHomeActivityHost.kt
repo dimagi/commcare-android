@@ -9,6 +9,8 @@ import androidx.lifecycle.LifecycleRegistry
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.test.core.app.ApplicationProvider
+import org.commcare.activities.CommCareActivity
+import org.commcare.tasks.DataPullTask.PullTaskResult
 import org.commcare.views.dialogs.CommCareAlertDialog
 import org.robolectric.Robolectric
 
@@ -43,6 +45,16 @@ class FakeHomeActivityHost : HomeActivityHost {
     private val activityController by lazy { Robolectric.buildActivity(AppCompatActivity::class.java).setup() }
 
     override val hostActivity: AppCompatActivity get() = activityController.get()
+
+    override val syncConnector: CommCareActivity<*>
+        get() = throw UnsupportedOperationException("coordinator tests don't run sync tasks")
+
+    override fun updateUiAfterDataPullOrSend(
+        message: String,
+        success: Boolean,
+    ) = Unit
+
+    override fun onPullTaskFinished(result: PullTaskResult) = Unit
 
     override fun startActivityForResult(
         intent: Intent,
