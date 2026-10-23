@@ -1,0 +1,48 @@
+<task-notification>
+<task-id>aeca22e699218d1c8</task-id>
+<tool-use-id>toolu_015CtEo9La6EqqwNRs49i3bY</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/32d98a81-a2a2-444a-9d17-834707351408/tasks/aeca22e699218d1c8.output</output-file>
+<status>completed</status>
+<summary>Agent "Re-review final fix wave" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>No conflicts — the base class has no `onCreate`/`onSaveInstanceState` overrides or key constants. All findings check out against the source. Here is the final review.
+
+## Finding verdicts
+
+**F1: ADDRESSED**
+Production fix — `PersonalIdProfileBackupCodeFragment.kt:60-68` (`onCreate`/`onSaveInstanceState` around `KEY_LEFT_FORWARD`) — is a correct, minimal save/restore that exactly feeds the field `onDestroy` already reads at line ~48 (`isRemoving &amp;&amp; !leftForward &amp;&amp; !isChangingConfigurations`). No superclass (`BasePersonalIdBackupCodeFragment.kt`) key collision.
+
+Test: `PersonalIdProfileBackupCodeChangeEmailFragmentTest.kt:219-258` uses the brief's documented fallback (fragment-level save/restore), but goes further than "build a bundle manually" — it round-trips through the real `FragmentManager.saveFragmentInstanceState`/`setInitialSavedState` APIs, which do genuinely invoke the new `onSaveInstanceState`/`onCreate` overrides. Verified independently:
+- `saveFragmentInstanceState(originalGate)` only calls `onSaveInstanceState` if the fragment is ≥ CREATED, which it is (added with default lifecycle against a resumed host) — so the real save path is exercised, not bypassed.
+- `restoredGate` is capped at `Lifecycle.State.CREATED` via `setMaxLifecycle`, so `onCreate` runs (restoring the flag) but `onCreateView`/`onResume` do not — this is a faithful model of "recreated while back-stacked beneath a later screen, never resumed."
+- Pre-fix, a freshly-constructed fragment's `leftForward` defaults to `false` regardless of the saved bundle, so the assertion would fail — matching the reported RED run.
+
+This proves the save/restore mechanism works but does not itself exercise `onDestroy`'s `isRemoving`/cancelled-reporting logic end-to-end after a recreate; that integration is covered by the existing/new pop-back-stack analytics tests (F2a) using the in-memory (non-recreated) fragment. Given the brief explicitly pre-authorized this fallback and the reasons for `recreate()` failing (ActionBar ordering NPE, static-mock leak into all 10 tests) check out against `BasePersonalIdProfileTest.launchProfileActivity()`'s `.postCreate(null)` ordering, this is a reasonable and honest substitution.
+
+**F2a: ADDRESSED** — `PersonalIdProfileBackupCodeChangeEmailFragmentTest.kt:262-307`. All three sub-cases match the brief and use existing helpers (`forgotButton()`, `setCodeAndContinue()`) correctly. The third test (success-pop not cancelled) is the meaningful new case — it forces a real `onDestroy` via `popBackStack(R.id.personalid_profile_fragment, false)` after forward nav, which the pre-existing "leaving the gate forwards" test never did (that fragment is never destroyed by a plain forward `navigate()`, since default `FragmentNavigator` back-stacks rather than destroys — so the old test was comparatively weak; this one is not).
+
+**F2b: ADDRESSED** — new file `PersonalIdProfileEmailVerificationFragmentTest.kt`. Verified against source: `PersonalIdProfileEmailVerificationFragment.onEmailVerified()` (`app/src/org/commcare/fragments/personalId/PersonalIdProfileEmailVerificationFragment.kt:25-31`) calls `ProfileEmailAnalytics.reportOutcome` before `user.email = enteredEmail`, and `ProfileEmailAnalytics.isAddingEmail()` reads `ConnectUserDatabaseUtil.getUser().email` — so the ADDED-vs-UPDATED ordering claim is correct. View IDs (`otp_code_view`, `personalid_email_verify_button`) match `fragment_personalid_email_verification.xml`. The "no extra OTP-send response needed" claim matches the existing `PersonalIdConfigurationEmailVerificationFragmentTest` pattern (`app/unit-tests/src/org/commcare/fragments/personalId/PersonalIdConfigurationEmailVerificationFragmentTest.kt`), which also enqueues only one response before `enterCode()`.
+
+**F3: ADDRESSED** — `PersonalIdProfilePhoneVerificationFragmentTest.kt:478-511`. Confirmed the nav graph (`nav_graph_personalid_profile.xml:97-99`) already has `popUpTo="@id/personalid_profile_phone_verification_fragment" popUpToInclusive="true"` on `action_profile_phone_verification_to_send_email_otp`, so the report's "no production change needed" claim is correct — this was purely a coverage gap, now closed.
+
+**F4: ADDRESSED** — `ApiPersonalIdPhoneOtpAuthTest.kt`. New `TokenAuth` tests mirror the existing pattern exactly (`tokenAuth` fixture already existed); each test gets its own single enqueued response since JUnit constructs a fresh instance per test method.
+
+**F5: ADDRESSED** — `BasePersonalIdPhoneVerificationFragment.kt:32-34`. Guard is exactly `if (::binding.isInitialized)`, and the restore path (`restoreState`, line 244) already defaults via `getBoolean(KEY_VERIFY_BUTTON_ENABLED)` (false default) when the key is absent, matching "changes nothing when the view exists." Only one line changed, as claimed.
+
+## New breakage in fix diff
+
+None found. Scope is respected: `PersonalIdProfileEditFragmentTest.kt` untouched, `shouldAutoSwitchToPersonalIdAuth`/`setupOtpManager`/resend fallback/`FAILED_AUTH_ERROR` untouched (confirmed no other hunks in `BasePersonalIdPhoneVerificationFragment.kt` beyond the F5 lines).
+
+Two minor observations, neither rising to "breakage":
+- **Minor**: `PersonalIdProfilePhoneVerificationFragmentTest.kt:521-553` (F5's regression test) asserts nothing explicit — it relies on the absence of `UninitializedPropertyAccessException`. This is a legitimate crash-regression pattern (and the report's RED run confirms it fails pre-fix with exactly that exception), but a future reader could mistake it for a no-op test; a comment already explains the intent, which mitigates this.
+- Both new bare-`FragmentActivity` harness tests (F1, F5) place their `hostController.destroy()` cleanup in a `finally` that wraps only the assertion, not the earlier `onUiThread` setup blocks — if setup itself throws, that local host leaks un-destroyed. This poses no real risk to other tests, since the shared static mocks (`connectUserDatabaseUtilMock`, `firebaseAnalyticsUtilMock`) live on the outer `BasePersonalIdProfileTest` and are independent of this local activity, and Robolectric tears down its whole sandboxed environment between test methods regardless.
+
+## Out-of-scope observations
+
+- The implementer's full sweep found one pre-existing failure: `PersonalIdProfileEditFragmentTest &gt; navigating to backup code gate fires the email update initiated analytics`. This file was correctly left untouched per the brief. This is a different pre-existing failure than the one already tracked in project memory (`ArchivedFormPurgeTest`/`testSavedFormPurge`) — worth logging separately if not already tracked, but it is not caused by this fix and is explicitly out of scope.
+
+## Verdict
+
+All findings addressed: yes</result>
+<usage><subagent_tokens>116673</subagent_tokens><tool_uses>22</tool_uses><duration_ms>249347</duration_ms></usage>
+</task-notification>
