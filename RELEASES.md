@@ -15,6 +15,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
 - With the dashboard progress breakdown collapsed, confirm the three payment units shown are the most recently visited ones.
+- On a phone number that already has a PersonalID account, start a new PersonalID signup with a clearly different name; confirm signup stops right after the name step with a message that the user can't register, that it reveals nothing about the existing account, and that dismissing it closes PersonalID.
 
 ### QA Notes
 
