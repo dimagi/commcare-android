@@ -1,0 +1,1 @@
+what if we only call   requireActivity().setTitle(titleResId) and not supportActionBar?.setTitle ?
