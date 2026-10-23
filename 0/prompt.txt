@@ -1,0 +1,1 @@
+given that we are using fragment_personalid_send_email_otp for both phone and email otp, remove email from the nomenclature from the xml name and it's individual views, also remove personalid_ from id names but just name them like `send_otp_title` and so on
