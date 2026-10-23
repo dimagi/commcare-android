@@ -1,0 +1,16 @@
+<task-notification>
+<task-id>a78b5a7ce9827a0a2</task-id>
+<tool-use-id>toolu_01MAu6WsD2EL6WRg5foak7e4</tool-use-id>
+<output-file>/private/tmp/claude-503/-Users-dimagi-AndroidStudioProjects-CommCare-commcare-android/32d98a81-a2a2-444a-9d17-834707351408/tasks/a78b5a7ce9827a0a2.output</output-file>
+<status>completed</status>
+<summary>Agent "Final-review fix wave" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Committed cleanly, only the excluded untracked dirs remain.
+
+Status: DONE
+Commit: `af4b420f1b` fix(ccct-2713): keep the gate's forward flag across recreation; cover email analytics
+Tests: 390 tests run (`org.commcare.personalId.profile.*`, `org.commcare.fragments.personalId.*`, `org.commcare.connect.network.personalId.*`) — 389 pass, 1 known pre-existing failure in `PersonalIdProfileEditFragmentTest` (untouched file, per brief).
+Concerns: F1's brief-suggested `activityController.recreate()` doesn't work in this harness (Robolectric lifecycle ordering NPEs on the action bar and poisons later tests via a leaked static mock); used the documented fallback instead — fragment-level save/restore against a bare `FragmentActivity` host, with RED shown before the fix and GREEN after. Reused the same technique for F5's test since it needed the identical "view never created" fragment state.
+Report: `/Users/dimagi/AndroidStudioProjects/CommCare/commcare-android/.superpowers/sdd/2026-09-28-ccct-2713-add-email-phone-otp-gate/final-fix-report.md`</result>
+<usage><subagent_tokens>256516</subagent_tokens><tool_uses>110</tool_uses><duration_ms>1209859</duration_ms></usage>
+</task-notification>
