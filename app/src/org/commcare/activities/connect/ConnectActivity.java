@@ -5,7 +5,6 @@ import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.PAYMENT_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
@@ -29,7 +28,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
 import org.commcare.dalvik.R;
@@ -70,11 +69,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
 
         super.onCreate(savedInstanceState);
+        setTitle(R.string.connect_title);
 
-        PersonalIdManager personalIdManager = PersonalIdManager.getInstance();
-        personalIdManager.init(this);
+        PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
 
-        if(personalIdManager.isloggedIn()){
+        if(personalIdSessionManager.isloggedIn()){
             NotificationBroadcastHelper.INSTANCE.registerForNotifications(
                     this,
                     this,
@@ -98,7 +97,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             retrieveMessages();
         }else{
             Toast.makeText(this,R.string.personalid_not_login_from_fcm_error,Toast.LENGTH_LONG).show();
-            personalIdManager.launchPersonalId(this,REQUEST_CODE_PERSONAL_ID_ACTIVITY);
+            ConnectNavHelper.launchPersonalId(this, REQUEST_CODE_PERSONAL_ID_ACTIVITY);
             finish();
         }
 
@@ -106,9 +105,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     @Override
-    public void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        getSupportActionBar().setTitle(getString(R.string.connect_title));
+    public void setTitle(CharSequence title) {
+        super.setTitle(title);
+        setActionBarTitle(title);
     }
 
     @Override
@@ -128,7 +127,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     private int getStartDestinationId(Bundle startArgs) {
         int startDestinationId = R.id.connect_jobs_list_fragment;
         if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
-            startDestinationId = handleInfoRedirect(startArgs);
+            startDestinationId = handleInfoRedirect();
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             startDestinationId = handleSecureRedirect(startArgs);
         }
@@ -143,19 +142,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
     }
 
-    private int handleInfoRedirect(Bundle startArgs) {
+    private int handleInfoRedirect() {
         Objects.requireNonNull(job);
-
-        startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
-
-        return job.getStatus() == ConnectJobRecord.STATUS_DELIVERING
-                ? R.id.connect_delivery_home_fragment
-                : R.id.connect_job_learning_progress_fragment;
+        return R.id.connect_opportunity_home_fragment;
     }
 
     private int handleSecureRedirect(Bundle startArgs) {
         //Entering from a notification, so we may need to initialize
-        PersonalIdManager.getInstance().init(this);
         String notificationId = getIntent().getStringExtra(NOTIFICATION_ID);
         if (!TextUtils.isEmpty(notificationId)) {
             NotificationRecordDatabaseHelper.INSTANCE.updateReadStatus(this, notificationId, true);
@@ -172,7 +165,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
 
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
-        startArgs.putBoolean(SHOW_LAUNCH_BUTTON, getIntent().getBooleanExtra(SHOW_LAUNCH_BUTTON, true));
         startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
                 getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false));
         if (!TextUtils.isEmpty(opportunityUuid)) {

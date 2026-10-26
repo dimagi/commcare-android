@@ -306,6 +306,7 @@
     <string name="connect_delivery_visit_progress_title">Vizitų pažanga</string>
     <string name="connect_delivery_total_visits_completed">iš viso atliktų vizitų</string>
     <string name="connect_delivery_daily_visits">Dienos vizitai</string>
+    <string name="connect_visits_completed_today">Šiandien atlikti vizitai</string>
     <string name="connect_delivery_your_progress">Jūsų pažanga</string>
     <string name="connect_delivery_total_earnings">Bendras uždarbis</string>
     <string name="connect_delivery_amount_each">po %1$s</string>
@@ -313,6 +314,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Būtinos</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Atlikite užduotis, kad galėtumėte tęsti paslaugų teikimą.</string>
     <string name="connect_delivery_tasks_empty">Šiuo metu nėra neatliktų užduočių. Pranešime jums, kai bus nauja užduotis.</string>
+    <string name="connect_delivery_visits_empty">Kol kas vizitų nėra. Čia bus rodomi jūsų atlikti vizitai.</string>
+    <string name="connect_delivery_visits_filter_empty">Šį filtrą atitinkančių vizitų nėra.</string>
     <string name="connect_delivery_revisit_learning_title">Pakartoti mokymus</string>
     <string name="connect_delivery_revisit_learning_completed">Atlikta %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Pažymėjimas bus prieinamas po kito sinchronizavimo</string>
@@ -340,7 +343,6 @@
         <item quantity="many">šiandien atlikta %1$s</item>
         <item quantity="other">šiandien atlikta %1$s</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Peržiūrėti galimybę</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Užbaikite paskirtas užduotis, kad galėtumėte toliau teikti paslaugas.</string>
     <string name="connect_open_conversation_button_text">Atidaryti pokalbį</string>
     <string name="connect_progress_relearn_tasks_completed">Visos reikalingos užduotys atliktos. Galite tęsti pristatymo veiklą.</string>
@@ -481,6 +483,7 @@
     <string name="connect_learn_cta_complete_assessment">Užbaigti vertinimą</string>
     <string name="connect_learn_cta_take_assessment">Laikyti vertinimą</string>
     <string name="connect_learn_cta_start">Pradėti</string>
+    <string name="connect_learn_view_certificate">Peržiūrėti pažymėjimą</string>
     <string name="connect_opportunity_footer_start_learning">Pradėti mokymąsi</string>
     <string name="connect_download_learn">Atsisiųsti mokymąsi</string>
     <string name="connect_downloading_learn">Atsisiunčiamas mokymasis</string>
@@ -493,6 +496,7 @@
     <string name="install_via_qr_code">Įdiegti per QR kodą</string>
     <string name="install_via_app_code">Įdiegti per programėlės kodą</string>
     <string name="install_from_local">Įdiegti iš vietinio tinklo</string>
+    <string name="personalid_backup_code_locked">Jūsų atsarginis kodas užblokuotas. Patvirtinkite savo el. paštą, kad nustatytumėte naują.</string>
     <string name="recording_notification_save_action">Išsaugoti</string>
     <string name="recording_notification_pause_action">Pristabdyti</string>
     <string name="recording_notification_resume_action">Tęsti</string>

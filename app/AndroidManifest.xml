@@ -620,7 +620,7 @@
         </service>
 
         <activity android:name="org.commcare.activities.PushNotificationActivity"
-            android:theme="@style/CommonTheme.NoActionBar"/>
+            android:theme="@style/ConnectTheme"/>
     </application>
 
 </manifest>

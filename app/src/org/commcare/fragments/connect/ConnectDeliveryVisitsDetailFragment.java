@@ -94,8 +94,24 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
 
     private void setupRecyclerView() {
         getBinding().deliveryList.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new DeliveryAdapter(getContext(), getFilteredDeliveries());
+        adapter = new DeliveryAdapter(getContext(), new ArrayList<>());
         getBinding().deliveryList.setAdapter(adapter);
+        showFilteredDeliveries();
+    }
+
+    private void showFilteredDeliveries() {
+        List<ConnectJobDeliveryRecord> filteredDeliveries = getFilteredDeliveries();
+        adapter.updateDeliveries(filteredDeliveries);
+
+        if (filteredDeliveries.isEmpty()) {
+            int emptyTextResId = ALL_IDENTIFIER.equals(currentFilter)
+                    ? R.string.connect_delivery_visits_empty
+                    : R.string.connect_delivery_visits_filter_empty;
+            getBinding().deliveryListEmpty.setText(emptyTextResId);
+            getBinding().deliveryListEmpty.setVisibility(View.VISIBLE);
+        } else {
+            getBinding().deliveryListEmpty.setVisibility(View.GONE);
+        }
     }
 
     private void setupFilterControls() {
@@ -140,7 +156,7 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
         for (int i = 0; i < filterCards.length; i++) {
             setFilterHighlight(filterCards[i], filterLabels[i], filterCards[i].getId() == getFilterCardId(selectedFilter));
         }
-        adapter.updateDeliveries(getFilteredDeliveries());
+        showFilteredDeliveries();
     }
 
     private int getFilterCardId(String filter) {
@@ -181,7 +197,7 @@ public class ConnectDeliveryVisitsDetailFragment extends ConnectJobFragment<Frag
     private void updateData(@NotNull ConnectJobRecord job) {
         setActiveJob(job);
         updatePendingFilterVisibility();
-        adapter.updateDeliveries(getFilteredDeliveries());
+        showFilteredDeliveries();
     }
 
     @Override

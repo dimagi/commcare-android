@@ -742,6 +742,32 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return paymentUnits;
     }
 
+    /**
+     * Payment units ordered by their latest visit of any status, newest first. Units without a dated
+     * visit keep the server's order at the end.
+     */
+    public List<ConnectPaymentUnitRecord> getPaymentUnitsByMostRecentVisit() {
+        HashMap<String, Date> latestVisitDates = new HashMap<>();
+        for (ConnectJobDeliveryRecord delivery : deliveries) {
+            Date visitDate = delivery.getDate();
+            Date latestVisitDate = latestVisitDates.get(delivery.getSlugUUID());
+            if (visitDate != null && (latestVisitDate == null || visitDate.after(latestVisitDate))) {
+                latestVisitDates.put(delivery.getSlugUUID(), visitDate);
+            }
+        }
+
+        List<ConnectPaymentUnitRecord> sorted = new ArrayList<>(paymentUnits);
+        Collections.sort(sorted, (first, second) -> {
+            Date firstVisitDate = latestVisitDates.get(first.getUnitUUID());
+            Date secondVisitDate = latestVisitDates.get(second.getUnitUUID());
+            if (firstVisitDate == null || secondVisitDate == null) {
+                return Boolean.compare(firstVisitDate == null, secondVisitDate == null);
+            }
+            return secondVisitDate.compareTo(firstVisitDate);
+        });
+        return sorted;
+    }
+
     public boolean isMultiPayment() {
         return paymentUnits.size() > 1;
     }
@@ -771,18 +797,23 @@ public class ConnectJobRecord extends Persisted implements Serializable {
         return status == STATUS_LEARNING && isLearningComplete();
     }
 
+    /**
+     * Pass {@code includeDeliveryWarnings = false} on surfaces that don't deliver visits, such as the learn app.
+     */
     @Nullable
-    public String getCardMessageText(Context context) {
+    public String getCardMessageText(Context context, boolean includeDeliveryWarnings) {
         if (isFinished()) {
             return context.getString(R.string.connect_progress_warning_ended);
         } else if (getIsUserSuspended()) {
             return context.getString(R.string.user_suspended);
-        } else if (status == STATUS_DELIVERING && getProjectStartDate().after(new Date())) {
+        } else if (includeDeliveryWarnings && getProjectStartDate().after(new Date())) {
             return context.getString(R.string.connect_progress_warning_not_started);
         } else if (readyToTransitionToDelivery()) {
             return context.getString(R.string.connect_progress_ready_for_transition_to_delivery);
         } else if (ConnectTaskUtils.shouldShowTasksCompletedMessage(context, this)) {
             return context.getString(R.string.connect_progress_relearn_tasks_completed);
+        } else if (!includeDeliveryWarnings) {
+            return null;
         } else if (getDeliveries().size() >= getMaxVisits()) {
             // The job-level caps are checked ahead of the per-unit warnings: once the whole
             // opportunity is spent, which individual unit ran out first no longer matters.

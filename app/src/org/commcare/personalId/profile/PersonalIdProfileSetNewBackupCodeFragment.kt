@@ -3,8 +3,13 @@ package org.commcare.personalId.profile
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import org.commcare.dalvik.R
+import org.commcare.utils.AccountSecurityAnalyticsMapper
 
 class PersonalIdProfileSetNewBackupCodeFragment : BasePersonalIdSetNewBackupCodeFragment() {
+    private val args by lazy { PersonalIdProfileSetNewBackupCodeFragmentArgs.fromBundle(requireArguments()) }
+
+    override fun analyticsWorkflow(): String = AccountSecurityAnalyticsMapper.accountSecurityWorkflow(args.backupCodeWorkflow)
+
     override fun showSuccess() {
         Toast
             .makeText(

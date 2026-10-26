@@ -66,7 +66,8 @@
                 android:inputType="number"
                 android:maxLength="2"
                 android:selectAllOnFocus="true"
-                android:imeOptions="actionDone"/>
+                android:imeOptions="actionDone"
+                android:saveEnabled="false"/>
 
             <Button
                 android:id="@+id/daydownbtn"
@@ -108,7 +109,8 @@
            <Spinner
                android:layout_width="match_parent"
                android:layout_height="45dp"
-               android:id="@+id/month_spinner">
+               android:id="@+id/month_spinner"
+               android:saveEnabled="false">
            </Spinner>
 
             <Button
@@ -161,7 +163,8 @@
                 android:maxLength="4"
                 android:selectAllOnFocus="true"
                 android:imeOptions="actionDone"
-                android:layout_marginStart="5dp" />
+                android:layout_marginStart="5dp"
+                android:saveEnabled="false"/>
 
             <Button
                 android:id="@+id/yeardownbtn"

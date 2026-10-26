@@ -31,8 +31,9 @@ import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
@@ -42,6 +43,7 @@ import org.commcare.views.connect.ConnectCtaBar
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -60,14 +62,14 @@ class ConnectDeliveryHomeFragmentTest {
 
     private val uuid = "opp-uuid-1234"
     private val app = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
     private lateinit var job: ConnectJobRecord
 
     @Before
     fun setUp() {
-        val manager = PersonalIdManager.getInstance()
+        val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
-        manager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
@@ -105,7 +107,7 @@ class ConnectDeliveryHomeFragmentTest {
 
     @After
     fun tearDown() {
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         unmockkAll()
     }
 
@@ -204,13 +206,26 @@ class ConnectDeliveryHomeFragmentTest {
 
         verify { ConnectAppUtils.downloadApp(any(), any()) }
         val navController = NavHostFragment.findNavController(oppHome)
-        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(View.GONE, startButton.visibility)
         assertEquals(View.VISIBLE, view.findViewById<View>(R.id.cta_progress_ring).visibility)
         assertEquals(
             app.getString(R.string.connect_downloading_delivery),
             view.findViewById<TextView>(R.id.cta_subtitle_text).text.toString(),
         )
+    }
+
+    @Test
+    fun `a later screen's title replaces the delivery title and subtitle`() {
+        every { job.title } returns "Delivery Opportunity"
+        val activity = launchHome().requireActivity() as ConnectActivity
+        val actionBar = activity.supportActionBar!!
+        assertEquals("Delivery Opportunity", actionBar.title)
+
+        activity.setTitle(R.string.connect_learn_title)
+
+        assertEquals(app.getString(R.string.connect_learn_title), actionBar.title)
+        assertNull(actionBar.subtitle)
     }
 
     private fun launchHome(): ConnectDeliveryHomeFragment {
@@ -226,11 +241,9 @@ class ConnectDeliveryHomeFragmentTest {
             activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect)
                 as NavHostFragment
         assertTrue(
-            "Expected to land on the Home destination",
-            navHost.navController.currentDestination?.id == R.id.connect_delivery_home_fragment,
+            "A job-status link should land on Opportunity Home",
+            navHost.navController.currentDestination?.id == R.id.connect_opportunity_home_fragment,
         )
-        return navHost.childFragmentManager.fragments
-            .filterIsInstance<ConnectDeliveryHomeFragment>()
-            .first()
+        return navHost.opportunityHomeSurface()
     }
 }

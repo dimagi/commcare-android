@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -25,12 +26,13 @@ import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.util.ConnectTestUtils
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectRequestManager
 import org.commcare.connect.repository.ConnectSyncPreferences
@@ -61,10 +63,10 @@ import java.util.Locale
  */
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
 @RunWith(AndroidJUnit4::class)
-class ConnectJobsListsFragmentTest {
+class ConnectOpportunityListFragmentTest {
     private lateinit var activity: ConnectActivity
     private lateinit var navHostFragment: NavHostFragment
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
     private val mockApi = ConnectMockApiServer()
 
     private val navController: NavController get() = navHostFragment.navController
@@ -72,8 +74,8 @@ class ConnectJobsListsFragmentTest {
 
     @Before
     fun setUp() {
-        savedStatus = PersonalIdManager.getInstance().status
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        savedStatus = PersonalIdSessionManager.getInstance().status
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
         mockApi.start()
         mockApi.server.dispatcher = alwaysEmptyJsonDispatcher()
         ConnectRepository.resetInstance()
@@ -103,7 +105,7 @@ class ConnectJobsListsFragmentTest {
         // Seeded before the activity exists: the list is the start destination and reads each
         // job's composite record straight back out of the database as it binds.
         ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
         seedOpportunities()
 
         // Record a just-completed sync so the offline-first flow serves its cache and skips the
@@ -133,7 +135,7 @@ class ConnectJobsListsFragmentTest {
     @After
     fun tearDown() {
         ConnectDatabaseHelper.teardown()
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
         mockApi.shutdown()
         unmockkAll()
     }
@@ -232,12 +234,36 @@ class ConnectJobsListsFragmentTest {
 
     // ---------- Card ----------
 
+    /**
+     * Every row goes to the same place now: Opportunity Home resolves the surface from the job's
+     * phase, so the list no longer decides between the intro, learn progress and delivery home.
+     */
     @Test
-    fun `tapping a new opportunity opens the opportunity intro`() {
-        activity.runOnUiThread { getRowForJobUuid(NEW_UUID).performClick() }
+    fun `tapping a new opportunity opens opportunity home`() = assertRowOpensConnectOpportunityHome<ConnectJobIntroFragment>(NEW_UUID)
+
+    @Test
+    fun `tapping a learning opportunity opens opportunity home`() =
+        assertRowOpensConnectOpportunityHome<ConnectLearningProgressFragment>(LEARNING_UUID)
+
+    @Test
+    fun `tapping a delivering opportunity opens opportunity home`() =
+        assertRowOpensConnectOpportunityHome<ConnectDeliveryHomeFragment>(EXPIRING_SOON_UUID)
+
+    @Test
+    fun `tapping a finished opportunity that was never claimed opens the learning surface`() =
+        assertRowOpensConnectOpportunityHome<ConnectLearningProgressFragment>(EXPIRED_LEARNING_UUID)
+
+    /** Taps [uuid]'s row, checks where it landed, then navigates back so nothing is left mounted. */
+    private inline fun <reified T : Fragment> assertRowOpensConnectOpportunityHome(uuid: String) {
+        activity.runOnUiThread { getRowForJobUuid(uuid).performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_job_intro_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(uuid, activity.activeJob?.jobUUID)
+        navHostFragment.opportunityHomeSurface<T>()
+
+        activity.runOnUiThread { navController.popBackStack() }
+        ShadowLooper.idleMainLooper()
     }
 
     @Test
@@ -278,8 +304,15 @@ class ConnectJobsListsFragmentTest {
                     "Completed Opportunity",
                     ConnectJobRecord.STATUS_DELIVERING,
                     PAST_DATE,
-                ).apply { completedVisits = ConnectLearnJobTestData.MAX_VISITS },
+                ).apply { completedVisits = ConnectJobTestData.MAX_VISITS },
                 opportunity(EXPIRED_UUID, 5, "Expired Opportunity", ConnectJobRecord.STATUS_DELIVERING, PAST_DATE),
+                opportunity(
+                    EXPIRED_LEARNING_UUID,
+                    6,
+                    "Expired Learning Opportunity",
+                    ConnectJobRecord.STATUS_LEARNING,
+                    PAST_DATE,
+                ),
             )
         ConnectJobUtils.storeJobs(appContext, jobs, true)
     }
@@ -291,7 +324,7 @@ class ConnectJobsListsFragmentTest {
         status: Int,
         endDate: String,
     ): ConnectJobRecord =
-        ConnectLearnJobTestData.job(endDate = endDate).apply {
+        ConnectJobTestData.job(endDate = endDate).apply {
             jobUUID = uuid
             jobId = id
             this.title = title
@@ -361,6 +394,7 @@ class ConnectJobsListsFragmentTest {
         const val NEW_UUID = "job-uuid-new"
         const val COMPLETED_UUID = "job-uuid-completed"
         const val EXPIRED_UUID = "job-uuid-expired"
+        const val EXPIRED_LEARNING_UUID = "job-uuid-expired-learning"
 
         const val FUTURE_DATE = "2030-12-31"
         const val PAST_DATE = "2025-06-01"

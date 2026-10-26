@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import org.commcare.adapters.ConnectDeliveryPaymentUnitAdapter
-import org.commcare.dalvik.R
+import org.commcare.connect.ConnectOpportunityHomeFragmentDirections
+import org.commcare.connect.ConnectOpportunityNavigator
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryVisitsBinding
 import org.commcare.fragments.RefreshableTab
 import org.commcare.models.connect.ConnectDeliveryDetails
@@ -45,7 +45,7 @@ class ConnectDeliveryVisitsFragment :
                 .groupingBy { it.slugUUID }
                 .eachCount()
 
-        return job.paymentUnits.map { unit ->
+        return job.paymentUnitsByMostRecentVisit.map { unit ->
             val approved = approvedCounts[unit.unitUUID] ?: 0
             ConnectDeliveryDetails(
                 unitUUID = unit.unitUUID,
@@ -59,14 +59,11 @@ class ConnectDeliveryVisitsFragment :
         }
     }
 
+    /** Opens the visits detail through the page hosting this tab. */
     private fun navigateToDeliveries(unitUuid: String) {
-        val navController = NavHostFragment.findNavController(this)
-        if (navController.currentDestination?.id != R.id.connect_delivery_home_fragment) {
-            return
-        }
-        navController.navigate(
-            ConnectDeliveryHomeFragmentDirections
-                .actionConnectDeliveryHomeFragmentToConnectDeliveryVisitsDetailFragment(unitUuid),
+        ConnectOpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(
+            ConnectOpportunityHomeFragmentDirections
+                .actionConnectOpportunityHomeFragmentToConnectDeliveryVisitsDetailFragment(unitUuid),
         )
     }
 

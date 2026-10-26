@@ -26,7 +26,7 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -75,7 +75,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> onFingerprintButtonClicked());
         binding.connectVerifyPinButton.setOnClickListener(v -> onPinButtonClicked());
-        requireActivity().setTitle(R.string.connect_appbar_title_app_lock);
+        setTitle(R.string.connect_appbar_title_app_lock);
         return binding.getRoot();
     }
 
@@ -86,7 +86,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private BiometricManager getBiometricManager() {
-        return PersonalIdManager.getInstance().getBiometricManager(requireActivity());
+        return BiometricsHelper.getBiometricManager(requireActivity());
     }
 
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {

@@ -9,6 +9,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import org.commcare.activities.CommCareActivity
+import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
@@ -48,11 +49,13 @@ class ConnectDeliveryDashboardFragment :
         reloadActiveJob()
         val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
         val contentEnabled = job.canWorkFurther(pendingTasks)
+        val paymentUnits = job.paymentUnitsByMostRecentVisit
+        val visitsPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(false)
         bindHeader()
-        bindVisitProgress(contentEnabled)
+        bindVisitProgress(contentEnabled, paymentUnits, visitsPerPaymentUnit)
         bindBlockingTask(pendingTasks.firstOrNull())
         bindSyncCard(host.syncStatus, host.isSynced)
-        bindProgressGrid(contentEnabled)
+        bindProgressGrid(contentEnabled, paymentUnits, visitsPerPaymentUnit)
     }
 
     private fun bindHeader() {
@@ -61,8 +64,12 @@ class ConnectDeliveryDashboardFragment :
             ConnectDateUtils.formatDate(job.projectEndDate, DateFormat.SHORT)
     }
 
-    private fun bindVisitProgress(contentEnabled: Boolean) {
-        val cardMessage: String? = job.getCardMessageText(requireContext())
+    private fun bindVisitProgress(
+        contentEnabled: Boolean,
+        paymentUnits: List<ConnectPaymentUnitRecord>,
+        visitsPerPaymentUnit: Map<String, Int>,
+    ) {
+        val cardMessage: String? = job.getCardMessageText(requireContext(), true)
         binding.deliveryProgressCard.bind(
             ConnectProgressCard.State(
                 title = getString(R.string.connect_delivery_visit_progress_title),
@@ -81,7 +88,7 @@ class ConnectDeliveryDashboardFragment :
                         description = getString(R.string.connect_delivery_total_visits_completed),
                     ),
                 linearProgress = getJobDailyProgress(),
-                breakdownRows = getPaymentUnitDailyProgress(),
+                breakdownRows = getPaymentUnitDailyProgress(paymentUnits, visitsPerPaymentUnit),
                 collapsedBreakdownRowCount = COLLAPSED_PAYMENT_UNIT_ROW_COUNT,
             ),
         )
@@ -95,7 +102,14 @@ class ConnectDeliveryDashboardFragment :
                 .takeIf { job.hasDailyLimit() }
                 ?.let { getDailyVisitLimit(it, job.maxVisits, visitsBeforeToday) }
         val progressBarMax = maxDailyVisits?.takeIf { it > 0 }
-        val label = getString(R.string.connect_delivery_daily_visits)
+        val label =
+            getString(
+                if (job.hasDailyLimit()) {
+                    R.string.connect_delivery_daily_visits
+                } else {
+                    R.string.connect_visits_completed_today
+                },
+            )
         val caption = maxDailyVisits?.let { getVisitsRemainingTodayText(it, visitsDoneToday) }
 
         return ConnectProgressCard.State.LinearProgress(
@@ -106,13 +120,15 @@ class ConnectDeliveryDashboardFragment :
         )
     }
 
-    private fun getPaymentUnitDailyProgress(): List<ConnectProgressCard.State.LinearProgress> {
+    private fun getPaymentUnitDailyProgress(
+        paymentUnits: List<ConnectPaymentUnitRecord>,
+        visitsPerPaymentUnit: Map<String, Int>,
+    ): List<ConnectProgressCard.State.LinearProgress> {
         if (!job.isMultiPayment) return emptyList()
 
         val visitsTodayPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(true)
-        val visitsPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(false)
 
-        return job.paymentUnits.map { paymentUnit ->
+        return paymentUnits.map { paymentUnit ->
             val visitsDoneToday = visitsTodayPerPaymentUnit[paymentUnit.unitUUID] ?: 0
             val visitsBeforeToday = (visitsPerPaymentUnit[paymentUnit.unitUUID] ?: 0) - visitsDoneToday
             val maxDailyVisits =
@@ -204,7 +220,11 @@ class ConnectDeliveryDashboardFragment :
         binding.deliverySyncCard.onCardClick = { host.refresh(true) }
     }
 
-    private fun bindProgressGrid(contentEnabled: Boolean) {
+    private fun bindProgressGrid(
+        contentEnabled: Boolean,
+        paymentUnits: List<ConnectPaymentUnitRecord>,
+        visitsPerPaymentUnit: Map<String, Int>,
+    ) {
         val grid = binding.deliveryProgressGrid
         grid.removeAllViews()
 
@@ -218,12 +238,11 @@ class ConnectDeliveryDashboardFragment :
             )
         grid.addView(earnings, cellParams(grid.childCount))
 
-        val counts = job.getDeliveryCountsPerPaymentUnit(false)
         val unitsAtLimit = job.paymentUnitsAtLimit
-        job.paymentUnits.forEach { unit ->
+        paymentUnits.forEach { unit ->
             val card =
                 halfCard(
-                    value = (counts[unit.unitUUID] ?: 0).toString(),
+                    value = (visitsPerPaymentUnit[unit.unitUUID] ?: 0).toString(),
                     title = unit.name,
                     subtitle =
                         getString(

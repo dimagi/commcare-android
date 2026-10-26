@@ -4,26 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/clMain"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:theme="@style/ConnectTheme">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivNotification"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
+        android:layout_width="@dimen/connect_notification_icon_size"
+        android:layout_height="@dimen/connect_notification_icon_size"
+        android:layout_marginStart="@dimen/standard_spacer_double"
+        android:layout_marginTop="@dimen/standard_spacer_double"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/ic_chat_bubble_outline" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvNotification"
+        style="@style/TextStyle.Connect.BodyM"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="20dp"
-        android:textColor="@color/black"
-        android:textSize="13sp"
+        android:layout_marginStart="@dimen/standard_spacer_one_and_half"
+        android:layout_marginEnd="@dimen/standard_spacer_double"
+        android:textColor="?attr/connectOnSurfaceEmphasis"
         app:layout_constraintBottom_toBottomOf="@id/ivNotification"
         app:layout_constraintEnd_toStartOf="@id/ivForwardArrow"
         app:layout_constraintStart_toEndOf="@id/ivNotification"
@@ -34,7 +35,7 @@
         android:id="@+id/ivForwardArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="@dimen/standard_spacer_double"
         android:src="@drawable/ic_connect_arrow_forward"
         app:layout_constraintBottom_toBottomOf="@id/tvNotification"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,14 +43,11 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTime"
+        style="@style/Widget.Connect.HelperText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:alpha="0.5"
-        android:fontFamily="sans-serif-medium"
+        android:layout_marginEnd="@dimen/standard_spacer_double"
         android:gravity="end"
-        android:textSize="11sp"
-        android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,9 +55,9 @@
 
     <View
         android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/pn_item_grey_color"
+        android:layout_height="@dimen/connect_stroke_hairline"
+        android:layout_marginTop="@dimen/standard_spacer_half"
+        android:background="?attr/connectOutlineVariant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTime" />

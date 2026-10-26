@@ -45,7 +45,7 @@ class PersonalIdEmailFragment : BasePersonalIdFragment() {
             ViewModelProvider(requireActivity())
                 .get(PersonalIdSessionDataViewModel::class.java)
                 .personalIdSessionData
-        requireActivity().setTitle(R.string.personalid_email_appbar_title)
+        setTitle(R.string.personalid_email_appbar_title)
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         workflow = PersonalIdEmailFragmentArgs.fromBundle(requireArguments()).workflow
 

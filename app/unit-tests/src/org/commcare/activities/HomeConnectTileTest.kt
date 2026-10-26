@@ -94,5 +94,72 @@ class HomeConnectTileTest : BaseHomeScreenActivityTest() {
         )
     }
 
+    @Test
+    fun `learn app hides delivery warnings for a job in delivery`() {
+        val job = connectJob(status = ConnectJobRecord.STATUS_DELIVERING).apply { projectStartDate = daysFromNow(1) }
+        seatJob(job, isLearning = true)
+        val home = buildHome()
+
+        assertEquals(View.GONE, home.findViewById<View>(R.id.cvConnectMessage).visibility)
+    }
+
+    @Test
+    fun `delivery app shows delivery warnings for a job in delivery`() {
+        val job = connectJob(status = ConnectJobRecord.STATUS_DELIVERING).apply { projectStartDate = daysFromNow(1) }
+        seatJob(job)
+        val home = buildHome()
+
+        val card = home.findViewById<View>(R.id.cvConnectMessage)
+        assertEquals(View.VISIBLE, card.visibility)
+        assertEquals(
+            home.getString(R.string.connect_progress_warning_not_started),
+            card.findViewById<TextView>(R.id.tvConnectMessage).text.toString(),
+        )
+    }
+
+    // ---- Daily visits row ----
+
+    @Test
+    fun `daily visits row shown in the delivery app for a job in delivery`() {
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
+        val home = buildHome()
+
+        assertEquals(View.VISIBLE, home.findViewById<View>(R.id.rdDeliveryTypeList).visibility)
+    }
+
+    @Test
+    fun `daily visits row hidden in the learn app for a job in delivery`() {
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING), isLearning = true)
+        val home = buildHome()
+
+        assertEquals(View.GONE, home.findViewById<View>(R.id.rdDeliveryTypeList).visibility)
+    }
+
+    @Test
+    fun `daily visits row is labeled as daily visits for a job with a daily limit`() {
+        seatJob(connectJob(status = ConnectJobRecord.STATUS_DELIVERING))
+        val home = buildVisibleHome()
+
+        assertEquals(
+            home.getString(R.string.connect_job_tile_daily_visits),
+            home.findViewById<TextView>(R.id.tv_primary_visit_title).text.toString(),
+        )
+    }
+
+    @Test
+    fun `daily visits row is labeled as visits completed today for a job without a daily limit`() {
+        val job =
+            connectJob(status = ConnectJobRecord.STATUS_DELIVERING).apply {
+                setMaxDailyVisits(ConnectJobRecord.NO_DAILY_LIMIT)
+            }
+        seatJob(job)
+        val home = buildVisibleHome()
+
+        assertEquals(
+            home.getString(R.string.connect_visits_completed_today),
+            home.findViewById<TextView>(R.id.tv_primary_visit_title).text.toString(),
+        )
+    }
+
     private val connectLabel get() = Localization.get("home.connect")
 }

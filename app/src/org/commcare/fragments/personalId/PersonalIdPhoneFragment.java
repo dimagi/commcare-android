@@ -100,7 +100,7 @@ public class PersonalIdPhoneFragment extends BasePersonalIdFragment implements C
         binding = ScreenPersonalidPhonenoBinding.inflate(inflater, container, false);
         activity = requireActivity();
         phoneNumberHelper = PhoneNumberHelper.getInstance(activity);
-        activity.setTitle(R.string.connect_registration_title);
+        setTitle(R.string.connect_registration_title);
         personalIdSessionDataViewModel = new ViewModelProvider(requireActivity())
                 .get(PersonalIdSessionDataViewModel.class);
         locationController = CommCareLocationControllerFactory.getLocationController(

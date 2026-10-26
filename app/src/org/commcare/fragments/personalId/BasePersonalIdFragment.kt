@@ -100,7 +100,8 @@ abstract class BasePersonalIdFragment : Fragment() {
     }
 
     protected fun setTitle(titleResId: Int) {
-        (requireActivity() as AppCompatActivity).supportActionBar!!.setTitle(titleResId)
+        requireActivity().setTitle(titleResId)
+        (requireActivity() as AppCompatActivity).supportActionBar?.setTitle(titleResId)
     }
 
     protected open fun keyboardEnterPressed() = Unit

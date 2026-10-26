@@ -290,6 +290,7 @@
     <string name="connect_delivery_visit_progress_title">Besøksfremgang</string>
     <string name="connect_delivery_total_visits_completed">totalt antall fullførte besøk</string>
     <string name="connect_delivery_daily_visits">Daglige besøk</string>
+    <string name="connect_visits_completed_today">Fullførte besøk i dag</string>
     <string name="connect_delivery_your_progress">Din fremgang</string>
     <string name="connect_delivery_total_earnings">Total inntjening</string>
     <string name="connect_delivery_amount_each">%1$s hver</string>
@@ -297,6 +298,8 @@
     <string name="connect_delivery_tasks_mandatory_title">Obligatoriske</string>
     <string name="connect_delivery_tasks_mandatory_subtitle">Fullfør oppgavene for å fortsette leveringen.</string>
     <string name="connect_delivery_tasks_empty">Ingen ventende oppgaver er tilgjengelige for øyeblikket. Vi varsler deg når en ny oppgave er tilgjengelig.</string>
+    <string name="connect_delivery_visits_empty">Ingen besøk ennå. Fullførte besøk vises her.</string>
+    <string name="connect_delivery_visits_filter_empty">Ingen besøk samsvarer med dette filteret.</string>
     <string name="connect_delivery_revisit_learning_title">Se opplæringen på nytt</string>
     <string name="connect_delivery_revisit_learning_completed">Fullført %1$s</string>
     <string name="connect_delivery_revisit_learning_unsynced">Sertifikatet blir tilgjengelig etter neste synkronisering</string>
@@ -318,7 +321,6 @@
         <item quantity="one">%1$s fullført i dag</item>
         <item quantity="other">%1$s fullført i dag</item>
     </plurals>
-    <string name="connect_job_info_view_opportunity">Se mulighet</string>
     <string name="connect_progress_warning_relearn_tasks_pending">Fullfør tildelte oppgaver for å fortsette å levere tjenester.</string>
     <string name="connect_open_conversation_button_text">Åpne samtale</string>
     <string name="connect_progress_relearn_tasks_completed">Alle nødvendige oppgaver er fullført. Du kan fortsette med leveringsaktiviteter.</string>
@@ -451,6 +453,7 @@
     <string name="connect_learn_cta_complete_assessment">Fullfør vurderingen</string>
     <string name="connect_learn_cta_take_assessment">Ta vurderingen</string>
     <string name="connect_learn_cta_start">Start</string>
+    <string name="connect_learn_view_certificate">Vis sertifikat</string>
     <string name="connect_opportunity_footer_start_learning">Start læring</string>
     <string name="connect_download_learn">Last ned Læring</string>
     <string name="connect_downloading_learn">Laster ned Læring</string>
@@ -463,6 +466,7 @@
     <string name="install_via_qr_code">Installer via QR-kode</string>
     <string name="install_via_app_code">Installer via appkode</string>
     <string name="install_from_local">Installer fra lokalt nettverk</string>
+    <string name="personalid_backup_code_locked">Sikkerhetskoden din er låst. Bekreft e-postadressen din for å angi en ny.</string>
     <string name="recording_notification_save_action">Lagre</string>
     <string name="recording_notification_pause_action">Pause</string>
     <string name="recording_notification_resume_action">Gjenoppta</string>

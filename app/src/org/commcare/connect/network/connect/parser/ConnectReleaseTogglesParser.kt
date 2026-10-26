@@ -1,7 +1,7 @@
 package org.commcare.connect.network.connect.parser
 
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.network.base.BaseApiResponseParser
 import org.json.JSONObject
@@ -17,7 +17,7 @@ class ConnectReleaseTogglesParser : BaseApiResponseParser<List<ConnectReleaseTog
         val responseJson = JSONObject(responseJsonString)
 
         return ConnectReleaseToggleRecord.releaseTogglesFromJson(responseJson).also {
-            if (PersonalIdManager.getInstance().isloggedIn()) {
+            if (PersonalIdSessionManager.getInstance().isloggedIn()) {
                 ConnectAppDatabaseUtil.storeReleaseToggles(it)
             }
         }

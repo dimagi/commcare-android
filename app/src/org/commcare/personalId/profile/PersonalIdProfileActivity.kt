@@ -9,7 +9,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.NavigationHostCommCareActivity
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.fragments.personalId.EmailWorkFlow
@@ -73,7 +73,7 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId)
 
     fun forgetPersonalIdAccount() {
-        PersonalIdManager
+        PersonalIdSessionManager
             .getInstance()
             .forgetUser(AnalyticsParamValue.PERSONAL_ID_FORGOT_USER_PROFILE_PAGE)
         val intent =

@@ -252,7 +252,7 @@ class ConnectRepository
                     when (state) {
                         is DataState.Success -> {
                             withContext(DispatcherProvider.main()) {
-                                listener.connectActivityComplete(true)
+                                listener.connectActivityComplete(true, null)
                             }
                         }
 
