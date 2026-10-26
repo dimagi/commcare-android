@@ -594,7 +594,52 @@ Two approaches remain, both still unsatisfactory:
 
 The cheapest measurement is now the simplest one: the `.debug` packages are allowed from
 2026-10-20T05:54:51Z, so **any sustained fall in the daily missing rate is the developer share**,
-with no attribution needed. That requires several days of data.
+with no attribution needed.
+
+#### The result, read 2026-10-26
+
+| Day | `missing` | `invalid` | `valid` | Total | Missing |
+| --- | --- | --- | --- | --- | --- |
+| 2026-10-06 | 32 | — | 110 | 142 | 22.5% |
+| 2026-10-07 | 17 | — | 106 | 123 | 13.8% |
+| 2026-10-08 | 9 | 1 | 69 | 79 | 11.4% |
+| 2026-10-09 | 27 | — | 81 | 108 | 25.0% |
+| 2026-10-10 | 9 | 2 | 65 | 76 | 11.8% |
+| 2026-10-11 | 2 | — | 44 | 46 | 4.3% |
+| 2026-10-12 | 2 | — | 38 | 40 | 5.0% |
+| 2026-10-13 | 6 | — | 75 | 81 | 7.4% |
+| 2026-10-14 | 12 | — | 87 | 99 | 12.1% |
+| 2026-10-15 | 14 | — | 66 | 80 | 17.5% |
+| 2026-10-16 | 4 | — | 53 | 57 | 7.0% |
+| 2026-10-17 | 8 | — | 60 | 68 | 11.8% |
+| 2026-10-18 | 7 | — | 36 | 43 | 16.3% |
+| 2026-10-19 | 3 | — | 40 | 43 | 7.0% |
+| **Before, 14 days** | **152** | **3** | **930** | **1085** | **14.0%** |
+| 2026-10-20 | 0 | — | 44 | 44 | 0.0% |
+| 2026-10-21 | 1 | 1 | 68 | 70 | 1.4% |
+| 2026-10-22 | 13 | — | 85 | 98 | 13.3% |
+| 2026-10-23 | 3 | — | 90 | 93 | 3.2% |
+| 2026-10-24 | 9 | — | 100 | 109 | 8.3% |
+| 2026-10-25 | 10 | — | 47 | 57 | 17.5% |
+| 2026-10-26 (partial) | 1 | — | 46 | 48 | 2.1% |
+| **After, 7 days** | **37** | **1** | **480** | **519** | **7.1%** |
+
+**The missing-token rate halved: 14.0% to 7.1%, a 49% relative reduction.** In absolute terms
+10.9 missing tokens a day became 5.3.
+
+This clears the daily noise. A two-proportion test on 152/1085 against 37/519 gives z = 4.0,
+p < 0.0001, so the fall is not the 3.8%–25% daily swing reappearing.
+
+**Developer debug builds were roughly half of the missing tokens.** Allowing the `.debug`
+packages removed that half permanently — it is a fix, not a probe, so the key should stay as it
+is.
+
+**The other half is real field traffic.** 7.1% of phone-auth requests still arrive with no token,
+and 2026-10-22 (13.3%) and 2026-10-25 (17.5%) show the pre-change range has not gone away, only
+thinned. Blocker #1 is therefore smaller than it was but not closed: `ENFORCE` would still deny
+roughly one request in fourteen.
+
+Two caveats on the read: the window is 7 days against 14, and 2026-10-26 is partial.
 
 ### How much of the residual this accounts for
 
@@ -723,7 +768,7 @@ What this does and does not change for `ENFORCE`:
 
 | Point | Description | Action |
 | --- | --- | --- |
-| **#1** Missing / invalid reCAPTCHA token | **Still open, cause fixed for one source.** LTS was added on 2026-09-24 and `missing` fell from 23% to 15%, but 262 requests over the following 20 days still carried no token. Debug builds were confirmed as one source, and on 2026-10-20 the `.debug` packages were added to the key: a debug build then minted a valid token (score 0.9) with its signing cert still unregistered, so the package allow-list — not the cert — was what blocked them. The share they account for is still unmeasured. | Track the daily missing rate for several days from 2026-10-20; a sustained fall below the 3.8%–21% spread measures the developer share without needing attribution. |
+| **#1** Missing / invalid reCAPTCHA token | **Still open, halved.** LTS was added on 2026-09-24 and `missing` fell from 23% to 15%. Debug builds were then confirmed as a second source, and adding the `.debug` packages on 2026-10-20 cut the rate from **14.0% to 7.1%** (152/1085 before, 37/519 after; z = 4.0, p < 0.0001), so developer builds were roughly half of it. The remaining 7.1% is field traffic: `ENFORCE` would still deny about one request in fourteen. | Find what the residual 7.1% is. Per-package attribution is impossible — failures produce no assessment entry — so the next lever is the `SendVerificationCode` log. Re-read the rate in a week to firm up 7.1% (7 days against 14). |
 | **#2** Enabling reCAPTCHA on CommCare LTS | **Done 2026-09-24.** `org.commcare.lts` is in `allowedPackageNames` on the key referenced by `recaptchaConfig`; no regression over the 20 days since — success rate 82.4% against 80.5% before. | Closed. |
 | **#3** Valid tokens now scoring at or above the threshold | **New, opened 2026-10-13.** 34 valid tokens scored `≥ 0.8` between 2026-09-29 and 2026-10-13, confirmed by `passed` being exactly `valid` minus 34. `AUDIT` let them through; `ENFORCE` would block them — 2.2% of scored traffic, where the previous read measured none. The distribution shifted upward on 2026-09-29 with no configuration change, so the cause is unidentified. | Establish whether these are genuine fraud or false positives before `ENFORCE`, and re-check whether `0.8` is the right threshold. |
 
