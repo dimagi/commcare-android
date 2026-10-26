@@ -62,7 +62,10 @@ class SyncDelegate(
 
     /** Launch step: run the sync FCM asked for while the user was logged out. */
     fun runPendingSyncRequestIfNeeded(): Boolean {
-        val username = CommCareApplication.instance().session.loggedInUser.username
+        val username =
+            CommCareApplication
+                .instance()
+                .session.loggedInUser.username
         if (!HiddenPreferences.isPendingSyncRequest(username)) {
             return false
         }

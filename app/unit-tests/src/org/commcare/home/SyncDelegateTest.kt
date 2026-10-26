@@ -78,7 +78,10 @@ class SyncDelegateTest {
 
     @Test
     fun `a sync requested while logged out claims the launch`() {
-        val username = CommCareApplication.instance().session.loggedInUser.username
+        val username =
+            CommCareApplication
+                .instance()
+                .session.loggedInUser.username
         PreferenceManager
             .getDefaultSharedPreferences(CommCareApplication.instance())
             .edit()
