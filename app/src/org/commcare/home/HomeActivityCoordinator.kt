@@ -31,6 +31,9 @@ class HomeActivityCoordinator(
     /** Owns form sending and data pulls; the host's task receiver. */
     val sync = SyncDelegate(host = host)
 
+    /** Starts form entry and handles its result, and owns the form and session restoration launch steps. */
+    val sessionLaunch = SessionLaunchDelegate(host = host, sync = sync)
+
     /** Reports session loss to the host. Driven by the session-aware activity chain, not the lifecycle. */
     val sessionExpiration = SessionExpirationDelegate(host = host)
 
