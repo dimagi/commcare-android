@@ -18,6 +18,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Regression check on sync: from the home screen, Sync with unsent forms sends them and then syncs, and the sync button shows the result; finishing a form still sends it in the background.
 - Regression check on case claim: a successful claim still syncs and continues, and a failed one shows the error with Retry.
 - Regression check on session expiration: when the session times out, whether on the home screen, in the background, or while in a form, returning to home still lands on the login screen.
+- Regression check on form entry: finishing a form sends it and continues; backing out of a new form returns to the menu; saving a form as incomplete and reopening it from Incomplete Forms resumes it; opening a saved form and leaving it returns to Saved Forms; and a form interrupted by session expiration reopens after logging back in.
 
 ## CommCare 2.65
 
