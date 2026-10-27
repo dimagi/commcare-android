@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import org.commcare.CommCareTestApplication
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -144,5 +145,46 @@ class FirebaseAuthServiceTest {
                 errorType.isNonRecoverable(),
             )
         }
+    }
+
+    @Test
+    fun `an auth failure reports its Firebase error code`() {
+        assertEquals(
+            "ERROR_APP_NOT_AUTHORIZED",
+            FirebaseAuthService.errorCodeFrom(
+                FirebaseAuthException("ERROR_APP_NOT_AUTHORIZED", "not authorized"),
+            ),
+        )
+    }
+
+    @Test
+    fun `an invalid credential reports its Firebase error code`() {
+        assertEquals(
+            "ERROR_INVALID_VERIFICATION_CODE",
+            FirebaseAuthService.errorCodeFrom(
+                FirebaseAuthInvalidCredentialsException("ERROR_INVALID_VERIFICATION_CODE", "bad code"),
+            ),
+        )
+    }
+
+    @Test
+    fun `a failure without an auth error code reports its exception class`() {
+        assertEquals(
+            "FirebaseNetworkException",
+            FirebaseAuthService.errorCodeFrom(FirebaseNetworkException("network")),
+        )
+        assertEquals(
+            "FirebaseTooManyRequestsException",
+            FirebaseAuthService.errorCodeFrom(FirebaseTooManyRequestsException("quota")),
+        )
+        assertEquals(
+            "FirebaseException",
+            FirebaseAuthService.errorCodeFrom(FirebaseException("An internal error has occurred.")),
+        )
+    }
+
+    @Test
+    fun `no exception reports no error code`() {
+        assertNull(FirebaseAuthService.errorCodeFrom(null))
     }
 }

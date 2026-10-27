@@ -76,7 +76,7 @@ public class FirebaseAuthService implements OtpAuthService {
     @Override
     public void verifyOtp(@NonNull String code) {
         if (verificationId == null) {
-            callback.onFailure(OtpErrorType.GENERIC_ERROR, "Please request OTP again.");
+            callback.onFailure(OtpErrorType.GENERIC_ERROR, "Please request OTP again.", null);
             return;
         }
 
@@ -145,12 +145,24 @@ public class FirebaseAuthService implements OtpAuthService {
         return OtpErrorType.GENERIC_ERROR;
     }
 
+    /**
+     * The Firebase error code behind a failure, for analytics: a {@link FirebaseAuthException}'s
+     * own code, otherwise the exception's class name.
+     */
+    @VisibleForTesting
+    static String errorCodeFrom(Exception e) {
+        if (e instanceof FirebaseAuthException) {
+            return ((FirebaseAuthException) e).getErrorCode();
+        }
+        return e != null ? e.getClass().getSimpleName() : null;
+    }
+
     private void handleFirebaseException(Exception e) {
         OtpErrorType errorType = errorTypeFrom(e);
         String message = errorType == OtpErrorType.GENERIC_ERROR
                 ? (e != null ? e.getMessage() : "OTP verification failed")
                 : null;
-        callback.onFailure(errorType, message);
+        callback.onFailure(errorType, message, errorCodeFrom(e));
         if (e != null) {
             Logger.exception("Firebase OTP verification error", e);
         }
