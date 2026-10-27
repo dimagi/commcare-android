@@ -560,6 +560,15 @@ androidComponents {
     }
 }
 
+// AGP runs L8 separately for the app and its test APK, and each pass shortens j$.* names on its own.
+// The names clash (e.g. j$.util.concurrent.t), and on Android 14+ the test APK's copy shadows the app's,
+// so ThreadLocalRandom fails to verify. Keep the test APK's desugared-library names unchanged.
+tasks.withType(com.android.build.gradle.internal.tasks.L8DexDesugarLibTask).configureEach { task ->
+    if (task.name.endsWith('AndroidTest')) {
+        task.keepRulesConfigurations.addAll('-dontobfuscate', '-keep class j$.** { *; }')
+    }
+}
+
 /**
  * Download and unpack commcare app associated with 'cc_app_id' into assets
  * folder
