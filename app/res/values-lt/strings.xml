@@ -206,6 +206,7 @@
         <item quantity="other">Įvedėte neteisingą 6 skaitmenų slaptažodį. Liko %d bandymų.</item>
     </plurals>
     <string name="personalid_email_already_in_use">Šis el. pašto adresas jau susietas su kita paskyra. Naudokite kitą el. pašto adresą.</string>
+    <string name="personalid_registration_ineligible">Jūs neatitinkate reikalavimų registruoti PersonalID paskyrą.</string>
     <string name="connect_backup_code_mismatch">Įvesti atsarginiai kodai turi sutapti.</string>
     <string name="personalid_network_response_parsing_error">Klaida analizuojant duomenis iš serverio. Jei problema išlieka, susisiekite su klientų aptarnavimo tarnyba.</string>
     <string name="personalid_email_appbar_title">El. paštas</string>

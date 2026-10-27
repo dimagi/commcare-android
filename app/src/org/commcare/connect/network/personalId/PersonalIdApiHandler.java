@@ -202,6 +202,9 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             case "EMAIL_ALREADY_IN_USE":
                 onFailure(PersonalIdOrConnectApiErrorCodes.EMAIL_ALREADY_IN_USE_ERROR, null);
                 return true;
+            case "REGISTRATION_INELIGIBLE":
+                onFailure(PersonalIdOrConnectApiErrorCodes.REGISTRATION_INELIGIBLE_ERROR, null);
+                return true;
             case "ACTIVE_USER_EXISTS":
                 onFailure(
                         PersonalIdOrConnectApiErrorCodes.ACTIVE_USER_EXISTS_ERROR,
