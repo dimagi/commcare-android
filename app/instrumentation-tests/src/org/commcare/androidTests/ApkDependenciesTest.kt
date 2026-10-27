@@ -25,7 +25,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @BrowserstackTests
 class ApkDependenciesTest : BaseTest() {
-
     companion object {
         const val CCZ_NAME = "android_dependency_test.ccz"
         const val APP_NAME = "Android Dependency Test"
@@ -71,8 +70,13 @@ class ApkDependenciesTest : BaseTest() {
     private fun verifyDependencyDialog(unstatisfiedDependencies: ImmutableList<String>) {
         if (unstatisfiedDependencies.size == 1) {
             onView(withText(R.string.dependency_missing_dialog_title)).isPresent()
-            val expectedMsg = ApplicationProvider.getApplicationContext<Context>()
-                .getString(R.string.dependency_missing_dialog_message, AndroidPackageUtils().getPackageName(unstatisfiedDependencies[0]))
+            val expectedMsg =
+                ApplicationProvider
+                    .getApplicationContext<Context>()
+                    .getString(
+                        R.string.dependency_missing_dialog_message,
+                        AndroidPackageUtils().getPackageName(unstatisfiedDependencies[0]),
+                    )
             onView(withText(expectedMsg)).isPresent()
         } else {
             onView(withText(R.string.dependency_missing_dialog_title_plural)).isPresent()
