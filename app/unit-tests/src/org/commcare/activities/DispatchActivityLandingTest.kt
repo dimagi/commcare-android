@@ -12,6 +12,7 @@ import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -56,6 +57,19 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
         ShadowLooper.idleMainLooper()
 
         ActivityAssertions.assertStartedNothing(controller.get())
+    }
+
+    @Test
+    fun `returning from a screen started without a result routes again`() {
+        ConnectTestUtils.signInToPersonalId()
+        PersonalIdUserPreferences.setPendingBackupCode(true)
+        val controller = buildDispatchActivity()
+        ActivityAssertions.startedIntents(controller.get())
+
+        controller.pause().resume()
+        ShadowLooper.idleMainLooper()
+
+        ActivityAssertions.assertStartedForResult(controller.get(), StandardHomeActivity::class.java)
     }
 
     @Test

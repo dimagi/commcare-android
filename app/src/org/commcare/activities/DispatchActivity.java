@@ -591,7 +591,10 @@ public class DispatchActivity extends AppCompatActivity {
 
     @Override
     public void startActivityForResult(Intent intent, int requestCode, @Nullable Bundle options) {
-        hasLaunchedLandingScreen = true;
+        // startActivity() passes -1 and never returns a result, so it must not block routing on resume
+        if (requestCode >= 0) {
+            hasLaunchedLandingScreen = true;
+        }
         super.startActivityForResult(intent, requestCode, options);
     }
 
