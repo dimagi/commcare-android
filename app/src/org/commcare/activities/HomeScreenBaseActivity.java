@@ -77,6 +77,7 @@ import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -115,7 +116,7 @@ import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLat
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen: activity
  * lifecycle, implementation of available actions, session navigation, etc.
  */
-public abstract class HomeScreenBaseActivity extends SyncCapableCommCareActivity<SyncDelegate>
+public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivity<SyncDelegate>
         implements SessionNavigationResponder, HomeActivityHost {
 
     /**
@@ -185,9 +186,23 @@ public abstract class HomeScreenBaseActivity extends SyncCapableCommCareActivity
         return coordinator;
     }
 
-    @Override
     protected SyncDelegate getSyncDelegate() {
         return coordinator.getSync();
+    }
+
+    @NonNull
+    @Override
+    public CommCareActivity<?> getSyncConnector() {
+        return this;
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return getSyncDelegate().generateProgressDialog(taskId);
+    }
+
+    protected void displayToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override
