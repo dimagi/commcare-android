@@ -13,6 +13,7 @@ import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
+import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -179,6 +180,22 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
         deliverResult(controller, login, Activity.RESULT_OK, Intent())
 
         ActivityAssertions.assertStartedForResult(controller.get(), StandardHomeActivity::class.java)
+    }
+
+    @Test
+    fun `recovery measures started from CommCare Login return to CommCare Login`() {
+        CommCareApplication.instance().closeUserSession()
+        val controller = buildDispatchActivity()
+        val login = ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
+        ActivityAssertions.startedIntents(controller.get())
+
+        val recoveryResult = Intent().putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true)
+        deliverResult(controller, login, Activity.RESULT_OK, recoveryResult)
+        val recovery =
+            ActivityAssertions.assertStartedForResult(controller.get(), ExecuteRecoveryMeasuresActivity::class.java)
+        deliverResult(controller, recovery, Activity.RESULT_OK)
+
+        ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
     }
 
     private fun deliverResult(

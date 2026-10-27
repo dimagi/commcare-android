@@ -260,6 +260,7 @@ public class DispatchActivity extends AppCompatActivity {
 
             ApplicationRecord currentRecord = currentApp.getAppRecord();
             try {
+                boolean hasActiveSession = CommCareApplication.instance().getSession().isActive();
                 if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
                     // The seated app is damaged or corrupted
                     handleDamagedApp();
@@ -274,13 +275,13 @@ public class DispatchActivity extends AppCompatActivity {
                 } else if (isIntentDrivenLaunch()) {
                     handleIntentDrivenLaunch();
                 } else if ((userTriggeredLogout || leftLoginWithoutSignIn)
-                        && !CommCareApplication.instance().getSession().isActive()) {
+                        && !hasActiveSession) {
                     launchLoginScreen();
                 } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
                     ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
                     ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job);
-                } else if (startFromLogin) {
+                } else if (startFromLogin && hasActiveSession) {
                     launchHomeScreen();
                 } else {
                     openLandingScreen();
