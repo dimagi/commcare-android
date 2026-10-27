@@ -44,19 +44,19 @@ is the banner and the state that decides which stage it shows.
 | Component | Status | Responsibility |
 |---|---|---|
 | `OpportunityHomeFragment` | existing (CCCT-2523) | Hosts the banner above the learning or delivery surface |
+| `ConnectOpportunityListFragment` | existing | Hosts the banner on the opportunity list, for workers with no opportunity yet |
 | `DemographicBannerView` | **new** | Renders the stage and reports which button was tapped |
 | `DemographicPromptState` | **new** | Counts prompts, holds the next-show time, picks the stage |
 | `PersonalIdProfileFragment` | existing | Shows the six fields, read only |
 | `PersonalIdProfileEditFragment` | existing | Edits them; two sections, sticky Save/Cancel, partial save |
 | `ConnectUserRecord` | existing | Stores the six fields |
 
-The banner hangs off `OpportunityHomeFragment` rather than the learning and delivery surfaces, so
-one instance survives the learning-to-delivery swap instead of each surface building its own. The
-view belongs in `org.commcare.views.connect` alongside the existing cards.
-
-**This differs from the Figma, which places the banner on the opportunity listing page.** A worker
-deep in an opportunity may not return to the listing often, so the prompt could go unseen for a
-long time — Opportunity Home is on the path of their everyday work.
+**Two hosts, whichever the worker reaches first.** Figma places the banner on the opportunity
+listing page. That alone would miss a worker deep in an opportunity, who may not return to the
+listing often; Opportunity Home alone would miss a pre-invited worker who has no opportunity yet
+and so never gets there — a real case when workers sign up before being invited, for example in
+the days before a training. So both screens (`OpportunityHomeFragment` and
+`ConnectOpportunityListFragment`) host it.
 
 Both profile screens split into *Personal Information* and *Work Experience*. The edit screen
 moves Save and Cancel into a sticky footer because the form now scrolls.
@@ -89,9 +89,10 @@ classDiagram
 ```
 
 `DemographicPromptState` makes the whole decision: it reads the user record for completeness and
-checks its own timer. `OpportunityHomeFragment` only asks and, if the answer is yes, passes the
-stage to `DemographicBannerView.render(stage)` — it decides nothing itself, and the view stays
-dumb. `DemographicPromptState` is responsible for updating `promptCount` and `nextShowAt` in
+checks its own timer. A host fragment only asks and, if the answer is yes, passes the stage to
+`DemographicBannerView.render(stage)` — it decides nothing itself, and the view stays dumb. That
+is what lets both hosts use the same banner without either knowing about the other.
+`DemographicPromptState` is responsible for updating `promptCount` and `nextShowAt` in
 `PersonalIdUserPreferences`, not on the user record — see Storage.
 
 Both taps leave the view through its listeners; it never writes anything itself:
@@ -253,7 +254,9 @@ workers — worth asserting in a test rather than assuming.
 ### Server work
 
 * Decide when to send: how long after the profile is still incomplete, and how often to repeat.
-* Stop sending once all six fields are filled.
+* To send the push notification to the worker, the server needs to check the app version received
+  in the Connect heartbeat, evaluate profile completeness based on that version, and trigger the
+  notification if the profile is still incomplete.
 * Only send to workers who have a Connect account, matching the feature's scope.
 
 Tapping the notification opens the profile edit screen. It does not change `promptCount`; the
@@ -276,7 +279,7 @@ banner's own 24-hour cycle carries on independently.
 | # | Title | Covers |
 |---|---|---|
 | 6 | Accept and return the demographic fields on the PersonalID API | Six optional keys on `update_profile`, the same six returned by `complete_recovery` |
-| 7 | Send the complete-profile push notification | Who to send to, when to start, how often to repeat, and stopping once the profile is complete |
+| 7 | Send the complete-profile push notification | Who to send to, when to start, how often to repeat, evaluating completeness against the worker's app version, and recording that version from the heartbeat |
 
 Tickets 1 and 2 can be taken in parallel. Tickets 3 and 4 each depend on their server
 counterpart, 6 and 7. Ticket 5 follows ticket 1, since the events fire from
@@ -284,13 +287,8 @@ counterpart, 6 and 7. Ticket 5 follows ticket 1, since the events fire from
 
 ## Open questions
 
-These block sign-off. The first needs product or design; the last two need a call between
-mobile and server.
+This blocks sign-off and needs product or design.
 
 1. **Languages spoken has no options defined.** Every other field now has its list. Still under
    discussion: a fixed list, free text, or multi-select, and whether the app's supported locales
    are the right set.
-2. **Prompt count on a new device.** Held on the device, so a reinstall starts the worker back
-   at stage 1. Acceptable, or should the server hold it?
-3. **Who computes profile completion?** The design doc mentions "100% profile completion". If that
-   figure is shown anywhere, mobile and server need to agree on how it is calculated.
