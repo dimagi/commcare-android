@@ -21,7 +21,6 @@ import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.ConcurrentHashMap
 
 @RunWith(AndroidJUnit4::class)
 @BrowserstackTests
@@ -31,13 +30,6 @@ class ApkDependenciesTest : BaseTest() {
         const val CCZ_NAME = "android_dependency_test.ccz"
         const val APP_NAME = "Android Dependency Test"
         const val PLAY_STORE_URL = "market://details?id=org.commcare.dalvik.reminders"
-    }
-
-    @Test
-    fun keepConcurrentHashMapConstructor() {
-        // This constructor is used by a Google Location API, but R8 was stripping it from the instrumentation
-        // tests APK, which caused some tests to fail. This dummy test is to force R8 to retain the constructor
-        ConcurrentHashMap<Any, Any>(1, 1.00f, 1)
     }
 
     @Test
