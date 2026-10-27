@@ -9,8 +9,12 @@ import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_LIST
+import org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY
+import org.commcare.connect.ConnectConstants.FROM_STARTUP_ROUTING
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
+import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.PersonalIdUserPreferences
@@ -149,6 +153,24 @@ object ConnectNavHelper {
         if (ConnectUserDatabaseUtil.hasConnectAccess()) {
             goToConnectJobsList(context)
         }
+    }
+
+    /** Builds the intent that opens [opportunityUuid]'s Opportunity Home, or the Opportunity List when it is null. */
+    @JvmStatic
+    fun buildStartupLandingIntent(
+        context: Context,
+        opportunityUuid: String?,
+    ): Intent {
+        checkConnectAccess(context)
+
+        val redirectAction = if (opportunityUuid != null) CCC_GENERIC_OPPORTUNITY else CCC_DEST_OPPORTUNITY_LIST
+        val intent = Intent(context, ConnectActivity::class.java)
+
+        intent.putExtra(REDIRECT_ACTION, redirectAction)
+        intent.putExtra(FROM_STARTUP_ROUTING, true)
+        opportunityUuid?.let { intent.putExtra(OPPORTUNITY_UUID, it) }
+
+        return intent
     }
 
     fun goToActiveInfoForJob(
