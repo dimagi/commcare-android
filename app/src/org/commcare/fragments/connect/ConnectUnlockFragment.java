@@ -18,6 +18,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
@@ -36,6 +37,7 @@ public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
     private boolean fromOppInviteLink = false;
+    private boolean fromStartupRouting = false;
     private String requestedOpportunityUuid = null;
 
     public ConnectUnlockFragment() {
@@ -48,41 +50,62 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         requireActivity().setTitle(R.string.connect_title);
 
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
             fromOppInviteLink = getArguments().getBoolean(
-                    ConnectConstants.FROM_SMS_INVITE_LINK, false);
+                    ConnectConstants.FROM_SMS_INVITE_LINK,
+                    false
+            );
+            fromStartupRouting = getArguments().getBoolean(
+                    ConnectConstants.FROM_STARTUP_ROUTING,
+                    false
+            );
             requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
         }
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
+        binding.startupLogo.setVisibility(fromStartupRouting ? View.VISIBLE : View.GONE);
+        if (requireActivity() instanceof ConnectActivity connectActivity) {
+            connectActivity.setWaitDialogEnabled(false);
+        }
 
         return binding.getRoot();
     }
 
-    private final Runnable unlockRunnable = new Runnable() {
-        @Override
-        public void run() {
-            PersonalIdUnlocker.INSTANCE.unlock((CommCareActivity<?>) requireActivity(), UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
-                if (success) {
+    private final Runnable unlockRunnable = () -> PersonalIdUnlocker.INSTANCE.unlock(
+            (CommCareActivity<?>) requireActivity(),
+            UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
+            (success, error) -> {
+                if (success && fromStartupRouting) {
+                    setFragmentRedirection();
+                } else if (success) {
                     retrieveOpportunities();
+                } else if (fromStartupRouting) {
+                    returnToStartupRoutingWithUnlockDeclined();
                 } else {
                     requireActivity().finish();
                 }
-            });
-        }
-    };
+            }
+    );
 
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         new Handler().post(unlockRunnable);
+    }
+
+    private void returnToStartupRoutingWithUnlockDeclined() {
+        requireActivity().setResult(DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED);
+        requireActivity().finish();
     }
 
     private void retrieveOpportunities() {
