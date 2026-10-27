@@ -48,7 +48,7 @@ class ConnectDeliveryDashboardFragment :
     override fun updateView() {
         reloadActiveJob()
         val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
-        val contentEnabled = !job.isFurtherWorkBlocked && pendingTasks.isEmpty()
+        val contentEnabled = job.canWorkFurther(pendingTasks)
         val paymentUnits = job.paymentUnitsByMostRecentVisit
         val visitsPerPaymentUnit = job.getDeliveryCountsPerPaymentUnit(false)
         bindHeader()

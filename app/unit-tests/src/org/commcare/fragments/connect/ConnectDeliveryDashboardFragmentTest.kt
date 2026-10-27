@@ -35,6 +35,7 @@ import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
@@ -447,7 +448,7 @@ class ConnectDeliveryDashboardFragmentTest {
         activity.runOnUiThread { unitCard.performClick() }
         ShadowLooper.idleMainLooper()
 
-        assertEquals(R.id.connect_delivery_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
     }
 
     @Test
@@ -551,18 +552,14 @@ class ConnectDeliveryDashboardFragmentTest {
 
         activity.setActiveJob(job)
         activity.runOnUiThread {
-            navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_delivery_home_fragment,
-            )
+            navController.navigate(R.id.connect_opportunity_home_fragment)
         }
         ShadowLooper.idleMainLooper()
 
         awaitDeliverySync()
         layOutHierarchy()
 
-        val home =
-            navHostFragment.childFragmentManager.primaryNavigationFragment
-                as ConnectDeliveryHomeFragment
+        val home = navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
         val dashboard =
             home.childFragmentManager.fragments
                 .filterIsInstance<ConnectDeliveryDashboardFragment>()
@@ -725,7 +722,9 @@ class ConnectDeliveryDashboardFragmentTest {
 
     /**
      * Writes the opportunity through the real storage layer so the repository's cache read and the
-     * dashboard both see the same record production would.
+     * dashboard both see the same record production would. The assessment is stored too: without
+     * learning records the delivery home fires a learn-progress fetch that can outlive the test and
+     * crash whichever test runs next.
      */
     private fun seedDeliveryJob(
         maxDailyVisits: Int = ConnectJobTestData.MAX_DAILY_VISITS,
@@ -738,6 +737,7 @@ class ConnectDeliveryDashboardFragmentTest {
                 paymentUnitMaxDailies?.let { paymentUnits = buildPaymentUnits(this, it) }
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
+        ConnectJobUtils.storeAssessments(appContext, seeded.assessments, ConnectJobTestData.JOB_UUID, true)
         return ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
     }
 

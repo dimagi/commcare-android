@@ -455,7 +455,6 @@ License.
     <string name="personalid_set_backup_code_reminder_message">Vous n\'avez pas de code de sauvegarde configuré sur votre compte. Cliquez sur Confirmer pour en configurer un.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Définir le code de sauvegarde</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Veuillez définir un code de sauvegarde avant de quitter</string>
-    <string name="connect_progress">Progrès</string>
     <string name="connect_payment">Paiement</string>
     <string name="connect_payment_received">Reçu</string>
     <string name="connect_payment_transferred">Transféré</string>

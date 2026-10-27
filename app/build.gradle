@@ -191,6 +191,8 @@ ext {
     RELEASE_STORE_PASSWORD = loadProp('RELEASE_STORE_PASSWORD', '')
     RELEASE_KEY_ALIAS = loadProp('RELEASE_KEY_ALIAS', '')
     RELEASE_KEY_PASSWORD = loadProp('RELEASE_KEY_PASSWORD', '')
+    // Only for CI runs without access to secrets; real release builds must fail without the keystore
+    ALLOW_DEBUG_SIGNED_RELEASE = loadProp('ALLOW_DEBUG_SIGNED_RELEASE', 'false').toString().toBoolean()
     TRUSTED_SOURCE_PUBLIC_KEY = loadProp('TRUSTED_SOURCE_PUBLIC_KEY',
             'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn' +
                     'HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo' +
@@ -497,7 +499,13 @@ android {
 
         release {
             minifyEnabled true
-            signingConfig signingConfigs.release
+            def releaseStoreFile = file(project.ext.RELEASE_STORE_FILE)
+            if ((releaseStoreFile.isFile() && releaseStoreFile.length() > 0) || !project.ext.ALLOW_DEBUG_SIGNED_RELEASE) {
+                signingConfig signingConfigs.release
+            } else {
+                logger.warn("Release keystore not found at ${project.ext.RELEASE_STORE_FILE}, signing release builds with the debug key")
+                signingConfig signingConfigs.debug
+            }
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
             testProguardFiles 'test-proguard.cfg'
 

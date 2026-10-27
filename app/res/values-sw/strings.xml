@@ -457,7 +457,6 @@
     <string name="personalid_set_backup_code_reminder_message">Huna nambari ya hifadhi iliyowekwa kwenye akaunti yako. Bonyeza Thibitisha ili uweke moja.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Weka Nambari ya Hifadhi</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Tafadhali weka nambari ya hifadhi kabla ya kutoka</string>
-    <string name="connect_progress">Maendeleo</string>
     <string name="connect_payment">Malipo</string>
     <string name="connect_payment_received">Imepokelewa</string>
     <string name="connect_payment_transferred">Imehamishwa</string>
