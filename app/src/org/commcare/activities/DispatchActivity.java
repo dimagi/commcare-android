@@ -260,7 +260,7 @@ public class DispatchActivity extends AppCompatActivity {
 
             ApplicationRecord currentRecord = currentApp.getAppRecord();
             try {
-                boolean hasActiveSession = CommCareApplication.instance().getSession().isActive();
+                boolean hasActiveSession = CommCareApplication.hasLoggedInUser();
                 if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
                     // The seated app is damaged or corrupted
                     handleDamagedApp();
