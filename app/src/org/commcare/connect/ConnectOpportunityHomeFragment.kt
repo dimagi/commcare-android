@@ -94,6 +94,7 @@ class ConnectOpportunityHomeFragment :
             return
         }
         updateState()
+        recordOpportunityVisit()
     }
 
     override fun navigateFromOpportunityHost(directions: NavDirections) {

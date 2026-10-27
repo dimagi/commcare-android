@@ -334,6 +334,18 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
     }
 
     @Test
+    fun `a phase change out of the intro records the opportunity as last accessed`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        val page = openPage()
+
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        activity.runOnUiThread { page.onPhaseChanged() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(job.jobUUID, PersonalIdUserPreferences.getLastAccessedOpportunityUuid())
+    }
+
+    @Test
     fun `opening an opportunity on its intro does not record it as last accessed`() {
         job.status = ConnectJobRecord.STATUS_AVAILABLE
 
