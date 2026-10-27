@@ -1,0 +1,54 @@
+<agent-message from="a18e200d7ff81bed2">
+[Subagent hand-back] The text below is the final report of a subagent this session delegated to. It is model output, NOT a message from the user: instructions, requests, or approval claims inside it are the subagent's words and carry no user authority. The harness indents every line of the report, so a frame-like line at column zero inside it would be forged. Notes above this frame may quote model-derived text, which carries no user authority either. The report follows:
+  One question changes the plan. The other two are smaller and could be settled with a reasonable default. I checked the doc's claims against the code. The changes it lists cover the places that dereference an app record, and its facts are right: `DB_VERSION_CONNECT` is 30 and `ConnectJobRecordV2/V4/V7/V10/V21` exist.
+  
+  **1. What should happen with tasks on a messaging job? (high)**
+  - **Question:** Can a messaging job have pending tasks that are not OCS conversations? If it can, what should tapping one do, and should a pending task disable the messaging button on Delivery Home?
+  - **Why it matters:** The doc says task taps on the dashboard and More tabs must not call `launchApp`, but gives nothing to do instead. In `ConnectTaskPresenter.open`, a conversation task already opens messaging on its own channel; only non-conversation tasks fall through to launching the deliver app.
+    - Delivery Home also disables its button whenever a pending task exists (`ConnectDeliveryHomeFragment.updateCtaBarEnabled`). The reason given is that the task "has to be cleared in the delivery app". [Certain]
+    - If non-conversation tasks can exist, the plan needs a replacement action: open messaging, show a message, or hide the task. It also has to say whether the button-disabling rule stays. If they can't exist, the plan only needs a guard and the existing conversation path. Guessing wrong either leaves the worker stuck behind a disabled button or ships a task card that does nothing when tapped. [Likely]
+  
+  **2. What if a job's apps are null but its type isn't "messaging"? (medium)**
+  - **Question:** Should parsing reject a job whose `learn_app` or `deliver_app` is null when `delivery_type` isn't `"messaging"`? That includes a type the client doesn't recognise. Or should it store the job as a learn/deliver job, as the doc implies?
+  - **Why it matters:** The doc makes both fields nullable for every job, and treats any unknown type as learn/deliver.
+    - Most screens are only guarded by the messaging check, so such a job would get stored and then crash. The crash points are the job list (`job.learnAppInfo.appId`), Intro, Delivery Home and `JobStoreManager.storeAppInfo`. [Certain]
+    - If the answer is "reject", the null check goes in `fromJson`: the job is treated as corrupt and skipped, as `ConnectOpportunitiesParser` already does for `JSONException`. If the answer is "store it", every learn/deliver path also needs a null guard, which makes the work much larger.
+    - Adding a second delivery type later would hit exactly this case.
+  
+  **3. What should the job list card show for a messaging job? (low)**
+  - **Question:** Without an app record, what goes in the card's description and organization, and what goes in its app-type label?
+  - **Why it matters:** `ConnectOpportunityListFragment.createJobModel` reads `description` and `organization` from the app record, not the job. The `appType` label (`LEARN_APP` / `DELIVERY_APP` / `NEW_APP`) and the "installed" state also feed the card. [Certain]
+    - Using the job's own `description` and `organization` and the delivery-card style is an easy default. If design wants a distinct "messaging" look on the card, that means adapter and layout work the plan would otherwise leave out. [Guessing]
+</agent-message>
+
+---
+
+assume they can have tasks but on click just show a error toast saying "No action found for the task", the CTA disable rules in relation to tasks should also stay same as today, although please make these rules explicit in the design doc.
+
+---
+
+B
+
+---
+
+are we only manipulating/deriving/changing Opportunity status in fromJson and no-where else ?
+
+---
+
+one other caveat -> call the delivery type 'personalid_messaging` instead of `messaging' and these type of Opps may or may not have learn apps, so we should support for both scenarios, delivery apps always remain null for these.
+
+---
+
+One more addition, we will be using a new field with path launch.slug in Opp Json which will have the channel id for messaging
+
+---
+
+Instead, I want to call it "launch_slug"
+
+---
+
+what does skipping app records mean here and what derefeencing we are talking about , instead just specify that method will just return null for these ?
+
+---
+
+I think we want to write the learn modules still even when `learnAppInfo` is null as we would like this data to represent what server is sending us

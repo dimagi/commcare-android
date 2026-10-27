@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.12.0",
+  "checkpoint_id": "01M5Y840XXAHFK0E0VNY303HYQ",
+  "strategy": "manual-commit",
+  "branch": "ccct_2964_ocs_based_opps",
+  "checkpoints_count": 9,
+  "files_touched": [
+    "docs/superpowers/specs/2026-10-23-messaging-delivery-opportunity-design.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 122,
+    "cache_creation_tokens": 414661,
+    "cache_read_tokens": 5511663,
+    "output_tokens": 35333,
+    "api_call_count": 61,
+    "subagent_tokens": {
+      "input_tokens": 60,
+      "cache_creation_tokens": 90429,
+      "cache_read_tokens": 1824432,
+      "output_tokens": 12552,
+      "api_call_count": 30
+    }
+  }
+}
