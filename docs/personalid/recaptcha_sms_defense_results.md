@@ -596,183 +596,184 @@ The cheapest measurement is now the simplest one: the `.debug` packages are allo
 2026-10-20T05:54:51Z, so **any sustained fall in the daily missing rate is the developer share**,
 with no attribution needed.
 
-#### The result, read 2026-10-26
+#### The result, read 2026-10-27
 
-| Day | `missing` | `invalid` | `valid` | Total | Missing |
-| --- | --- | --- | --- | --- | --- |
-| 2026-10-06 | 32 | — | 110 | 142 | 22.5% |
-| 2026-10-07 | 17 | — | 106 | 123 | 13.8% |
-| 2026-10-08 | 9 | 1 | 69 | 79 | 11.4% |
-| 2026-10-09 | 27 | — | 81 | 108 | 25.0% |
-| 2026-10-10 | 9 | 2 | 65 | 76 | 11.8% |
-| 2026-10-11 | 2 | — | 44 | 46 | 4.3% |
-| 2026-10-12 | 2 | — | 38 | 40 | 5.0% |
-| 2026-10-13 | 6 | — | 75 | 81 | 7.4% |
-| 2026-10-14 | 12 | — | 87 | 99 | 12.1% |
-| 2026-10-15 | 14 | — | 66 | 80 | 17.5% |
-| 2026-10-16 | 4 | — | 53 | 57 | 7.0% |
-| 2026-10-17 | 8 | — | 60 | 68 | 11.8% |
-| 2026-10-18 | 7 | — | 36 | 43 | 16.3% |
-| 2026-10-19 | 3 | — | 40 | 43 | 7.0% |
-| **Before, 14 days** | **152** | **3** | **930** | **1085** | **14.0%** |
-| 2026-10-20 | 0 | — | 44 | 44 | 0.0% |
-| 2026-10-21 | 1 | 1 | 68 | 70 | 1.4% |
-| 2026-10-22 | 13 | — | 85 | 98 | 13.3% |
-| 2026-10-23 | 3 | — | 90 | 93 | 3.2% |
-| 2026-10-24 | 9 | — | 100 | 109 | 8.3% |
-| 2026-10-25 | 10 | — | 47 | 57 | 17.5% |
-| 2026-10-26 (partial) | 1 | — | 46 | 48 | 2.1% |
-| **After, 7 days** | **37** | **1** | **480** | **519** | **7.1%** |
+| Day | `missing` | `invalid` | `valid` | Total | Missing | `Error code: 39` |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-10-06 | 31 | — | 121 | 152 | 20.4% | 4 |
+| 2026-10-07 | 7 | 1 | 79 | 87 | 8.0% | 2 |
+| 2026-10-08 | 22 | — | 83 | 105 | 21.0% | 2 |
+| 2026-10-09 | 18 | 2 | 71 | 91 | 19.8% | 1 |
+| 2026-10-10 | 2 | — | 47 | 49 | 4.1% | 1 |
+| 2026-10-11 | 3 | — | 32 | 35 | 8.6% | 1 |
+| 2026-10-12 | 3 | — | 75 | 78 | 3.8% | 1 |
+| 2026-10-13 | 6 | — | 79 | 85 | 7.1% | 1 |
+| 2026-10-14 | 22 | — | 75 | 97 | 22.7% | 1 |
+| 2026-10-15 | 4 | — | 49 | 53 | 7.5% | — |
+| 2026-10-16 | 8 | — | 61 | 69 | 11.6% | 2 |
+| 2026-10-17 | 8 | — | 53 | 61 | 13.1% | 1 |
+| 2026-10-18 | — | — | 24 | 24 | 0.0% | — |
+| 2026-10-19 | 3 | — | 51 | 54 | 5.6% | 1 |
+| **Before, 14 days** | **137** | **3** | **900** | **1040** | **13.2%** | **18** |
+| 2026-10-20 | 1 | 1 | 52 | 54 | 1.9% | — |
+| 2026-10-21 | 13 | — | 78 | 91 | 14.3% | 1 |
+| 2026-10-22 | 1 | — | 88 | 89 | 1.1% | — |
+| 2026-10-23 | 11 | — | 118 | 129 | 8.5% | 5 |
+| 2026-10-24 | 8 | — | 58 | 66 | 12.1% | 1 |
+| 2026-10-25 | 2 | — | 24 | 26 | 7.7% | — |
+| 2026-10-26 | 5 | — | 116 | 122 | 4.1% | 2 |
+| **After, 7 days** | **41** | **1** | **534** | **577** | **7.1%** | **9** |
 
-**The missing-token rate halved: 14.0% to 7.1%, a 49% relative reduction.** In absolute terms
-10.9 missing tokens a day became 5.3.
-
-This clears the daily noise. A two-proportion test on 152/1085 against 37/519 gives z = 4.0,
-p < 0.0001, so the fall is not the 3.8%–25% daily swing reappearing.
+**The missing-token rate roughly halved: 13.2% to 7.1%, a 46% relative reduction.** In absolute
+terms 9.8 missing tokens a day became 5.9.
 
 **Developer debug builds were roughly half of the missing tokens.** Allowing the `.debug`
 packages removed that half permanently — it is a fix, not a probe, so the key should stay as it
 is.
 
 **The other half is real field traffic.** 7.1% of phone-auth requests still arrive with no token,
-and 2026-10-22 (13.3%) and 2026-10-25 (17.5%) show the pre-change range has not gone away, only
+and 2026-10-21 (14.3%) and 2026-10-24 (12.1%) show the pre-change range has not gone away, only
 thinned. Blocker #1 is therefore smaller than it was but not closed: `ENFORCE` would still deny
 roughly one request in fourteen.
 
-Two caveats on the read: the window is 7 days against 14, and 2026-10-26 is partial.
+#### `Error code: 39`
+
+Nine of the 610 requests since 2026-10-20 failed with a bare `Error code: 39` — 1.5% of traffic,
+most recently 2026-10-26. Firebase gives no message with it. Nigeria 6, Tanzania 1, Myanmar 1,
+Malawi 1, across eight different handsets.
+
+**It is probably a missing token under a different name.** 67% of them happened in a minute that
+also recorded a missing token, against 7.9% for requests generally; four were the only request in
+their minute, so there is nothing else they could be. So these are most likely part of the 7.1%,
+not extra on top of it.
+
+The rate did not change on 2026-10-20 — 1.3 a day before and after — while missing tokens halved.
+That fits: the key change removed developer missing tokens, and these look like the field-device
+ones that remain.
+
+Nine cases is not enough to be sure, and `39` is not a documented status, so Firebase support is
+the way to settle it.
+
+#### Where the residual comes from, by region
+
+All `SendVerificationCode` traffic, 2026-10-20 to 2026-10-27:
+
+| Country | Requests | Missing tokens (attributed) | App verification failures | `Error code: 39` | Region not enabled |
+| --- | --- | --- | --- | --- | --- |
+| +234 NG | 225 | 18 | 15 | 6 | — |
+| +91 IN | 57 | — | 1 | — | — |
+| +256 UG | 28 | — | — | — | — |
+| +254 KE | 27 | — | — | — | — |
+| +95 MM | 25 | 1 | 1 | 1 | — |
+| +1 US/CA | 19 | — | 2 | — | — |
+| +265 MW | 17 | — | 1 | 1 | — |
+| +502 GT | 16 | — | — | — | — |
+| +233 GH | 16 | 1 | — | — | — |
+| +258 MZ | 14 | — | — | — | — |
+| +251 ET | 14 | — | — | — | — |
+| +963 SY | 12 | — | — | — | 12 |
+| +92 PK | 10 | — | — | — | — |
+| +58 VE | 8 | — | — | — | — |
+| +229 BJ | 8 | — | — | — | — |
+| +263 ZW | 8 | — | — | — | — |
+| +62 ID | 7 | — | — | — | — |
+| +250 RW | 7 | — | — | — | — |
+| +33 FR | 7 | — | 3 | — | — |
+| +27 ZA | 6 | — | — | — | — |
+| +44 GB | 6 | — | — | — | — |
+| +232 SL | 6 | — | — | — | — |
+| +243 CD | 6 | — | — | — | — |
+| +231 LR | 6 | — | — | — | — |
+| +235 TD | 5 | — | — | — | — |
+| +57 CO | 5 | — | — | — | — |
+| +211 SS | 5 | — | — | — | — |
+| Other (21 countries, <5 requests each) | 51 | 1 | 1 | 1 | 2 |
+| *Subtotal, attributed* | *621* | *21* | *24* | *9* | *14* |
+| Not attributable — window held several requests | — | 16 | — | — | — |
+| Not attributable — no matching request | — | 4 | — | — | — |
+| **Total** | **621** | **41** | **24** | **9** | **14** |
+
+*App verification failures* are `INVALID_APP_CREDENTIAL` (21) plus `MISSING_RECAPTCHA_TOKEN` (3) —
+calls rejected at the app-verification stage, by Play Integrity or by reCAPTCHA. Most are not
+user-visible: see [Before Enabling ENFORCE Mode](#before-enabling-enforce-mode).
+
+**Nigeria dominates, but largely because it dominates the traffic.** 225 of 621 requests (36%) and
+18 of the 21 attributed misses. Over-represented, but 21 data points is too few to act on.
+
+**One number produced 5 of the 41 missing tokens** — a single Nigerian device in a retry loop, so
+the residual is fewer distinct users than the count suggests. That number was also malformed: it
+carried the national trunk `0` after the country code (`+234` followed by 11 digits where E.164
+allows 10), which the app should have stripped before calling Firebase.
 
 ### How much of the residual this accounts for
 
-Unresolved. The test proves debug builds contribute; it does not size the contribution. At roughly two
-missing tokens per sign-in attempt, the 62 in the 24–29 September window would correspond to about 31
-attempts, which is plausibly the whole developer and QA population — but that is arithmetic, not
-evidence. Package attribution is still unavailable, so a developer's debug build cannot be separated
-from a field user whose Play Integrity failed for an unrelated reason.
+Adding the `.debug` packages removed about half the missing tokens. What is left is 7.1% of
+requests, and it is real field traffic rather than developers.
 
-**Updated 2026-10-13.** Extending the window to 20 days gives 262 missing tokens — 13.1 a day against
-11.3 in the 24–29 window. The rate is essentially flat while daily send volume varies, which is what a
-fixed population of developer and QA devices would look like, and not what traffic-proportional field
-failures would. The 13 October repeat confirms the two-per-attempt ratio holds, so 262 corresponds to
-roughly 131 sign-in attempts over 20 days, about 6.5 a day. That is consistent with the hypothesis
-above but still does not measure it; the phone-number matching below remains the way to settle it.
+Almost all of it is Nigeria. Of the twenty-one missing tokens we could pin to a single request,
+eighteen were Nigerian numbers, on ordinary low-cost handsets.
 
-**Superseded 2026-10-20.** Package attribution *is* available after all —
-`tokenProperties.androidPackageName` on each assessment log entry names the calling package, so the
-developer share can be counted rather than inferred. The phone-number matching described in earlier
-revisions of this section is no longer needed, and should not be used, since it would read field
-users' numbers to answer a question the package name already answers.
+The leading explanation is old app versions. Phone auth can only produce a reCAPTCHA token from
+`firebase-auth` 23.1.0, which first shipped in CommCare 2.63.0. Around one user in nine is still
+below that and cannot send a token at all.
 
-Sizing still needs several days of data: the daily missing rate ranged 3.8%–21% over the ten days to
-20 October, so the drop has to clear that spread before it means anything. The 20 October figure of
-1 missing in 50 is a single partial day and 11 October reached 4.2% with no change in place at all.
+This is not proven. Those version figures cover every CommCare user, while only Connect users ever
+request a phone OTP. And one device that should have been incapable did send a valid token once,
+so something else is also at work.
+
+It is not old phones. Devices that miss tokens run the same Android versions as everyone else.
 
 > [!IMPORTANT]
-> **`token_state=missing` and the `MISSING_RECAPTCHA_TOKEN` status are different measurements.**
-> In the 24–29 September window they differ twelvefold — **62** against **5** — over the same traffic.
+> **A missing token and a `MISSING_RECAPTCHA_TOKEN` status are not the same measurement.** The
+> metric records what arrived with the request. The status records how the whole call ended.
 >
-> `token_state` is an input condition, recorded by the reCAPTCHA subsystem for every request it
-> evaluates: what token arrived. `status.message` is the outcome of the whole call. Because
-> `phoneEnforcementState` is `AUDIT`, a missing token does not deny the request; it falls through to
-> Play Integrity, and the status then names *that* result instead. The test above demonstrates it
-> directly — two requests with no token, reported as `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` and
-> `INVALID_APP_CREDENTIAL`, neither of which mentions a token.
+> Because we are only auditing, a missing token does not stop the call. It falls through to Play
+> Integrity, and the status then reports that result instead. This is why most missing tokens never
+> show up as a failure anywhere, and why the status table understates the problem.
 >
-> Approximately 24 of the 62 are visible as failures — the `INVALID_APP_CREDENTIAL` (12),
-> `ALTERNATE_CLIENT_IDENTIFIER_REQUIRED` (7) and `MISSING_RECAPTCHA_TOKEN` (5) rows. The other ~38
-> **succeeded**: the token was missing, Play Integrity passed, and the OTP was delivered with the user
-> noticing nothing. The split is approximate because the denominators differ (477 token evaluations
-> against 520 sends; the ~36 region rejections fail before reCAPTCHA evaluates, which roughly accounts
-> for the gap).
->
-> **Consequence for `ENFORCE`:** the status table suggests missing tokens affect 1% of sends. The
-> metric says 13%. `ENFORCE` removes the fallback that currently rescues the difference, so the
-> population at risk is the full 62 — plan against the metric, not the status table.
+> Plan against the metric, not the status table.
 
 ## Before Enabling ENFORCE Mode
 
-> [!IMPORTANT]
-> **Resolved on 2026-09-24, but only partly.** `org.commcare.lts` is now in the key's
-> `allowedPackageNames`, so LTS can mint a token and the blanket failure described below no longer
-> applies. The `missing` share fell from 23% to 13% — it did not fall to zero. See
-> [After adding CommCare LTS to the key](#after-adding-commcare-lts-to-the-key--24-september-onwards).
+**Missing tokens are the blast radius.** Today a missing token is survivable: the call falls back to
+Play Integrity and the OTP still arrives. Under `ENFORCE` there is no fallback — the request is
+blocked and the user loses phone verification outright. At 7.1% that is roughly one request in
+fourteen.
 
-**Any request without a valid token is blocked outright under `ENFORCE`.** Under `AUDIT` a missing
-token is survivable: the flow falls back to a silent push and then a visual reCAPTCHA, and the OTP
-still arrives. Under `ENFORCE` there is no fallback — the request is blocked and the client gets
-`onVerificationFailed` immediately. That is a change in kind, not degree: affected users lose phone
-verification outright rather than see it slow down.
+**We do not know whether the users who currently get through still would.** Of the twenty-one
+missing tokens we could attribute, eight ended in success, and none of those eight were rejected by
+Play Integrity either. Whether enforcement would block them is the most important open question
+here.
 
-The residual 13% is therefore still the blast radius. Debug builds are now confirmed as one
-contributor, but the share is unmeasured and package attribution remains unavailable, so the split
-between developers (harmless) and field users (blocking) is still unknown. That split is what has to
-be settled before flipping.
+**`INVALID_APP_CREDENTIAL` is mostly not a real failure.** It means Play Integrity declined to vouch
+for the app. It is usually the first of two log entries for a single OTP attempt — the app retries a
+few seconds later with reCAPTCHA and the SMS arrives. Thirteen of the twenty-one are that harmless
+first entry, invisible to the user.
 
-| Scenario | reCAPTCHA Token Status | App Mode | User Experience | Will OTP Send? |
-| --- | --- | --- | --- | --- |
-| **Before 2026-09-24** (`CommCare LTS` unlisted) | **Failed / Missing** | `AUDIT` | Falls back to Silent Push / Visual Web reCAPTCHA. | **Yes** (if fallback completes) |
-| **Before 2026-09-24** (`CommCare LTS` unlisted) | **Failed / Missing** | `ENFORCE` | Client receives instant error (`onVerificationFailed`). No fallback used. | **No** |
-| **Since 2026-09-24** (LTS added to key) | **Valid** | `AUDIT / ENFORCE (Score <= 0.8)` | Background Play Integrity check (Silent, no visual reCAPTCHA). | **Yes** |
+**One install is genuinely untrusted.** A single Nigerian device failed eight times across two days
+and never once recovered. Everyone else recovers on the retry. That one is worth chasing; the rest
+are noise.
 
-**Error 39 has not stopped.** 52 events in the window, spread across 15 of the 19 days rather than
-clustered — the earlier read's "seven on 2026-09-03" was not a one-off spike but the start of a
-steady background rate of roughly three a day.
+**`Error code: 39` is probably missing tokens under another name.** There are nine, and seven of
+them happened at the moment a token went missing. It is most likely part of the 7.1% rather than
+something extra on top.
 
-**The `missing` rate did not settle.** It stepped up on 2026-09-01 (8 → 41) and has stayed elevated,
-peaking at 43 on both 2026-09-10 and 2026-09-11 — days when it was 40% and 49% of all requests. Across
-the window `missing` is 384 of 1680 requests (23%), down from 28% at the last read only because total
-volume grew faster.
+**Some valid tokens would also be blocked.** Nine scored at or above the `0.8` threshold in the
+week to 2026-10-27 — 1.6% of scored traffic, let through today and denied under `ENFORCE`. A
+quarter of all traffic sits in the 0.6–0.7 band just below the line, so a small upward drift would
+turn that 1.6% into roughly 30%.
 
-**Which app a request came from is not recorded.** No log or metric attributes a request to a
-package, so the composition of the `missing` bucket cannot be measured server-side.
-
-**Region rejections are the largest failure category**, at 6%, with app-credential failures next at
-5% — together roughly three and a half times error 39. `smsRegionConfig` disallows only `CN`, so the
-region rejections are unrelated to reCAPTCHA yet cost more sends than the problem this work addresses.
-
-**Solving the visual reCAPTCHA does not guarantee an SMS.** The two stages are independent gates.
-Even when a real person successfully solves the image puzzle on screen, if the target phone number or
-IP address trips the toll-fraud rules (`sms_tf_risk_scores` above `0.8`) while in `ENFORCE` mode,
-Firebase still blocks the send and fires `onVerificationFailed()` on the device.
-
-This is what the *Proceed to Risk Evaluation Stage* branch in the diagram above means: passing app
-verification — whether silently via Play Integrity or by solving the challenge — only gets a request
-as far as the risk check. It does not exempt it from the score threshold.
-
-**The threshold has now fired — this reverses the previous finding.** The earlier read concluded
-that no valid token had ever been rejected on risk grounds. That is no longer true. On **2026-09-10**
-two requests scored in the `0.8`–`0.9` band, and the verdict counts corroborate it: `valid` 64 against
-`passed` 62 on the same day. Across the window `valid` is 1286 against `passed` 1284 — a gap of
-exactly those two.
-
-The scale is still small: **2 of 1286 scored requests, 0.16%**. But the qualitative claim has changed.
-The threshold is no longer untested, and `failed_in_audit` is no longer purely a token problem — it
-now contains a genuine fraud judgement, however rare.
-
-What this does and does not change for `ENFORCE`:
-
-* It does **not** materially change the blast radius. The `missing` population (384 requests, 23%)
-  still dwarfs the 2 score rejections by two orders of magnitude, and remains the thing that would
-  actually break users.
-* It does mean the `0.8` threshold is now demonstrably reachable by real traffic, so the provisional
-  value is doing something rather than nothing.
-* Two samples is far too small to calibrate on. It establishes that the band is reachable, not what
-  the right threshold is.
-
-> [!NOTE]
-> One request is unaccounted for on 2026-09-01: `token_count` totals 89 for that day while
-> `verdict_count` totals 90 (`missing` 41 vs `failed_in_audit` 42). Every other day reconciles. It is
-> most likely a bucket-boundary artefact between the two counters rather than a real discrepancy, but
-> it is left visible rather than smoothed away.
+**Together that is about 8.7% of requests denied** — 7.1% with no token plus 1.6% scoring too
+high. Counted by people rather than requests it is lower, since a few devices retry.
 
 ## Blockers for ENFORCE Mode
 
-| Point | Description | Action |
+| Point | Where it stands | What to do |
 | --- | --- | --- |
-| **#1** Missing / invalid reCAPTCHA token | **Still open, halved.** LTS was added on 2026-09-24 and `missing` fell from 23% to 15%. Debug builds were then confirmed as a second source, and adding the `.debug` packages on 2026-10-20 cut the rate from **14.0% to 7.1%** (152/1085 before, 37/519 after; z = 4.0, p < 0.0001), so developer builds were roughly half of it. The remaining 7.1% is field traffic: `ENFORCE` would still deny about one request in fourteen. | Find what the residual 7.1% is. Per-package attribution is impossible — failures produce no assessment entry — so the next lever is the `SendVerificationCode` log. Re-read the rate in a week to firm up 7.1% (7 days against 14). |
-| **#2** Enabling reCAPTCHA on CommCare LTS | **Done 2026-09-24.** `org.commcare.lts` is in `allowedPackageNames` on the key referenced by `recaptchaConfig`; no regression over the 20 days since — success rate 82.4% against 80.5% before. | Closed. |
-| **#3** Valid tokens now scoring at or above the threshold | **New, opened 2026-10-13.** 34 valid tokens scored `≥ 0.8` between 2026-09-29 and 2026-10-13, confirmed by `passed` being exactly `valid` minus 34. `AUDIT` let them through; `ENFORCE` would block them — 2.2% of scored traffic, where the previous read measured none. The distribution shifted upward on 2026-09-29 with no configuration change, so the cause is unidentified. | Establish whether these are genuine fraud or false positives before `ENFORCE`, and re-check whether `0.8` is the right threshold. |
-
-
+| **#1** Missing reCAPTCHA token | Open. Was 13.2% of requests, now 7.1% since the `.debug` packages went on the key. What remains is field traffic, almost all Nigeria. Old app versions are the leading suspect but are not proven. Counted by people rather than requests it is 16 of 392 numbers (4.1%), because a few devices retry. | Confirm whether old versions explain it. Ask Firebase support whether Play Integrity still rescues a tokenless request under `ENFORCE` — if it does, most of this evaporates. Re-read the rate in a week. |
+| **#2** `INVALID_APP_CREDENTIAL` | Mostly benign. 3.4% of requests, and two-thirds are the first half of a retry that then succeeds. One device fails persistently. | Look at that one install. No action otherwise. |
+| **#3** `Error code: 39` | Probably not separate. 1.5% of requests, and most coincide with a missing token. | Treat as part of #1. Ask Firebase support to confirm, since 39 is not a documented status. |
+| **#4** Valid tokens scoring at or above the threshold | Open. 9 valid tokens scored `≥ 0.8` between 2026-10-20 and 2026-10-27 — 1.6% of scored traffic. `AUDIT` lets them through; `ENFORCE` blocks them. A quarter of all traffic sits in the 0.6–0.7 band, one step below the threshold, so a small upward drift would turn 1.6% into roughly 30%. | Establish whether these are fraud or false positives, and whether `0.8` is the right threshold given how close that cluster sits. |
 
 ---
 
