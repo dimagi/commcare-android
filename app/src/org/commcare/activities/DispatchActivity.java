@@ -177,6 +177,7 @@ public class DispatchActivity extends AppCompatActivity {
         personalIdUnlockDeclined = false;
         leftLoginWithoutSignIn = false;
         hasLaunchedLandingScreen = false;
+        shortcutExtraWasConsumed = false;
     }
 
     @Override
