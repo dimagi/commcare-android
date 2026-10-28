@@ -1,6 +1,5 @@
 package org.commcare.home
 
-import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import org.commcare.CommCareApplication
 import org.commcare.activities.FormAndDataSyncer
@@ -161,7 +160,7 @@ class SyncDelegate(
     }
 
     fun handleSyncNotAttempted(message: String) {
-        Toast.makeText(connector, message, Toast.LENGTH_LONG).show()
+        host.displayToast(message)
     }
 
     fun handleFormUploadResult(

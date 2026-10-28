@@ -183,10 +183,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         return getSyncDelegate().generateProgressDialog(taskId);
     }
 
-    protected void displayToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-    }
-
     @Override
     public SyncDelegate getReceiver() {
         return coordinator.getSync();
