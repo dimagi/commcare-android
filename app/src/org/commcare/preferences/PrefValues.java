@@ -18,6 +18,10 @@ public class PrefValues {
     public final static String NO = "no";
     public final static String NONE = "none";
 
+    public final static String AUDIO_QUALITY_SMALLEST = "smallest";
+    public final static String AUDIO_QUALITY_BALANCED = "balanced";
+    public final static String AUDIO_QUALITY_DEFAULT = "default";
+
     public final static String TRUE = "True";
     public final static String FALSE = "False";
 

@@ -8,9 +8,9 @@ import com.google.common.collect.Multimap;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.network.ConnectSsoHelper;
-import org.commcare.connect.network.TokenUnavailableException;
+import org.commcare.connect.PersonalIdSessionManager;
+import org.commcare.connect.network.personalId.ConnectSsoHelper;
+import org.commcare.connect.network.personalId.TokenUnavailableException;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
@@ -37,6 +37,8 @@ import javax.annotation.Nullable;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
+import org.commcare.personalId.PersonalIdAppStateEvaluator;
+import org.commcare.personalId.PersonalIdCredentialProvider;
 import retrofit2.Response;
 
 
@@ -175,11 +177,11 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
 
     private AuthInfo buildAuth() throws TokenUnavailableException {
         if (username != null) {
-            AuthInfo.TokenAuth tokenAuth = PersonalIdManager.getInstance().getHqTokenIfLinked(username);
+            AuthInfo.TokenAuth tokenAuth = PersonalIdCredentialProvider.getHqTokenIfLinked(username);
             if (tokenAuth != null) {
                 return tokenAuth;
             } else {
-                if (PersonalIdManager.getInstance().isSeatedAppCongigureWithPersonalId(username)) {
+                if (PersonalIdAppStateEvaluator.isSeatedAppWorkerLinked(username)) {
                     Logger.exception("Token auth error for connect managed app",
                             new Throwable("No token Auth available for a connect managed app"));
                 }
@@ -200,7 +202,7 @@ public class CommcareRequestGenerator implements CommcareRequestEndpoints {
     private void checkForTokenError(Response<ResponseBody> response, AuthInfo auth) {
         if(response.code() == 401 && auth instanceof AuthInfo.TokenAuth) {
             Logger.exception("Invalid HQ SSO token", new Exception("Invalid HQ token"));
-            ConnectSsoHelper.discardTokens(CommCareApplication.instance(), username);
+            ConnectSsoHelper.discardTokens(username);
         }
     }
 

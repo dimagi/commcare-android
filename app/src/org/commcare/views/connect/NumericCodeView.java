@@ -49,13 +49,20 @@ public class NumericCodeView extends LinearLayout {
         init(attrs);
     }
 
+    // Deliberately not try-with-resources: that needs TypedArray.close() (API 31), which leaves this
+    // view uninflatable under Robolectric's default SDK. recycle() is equivalent and available everywhere.
+    @SuppressWarnings("resource")
     private void init(AttributeSet attrs) {
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
 
         // Read attributes from XML
         if (attrs != null) {
-            try (TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NumericCodeView)) {
+            // Deliberately not try-with-resources: that needs TypedArray.close() (API 31), which leaves this
+            // view uninflatable under Robolectric's default SDK. recycle() is equivalent and available everywhere.
+            @SuppressWarnings("resource")
+            TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.NumericCodeView);
+            try {
                 digitCount = typedArray.getInt(R.styleable.NumericCodeView_codeViewDigitCount, digitCount);
                 borderColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewBorderColor, borderColor);
                 errorBorderColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewErrorBorderColor, errorBorderColor);
@@ -65,6 +72,8 @@ public class NumericCodeView extends LinearLayout {
                 errorTextColor = typedArray.getColor(R.styleable.NumericCodeView_codeViewErrorTextColor, errorTextColor);
                 textSize = typedArray.getDimension(R.styleable.NumericCodeView_codeViewTextSize, textSize);
                 passwordMode = typedArray.getBoolean(R.styleable.NumericCodeView_codeViewPasswordMode, false);
+            } finally {
+                typedArray.recycle();
             }
         }
 
@@ -283,6 +292,9 @@ public class NumericCodeView extends LinearLayout {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setCornerRadius(borderRadius);
         drawable.setStroke(borderWidth, isErrorState ? errorBorderColor : borderColor);
+        if (!isEnabled()) {
+            drawable.setColor(Color.LTGRAY);
+        }
         return drawable;
     }
 
@@ -374,6 +386,15 @@ public class NumericCodeView extends LinearLayout {
 
     public void setOnEnterKeyPressedListener(OnEnterKeyPressedListener listener) {
         this.enterKeyPressedListener = listener;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        for (int i = 0; i < getChildCount(); i++) {
+            getChildAt(i).setEnabled(enabled);
+        }
+        updateUi();
     }
 
     public void setCode(String code) {

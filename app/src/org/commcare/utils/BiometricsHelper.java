@@ -50,6 +50,10 @@ public class BiometricsHelper {
      * @param biometricManager The BiometricManager instance.
      * @return The fingerprint configuration status.
      */
+    public static BiometricManager getBiometricManager(FragmentActivity parent) {
+        return BiometricManager.from(parent);
+    }
+
     public static ConfigurationStatus checkFingerprintStatus(Context context, BiometricManager biometricManager) {
         return checkStatus(context, biometricManager, BIOMETRIC_STRONG);
     }
@@ -170,6 +174,9 @@ public class BiometricsHelper {
             }
             case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                 return ConfigurationStatus.NoHardware;
+            }
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
+                return ConfigurationStatus.NotAvailable;
             }
             case BiometricManager.BIOMETRIC_STATUS_UNKNOWN,
                  BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED,

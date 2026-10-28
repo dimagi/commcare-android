@@ -1,6 +1,5 @@
 package org.commcare.connect.network.base
 
-import org.commcare.connect.network.IApiCallback
 import org.commcare.interfaces.base.BaseConnectView
 import org.javarosa.core.services.Logger
 import org.json.JSONException
@@ -102,9 +101,17 @@ abstract class BaseApiHandler<T>(
         // The OTP the user entered is incorrect.
         INCORRECT_OTP_ERROR,
 
+        // The user ran out of guesses on an OTP, so the server discarded it.
+        OTP_LIMIT_EXCEEDED_ERROR,
+
         // The photo uploaded for the user is too large for server to handle. Note that, currently,
         // the user does not have much control over the photo size.
-        FILE_TOO_LARGE_ERROR, ;
+        FILE_TOO_LARGE_ERROR,
+
+        // The verified email is already tied to another active account.
+        EMAIL_ALREADY_IN_USE_ERROR,
+
+        ;
 
         fun shouldAllowRetry(): Boolean =
             this == NETWORK_ERROR || (this == TOKEN_UNAVAILABLE_ERROR) || (this == SERVER_ERROR) ||

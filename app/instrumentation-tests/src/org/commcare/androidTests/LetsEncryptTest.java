@@ -32,9 +32,6 @@ public class LetsEncryptTest {
     private static final String GOOGLE_TEST_URL = "https://www.google.com/robots.txt"; // GlobalSign
     private static final String COMMCARE_TEST_URL = "http://www.commcarehq.org/serverup.txt"; // AWS
 
-    // DST Root CA X3 , will shift to ISRG Root X1 on 1 Sep 2021 and can be removed there after
-    private static final String SWISS_TEST_URL = "https://swiss.commcarehq.org/serverup.txt";
-
     private CommCareNetworkService commCareNetworkService;
 
     @Before
@@ -45,7 +42,6 @@ public class LetsEncryptTest {
     @Test
     public void getPassesWithoutException() throws IOException {
         makeGetRequest(ISRG_TEST_URL, 404);
-        makeGetRequest(SWISS_TEST_URL, 200);
         makeGetRequest(COMMCARE_TEST_URL, 200);
         makeGetRequest(GOOGLE_TEST_URL, 200);
     }

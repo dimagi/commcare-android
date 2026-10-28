@@ -222,6 +222,29 @@ class PhoneNumberHelperTest {
         assertTrue("Should return empty string for negative", formatted.isEmpty())
     }
 
+    // ========== Display Formatting Tests ==========
+
+    @Test
+    fun `formatForDisplay formats a valid number in international form`() {
+        val formatted = phoneNumberHelper.formatForDisplay("+919876543210")
+
+        assertEquals("+91 98765 43210", formatted)
+    }
+
+    @Test
+    fun `formatForDisplay returns the input unchanged when it cannot be parsed`() {
+        val formatted = phoneNumberHelper.formatForDisplay("not-a-phone")
+
+        assertEquals("not-a-phone", formatted)
+    }
+
+    @Test
+    fun `formatForDisplay returns empty string for empty input`() {
+        val formatted = phoneNumberHelper.formatForDisplay("")
+
+        assertEquals("", formatted)
+    }
+
     // ========== Locale-Based Country Code Tests ==========
 
     @Test

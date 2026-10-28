@@ -17,23 +17,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.commcare.activities.SettingsHelper;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
-import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
-import org.commcare.connect.database.ConnectAppDatabaseUtil;
-import org.commcare.connect.database.ConnectDatabaseHelper;
 import org.commcare.dalvik.databinding.ScreenPersonalidMessageBinding;
 import org.commcare.utils.GeoUtils;
-
-import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.NavHostFragment;
-
-import java.util.List;
-
-import static android.app.Activity.RESULT_OK;
 
 public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private String title;
@@ -51,6 +38,11 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
     private ScreenPersonalidMessageBinding binding;
     private PersonalIdSessionData personalIdSessionData;
 
+
+    @Override
+    public int getTheme() {
+        return com.google.android.material.R.style.ThemeOverlay_MaterialComponents_BottomSheetDialog;
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -127,19 +119,14 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         Activity activity = requireActivity();
         switch (callingClass) {
             case ConnectConstants.PERSONALID_REGISTRATION_SUCCESS, ConnectConstants.PERSONALID_RECOVERY_SUCCESS:
-                successFlow(activity);
+                activity.setResult(android.app.Activity.RESULT_OK);
+                activity.finish();
                 break;
             case ConnectConstants.PERSONALID_BIOMETRIC_ENROLL_FAIL:
                 SettingsHelper.launchSecuritySettings(activity);
                 break;
             case ConnectConstants.PERSONALID_RECOVERY_WRONG_BACKUPCODE:
-                if (PersonalIdManager.getInstance().getFailureAttempt() > 2) {
-                    directions = navigateToPhoneVerify();
-                    PersonalIdManager.getInstance().setFailureAttempt(0);
-                } else {
-                    directions = navigateToBackupCode();
-                }
-
+                directions = navigateToBackupCode();
                 break;
             case ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED:
             case ConnectConstants.PERSONALID_RECOVERY_ACCOUNT_LOCKED:
@@ -163,27 +150,7 @@ public class PersonalIdMessageFragment extends BottomSheetDialogFragment {
         }
     }
 
-    private NavDirections navigateToPhoneVerify() {
-        return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidPhoneVerify();
-    }
-
     private NavDirections navigateToBackupCode() {
         return PersonalIdMessageFragmentDirections.actionPersonalidMessageToPersonalidBackupcode();
-    }
-
-    private void successFlow(Activity activity) {
-        PersonalIdManager.getInstance().setStatus(PersonalIdManager.PersonalIdStatus.LoggedIn);
-        ConnectDatabaseHelper.setRegistrationPhase(getActivity(), ConnectConstants.PERSONALID_NO_ACTIVITY);
-        storeFeatureReleaseToggles();
-        activity.setResult(RESULT_OK);
-        activity.finish();
-    }
-
-    private void storeFeatureReleaseToggles() {
-        List<ConnectReleaseToggleRecord> featureReleaseToggles =
-                personalIdSessionData.getFeatureReleaseToggles();
-        if (featureReleaseToggles != null) {
-            ConnectAppDatabaseUtil.storeReleaseToggles(requireContext(), featureReleaseToggles);
-        }
     }
 }

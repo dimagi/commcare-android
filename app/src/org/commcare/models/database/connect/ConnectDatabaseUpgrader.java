@@ -24,19 +24,25 @@ import org.commcare.android.database.connect.models.ConnectJobRecordV4;
 import org.commcare.android.database.connect.models.ConnectJobRecordV7;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecord;
 import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecordV21;
+import org.commcare.android.database.connect.models.ConnectLearnModuleSummaryRecordV28;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecord;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV3;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV8;
 import org.commcare.android.database.connect.models.ConnectLinkedAppRecordV9;
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingChannelRecordV27;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingMessageRecordV29;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord;
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecordV21;
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord;
+import org.commcare.android.database.connect.models.ConnectTaskRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecord;
 import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV16;
+import org.commcare.android.database.connect.models.ConnectUserRecordV25;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
@@ -176,6 +182,32 @@ public class ConnectDatabaseUpgrader {
 
         if (oldVersion == 24) {
             upgradeTwentyFourTwentyFive(db);
+            oldVersion = 25;
+        }
+
+        if (oldVersion == 25) {
+            upgradeTwentyFiveTwentySix(db);
+            oldVersion = 26;
+        }
+
+        if (oldVersion == 26) {
+            upgradeTwentySixTwentySeven(db);
+            oldVersion = 27;
+        }
+
+        if (oldVersion == 27) {
+            upgradeTwentySevenTwentyEight(db);
+            oldVersion = 28;
+        }
+
+        if (oldVersion == 28) {
+            upgradeTwentyEightTwentyNine(db);
+            oldVersion = 29;
+        }
+
+        if (oldVersion == 29) {
+            upgradeTwentyNineThirty(db);
+            oldVersion = 30;
         }
     }
 
@@ -590,7 +622,7 @@ public class ConnectDatabaseUpgrader {
     }
 
     private void upgradeElevenTwelve(IDatabase db) {
-        addTableForNewModel(db, ConnectMessagingChannelRecord.STORAGE_KEY, new ConnectMessagingChannelRecord());
+        addTableForNewModel(db, ConnectMessagingChannelRecord.STORAGE_KEY, new ConnectMessagingChannelRecordV27());
         addTableForNewModel(db, ConnectMessagingMessageRecord.STORAGE_KEY, new ConnectMessagingMessageRecord());
     }
 
@@ -665,17 +697,17 @@ public class ConnectDatabaseUpgrader {
             boolean hasConnectAccess = jobStorage.getNumRecords() > 0;
 
             SqlStorage<ConnectUserRecordV16> oldStorage = new SqlStorage<>(
-                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecordV16.STORAGE_KEY,
                     ConnectUserRecordV16.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                    ConnectUserRecord.STORAGE_KEY,
-                    ConnectUserRecord.class,
+                    ConnectUserRecordV25.STORAGE_KEY,
+                    ConnectUserRecordV25.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (ConnectUserRecordV16 oldRecord : oldStorage) {
-                ConnectUserRecord newRecord = ConnectUserRecord.fromV16(oldRecord, hasConnectAccess);
+                ConnectUserRecordV25 newRecord = ConnectUserRecordV25.fromV16(oldRecord, hasConnectAccess);
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
@@ -896,14 +928,14 @@ public class ConnectDatabaseUpgrader {
                 ConnectLearnModuleSummaryRecordV21.class,
                 new ConcreteAndroidDbHelper(c, db));
 
-        SqlStorage<Persistable> newStorage = new SqlStorage<>(
-                ConnectLearnModuleSummaryRecord.STORAGE_KEY,
-                ConnectLearnModuleSummaryRecord.class,
+        SqlStorage<ConnectLearnModuleSummaryRecordV28> newStorage = new SqlStorage<>(
+                ConnectLearnModuleSummaryRecordV28.STORAGE_KEY,
+                ConnectLearnModuleSummaryRecordV28.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         for (Persistable r : oldStorage) {
             ConnectLearnModuleSummaryRecordV21 oldRecord = (ConnectLearnModuleSummaryRecordV21)r;
-            ConnectLearnModuleSummaryRecord newRecord = ConnectLearnModuleSummaryRecord.fromV21(oldRecord);
+            ConnectLearnModuleSummaryRecordV28 newRecord = ConnectLearnModuleSummaryRecordV28.Companion.fromV21(oldRecord);
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
@@ -1062,6 +1094,128 @@ public class ConnectDatabaseUpgrader {
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyFiveTwentySix(IDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.META_EMAIL,
+                    "TEXT"));
+
+            SqlStorage<ConnectUserRecordV25> oldStorage = new SqlStorage<>(
+                    ConnectUserRecordV25.STORAGE_KEY,
+                    ConnectUserRecordV25.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectUserRecord> newStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectUserRecordV25 oldRecord : oldStorage) {
+                ConnectUserRecord newRecord = ConnectUserRecord.fromV25(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentySixTwentySeven(IDatabase db) {
+        addTableForNewModel(db, ConnectTaskRecord.STORAGE_KEY, new ConnectTaskRecord());
+    }
+
+    private void upgradeTwentySevenTwentyEight(IDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectMessagingChannelRecord.STORAGE_KEY,
+                    ConnectMessagingChannelRecord.META_CHANNEL_NAME,
+                    "TEXT"));
+
+            SqlStorage<ConnectMessagingChannelRecordV27> oldStorage = new SqlStorage<>(
+                    ConnectMessagingChannelRecord.STORAGE_KEY,
+                    ConnectMessagingChannelRecordV27.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectMessagingChannelRecord> newStorage = new SqlStorage<>(
+                    ConnectMessagingChannelRecord.STORAGE_KEY,
+                    ConnectMessagingChannelRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectMessagingChannelRecordV27 oldRecord : oldStorage) {
+                ConnectMessagingChannelRecord newRecord = ConnectMessagingChannelRecord.fromV27(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyEightTwentyNine(IDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL(DbUtil.addColumnToTable(
+                    ConnectLearnModuleSummaryRecord.STORAGE_KEY,
+                    ConnectLearnModuleSummaryRecord.META_MODULE_ID,
+                    "INTEGER"));
+
+            SqlStorage<ConnectLearnModuleSummaryRecordV28> oldStorage = new SqlStorage<>(
+                    ConnectLearnModuleSummaryRecord.STORAGE_KEY,
+                    ConnectLearnModuleSummaryRecordV28.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectLearnModuleSummaryRecord> newStorage = new SqlStorage<>(
+                    ConnectLearnModuleSummaryRecord.STORAGE_KEY,
+                    ConnectLearnModuleSummaryRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectLearnModuleSummaryRecordV28 oldRecord : oldStorage) {
+                ConnectLearnModuleSummaryRecord newRecord =
+                        ConnectLearnModuleSummaryRecord.fromV28(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeTwentyNineThirty(IDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<ConnectMessagingMessageRecordV29> oldStorage = new SqlStorage<>(
+                    ConnectMessagingMessageRecord.STORAGE_KEY,
+                    ConnectMessagingMessageRecordV29.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectMessagingMessageRecord> newStorage = new SqlStorage<>(
+                    ConnectMessagingMessageRecord.STORAGE_KEY,
+                    ConnectMessagingMessageRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectMessagingMessageRecordV29 oldRecord : oldStorage) {
+                ConnectMessagingMessageRecord newRecord = ConnectMessagingMessageRecord.fromV29(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
+
+            addTableForNewModel(db, ConnectMessagingAttachmentRecord.STORAGE_KEY,
+                    new ConnectMessagingAttachmentRecord());
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

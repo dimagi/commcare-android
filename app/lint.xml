@@ -2,4 +2,6 @@
 <lint>
     <!-- Disable the "Using Log instead of Timber" lint warnings -->
     <issue id="LogNotTimber" severity="ignore" />
+    <issue id="Instantiatable" severity="ignore" />
+
 </lint>

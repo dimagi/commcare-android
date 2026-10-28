@@ -221,6 +221,7 @@ public abstract class MediaWidget extends QuestionWidget implements QuestionWidg
     public void registerBinaryAttachment(String mediaName) {
         mBinaryName = mediaName;
         incrementAttachmentCount();
+        widgetEntryChanged();
     }
 
     @Override

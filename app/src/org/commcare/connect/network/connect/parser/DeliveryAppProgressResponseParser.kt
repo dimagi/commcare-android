@@ -3,9 +3,9 @@ package org.commcare.connect.network.connect.parser
 import org.commcare.android.database.connect.models.ConnectJobDeliveryRecord
 import org.commcare.android.database.connect.models.ConnectJobPaymentRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.connect.network.base.BaseApiResponseParser
 import org.commcare.connect.network.connect.models.DeliveryAppProgressResponseModel
-import org.commcare.connect.network.connect.models.ParsedConnectTask
 import org.javarosa.core.io.StreamsUtil
 import org.javarosa.core.model.utils.DateUtils
 import org.json.JSONException
@@ -24,7 +24,7 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
         var updatedJob = false
         var hasDeliveries = false
         var hasPayment = false
-        val parsedTasks: MutableList<ParsedConnectTask> = mutableListOf()
+        val tasks: MutableList<ConnectTaskRecord> = mutableListOf()
 
         responseData.use { `in` ->
 
@@ -91,7 +91,7 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
                         val array = json.getJSONArray("assigned_tasks")
                         for (i in 0 until array.length()) {
                             val obj = array[i] as JSONObject
-                            parsedTasks.add(ParsedConnectTask.fromJson(obj))
+                            tasks.add(ConnectTaskRecord.fromJson(obj, job))
                         }
                     }
                 }
@@ -104,7 +104,7 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
             updatedJob,
             hasDeliveries,
             hasPayment,
-            parsedTasks,
+            tasks,
         ) as T
     }
 }

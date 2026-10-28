@@ -2,7 +2,6 @@ package org.commcare.navdrawer
 
 import android.view.View
 import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -17,7 +16,6 @@ class DrawerViewRefs(
 ) {
     val drawerLayout: DrawerLayout = rootView.findViewById(R.id.drawer_layout)
     val navDrawerRecycler: RecyclerView = rootView.findViewById(R.id.nav_drawer_recycler)
-    val drawerFrame: FrameLayout = rootView.findViewById(R.id.nav_drawer_frame)
     val signInButton: Button = rootView.findViewById(R.id.nav_drawer_sign_in_button)
     val signedOutText: TextView = rootView.findViewById(R.id.nav_drawer_signed_out_text)
     val versionText: TextView = rootView.findViewById(R.id.app_version)
@@ -26,13 +24,14 @@ class DrawerViewRefs(
     val userImage: ImageView = rootView.findViewById(R.id.user_image)
     val userImageOverlayIcon: ImageView = rootView.findViewById(R.id.user_image_overlay_icon)
     val userName: TextView = rootView.findViewById(R.id.header_user_name)
+    val manageProfileLink: TextView = rootView.findViewById(R.id.header_manage_profile)
     val notificationView: LinearLayout = rootView.findViewById(R.id.notification_view)
     val ivNotification: ImageView = rootView.findViewById(R.id.ivNotification)
     val aboutView: LinearLayout = rootView.findViewById(R.id.about_view)
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
     val toolbar: Toolbar = rootView.findViewById(R.id.toolbar)
     val errorContainer: View = rootView.findViewById(R.id.nav_drawer_error_container)
-    val errorIcon: ImageView = rootView.findViewById(R.id.nav_drawer_error_icon)
+    val signedOutAvatar: ImageView = rootView.findViewById(R.id.nav_drawer_signed_out_avatar)
     val errorTitle: TextView = rootView.findViewById(R.id.nav_drawer_error_title)
     val errorMessage: TextView = rootView.findViewById(R.id.nav_drawer_error_message)
     val reconfigureButton: Button = rootView.findViewById(R.id.nav_drawer_reconfigure_button)

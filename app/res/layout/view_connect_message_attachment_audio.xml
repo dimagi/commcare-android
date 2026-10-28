@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="horizontal"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <FrameLayout
+        android:id="@+id/btnPlay"
+        android:layout_width="@dimen/connect_touch_target_min"
+        android:layout_height="@dimen/connect_touch_target_min"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/connect_messaging_audio_play">
+
+        <ImageView
+            android:id="@+id/ivPlayIcon"
+            style="@style/ConnectMessageAttachmentActionCircle"
+            android:layout_width="@dimen/connect_icon_circle_lg"
+            android:layout_height="@dimen/connect_icon_circle_lg"
+            android:layout_gravity="center"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_connect_message_play" />
+    </FrameLayout>
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/slider"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:valueFrom="0"
+        android:valueTo="1"
+        app:haloRadius="0dp"
+        app:labelBehavior="gone"
+        app:thumbColor="@color/white"
+        app:thumbRadius="@dimen/connect_message_audio_thumb_radius"
+        app:trackColorActive="@color/white"
+        app:trackColorInactive="@color/connect_message_audio_track_inactive"
+        app:trackHeight="@dimen/connect_message_audio_track_height" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        style="@style/ConnectMessageAttachmentText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFeatureSettings="tnum"
+        tools:text="1:24" />
+</merge>

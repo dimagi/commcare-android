@@ -28,6 +28,7 @@ import com.jakewharton.rxbinding2.widget.AdapterViewItemClickEvent;
 import com.jakewharton.rxbinding2.widget.RxAdapterView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.utils.CrashUtil;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
@@ -372,7 +373,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onStart() {
         super.onStart();
-        hereFunctionHandler.registerListener(this);
     }
 
     @Override
@@ -382,6 +382,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             setResult(RESULT_CANCELED, i);
             finish();
         } else if (!isFinishing() && !isStartingDetailActivity) {
+            hereFunctionHandler.registerListener(this);
+
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);
             }
@@ -441,6 +443,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             rebuildHeaders();
 
             if (adapter == null) {
+                CrashUtil.log("EntitySelectActivity.loadEntities called from refreshView() " +
+                        "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
+                        "; isFinishing=" + isFinishing());
                 loadEntities();
             } else {
                 refreshTimer.start(this);
@@ -470,6 +475,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    // temporary for troubleshooting purposes
+    public String getSessionCommand(){
+        return (session == null || session.getCommand() == null) ? "null" : session.getCommand();
+    }
+
+    // temporary for troubleshooting purposes
+    public String getSelectDatum() {
+        return selectDatum == null ? "null" : selectDatum.getDataId() + " " + selectDatum.getValue();
+    }
+
     public boolean loadEntities() {
         if (adapter != null) {
             // Store extra data to be reloaded upon load task completion
@@ -477,6 +492,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            if (session.getCommand() == null) {
+                CrashUtil.log("EntitySelectActivity.loadEntities with null session command" +
+                        "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
+                        "; isFinishing=" + isFinishing());
+            }
             setProgressText(StringUtils.getStringRobust(this, R.string.entity_list_initializing));
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, selectDatum, evalContext());
             entityLoader.attachListener(this);
@@ -513,7 +533,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onPause() {
         super.onPause();
-
         if (refreshTimer != null) {
             refreshTimer.stop();
         }
@@ -523,6 +542,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         hereFunctionHandler.forbidGpsUse();
+        hereFunctionHandler.unregisterListener();
     }
 
     @Override
@@ -532,7 +552,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             refreshTimer.stop();
         }
         saveLastQueryString();
-        hereFunctionHandler.unregisterListener();
     }
 
     @Override
@@ -911,6 +930,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (locationChangedWhileLoading) {
             Log.i("HereFunctionHandler", "location changed while reloading");
             locationChangedWhileLoading = false;
+            CrashUtil.log("EntitySelectActivity.loadEntities called from deliverLoadResult() " +
+                    "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
+                    "; isFinishing=" + isFinishing());
             loadEntities();
         }
     }
@@ -1029,6 +1051,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    public boolean shouldAbortDelivery() {
+        return isFinishing();
+    }
+
+    @Override
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
         if (selectedIntent != null) {
@@ -1060,6 +1087,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void onEvalLocationChanged() {
+        CrashUtil.log("EntitySelectActivity.loadEntities called from onEvalLocationChanged() " +
+                "; currentCommand=" + getSessionCommand() + "; selectDatum=" + getSelectDatum() +
+                "; isFinishing=" + isFinishing());
+        if (isFinishing() || session == null || session.getCommand() == null) {
+            CrashUtil.log("EntitySelectActivity.onEvalLocationChanged with null session command" +
+                    "; isFinishing=" + isFinishing());
+            return;
+        }
         boolean loaded = loadEntities();
         if (!loaded) {
             locationChangedWhileLoading = true;

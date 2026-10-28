@@ -1,18 +1,16 @@
 package org.commcare.fragments.personalId
 
+import androidx.annotation.CallSuper
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.testing.TestNavHostController
-import androidx.test.core.app.ApplicationProvider
-import org.commcare.activities.connect.PersonalIdActivity
-import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
+import io.mockk.every
+import io.mockk.mockkObject
+import io.mockk.unmockkObject
 import org.commcare.android.database.connect.models.PersonalIdSessionData
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
+import org.commcare.utils.BiometricsHelper
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
@@ -20,96 +18,62 @@ import org.mockito.Mock
 import org.mockito.MockedStatic
 import org.mockito.Mockito
 import org.mockito.MockitoAnnotations
-import org.robolectric.Robolectric
-import org.robolectric.android.controller.ActivityController
-import org.robolectric.shadows.ShadowLooper
 
 /**
  * Base test class for PersonalIdBiometricConfigFragment tests.
  * Contains common setup and teardown logic for fragment testing.
  */
-abstract class BasePersonalIdBiometricConfigFragmentTest {
+abstract class BasePersonalIdBiometricConfigFragmentTest :
+    BasePersonalIdConfigurationTest<TestablePersonalIdBiometricConfigFragment>() {
     protected lateinit var mocksCloseable: AutoCloseable
-    protected lateinit var activityController: ActivityController<PersonalIdActivity>
-    protected lateinit var activity: PersonalIdActivity
-    protected lateinit var fragment: PersonalIdBiometricConfigFragment
-    protected lateinit var navController: TestNavHostController
-    protected lateinit var personalIdManagerMock: MockedStatic<PersonalIdManager>
+    protected lateinit var biometricsHelperMock: MockedStatic<BiometricsHelper>
 
     @Mock
     protected lateinit var mockBiometricManager: BiometricManager
 
     @Mock
-    protected lateinit var mockPersonalIdManager: PersonalIdManager
+    protected lateinit var mockPersonalIdSessionManager: PersonalIdSessionManager
 
     @Before
-    open fun setUp() {
+    @CallSuper
+    override fun setUp() {
+        super.setUp()
         mocksCloseable = MockitoAnnotations.openMocks(this)
         MockAndroidKeyStoreProvider.registerProvider()
         mockBiometricManager()
     }
 
     private fun mockBiometricManager() {
-        personalIdManagerMock = Mockito.mockStatic(PersonalIdManager::class.java)
-        personalIdManagerMock
-            .`when`<PersonalIdManager> { PersonalIdManager.getInstance() }
-            .thenReturn(mockPersonalIdManager)
-        Mockito
-            .`when`(mockPersonalIdManager.getBiometricManager(Mockito.any()))
+        mockkObject(PersonalIdSessionManager.Companion)
+        every { PersonalIdSessionManager.getInstance() } returns mockPersonalIdSessionManager
+        // CALLS_REAL_METHODS so only getBiometricManager is stubbed; the fragment relies on the
+        // real checkFingerprintStatus / checkPinStatus
+        biometricsHelperMock = Mockito.mockStatic(BiometricsHelper::class.java, Mockito.CALLS_REAL_METHODS)
+        biometricsHelperMock
+            .`when`<BiometricManager> { BiometricsHelper.getBiometricManager(Mockito.any()) }
             .thenReturn(mockBiometricManager)
     }
 
     protected fun setUpBiometricFragment(requiredLock: String = PersonalIdSessionData.PIN) {
-        activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
-        activity =
-            activityController
-                .create()
-                .start()
-                .resume()
-                .get()
-
-        // Set up ViewModel with initial data before fragment navigation
         val sessionData =
             PersonalIdSessionData(
                 requiredLock = requiredLock,
                 demoUser = false,
             )
-
-        // Get the ViewModel from the activity and populate it with test data
-        activity.runOnUiThread {
-            val viewModel = ViewModelProvider(activity)[PersonalIdSessionDataViewModel::class.java]
-            viewModel.setPersonalIdSessionData(sessionData)
+        launchFragmentForTest(sessionData, R.id.personalid_biometric_config) {
+            TestablePersonalIdBiometricConfigFragment(it)
         }
-        ShadowLooper.idleMainLooper()
-
-        val navHostFragment =
-            activity.supportFragmentManager
-                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
-
-        // Set up TestNavController and attach it to the NavHostFragment view BEFORE creating the fragment
-        navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-        navController.setGraph(R.navigation.nav_graph_personalid)
-        navController.setCurrentDestination(R.id.personalid_biometric_config)
-
-        activity.runOnUiThread {
-            Navigation.setViewNavController(navHostFragment.requireView(), navController)
-            val testableFragment = TestablePersonalIdBiometricConfigFragment(navController)
-            navHostFragment.childFragmentManager
-                .beginTransaction()
-                .replace(R.id.nav_host_fragment_connectid, testableFragment)
-                .commitNow()
-            fragment = testableFragment
-        }
-
-        ShadowLooper.idleMainLooper()
     }
 
     @After
-    open fun tearDown() {
+    @CallSuper
+    override fun tearDown() {
         activityController.pause().stop().destroy()
         mocksCloseable.close()
-        personalIdManagerMock.close()
+        unmockkObject(PersonalIdSessionManager.Companion)
+        biometricsHelperMock.close()
         MockAndroidKeyStoreProvider.deregisterProvider()
+        super.tearDown()
     }
 }
 

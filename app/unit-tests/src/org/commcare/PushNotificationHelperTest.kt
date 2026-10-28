@@ -1,6 +1,5 @@
 package org.commcare
 
-import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.Runs
 import io.mockk.every
@@ -25,7 +24,6 @@ import org.robolectric.annotation.Config
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PushNotificationHelperTest {
-    private val context: Context = CommCareTestApplication.instance()
     private val longMessage = "A".repeat(70000)
     private val encryptedKey = "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
     private val channelId = "channel-id"
@@ -89,7 +87,7 @@ class PushNotificationHelperTest {
         val mockStorage = mockk<SqlStorage<ConnectMessagingMessageRecord>>()
         mockkStatic(ConnectDatabaseHelper::class)
         every {
-            ConnectDatabaseHelper.getConnectStorage(context, ConnectMessagingMessageRecord::class.java)
+            ConnectDatabaseHelper.getConnectStorage(ConnectMessagingMessageRecord::class.java)
         } returns mockStorage
 
         every { mockStorage.write(capture(slot)) } just Runs
@@ -104,7 +102,6 @@ class PushNotificationHelperTest {
 
     private fun getStorage(): SqlStorage<ConnectMessagingMessageRecord> =
         ConnectDatabaseHelper.getConnectStorage(
-            context,
             ConnectMessagingMessageRecord::class.java,
         )
 

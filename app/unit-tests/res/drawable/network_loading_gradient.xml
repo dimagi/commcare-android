@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simplified override for unit tests: the real drawable uses animated-vector with
+     inline aapt:attr gradients which the SDK 23 framework cannot parse at runtime. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/transparent" />
+</shape>

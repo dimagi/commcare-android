@@ -49,8 +49,8 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     private static final String HOME_REPORT_ENABLED = "cc-home-report";
     private static final String AUTO_PURGE_ENABLED = "cc-auto-purge";
     private static final String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
+    private static final String AUDIO_QUALITY_PROFILE = "cc-audio-quality-profile";
     private static final String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
-    private static final String USE_ROOT_MENU_AS_HOME_SCREEN = "cc-use-root-menu-as-home-screen";
     private static final String SHOW_ADB_ENTITY_LIST_TRACES = "cc-show-entity-trace-outputs";
     private static final String USE_OBFUSCATED_PW = "cc-use-pw-obfuscation";
     private static final String ENABLE_BULK_PERFORMANCE = "cc-enable-bulk-performance";
@@ -83,6 +83,7 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
     static {
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SUPERUSER_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(SHOW_UPDATE_OPTIONS_SETTING);
+        WHITELISTED_DEVELOPER_PREF_KEYS.add(AUDIO_QUALITY_PROFILE);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(AUTO_PURGE_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ALTERNATE_QUESTION_LAYOUT_ENABLED);
         WHITELISTED_DEVELOPER_PREF_KEYS.add(ENABLE_CERTIFICATE_TRANSPARENCY);
@@ -381,16 +382,21 @@ public class DeveloperPreferences extends CommCarePreferenceFragment {
         return properties.getString(LOAD_FORM_PAYLOAD_AS, FormRecord.STATUS_SAVED);
     }
 
+    public static String getAudioQualityProfile() {
+        SharedPreferences properties = CommCareApplication.instance().getCurrentApp().getAppPreferences();
+        String value = properties.getString(AUDIO_QUALITY_PROFILE, PrefValues.AUDIO_QUALITY_DEFAULT);
+        if (PrefValues.AUDIO_QUALITY_DEFAULT.equals(value)) {
+            value = PrefValues.AUDIO_QUALITY_SMALLEST;
+        }
+        return value;
+    }
+
     /**
      * Feature flag to control whether swiping in case detail tabs can trigger
      * exit from the case detail screen
      */
     public static boolean isDetailTabSwipeActionEnabled() {
         return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, PrefValues.YES, PrefValues.YES);
-    }
-
-    public static boolean useRootModuleMenuAsHomeScreen() {
-        return doesPropertyMatch(USE_ROOT_MENU_AS_HOME_SCREEN, PrefValues.NO, PrefValues.YES);
     }
 
 

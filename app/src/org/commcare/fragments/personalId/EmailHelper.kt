@@ -1,0 +1,182 @@
+package org.commcare.fragments.personalId
+
+import android.app.Activity
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
+import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.CommCareAttemptCounter
+import org.commcare.utils.OtpAnalyticsMapper
+import org.commcare.utils.StringUtils
+
+/**
+ * Shared helpers for the PersonalID email-entry and email-OTP-verification.
+ *
+ */
+object EmailHelper {
+    // ---------- Auth-arg selection -------------------------------------------------------
+
+    /**
+     * Picks the right auth pair for an email OTP API call based on [workflow]
+     */
+    private fun buildAuthArgs(
+        workflow: EmailWorkFlow,
+        sessionData: PersonalIdSessionData?,
+    ): Pair<String?, ConnectUserRecord?> =
+        when (workflow) {
+            EmailWorkFlow.EXISTING_USER,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_EXISTING_USER,
+            EmailWorkFlow.PENDING_BACKUP_CODE,
+            EmailWorkFlow.RECOVERY,
+            -> null to ConnectUserDatabaseUtil.getUser()
+
+            EmailWorkFlow.REGISTRATION,
+            EmailWorkFlow.FORGOT_BACKUP_CODE_RECOVERY,
+            -> sessionData?.token to null
+        }
+
+    // ---------- API calls ----------------------------------------------------------------
+
+    /**
+     * Sends an email OTP request
+     */
+    fun sendEmailOtp(
+        activity: Activity,
+        email: String?,
+        workflow: EmailWorkFlow,
+        sessionData: PersonalIdSessionData?,
+        tracker: CommCareAttemptCounter = CommCareAttemptCounter(),
+        onSuccess: () -> Unit,
+        onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
+    ) {
+        val (token, user) = buildAuthArgs(workflow, sessionData)
+        tracker.recordRequest()
+        object : PersonalIdApiHandler<Any?>() {
+            override fun onSuccess(data: Any?) {
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    null,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
+                Toast
+                    .makeText(
+                        activity,
+                        activity.getString(R.string.personalId_email_otp_sent),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                onSuccess()
+            }
+
+            override fun onFailure(
+                failureCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.REQUEST_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    OtpAnalyticsMapper.reasonFrom(failureCode),
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
+                onFailure(failureCode, t)
+            }
+        }.sendEmailOtp(activity, email, token, user)
+    }
+
+    /**
+     * Verifies an email OTP.
+     */
+    fun verifyEmailOtp(
+        activity: Activity,
+        email: String,
+        otp: String,
+        workflow: EmailWorkFlow,
+        sessionData: PersonalIdSessionData?,
+        tracker: CommCareAttemptCounter = CommCareAttemptCounter(),
+        onSuccess: () -> Unit,
+        onFailure: (PersonalIdOrConnectApiErrorCodes, Throwable?) -> Unit,
+    ) {
+        val (token, user) = buildAuthArgs(workflow, sessionData)
+        object : PersonalIdApiHandler<Any?>() {
+            override fun onSuccess(data: Any?) {
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_SUCCESS,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    null,
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
+                onSuccess()
+            }
+
+            override fun onFailure(
+                failureCode: PersonalIdOrConnectApiErrorCodes,
+                t: Throwable?,
+            ) {
+                tracker.recordFailedAttempt()
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.VERIFY_EMAIL,
+                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    AnalyticsParamValue.OTP_METHOD_EMAIL,
+                    OtpAnalyticsMapper.reasonFrom(failureCode),
+                    tracker.requestCount,
+                    tracker.failedAttempts,
+                    OtpAnalyticsMapper.workflowParam(workflow),
+                )
+                onFailure(failureCode, t)
+            }
+        }.verifyEmailOtp(activity, email, otp, token, user)
+    }
+
+    // ---------- Workflow routing ---------------------------------------------------------
+
+    /**
+     * Dispatches the next step after the user skips / declines the email step.
+     */
+    fun routeAfterEmailDeclined(
+        fragment: Fragment,
+        workflow: EmailWorkFlow,
+        onRegistration: () -> Unit,
+        onRecoverySuccess: () -> Unit,
+    ) {
+        when (workflow) {
+            EmailWorkFlow.EXISTING_USER -> {
+                fragment.requireActivity().finish()
+            }
+
+            EmailWorkFlow.RECOVERY -> {
+                onRecoverySuccess()
+            }
+
+            EmailWorkFlow.REGISTRATION -> {
+                onRegistration()
+            }
+
+            else -> {
+                throw IllegalArgumentException("Unexpected workflow: $workflow")
+            }
+        }
+    }
+
+    fun isValidEmail(email: String?) = StringUtils.isValidEmail(email)
+
+    fun maskEmail(email: String): String {
+        val atIndex = email.indexOf('@')
+        if (atIndex < 2) return email
+        return "${email.first()}***${email[atIndex - 1]}${email.substring(atIndex)}"
+    }
+}

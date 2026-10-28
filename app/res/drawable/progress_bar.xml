@@ -14,7 +14,7 @@
 
         <gradient
             android:type="sweep"
-            android:startColor="@color/black"
-            android:endColor="@color/cc_brand_color" />
+            android:startColor="@color/audio_recording_primary_color"
+            android:endColor="@color/white" />
     </shape>
 </rotate>

@@ -9,7 +9,7 @@ import org.commcare.android.database.connect.models.PushNotificationRecord
 import org.commcare.commcaresupportlibrary.CommCareLauncher
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.utils.FirebaseMessagingUtil.handleNotification
 import org.junit.After
@@ -33,15 +33,15 @@ class SessionEndpointNotificationTest {
     private val endpointIdValue = "ep-1"
 
     private lateinit var connectJobUtilsMock: MockedStatic<ConnectJobUtils>
-    private lateinit var savedStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
 
     @Before
     fun setUp() {
-        // Set PersonalIdManager status to LoggedIn directly to satisfy cccCheckPassed().
+        // Set PersonalIdSessionManager status to LoggedIn directly to satisfy cccCheckPassed().
         // init() only touches the DB when status == NotIntroduced; once LoggedIn it's a no-op.
-        val manager = PersonalIdManager.getInstance()
+        val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
-        manager.status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         connectJobUtilsMock = Mockito.mockStatic(ConnectJobUtils::class.java)
         connectJobUtilsMock
@@ -65,7 +65,7 @@ class SessionEndpointNotificationTest {
     @After
     fun tearDown() {
         connectJobUtilsMock.close()
-        PersonalIdManager.getInstance().status = savedStatus
+        PersonalIdSessionManager.getInstance().status = savedStatus
     }
 
     private fun buildPayload(
