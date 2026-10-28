@@ -1,0 +1,25 @@
+name: Localization screenshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'commcare-android branch, tag or SHA to screenshot (blank: the branch picked above)'
+        required: false
+      locales:
+        description: 'Comma-separated resource qualifiers, e.g. en,fr,pt-rBR (blank: en and every values-* folder with a strings.xml)'
+        required: false
+      commcare_core_ref:
+        description: 'commcare-core ref (blank: the same-named branch if it exists, else master)'
+        required: false
+jobs:
+  screenshots:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/l10n-screenshots-run.yml
+    with:
+      title: Localization screenshots
+      artifact_prefix: l10n-screenshots
+      ref: ${{ inputs.ref }}
+      locales: ${{ inputs.locales }}
+      commcare_core_ref: ${{ inputs.commcare_core_ref }}

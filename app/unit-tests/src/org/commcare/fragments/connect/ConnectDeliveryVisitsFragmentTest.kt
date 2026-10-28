@@ -24,13 +24,14 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.util.ReflectionUtils
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
+import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
@@ -72,7 +73,7 @@ class ConnectDeliveryVisitsFragmentTest {
     private val appContext get() = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
 
     /** Each unit's own cap, so a unit can be exhausted without ending the job. */
-    private val perUnitTotal = ConnectLearnJobTestData.MAX_VISITS / ConnectLearnJobTestData.PAYMENT_UNIT_COUNT
+    private val perUnitTotal = ConnectJobTestData.MAX_VISITS / ConnectJobTestData.PAYMENT_UNIT_COUNT
 
     @Before
     fun setUp() {
@@ -129,9 +130,19 @@ class ConnectDeliveryVisitsFragmentTest {
                 launchVisitsTab(deliveryProgressJson(deliveries = approvedDeliveriesFor(unit = 1, count = 2))),
             )
 
-        assertEquals(ConnectLearnJobTestData.PAYMENT_UNIT_COUNT, cards.size)
+        assertEquals(ConnectJobTestData.PAYMENT_UNIT_COUNT, cards.size)
         assertEquals("Unit 1", cards[0].title())
         assertEquals("Unit 2", cards[1].title())
+    }
+
+    @Test
+    fun `cards are listed by their unit's most recent visit with unvisited units last`() {
+        val cards =
+            getPaymentUnitCards(
+                launchVisitsTab(deliveryProgressJson(deliveries = approvedDeliveriesFor(unit = 2, count = 1))),
+            )
+
+        assertEquals(listOf("Unit 2", "Unit 1"), cards.map { it.title() })
     }
 
     @Test
@@ -142,7 +153,7 @@ class ConnectDeliveryVisitsFragmentTest {
             )[0]
 
         assertEquals("2", card.approved())
-        assertEquals("50 ${ConnectLearnJobTestData.CURRENCY}", card.amount())
+        assertEquals("50 ${ConnectJobTestData.CURRENCY}", card.amount())
         assertEquals(
             appContext.getString(
                 R.string.connect_results_summary_remaining_days,
@@ -166,8 +177,8 @@ class ConnectDeliveryVisitsFragmentTest {
                 ),
             )
 
-        assertEquals("2", cards[0].approved())
-        assertEquals("3", cards[1].approved())
+        assertEquals("2", cards.findCardWithTitle("Unit 1").approved())
+        assertEquals("3", cards.findCardWithTitle("Unit 2").approved())
     }
 
     @Test
@@ -185,7 +196,7 @@ class ConnectDeliveryVisitsFragmentTest {
             )[0]
 
         assertEquals("2", card.approved())
-        assertEquals("50 ${ConnectLearnJobTestData.CURRENCY}", card.amount())
+        assertEquals("50 ${ConnectJobTestData.CURRENCY}", card.amount())
     }
 
     @Test
@@ -255,6 +266,10 @@ class ConnectDeliveryVisitsFragmentTest {
         )
     }
 
+    /**
+     * Also covers the hosting: this tab sits two levels down inside Opportunity Home, so the current
+     * destination is that page rather than a delivery home the generated action could start from.
+     */
     @Test
     fun `tapping a card opens that unit's visits and lists only its own deliveries`() {
         val visits =
@@ -265,7 +280,7 @@ class ConnectDeliveryVisitsFragmentTest {
                             approvedDeliveriesFor(unit = 2, count = 3, startId = 50),
                 ),
             )
-        val unitTwoCard = getPaymentUnitCards(visits)[1]
+        val unitTwoCard = getPaymentUnitCards(visits).findCardWithTitle("Unit 2")
 
         activity.runOnUiThread { unitTwoCard.performClick() }
         ShadowLooper.idleMainLooper()
@@ -345,19 +360,13 @@ class ConnectDeliveryVisitsFragmentTest {
         deliveryProgressBody = responseBody
 
         activity.setActiveJob(job)
-        activity.runOnUiThread {
-            navController.navigate(
-                R.id.action_connect_jobs_list_fragment_to_connect_delivery_home_fragment,
-            )
-        }
+        activity.runOnUiThread { navController.navigate(R.id.connect_opportunity_home_fragment) }
         ShadowLooper.idleMainLooper()
 
         awaitDeliverySync()
         layOutHierarchy()
 
-        val home =
-            navHostFragment.childFragmentManager.primaryNavigationFragment
-                as ConnectDeliveryHomeFragment
+        val home = navHostFragment.opportunityHomeSurface<ConnectDeliveryHomeFragment>()
         home
             .requireView()
             .findViewById<ViewPager2>(R.id.connect_delivery_home_view_pager)
@@ -411,6 +420,8 @@ class ConnectDeliveryVisitsFragmentTest {
 
     private fun View.title(): String = findViewById<TextView>(R.id.tvDeliveryTitle).text.toString()
 
+    private fun List<View>.findCardWithTitle(title: String): View = single { it.title() == title }
+
     private fun View.approved(): String = findViewById<TextView>(R.id.tvApproved).text.toString()
 
     private fun View.amount(): String = findViewById<TextView>(R.id.tvDeliveryTotalAmount).text.toString()
@@ -443,7 +454,7 @@ class ConnectDeliveryVisitsFragmentTest {
      * after the database write — then drains the main looper so the resulting UI update lands.
      */
     private fun awaitDeliverySync() {
-        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectLearnJobTestData.JOB_UUID
+        val syncKey = ConnectRepository.SYNC_KEY_DELIVERY_PREFIX + ConnectJobTestData.JOB_UUID
         val prefs = ConnectSyncPreferences.getInstance()
         val deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS
 
@@ -510,11 +521,11 @@ class ConnectDeliveryVisitsFragmentTest {
      */
     private fun seedDeliveryJob(): ConnectJobRecord {
         val seeded =
-            ConnectLearnJobTestData.job().apply {
+            ConnectJobTestData.job().apply {
                 status = ConnectJobRecord.STATUS_DELIVERING
             }
         ConnectJobUtils.storeJobs(appContext, listOf(seeded), true)
-        return ConnectJobUtils.getCompositeJob(ConnectLearnJobTestData.JOB_UUID)!!
+        return ConnectJobUtils.getCompositeJob(ConnectJobTestData.JOB_UUID)!!
     }
 
     /**

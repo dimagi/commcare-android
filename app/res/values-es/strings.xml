@@ -458,7 +458,6 @@
     <string name="personalid_set_backup_code_reminder_message">No tienes un código de respaldo configurado en tu cuenta. Haz clic en Confirmar para configurar uno.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Establecer código de respaldo</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Por favor, establezca un código de respaldo antes de salir</string>
-    <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
     <string name="connect_payment_received">Recibido</string>
     <string name="connect_payment_transferred">Transferido</string>

@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:text="@string/personalid_notification"
             style="@style/TextStyle.Connect.LabelM"
-            android:textColor="?attr/connectNavDrawerForeground"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:text="@string/about_cc"
             style="@style/TextStyle.Connect.LabelM"
-            android:textColor="?attr/connectNavDrawerForeground"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginStart="8dp" />
     </LinearLayout>
 
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:text="@string/nav_drawer_help"
             style="@style/TextStyle.Connect.LabelM"
-            android:textColor="?attr/connectNavDrawerForeground"
+            android:textColor="?attr/colorOnPrimary"
             android:layout_marginStart="8dp"/>
     </LinearLayout>
     <TextView
