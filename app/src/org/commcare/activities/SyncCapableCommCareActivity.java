@@ -14,7 +14,7 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     @NonNull
     @Override
-    public CommCareActivity<?> getSyncConnector() {
+    public CommCareActivity<?> getSyncTaskActivity() {
         return this;
     }
 

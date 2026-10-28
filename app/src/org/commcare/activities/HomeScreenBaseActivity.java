@@ -148,7 +148,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
 
     @NonNull
     @Override
-    public CommCareActivity<?> getSyncConnector() {
+    public CommCareActivity<?> getSyncTaskActivity() {
         return this;
     }
 
