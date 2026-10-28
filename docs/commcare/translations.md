@@ -27,6 +27,15 @@ The Robolectric tests in `org.commcare.l10n` record PersonalID and Connect scree
 
 Each locale is an Android resource qualifier, as in the `values-<qualifier>` folder names: `fr` for a language, or `pt-rBR` for a region (not the BCP-47 form `pt-BR`).
 
-Images land in `app/build/outputs/l10n-screenshots/<locale>/` (override with `-Pl10n.outDir=<dir>`).
+Screens render at `w360dp-h800dp-xhdpi`. To render other screen sizes, list their resource qualifiers with `-Pl10n.sizes`:
 
-To record them in CI, run the **Localization screenshots** workflow from the Actions tab. It uploads the images with an `index.html` that lays out each screen across locales.
+```bash
+./gradlew testCommcareDebugUnitTest --tests 'org.commcare.l10n.*' -Pl10n.locale=en,fr -Pl10n.sizes=w360dp-h800dp-xhdpi,w320dp-h534dp-hdpi
+```
+
+Images land in `app/build/outputs/l10n-screenshots/<locale>/`, or `<locale>/<size>/` when more than one size is listed (override the root with `-Pl10n.outDir=<dir>`).
+
+To record them in CI, run one of these workflows from the Actions tab. Each uploads the images with an `index.html` that lays out each screen side by side:
+
+- **Localization screenshots**: every translated locale at the default size.
+- **Screen size screenshots**: one locale at a list of sizes, small phones first, drawn to scale to check for cramped layouts.
