@@ -46,7 +46,7 @@ dependencies {
     testImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
-    testImplementation 'org.json:json:20250517'
+    testImplementation 'org.json:json:20260814'
     testImplementation 'org.mockito:mockito-core:5.5.0'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
     testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
