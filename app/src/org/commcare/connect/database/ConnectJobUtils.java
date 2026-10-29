@@ -92,6 +92,12 @@ public class ConnectJobUtils {
         return new ArrayList<>(jobs);
     }
 
+    /** Every stored job, without the related records that {@link #getCompositeJobs} attaches. */
+    public static List<ConnectJobRecord> getJobs() {
+        return new ArrayList<>(ConnectDatabaseHelper.getConnectStorage(ConnectJobRecord.class)
+                .getRecordsForValues(new String[]{}, new Object[]{}));
+    }
+
     public static int storeJobs(
             Context context,
             List<ConnectJobRecord> jobs,
