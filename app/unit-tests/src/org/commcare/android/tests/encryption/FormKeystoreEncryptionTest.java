@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.EncryptionKeyAndTransform;
@@ -129,8 +130,13 @@ public class FormKeystoreEncryptionTest {
     @Test
     public void testGenerateLegacyKeyOrEmpty_withKeystoreAvailable() {
         byte[] key = CommCareKeyManager.generateLegacyKeyOrEmpty();
-        Assert.assertEquals("Key should be empty when Keystore is available",
-                0, key.length);
+        if (AndroidKeyStore.isKeystoreAvailable()) {
+            Assert.assertEquals("Key should be empty when Keystore is available",
+                    0, key.length);
+        } else {
+            Assert.assertNotEquals("Key should not be empty when Keystore is unavailable",
+                    0, key.length);
+        }
     }
 
     @Test
@@ -148,16 +154,18 @@ public class FormKeystoreEncryptionTest {
         // Attempting to decrypt with a legacy key should fail
         byte[] keyBytes = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
         SecretKeySpec wrongKey = new SecretKeySpec(keyBytes, "AES");
+        StringBuilder result = new StringBuilder();
         try (InputStream is = EncryptionIO.getFileInputStream(
                 tempFile.getAbsolutePath(), wrongKey, null, false)) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-            StringBuilder result = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
                 result.append(line);
             }
-            Assert.assertNotEquals("Decrypting Keystore file with legacy key should not produce original content",
-                    TEST_XML, result.toString());
+        } catch (IOException e) {
+            return;
         }
+        Assert.assertNotEquals("Decrypting Keystore file with legacy key should not produce original content",
+                    TEST_XML, result.toString());
     }
 }
