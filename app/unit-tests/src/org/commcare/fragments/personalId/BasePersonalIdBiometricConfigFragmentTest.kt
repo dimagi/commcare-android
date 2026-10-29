@@ -11,7 +11,6 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
 import org.commcare.utils.BiometricsHelper
-import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
 import org.mockito.Mock
@@ -39,7 +38,6 @@ abstract class BasePersonalIdBiometricConfigFragmentTest :
     override fun setUp() {
         super.setUp()
         mocksCloseable = MockitoAnnotations.openMocks(this)
-        MockAndroidKeyStoreProvider.registerProvider()
         mockBiometricManager()
     }
 
@@ -72,7 +70,6 @@ abstract class BasePersonalIdBiometricConfigFragmentTest :
         mocksCloseable.close()
         unmockkObject(PersonalIdSessionManager.Companion)
         biometricsHelperMock.close()
-        MockAndroidKeyStoreProvider.deregisterProvider()
         super.tearDown()
     }
 }

@@ -1403,10 +1403,10 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
                 FormEntryActivity.KEY_INCOMPLETE_ENABLED,
                 HiddenPreferences.isIncompleteFormsEnabled()
         );
-        i.putExtra(
-                FormEntryActivity.KEY_AES_STORAGE_KEY,
-                Base64.encodeToString(r.getAesKey(), Base64.DEFAULT)
-        );
+        if (!r.usesKeystoreEncryption()) {
+            i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY,
+                    Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
+        }
         i.putExtra(
                 FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION,
                 DeveloperPreferences.isSessionSavingEnabled()

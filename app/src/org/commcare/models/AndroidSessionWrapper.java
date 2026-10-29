@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.InterruptedFormState;
@@ -40,7 +41,7 @@ import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.crypto.SecretKey;
+
 
 /**
  * This is a container class which maintains all of the appropriate hooks for managing the details
@@ -205,12 +206,10 @@ public class AndroidSessionWrapper implements SessionWrapperInterface {
         SqlStorage<FormRecord> storage = CommCareApplication.instance().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication.instance().getUserStorage(SessionStateDescriptor.class);
 
-        SecretKey key = CommCareApplication.instance().createNewSymmetricKey();
-
         //TODO: this has two components which can fail. be able to roll them back
 
         FormRecord r = new FormRecord(FormRecord.STATUS_UNSTARTED, getSession().getForm(),
-                key.getEncoded(), null, new Date(0),
+                CommCareKeyManager.generateLegacyKeyOrEmpty(), null, new Date(0),
                 CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId());
         storage.write(r);
         setFormRecordId(r.getID());

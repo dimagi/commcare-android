@@ -40,6 +40,7 @@ import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
@@ -126,8 +127,17 @@ public class SignatureWidget extends QuestionWidget implements QuestionWidget.Me
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
 
-            File toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
-                    ((FormEntryActivity)getContext()).getSymetricKey());
+            File toDisplay;
+            if (((FormEntryActivity)getContext()).isKeyFromKeystore()) {
+                toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
+                        CommCareKeyManager.retrieveSessionKeyAndTransformation().getKey(),
+                        CommCareKeyManager.retrieveSessionKeyAndTransformation().getTransformation(),
+                        true
+                );
+            } else {
+                toDisplay = getFileToDisplay(mInstanceFolder, mBinaryName,
+                        ((FormEntryActivity)getContext()).getSymetricKey(), null, false);
+            }
             if (toDisplay.exists()) {
                 Bitmap bmp = MediaUtil.getBitmapScaledToContainer(toDisplay, screenHeight, screenWidth);
                 if (bmp == null) {
