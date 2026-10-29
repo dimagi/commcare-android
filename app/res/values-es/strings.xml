@@ -273,7 +273,6 @@
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
     <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
-    <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
     <string name="connect_job_ended">La tarea finalizó el %s</string>
