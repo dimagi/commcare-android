@@ -35,6 +35,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.home.HomeActivityHost;
+import org.commcare.home.SyncDelegate;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
@@ -63,7 +64,6 @@ import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.tasks.ResultAndError;
 import org.commcare.util.DatumUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -73,9 +73,11 @@ import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CommCareAlertDialog;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -114,7 +116,7 @@ import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLat
  * Manages all of the shared (mostly non-UI) components of a CommCare home screen: activity
  * lifecycle, implementation of available actions, session navigation, etc.
  */
-public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActivity<T>
+public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivity<SyncDelegate>
         implements SessionNavigationResponder, HomeActivityHost {
 
     /**
@@ -182,6 +184,40 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     public HomeActivityCoordinator getCoordinator() {
         return coordinator;
+    }
+
+    protected SyncDelegate getSyncDelegate() {
+        return coordinator.getSync();
+    }
+
+    @NonNull
+    @Override
+    public CommCareActivity<?> getSyncConnector() {
+        return this;
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        return getSyncDelegate().generateProgressDialog(taskId);
+    }
+
+    protected void displayToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public SyncDelegate getReceiver() {
+        return coordinator.getSync();
+    }
+
+    @Override
+    protected SessionExpirationHandler getSessionExpirationHandler() {
+        return coordinator.getSessionExpiration();
+    }
+
+    @Override
+    public void onSessionLost() {
+        SessionRegistrationHelper.redirectToLogin(this);
     }
 
     @Override
@@ -357,7 +393,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         // trigger a blocking sync
         String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         if (HiddenPreferences.isPendingSyncRequest(username)) {
-            sendFormsOrSync(false);
+            getSyncDelegate().sendFormsOrSync(false);
 
             return true;
         }
@@ -595,7 +631,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
                 ConnectJobUtils.getJobForSeatedApp(this),
                 "View Job Status pressed but no Connect job was found for the seated app"
         );
-        ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
+        ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job);
     }
 
     @Override
@@ -745,7 +781,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             if (filePath != null && !filePath.isEmpty()) {
                 File f = new File(filePath);
                 if (f.exists()) {
-                    formAndDataSyncer.performCustomRestoreFromFile(this, f);
+                    getSyncDelegate().performCustomRestoreFromFile(f);
                 } else {
                     Toast.makeText(
                             this,
@@ -948,7 +984,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
 
             // The form is either ready for processing, or not, depending on how it was saved
             if (complete) {
-                startUnsentFormsTask(false, false);
+                getSyncDelegate().startUnsentFormsTask(false, false);
                 refreshUI();
 
                 if (exitFromExternalLaunch()) {
@@ -1407,7 +1443,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
         if (isVisible) {
             refreshUI();
         }
-        sendFormsOrSync(false);
+        getSyncDelegate().sendFormsOrSync(false);
     }
 
     @Override
@@ -1492,18 +1528,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
     }
 
     @Override
-    public void handlePullTaskResult(
-            ResultAndError<DataPullTask.PullTaskResult> resultAndError,
-            boolean userTriggeredSync,
-            boolean formsToSend,
-            boolean usingRemoteKeyManagement
-    ) {
-        super.handlePullTaskResult(
-                resultAndError,
-                userTriggeredSync,
-                formsToSend,
-                usingRemoteKeyManagement
-        );
+    public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
         if (coordinator.getPendingEndpointNavigationAfterSync() && processSessionEndpoint()) {
             sessionNavigator.startNextSessionStep();
             coordinator.setPendingEndpointNavigationAfterSync(false);
@@ -1511,7 +1536,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
             Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
             i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
 
-            if (resultAndError.data == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
+            if (result == DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS) {
                 i.putExtra(UpdateActivity.KEY_PRE_UPDATE_SYNC_SUCCEED, true);
             } else {
                 i.putExtra(UpdateActivity.KEY_PRE_UPDATE_SYNC_SUCCEED, false);
@@ -1664,7 +1689,7 @@ public abstract class HomeScreenBaseActivity<T> extends SyncCapableCommCareActiv
      */
     public void setFormAndDataSyncer(FormAndDataSyncer formAndDataSyncer) {
         if (BuildConfig.DEBUG) {
-            this.formAndDataSyncer = formAndDataSyncer;
+            getSyncDelegate().setFormAndDataSyncer(formAndDataSyncer);
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
         }

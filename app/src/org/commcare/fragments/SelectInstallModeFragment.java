@@ -22,7 +22,7 @@ import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.dalvik.R;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.RectangleButtonWithText;
@@ -203,7 +203,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
      */
     public void updateConnectButton(boolean connectEnabled, View.OnClickListener listener) {
         if (mConnectButton != null) {
-            boolean enabled = connectEnabled && PersonalIdManager.getInstance().isloggedIn();
+            boolean enabled = connectEnabled && PersonalIdSessionManager.getInstance().isloggedIn();
             if (enabled && listener != null) {
                 mConnectButton.setOnClickListener(listener);
             }

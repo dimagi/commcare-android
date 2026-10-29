@@ -18,16 +18,18 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import org.commcare.AppUtils
+import org.commcare.activities.CommCareActivity
 import org.commcare.activities.CommCareVerificationActivity
+import org.commcare.activities.DispatchActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.AppLaunchFailure
 import org.commcare.connect.ConnectAppLaunchController
+import org.commcare.connect.ConnectAppLaunchListener
 import org.commcare.connect.network.base.BaseApiHandler
 import org.commcare.connect.network.personalId.TokenExceptionHandler.handleTokenDeniedException
 import org.commcare.connect.repository.ConnectSyncPreferences
@@ -46,6 +48,7 @@ import org.commcare.interfaces.base.BaseConnectView
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.NetworkStatusBarViewController
 import org.commcare.views.dialogs.CustomProgressDialog
+import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.Logger
 import java.util.Date
 
@@ -83,26 +86,44 @@ abstract class BaseConnectFragment<B : ViewBinding> :
 
     private var installDialog: CustomProgressDialog? = null
 
+    /** Set once the launched app has opened; the onStop that follows, as the app covers this screen, drops the launching state. */
+    private var launchHandedOff = false
+
     /**
      * Shared with every other Connect screen in this activity, since only one app installs at a
      * time. [installOwnerKey] is what distinguishes the screen driving the install from the ones
      * merely watching it.
      */
     private val installViewModel: ConnectAppInstallViewModel by lazy {
-        ViewModelProvider(
-            requireActivity(),
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application),
-        )[ConnectAppInstallViewModel::class.java]
+        ConnectAppInstallViewModel.of(requireActivity())
     }
 
     /** Stable across recreation, so a screen reclaims the install it started before a rotation. */
-    private val installOwnerKey get() = javaClass.name
+    protected open val installOwnerKey: String get() = javaClass.name
 
     private val ownedAppInstallTarget: AppInstallTarget?
         get() = installViewModel.target?.takeIf { it.ownerKey == installOwnerKey }
 
     /** True while the install in flight is one this screen started, rather than another screen's. */
     protected val ownsAppInstall get() = ownedAppInstallTarget != null
+
+    /** True while an install this screen started is running or its failure is still shown. */
+    val holdsAppInstall
+        get() =
+            ownsAppInstall &&
+                (installViewModel.isInstalling || installViewModel.installState.value is AppInstallState.Failed)
+
+    private val appLaunchController: ConnectAppLaunchController by lazy {
+        ConnectAppLaunchController(
+            this,
+            object : ConnectAppLaunchListener {
+                override fun onLaunchSucceeded() = holdLaunchUntilHidden()
+
+                override fun onLaunchFailed(failure: AppLaunchFailure) =
+                    onAppLaunchFailed(failure, appLaunchController::retryLaunch, ::clearOwnedLaunch)
+            },
+        )
+    }
 
     private val verificationLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -141,12 +162,6 @@ abstract class BaseConnectFragment<B : ViewBinding> :
      * instead of directly above the fragment's content.
      */
     protected open val statusBarContainerViewId: Int = View.NO_ID
-
-    /**
-     * Runs once the launched app is on screen. Override to change where back returns to; the
-     * default leaves this screen on the stack.
-     */
-    protected open fun onAppLaunched() = Unit
 
     fun getLastSyncTime(): Date? {
         val endpoint = getEndpoint() ?: return null
@@ -258,13 +273,15 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     override fun onStop() {
         super.onStop()
         unregisterNetworkCallback()
-        if (ownsAppInstall && installViewModel.installState.value == AppInstallState.Launching) {
-            installViewModel.clear()
+        if (launchHandedOff) {
+            launchHandedOff = false
+            clearOwnedLaunch()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        clearOwnedLaunch()
         mNetworkStatusBarViewController!!.cleanup()
         mNetworkStatusBarViewController = null
         _binding = null
@@ -427,7 +444,14 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         val target = AppInstallTarget(app.appId, isLearning, installOwnerKey)
 
         if (AppUtils.isAppInstalled(app.appId)) {
-            launchInstalledApp(target)
+            if (installViewModel.launch(target)) {
+                launchInstalledApp(target)
+            } else {
+                Logger.exception(
+                    "Ignored a Connect app launch for ${app.appId}",
+                    Exception("An install is already running"),
+                )
+            }
             return
         }
         if (!installViewModel.install(target, app.installUrl)) {
@@ -516,29 +540,91 @@ abstract class BaseConnectFragment<B : ViewBinding> :
      * Holds the busy state until the app is actually open, so the bar does not revert to its CTA
      * while the launch dialog is still working through seating, sign-in and sync. A successful
      * launch leaves it held: the launch dialog is dismissed before the app's activity is drawn, and
-     * [onStop] drops the state once this screen is off-screen and the revert cannot be seen.
+     * [onStop] drops the state once this screen is off-screen and the revert cannot be seen. A stop
+     * before then, such as a screen lock, keeps it held, since the launch carries on until the view
+     * is destroyed.
      */
     private fun launchInstalledApp(target: AppInstallTarget) {
-        ConnectAppLaunchController(this).launchApp(
-            target.appId,
-            target.isLearning,
-            Runnable { runOnceHidden(::onAppLaunched) },
-            { installViewModel.clear() },
-        )
+        appLaunchController.launchApp(target.appId, target.isLearning)
     }
 
-    /** Defers [action] to this fragment's next onStop, so the screen beneath never flashes. */
-    private fun runOnceHidden(action: () -> Unit) {
-        lifecycle.addObserver(
-            object : DefaultLifecycleObserver {
-                override fun onStop(owner: LifecycleOwner) {
-                    owner.lifecycle.removeObserver(this)
-                    if (!parentFragmentManager.isStateSaved) {
-                        action()
-                    }
+    /**
+     * Reacts to a launch that terminally failed. The default offers a retry until attempts are
+     * exhausted, then a dismiss-only error, and routes a seat failure through [DispatchActivity] to
+     * reach recovery. [retryLaunch] replays the launch toward the same attempt limit; [endLaunch]
+     * releases the busy state and must be called once the screen gives up on the launch.
+     */
+    protected open fun onAppLaunchFailed(
+        failure: AppLaunchFailure,
+        retryLaunch: () -> Unit,
+        endLaunch: () -> Unit,
+    ) {
+        when (failure) {
+            AppLaunchFailure.SeatFailed -> {
+                endLaunch()
+                val dispatchIntent =
+                    Intent(requireActivity(), DispatchActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(dispatchIntent)
+                requireActivity().finish()
+            }
+
+            is AppLaunchFailure.Retryable -> {
+                if (failure.attemptsExhausted) {
+                    endLaunch()
+                    showLaunchFailedDialog(
+                        R.string.connect_app_launch_failed_dialog_persistent_error_message,
+                        R.string.connect_app_launch_failed_dialog_ok,
+                    )
+                } else {
+                    showLaunchFailedDialog(
+                        R.string.connect_app_launch_failed_dialog_message,
+                        R.string.connect_app_launch_failed_dialog_retry,
+                        onPositive = retryLaunch,
+                        onCancel = endLaunch,
+                    )
                 }
-            },
-        )
+            }
+        }
+    }
+
+    private fun showLaunchFailedDialog(
+        @StringRes messageRes: Int,
+        @StringRes positiveButtonRes: Int,
+        onPositive: () -> Unit = {},
+        onCancel: (() -> Unit)? = null,
+    ) {
+        val host = requireActivity() as CommCareActivity<*>
+        val dialog =
+            StandardAlertDialog(
+                getString(R.string.connect_app_launch_failed_dialog_title),
+                getString(messageRes),
+            )
+        dialog.setPositiveButton(getString(positiveButtonRes)) { _, _ ->
+            host.dismissAlertDialog()
+            onPositive()
+        }
+        onCancel?.let {
+            dialog.setNegativeButton(getString(R.string.connect_app_launch_failed_dialog_cancel)) { _, _ ->
+                host.dismissAlertDialog()
+                it()
+            }
+        }
+        host.showAlertDialog(dialog)
+    }
+
+    private fun holdLaunchUntilHidden() {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            launchHandedOff = true
+        } else {
+            clearOwnedLaunch()
+        }
+    }
+
+    private fun clearOwnedLaunch() {
+        if (ownsAppInstall && installViewModel.installState.value == AppInstallState.Launching) {
+            installViewModel.clear()
+        }
     }
 
     /** The two install failures the user can only act on through a prompt of their own. */
@@ -597,11 +683,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     }
 
     @StringRes
-    protected fun downloadingMessage(isLearning: Boolean): Int =
+    private fun downloadingMessage(isLearning: Boolean): Int =
         if (isLearning) R.string.connect_downloading_learn else R.string.connect_downloading_delivery
-
-    /** True while any Connect screen in this activity has an app install in flight. */
-    protected val isInstallingApp get() = installViewModel.isInstalling
 
     /** Drops a failure the user has dismissed, so re-rendering the screen does not bring it back. */
     protected fun forgetInstallFailure() {

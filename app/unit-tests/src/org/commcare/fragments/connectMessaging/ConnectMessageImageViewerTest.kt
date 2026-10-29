@@ -18,7 +18,7 @@ import org.commcare.android.database.connect.models.ConnectMessagingAttachmentSt
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord
 import org.commcare.android.util.ConnectTestUtils.signInToPersonalId
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingAttachmentFileStore
@@ -46,7 +46,7 @@ class ConnectMessageImageViewerTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val mockApi = PersonalIdMockApiServer()
     private lateinit var activity: ConnectMessagingActivity
-    private lateinit var savedPersonalIdStatus: PersonalIdManager.PersonalIdStatus
+    private lateinit var savedPersonalIdStatus: PersonalIdSessionManager.PersonalIdStatus
     private lateinit var channel: ConnectMessagingChannelRecord
 
     @Before
@@ -55,7 +55,7 @@ class ConnectMessageImageViewerTest {
         repeat(SYNC_RESPONSES) {
             mockApi.server.enqueue(MockResponse().setBody("""{"notifications": [], "channels": []}"""))
         }
-        savedPersonalIdStatus = PersonalIdManager.getInstance().status
+        savedPersonalIdStatus = PersonalIdSessionManager.getInstance().status
         signInToPersonalId(userId = "test-user", password = "test-password")
         channel =
             ConnectMessagingChannelRecord().apply {
@@ -75,7 +75,7 @@ class ConnectMessageImageViewerTest {
         mockApi.shutdown()
         ConnectMessagingAttachmentFileStore.deleteAll(context)
         ConnectDatabaseHelper.teardown()
-        PersonalIdManager.getInstance().status = savedPersonalIdStatus
+        PersonalIdSessionManager.getInstance().status = savedPersonalIdStatus
     }
 
     @Test

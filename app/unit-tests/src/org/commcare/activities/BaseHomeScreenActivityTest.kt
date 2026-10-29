@@ -17,7 +17,7 @@ import org.commcare.android.database.app.models.UserKeyRecord
 import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.dalvik.R
 import org.commcare.models.database.user.DemoUserBuilder
@@ -52,6 +52,9 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 abstract class BaseHomeScreenActivityTest {
+    /** The fake syncer most recently injected by [buildStandardHomeController] or [injectFakeSyncer]. */
+    protected lateinit var fakeSyncer: FormAndDataSyncerFake
+
     @Before
     fun baseSetUp() {
         clearPrefs()
@@ -69,9 +72,9 @@ abstract class BaseHomeScreenActivityTest {
     @After
     fun baseTearDown() {
         unmockkAll()
-        // PersonalIdManager is a process-wide singleton holding its own login status, so a test that
+        // PersonalIdSessionManager is a process-wide singleton holding its own login status, so a test that
         // signs in would otherwise leave the next one logged in.
-        PersonalIdManager.getInstance().forgetUser("home test teardown")
+        PersonalIdSessionManager.getInstance().forgetUser("home test teardown")
         ConnectDatabaseHelper.teardown()
         clearPrefs()
         clearPendingNotifications()
@@ -125,7 +128,10 @@ abstract class BaseHomeScreenActivityTest {
     }
 
     /** Swap in a syncer that records instead of hitting the network. */
-    private fun injectFakeSyncer(home: StandardHomeActivity) = home.setFormAndDataSyncer(FormAndDataSyncerFake())
+    protected fun injectFakeSyncer(home: StandardHomeActivity) {
+        fakeSyncer = FormAndDataSyncerFake()
+        home.setFormAndDataSyncer(fakeSyncer)
+    }
 
     protected fun shadowOf(activity: StandardHomeActivity): ShadowActivity = Shadows.shadowOf(activity)
 
@@ -158,6 +164,17 @@ abstract class BaseHomeScreenActivityTest {
             homeButtonCards(home).firstOrNull { labelOf(it) == label }
                 ?: throw AssertionError("no home button labelled '$label'; rendered: ${homeButtonLabels(home)}")
         click(home, card.findViewById(R.id.card_subtext))
+    }
+
+    /** The sub-text under the button labelled [label]. Requires a [buildVisibleHome]. */
+    protected fun homeButtonSubText(
+        home: StandardHomeActivity,
+        label: String,
+    ): String {
+        val card =
+            homeButtonCards(home).firstOrNull { labelOf(it) == label }
+                ?: throw AssertionError("no home button labelled '$label'; rendered: ${homeButtonLabels(home)}")
+        return card.findViewById<TextView>(R.id.card_subtext).text.toString()
     }
 
     private fun click(

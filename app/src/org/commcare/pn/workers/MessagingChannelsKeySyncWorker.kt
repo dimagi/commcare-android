@@ -6,7 +6,7 @@ import androidx.work.WorkerParameters
 import org.commcare.CommCareApplication
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper
 import org.commcare.pn.workermanager.NotificationsSyncWorkerManager.Companion.schedulePushNotificationRetrievalWith
 
@@ -15,7 +15,7 @@ class MessagingChannelsKeySyncWorker(
     workerParams: WorkerParameters,
 ) : CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
-        if (!PersonalIdManager.getInstance().isloggedIn()) {
+        if (!PersonalIdSessionManager.getInstance().isloggedIn()) {
             return Result.success()
         }
 

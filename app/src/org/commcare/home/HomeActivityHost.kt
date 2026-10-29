@@ -9,7 +9,9 @@ import org.commcare.views.dialogs.CommCareAlertDialog
 /**
  * The capabilities [HomeActivityCoordinator] and its delegates need from a home activity.
  */
-interface HomeActivityHost : SavedStateRegistryOwner {
+interface HomeActivityHost :
+    SavedStateRegistryOwner,
+    SyncHost {
     /** The host as a [Context], for delegates that build intents and read resources. */
     val hostContext: Context
 
@@ -49,4 +51,7 @@ interface HomeActivityHost : SavedStateRegistryOwner {
      * Per-action availability predicate for the action facade.
      */
     fun areAppActionsAvailable(): Boolean
+
+    /** The user session expired, or was found missing on resume, underneath this host. */
+    fun onSessionLost()
 }
