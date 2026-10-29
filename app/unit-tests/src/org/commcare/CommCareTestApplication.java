@@ -35,6 +35,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
+import org.commcare.utils.MockAndroidKeyStoreProvider;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -79,6 +80,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void onCreate() {
+        // Robolectric has no AndroidKeyStore provider; register it for every test as it's always present on devices
+        MockAndroidKeyStoreProvider.registerProvider();
+
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
 

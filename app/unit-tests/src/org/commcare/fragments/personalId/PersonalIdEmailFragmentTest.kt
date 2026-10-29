@@ -20,7 +20,6 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -154,7 +153,6 @@ class PersonalIdEmailFragmentTest : BasePersonalIdEmailFragmentTest() {
 
     @Test
     fun `skip in RECOVERY workflow passes backup_code as the recovery method`() {
-        MockAndroidKeyStoreProvider.registerProvider()
         val args =
             Bundle().apply {
                 putSerializable(PersonalIdEmailFragment.ARG_EMAIL_WORKFLOW, EmailWorkFlow.RECOVERY)

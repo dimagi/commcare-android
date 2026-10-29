@@ -9,9 +9,7 @@ import org.commcare.android.security.AndroidKeyStore;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.EncryptionKeyAndTransform;
-import org.commcare.utils.MockAndroidKeyStoreProvider;
 import org.commcare.utils.MockEncryptionKeyProvider;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +37,7 @@ public class FormKeystoreEncryptionTest {
 
     @Before
     public void setUp() {
-        MockAndroidKeyStoreProvider.registerProvider();
         keyProvider = new MockEncryptionKeyProvider(CommCareApplication.instance());
-    }
-
-    @After
-    public void tearDown() {
-        MockAndroidKeyStoreProvider.deregisterProvider();
     }
 
     @Test
