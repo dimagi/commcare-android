@@ -336,7 +336,6 @@
     <string name="connect_verify_phone_resend">Hukupokea nambari yako ya kuthibitisha? Tuma tena</string>
     <string name="connect_verify_phone_change">Badilisha nambari</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
-    <string name="connect_title">Unganisha</string>
     <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
     <string name="connect_learn_complete_by">Kamilisha Mradi kabla ya %s</string>
     <string name="connect_job_ended">Kazi ilimalizika mnamo %s</string>
