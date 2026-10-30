@@ -86,7 +86,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
                 ) = Unit
             }
         every {
-            FirebaseAnalyticsUtil.reportOtpEvent(any(), any(), any(), any(), any(), any(), any())
+            FirebaseAnalyticsUtil.reportOtpEvent(any(), any(), any(), any(), any(), any(), any(), any())
         } just Runs
     }
 
@@ -259,6 +259,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         outcome: String,
         method: String,
         reason: String?,
+        errorCode: String?,
         times: Int = 1,
     ) {
         verify(exactly = times) {
@@ -267,6 +268,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
                 outcome,
                 method,
                 reason,
+                errorCode,
                 any(),
                 any(),
                 any(),
@@ -284,11 +286,13 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "too_many_requests",
+            "FirebaseTooManyRequestsException",
         )
         verifyPhoneRequestReported(
             AnalyticsParamValue.OTP_OUTCOME_FAILURE,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "too_many_requests",
+            "FirebaseTooManyRequestsException",
             times = 0,
         )
     }
@@ -304,11 +308,13 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             AnalyticsParamValue.OTP_OUTCOME_FAILURE,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "verification_failed",
+            "ERROR_APP_NOT_AUTHORIZED",
         )
         verifyPhoneRequestReported(
             AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "verification_failed",
+            "ERROR_APP_NOT_AUTHORIZED",
             times = 0,
         )
     }
@@ -326,6 +332,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             AnalyticsParamValue.OTP_OUTCOME_FAILURE,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "invalid_credential",
+            "ERROR_INVALID_PHONE_NUMBER",
         )
     }
 
