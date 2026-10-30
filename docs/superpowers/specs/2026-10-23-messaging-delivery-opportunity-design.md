@@ -40,6 +40,11 @@ On the opportunity list API, for a PersonalID messaging opportunity:
 - `launch.slug`: new nested field holding the messaging channel id the Delivery Home CTA opens.
   `launch` or `slug` would be absent or empty for non PersonalID messaging opportunities.
 
+For all opportunities (new server work; the server already has the data):
+
+- `last_active`: new nullable timestamp of the worker's last activity on the opportunity. Used for
+  job list ordering (see **Job list ordering**).
+
 Other APIs:
 
 - Learn progress API: the client must never call it for a job whose `learnAppInfo` is null.
@@ -138,9 +143,16 @@ Applies to all opportunities, not only PersonalID messaging ones.
   - Delivery Home CTA (deliver app or messaging)
   - "Revisit learning"
   - Task taps on the dashboard and More tabs
-- `last_worked` from the server stays unparsed. `JobStoreManager.storeOrUpdateJob` copies the
-  stored `lastWorkedDate` onto the incoming record before writing, the same way it keeps status
-  from going backwards. A newly seen job keeps the constructor default (first sync time).
+- `ConnectJobRecord.fromJson` sets `lastWorkedDate` from the server's `last_active`. When
+  `last_active` is absent or null (older servers, never-worked jobs), it is set to the epoch, not
+  the constructor default of now, so a never-worked job does not outrank worked ones and the
+  server value is not masked on a fresh install.
+- `JobStoreManager.storeOrUpdateJob` keeps the more recent of the stored and incoming
+  `lastWorkedDate`, the same way it keeps status from going backwards. A local CTA tap is kept
+  until the server reports a later time; on a fresh install or second device the server value
+  restores the order.
+- Accepted risk: local values come from the device clock and server values from the server clock,
+  so a device with a wrong clock can order jobs incorrectly.
 - Logging into a CommCare app directly (not through a Connect CTA) no longer affects ordering.
 - `lastWorkedDate` is already persisted; no migration needed for it.
 
@@ -150,10 +162,12 @@ Applies to all opportunities, not only PersonalID messaging ones.
   `launchSlug`, matching how conversation tasks open their channel.
 - Empty channel id → opens the messaging channel list.
 - Channel id not yet in the local messaging DB (for example, right after claim, before messages
-  sync) → stays on the channel list instead of opening the channel. Today
-  `ConnectMessageChannelListFragment.onViewCreated` passes the lookup result straight to
-  `selectChannel`, which crashes on null. The fix belongs there, so it also covers conversation
-  tasks.
+  sync) → stays on the channel list, waits for the messages sync (`MessageManager.retrieveMessages`)
+  to finish, then looks the channel up again. If found, opens it; if still missing or the sync
+  failed, shows a toast, "Channel doesn't exist". Today
+  `ConnectMessageChannelListFragment.onViewCreated` looks up the channel before the `onResume`
+  sync and passes the result straight to `selectChannel`, which crashes on null. The fix belongs
+  there, so it also covers conversation tasks.
 - Consent is handled by the existing channel screen (`ConnectMessageFragment`); no change.
 
 ### Tasks
