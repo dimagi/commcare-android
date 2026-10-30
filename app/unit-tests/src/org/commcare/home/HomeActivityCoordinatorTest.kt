@@ -1,9 +1,17 @@
 package org.commcare.home
 
+import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
+import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_APP_PATH
+import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_PASSWORD
+import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_USER
+import org.commcare.android.database.user.models.FormRecord
+import org.commcare.android.mocks.FormAndDataSyncerFake
+import org.commcare.android.util.TestAppInstaller
 import org.commcare.appupdate.AppUpdateController.IN_APP_UPDATE_REQUEST_CODE
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -141,7 +149,48 @@ class HomeActivityCoordinatorTest {
         assertFalse(coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent()))
     }
 
+    @Test
+    fun `a form completed in form entry is sent without a sync`() {
+        TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
+        val host = FakeHomeActivityHost()
+        val coordinator = HomeActivityCoordinator(host)
+        host.performRestore()
+        host.dispatchOnCreate()
+        val syncer = FormAndDataSyncerFake()
+        coordinator.sync.setFormAndDataSyncer(syncer)
+        val state = CommCareApplication.instance().currentSessionWrapper
+        state.session.setCommand(FORM_COMMAND)
+        coordinator.sessionLaunch.startForm(state)
+        val record = state.formRecord
+        record.status = FormRecord.STATUS_UNSENT
+        CommCareApplication.instance().getUserStorage(FormRecord::class.java).write(record)
+
+        coordinator.handleFormEntryResult(RESULT_OK, Intent())
+
+        assertEquals(1, syncer.formSendCount)
+        assertFalse(syncer.lastSendSyncsAfterwards)
+    }
+
+    @Test
+    fun `a cancelled form is not sent`() {
+        TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
+        val host = FakeHomeActivityHost()
+        val coordinator = HomeActivityCoordinator(host)
+        host.performRestore()
+        host.dispatchOnCreate()
+        val syncer = FormAndDataSyncerFake()
+        coordinator.sync.setFormAndDataSyncer(syncer)
+        val state = CommCareApplication.instance().currentSessionWrapper
+        state.session.setCommand(FORM_COMMAND)
+        coordinator.sessionLaunch.startForm(state)
+
+        coordinator.handleFormEntryResult(RESULT_CANCELED, Intent())
+
+        assertEquals(0, syncer.formSendCount)
+    }
+
     private companion object {
         const val REQUEST_CODE = 7
+        const val FORM_COMMAND = "m0-f0"
     }
 }

@@ -38,7 +38,6 @@ import org.javarosa.xpath.XPathException
  */
 class SessionLaunchDelegate(
     private val host: HomeActivityHost,
-    private val sync: SyncDelegate,
 ) {
     private var restoringSession = false
 
@@ -160,20 +159,17 @@ class SessionLaunchDelegate(
     }
 
     /**
-     * Handle the user's return from form entry: queue a completed form for sending, clean up after a
-     * cancelled one, and end the session where the form leaves it.
-     *
-     * @return whether the host should continue session navigation; if false the host stays home or
-     * has been finished
+     * Handle the user's return from form entry: clean up after a cancelled form, and end the session
+     * where the form leaves it.
      */
     fun handleFormEntryResult(
         resultCode: Int,
         intent: Intent?,
         wasExternal: Boolean,
-    ): Boolean {
+    ): FormEntryOutcome {
         if (intent != null && intent.getBooleanExtra(FormEntryConstants.WAS_INTERRUPTED, false)) {
             tryRestoringFormFromSessionExpiration()
-            return false
+            return FormEntryOutcome(continueSessionNav = false)
         }
 
         val currentState = CommCareApplication.instance().currentSessionWrapper
@@ -183,7 +179,7 @@ class SessionLaunchDelegate(
             Toast.makeText(host.hostContext, "Error while trying to save the form!", Toast.LENGTH_LONG).show()
             Logger.log(LogTypes.TYPE_ERROR_WORKFLOW, "Form Entry couldn't save because of corrupt state.")
             clearSessionAndExit(currentState, true, wasExternal)
-            return false
+            return FormEntryOutcome(continueSessionNav = false)
         }
 
         if (intent?.getBooleanExtra(FormEntryConstants.IS_ARCHIVED_FORM, false) == true ||
@@ -198,7 +194,7 @@ class SessionLaunchDelegate(
             } else {
                 host.showFormArchive(false, current)
             }
-            return false
+            return FormEntryOutcome(continueSessionNav = false)
         }
 
         if (resultCode == RESULT_OK) {
@@ -206,15 +202,14 @@ class SessionLaunchDelegate(
                 FormRecord.STATUS_COMPLETE == current.status || FormRecord.STATUS_UNSENT == current.status
             if (!complete) {
                 clearSessionAndExit(currentState, false, wasExternal)
-                return false
+                return FormEntryOutcome(continueSessionNav = false)
             }
-            sync.startUnsentFormsTask(syncAfterwards = false, userTriggered = false)
             host.refreshHostUi()
 
             if (exitFromExternalLaunch(wasExternal)) {
                 currentState.reset()
                 host.finishWithResult(RESULT_CANCELED)
-                return false
+                return FormEntryOutcome(continueSessionNav = false, formCompleted = true)
             }
 
             val terminateSuccessful =
@@ -222,9 +217,9 @@ class SessionLaunchDelegate(
                     currentState.terminateSession()
                 } catch (e: XPathException) {
                     host.showXPathErrorAndExit(e)
-                    return false
+                    return FormEntryOutcome(continueSessionNav = false, formCompleted = true)
                 }
-            return terminateSuccessful
+            return FormEntryOutcome(continueSessionNav = terminateSuccessful, formCompleted = true)
         } else if (resultCode == RESULT_CANCELED) {
             Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Cancelled")
 
@@ -235,20 +230,20 @@ class SessionLaunchDelegate(
             if (exitFromExternalLaunch(wasExternal)) {
                 currentState.reset()
                 host.finishWithResult(RESULT_CANCELED)
-                return false
+                return FormEntryOutcome(continueSessionNav = false)
             } else if (current.status == FormRecord.STATUS_INCOMPLETE &&
                 intent != null &&
                 !intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)
             ) {
                 currentState.reset()
                 host.showFormArchive(true, current)
-                return false
+                return FormEntryOutcome(continueSessionNav = false)
             } else {
                 currentState.session.stepBack(currentState.evaluationContext)
                 currentState.setFormRecordId(-1)
             }
         }
-        return true
+        return FormEntryOutcome(continueSessionNav = true)
     }
 
     /** Reset the session, finish the host if an external launch asked to exit, and refresh home. */
@@ -376,3 +371,15 @@ class SessionLaunchDelegate(
         const val FORM_ENTRY_REQUEST_CODE = 4
     }
 }
+
+/**
+ * What [SessionLaunchDelegate.handleFormEntryResult] leaves for the coordinator.
+ *
+ * @property continueSessionNav whether the host should continue session navigation; if false the
+ * host stays home or has been finished
+ * @property formCompleted a completed form was saved and is waiting to be sent
+ */
+data class FormEntryOutcome(
+    val continueSessionNav: Boolean,
+    val formCompleted: Boolean = false,
+)

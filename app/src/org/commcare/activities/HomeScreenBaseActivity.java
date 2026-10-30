@@ -595,8 +595,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
                     }
                     break;
                 case MODEL_RESULT:
-                    continueWithSessionNav = coordinator.getSessionLaunch()
-                            .handleFormEntryResult(resultCode, intent, coordinator.getWasExternal());
+                    continueWithSessionNav = coordinator.handleFormEntryResult(resultCode, intent);
                     if (!continueWithSessionNav) {
                         return;
                     }
@@ -796,8 +795,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
     }
 
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
-        coordinator.getSessionLaunch()
-                .clearSessionAndExit(currentState, shouldWarnUser, coordinator.getWasExternal());
+        coordinator.clearSessionAndExit(currentState, shouldWarnUser);
     }
 
     private void showDemoModeWarning() {

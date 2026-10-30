@@ -13,7 +13,6 @@ import org.commcare.activities.DispatchActivity
 import org.commcare.activities.FormEntryActivity
 import org.commcare.activities.components.FormEntrySessionWrapper
 import org.commcare.android.database.user.models.FormRecord
-import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.preferences.DevSessionRestorer
 import org.commcare.preferences.HiddenPreferences
@@ -31,14 +30,11 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 class SessionLaunchDelegateTest {
     private val host = FakeHomeActivityHost()
-    private val syncer = FormAndDataSyncerFake()
-    private val sync = SyncDelegate(host)
-    private val delegate = SessionLaunchDelegate(host, sync)
+    private val delegate = SessionLaunchDelegate(host)
 
     @Before
     fun setUp() {
         TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
-        sync.setFormAndDataSyncer(syncer)
     }
 
     @Test
@@ -118,15 +114,14 @@ class SessionLaunchDelegateTest {
     }
 
     @Test
-    fun `a completed form is sent without a sync`() {
+    fun `a completed form is reported as completed`() {
         val state = seatFormCommand()
         delegate.startForm(state)
         setStatus(state.formRecord, FormRecord.STATUS_UNSENT)
 
-        delegate.handleFormEntryResult(RESULT_OK, Intent(), wasExternal = false)
+        val outcome = delegate.handleFormEntryResult(RESULT_OK, Intent(), wasExternal = false)
 
-        assertEquals(1, syncer.formSendCount)
-        assertFalse(syncer.lastSendSyncsAfterwards)
+        assertTrue(outcome.formCompleted)
         assertEquals(1, host.refreshHostUiCount)
         assertTrue(host.finishedWithResults.isEmpty())
     }
@@ -137,7 +132,10 @@ class SessionLaunchDelegateTest {
         val state = seatFormCommand()
         delegate.startForm(state)
 
-        assertFalse(delegate.handleFormEntryResult(RESULT_CANCELED, Intent(), wasExternal = true))
+        val outcome = delegate.handleFormEntryResult(RESULT_CANCELED, Intent(), wasExternal = true)
+
+        assertFalse(outcome.continueSessionNav)
+        assertFalse(outcome.formCompleted)
 
         assertEquals(listOf(RESULT_CANCELED), host.finishedWithResults)
         assertFalse("the exit request is consumed", host.launchIntent!!.hasExtra(DispatchActivity.EXIT_AFTER_FORM_SUBMISSION))
@@ -149,7 +147,7 @@ class SessionLaunchDelegateTest {
         val state = seatFormCommand()
         delegate.startForm(state)
 
-        assertTrue(delegate.handleFormEntryResult(RESULT_CANCELED, Intent(), wasExternal = false))
+        assertTrue(delegate.handleFormEntryResult(RESULT_CANCELED, Intent(), wasExternal = false).continueSessionNav)
 
         assertTrue(host.finishedWithResults.isEmpty())
     }
@@ -160,7 +158,7 @@ class SessionLaunchDelegateTest {
         delegate.startForm(state)
         val record = setStatus(state.formRecord, FormRecord.STATUS_INCOMPLETE)
 
-        assertFalse(delegate.handleFormEntryResult(RESULT_CANCELED, Intent(), wasExternal = false))
+        assertFalse(delegate.handleFormEntryResult(RESULT_CANCELED, Intent(), wasExternal = false).continueSessionNav)
 
         val (incomplete, shown) = host.shownFormArchives.single()
         assertTrue(incomplete)
@@ -171,7 +169,7 @@ class SessionLaunchDelegateTest {
     fun `a form result with no record clears the session and warns`() {
         seatFormCommand()
 
-        assertFalse(delegate.handleFormEntryResult(RESULT_OK, Intent(), wasExternal = false))
+        assertFalse(delegate.handleFormEntryResult(RESULT_OK, Intent(), wasExternal = false).continueSessionNav)
 
         assertNull(CommCareApplication.instance().currentSession.command)
         assertEquals(1, host.refreshHostUiCount)

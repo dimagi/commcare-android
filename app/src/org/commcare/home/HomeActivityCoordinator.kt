@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import org.commcare.models.AndroidSessionWrapper
 
 /**
  * Composition root for the behavior shared by every CommCare home screen.
@@ -32,7 +33,7 @@ class HomeActivityCoordinator(
     val sync = SyncDelegate(host = host)
 
     /** Starts form entry and handles its result, and owns the form and session restoration launch steps. */
-    val sessionLaunch = SessionLaunchDelegate(host = host, sync = sync)
+    val sessionLaunch = SessionLaunchDelegate(host = host)
 
     /** Reports session loss to the host. Driven by the session-aware activity chain, not the lifecycle. */
     val sessionExpiration = SessionExpirationDelegate(host = host)
@@ -89,6 +90,28 @@ class HomeActivityCoordinator(
         resultCode: Int,
         intent: Intent?,
     ): Boolean = appUpdate.onActivityResult(requestCode, resultCode)
+
+    /**
+     * Handle the user's return from form entry, and send the form it completed.
+     *
+     * @return whether the host should continue session navigation
+     */
+    fun handleFormEntryResult(
+        resultCode: Int,
+        intent: Intent?,
+    ): Boolean {
+        val outcome = sessionLaunch.handleFormEntryResult(resultCode, intent, wasExternal)
+        if (outcome.formCompleted) {
+            sync.startUnsentFormsTask(syncAfterwards = false, userTriggered = false)
+        }
+        return outcome.continueSessionNav
+    }
+
+    /** Reset the session, finishing the host if an external launch asked to exit. */
+    fun clearSessionAndExit(
+        currentState: AndroidSessionWrapper,
+        shouldWarnUser: Boolean,
+    ) = sessionLaunch.clearSessionAndExit(currentState, shouldWarnUser, wasExternal)
 
     /**
      * Consume any saved launch/nav state and register the provider that writes it back. Idempotent.
