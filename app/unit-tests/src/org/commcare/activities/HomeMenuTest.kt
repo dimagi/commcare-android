@@ -161,7 +161,7 @@ class HomeMenuTest : BaseHomeScreenActivityTest() {
     fun `selecting saved forms launches the form record list`() {
         val home = selectItem(R.id.action_saved_forms)
 
-        // goToFormArchive uses startActivityForResult, not startActivity.
+        // The form archive is started with startActivityForResult, not startActivity.
         assertStartedForResult(home, FormRecordListActivity::class.java)
     }
 
