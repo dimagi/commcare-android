@@ -32,6 +32,7 @@ class FakeHomeActivityHost : HomeActivityHost {
     var actionsAvailable: Boolean = true
     var refreshActionSurfaceCount: Int = 0
     var refreshHostUiCount: Int = 0
+    var localeChangedCount: Int = 0
     var sessionLostCount: Int = 0
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
@@ -112,6 +113,10 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     override fun refreshHostUi() {
         refreshHostUiCount++
+    }
+
+    override fun onLocaleChanged() {
+        localeChangedCount++
     }
 
     override fun isDemoUser(): Boolean = demoUser
