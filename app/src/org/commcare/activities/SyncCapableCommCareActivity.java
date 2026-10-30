@@ -1,7 +1,5 @@
 package org.commcare.activities;
 
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 
 import org.commcare.home.SyncDelegate;
@@ -22,10 +20,6 @@ public abstract class SyncCapableCommCareActivity<T> extends SessionAwareCommCar
 
     @Override
     public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
-    }
-
-    protected void displayToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override

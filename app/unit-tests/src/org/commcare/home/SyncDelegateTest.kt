@@ -1,6 +1,8 @@
 package org.commcare.home
 
+import androidx.preference.PreferenceManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_APP_PATH
 import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_PASSWORD
@@ -9,6 +11,7 @@ import org.commcare.activities.CommCareActivity
 import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.ReflectionUtils
 import org.commcare.android.util.TestAppInstaller
+import org.commcare.preferences.HiddenPreferences
 import org.commcare.sync.ProcessAndSendTask
 import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.DataPullTask.PullTaskResult
@@ -16,6 +19,7 @@ import org.commcare.tasks.ResultAndError
 import org.commcare.utils.FormUploadResult
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -50,6 +54,52 @@ class SyncDelegateTest {
         delegate.syncDataForLoggedInUser(userTriggered = false)
 
         assertEquals(1, syncer.dataSyncCount)
+        assertEquals(0, syncer.formSendCount)
+    }
+
+    @Test
+    fun `a pending post-update sync claims the launch and sends forms first`() {
+        HiddenPreferences.setPostUpdateSyncNeeded(true)
+
+        assertTrue(delegate.runPostUpdateSyncIfNeeded())
+
+        assertEquals(1, syncer.formSendCount)
+        assertTrue(syncer.lastSendSyncsAfterwards)
+        assertFalse(syncer.lastSendUserTriggered)
+        assertFalse("the flag is consumed", CommCareApplication.instance().isPostUpdateSyncNeeded)
+    }
+
+    @Test
+    fun `no post-update sync is run when none is pending`() {
+        assertFalse(delegate.runPostUpdateSyncIfNeeded())
+
+        assertEquals(0, syncer.formSendCount)
+    }
+
+    @Test
+    fun `a sync requested while logged out claims the launch`() {
+        val username =
+            CommCareApplication
+                .instance()
+                .session.loggedInUser.username
+        PreferenceManager
+            .getDefaultSharedPreferences(CommCareApplication.instance())
+            .edit()
+            .putString(
+                HiddenPreferences.BACKGROUND_SYNC_PENDING + username + "@" + HiddenPreferences.getUserDomainWithoutServerUrl(),
+                "pending",
+            ).apply()
+
+        assertTrue(delegate.runPendingSyncRequestIfNeeded())
+
+        assertEquals(1, syncer.formSendCount)
+        assertTrue(syncer.lastSendSyncsAfterwards)
+    }
+
+    @Test
+    fun `no requested sync is run when none is pending`() {
+        assertFalse(delegate.runPendingSyncRequestIfNeeded())
+
         assertEquals(0, syncer.formSendCount)
     }
 
