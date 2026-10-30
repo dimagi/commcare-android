@@ -36,10 +36,12 @@ interface HomeActivityHost :
     fun refreshActionSurface()
 
     /**
-     * Optional UI-refresh hook, used by actions like `changeLanguage()`. Hosts without a
-     * `WithUIController` implement it as a no-op.
+     * Optional UI-refresh hook. Hosts without a `WithUIController` implement it as a no-op.
      */
     fun refreshHostUi()
+
+    /** The user picked a new language, so the host should rebuild whatever text it shows. */
+    fun onLocaleChanged()
 
     /**
      * Demo-mode query, consumed only by the launch pipeline's demo halt.

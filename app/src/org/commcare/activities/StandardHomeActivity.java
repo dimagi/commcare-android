@@ -19,10 +19,10 @@ import org.commcare.connect.EmailOfferHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.AppLogoutHelper;
@@ -122,7 +122,7 @@ public class StandardHomeActivity
         }
         fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        getSyncDelegate().sendFormsOrSync(true);
+        getCoordinator().sync();
     }
 
     void syncSubTextPressed() {
@@ -158,22 +158,20 @@ public class StandardHomeActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         //In Holo theme this gets called on startup
-        boolean enableMenus = !isDemoUser();
-        menu.findItem(R.id.action_update).setVisible(enableMenus);
-        menu.findItem(R.id.action_saved_forms).setVisible(enableMenus);
-        menu.findItem(R.id.action_change_language).setVisible(true);
-        menu.findItem(R.id.action_preferences).setVisible(enableMenus);
-        menu.findItem(R.id.action_advanced).setVisible(enableMenus);
-        menu.findItem(R.id.action_about).setVisible(enableMenus);
-        menu.findItem(R.id.action_update_commcare).setVisible(
-                enableMenus && getCoordinator().getAppUpdate().getShowCommCareUpdateMenu());
-        preparePinMenu(menu, enableMenus);
+        HomeActivityCoordinator coordinator = getCoordinator();
+        menu.findItem(R.id.action_update).setVisible(coordinator.canUpdateApp());
+        menu.findItem(R.id.action_saved_forms).setVisible(coordinator.canViewSavedForms());
+        menu.findItem(R.id.action_change_language).setVisible(coordinator.canChangeLanguage());
+        menu.findItem(R.id.action_preferences).setVisible(coordinator.canOpenSettings());
+        menu.findItem(R.id.action_advanced).setVisible(coordinator.canOpenAdvanced());
+        menu.findItem(R.id.action_about).setVisible(coordinator.canShowAbout());
+        menu.findItem(R.id.action_update_commcare).setVisible(coordinator.canUpdateCommCare());
+        menu.findItem(R.id.action_set_pin).setVisible(coordinator.canSetPin());
+        setPinMenuTitle(menu);
         return true;
     }
 
-    private static void preparePinMenu(Menu menu, boolean enableMenus) {
-        boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
-        menu.findItem(R.id.action_set_pin).setVisible(pinEnabled);
+    private static void setPinMenuTitle(Menu menu) {
         boolean hasPinSet = false;
 
         try {
@@ -194,29 +192,30 @@ public class StandardHomeActivity
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
         int itemId = item.getItemId();
+        HomeActivityCoordinator coordinator = getCoordinator();
         if (itemId == R.id.action_update) {
-            getCoordinator().getAppUpdate().launchUpdateActivity(false);
+            coordinator.updateApp();
             return true;
         } else if (itemId == R.id.action_saved_forms) {
-            goToFormArchive(false);
+            coordinator.viewSavedForms();
             return true;
         } else if (itemId == R.id.action_change_language) {
-            showLocaleChangeMenu(uiController);
+            coordinator.changeLanguage();
             return true;
         } else if (itemId == R.id.action_preferences) {
-            createPreferencesMenu(this);
+            coordinator.openSettings();
             return true;
         } else if (itemId == R.id.action_advanced) {
-            showAdvancedActionsPreferences();
+            coordinator.openAdvanced();
             return true;
         } else if (itemId == R.id.action_about) {
-            showAboutCommCareDialog();
+            coordinator.showAbout();
             return true;
         } else if (itemId == R.id.action_set_pin) {
-            launchPinAuthentication();
+            coordinator.setPin();
             return true;
         } else if (itemId == R.id.action_update_commcare) {
-            getCoordinator().getAppUpdate().startCommCareUpdate();
+            coordinator.updateCommCare();
             return true;
         }
 
@@ -305,6 +304,11 @@ public class StandardHomeActivity
     @Override
     public void refreshUI() {
         uiController.refreshView();
+    }
+
+    @Override
+    public void onLocaleChanged() {
+        uiController.setupUI();
     }
 
     /**

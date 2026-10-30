@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import androidx.preference.PreferenceManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ReportingUtils;
@@ -31,12 +29,10 @@ import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.home.HomeActivityHost;
 import org.commcare.home.SessionLaunchDelegate;
 import org.commcare.home.SyncDelegate;
-import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.AdvancedActionsPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
-import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
@@ -57,17 +53,12 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.util.DatumUtil;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.AppLogoutHelper;
-import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.dialogs.DialogChoiceItem;
-import org.commcare.views.dialogs.DialogCreationHelpers;
-import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -88,10 +79,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
-import static org.commcare.activities.DriftHelper.getCurrentDrift;
-import static org.commcare.activities.DriftHelper.getDriftDialog;
-import static org.commcare.activities.DriftHelper.shouldShowDriftWarning;
-import static org.commcare.activities.DriftHelper.updateLastDriftWarningTime;
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
 import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
 import static org.commcare.connect.database.ConnectTaskUtils.isLastTaskUpdateLaterThanLastSync;
@@ -118,11 +105,12 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
      */
     protected static final int MODEL_RESULT = SessionLaunchDelegate.FORM_ENTRY_REQUEST_CODE;
     protected static final int MAKE_REMOTE_POST = 5;
-    public static final int GET_INCOMPLETE_FORM = 6;
-    protected static final int PREFERENCES_ACTIVITY = 7;
-    protected static final int ADVANCED_ACTIONS_ACTIVITY = 8;
-    protected static final int CREATE_PIN = 9;
-    protected static final int AUTHENTICATION_FOR_PIN = 10;
+    public static final int GET_INCOMPLETE_FORM = HomeActivityCoordinator.FORM_ARCHIVE_REQUEST_CODE;
+    protected static final int PREFERENCES_ACTIVITY = HomeActivityCoordinator.PREFERENCES_REQUEST_CODE;
+    protected static final int ADVANCED_ACTIONS_ACTIVITY = HomeActivityCoordinator.ADVANCED_ACTIONS_REQUEST_CODE;
+    protected static final int CREATE_PIN = HomeActivityCoordinator.CREATE_PIN_REQUEST_CODE;
+    protected static final int AUTHENTICATION_FOR_PIN =
+            HomeActivityCoordinator.AUTHENTICATION_FOR_PIN_REQUEST_CODE;
 
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
@@ -133,8 +121,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
      */
     public static final int RESULT_RESTART = 3;
     private static final String CC_APP_HOME_ENDPOINT = "cc_app_home";
-
-    private int mDeveloperModeClicks = 0;
 
     private SessionNavigator sessionNavigator;
     private boolean sessionNavigationProceedingAfterOnResume;
@@ -323,7 +309,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             coordinator.setLoginExtraWasConsumed(true);
             try {
-                redirectedInOnCreate = doLoginLaunchChecksInOrder();
+                redirectedInOnCreate = coordinator.runLaunchChecks();
             } finally {
                 // make sure this happens no matter what
                 clearOneTimeLoginActionFlags();
@@ -332,62 +318,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
     }
 
     /**
-     * The order of operations in this method is very deliberate, and the logic for it is as
-     * follows: - If we're in demo mode, then we don't want to do any of the other checks because
-     * they're not relevant - Form and session restorations need to happen before we try to sync,
-     * because once we sync it could invalidate those states - Restoring a form that was interrupted
-     * by session expiration comes before restoring a saved session because it is of higher
-     * importance - Check for a post-update sync before doing a standard background form-send, since
-     * a sync action will include a form-send action - Check if we need to show an Update Prompt -
-     * Once we're past that point, starting a background form-send process is safe, and we can
-     * safely do checkForPinLaunchConditions() at the same time
-     */
-    private boolean doLoginLaunchChecksInOrder() {
-        if (isDemoUser()) {
-            showDemoModeWarning();
-            return false;
-        }
-
-        SessionLaunchDelegate sessionLaunch = coordinator.getSessionLaunch();
-        if (sessionLaunch.showUpdateInfoForm()) {
-            return true;
-        }
-
-        if (sessionLaunch.tryRestoringFormFromSessionExpiration()) {
-            return true;
-        }
-
-        if (sessionLaunch.tryRestoringSession()) {
-            return true;
-        }
-
-        if (getSyncDelegate().runPostUpdateSyncIfNeeded()) {
-            return true;
-        }
-
-        if (getSyncDelegate().runPendingSyncRequestIfNeeded()) {
-            return true;
-        }
-
-        if (coordinator.getAppUpdate().promptForUpdateIfNeeded(false)) {
-            return true;
-        }
-        checkForPinLaunchConditions();
-        checkForDrift();
-        return false;
-    }
-
-    private void checkForDrift() {
-        if (shouldShowDriftWarning()) {
-            if (getCurrentDrift() != 0) {
-                showAlertDialog(getDriftDialog(this));
-                updateLastDriftWarningTime();
-            }
-        }
-    }
-
-    /**
-     * Regardless of what action(s) we ended up executing in doLoginLaunchChecksInOrder(), we don't
+     * Regardless of what action(s) we ended up executing in the coordinator's runLaunchChecks(), we don't
      * want to end up trying the actions associated with these flags again at a later point. They
      * either need to happen the first time on login, or not at all.
      */
@@ -398,135 +329,8 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         HiddenPreferences.clearPendingSyncRequest(username);
     }
 
-    /**
-     * See if we should launch either the pin choice dialog, or the create pin activity directly
-     */
-    private void checkForPinLaunchConditions() {
-        LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
-        if (loginMode == LoginMode.PRIMED) {
-            launchPinCreateScreen(loginMode);
-        } else if (loginMode == LoginMode.PASSWORD
-                && DeveloperPreferences.shouldOfferPinForLogin()) {
-            boolean userManuallyEnteredPasswordMode = getIntent()
-                    .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-            boolean alreadyDismissedPinCreation =
-                    CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                            .getBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, false);
-            if (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode) {
-                showPinChoiceDialog(loginMode);
-            }
-        }
-    }
-
-    private void showPinChoiceDialog(final LoginMode loginMode) {
-        String promptMessage;
-        UserKeyRecord currentUserRecord = CommCareApplication.instance().getRecordForCurrentUser();
-        if (currentUserRecord.hasPinSet()) {
-            promptMessage = Localization.get("pin.dialog.prompt.reset");
-        } else {
-            promptMessage = Localization.get("pin.dialog.prompt.set");
-        }
-
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, promptMessage);
-
-        DialogChoiceItem createPinChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.yes"),
-                -1,
-                v -> {
-                    dialog.dismiss();
-                    launchPinCreateScreen(loginMode);
-                }
-        );
-
-        DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.not.now"), -1, v -> dialog.dismiss());
-
-        DialogChoiceItem notAgainChoice = new DialogChoiceItem(
-                Localization.get("pin.dialog.never"),
-                -1,
-                v -> {
-                    dialog.dismiss();
-                    CommCareApplication.instance().getCurrentApp().getAppPreferences()
-                            .edit()
-                            .putBoolean(HiddenPreferences.HAS_DISMISSED_PIN_CREATION, true)
-                            .apply();
-                    showPinFutureAccessDialog();
-                }
-        );
-
-        dialog.setChoiceItems(
-                new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
-        dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
-        showAlertDialog(dialog);
-    }
-
-    private void showPinFutureAccessDialog() {
-        StandardAlertDialog.getBasicAlertDialog(
-                Localization.get("pin.dialog.set.later.title"),
-                Localization.get("pin.dialog.set.later.message"),
-                null
-        ).showNonPersistentDialog(this);
-    }
-
-    protected void launchPinAuthentication() {
-        Intent i = new Intent(this, PinAuthenticationActivity.class);
-        startActivityForResult(i, AUTHENTICATION_FOR_PIN);
-    }
-
-    private void launchPinCreateScreen(LoginMode loginMode) {
-        Intent i = new Intent(this, CreatePinActivity.class);
-        i.putExtra(LoginActivity.LOGIN_MODE, loginMode);
-        startActivityForResult(i, CREATE_PIN);
-    }
-
-    protected void showLocaleChangeMenu(final CommCareActivityUIController uiController) {
-        final PaneledChoiceDialog dialog =
-                new PaneledChoiceDialog(this, Localization.get("home.menu.locale.select"));
-
-        AdapterView.OnItemClickListener listClickListener = (parent, view, position, id) -> {
-            String[] localeCodes = ChangeLocaleUtil.getLocaleCodes();
-            if (position >= localeCodes.length) {
-                Localization.setLocale("default");
-            } else {
-                String selectedLocale = localeCodes[position];
-                Localization.setLocale(selectedLocale);
-                MainConfigurablePreferences.setCurrentLocale(selectedLocale);
-            }
-            // rebuild home buttons in case language changed;
-            if (uiController != null) {
-                uiController.setupUI();
-            }
-            rebuildOptionsMenu();
-            dialog.dismiss();
-        };
-
-        dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
-        showAlertDialog(dialog);
-    }
-
-    private static DialogChoiceItem[] buildLocaleChoices() {
-        String[] locales = ChangeLocaleUtil.getLocaleNames();
-        DialogChoiceItem[] choices = new DialogChoiceItem[locales.length];
-        for (int i = 0; i < choices.length; i++) {
-            choices[i] = DialogChoiceItem.nonListenerItem(locales[i]);
-        }
-        return choices;
-    }
-
     protected void goToFormArchive(boolean incomplete) {
-        goToFormArchive(incomplete, null);
-    }
-
-    protected void goToFormArchive(boolean incomplete, FormRecord record) {
-        FirebaseAnalyticsUtil.reportViewArchivedFormsList(incomplete);
-        Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
-        if (incomplete) {
-            i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
-        }
-        if (record != null) {
-            i.putExtra(FormRecordListActivity.KEY_INITIAL_RECORD_ID, record.getID());
-        }
-        startActivityForResult(i, GET_INCOMPLETE_FORM);
+        coordinator.showFormArchive(incomplete);
     }
 
     protected void userTriggeredLogout() {
@@ -608,28 +412,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
                         }
                     }
                     break;
-                case AUTHENTICATION_FOR_PIN:
-                    if (resultCode == RESULT_OK) {
-                        launchPinCreateScreen(LoginMode.PASSWORD);
-                    }
-                    return;
-                case CREATE_PIN:
-                    boolean choseRememberPassword = intent != null && intent.getBooleanExtra(
-                            CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
-                    if (choseRememberPassword) {
-                        CommCareApplication.instance().closeUserSession();
-                    } else if (resultCode == RESULT_OK) {
-                        Toast.makeText(
-                                this, Localization.get("pin.set.success"),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    } else {
-                        Toast.makeText(
-                                this, Localization.get("pin.not.set"),
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
-                    return;
                 case MAKE_REMOTE_POST:
                     stepBackIfCancelled(resultCode);
                     if (resultCode == RESULT_OK) {
@@ -796,17 +578,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
 
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         coordinator.clearSessionAndExit(currentState, shouldWarnUser);
-    }
-
-    private void showDemoModeWarning() {
-        StandardAlertDialog d = StandardAlertDialog.getBasicAlertDialogWithIcon(
-                Localization.get("demo.mode.warning.title"),
-                Localization.get("demo.mode.warning.main"),
-                android.R.drawable.ic_dialog_info,
-                null
-        );
-        d.setEmphasizedMessage(Localization.get("demo.mode.warning.emphasized"));
-        showAlertDialog(d);
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
@@ -1207,7 +978,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
 
     @Override
     public void showFormArchive(boolean incomplete, FormRecord record) {
-        goToFormArchive(incomplete, record);
+        coordinator.showFormArchive(incomplete, record);
     }
 
     @Override
@@ -1227,40 +998,10 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
     }
 
     public static void createPreferencesMenu(AppCompatActivity activity) {
-        Intent i = new Intent(activity, SessionAwarePreferenceActivity.class);
-        i.putExtra(
-                CommCarePreferenceActivity.EXTRA_PREF_TYPE,
-                CommCarePreferenceActivity.PREF_TYPE_COMMCARE
+        activity.startActivityForResult(
+                HomeActivityCoordinator.buildPreferencesIntent(activity),
+                PREFERENCES_ACTIVITY
         );
-        activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
-    }
-
-    protected void showAdvancedActionsPreferences() {
-        Intent intent = new Intent(this, SessionAwarePreferenceActivity.class);
-        intent.putExtra(
-                CommCarePreferenceActivity.EXTRA_PREF_TYPE,
-                CommCarePreferenceActivity.PREF_TYPE_ADVANCED_ACTIONS
-        );
-        startActivityForResult(intent, ADVANCED_ACTIONS_ACTIVITY);
-    }
-
-    protected void showAboutCommCareDialog() {
-        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
-        dialog.makeCancelable();
-        dialog.setOnDismissListener(dialog1 -> handleDeveloperModeClicks());
-        showAlertDialog(dialog);
-    }
-
-    private void handleDeveloperModeClicks() {
-        mDeveloperModeClicks++;
-        if (mDeveloperModeClicks == 4) {
-            DeveloperPreferences.setSuperuserEnabled(true);
-            Toast.makeText(
-                    this,
-                    Localization.get("home.developer.options.enabled"),
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
     }
 
     @Override
