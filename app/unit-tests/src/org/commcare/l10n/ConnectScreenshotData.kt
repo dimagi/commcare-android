@@ -20,8 +20,17 @@ object ConnectScreenshotData {
     private const val ORGANIZATION = "Kisumu Community Health Partners"
     private const val CURRENCY = "INR"
     private const val LEARN_MODULES = 5
+    private const val LEARNING_MODULES_DONE = 3
     private const val MAX_VISITS = 40
+    private const val BUDGET_PER_VISIT = 1250
+    private val HOUSEHOLDS = listOf("Achieng Odhiambo", "Baraka Mwangi", "Wanjiku Kamau", "Otieno Family", "Nyambura Njoroge")
+    private const val DELIVERY_VISITS = 27
+    private const val VISITS_PER_DAY = 4
+    private const val PAYMENT_UNIT_ID = "household-visit"
     const val CONVERSATION_CHANNEL_ID = "showcase-channel-partners"
+    const val LEARNING_OPPORTUNITY_ID = 1
+    const val DELIVERING_OPPORTUNITY_ID = 2
+    const val NEW_OPPORTUNITY_ID = 4
 
     /** A PersonalID user with a full name, a Kenyan phone number and an email. */
     fun user(hasConnectAccess: Boolean = false): ConnectUserRecord =
@@ -43,19 +52,106 @@ object ConnectScreenshotData {
     /** One opportunity per state the opportunity list shows, with a long title and an expiry warning among them. */
     fun opportunities(): List<ConnectJobRecord> =
         listOf(
-            opportunity(1, "Household Malaria Prevention Survey", ConnectJobRecord.STATUS_LEARNING, endInDays = 21, modulesDone = 3),
             opportunity(
-                2,
+                LEARNING_OPPORTUNITY_ID,
+                "Household Malaria Prevention Survey",
+                ConnectJobRecord.STATUS_LEARNING,
+                endInDays = 21,
+                modulesDone = LEARNING_MODULES_DONE,
+            ),
+            opportunity(
+                DELIVERING_OPPORTUNITY_ID,
                 "Child Growth Monitoring and Nutrition Counselling, Kisumu County",
                 ConnectJobRecord.STATUS_DELIVERING,
                 endInDays = 2,
-                visitsDone = 27,
+                visitsDone = DELIVERY_VISITS,
             ),
             opportunity(3, "Maternal Health Home Visits", ConnectJobRecord.STATUS_DELIVERING, endInDays = 60, visitsDone = 12),
-            opportunity(4, "Community Vaccination Awareness Campaign", ConnectJobRecord.STATUS_AVAILABLE_NEW, endInDays = 45),
+            opportunity(
+                NEW_OPPORTUNITY_ID,
+                "Community Vaccination Awareness Campaign",
+                ConnectJobRecord.STATUS_AVAILABLE_NEW,
+                endInDays = 45,
+            ),
             opportunity(5, "Polio Campaign Follow-up", ConnectJobRecord.STATUS_DELIVERING, endInDays = -14, visitsDone = MAX_VISITS),
             opportunity(6, "Bed Net Distribution Check", ConnectJobRecord.STATUS_DELIVERING, endInDays = -40, visitsDone = 18),
         )
+
+    /** The opportunity UUID the server and the local database key the opportunity with [id] by. */
+    fun opportunityUuid(id: Int): String = "showcase-opportunity-$id"
+
+    /**
+     * The learn progress response for the opportunity with [id]: the learning opportunity is part way through its
+     * modules, and every other one has finished them and passed the assessment.
+     */
+    fun learningProgressResponse(id: Int): String {
+        val modulesDone = if (id == LEARNING_OPPORTUNITY_ID) LEARNING_MODULES_DONE else LEARN_MODULES
+        return JSONObject()
+            .put(
+                "completed_modules",
+                JSONArray().apply {
+                    (1..modulesDone).forEach { module ->
+                        put(
+                            JSONObject().apply {
+                                put("id", module)
+                                put("date", isoDateTime(minutesAgo = (40 - module * 6) * 24 * 60))
+                                put("module", module)
+                                put("duration", "01:45:00")
+                            },
+                        )
+                    }
+                },
+            ).put(
+                "assessments",
+                JSONArray().apply {
+                    if (modulesDone == LEARN_MODULES) {
+                        put(
+                            JSONObject().apply {
+                                put("date", isoDateTime(minutesAgo = 9 * 24 * 60))
+                                put("score", 92)
+                                put("passing_score", 80)
+                                put("passed", true)
+                            },
+                        )
+                    }
+                },
+            ).toString()
+    }
+
+    /**
+     * The delivery progress response for the delivering opportunity: its visits spread over the last week, the newest
+     * of them still pending and one rejected, and two confirmed payments ahead of one still to confirm.
+     */
+    fun deliveryProgressResponse(): String {
+        val rejectedVisit = 7
+        val pendingVisits = 2
+        val approvedVisits = DELIVERY_VISITS - pendingVisits - 1
+        return JSONObject()
+            .put("max_payments", MAX_VISITS)
+            .put("payment_accrued", approvedVisits * BUDGET_PER_VISIT)
+            .put("is_user_suspended", false)
+            .put(
+                "deliveries",
+                JSONArray().apply {
+                    (0 until DELIVERY_VISITS).forEach { visit ->
+                        val status =
+                            when {
+                                visit < pendingVisits -> "pending"
+                                visit == rejectedVisit -> "rejected"
+                                else -> "approved"
+                            }
+                        put(delivery(visit, status, minutesAgo = (visit / VISITS_PER_DAY) * 24 * 60 + 30 + visit * 20))
+                    }
+                },
+            ).put(
+                "payments",
+                JSONArray().apply {
+                    put(payment("1", visits = 12, daysAgo = 14, confirmed = true))
+                    put(payment("2", visits = 6, daysAgo = 7, confirmed = true))
+                    put(payment("3", visits = 5, daysAgo = 1, confirmed = false))
+                },
+            ).toString()
+    }
 
     /** Subscribed channels with unread, read and sent last messages, plus one the worker has unsubscribed from. */
     fun channels(): List<ConnectMessagingChannelRecord> =
@@ -199,7 +295,7 @@ object ConnectScreenshotData {
     ): JSONObject =
         JSONObject().apply {
             put("id", id)
-            put("opportunity_id", "showcase-opportunity-$id")
+            put("opportunity_id", opportunityUuid(id))
             put("name", title)
             put("description", "Visit households in your area, record what you find and share health guidance with each family.")
             put("short_description", "Visit households and record what you find.")
@@ -208,8 +304,8 @@ object ConnectScreenshotData {
             put("end_date", isoDate(endInDays))
             put("max_visits_per_user", MAX_VISITS)
             put("daily_max_visits_per_user", 8)
-            put("budget_per_visit", 1250)
-            put("budget_per_user", 1250 * MAX_VISITS)
+            put("budget_per_visit", BUDGET_PER_VISIT)
+            put("budget_per_user", BUDGET_PER_VISIT * MAX_VISITS)
             put("currency", CURRENCY)
             put("deliver_progress", visitsDone)
             put("payment_units", paymentUnitsJson())
@@ -228,13 +324,47 @@ object ConnectScreenshotData {
         JSONArray().put(
             JSONObject().apply {
                 put("id", 1)
-                put("payment_unit_id", "household-visit")
+                put("payment_unit_id", PAYMENT_UNIT_ID)
                 put("name", "Household visit")
                 put("max_total", MAX_VISITS)
                 put("max_daily", 8)
-                put("amount", 1250)
+                put("amount", BUDGET_PER_VISIT)
             },
         )
+
+    private fun delivery(
+        visit: Int,
+        status: String,
+        minutesAgo: Int,
+    ): JSONObject =
+        JSONObject().apply {
+            put("id", visit + 1)
+            put("visit_date", isoDateTime(minutesAgo))
+            put("status", status)
+            put("deliver_unit_name", "Household visit")
+            put("deliver_unit_slug", PAYMENT_UNIT_ID)
+            put("deliver_unit_slug_id", PAYMENT_UNIT_ID)
+            put("entity_id", "showcase-household-$visit")
+            put("entity_name", HOUSEHOLDS[visit % HOUSEHOLDS.size])
+            put("reason", if (status == "rejected") "The photo of the growth chart is missing." else "")
+        }
+
+    private fun payment(
+        id: String,
+        visits: Int,
+        daysAgo: Int,
+        confirmed: Boolean,
+    ): JSONObject =
+        JSONObject().apply {
+            put("id", id)
+            put("payment_id", "showcase-payment-$id")
+            put("date_paid", isoDateTime(minutesAgo = daysAgo * 24 * 60))
+            put("amount", visits * BUDGET_PER_VISIT)
+            put("confirmed", confirmed)
+            if (confirmed) {
+                put("date_confirmed", isoDate(-daysAgo + 1))
+            }
+        }
 
     private fun appJson(
         appId: String,
@@ -266,6 +396,10 @@ object ConnectScreenshotData {
                     )
                 }
         }
+
+    private fun isoDateTime(minutesAgo: Int): String =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
+            .format(Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(minutesAgo.toLong())))
 
     private fun isoDate(daysFromNow: Int): String =
         SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, daysFromNow) }.time)

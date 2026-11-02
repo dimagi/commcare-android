@@ -29,7 +29,7 @@ import org.junit.rules.TestRule
 
 /**
  * The showcase user signed in to Connect, whose screens read seeded data from the local database, with every
- * network call answered empty so none of it is pruned.
+ * network call answered by [responseBody], empty unless a test says otherwise, so none of it is pruned.
  */
 abstract class BaseConnectScreenshotTest(
     protected val target: ScreenshotTarget,
@@ -37,12 +37,12 @@ abstract class BaseConnectScreenshotTest(
     @get:Rule
     val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
-    private val mockApi = ConnectMockApiServer()
+    protected val mockApi = ConnectMockApiServer()
 
     @Before
     fun setUpConnect() {
         mockApi.start()
-        mockApi.server.dispatcher = emptyJsonDispatcher()
+        mockApi.server.dispatcher = showcaseDispatcher()
         ConnectRepository.resetInstance()
         ConnectRequestManager.cancelAll()
         mockOutsideWorld()
@@ -86,8 +86,12 @@ abstract class BaseConnectScreenshotTest(
         every { AppUtils.isAppInstalled(any()) } returns true
     }
 
-    private fun emptyJsonDispatcher(): Dispatcher =
+    /** The JSON body the mock Connect server answers a request for [path] with. */
+    protected open fun responseBody(path: String): String = "{}"
+
+    private fun showcaseDispatcher(): Dispatcher =
         object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse = MockResponse().setResponseCode(200).setBody("{}")
+            override fun dispatch(request: RecordedRequest): MockResponse =
+                MockResponse().setResponseCode(200).setBody(responseBody(request.requestUrl?.encodedPath.orEmpty()))
         }
 }
