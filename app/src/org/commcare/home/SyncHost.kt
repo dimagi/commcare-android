@@ -1,5 +1,6 @@
 package org.commcare.home
 
+import android.widget.Toast
 import org.commcare.activities.CommCareActivity
 import org.commcare.tasks.DataPullTask.PullTaskResult
 
@@ -21,4 +22,9 @@ interface SyncHost {
 
     /** A pull finished and the delegate has reported it; the host may react further. */
     fun onPullTaskFinished(result: PullTaskResult)
+
+    /** Show a sync message the user should see, such as why a sync was not attempted. */
+    fun displayToast(message: String) {
+        Toast.makeText(syncConnector, message, Toast.LENGTH_LONG).show()
+    }
 }

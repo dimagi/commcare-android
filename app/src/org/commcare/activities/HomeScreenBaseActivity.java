@@ -1,12 +1,10 @@
 package org.commcare.activities;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Base64;
 import android.widget.AdapterView;
 import android.widget.Toast;
 
@@ -18,13 +16,9 @@ import androidx.preference.PreferenceManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.components.FormEntryConstants;
-import org.commcare.activities.components.FormEntryInstanceState;
-import org.commcare.activities.components.FormEntrySessionWrapper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.ConnectNavHelper;
@@ -35,12 +29,11 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.home.HomeActivityHost;
+import org.commcare.home.SessionLaunchDelegate;
 import org.commcare.home.SyncDelegate;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.AdvancedActionsPreferences;
-import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.MainConfigurablePreferences;
@@ -53,7 +46,6 @@ import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.Endpoint;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.PostRequest;
 import org.commcare.suite.model.RemoteRequestEntry;
@@ -62,17 +54,12 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.sync.FirebaseMessagingDataSyncer;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.FormLoaderTask;
-import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.DatumUtil;
 import org.commcare.util.LogTypes;
-import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.EntityDetailUtils;
-import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
@@ -96,11 +83,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Objects;
-import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION;
-import static org.commcare.activities.DispatchActivity.EXIT_AFTER_FORM_SUBMISSION_DEFAULT;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_BUNDLE;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ARGUMENTS_LIST;
 import static org.commcare.activities.DispatchActivity.SESSION_ENDPOINT_ID;
@@ -132,7 +116,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
     /**
      * Request code for launching FormEntryActivity
      */
-    protected static final int MODEL_RESULT = 4;
+    protected static final int MODEL_RESULT = SessionLaunchDelegate.FORM_ENTRY_REQUEST_CODE;
     protected static final int MAKE_REMOTE_POST = 5;
     public static final int GET_INCOMPLETE_FORM = 6;
     protected static final int PREFERENCES_ACTIVITY = 7;
@@ -154,8 +138,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
 
     private SessionNavigator sessionNavigator;
     private boolean sessionNavigationProceedingAfterOnResume;
-
-    private boolean isRestoringSession = false;
 
     // Indicates if 1 of the checks we performed in onCreate resulted in redirecting to a
     // different activity or starting a UI-blocking task
@@ -199,10 +181,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         return getSyncDelegate().generateProgressDialog(taskId);
-    }
-
-    protected void displayToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -370,31 +348,24 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
             return false;
         }
 
-        if (showUpdateInfoForm()) {
+        SessionLaunchDelegate sessionLaunch = coordinator.getSessionLaunch();
+        if (sessionLaunch.showUpdateInfoForm()) {
             return true;
         }
 
-        if (tryRestoringFormFromSessionExpiration()) {
+        if (sessionLaunch.tryRestoringFormFromSessionExpiration()) {
             return true;
         }
 
-        if (tryRestoringSession()) {
+        if (sessionLaunch.tryRestoringSession()) {
             return true;
         }
 
-        if (CommCareApplication.instance().isPostUpdateSyncNeeded()
-                || UpdateActivity.isUpdateBlockedOnSync()) {
-            HiddenPreferences.setPostUpdateSyncNeeded(false);
-            triggerSync(false);
+        if (getSyncDelegate().runPostUpdateSyncIfNeeded()) {
             return true;
         }
 
-        // In case a sync request from FCM was made while the user was logged out, this will
-        // trigger a blocking sync
-        String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
-        if (HiddenPreferences.isPendingSyncRequest(username)) {
-            getSyncDelegate().sendFormsOrSync(false);
-
+        if (getSyncDelegate().runPendingSyncRequestIfNeeded()) {
             return true;
         }
 
@@ -415,25 +386,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         }
     }
 
-    // Open the update info form if available
-    private boolean showUpdateInfoForm() {
-        if (HiddenPreferences.shouldShowXformUpdateInfo()) {
-            HiddenPreferences.setShowXformUpdateInfo(false);
-            String updateInfoFormXmlns =
-                    CommCareApplication.instance().getCommCarePlatform().getUpdateInfoFormXmlns();
-            if (!StringUtils.isEmpty(updateInfoFormXmlns)) {
-                CommCareSession session = CommCareApplication.instance().getCurrentSession();
-                FormEntry formEntry = session.getEntryForNameSpace(updateInfoFormXmlns);
-                if (formEntry != null) {
-                    session.setCommand(formEntry.getCommandID());
-                    startNextSessionStepSafe();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /**
      * Regardless of what action(s) we ended up executing in doLoginLaunchChecksInOrder(), we don't
      * want to end up trying the actions associated with these flags again at a later point. They
@@ -444,44 +396,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         HiddenPreferences.clearInterruptedSSD();
         String username = CommCareApplication.instance().getSession().getLoggedInUser().getUsername();
         HiddenPreferences.clearPendingSyncRequest(username);
-    }
-
-    private boolean tryRestoringFormFromSessionExpiration() {
-        SessionStateDescriptor existing =
-                AndroidSessionWrapper.getFormStateForInterruptedUserSession();
-        if (existing != null) {
-            AndroidSessionWrapper state = CommCareApplication.instance().getCurrentSessionWrapper();
-            state.loadFromStateDescription(existing);
-
-            FormRecord formRecord = state.getFormRecord();
-            //TODO: Temporary for GD, to remove
-            Logger.log(
-                    LogTypes.TYPE_FORM_ENTRY, "Restoring form from expired Session |" +
-                            (formRecord.getInstanceID() == null ? "" : formRecord.getInstanceID() + "|") +
-                            formRecord.getFormNamespace()
-            );
-            formEntry(
-                    CommCareApplication.instance().getCommCarePlatform()
-                            .getFormDefId(state.getSession().getForm()),
-                    state.getFormRecord(),
-                    null,
-                    true
-            );
-            return true;
-        }
-        return false;
-    }
-
-    private boolean tryRestoringSession() {
-        CommCareSession session = CommCareApplication.instance().getCurrentSession();
-        if (session.getCommand() != null) {
-            // Restore the session state if there is a command. This is for debugging and
-            // occurs when a serialized session was stored by a previous user session
-            isRestoringSession = true;
-            sessionNavigator.startNextSessionStep();
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -663,44 +577,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
                     handleAdvancedActionResult(resultCode, intent);
                     return;
                 case GET_INCOMPLETE_FORM:
-                    //TODO: We might need to load this from serialized state?
-                    if (resultCode == RESULT_CANCELED) {
-                        refreshUI();
-                        return;
-                    } else if (resultCode == RESULT_OK) {
-                        int record = intent.getIntExtra("FORMRECORDS", -1);
-                        if (record == -1) {
-                            //Hm, what to do here?
-                            break;
-                        }
-                        FormRecord r = CommCareApplication.instance().getUserStorage(
-                                FormRecord.class).read(record);
-
-                        //Retrieve and load the appropriate ssd
-                        SqlStorage<SessionStateDescriptor> ssdStorage =
-                                CommCareApplication.instance().getUserStorage(
-                                        SessionStateDescriptor.class);
-                        Vector<Integer> ssds = ssdStorage.getIDsForValue(
-                                SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
-                        AndroidSessionWrapper currentState =
-                                CommCareApplication.instance().getCurrentSessionWrapper();
-                        if (ssds.size() == 1) {
-                            currentState.loadFromStateDescription(
-                                    ssdStorage.read(ssds.firstElement()));
-                        } else {
-                            currentState.setFormRecordId(r.getID());
-                        }
-
-                        AndroidCommCarePlatform platform =
-                                CommCareApplication.instance().getCommCarePlatform();
-
-                        //TODO: Temporary for GD, to remove
-                        Logger.log(
-                                LogTypes.TYPE_FORM_ENTRY, "Loading an incomplete form |" +
-                                        (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
-                                        r.getFormNamespace()
-                        );
-                        formEntry(platform.getFormDefId(r.getFormNamespace()), r);
+                    if (!coordinator.getSessionLaunch().handleIncompleteFormResult(resultCode, intent)) {
                         return;
                     }
                     break;
@@ -718,14 +595,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
                     }
                     break;
                 case MODEL_RESULT:
-                    if (intent != null && intent.getBooleanExtra(
-                            FormEntryConstants.WAS_INTERRUPTED,
-                            false
-                    )) {
-                        tryRestoringFormFromSessionExpiration();
-                        return;
-                    }
-                    continueWithSessionNav = processReturnFromFormEntry(resultCode, intent);
+                    continueWithSessionNav = coordinator.handleFormEntryResult(resultCode, intent);
                     if (!continueWithSessionNav) {
                         return;
                     }
@@ -886,7 +756,8 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         }
     }
 
-    private void startNextSessionStepSafe() {
+    @Override
+    public void startNextSessionStepSafe() {
         try {
             sessionNavigator.startNextSessionStep();
         } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
@@ -923,162 +794,8 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         return neededDataUnchanged && datumIdsUnchanged;
     }
 
-    /**
-     * Process user returning home from the form entry activity. Triggers form submission cycle,
-     * cleans up some session state.
-     *
-     * @param resultCode exit code of form entry activity
-     * @param intent     The intent of the returning activity, with the saved form provided as the
-     *                   intent URI data. Null if the form didn't exit cleanly
-     * @return Flag signifying that caller should fetch the next activity in the session to launch.
-     * If false then caller should exit or spawn home activity.
-     */
-    private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
-        // TODO: We might need to load this from serialized state?
-        AndroidSessionWrapper currentState =
-                CommCareApplication.instance().getCurrentSessionWrapper();
-
-        // This is the state we were in when we _Started_ form entry
-        FormRecord current = currentState.getFormRecord();
-
-        if (current == null) {
-            // somehow we lost the form record for the current session
-            Toast.makeText(
-                    this,
-                    "Error while trying to save the form!",
-                    Toast.LENGTH_LONG
-            ).show();
-            Logger.log(
-                    LogTypes.TYPE_ERROR_WORKFLOW,
-                    "Form Entry couldn't save because of corrupt state."
-            );
-            clearSessionAndExit(currentState, true);
-            return false;
-        }
-
-        // TODO: This should be the default unless we're in some "Uninit" or "incomplete" state
-        if ((intent != null && intent.getBooleanExtra(FormEntryConstants.IS_ARCHIVED_FORM, false))
-                ||
-                FormRecord.STATUS_COMPLETE.equals(current.getStatus()) ||
-                FormRecord.STATUS_SAVED.equals(current.getStatus())) {
-            // Viewing an old form, so don't change the historical record
-            // regardless of the exit code
-            currentState.reset();
-            if (exitFromExternalLaunch() ||
-                    (intent != null && intent.getBooleanExtra(
-                            FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false))) {
-                setResult(RESULT_CANCELED);
-                this.finish();
-            } else {
-                // Return to where we started
-                goToFormArchive(false, current);
-            }
-            return false;
-        }
-
-        if (resultCode == RESULT_OK) {
-            String formRecordStatus = current.getStatus();
-            // was the record marked complete?
-            boolean complete = FormRecord.STATUS_COMPLETE.equals(formRecordStatus)
-                    || FormRecord.STATUS_UNSENT.equals(formRecordStatus);
-
-            // The form is either ready for processing, or not, depending on how it was saved
-            if (complete) {
-                getSyncDelegate().startUnsentFormsTask(false, false);
-                refreshUI();
-
-                if (exitFromExternalLaunch()) {
-                    currentState.reset();
-                    setResult(RESULT_CANCELED);
-                    this.finish();
-                    return false;
-                }
-
-                // Before we can terminate the session, we need to know that the form has been
-                // processed in case there is state that depends on it.
-                boolean terminateSuccessful;
-                try {
-                    terminateSuccessful = currentState.terminateSession();
-                } catch (XPathException e) {
-                    new UserfacingErrorHandling<>().logErrorAndShowDialog(this, e, true);
-                    return false;
-                }
-                if (!terminateSuccessful) {
-                    // If we didn't find somewhere to go, we're gonna stay here
-                    return false;
-                }
-                // Otherwise, we want to keep proceeding in order
-                // to keep running the workflow
-            } else {
-                clearSessionAndExit(currentState, false);
-                return false;
-            }
-        } else if (resultCode == RESULT_CANCELED) {
-            // Nothing was saved during the form entry activity
-
-            Logger.log(LogTypes.TYPE_FORM_ENTRY, "Form Entry Cancelled");
-
-            // If the form was unstarted, we want to wipe the record.
-            if (current.getStatus().equals(FormRecord.STATUS_UNSTARTED)) {
-                // Entry was cancelled.
-                FormRecordCleanupTask.wipeRecord(currentState);
-            }
-
-            if (exitFromExternalLaunch()) {
-                currentState.reset();
-                setResult(RESULT_CANCELED);
-                this.finish();
-                return false;
-            } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE) &&
-                    intent != null && !intent.getBooleanExtra(
-                    FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, false)) {
-                currentState.reset();
-                // We should head back to the incomplete forms screen
-                goToFormArchive(true, current);
-                return false;
-            } else {
-                // If we cancelled form entry from a normal menu entry
-                // we want to go back to where were were right before we started
-                // entering the form.
-                currentState.getSession().stepBack(currentState.getEvaluationContext());
-                currentState.setFormRecordId(-1);
-            }
-        }
-        return true;
-    }
-
-    private boolean exitFromExternalLaunch() {
-        Intent intent = getIntent();
-        boolean exitAfterFormSubmission = intent != null && intent.getBooleanExtra(
-                EXIT_AFTER_FORM_SUBMISSION,
-                EXIT_AFTER_FORM_SUBMISSION_DEFAULT
-        );
-        if (intent != null) {
-            intent.removeExtra(EXIT_AFTER_FORM_SUBMISSION);
-        }
-        return coordinator.getWasExternal() && exitAfterFormSubmission;
-    }
-
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
-        currentState.reset();
-        if (exitFromExternalLaunch()) {
-            setResult(RESULT_CANCELED);
-            this.finish();
-        }
-        refreshUI();
-        if (shouldWarnUser) {
-            showSessionRefreshWarning();
-        }
-    }
-
-    private void showSessionRefreshWarning() {
-        showAlertDialog(
-                StandardAlertDialog.getBasicAlertDialog(
-                        Localization.get("session.refresh.error.title"),
-                        Localization.get("session.refresh.error.message"),
-                        null
-                )
-        );
+        coordinator.clearSessionAndExit(currentState, shouldWarnUser);
     }
 
     private void showDemoModeWarning() {
@@ -1114,7 +831,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
                 handleNoFormFromSessionNav(asw);
                 break;
             case SessionNavigator.START_FORM_ENTRY:
-                startFormEntry(asw);
+                coordinator.getSessionLaunch().startForm(asw);
                 break;
             case SessionNavigator.GET_COMMAND:
                 handleGetCommand(asw);
@@ -1317,122 +1034,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         i.putExtra(KEY_PENDING_SESSION_DATUM_ID, session.getNeededDatum().getDataId());
     }
 
-    /**
-     * Create (or re-use) a form record and pass it to the form entry activity launcher. If there is
-     * an existing incomplete form that uses the same case, ask the user if they want to edit or
-     * delete that one.
-     *
-     * @param state Needed for FormRecord manipulations
-     */
-    private void startFormEntry(AndroidSessionWrapper state) {
-        if (state.getFormRecordId() == -1) {
-            if (HiddenPreferences.isIncompleteFormsEnabled()) {
-                // Are existing (incomplete) forms using the same case?
-                SessionStateDescriptor existing =
-                        state.getExistingIncompleteCaseDescriptor();
-
-                if (existing != null) {
-                    // Ask user if they want to just edit existing form that
-                    // uses the same case.
-                    createAskUseOldDialog(state, existing);
-                    return;
-                }
-            }
-
-            // Generate a stub form record and commit it
-            state.commitStub();
-        } else {
-            Logger.log(
-                    LogTypes.TYPE_FORM_ENTRY,
-                    "Somehow ended up starting form entry with old state?"
-            );
-        }
-
-        FormRecord record = state.getFormRecord();
-        AndroidCommCarePlatform platform = CommCareApplication.instance().getCommCarePlatform();
-        formEntry(
-                platform.getFormDefId(record.getFormNamespace()),
-                record,
-                CommCareActivity.getTitle(this, null),
-                false
-        );
-    }
-
-    private void formEntry(int formDefId, FormRecord r) {
-        formEntry(formDefId, r, null, false);
-    }
-
-    private void formEntry(
-            int formDefId,
-            FormRecord r,
-            String headerTitle,
-            boolean isRestartAfterSessionExpiration
-    ) {
-
-        // Block any background syncs during a form entry
-        shouldTriggerBackgroundSync = false;
-
-        Logger.log(
-                LogTypes.TYPE_FORM_ENTRY, "Form Entry Starting|" +
-                        (r.getInstanceID() == null ? "" : r.getInstanceID() + "|") +
-                        r.getFormNamespace()
-        );
-
-        //TODO: This is... just terrible. Specify where external instance data should come from
-        FormLoaderTask.iif = new AndroidInstanceInitializer(
-                CommCareApplication.instance().getCurrentSession());
-
-        // Create our form entry activity callout
-        Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
-        i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(
-                FormEntryInstanceState.KEY_FORM_RECORD_DESTINATION,
-                CommCareApplication.instance().getCurrentApp()
-                        .fsPath((GlobalConstants.FILE_CC_FORMS))
-        );
-
-        // See if there's existing form data that we want to continue entering
-        if (!StringUtils.isEmpty(r.getFilePath())) {
-            i.putExtra(FormEntryActivity.KEY_FORM_RECORD_ID, r.getID());
-        } else {
-            i.putExtra(FormEntryActivity.KEY_FORM_DEF_ID, formDefId);
-        }
-
-        i.putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, HiddenPreferences.getResizeMethod());
-        i.putExtra(
-                FormEntryActivity.KEY_INCOMPLETE_ENABLED,
-                HiddenPreferences.isIncompleteFormsEnabled()
-        );
-        i.putExtra(
-                FormEntryActivity.KEY_AES_STORAGE_KEY,
-                Base64.encodeToString(r.getAesKey(), Base64.DEFAULT)
-        );
-        i.putExtra(
-                FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION,
-                DeveloperPreferences.isSessionSavingEnabled()
-        );
-        i.putExtra(
-                FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION,
-                isRestartAfterSessionExpiration
-        );
-        if (headerTitle != null) {
-            i.putExtra(FormEntryActivity.KEY_HEADER_STRING, headerTitle);
-        }
-        if (isRestoringSession) {
-            isRestoringSession = false;
-            SharedPreferences prefs =
-                    CommCareApplication.instance().getCurrentApp().getAppPreferences();
-            String formEntrySession = prefs.getString(
-                    DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION,
-                    ""
-            );
-            if (!"".equals(formEntrySession)) {
-                i.putExtra(FormEntrySessionWrapper.KEY_FORM_ENTRY_SESSION, formEntrySession);
-            }
-        }
-        startActivityForResult(i, MODEL_RESULT);
-    }
-
     private void triggerSync(boolean triggeredByAutoSyncPending) {
         if (triggeredByAutoSyncPending) {
             long lastUploadSyncAttempt = HiddenPreferences.getLastUploadSyncAttempt();
@@ -1552,48 +1153,6 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
         finish();
     }
 
-    private void createAskUseOldDialog(
-            final AndroidSessionWrapper state,
-            final SessionStateDescriptor existing
-    ) {
-        final AndroidCommCarePlatform platform =
-                CommCareApplication.instance().getCommCarePlatform();
-        String title = Localization.get("app.workflow.incomplete.continue.title");
-        String msg = Localization.get("app.workflow.incomplete.continue");
-        StandardAlertDialog d = new StandardAlertDialog(title, msg);
-        DialogInterface.OnClickListener listener = (dialog, i) -> {
-            switch (i) {
-                case DialogInterface.BUTTON_POSITIVE:
-                    // use the old form instance and load the it's state from the descriptor
-                    state.loadFromStateDescription(existing);
-                    formEntry(
-                            platform.getFormDefId(state.getSession().getForm()),
-                            state.getFormRecord()
-                    );
-                    break;
-                case DialogInterface.BUTTON_NEGATIVE:
-                    // delete the old incomplete form
-                    FormRecordCleanupTask.wipeRecord(existing);
-                    // fallthrough to new now that old record is gone
-                case DialogInterface.BUTTON_NEUTRAL:
-                    // create a new form record and begin form entry
-                    state.commitStub();
-                    formEntry(
-                            platform.getFormDefId(state.getSession().getForm()),
-                            state.getFormRecord()
-                    );
-            }
-            dialog.dismiss();
-        };
-        d.setPositiveButton(Localization.get("option.yes"), listener);
-        d.setNegativeButton(
-                Localization.get("app.workflow.incomplete.continue.option.delete"),
-                listener
-        );
-        d.setNeutralButton(Localization.get("option.no"), listener);
-        showAlertDialog(d);
-    }
-
     @Override
     public boolean isDemoUser() {
         try {
@@ -1629,6 +1188,42 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
     @Override
     public void refreshHostUi() {
         refreshUI();
+    }
+
+    @Override
+    public Intent getLaunchIntent() {
+        return getIntent();
+    }
+
+    @Override
+    public String getFormEntryTitle() {
+        return CommCareActivity.getTitle(this, null);
+    }
+
+    @Override
+    public void startNextSessionStep() {
+        sessionNavigator.startNextSessionStep();
+    }
+
+    @Override
+    public void showFormArchive(boolean incomplete, FormRecord record) {
+        goToFormArchive(incomplete, record);
+    }
+
+    @Override
+    public void finishWithResult(int resultCode) {
+        setResult(resultCode);
+        finish();
+    }
+
+    @Override
+    public void showXPathErrorAndExit(@NonNull XPathException exception) {
+        new UserfacingErrorHandling<>().logErrorAndShowDialog(this, exception, true);
+    }
+
+    @Override
+    public void onFormEntryLaunching() {
+        shouldTriggerBackgroundSync = false;
     }
 
     public static void createPreferencesMenu(AppCompatActivity activity) {
