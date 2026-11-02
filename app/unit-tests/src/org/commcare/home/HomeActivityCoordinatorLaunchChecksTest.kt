@@ -3,15 +3,13 @@ package org.commcare.home
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import androidx.preference.PreferenceManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
-import io.mockk.verify
-import io.mockk.verifyOrder
+import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
+import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_APP_PATH
+import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_PASSWORD
+import org.commcare.activities.BaseHomeScreenActivityTest.Companion.TEST_USER
 import org.commcare.activities.CommCarePreferenceActivity
 import org.commcare.activities.CreatePinActivity
 import org.commcare.activities.FormRecordListActivity
@@ -19,99 +17,128 @@ import org.commcare.activities.LoginActivity
 import org.commcare.activities.LoginMode
 import org.commcare.activities.PinAuthenticationActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
+import org.commcare.activities.UpdateActivity
 import org.commcare.android.database.user.models.FormRecord
+import org.commcare.android.mocks.FormAndDataSyncerFake
+import org.commcare.android.util.TestAppInstaller
+import org.commcare.appupdate.AppUpdateState
 import org.commcare.preferences.DeveloperPreferences
+import org.commcare.preferences.HiddenPreferences
+import org.commcare.preferences.PrefValues
 import org.commcare.views.dialogs.StandardAlertDialog
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
- * The coordinator's launch-check order and early returns, against mocked delegates, plus the
- * action facade's availability queries and routing.
+ * The coordinator's launch-check order and early returns, plus the action facade's availability
+ * queries and routing, over real delegates with only the syncer and Play Core update faked.
  */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class HomeActivityCoordinatorLaunchChecksTest {
-    private val host = FakeHomeActivityHost()
-    private val appUpdate = mockk<AppUpdateDelegate>(relaxed = true)
-    private val sync = mockk<SyncDelegate>(relaxed = true)
-    private val sessionLaunch = mockk<SessionLaunchDelegate>(relaxed = true)
-    private val coordinator =
-        HomeActivityCoordinator(
-            host = host,
-            session = FakeSeatedAppSession(),
-            appUpdate = appUpdate,
-            sync = sync,
-            sessionLaunch = sessionLaunch,
-        )
+    private lateinit var host: FakeHomeActivityHost
+    private lateinit var updateController: FakeAppUpdateController
+    private lateinit var syncer: FormAndDataSyncerFake
+    private lateinit var coordinator: HomeActivityCoordinator
 
-    private val launchSteps: List<Pair<String, () -> Boolean>> =
-        listOf(
-            "update info form" to { sessionLaunch.showUpdateInfoForm() },
-            "form restoration" to { sessionLaunch.tryRestoringFormFromSessionExpiration() },
-            "session restoration" to { sessionLaunch.tryRestoringSession() },
-            "post-update sync" to { sync.runPostUpdateSyncIfNeeded() },
-            "pending sync request" to { sync.runPendingSyncRequestIfNeeded() },
-            "update prompt" to { appUpdate.promptForUpdateIfNeeded(false) },
-        )
+    @Before
+    fun setUp() {
+        TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
+        HiddenPreferences.clearInterruptedSSD()
+        host = FakeHomeActivityHost()
+        updateController = FakeAppUpdateController()
+        syncer = FormAndDataSyncerFake()
+        val session = FakeSeatedAppSession()
+        coordinator =
+            HomeActivityCoordinator(
+                host = host,
+                session = session,
+                appUpdate =
+                    AppUpdateDelegate(
+                        host = host,
+                        session = session,
+                        networkAvailable = { true },
+                        controllerFactory = { callback, _ -> updateController.also { it.callback = callback } },
+                    ),
+            )
+        coordinator.sync.setFormAndDataSyncer(syncer)
+        host.performRestore()
+        host.dispatchOnCreate()
+    }
 
     @After
     fun tearDown() {
-        unmockkStatic(DeveloperPreferences::class)
+        coordinator.sessionExpiration.stopListening()
     }
 
     // region launch checks
 
     @Test
-    fun `a demo user halts the checks unclaimed with a warning and runs no step`() {
+    fun `a demo user halts unclaimed with a warning`() {
         host.demoUser = true
+        seedSessionCommand()
 
         assertFalse(coordinator.runLaunchChecks())
 
         assertEquals(1, host.shownDialogs.size)
         assertTrue(host.shownDialogs.single() is StandardAlertDialog)
-        launchSteps.forEach { (_, step) -> verify(exactly = 0) { step() } }
+        assertEquals(0, host.sessionStepCount)
     }
 
     @Test
-    fun `each claiming step ends the checks with true and runs nothing after it`() {
-        launchSteps.forEachIndexed { claimingIndex, (name, _) ->
-            launchSteps.forEachIndexed { index, (_, step) -> every { step() } returns (index == claimingIndex) }
+    fun `session restoration beats a post-update sync`() {
+        seedSessionCommand()
+        HiddenPreferences.setPostUpdateSyncNeeded(true)
 
-            assertTrue("$name should claim the launch", coordinator.runLaunchChecks())
+        assertTrue(coordinator.runLaunchChecks())
 
-            launchSteps.forEachIndexed { index, (_, step) ->
-                verify(exactly = if (index <= claimingIndex) 1 else 0) { step() }
-            }
-            clearMocks(appUpdate, sync, sessionLaunch, answers = false)
-        }
+        assertEquals(1, host.sessionStepCount)
+        assertEquals(0, syncer.formSendCount)
+        assertTrue(CommCareApplication.instance().isPostUpdateSyncNeeded)
+    }
+
+    @Test
+    fun `a post-update sync beats a pending sync request`() {
+        HiddenPreferences.setPostUpdateSyncNeeded(true)
+        seedPendingSyncRequest()
+
+        assertTrue(coordinator.runLaunchChecks())
+
+        assertEquals(1, syncer.formSendCount)
+        assertFalse(CommCareApplication.instance().isPostUpdateSyncNeeded)
+    }
+
+    @Test
+    fun `a pending sync request claims before the pin step`() {
+        seedPendingSyncRequest()
+        host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
+
+        assertTrue(coordinator.runLaunchChecks())
+
+        assertEquals(1, syncer.formSendCount)
+        assertFalse(syncer.lastSendUserTriggered)
         assertTrue(host.startedForResult.isEmpty())
     }
 
     @Test
-    fun `with no step claiming, every step runs in order and the checks end unclaimed`() {
-        launchSteps.forEach { (_, step) -> every { step() } returns false }
-
+    fun `with nothing pending, the checks end unclaimed`() {
         assertFalse(coordinator.runLaunchChecks())
 
-        verifyOrder {
-            sessionLaunch.showUpdateInfoForm()
-            sessionLaunch.tryRestoringFormFromSessionExpiration()
-            sessionLaunch.tryRestoringSession()
-            sync.runPostUpdateSyncIfNeeded()
-            sync.runPendingSyncRequestIfNeeded()
-            appUpdate.promptForUpdateIfNeeded(false)
-        }
+        assertEquals(0, host.sessionStepCount)
+        assertEquals(0, syncer.formSendCount)
+        assertTrue(host.startedForResult.isEmpty())
     }
 
+    @Suppress("DEPRECATION")
     @Test
-    fun `a primed login reaches the pin step and launches pin creation without claiming`() {
-        launchSteps.forEach { (_, step) -> every { step() } returns false }
+    fun `a primed login launches pin creation unclaimed`() {
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
         assertFalse(coordinator.runLaunchChecks())
@@ -124,7 +151,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `a claimed launch never reaches the pin step`() {
-        every { sessionLaunch.tryRestoringSession() } returns true
+        seedSessionCommand()
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
         assertTrue(coordinator.runLaunchChecks())
@@ -137,10 +164,9 @@ class HomeActivityCoordinatorLaunchChecksTest {
     // region action availability
 
     @Test
-    fun `every action but the language is unavailable when the host withholds actions`() {
-        mockkStatic(DeveloperPreferences::class)
-        every { DeveloperPreferences.shouldOfferPinForLogin() } returns true
-        every { appUpdate.showCommCareUpdateMenu } returns true
+    fun `withheld actions leave only the language available`() {
+        setOfferPinForLogin(true)
+        demoteCommCareUpdateToAction()
         host.actionsAvailable = false
 
         assertFalse(coordinator.canViewSavedForms())
@@ -165,20 +191,18 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `set pin also needs the pin feature`() {
-        mockkStatic(DeveloperPreferences::class)
-        every { DeveloperPreferences.shouldOfferPinForLogin() } returns false
+        setOfferPinForLogin(false)
         assertFalse(coordinator.canSetPin())
 
-        every { DeveloperPreferences.shouldOfferPinForLogin() } returns true
+        setOfferPinForLogin(true)
         assertTrue(coordinator.canSetPin())
     }
 
     @Test
     fun `update commcare also needs the update menu to be on offer`() {
-        every { appUpdate.showCommCareUpdateMenu } returns false
         assertFalse(coordinator.canUpdateCommCare())
 
-        every { appUpdate.showCommCareUpdateMenu } returns true
+        demoteCommCareUpdateToAction()
         assertTrue(coordinator.canUpdateCommCare())
     }
 
@@ -190,16 +214,25 @@ class HomeActivityCoordinatorLaunchChecksTest {
     fun `sync sends forms then pulls as a user-triggered sync`() {
         coordinator.sync()
 
-        verify { sync.sendFormsOrSync(true) }
+        assertEquals(1, syncer.formSendCount)
+        assertTrue(syncer.lastSendSyncsAfterwards)
+        assertTrue(syncer.lastSendUserTriggered)
     }
 
     @Test
-    fun `the update actions hand off to the app update delegate`() {
+    fun `update app opens the content update screen`() {
         coordinator.updateApp()
+
+        val started = shadowOf(host.hostActivity).nextStartedActivity
+        assertEquals(UpdateActivity::class.java.name, started.component?.className)
+        assertFalse(started.getBooleanExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true))
+    }
+
+    @Test
+    fun `update commcare starts the play store update`() {
         coordinator.updateCommCare()
 
-        verify { appUpdate.launchUpdateActivity(false) }
-        verify { appUpdate.startCommCareUpdate() }
+        assertEquals(1, updateController.startUpdateCount)
     }
 
     @Test
@@ -213,7 +246,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
     }
 
     @Test
-    fun `settings and advanced open the preference screen in their own modes`() {
+    fun `settings and advanced open their own preference modes`() {
         coordinator.openSettings()
         coordinator.openAdvanced()
 
@@ -231,6 +264,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         assertEquals(HomeRequestCodes.ADVANCED_ACTIONS_ACTIVITY, advanced.second)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun `set pin asks for the password before pin creation`() {
         coordinator.setPin()
@@ -250,7 +284,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
     }
 
     @Test
-    fun `a cancelled password check is consumed without starting pin creation`() {
+    fun `a cancelled password check starts no pin creation`() {
         assertTrue(
             coordinator.onActivityResult(HomeRequestCodes.AUTHENTICATION_FOR_PIN, RESULT_CANCELED, null),
         )
@@ -266,4 +300,49 @@ class HomeActivityCoordinatorLaunchChecksTest {
     }
 
     // endregion
+
+    private fun seedSessionCommand() {
+        CommCareApplication
+            .instance()
+            .currentSessionWrapper.session
+            .setCommand(FORM_COMMAND)
+    }
+
+    private fun seedPendingSyncRequest() {
+        val username =
+            CommCareApplication
+                .instance()
+                .session.loggedInUser.username
+        PreferenceManager
+            .getDefaultSharedPreferences(CommCareApplication.instance())
+            .edit()
+            .putString(
+                HiddenPreferences.BACKGROUND_SYNC_PENDING + username + "@" + HiddenPreferences.getUserDomainWithoutServerUrl(),
+                "pending",
+            ).apply()
+    }
+
+    private fun setOfferPinForLogin(offered: Boolean) {
+        CommCareApplication
+            .instance()
+            .currentApp.appPreferences
+            .edit()
+            .putString(DeveloperPreferences.OFFER_PIN_FOR_LOGIN, if (offered) PrefValues.YES else PrefValues.NO)
+            .apply()
+    }
+
+    private fun demoteCommCareUpdateToAction() {
+        repeat(TIMES_DISMISSED_TO_DEMOTE) {
+            HiddenPreferences.incrementCommCareUpdateCancellationCounter(AVAILABLE_VERSION.toString())
+        }
+        updateController.availableVersion = AVAILABLE_VERSION
+        updateController.state = AppUpdateState.AVAILABLE
+        updateController.fireCallback()
+    }
+
+    private companion object {
+        const val FORM_COMMAND = "m0-f0"
+        const val AVAILABLE_VERSION = 500
+        const val TIMES_DISMISSED_TO_DEMOTE = 4
+    }
 }
