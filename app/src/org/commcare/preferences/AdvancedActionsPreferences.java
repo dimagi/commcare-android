@@ -11,7 +11,7 @@ import org.commcare.activities.CommCareFormDumpActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.activities.ConnectionDiagnosticActivity;
-import org.commcare.activities.HomeScreenBaseActivity;
+import org.commcare.activities.StandardHomeActivity;
 import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.ReportProblemActivity;
 import org.commcare.dalvik.R;
@@ -63,8 +63,8 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static int REPORT_PROBLEM_ACTIVITY = 3;
     private final static int VALIDATE_MEDIA_ACTIVITY = 4;
 
-    public final static int RESULT_DATA_RESET = HomeScreenBaseActivity.RESULT_RESTART + 1;
-    public final static int RESULT_FORMS_PROCESSED = HomeScreenBaseActivity.RESULT_RESTART + 2;
+    public final static int RESULT_DATA_RESET = StandardHomeActivity.RESULT_RESTART + 1;
+    public final static int RESULT_FORMS_PROCESSED = StandardHomeActivity.RESULT_RESTART + 2;
 
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
