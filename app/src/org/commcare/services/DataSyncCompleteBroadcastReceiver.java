@@ -1,7 +1,7 @@
 package org.commcare.services;
 
 import static org.commcare.activities.EntitySelectActivity.EXTRA_ENTITY_KEY;
-import static org.commcare.activities.StandardHomeActivity.RESULT_RESTART;
+import static org.commcare.home.HomeResultCodes.RESULT_RESTART;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

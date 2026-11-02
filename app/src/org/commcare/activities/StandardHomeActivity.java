@@ -32,6 +32,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.home.HomeActionsDelegate;
 import org.commcare.home.HomeActivityCoordinator;
+import org.commcare.home.HomeResultCodes;
 import org.commcare.home.HomeActivityHost;
 import org.commcare.home.SyncDelegate;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -113,11 +114,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
 
-    /**
-     * Restart is a special CommCare activity result code which means that the session was
-     * invalidated in the calling activity and that the current session should be resynced
-     */
-    public static final int RESULT_RESTART = 3;
     private static final String CC_APP_HOME_ENDPOINT = "cc_app_home";
 
     private SessionNavigator sessionNavigator;
@@ -367,7 +363,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         if (coordinator.onActivityResult(requestCode, resultCode, intent)) {
             return;
         }
-        if (resultCode == RESULT_RESTART) {
+        if (resultCode == HomeResultCodes.RESULT_RESTART) {
             if (intent != null && intent.hasExtra(EXTRA_ENTITY_KEY))
                 selectedEntityPostSync = intent.getStringExtra(EXTRA_ENTITY_KEY);
 
@@ -1007,13 +1003,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     @Override
     public void onFormEntryLaunching() {
         shouldTriggerBackgroundSync = false;
-    }
-
-    public static void createPreferencesMenu(AppCompatActivity activity) {
-        activity.startActivityForResult(
-                HomeActivityCoordinator.buildPreferencesIntent(activity),
-                PREFERENCES_ACTIVITY
-        );
     }
 
     @Override
