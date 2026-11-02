@@ -29,7 +29,7 @@ sequenceDiagram
     end
 ```
 
-`HomeScreenBaseActivity.getReceiver()` returns its coordinator's `SyncDelegate`, and `FormAndDataSyncer` and `ProcessAndSendTask` are typed on the delegate.
+`StandardHomeActivity.getReceiver()` returns its coordinator's `SyncDelegate`, and `FormAndDataSyncer` and `ProcessAndSendTask` are typed on the delegate.
 
 ## Rotation
 
