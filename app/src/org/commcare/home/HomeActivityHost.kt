@@ -9,7 +9,10 @@ import org.commcare.views.dialogs.CommCareAlertDialog
 /**
  * The capabilities [HomeActivityCoordinator] and its delegates need from a home activity.
  */
-interface HomeActivityHost : SavedStateRegistryOwner {
+interface HomeActivityHost :
+    SavedStateRegistryOwner,
+    SyncHost,
+    SessionLaunchHost {
     /** The host as a [Context], for delegates that build intents and read resources. */
     val hostContext: Context
 

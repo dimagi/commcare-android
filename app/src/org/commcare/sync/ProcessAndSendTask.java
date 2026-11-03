@@ -7,15 +7,12 @@ import net.zetetic.database.sqlcipher.SQLiteDatabase;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.SyncCapableCommCareActivity;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.FormUploadUtil;
@@ -66,8 +63,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<Void, Long, For
     public static final int PROCESSING_PHASE_ID_NO_DIALOG = -8;
     public static final int SEND_PHASE_ID_NO_DIALOG = -9;
 
-    private FormSubmissionProgressBarListener progressBarListener;
-
     private List<DataSubmissionListener> formSubmissionListeners = new ArrayList<>();
 
 
@@ -105,11 +100,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<Void, Long, For
         mFormSubmissionHelper.dispatchProgress(formSubmissionListeners, values);
     }
 
-
-    public void addProgressBarSubmissionListener(FormSubmissionProgressBarListener listener) {
-        this.progressBarListener = listener;
-        addSubmissionListener(listener);
-    }
 
     public void addSubmissionListener(DataSubmissionListener submissionListener) {
         formSubmissionListeners.add(submissionListener);
@@ -169,15 +159,6 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<Void, Long, For
     @Override
     public void publishUpdateProgress(Long... progress) {
         publishProgress(progress);
-    }
-
-    @Override
-    public void connect(CommCareTaskConnector<R> connector) {
-        super.connect(connector);
-        if (progressBarListener != null) {
-            progressBarListener.attachToNewActivity(
-                    (SyncCapableCommCareActivity)connector.getReceiver());
-        }
     }
 
     protected int getSuccessfulSends() {

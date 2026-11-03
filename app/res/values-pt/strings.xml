@@ -342,7 +342,6 @@
     <string name="connect_verify_skip_phone_number">Vejo que é um utilizador de demonstração, por isso vamos saltar o OTP</string>
     <string name="connect_verify_phone_change">Alterar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
-    <string name="connect_title">Ligar</string>
     <string name="connect_no_jobs">Você ainda não foi convidado para nenhuma oportunidade. Assim que for convidado para uma oportunidade, ela aparecerá nesta lista.</string>
     <string name="connect_learn_complete_by">Concluir projeto por %s</string>
     <string name="connect_job_ended">A tarefa terminou em %s</string>

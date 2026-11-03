@@ -8,9 +8,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Test
 
 /**
- * Characterization pins for what [StandardHomeActivity] contributes as a *host*: the nav/sync/
- * progress-bar capabilities and title it answers for its base activity, plus which buttons its grid
- * renders.
+ * Characterization pins for what [StandardHomeActivity] contributes as a *host*: the nav capability
+ * and title it answers for its base activity, plus which buttons its grid renders.
  *
  * This host's Connect behaviour is pinned in [HomeConnectJobProgressTest] and [HomeConnectTileTest].
  */
@@ -20,16 +19,6 @@ class StandardHomePresentationTest : BaseHomeScreenActivityTest() {
     @Test
     fun `top nav is disabled`() {
         assertFalse(buildHome().isTopNavEnabled())
-    }
-
-    @Test
-    fun `sync item is not shown in action bar`() {
-        assertFalse(buildHome().shouldShowSyncItemInActionBar())
-    }
-
-    @Test
-    fun `does not use submission progress bar`() {
-        assertFalse(buildHome().usesSubmissionProgressBar())
     }
 
     @Test
