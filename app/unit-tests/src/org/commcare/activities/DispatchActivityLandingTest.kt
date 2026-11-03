@@ -14,6 +14,7 @@ import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity
+import org.commcare.services.CommCareSessionService
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -137,6 +138,23 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
 
         assertFalse(CommCareApplication.hasLoggedInUser())
         ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
+    }
+
+    @Test
+    fun `a declined unlock during a sync closes the app and keeps the session`() {
+        ConnectTestUtils.seatJob(ConnectTestUtils.connectJob())
+        val controller = buildDispatchActivity()
+        val connect = ActivityAssertions.assertStartedForResult(controller.get(), ConnectActivity::class.java)
+
+        CommCareSessionService.sessionAliveLock.lock()
+        try {
+            deliverResult(controller, connect, DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED)
+        } finally {
+            CommCareSessionService.sessionAliveLock.unlock()
+        }
+
+        assertTrue(controller.get().isFinishing)
+        assertTrue(CommCareApplication.hasLoggedInUser())
     }
 
     @Test

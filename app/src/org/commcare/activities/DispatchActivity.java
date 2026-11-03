@@ -23,6 +23,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
+import org.commcare.services.CommCareSessionService;
 import org.commcare.startup.LandingScreen;
 import org.commcare.startup.LandingScreenResolver;
 import org.commcare.startup.LandingStateProvider;
@@ -650,13 +651,16 @@ public class DispatchActivity extends AppCompatActivity {
                 }
                 return;
             case CONNECT_LANDING:
-                if (resultCode == RESULT_PERSONAL_ID_UNLOCK_DECLINED) {
+                if (resultCode != RESULT_PERSONAL_ID_UNLOCK_DECLINED) {
+                    shouldFinish = true;
+                } else if (CommCareSessionService.sessionAliveLock.isLocked()) {
+                    // A sync holds the session, and App Home needs the unlock the user just declined
+                    shouldFinish = true;
+                } else {
                     personalIdUnlockDeclined = true;
                     if (CommCareApplication.hasLoggedInUser()) {
                         CommCareApplication.instance().closeUserSession();
                     }
-                } else {
-                    shouldFinish = true;
                 }
                 return;
             case HOME_SCREEN:
