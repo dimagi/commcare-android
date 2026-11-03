@@ -177,6 +177,7 @@ jobs:
         run: ./gradlew assembleCommcareReleaseAndroidTest
         working-directory: commcare-android
       - name: Encrypt CommCare androidTest apk
+        if: ${{ github.event.pull_request.head.repo.fork != true }}
         run: |
           openssl enc -aes-256-cbc -salt -pbkdf2 \
             -in commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk \
@@ -184,11 +185,18 @@ jobs:
             -pass pass:"$HQ_API_PASSWORD"
         env:
           HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
+      - name: Save PR number for fork BrowserStack tests
+        if: ${{ github.event.pull_request.head.repo.fork == true }}
+        run: echo "$PR_NUMBER" > commcare-android/app/build/outputs/apk/androidTest/commcare/release/pr_number
+        env:
+          PR_NUMBER: ${{ github.event.number }}
       - name: Upload CommCare apk for Instrumentation Testing
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-androidTest-apk
-          path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc
+          path: |
+            commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk${{ github.event.pull_request.head.repo.fork != true && '.enc' || '' }}
+            commcare-android/app/build/outputs/apk/androidTest/commcare/release/pr_number
       - name: Report status to commcare-core
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         uses: actions/github-script@v7
@@ -212,7 +220,7 @@ jobs:
             });
 
   browserstack-tests:
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork != true }}
     needs: build-test-assemble
     name: BrowserStack Tests
     runs-on: ubuntu-latest
