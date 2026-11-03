@@ -30,6 +30,14 @@ def buildTestCommand(appToken, testToken, classes=None):
     test["networkLogs"] = True
     test["annotation"] = ["org.commcare.annotations.BrowserstackTests"]
 
+    hqApiUsername = os.environ.get("HQ_API_USERNAME")
+    hqApiPassword = os.environ.get("HQ_API_PASSWORD")
+    if hqApiUsername and hqApiPassword:
+        test["instrumentationOptions"] = {
+            "hqApiUsername": hqApiUsername,
+            "hqApiPassword": hqApiPassword,
+        }
+
     if classes:
         test["class"] = classes
         classSize = len(classes)
