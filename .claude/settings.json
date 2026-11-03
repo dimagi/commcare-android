@@ -11,5 +11,16 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "connect-tech@dimagi-claude-workflows": true
+  },
+  "extraKnownMarketplaces": {
+    "dimagi-claude-workflows": {
+      "source": {
+        "source": "github",
+        "repo": "dimagi/dimagi-claude-workflows"
+      }
+    }
   }
 }
