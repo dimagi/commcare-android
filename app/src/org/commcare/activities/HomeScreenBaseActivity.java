@@ -318,7 +318,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
     }
 
     protected void goToFormArchive(boolean incomplete) {
-        coordinator.showFormArchive(incomplete);
+        coordinator.getActions().showFormArchive(incomplete);
     }
 
     protected void userTriggeredLogout() {
@@ -966,7 +966,7 @@ public abstract class HomeScreenBaseActivity extends SessionAwareCommCareActivit
 
     @Override
     public void showFormArchive(boolean incomplete, FormRecord record) {
-        coordinator.showFormArchive(incomplete, record);
+        coordinator.getActions().showFormArchive(incomplete, record);
     }
 
     @Override

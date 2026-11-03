@@ -20,7 +20,7 @@ import org.commcare.connect.EmailOfferHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.home.HomeActivityCoordinator;
+import org.commcare.home.HomeActionsDelegate;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
@@ -123,7 +123,7 @@ public class StandardHomeActivity
         }
         fetchJobProgressOverNetwork();
         CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        getCoordinator().sync();
+        getCoordinator().getActions().sync();
     }
 
     void syncSubTextPressed() {
@@ -159,15 +159,15 @@ public class StandardHomeActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         //In Holo theme this gets called on startup
-        HomeActivityCoordinator coordinator = getCoordinator();
-        menu.findItem(R.id.action_update).setVisible(coordinator.canUpdateApp());
-        menu.findItem(R.id.action_saved_forms).setVisible(coordinator.canViewSavedForms());
-        menu.findItem(R.id.action_change_language).setVisible(coordinator.canChangeLanguage());
-        menu.findItem(R.id.action_preferences).setVisible(coordinator.canOpenSettings());
-        menu.findItem(R.id.action_advanced).setVisible(coordinator.canOpenAdvanced());
-        menu.findItem(R.id.action_about).setVisible(coordinator.canShowAbout());
-        menu.findItem(R.id.action_update_commcare).setVisible(coordinator.canUpdateCommCare());
-        menu.findItem(R.id.action_set_pin).setVisible(coordinator.canSetPin());
+        HomeActionsDelegate actions = getCoordinator().getActions();
+        menu.findItem(R.id.action_update).setVisible(actions.canUpdateApp());
+        menu.findItem(R.id.action_saved_forms).setVisible(actions.canViewSavedForms());
+        menu.findItem(R.id.action_change_language).setVisible(actions.canChangeLanguage());
+        menu.findItem(R.id.action_preferences).setVisible(actions.canOpenSettings());
+        menu.findItem(R.id.action_advanced).setVisible(actions.canOpenAdvanced());
+        menu.findItem(R.id.action_about).setVisible(actions.canShowAbout());
+        menu.findItem(R.id.action_update_commcare).setVisible(actions.canUpdateCommCare());
+        menu.findItem(R.id.action_set_pin).setVisible(actions.canSetPin());
         setPinMenuTitle(menu);
         return true;
     }
@@ -193,30 +193,30 @@ public class StandardHomeActivity
         FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
                 menuIdToAnalyticsParam.get(item.getItemId()));
         int itemId = item.getItemId();
-        HomeActivityCoordinator coordinator = getCoordinator();
+        HomeActionsDelegate actions = getCoordinator().getActions();
         if (itemId == R.id.action_update) {
-            coordinator.updateApp();
+            actions.updateApp();
             return true;
         } else if (itemId == R.id.action_saved_forms) {
-            coordinator.viewSavedForms();
+            actions.viewSavedForms();
             return true;
         } else if (itemId == R.id.action_change_language) {
-            coordinator.changeLanguage();
+            actions.changeLanguage();
             return true;
         } else if (itemId == R.id.action_preferences) {
-            coordinator.openSettings();
+            actions.openSettings();
             return true;
         } else if (itemId == R.id.action_advanced) {
-            coordinator.openAdvanced();
+            actions.openAdvanced();
             return true;
         } else if (itemId == R.id.action_about) {
-            coordinator.showAbout();
+            actions.showAbout();
             return true;
         } else if (itemId == R.id.action_set_pin) {
-            coordinator.setPin();
+            actions.setPin();
             return true;
         } else if (itemId == R.id.action_update_commcare) {
-            coordinator.updateCommCare();
+            actions.updateCommCare();
             return true;
         }
 

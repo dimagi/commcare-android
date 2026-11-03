@@ -169,41 +169,41 @@ class HomeActivityCoordinatorLaunchChecksTest {
         demoteCommCareUpdateToAction()
         host.actionsAvailable = false
 
-        assertFalse(coordinator.canViewSavedForms())
-        assertFalse(coordinator.canOpenSettings())
-        assertFalse(coordinator.canOpenAdvanced())
-        assertFalse(coordinator.canShowAbout())
-        assertFalse(coordinator.canUpdateApp())
-        assertFalse(coordinator.canSetPin())
-        assertFalse(coordinator.canUpdateCommCare())
-        assertTrue(coordinator.canChangeLanguage())
+        assertFalse(coordinator.actions.canViewSavedForms())
+        assertFalse(coordinator.actions.canOpenSettings())
+        assertFalse(coordinator.actions.canOpenAdvanced())
+        assertFalse(coordinator.actions.canShowAbout())
+        assertFalse(coordinator.actions.canUpdateApp())
+        assertFalse(coordinator.actions.canSetPin())
+        assertFalse(coordinator.actions.canUpdateCommCare())
+        assertTrue(coordinator.actions.canChangeLanguage())
     }
 
     @Test
     fun `plain actions are available when the host allows actions`() {
-        assertTrue(coordinator.canViewSavedForms())
-        assertTrue(coordinator.canOpenSettings())
-        assertTrue(coordinator.canOpenAdvanced())
-        assertTrue(coordinator.canShowAbout())
-        assertTrue(coordinator.canUpdateApp())
-        assertTrue(coordinator.canChangeLanguage())
+        assertTrue(coordinator.actions.canViewSavedForms())
+        assertTrue(coordinator.actions.canOpenSettings())
+        assertTrue(coordinator.actions.canOpenAdvanced())
+        assertTrue(coordinator.actions.canShowAbout())
+        assertTrue(coordinator.actions.canUpdateApp())
+        assertTrue(coordinator.actions.canChangeLanguage())
     }
 
     @Test
     fun `set pin also needs the pin feature`() {
         setOfferPinForLogin(false)
-        assertFalse(coordinator.canSetPin())
+        assertFalse(coordinator.actions.canSetPin())
 
         setOfferPinForLogin(true)
-        assertTrue(coordinator.canSetPin())
+        assertTrue(coordinator.actions.canSetPin())
     }
 
     @Test
     fun `update commcare also needs the update menu to be on offer`() {
-        assertFalse(coordinator.canUpdateCommCare())
+        assertFalse(coordinator.actions.canUpdateCommCare())
 
         demoteCommCareUpdateToAction()
-        assertTrue(coordinator.canUpdateCommCare())
+        assertTrue(coordinator.actions.canUpdateCommCare())
     }
 
     // endregion
@@ -212,7 +212,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `sync sends forms then pulls as a user-triggered sync`() {
-        coordinator.sync()
+        coordinator.actions.sync()
 
         assertEquals(1, syncer.formSendCount)
         assertTrue(syncer.lastSendSyncsAfterwards)
@@ -221,7 +221,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `update app opens the content update screen`() {
-        coordinator.updateApp()
+        coordinator.actions.updateApp()
 
         val started = shadowOf(host.hostActivity).nextStartedActivity
         assertEquals(UpdateActivity::class.java.name, started.component?.className)
@@ -230,14 +230,14 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `update commcare starts the play store update`() {
-        coordinator.updateCommCare()
+        coordinator.actions.updateCommCare()
 
         assertEquals(1, updateController.startUpdateCount)
     }
 
     @Test
     fun `view saved forms opens the full form archive`() {
-        coordinator.viewSavedForms()
+        coordinator.actions.viewSavedForms()
 
         val (intent, requestCode) = host.startedForResult.single()
         assertEquals(FormRecordListActivity::class.java.name, intent.component?.className)
@@ -247,8 +247,8 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `settings and advanced open their own preference modes`() {
-        coordinator.openSettings()
-        coordinator.openAdvanced()
+        coordinator.actions.openSettings()
+        coordinator.actions.openAdvanced()
 
         val (settings, advanced) = host.startedForResult
         assertEquals(SessionAwarePreferenceActivity::class.java.name, settings.first.component?.className)
@@ -267,7 +267,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
     @Suppress("DEPRECATION")
     @Test
     fun `set pin asks for the password before pin creation`() {
-        coordinator.setPin()
+        coordinator.actions.setPin()
 
         val (authIntent, authCode) = host.startedForResult.single()
         assertEquals(PinAuthenticationActivity::class.java.name, authIntent.component?.className)
@@ -294,7 +294,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `change language shows the locale chooser`() {
-        coordinator.changeLanguage()
+        coordinator.actions.changeLanguage()
 
         assertEquals(1, host.shownDialogs.size)
     }

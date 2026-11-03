@@ -36,6 +36,7 @@ class FakeHomeActivityHost : HomeActivityHost {
     var sessionLostCount: Int = 0
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
+    val shownShortToasts = mutableListOf<String>()
     var sessionStepCount: Int = 0
     var safeSessionStepCount: Int = 0
     var formEntryLaunchingCount: Int = 0
@@ -105,6 +106,10 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     override fun showAlertDialog(dialog: CommCareAlertDialog) {
         shownDialogs += dialog
+    }
+
+    override fun displayShortToast(message: String) {
+        shownShortToasts += message
     }
 
     override fun refreshActionSurface() {

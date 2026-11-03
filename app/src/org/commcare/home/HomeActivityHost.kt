@@ -2,6 +2,7 @@ package org.commcare.home
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.savedstate.SavedStateRegistryOwner
 import org.commcare.views.dialogs.CommCareAlertDialog
@@ -27,6 +28,11 @@ interface HomeActivityHost :
 
     /** Show [dialog] on the host, so dialogs survive the host's own dismissal bookkeeping. */
     fun showAlertDialog(dialog: CommCareAlertDialog)
+
+    /** Show a brief confirmation, such as a PIN being set. */
+    fun displayShortToast(message: String) {
+        Toast.makeText(hostContext, message, Toast.LENGTH_SHORT).show()
+    }
 
     /**
      * Signals that the coordinator-owned home actions may have changed, so the host should re-query
