@@ -97,11 +97,11 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
     private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
-    private static final String KEY_HAS_LAUNCHED_LANDING_SCREEN = "has-launched-landing-screen";
+    private static final String KEY_AWAITING_ACTIVITY_RESULT = "awaiting-activity-result";
     private static final String KEY_PERSONAL_ID_UNLOCK_DECLINED = "personal-id-unlock-declined";
     private static final String KEY_LEFT_LOGIN_WITHOUT_SIGN_IN = "left-login-without-sign-in";
     private boolean waitingForActivityResultFromLogin;
-    private boolean hasLaunchedLandingScreen;
+    private boolean awaitingActivityResult;
     private boolean personalIdUnlockDeclined;
     private boolean leftLoginWithoutSignIn;
 
@@ -117,7 +117,7 @@ public class DispatchActivity extends AppCompatActivity {
             return;
         }
         if (savedInstanceState != null) {
-            hasLaunchedLandingScreen = savedInstanceState.getBoolean(KEY_HAS_LAUNCHED_LANDING_SCREEN);
+            awaitingActivityResult = savedInstanceState.getBoolean(KEY_AWAITING_ACTIVITY_RESULT);
             personalIdUnlockDeclined = savedInstanceState.getBoolean(KEY_PERSONAL_ID_UNLOCK_DECLINED);
             leftLoginWithoutSignIn = savedInstanceState.getBoolean(KEY_LEFT_LOGIN_WITHOUT_SIGN_IN);
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
@@ -165,7 +165,7 @@ public class DispatchActivity extends AppCompatActivity {
         super.onResume();
         if (shouldFinish) {
             finish();
-        } else if (!hasLaunchedLandingScreen) {
+        } else if (!awaitingActivityResult) {
             dispatch();
         }
     }
@@ -177,7 +177,7 @@ public class DispatchActivity extends AppCompatActivity {
         userTriggeredLogout = intent.getBooleanExtra(LoginActivity.USER_TRIGGERED_LOGOUT, false);
         personalIdUnlockDeclined = false;
         leftLoginWithoutSignIn = false;
-        hasLaunchedLandingScreen = false;
+        awaitingActivityResult = false;
         shortcutExtraWasConsumed = false;
     }
 
@@ -188,7 +188,7 @@ public class DispatchActivity extends AppCompatActivity {
         outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
         outState.putBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT, waitingForActivityResultFromLogin);
         outState.putBoolean(KEY_USER_TRIGGERED_LOGOUT, userTriggeredLogout);
-        outState.putBoolean(KEY_HAS_LAUNCHED_LANDING_SCREEN, hasLaunchedLandingScreen);
+        outState.putBoolean(KEY_AWAITING_ACTIVITY_RESULT, awaitingActivityResult);
         outState.putBoolean(KEY_PERSONAL_ID_UNLOCK_DECLINED, personalIdUnlockDeclined);
         outState.putBoolean(KEY_LEFT_LOGIN_WITHOUT_SIGN_IN, leftLoginWithoutSignIn);
     }
@@ -522,7 +522,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void handleExternalLaunch() {
-        hasLaunchedLandingScreen = true;
+        awaitingActivityResult = true;
         //First off, make sure the incoming session is clear
         CommCareApplication.instance().getSession().proceedWithSavedSessionIfNeeded(() -> {
                     Intent i = null;
@@ -596,14 +596,14 @@ public class DispatchActivity extends AppCompatActivity {
     public void startActivityForResult(Intent intent, int requestCode, @Nullable Bundle options) {
         // startActivity() passes -1 and never returns a result, so it must not block routing on resume
         if (requestCode >= 0) {
-            hasLaunchedLandingScreen = true;
+            awaitingActivityResult = true;
         }
         super.startActivityForResult(intent, requestCode, options);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        hasLaunchedLandingScreen = false;
+        awaitingActivityResult = false;
         if (intent != null) {
             needToExecuteRecoveryMeasures = intent.getBooleanExtra(
                     EXECUTE_RECOVERY_MEASURES,
