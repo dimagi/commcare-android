@@ -377,7 +377,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
             // end of your statement
             switch (requestCode) {
                 case PREFERENCES_ACTIVITY:
-                    if (resultCode == AdvancedActionsPreferences.RESULT_DATA_RESET) {
+                    if (resultCode == HomeResultCodes.RESULT_DATA_RESET) {
                         finish();
                     } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
                         performCustomRestore();
@@ -527,7 +527,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     }
 
     private void handleAdvancedActionResult(int resultCode, Intent intent) {
-        if (resultCode == AdvancedActionsPreferences.RESULT_FORMS_PROCESSED) {
+        if (resultCode == HomeResultCodes.RESULT_FORMS_PROCESSED) {
             int formProcessCount = intent.getIntExtra(
                     AdvancedActionsPreferences.FORM_PROCESS_COUNT_KEY, 0);
             String localizationKey = intent.getStringExtra(

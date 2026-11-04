@@ -63,9 +63,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static int REPORT_PROBLEM_ACTIVITY = 3;
     private final static int VALIDATE_MEDIA_ACTIVITY = 4;
 
-    public final static int RESULT_DATA_RESET = HomeResultCodes.RESULT_RESTART + 1;
-    public final static int RESULT_FORMS_PROCESSED = HomeResultCodes.RESULT_RESTART + 2;
-
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
     public final static String KEY_NUMBER_DUMPED = "num_dumped";
@@ -280,7 +277,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             if (which == AlertDialog.BUTTON_POSITIVE) {
                 AppUtils.clearUserData();
-                activity.setResult(RESULT_DATA_RESET);
+                activity.setResult(HomeResultCodes.RESULT_DATA_RESET);
                 activity.finish();
             }
             dialog.dismiss();
@@ -325,7 +322,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             Intent returnIntent = new Intent();
             returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
             returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, messageKey);
-            getActivity().setResult(RESULT_FORMS_PROCESSED, returnIntent);
+            getActivity().setResult(HomeResultCodes.RESULT_FORMS_PROCESSED, returnIntent);
             getActivity().finish();
         }
     }
