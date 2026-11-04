@@ -334,7 +334,6 @@ License.
     <string name="connect_verify_phone_resend">आपको अपना कोड प्राप्त नहीं हुआ? पुनः भेजें</string>
     <string name="connect_verify_phone_change">नंबर बदलें</string>
     <string name="connect_verify_phone_verify">कोड सत्यापित करें</string>
-    <string name="connect_title">कनेक्ट करें</string>
     <string name="connect_no_jobs">आपको अभी तक किसी अवसर के लिए आमंत्रित नहीं किया गया है। एक बार जब आपको किसी अवसर पर आमंत्रित कर दिया जाएगा, तो वह इस सूची में दिखाई देगा।</string>
     <string name="connect_learn_complete_by">%s द्वारा परियोजना पूरी की गई</string>
     <string name="connect_job_ended">कार्य %s को समाप्त हुआ</string>

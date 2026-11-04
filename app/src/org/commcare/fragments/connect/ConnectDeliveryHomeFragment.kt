@@ -131,15 +131,18 @@ class ConnectDeliveryHomeFragment :
     }
 
     /**
-     * A pending task has to be cleared in the delivery app, so the launch bar is disabled while one
-     * is outstanding. Without the app installed there is nothing to clear it with, so the bar stays
-     * live until the download finishes and the user is not left stranded.
+     * Work that can no longer earn anything has nothing to launch for, so the bar is disabled
+     * whether or not the app is installed. A pending task only blocks the bar once the app is
+     * there to clear it in, otherwise the user is stranded with no way to download.
      */
     private fun updateCtaBarEnabled() {
-        val appInstalled = AppUtils.isAppInstalled(job.deliveryAppInfo.appId)
-        val hasPendingTask =
-            ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID).isNotEmpty()
-        binding.connectDeliveryCtaBar.isCtaEnabled = !appInstalled || !hasPendingTask
+        val pendingTasks = ConnectTaskUtils.getPendingTasksForJob(requireContext(), job.jobUUID)
+        binding.connectDeliveryCtaBar.isCtaEnabled =
+            if (AppUtils.isAppInstalled(job.deliveryAppInfo.appId)) {
+                job.canWorkFurther(pendingTasks)
+            } else {
+                !job.isFurtherWorkBlocked
+            }
     }
 
     private fun updateMoreTabBadge() {

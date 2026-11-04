@@ -261,7 +261,7 @@ class BaseDrawerController(
             binding.signedOutText.visibility = View.GONE
             binding.signInButton.visibility = View.GONE
             binding.errorContainer.visibility = View.VISIBLE
-            binding.errorIcon.visibility = View.VISIBLE
+            binding.signedOutAvatar.setImageResource(R.drawable.ic_personalid_avatar_error)
 
             binding.errorTitle.setText(globalError.titleId)
             binding.errorMessage.setText(globalError.messageId)
@@ -274,7 +274,7 @@ class BaseDrawerController(
             binding.signedOutText.visibility = View.VISIBLE
             binding.signInButton.visibility = View.VISIBLE
             binding.errorContainer.visibility = View.GONE
-            binding.errorIcon.visibility = View.GONE
+            binding.signedOutAvatar.setImageResource(R.drawable.ic_personalid_avatar_placeholder)
         }
     }
 

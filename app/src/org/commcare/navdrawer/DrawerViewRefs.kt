@@ -31,7 +31,7 @@ class DrawerViewRefs(
     val helpView: LinearLayout = rootView.findViewById(R.id.help_view)
     val toolbar: Toolbar = rootView.findViewById(R.id.toolbar)
     val errorContainer: View = rootView.findViewById(R.id.nav_drawer_error_container)
-    val errorIcon: ImageView = rootView.findViewById(R.id.nav_drawer_error_icon)
+    val signedOutAvatar: ImageView = rootView.findViewById(R.id.nav_drawer_signed_out_avatar)
     val errorTitle: TextView = rootView.findViewById(R.id.nav_drawer_error_title)
     val errorMessage: TextView = rootView.findViewById(R.id.nav_drawer_error_message)
     val reconfigureButton: Button = rootView.findViewById(R.id.nav_drawer_reconfigure_button)

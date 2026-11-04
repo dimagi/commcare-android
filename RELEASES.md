@@ -16,10 +16,11 @@ This file is meant as an easy way for us to collate notes and change logs across
 - On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
 - With the dashboard progress breakdown collapsed, confirm the three payment units shown are the most recently visited ones.
 - On a phone number that already has a PersonalID account, start a new PersonalID signup with a clearly different name; confirm signup stops right after the name step with a message that the user can't register, that it reveals nothing about the existing account, and that dismissing it closes PersonalID.
-
-### QA Notes
-
+- Regression check on sync: from the home screen, Sync with unsent forms sends them and then syncs, and the sync button shows the result; finishing a form still sends it in the background.
+- Regression check on case claim: a successful claim still syncs and continues, and a failed one shows the error with Retry.
 - Regression check on session expiration: when the session times out, whether on the home screen, in the background, or while in a form, returning to home still lands on the login screen.
+- Regression check on form entry: finishing a form sends it and continues; backing out of a new form returns to the menu; saving a form as incomplete and reopening it from Incomplete Forms resumes it; opening a saved form and leaving it returns to Saved Forms; and a form interrupted by session expiration reopens after logging back in.
+- Regression check on the home menu and login checks: Saved Forms, Settings, Advanced, About CommCare, Change Language and Update App each open as before; with "Give option to use PIN for login" on in Developer Options, Set My PIN asks for the password, then sets the PIN, and logging in with that PIN works; a demo user still sees the demo-mode warning after login.
 
 ## CommCare 2.65
 
