@@ -999,6 +999,15 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         }
     }
 
+    /** Whether a user is logged in, not just whether the session service is bound. */
+    public static boolean hasLoggedInUser() {
+        try {
+            return CommCareApplication.instance().getSession().isActive();
+        } catch (SessionUnavailableException e) {
+            return false;
+        }
+    }
+
     public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }

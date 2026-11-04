@@ -16,6 +16,7 @@ import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
 import org.commcare.fragments.extensions.hasLiveView
+import org.commcare.personalId.PersonalIdUserPreferences
 
 /**
  * Per-opportunity page that shows the status surface for the opportunity's current phase.
@@ -48,6 +49,23 @@ class ConnectOpportunityHomeFragment :
     override fun onResume() {
         super.onResume()
         updateState()
+        recordOpportunityVisit()
+    }
+
+    /**
+     * An intro view doesn't count as accessing the opportunity. An ended opportunity is marked seen once shown,
+     * and the mark clears if the opportunity is extended or reactivated.
+     */
+    private fun recordOpportunityVisit() {
+        if (ConnectOpportunityHomeState.resolve(job.status) != ConnectOpportunityHomeState.JOB_INTRO) {
+            PersonalIdUserPreferences.setLastAccessedOpportunityUuid(job.jobUUID)
+        }
+
+        if (job.isFinished) {
+            PersonalIdUserPreferences.markEndedOpportunitySeen(job.jobUUID)
+        } else {
+            PersonalIdUserPreferences.clearEndedOpportunitySeen(job.jobUUID)
+        }
     }
 
     /** A surface held by an install or launch may no longer fit once that is over, however it ended. */
@@ -76,6 +94,7 @@ class ConnectOpportunityHomeFragment :
             return
         }
         updateState()
+        recordOpportunityVisit()
     }
 
     override fun navigateFromOpportunityHost(directions: NavDirections) {
