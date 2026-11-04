@@ -2,6 +2,7 @@ package org.commcare.home
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.savedstate.SavedStateRegistryOwner
 import org.commcare.views.dialogs.CommCareAlertDialog
@@ -28,6 +29,11 @@ interface HomeActivityHost :
     /** Show [dialog] on the host, so dialogs survive the host's own dismissal bookkeeping. */
     fun showAlertDialog(dialog: CommCareAlertDialog)
 
+    /** Show a brief confirmation, such as a PIN being set. */
+    fun displayShortToast(message: String) {
+        Toast.makeText(hostContext, message, Toast.LENGTH_SHORT).show()
+    }
+
     /**
      * Signals that the coordinator-owned home actions may have changed, so the host should re-query
      * their availability and re-render wherever it presents them. An imperative "ask me again"
@@ -36,10 +42,12 @@ interface HomeActivityHost :
     fun refreshActionSurface()
 
     /**
-     * Optional UI-refresh hook, used by actions like `changeLanguage()`. Hosts without a
-     * `WithUIController` implement it as a no-op.
+     * Optional UI-refresh hook. Hosts without a `WithUIController` implement it as a no-op.
      */
     fun refreshHostUi()
+
+    /** The user picked a new language, so the host should rebuild whatever text it shows. */
+    fun onLocaleChanged()
 
     /**
      * Demo-mode query, consumed only by the launch pipeline's demo halt.

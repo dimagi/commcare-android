@@ -32,9 +32,11 @@ class FakeHomeActivityHost : HomeActivityHost {
     var actionsAvailable: Boolean = true
     var refreshActionSurfaceCount: Int = 0
     var refreshHostUiCount: Int = 0
+    var localeChangedCount: Int = 0
     var sessionLostCount: Int = 0
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
+    val shownShortToasts = mutableListOf<String>()
     var sessionStepCount: Int = 0
     var safeSessionStepCount: Int = 0
     var formEntryLaunchingCount: Int = 0
@@ -106,12 +108,20 @@ class FakeHomeActivityHost : HomeActivityHost {
         shownDialogs += dialog
     }
 
+    override fun displayShortToast(message: String) {
+        shownShortToasts += message
+    }
+
     override fun refreshActionSurface() {
         refreshActionSurfaceCount++
     }
 
     override fun refreshHostUi() {
         refreshHostUiCount++
+    }
+
+    override fun onLocaleChanged() {
+        localeChangedCount++
     }
 
     override fun isDemoUser(): Boolean = demoUser

@@ -11,6 +11,7 @@ import org.commcare.android.util.ActivityAssertions.assertOnly
 import org.commcare.android.util.ActivityAssertions.assertStartedForResult
 import org.commcare.android.util.ActivityAssertions.startedForResultIntents
 import org.commcare.android.util.ActivityAssertions.startedIntents
+import org.commcare.home.HomeRequestCodes
 import org.commcare.preferences.DevSessionRestorer
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.session.SessionFrame
@@ -144,7 +145,7 @@ class HomeFormEntryTest : BaseHomeScreenActivityTest() {
         CommCareApplication.instance().currentSessionWrapper.reset()
 
         home.onActivityResultSessionSafe(
-            HomeScreenBaseActivity.GET_INCOMPLETE_FORM,
+            HomeRequestCodes.GET_INCOMPLETE_FORM,
             RESULT_OK,
             Intent().putExtra("FORMRECORDS", record.id),
         )
@@ -177,7 +178,7 @@ class HomeFormEntryTest : BaseHomeScreenActivityTest() {
         )
         deliverFormEntryResult(home, RESULT_CANCELED)
         val callout = assertStartedForResult(home, MenuActivity::class.java)
-        home.onActivityResultSessionSafe(HomeScreenBaseActivity.GET_COMMAND, RESULT_OK, chose(FORM_COMMAND, callout))
+        home.onActivityResultSessionSafe(HomeRequestCodes.GET_COMMAND, RESULT_OK, chose(FORM_COMMAND, callout))
         val nextEntry = assertStartedForResult(home, FormEntryActivity::class.java)
         assertFalse(
             "the saved session is only replayed into the restored form",
@@ -193,7 +194,7 @@ class HomeFormEntryTest : BaseHomeScreenActivityTest() {
         clickHomeButton(home, Localization.get("home.start"))
         val callout = assertStartedForResult(home, MenuActivity::class.java)
         startedIntents(home)
-        home.onActivityResultSessionSafe(HomeScreenBaseActivity.GET_COMMAND, RESULT_OK, chose(FORM_COMMAND, callout))
+        home.onActivityResultSessionSafe(HomeRequestCodes.GET_COMMAND, RESULT_OK, chose(FORM_COMMAND, callout))
         assertStartedForResult(home, FormEntryActivity::class.java)
         startedIntents(home)
     }
@@ -203,7 +204,7 @@ class HomeFormEntryTest : BaseHomeScreenActivityTest() {
         resultCode: Int,
         intent: Intent = Intent(),
     ) {
-        home.onActivityResultSessionSafe(HomeScreenBaseActivity.MODEL_RESULT, resultCode, intent)
+        home.onActivityResultSessionSafe(HomeRequestCodes.MODEL_RESULT, resultCode, intent)
     }
 
     private fun chose(
