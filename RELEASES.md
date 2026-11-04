@@ -21,6 +21,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Regression check on form entry: finishing a form sends it and continues; backing out of a new form returns to the menu; saving a form as incomplete and reopening it from Incomplete Forms resumes it; opening a saved form and leaving it returns to Saved Forms; and a form interrupted by session expiration reopens after logging back in.
 - Regression check on the home menu and login checks: Saved Forms, Settings, Advanced, About CommCare, Change Language and Update App each open as before; with "Give option to use PIN for login" on in Developer Options, Set My PIN asks for the password, then sets the PIN, and logging in with that PIN works; a demo user still sees the demo-mode warning after login.
 - Regression check on sync across rotation: rotate the phone while a home-screen sync is running; the sync still finishes and the home screen shows its result.
+- Regression check on menus and case lists: from Start, open a module, its case list, a case's details and a form, and press back at each step; each returns to the previous screen, and backing out of the first menu returns home.
 
 ## CommCare 2.65
 
