@@ -17,6 +17,8 @@ object PersonalIdUserPreferences {
     private const val BACKUP_CODE_LOCKOUT_DURATION_MS = 24 * 60 * 60 * 1000L
     private const val KEY_BACKUP_CODE_REMINDER_NEXT_DUE = "backup_code_reminder_next_due"
     private const val KEY_BACKUP_CODE_REMINDER_COUNT = "backup_code_reminder_stage"
+    private const val KEY_DEMOGRAPHIC_PROMPT_COUNT = "demographic_prompt_count"
+    private const val KEY_DEMOGRAPHIC_PROMPT_NEXT_SHOW_AT = "demographic_prompt_next_show_at"
 
     private fun prefs(): SharedPreferences = CommCareApplication.instance().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -115,6 +117,18 @@ object PersonalIdUserPreferences {
 
     fun setBackupCodeReminderCount(stage: Int) {
         prefs().edit { putInt(KEY_BACKUP_CODE_REMINDER_COUNT, stage) }
+    }
+
+    fun getDemographicPromptCount(): Int = prefs().getInt(KEY_DEMOGRAPHIC_PROMPT_COUNT, 0)
+
+    fun setDemographicPromptCount(count: Int) {
+        prefs().edit { putInt(KEY_DEMOGRAPHIC_PROMPT_COUNT, count) }
+    }
+
+    fun getDemographicPromptNextShowAt(): Long = prefs().getLong(KEY_DEMOGRAPHIC_PROMPT_NEXT_SHOW_AT, -1L)
+
+    fun setDemographicPromptNextShowAt(value: Long) {
+        prefs().edit { putLong(KEY_DEMOGRAPHIC_PROMPT_NEXT_SHOW_AT, value) }
     }
 
     /** Remove every PersonalID preference. Called on PersonalId logout. */

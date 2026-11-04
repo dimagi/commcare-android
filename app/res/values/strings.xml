@@ -717,6 +717,14 @@
 
     <string name="personalid_manage_profile"><u>Manage Profile</u></string>
     <string name="personalid_profile_title">Profile</string>
+    <string name="personalid_demographic_banner_title">Complete Your Profile</string>
+    <string name="personalid_demographic_banner_message">Updating your data helps us personalise your experience, and provide better work opportunities to you</string>
+    <string name="personalid_demographic_banner_warning">Delivery tasks may be interrupted tomorrow, if your profile information is not updated.</string>
+    <string name="personalid_demographic_banner_final">Please update your profile by clicking the Complete Profile button, or accessing your profile from the menu, to continue working without interruption.</string>
+    <string name="personalid_demographic_banner_remind_later">Remind me Later</string>
+    <string name="personalid_demographic_banner_dismiss">Dismiss</string>
+    <string name="personalid_demographic_banner_complete">Complete Profile</string>
+    <string name="personalid_demographic_banner_snoozed">We\'ll remind you to update your profile tomorrow</string>
     <string name="personalid_profile_edit_title">Edit Profile</string>
     <string name="personalid_profile_section_personal_information">Personal information</string>
     <string name="personalid_profile_field_name">Name</string>

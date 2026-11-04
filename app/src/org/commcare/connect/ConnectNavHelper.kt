@@ -87,12 +87,19 @@ object ConnectNavHelper {
         policy: UnlockPolicy = UnlockPolicy.ALWAYS,
         listener: ConnectActivityCompleteListener,
         initiateBackupCodeRecovery: Boolean = false,
+        openProfileEdit: Boolean = false,
     ) {
         unlockAndGoTo(
             activity,
             policy,
             listener,
-            { context -> goToProfile(context, initiateBackupCodeRecovery) },
+            { context ->
+                goToProfile(
+                    context,
+                    initiateBackupCodeRecovery = initiateBackupCodeRecovery,
+                    openProfileEdit = openProfileEdit,
+                )
+            },
         )
     }
 
@@ -100,6 +107,7 @@ object ConnectNavHelper {
         context: Context,
         initiateBackupCodeRecovery: Boolean = false,
         pendingBackupCode: Boolean = false,
+        openProfileEdit: Boolean = false,
     ) {
         val i = Intent(context, PersonalIdProfileActivity::class.java)
         if (initiateBackupCodeRecovery) {
@@ -107,6 +115,9 @@ object ConnectNavHelper {
         }
         if (pendingBackupCode) {
             i.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true)
+        }
+        if (openProfileEdit) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_OPEN_PROFILE_EDIT, true)
         }
         context.startActivity(i)
     }
