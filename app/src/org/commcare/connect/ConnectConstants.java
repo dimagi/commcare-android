@@ -20,6 +20,7 @@ public class ConnectConstants {
     public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
     public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
     public static final String CCC_DEST_PAYMENTS = "ccc_payment";
+    public static final String CCC_DEST_OPPORTUNITY_LIST = "ccc_opportunity_list";
     public static final String CCC_MESSAGE = "ccc_message";
     public static final String CCC_PAYMENT_INFO_CONFIRMATION = "ccc_payment_info_confirmation";
     public static final String CCC_PAYMENT_INFO_CONFIRMATION_STATUS = "confirmation_status";
@@ -29,6 +30,7 @@ public class ConnectConstants {
     public static final String OPPORTUNITY_ID = "opportunity_id";
     public static final String OPPORTUNITY_UUID = "opportunity_uuid";
     public static final String FROM_SMS_INVITE_LINK = "from_sms_invite_link";
+    public static final String FROM_STARTUP_ROUTING = "from_startup_routing";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_UUID = "payment_uuid";
     public static final String NOTIFICATION_KEY = "key";

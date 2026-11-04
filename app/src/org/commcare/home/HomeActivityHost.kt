@@ -11,7 +11,8 @@ import org.commcare.views.dialogs.CommCareAlertDialog
  */
 interface HomeActivityHost :
     SavedStateRegistryOwner,
-    SyncHost {
+    SyncHost,
+    SessionLaunchHost {
     /** The host as a [Context], for delegates that build intents and read resources. */
     val hostContext: Context
 

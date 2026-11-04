@@ -10,8 +10,10 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.test.core.app.ApplicationProvider
 import org.commcare.activities.CommCareActivity
+import org.commcare.android.database.user.models.FormRecord
 import org.commcare.tasks.DataPullTask.PullTaskResult
 import org.commcare.views.dialogs.CommCareAlertDialog
+import org.javarosa.xpath.XPathException
 import org.robolectric.Robolectric
 
 /**
@@ -33,6 +35,12 @@ class FakeHomeActivityHost : HomeActivityHost {
     var sessionLostCount: Int = 0
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
+    var sessionStepCount: Int = 0
+    var safeSessionStepCount: Int = 0
+    var formEntryLaunchingCount: Int = 0
+    val shownFormArchives = mutableListOf<Pair<Boolean, FormRecord?>>()
+    val finishedWithResults = mutableListOf<Int>()
+    val shownXPathErrors = mutableListOf<XPathException>()
 
     /** How many observers are registered on this host's lifecycle. */
     val observerCount: Int get() = lifecycleRegistry.observerCount
@@ -55,6 +63,37 @@ class FakeHomeActivityHost : HomeActivityHost {
     ) = Unit
 
     override fun onPullTaskFinished(result: PullTaskResult) = Unit
+
+    override var launchIntent: Intent? = Intent()
+
+    override val formEntryTitle: String = "Fake home"
+
+    override fun startNextSessionStep() {
+        sessionStepCount++
+    }
+
+    override fun startNextSessionStepSafe() {
+        safeSessionStepCount++
+    }
+
+    override fun showFormArchive(
+        incomplete: Boolean,
+        record: FormRecord?,
+    ) {
+        shownFormArchives += incomplete to record
+    }
+
+    override fun finishWithResult(resultCode: Int) {
+        finishedWithResults += resultCode
+    }
+
+    override fun showXPathErrorAndExit(exception: XPathException) {
+        shownXPathErrors += exception
+    }
+
+    override fun onFormEntryLaunching() {
+        formEntryLaunchingCount++
+    }
 
     override fun startActivityForResult(
         intent: Intent,

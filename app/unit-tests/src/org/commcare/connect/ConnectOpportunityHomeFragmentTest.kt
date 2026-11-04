@@ -27,8 +27,12 @@ import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.personalId.PersonalIdUserPreferences
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -318,6 +322,56 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         openPage()
 
         navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+    }
+
+    @Test
+    fun `opening a learning opportunity records it as the last accessed opportunity`() {
+        job.status = ConnectJobRecord.STATUS_LEARNING
+
+        openPage()
+
+        assertEquals(job.jobUUID, PersonalIdUserPreferences.getLastAccessedOpportunityUuid())
+    }
+
+    @Test
+    fun `a phase change out of the intro records the opportunity as last accessed`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        val page = openPage()
+
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        activity.runOnUiThread { page.onPhaseChanged() }
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(job.jobUUID, PersonalIdUserPreferences.getLastAccessedOpportunityUuid())
+    }
+
+    @Test
+    fun `opening an opportunity on its intro does not record it as last accessed`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+
+        openPage()
+
+        assertNull(PersonalIdUserPreferences.getLastAccessedOpportunityUuid())
+    }
+
+    @Test
+    fun `opening an ended opportunity marks it seen ended`() {
+        job.status = ConnectJobRecord.STATUS_DELIVERING
+        job.setIsActive(false)
+
+        openPage()
+
+        assertTrue(PersonalIdUserPreferences.wasEndedOpportunitySeen(job.jobUUID))
+    }
+
+    @Test
+    fun `opening a running opportunity clears an earlier seen ended mark`() {
+        job.status = ConnectJobRecord.STATUS_DELIVERING
+        PersonalIdUserPreferences.markEndedOpportunitySeen(job.jobUUID)
+
+        openPage()
+
+        assertFalse(PersonalIdUserPreferences.wasEndedOpportunitySeen(job.jobUUID))
     }
 
     /** The learn app is already on the device, and its launch never reports an outcome, so it stays in flight. */
