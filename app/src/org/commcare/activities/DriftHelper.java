@@ -22,7 +22,7 @@ public class DriftHelper {
     private static final String INCORRECT_TIME_WARNING_ENABLED = "incorrect_time_warning_enabled";
     private static final String LAST_INCORRECT_TIME_WARNING_AT = "last_incorrect_time_warning_at";
 
-    static boolean shouldShowDriftWarning() {
+    public static boolean shouldShowDriftWarning() {
         if (isWarningEnabled()) {
             long lastIncorrrectTimeWarningAt = getPreferences().getLong(LAST_INCORRECT_TIME_WARNING_AT, -1);
             if (new Date().getTime() - lastIncorrrectTimeWarningAt > DAY_IN_MS) {
@@ -32,7 +32,7 @@ public class DriftHelper {
         return false;
     }
 
-    static void updateLastDriftWarningTime() {
+    public static void updateLastDriftWarningTime() {
         getPreferences().edit().putLong(LAST_INCORRECT_TIME_WARNING_AT, new Date().getTime()).apply();
     }
 
@@ -40,7 +40,7 @@ public class DriftHelper {
         return getPreferences().getLong(CURRENT_DRIFT, 0);
     }
 
-    static StandardAlertDialog getDriftDialog(Context context) {
+    public static StandardAlertDialog getDriftDialog(Context context) {
         StandardAlertDialog driftDialog = StandardAlertDialog.getBasicAlertDialog(
                 context.getResources().getString(R.string.incorrect_time_dialog_title),
                 context.getResources().getString(R.string.incorrect_time_dialog_message),

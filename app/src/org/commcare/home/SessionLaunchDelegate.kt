@@ -363,12 +363,7 @@ class SessionLaunchDelegate(
                     }
                 }
             }
-        host.startActivityForResult(intent, FORM_ENTRY_REQUEST_CODE)
-    }
-
-    companion object {
-        /** The request code form entry is started with; its result comes back through the host. */
-        const val FORM_ENTRY_REQUEST_CODE = 4
+        host.startActivityForResult(intent, HomeRequestCodes.MODEL_RESULT)
     }
 }
 
