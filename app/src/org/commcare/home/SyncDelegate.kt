@@ -78,7 +78,7 @@ class SyncDelegate(
     }
 
     fun performCustomRestoreFromFile(restoreFile: File) {
-        formAndDataSyncer.performCustomRestoreFromFile(syncTaskActivity, restoreFile)
+        formAndDataSyncer.performCustomRestoreFromFile(this, restoreFile)
     }
 
     @VisibleForTesting

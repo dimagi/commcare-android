@@ -6,7 +6,6 @@ import org.commcare.CommCareApplication
 import org.commcare.android.util.ActivityAssertions.assertOnly
 import org.commcare.android.util.ActivityAssertions.startedForResultIntents
 import org.commcare.android.util.ActivityAssertions.startedIntents
-import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN
 import org.commcare.core.network.CommCareNetworkServiceGenerator.CURRENT_DRIFT
 import org.commcare.heartbeat.UpdateToPrompt
@@ -29,8 +28,8 @@ import org.robolectric.android.controller.ActivityController
  *
  * That return value is the contract most likely to break silently. Step 1 (demo) halts with `false`,
  * steps 2-7 short-circuit with `true` when they claim the launch, and steps 8-9 (PIN, drift) are
- * non-claiming side effects that still return `false`. It reaches the activity as the private
- * `redirectedInOnCreate` flag, which `onResumeSessionSafe` consults to decide whether to dispatch
+ * non-claiming side effects that still return `false`. The coordinator keeps it as its
+ * `redirectedInOnCreate` flag, which the next resume consults to decide whether to dispatch
  * home on top of whatever the claiming step launched.
  *
  * Three of the six claiming steps are not pinned: steps 5 and 6 both call through `sendFormsOrSync`,
@@ -313,7 +312,7 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
      * front.
      *
      * The snapshots have to be taken before [alertDialogOnResume] drives the lifecycle forward:
-     * `onResumeSessionSafe` ends in `resetNavigationFlags()`, which clears `redirectedInOnCreate`,
+     * `onResumeSessionSafe` ends by clearing the coordinator's `redirectedInOnCreate`,
      * and — for an unclaimed launch — dispatches the home screen, which can start further
      * activities. Reading after a resume would make [claimedLaunch] pass for free.
      */
@@ -322,12 +321,8 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     ) {
         val home: StandardHomeActivity = controller.get()
 
-        /**
-         * The boolean `runLaunchChecks` returned, as stored on the activity. Private with
-         * no accessor; the walk up from [StandardHomeActivity] finds this field rather than the
-         * same-named one further up on `SessionAwareCommCareActivity`.
-         */
-        val claimedLaunch: Boolean = ReflectionUtils.readField(home, "redirectedInOnCreate") as Boolean
+        /** The boolean `runLaunchChecks` returned, as the coordinator stores it for the next resume. */
+        val claimedLaunch: Boolean = home.coordinator.redirectedInOnCreate
 
         /** Every activity started for result during create, oldest first. */
         val startedForResult: List<Intent> = startedForResultIntents(home)

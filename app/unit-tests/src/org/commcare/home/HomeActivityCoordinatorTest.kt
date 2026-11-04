@@ -123,10 +123,6 @@ class HomeActivityCoordinatorTest {
         assertTrue(second.pendingEndpointNavigationAfterSync)
     }
 
-    /**
-     * No delegates exist yet, so forwarding is a no-op fan-out. Pinning it here means the host can
-     * wire the forward now and later slices only add fan-out targets.
-     */
     @Test
     fun `forwarding an activity result does not disturb launch and nav state`() {
         val host = FakeHomeActivityHost()
@@ -142,11 +138,14 @@ class HomeActivityCoordinatorTest {
     }
 
     @Test
-    fun `only in-app update results are reported as consumed`() {
-        val coordinator = HomeActivityCoordinator(FakeHomeActivityHost(), FakeSeatedAppSession())
+    fun `an in-app update result goes no further than the update delegate`() {
+        val host = FakeHomeActivityHost()
+        val coordinator = HomeActivityCoordinator(host, FakeSeatedAppSession())
 
-        assertTrue(coordinator.onActivityResult(IN_APP_UPDATE_REQUEST_CODE, RESULT_OK, null))
-        assertFalse(coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent()))
+        coordinator.onActivityResult(IN_APP_UPDATE_REQUEST_CODE, RESULT_OK, null)
+
+        assertTrue(host.startedForResult.isEmpty())
+        assertTrue(host.finishedWithResults.isEmpty())
     }
 
     @Test

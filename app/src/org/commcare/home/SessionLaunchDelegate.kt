@@ -41,8 +41,11 @@ class SessionLaunchDelegate(
 ) {
     private var restoringSession = false
 
-    /** Launch step: open the form the app asks to show after an update. */
-    fun showUpdateInfoForm(): Boolean {
+    /** Form entry was started since the host last resumed, so background syncs wait until it does. */
+    var formEntryStartedSinceResume = false
+
+    /** Launch step: point the session at the form the app asks to show after an update. */
+    fun prepareUpdateInfoForm(): Boolean {
         if (!HiddenPreferences.shouldShowXformUpdateInfo()) {
             return false
         }
@@ -54,7 +57,6 @@ class SessionLaunchDelegate(
         val session = CommCareApplication.instance().currentSession
         val formEntry = session.getEntryForNameSpace(updateInfoFormXmlns) ?: return false
         session.setCommand(formEntry.commandID)
-        host.startNextSessionStepSafe()
         return true
     }
 
@@ -80,13 +82,12 @@ class SessionLaunchDelegate(
         return true
     }
 
-    /** Launch step: resume a session a previous user session saved, for debugging. */
-    fun tryRestoringSession(): Boolean {
+    /** Launch step: replay a session a previous user session saved, for debugging, in the next form. */
+    fun prepareSessionRestore(): Boolean {
         if (CommCareApplication.instance().currentSession.command == null) {
             return false
         }
         restoringSession = true
-        host.startNextSessionStep()
         return true
     }
 
@@ -216,7 +217,7 @@ class SessionLaunchDelegate(
                 try {
                     currentState.terminateSession()
                 } catch (e: XPathException) {
-                    host.showXPathErrorAndExit(e)
+                    host.showXPathError(e, true)
                     return FormEntryOutcome(continueSessionNav = false, formCompleted = true)
                 }
             return FormEntryOutcome(continueSessionNav = terminateSuccessful, formCompleted = true)
@@ -317,7 +318,7 @@ class SessionLaunchDelegate(
         headerTitle: String? = null,
         isRestartAfterSessionExpiration: Boolean = false,
     ) {
-        host.onFormEntryLaunching()
+        formEntryStartedSinceResume = true
 
         Logger.log(
             LogTypes.TYPE_FORM_ENTRY,
