@@ -155,10 +155,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         return coordinator;
     }
 
-    protected SyncDelegate getSyncDelegate() {
-        return coordinator.getSync();
-    }
-
     @NonNull
     @Override
     public CommCareActivity<?> getSyncTaskActivity() {
@@ -167,7 +163,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        return getSyncDelegate().generateProgressDialog(taskId);
+        return getReceiver().generateProgressDialog(taskId);
     }
 
     @Override
@@ -335,11 +331,11 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         HiddenPreferences.clearPendingSyncRequest(username);
     }
 
-    protected void goToFormArchive(boolean incomplete) {
+    void goToFormArchive(boolean incomplete) {
         coordinator.getActions().showFormArchive(incomplete);
     }
 
-    protected void userTriggeredLogout() {
+    void userTriggeredLogout() {
         if (AppLogoutHelper.isBlockedByActiveSync(this)) {
             return;
         }
@@ -439,7 +435,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
             if (filePath != null && !filePath.isEmpty()) {
                 File f = new File(filePath);
                 if (f.exists()) {
-                    getSyncDelegate().performCustomRestoreFromFile(f);
+                    getReceiver().performCustomRestoreFromFile(f);
                 } else {
                     Toast.makeText(
                             this,
@@ -802,7 +798,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         return buildHomeIntent(context, LoginMode.PASSWORD, true, false, true);
     }
 
-    protected static void addPendingDataExtra(Intent i, CommCareSession session) {
+    private static void addPendingDataExtra(Intent i, CommCareSession session) {
         EvaluationContext evalContext =
                 CommCareApplication.instance().getCurrentSessionWrapper().getEvaluationContext();
         i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData(evalContext));
@@ -822,7 +818,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         if (isVisible) {
             refreshUI();
         }
-        getSyncDelegate().sendFormsOrSync(false);
+        getReceiver().sendFormsOrSync(false);
     }
 
     @Override
@@ -945,7 +941,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     }
 
     /**
-     * Per-action availability for the session-gated home activities for CC apps
+     * Per-action availability for the home activity of CC apps
      */
     @Override
     public boolean areAppActionsAvailable() {
@@ -1026,7 +1022,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
      */
     public void setFormAndDataSyncer(FormAndDataSyncer formAndDataSyncer) {
         if (BuildConfig.DEBUG) {
-            getSyncDelegate().setFormAndDataSyncer(formAndDataSyncer);
+            getReceiver().setFormAndDataSyncer(formAndDataSyncer);
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
         }
@@ -1074,13 +1070,13 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(StandardHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(StandardHomeActivity.this)) {
-                getSyncDelegate().handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
+                getReceiver().handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
                 CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.Sync_AirplaneMode,
                                 AIRPLANE_MODE_CATEGORY));
             } else {
-                getSyncDelegate().handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
+                getReceiver().handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
                 CommCareApplication.notificationManager().reportNotificationMessage(
                         NotificationMessageFactory.message(
                                 NotificationMessageFactory.StockMessages.Sync_NoConnections,
