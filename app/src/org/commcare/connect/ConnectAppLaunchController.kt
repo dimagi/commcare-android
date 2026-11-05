@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import org.commcare.activities.HomeScreenBaseActivity
+import org.commcare.activities.StandardHomeActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -135,7 +135,7 @@ class ConnectAppLaunchController(
                     (activity as ConnectActivity).markAppLaunchedFromConnect()
                     listener.onLaunchSucceeded()
 
-                    val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(activity)
+                    val intent = StandardHomeActivity.buildHomeLaunchIntent(activity)
                     if (alreadyLoggedIn) {
                         // Already signed in, so reuse this app's existing Home. Home is shared across
                         // apps, so an unconditional reorder could surface a different app's instance.

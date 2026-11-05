@@ -79,7 +79,7 @@ class HomeActionsDelegate(
 
     fun openSettings() =
         host.startActivityForResult(
-            HomeActivityCoordinator.buildPreferencesIntent(host.hostContext),
+            SessionAwarePreferenceActivity.buildCommCareSettingsIntent(host.hostContext),
             HomeRequestCodes.PREFERENCES_ACTIVITY,
         )
 

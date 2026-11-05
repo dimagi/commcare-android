@@ -194,7 +194,7 @@ class SyncDelegateTest {
         val finishedPulls = mutableListOf<PullTaskResult>()
         val events = mutableListOf<String>()
 
-        override val syncConnector: CommCareActivity<*>
+        override val syncTaskActivity: CommCareActivity<*>
             get() = throw UnsupportedOperationException("these tests don't run tasks")
 
         override fun updateUiAfterDataPullOrSend(

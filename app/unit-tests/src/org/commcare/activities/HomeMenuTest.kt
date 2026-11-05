@@ -286,7 +286,7 @@ class HomeMenuTest : BaseHomeScreenActivityTest() {
         }
 
     companion object {
-        /** Matches `HomeScreenBaseActivity.MAX_CC_UPDATE_CANCELLATION`, which is private. */
+        /** Matches `AppUpdateDelegate.MAX_CC_UPDATE_CANCELLATION`, which is private. */
         private const val MAX_CC_UPDATE_CANCELLATION = 3
         private const val AVAILABLE_VERSION_CODE = 999
     }
