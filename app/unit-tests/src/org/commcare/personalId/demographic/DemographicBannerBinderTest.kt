@@ -115,6 +115,17 @@ class DemographicBannerBinderTest {
     }
 
     @Test
+    fun `a due backup code reminder shows instead of the prompt`() {
+        PersonalIdUserPreferences.setNextBackupCodeReminderDue(System.currentTimeMillis() - 1.hours.inWholeMilliseconds)
+
+        launchOpportunityList()
+
+        assertNotNull(activity.currentAlertDialog)
+        assertNull(promptView())
+        assertEquals(0, PersonalIdUserPreferences.getDemographicPromptCount())
+    }
+
+    @Test
     fun `the prompt does not show while its feature flag is off`() {
         every { PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) } returns false
 

@@ -16,7 +16,6 @@ import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
 import org.commcare.fragments.connect.ConnectLearningProgressFragment
 import org.commcare.fragments.extensions.hasLiveView
-import org.commcare.personalId.demographic.DemographicBannerBinder
 
 /**
  * Per-opportunity page that shows the status surface for the opportunity's current phase.
@@ -49,7 +48,6 @@ class ConnectOpportunityHomeFragment :
     override fun onResume() {
         super.onResume()
         updateState()
-        DemographicBannerBinder.showIfDue(requireActivity() as ConnectActivity)
     }
 
     /** A surface held by an install or launch may no longer fit once that is over, however it ended. */

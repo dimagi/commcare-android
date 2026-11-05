@@ -31,7 +31,6 @@ import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.base.BaseConnectFragment
 import org.commcare.models.connect.ConnectLoginJobListModel
 import org.commcare.models.connect.ConnectLoginJobListModel.JobListEntryType
-import org.commcare.personalId.demographic.DemographicBannerBinder
 import java.util.Date
 
 /** Lists the user's opportunities, grouped into in-progress, new, and completed/expired sections. */
@@ -56,11 +55,6 @@ class ConnectOpportunityListFragment :
         observeOpportunities()
         refresh(false)
         return view
-    }
-
-    override fun onResume() {
-        super.onResume()
-        DemographicBannerBinder.showIfDue(requireActivity() as ConnectActivity)
     }
 
     override fun refresh(forceRefresh: Boolean) {

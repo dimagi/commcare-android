@@ -16,13 +16,13 @@ object DemographicBannerBinder {
     fun showIfDue(
         activity: CommCareActivity<*>,
         state: DemographicPromptState = DemographicPromptState(),
-    ) {
+    ): Boolean {
         if (!PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) || activity.currentAlertDialog != null) {
-            return
+            return false
         }
         val completion = state.profileCompletion()
         if (!state.shouldShow(completion)) {
-            return
+            return false
         }
         DemographicPromptDialog.show(
             activity,
@@ -41,5 +41,6 @@ object DemographicBannerBinder {
                 )
             },
         )
+        return true
     }
 }
