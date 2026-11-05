@@ -207,6 +207,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                 reportOtpAnalytics(
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                     OtpAnalyticsMapper.reasonFrom(failureCode),
+                    failureCode.name,
                 )
                 if (otpCallback == null) return
 
