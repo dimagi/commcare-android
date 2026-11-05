@@ -9,6 +9,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import org.commcare.CommCareTestApplication
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -144,5 +145,84 @@ class FirebaseAuthServiceTest {
                 errorType.isNonRecoverable(),
             )
         }
+    }
+
+    @Test
+    fun `an auth failure reports its Firebase error code`() {
+        assertEquals(
+            "ERROR_APP_NOT_AUTHORIZED",
+            FirebaseAuthService.errorCodeFrom(
+                FirebaseAuthException("ERROR_APP_NOT_AUTHORIZED", "not authorized"),
+            ),
+        )
+    }
+
+    @Test
+    fun `an invalid credential reports its Firebase error code`() {
+        assertEquals(
+            "ERROR_INVALID_VERIFICATION_CODE",
+            FirebaseAuthService.errorCodeFrom(
+                FirebaseAuthInvalidCredentialsException("ERROR_INVALID_VERIFICATION_CODE", "bad code"),
+            ),
+        )
+    }
+
+    @Test
+    fun `a failure without an auth error code reports its exception class`() {
+        assertEquals(
+            "FirebaseNetworkException",
+            FirebaseAuthService.errorCodeFrom(FirebaseNetworkException("network")),
+        )
+        assertEquals(
+            "FirebaseTooManyRequestsException",
+            FirebaseAuthService.errorCodeFrom(FirebaseTooManyRequestsException("quota")),
+        )
+        assertEquals(
+            "FirebaseException",
+            FirebaseAuthService.errorCodeFrom(FirebaseException("An internal error has occurred.")),
+        )
+    }
+
+    @Test
+    fun `an unmapped backend failure reports the code Firebase puts in brackets`() {
+        assertEquals(
+            "BILLING_NOT_ENABLED",
+            FirebaseAuthService.errorCodeFrom(
+                FirebaseException("An internal error has occurred. [ BILLING_NOT_ENABLED ]"),
+            ),
+        )
+    }
+
+    @Test
+    fun `a classified failure keeps its class name even with a bracketed message`() {
+        assertEquals(
+            "FirebaseTooManyRequestsException",
+            FirebaseAuthService.errorCodeFrom(
+                FirebaseTooManyRequestsException("We have blocked all requests. [ Error code:17010 ]"),
+            ),
+        )
+    }
+
+    @Test
+    fun `an error code longer than GA4 allows is cut to the limit`() {
+        val longCode = "X".repeat(FirebaseAuthService.MAX_ERROR_CODE_LENGTH + 20)
+        assertEquals(
+            longCode.take(FirebaseAuthService.MAX_ERROR_CODE_LENGTH),
+            FirebaseAuthService.errorCodeFrom(FirebaseException("Failed. [ $longCode ]")),
+        )
+    }
+
+    @Test
+    fun `an anonymous exception class reports its full class name`() {
+        val exception = object : RuntimeException("boom") {}
+        assertEquals(
+            exception.javaClass.name.take(FirebaseAuthService.MAX_ERROR_CODE_LENGTH),
+            FirebaseAuthService.errorCodeFrom(exception),
+        )
+    }
+
+    @Test
+    fun `no exception reports no error code`() {
+        assertNull(FirebaseAuthService.errorCodeFrom(null))
     }
 }
