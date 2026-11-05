@@ -460,7 +460,7 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void launchHomeScreen() {
-        Intent intent = HomeScreenBaseActivity.buildHomeIntent(
+        Intent intent = StandardHomeActivity.buildHomeIntent(
                 this,
                 lastLoginMode,
                 startFromLogin,

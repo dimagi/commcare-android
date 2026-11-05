@@ -11,13 +11,13 @@ import org.commcare.activities.CommCareFormDumpActivity;
 import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.activities.ConnectionDiagnosticActivity;
-import org.commcare.activities.HomeScreenBaseActivity;
 import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.ReportProblemActivity;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.home.HomeResultCodes;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
@@ -62,9 +62,6 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
     private final static int DUMP_FORMS_ACTIVITY = 2;
     private final static int REPORT_PROBLEM_ACTIVITY = 3;
     private final static int VALIDATE_MEDIA_ACTIVITY = 4;
-
-    public final static int RESULT_DATA_RESET = HomeScreenBaseActivity.RESULT_RESTART + 1;
-    public final static int RESULT_FORMS_PROCESSED = HomeScreenBaseActivity.RESULT_RESTART + 2;
 
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
@@ -280,7 +277,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
         DialogInterface.OnClickListener listener = (dialog, which) -> {
             if (which == AlertDialog.BUTTON_POSITIVE) {
                 AppUtils.clearUserData();
-                activity.setResult(RESULT_DATA_RESET);
+                activity.setResult(HomeResultCodes.RESULT_DATA_RESET);
                 activity.finish();
             }
             dialog.dismiss();
@@ -325,7 +322,7 @@ public class AdvancedActionsPreferences extends CommCarePreferenceFragment {
             Intent returnIntent = new Intent();
             returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
             returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, messageKey);
-            getActivity().setResult(RESULT_FORMS_PROCESSED, returnIntent);
+            getActivity().setResult(HomeResultCodes.RESULT_FORMS_PROCESSED, returnIntent);
             getActivity().finish();
         }
     }

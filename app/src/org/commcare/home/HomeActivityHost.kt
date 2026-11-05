@@ -52,7 +52,7 @@ interface HomeActivityHost :
     /**
      * Demo-mode query, consumed only by the launch pipeline's demo halt.
      * Kept separate from [areAppActionsAvailable] because the two coincide for the session-gated hosts
-     * but are independent for `OpportunityHomeActivity`, where this is always `false`.
+     * but are independent for the Connect opportunity home in `ConnectActivity`, where this is always `false`.
      */
     fun isDemoUser(): Boolean
 
