@@ -9,7 +9,6 @@ import org.commcare.activities.StandardHomeActivity;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionNavigator;
 import org.junit.Assert;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
@@ -87,11 +86,10 @@ public class ActivityLaunchUtils {
                 Robolectric.buildActivity(StandardHomeActivity.class, intent).create().get();
         ShadowLooper.idleMainLooper();
         // make sure we don't actually submit forms by using a fake form submitter
-        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
+        homeActivity.getCoordinator().getSync().setFormAndDataSyncer(new FormAndDataSyncerFake());
 
         if (startSession) {
-            SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
-            sessionNavigator.startNextSessionStep();
+            homeActivity.getCoordinator().getSessionNavigation().startNextSessionStep();
         }
 
         return Shadows.shadowOf(homeActivity);

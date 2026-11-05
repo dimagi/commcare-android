@@ -2,7 +2,6 @@ package org.commcare.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,19 +9,16 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.PreferenceManager;
 
 import org.apache.commons.lang3.StringUtils;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareNoficationManager;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.logging.ReportingUtils;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.EmailOfferHelper;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.repository.ConnectRepository;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
@@ -33,8 +29,6 @@ import org.commcare.home.SyncDelegate;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
-import org.commcare.preferences.HiddenPreferences;
-import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.Endpoint;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.ApkDependenciesUtils;
@@ -117,8 +111,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     public void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
-        updateLastSuccessfulCommCareVersion();
-
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
@@ -127,17 +119,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         personalIdManagedLogin = getIntent()
                 .getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
         EmailOfferHelper.checkEmailCollection(this);
-    }
-
-    private void updateLastSuccessfulCommCareVersion() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
-                CommCareApplication.instance());
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(
-                HiddenPreferences.LAST_SUCCESSFUL_CC_VERSION,
-                ReportingUtils.getCommCareVersionString()
-        );
-        editor.apply();
     }
 
     /**
@@ -389,28 +370,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     @Override
     public boolean isBackEnabled() {
         return false;
-    }
-
-    /**
-     * For Testing purposes only
-     */
-    public SessionNavigator getSessionNavigator() {
-        if (BuildConfig.DEBUG) {
-            return coordinator.getSessionNavigation().getSessionNavigator();
-        } else {
-            throw new RuntimeException("On principal of design, only meant for testing purposes");
-        }
-    }
-
-    /**
-     * For Testing purposes only
-     */
-    public void setFormAndDataSyncer(FormAndDataSyncer formAndDataSyncer) {
-        if (BuildConfig.DEBUG) {
-            getReceiver().setFormAndDataSyncer(formAndDataSyncer);
-        } else {
-            throw new RuntimeException("On principal of design, only meant for testing purposes");
-        }
     }
 
     void enterRootModule() {

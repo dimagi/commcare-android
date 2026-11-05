@@ -7,10 +7,12 @@ import android.widget.Toast
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import androidx.preference.PreferenceManager
 import org.commcare.CommCareApplication
 import org.commcare.activities.DispatchActivity
 import org.commcare.activities.DriftHelper
 import org.commcare.activities.UpdateActivity
+import org.commcare.android.logging.ReportingUtils
 import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.models.AndroidSessionWrapper
 import org.commcare.preferences.AdvancedActionsPreferences
@@ -123,6 +125,7 @@ class HomeActivityCoordinator(
 
     override fun onCreate(owner: LifecycleOwner) {
         ensureRestored()
+        recordCommCareVersionIfSessionLive()
     }
 
     /**
@@ -290,6 +293,20 @@ class HomeActivityCoordinator(
         HiddenPreferences.setPostUpdateSyncNeeded(false)
         HiddenPreferences.clearInterruptedSSD()
         HiddenPreferences.clearPendingSyncRequest(loggedInUsername())
+    }
+
+    /** Home opened with a live session, so this CommCare version has run successfully. */
+    private fun recordCommCareVersionIfSessionLive() {
+        try {
+            CommCareApplication.instance().session
+        } catch (e: SessionUnavailableException) {
+            return
+        }
+        PreferenceManager
+            .getDefaultSharedPreferences(CommCareApplication.instance())
+            .edit()
+            .putString(HiddenPreferences.LAST_SUCCESSFUL_CC_VERSION, ReportingUtils.getCommCareVersionString())
+            .apply()
     }
 
     private fun loggedInUsername(): String =
