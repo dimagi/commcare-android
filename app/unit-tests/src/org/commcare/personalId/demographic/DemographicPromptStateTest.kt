@@ -37,14 +37,14 @@ class DemographicPromptStateTest {
 
     @Test
     fun `shouldShow is true for an incomplete profile that has never been prompted`() {
-        assertTrue(state.shouldShow())
+        assertTrue(state.shouldShow(state.profileCompletion()))
     }
 
     @Test
     fun `shouldShow is false once every profile field is filled`() {
         updateUser { fillAllProfileFields() }
 
-        assertFalse(state.shouldShow())
+        assertFalse(state.shouldShow(state.profileCompletion()))
     }
 
     @Test
@@ -54,21 +54,21 @@ class DemographicPromptStateTest {
             email = null
         }
 
-        assertTrue(state.shouldShow())
+        assertTrue(state.shouldShow(state.profileCompletion()))
     }
 
     @Test
     fun `shouldShow is false while the snooze has not elapsed`() {
         PersonalIdUserPreferences.setDemographicPromptNextShowAt(nowMillis + 1)
 
-        assertFalse(state.shouldShow())
+        assertFalse(state.shouldShow(state.profileCompletion()))
     }
 
     @Test
     fun `shouldShow is true once the snooze time is reached`() {
         PersonalIdUserPreferences.setDemographicPromptNextShowAt(nowMillis)
 
-        assertTrue(state.shouldShow())
+        assertTrue(state.shouldShow(state.profileCompletion()))
     }
 
     @Test
@@ -103,21 +103,16 @@ class DemographicPromptStateTest {
     }
 
     @Test
-    fun `filledFieldCount ignores null and blank fields`() {
+    fun `profileCompletion counts only filled fields out of all seven`() {
         updateUser {
             email = "user@example.org"
             gender = " "
             languages = ""
         }
 
-        assertEquals(1, state.filledFieldCount())
-    }
-
-    @Test
-    fun `filledFieldCount counts every filled profile field`() {
-        updateUser { fillAllProfileFields() }
-
-        assertEquals(DemographicPromptState.PROFILE_FIELD_COUNT, state.filledFieldCount())
+        val completion = state.profileCompletion()
+        assertEquals(1, completion.filledFieldCount)
+        assertEquals(7, completion.totalFieldCount)
     }
 
     private fun stageAfterPrompts(promptCount: Int): BannerStage {
@@ -128,7 +123,7 @@ class DemographicPromptStateTest {
     private fun assertPromptRecordedAndSnoozed() {
         assertEquals(1, state.promptCount)
         assertEquals(nowMillis + 24.hours.inWholeMilliseconds, state.nextShowAt)
-        assertFalse(state.shouldShow())
+        assertFalse(state.shouldShow(state.profileCompletion()))
     }
 
     private fun updateUser(update: ConnectUserRecord.() -> Unit) {

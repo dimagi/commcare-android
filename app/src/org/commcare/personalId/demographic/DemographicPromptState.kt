@@ -1,6 +1,5 @@
 package org.commcare.personalId.demographic
 
-import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUserPreferences
 import kotlin.time.Duration.Companion.hours
@@ -9,6 +8,14 @@ enum class BannerStage {
     PLAIN,
     WARNING,
     FINAL,
+}
+
+class ProfileCompletion(
+    val filledFieldCount: Int,
+    val totalFieldCount: Int,
+) {
+    val isComplete: Boolean
+        get() = filledFieldCount == totalFieldCount
 }
 
 /**
@@ -25,7 +32,15 @@ class DemographicPromptState(
     val nextShowAt: Long
         get() = PersonalIdUserPreferences.getDemographicPromptNextShowAt()
 
-    fun shouldShow(): Boolean = !isProfileComplete(user()) && currentTimeMillis() >= nextShowAt
+    fun profileCompletion(): ProfileCompletion {
+        val fields =
+            with(ConnectUserDatabaseUtil.getUser()) {
+                listOf(email, gender, dateOfBirth, languages, education, chwExperience, techProficiency)
+            }
+        return ProfileCompletion(fields.count { !it.isNullOrBlank() }, fields.size)
+    }
+
+    fun shouldShow(completion: ProfileCompletion): Boolean = !completion.isComplete && currentTimeMillis() >= nextShowAt
 
     fun stage(): BannerStage =
         when {
@@ -33,8 +48,6 @@ class DemographicPromptState(
             promptCount >= WARNING_STAGE_PROMPT_COUNT -> BannerStage.WARNING
             else -> BannerStage.PLAIN
         }
-
-    fun filledFieldCount(): Int = countFilledFields(user())
 
     fun recordDecline() = recordResponse()
 
@@ -45,25 +58,9 @@ class DemographicPromptState(
         PersonalIdUserPreferences.setDemographicPromptNextShowAt(currentTimeMillis() + SNOOZE_MILLIS)
     }
 
-    private fun user(): ConnectUserRecord = ConnectUserDatabaseUtil.getUser()
-
     companion object {
-        const val PROFILE_FIELD_COUNT = 7
         private const val WARNING_STAGE_PROMPT_COUNT = 2
         private const val FINAL_STAGE_PROMPT_COUNT = 3
         private val SNOOZE_MILLIS = 24.hours.inWholeMilliseconds
-
-        fun countFilledFields(user: ConnectUserRecord): Int =
-            listOf(
-                user.email,
-                user.gender,
-                user.dateOfBirth,
-                user.languages,
-                user.education,
-                user.chwExperience,
-                user.techProficiency,
-            ).count { !it.isNullOrBlank() }
-
-        fun isProfileComplete(user: ConnectUserRecord): Boolean = countFilledFields(user) == PROFILE_FIELD_COUNT
     }
 }

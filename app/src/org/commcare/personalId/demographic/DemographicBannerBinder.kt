@@ -15,13 +15,17 @@ object DemographicBannerBinder {
         activity: CommCareActivity<*>,
         state: DemographicPromptState = DemographicPromptState(),
     ) {
-        if (activity.currentAlertDialog != null || !state.shouldShow()) {
+        if (activity.currentAlertDialog != null) {
+            return
+        }
+        val completion = state.profileCompletion()
+        if (!state.shouldShow(completion)) {
             return
         }
         DemographicPromptDialog.show(
             activity,
             state.stage(),
-            state.filledFieldCount(),
+            completion,
             onDecline = {
                 state.recordDecline()
                 Toast.makeText(activity, R.string.personalid_demographic_banner_snoozed, Toast.LENGTH_LONG).show()
