@@ -29,6 +29,8 @@ import org.commcare.connect.repository.ConnectRequestManager
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.personalId.PersonalIdFeatureFlagChecker
+import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.DEMOGRAPHIC_PROMPT
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.commcare.utils.coroutines.DispatcherProvider
@@ -69,6 +71,9 @@ class DemographicBannerBinderTest {
         mockkObject(DispatcherProvider)
         every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
 
+        mockkObject(PersonalIdFeatureFlagChecker.Companion)
+        every { PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) } returns true
+
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
 
@@ -107,6 +112,15 @@ class DemographicBannerBinderTest {
         launchOpportunityList()
 
         assertNotNull(promptView())
+    }
+
+    @Test
+    fun `the prompt does not show while its feature flag is off`() {
+        every { PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) } returns false
+
+        launchOpportunityList()
+
+        assertNull(activity.currentAlertDialog)
     }
 
     @Test
