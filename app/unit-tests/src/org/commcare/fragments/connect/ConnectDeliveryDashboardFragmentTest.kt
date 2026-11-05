@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -17,6 +18,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -26,6 +28,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord
+import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.ConnectJobTestData
@@ -39,6 +42,7 @@ import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.ConnectSyncPreferences
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.ConnectInfoHalfCard
@@ -101,6 +105,7 @@ class ConnectDeliveryDashboardFragmentTest {
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
+        every { FirebaseAnalyticsUtil.reportHomeButtonClick(any()) } returns Unit
         every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
             object : NavController.OnDestinationChangedListener {
                 override fun onDestinationChanged(
@@ -389,6 +394,29 @@ class ConnectDeliveryDashboardFragmentTest {
             view.findViewById<TextView>(R.id.progress_card_bar_count).text.toString(),
         )
         assertEquals(3, view.findViewById<SemiCircleProgressBar>(R.id.progress_card_semi_circle).current)
+        verify(exactly = 1) {
+            FirebaseAnalyticsUtil.reportHomeButtonClick(AnalyticsParamValue.CONNECT_SYNC_CARD)
+        }
+    }
+
+    @Test
+    fun `tapping the task card opens the task and reports the tap`() {
+        val dashboard =
+            launch(
+                progressResponse(
+                    deliveries = deliveriesToday(unit = 1, count = 1),
+                    assignedTasks = listOf(assignedTaskJson()),
+                ),
+            )
+        val taskCard = dashboard.requireView().findViewById<View>(R.id.delivery_task_card)
+
+        assertTrue("The pending task is shown", taskCard.isVisible)
+        activity.runOnUiThread { taskCard.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 1) {
+            FirebaseAnalyticsUtil.reportHomeButtonClick(AnalyticsParamValue.CONNECT_TASK_CARD)
+        }
     }
 
     @Test
@@ -670,16 +698,27 @@ class ConnectDeliveryDashboardFragmentTest {
         paymentAccrued: Int? = null,
         endDate: String? = null,
         suspended: Boolean = false,
+        assignedTasks: List<String> = emptyList(),
     ): String {
         val fields =
             buildList {
                 add(""""deliveries": [${deliveries.joinToString(",")}]""")
+                if (assignedTasks.isNotEmpty()) add(""""assigned_tasks": [${assignedTasks.joinToString(",")}]""")
                 paymentAccrued?.let { add(""""payment_accrued": $it""") }
                 endDate?.let { add(""""end_date": "$it"""") }
                 if (suspended) add(""""is_user_suspended": true""")
             }
         return "{${fields.joinToString(",")}}"
     }
+
+    private fun assignedTaskJson(): String =
+        JSONObject()
+            .put("assigned_task_id", "task-1")
+            .put("task_name", "Retake the visit")
+            .put("status", ConnectTaskRecord.STATUS_ASSIGNED)
+            .put("task_mode", "delivery")
+            .put("due_date", "2027-07-24")
+            .toString()
 
     private fun deliveriesToday(
         unit: Int,
