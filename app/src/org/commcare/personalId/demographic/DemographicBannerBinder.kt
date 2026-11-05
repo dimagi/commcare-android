@@ -4,6 +4,7 @@ import android.widget.Toast
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
 import org.commcare.personalId.PersonalIdFeatureFlagChecker
 import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.DEMOGRAPHIC_PROMPT
@@ -17,7 +18,10 @@ object DemographicBannerBinder {
         activity: CommCareActivity<*>,
         state: DemographicPromptState = DemographicPromptState(),
     ): Boolean {
-        if (!PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) || activity.currentAlertDialog != null) {
+        if (!PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) ||
+            !PersonalIdSessionManager.getInstance().isloggedIn() ||
+            activity.currentAlertDialog != null
+        ) {
             return false
         }
         val completion = state.profileCompletion()

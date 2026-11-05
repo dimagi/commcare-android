@@ -126,6 +126,20 @@ class DemographicBannerBinderTest {
     }
 
     @Test
+    fun `the prompt does not show when the user is not logged in to PersonalID`() {
+        PersonalIdUserPreferences.setDemographicPromptNextShowAt(System.currentTimeMillis() + 1.hours.inWholeMilliseconds)
+        launchOpportunityList()
+        controller.pause()
+        PersonalIdUserPreferences.setDemographicPromptNextShowAt(System.currentTimeMillis())
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.Registering
+
+        controller.resume()
+        ShadowLooper.idleMainLooper()
+
+        assertNull(activity.currentAlertDialog)
+    }
+
+    @Test
     fun `the prompt does not show while its feature flag is off`() {
         every { PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) } returns false
 
