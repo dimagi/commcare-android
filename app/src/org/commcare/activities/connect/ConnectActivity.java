@@ -161,12 +161,21 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
 
         redirectionAction = ConnectJobUtils.resolveGenericOpportunityDestination(
-                redirectionAction, job, getIntent().getStringExtra(PAYMENT_UUID));
-
+                redirectionAction,
+                job,
+                getIntent().getStringExtra(PAYMENT_UUID)
+        );
 
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
-        startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
-                getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false));
+        startArgs.putBoolean(
+                ConnectConstants.FROM_SMS_INVITE_LINK,
+                getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false)
+        );
+        startArgs.putBoolean(
+                ConnectConstants.FROM_STARTUP_ROUTING,
+                getIntent().getBooleanExtra(ConnectConstants.FROM_STARTUP_ROUTING, false)
+        );
+
         if (!TextUtils.isEmpty(opportunityUuid)) {
             startArgs.putString(OPPORTUNITY_UUID, opportunityUuid);
         }
