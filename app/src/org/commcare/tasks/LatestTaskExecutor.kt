@@ -1,10 +1,10 @@
 package org.commcare.tasks
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.commcare.utils.coroutines.DispatcherProvider
 import java.util.concurrent.Callable
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -28,12 +28,12 @@ class LatestTaskExecutor<T> {
         currentJob?.cancel()
         currentJob = scope.launch {
             try {
-                val result = withContext(Dispatchers.IO) { task.call() }
-                withContext(Dispatchers.Main) { callback.onResult(result) }
+                val result = withContext(DispatcherProvider.io()) { task.call() }
+                withContext(DispatcherProvider.main()) { callback.onResult(result) }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) { callback.onError(e) }
+                withContext(DispatcherProvider.main()) { callback.onError(e) }
             }
         }
     }
