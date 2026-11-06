@@ -217,7 +217,7 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
             true,
             true,
         )
-        ShadowLooper.idleMainLooper()
+        drainMainLooper()
 
         assertEquals("Ask your supervisor", ShadowToast.getTextOfLatestToast())
     }
@@ -237,7 +237,7 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         val home = buildVisibleHome()
 
         receiverOf(home).handlePullTaskError()
-        ShadowLooper.idleMainLooper()
+        drainMainLooper()
 
         assertEquals(Localization.get("sync.fail.unknown"), ShadowToast.getTextOfLatestToast())
     }
@@ -364,12 +364,12 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         result: PullTaskResult,
     ) {
         receiverOf(home).handlePullTaskResult(ResultAndError(result), true, true, true)
-        ShadowLooper.idleMainLooper()
+        drainMainLooper()
     }
 
     private fun rebindHomeGrid(home: StandardHomeActivity) {
         home.findViewById<RecyclerView>(R.id.home_gridview_buttons).adapter!!.notifyDataSetChanged()
-        ShadowLooper.idleMainLooper()
+        drainMainLooper()
     }
 
     private fun deliverFormUploadResult(
@@ -379,7 +379,11 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         userTriggered: Boolean,
     ) {
         home.receiver.handleFormUploadResult(result, formLabel, userTriggered)
-        ShadowLooper.idleMainLooper()
+        drainMainLooper()
+    }
+
+    private fun drainMainLooper() {
+        ShadowLooper.runUiThreadTasksIncludingDelayedTasks()
     }
 
     private fun reportBadCertificate() {
