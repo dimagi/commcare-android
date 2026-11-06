@@ -117,7 +117,7 @@ public class CommCareSessionService extends Service {
     private boolean apkUpdatePromptWasShown;
     private boolean showInAppUpdate = true;
 
-    // Have the app health checks in HomeScreenBaseActivity#checkForPendingAppHealthActions() been
+    // Have the app health checks in StandardHomeActivity#checkForPendingAppHealthActions() been
     // done at least once during this session?
     private boolean appHealthChecksCompleted;
     public static final String LOG_SUBMISSION_RESULT_PREF = "log_submission_result";
