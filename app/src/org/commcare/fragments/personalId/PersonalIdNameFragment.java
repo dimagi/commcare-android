@@ -21,7 +21,6 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler;
 import org.commcare.connect.network.personalId.PersonalIdApiHandler;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidNameBinding;
-import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.KeyboardHelper;
 import org.jetbrains.annotations.NotNull;
@@ -101,9 +100,6 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 if (handleCommonSignupFailures(failureCode)) {
                     return;
                 }
-                if (handleRegistrationIneligibleFailure(failureCode)) {
-                    return;
-                }
                 navigateFailure(failureCode, t);
             }
         }.addOrVerifyNameCall(
@@ -112,21 +108,6 @@ public class PersonalIdNameFragment extends BasePersonalIdFragment {
                 personalIdSessionData);
     }
 
-
-    private boolean handleRegistrationIneligibleFailure(
-            PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode
-    ) {
-        if (failureCode != PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes.REGISTRATION_INELIGIBLE_ERROR) {
-            return false;
-        }
-
-        onConfigurationFailure(
-                AnalyticsParamValue.REGISTRATION_INELIGIBLE_FAILURE,
-                getString(R.string.personalid_registration_ineligible)
-        );
-
-        return true;
-    }
 
     private void navigateFailure(PersonalIdApiHandler.PersonalIdOrConnectApiErrorCodes failureCode, Throwable t) {
         showError(PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), failureCode, t));

@@ -26,6 +26,14 @@ abstract class BasePersonalIdFragment : Fragment() {
                 true
             }
 
+            PersonalIdOrConnectApiErrorCodes.REGISTRATION_INELIGIBLE_ERROR -> {
+                onConfigurationFailure(
+                    AnalyticsParamValue.REGISTRATION_INELIGIBLE_FAILURE,
+                    getString(R.string.personalid_registration_ineligible),
+                )
+                true
+            }
+
             else -> {
                 false
             }
