@@ -424,6 +424,14 @@
     <string name="personalid_user_photo_update_success">Sua foto de perfil foi atualizada com sucesso.</string>
     <string name="personalid_manage_profile"><u>Gerenciar perfil</u></string>
     <string name="personalid_profile_title">Perfil</string>
+    <string name="personalid_demographic_banner_title">Complete o seu perfil</string>
+    <string name="personalid_demographic_banner_message">Atualizar os seus dados ajuda-nos a personalizar a sua experiência e a oferecer-lhe melhores oportunidades de trabalho</string>
+    <string name="personalid_demographic_banner_warning">As tarefas de entrega podem ser interrompidas amanhã se as informações do seu perfil não forem atualizadas.</string>
+    <string name="personalid_demographic_banner_final">Atualize o seu perfil clicando no botão Completar perfil ou acedendo ao seu perfil a partir do menu, para continuar a trabalhar sem interrupções.</string>
+    <string name="personalid_demographic_banner_remind_later">Lembrar-me mais tarde</string>
+    <string name="personalid_demographic_banner_dismiss">Dispensar</string>
+    <string name="personalid_demographic_banner_complete">Completar perfil</string>
+    <string name="personalid_demographic_banner_snoozed">Vamos lembrá-lo de atualizar o seu perfil amanhã</string>
     <string name="personalid_profile_edit_title">Editar perfil</string>
     <string name="personalid_profile_section_personal_information">Informações pessoais</string>
     <string name="personalid_profile_field_name">Nome</string>
