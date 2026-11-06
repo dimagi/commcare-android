@@ -35,6 +35,7 @@ import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.VALUE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.SESSION_END;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_FULL;
@@ -504,6 +505,21 @@ public class FirebaseAnalyticsUtil {
                 new String[]{FirebaseAnalytics.Param.ITEM_ID},
                 new String[]{RSA_KEYSTORE_KEY_RETRIEVAL}
         );
+    }
+
+    /**
+     * Reports a user session closing, with the forms still waiting to be sent and how long the
+     * oldest of them has waited.
+     */
+    public static void reportSessionEnd(String reason, int unsentForms, long oldestUnsentAgeMinutes) {
+        Bundle b = new Bundle();
+        b.putString(FirebaseAnalytics.Param.ITEM_ID, SESSION_END);
+        b.putString(CCAnalyticsParam.REASON, reason);
+        b.putLong(FirebaseAnalytics.Param.VALUE, unsentForms);
+        if (unsentForms > 0) {
+            b.putLong(CCAnalyticsParam.TIME_IN_MINUTES, oldestUnsentAgeMinutes);
+        }
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT, b);
     }
 
     public static void reportFormQuarantined(String quarantineReasonType) {
