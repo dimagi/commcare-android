@@ -34,7 +34,7 @@ class SyncDelegate(
     private var userLaunchedSync = false
 
     /** The activity this delegate's tasks connect to. */
-    val connector get() = host.syncConnector
+    val syncTaskActivity get() = host.syncTaskActivity
 
     /** Send unsent forms; a sync follows once they are sent, or straight away when there are none. */
     fun sendFormsOrSync(userTriggered: Boolean) {
@@ -78,7 +78,7 @@ class SyncDelegate(
     }
 
     fun performCustomRestoreFromFile(restoreFile: File) {
-        formAndDataSyncer.performCustomRestoreFromFile(connector, restoreFile)
+        formAndDataSyncer.performCustomRestoreFromFile(syncTaskActivity, restoreFile)
     }
 
     @VisibleForTesting
@@ -99,7 +99,7 @@ class SyncDelegate(
     }
 
     override fun handlePullTaskUpdate(vararg update: Int?) {
-        val activity = connector
+        val activity = syncTaskActivity
         when (update[0]) {
             DataPullTask.PROGRESS_STARTED -> {
                 activity.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID)
@@ -338,7 +338,7 @@ class SyncDelegate(
         dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close")) { shown, _ ->
             shown.dismiss()
         }
-        connector.showAlertDialog(dialog)
+        syncTaskActivity.showAlertDialog(dialog)
     }
 
     private fun syncProgressMessage(update: Array<out Int?>): String {
