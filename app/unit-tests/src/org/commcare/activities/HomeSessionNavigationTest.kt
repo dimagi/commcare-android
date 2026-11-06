@@ -96,7 +96,7 @@ class HomeSessionNavigationTest : BaseHomeScreenActivityTest() {
     companion object {
         private const val FORM_COMMAND = "m0-f0"
 
-        /** Matches `HomeScreenBaseActivity.KEY_PENDING_SESSION_DATA`, which is private. */
+        /** Matches `StandardHomeActivity.KEY_PENDING_SESSION_DATA`, which is private. */
         private const val PENDING_SESSION_DATA = "pending-session-data-id"
     }
 }

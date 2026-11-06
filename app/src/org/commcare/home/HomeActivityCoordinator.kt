@@ -1,13 +1,10 @@
 package org.commcare.home
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import org.commcare.activities.CommCarePreferenceActivity
 import org.commcare.activities.DriftHelper
-import org.commcare.activities.SessionAwarePreferenceActivity
 import org.commcare.models.AndroidSessionWrapper
 import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.services.locale.Localization
@@ -215,11 +212,5 @@ class HomeActivityCoordinator(
         private const val KEY_WAS_EXTERNAL = "was_external"
         private const val KEY_LOGIN_EXTRA_CONSUMED = "login_extra_was_consumed"
         private const val KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC = "pending_endpoint_nav_after_sync"
-
-        /** The CommCare settings screen, which reports back under [HomeRequestCodes.PREFERENCES_ACTIVITY]. */
-        @JvmStatic
-        fun buildPreferencesIntent(context: Context): Intent =
-            Intent(context, SessionAwarePreferenceActivity::class.java)
-                .putExtra(CommCarePreferenceActivity.EXTRA_PREF_TYPE, CommCarePreferenceActivity.PREF_TYPE_COMMCARE)
     }
 }

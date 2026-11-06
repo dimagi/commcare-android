@@ -205,7 +205,7 @@ abstract class BaseHomeScreenActivityTest {
 
     /**
      * Replace the standard session installed by [baseSetUp] with a demo-user session, so
-     * `HomeScreenBaseActivity.isDemoUser()` reports true. Call before building home.
+     * `StandardHomeActivity.isDemoUser()` reports true. Call before building home.
      */
     protected fun seatDemoUser() {
         CommCareApplication.instance().closeUserSession()

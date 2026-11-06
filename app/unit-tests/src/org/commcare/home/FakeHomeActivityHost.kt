@@ -56,7 +56,7 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     override val hostActivity: AppCompatActivity get() = activityController.get()
 
-    override val syncConnector: CommCareActivity<*>
+    override val syncTaskActivity: CommCareActivity<*>
         get() = throw UnsupportedOperationException("coordinator tests don't run sync tasks")
 
     override fun updateUiAfterDataPullOrSend(

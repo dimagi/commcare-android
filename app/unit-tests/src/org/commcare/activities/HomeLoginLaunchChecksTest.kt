@@ -81,7 +81,7 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
         // itself, so without this row the sequence could stop running in production, suite still
         // green.
         val context = CommCareApplication.instance()
-        val intent = HomeScreenBaseActivity.buildHomeLaunchIntent(context)
+        val intent = StandardHomeActivity.buildHomeLaunchIntent(context)
 
         assertEquals(StandardHomeActivity::class.java.name, intent.component!!.className)
         assertTrue(intent.getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false))
