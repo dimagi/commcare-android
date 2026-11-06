@@ -57,8 +57,10 @@ object ConnectDatabaseSchemaManager {
      * V.29 - Added module_id (server id) to ConnectLearnModuleSummaryRecord
      * V.30 - Added rich message fields to ConnectMessagingMessageRecord and the
      *         connect_messaging_attachment table (ConnectMessagingAttachmentRecord)
+     * V.31 - Added demographic fields (gender, dateOfBirth, languages, education, chwExperience,
+     *         techProficiency) to ConnectUserRecord
      */
-    const val DB_VERSION_CONNECT = 30
+    const val DB_VERSION_CONNECT = 31
 
     @JvmStatic
     fun initializeSchema(database: IDatabase) {
