@@ -15,7 +15,6 @@ import org.commcare.android.util.FirebaseTestUtils
 import org.commcare.dalvik.R
 import org.commcare.personalId.BaseNavGraphToolbarTitleTest
 import org.commcare.personalId.TitledScreen
-import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.commcare.utils.OtpManager
 import org.junit.After
 import org.junit.Before
@@ -40,7 +39,6 @@ class PersonalIdActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest() {
 
     @Before
     fun setUp() {
-        MockAndroidKeyStoreProvider.registerProvider()
         Settings.Global.putInt(context.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 1)
         shadowOf(context as Application).grantPermissions(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -55,7 +53,6 @@ class PersonalIdActivityToolbarTitleTest : BaseNavGraphToolbarTitleTest() {
     @After
     fun tearDown() {
         activityLauncher.tearDown()
-        MockAndroidKeyStoreProvider.deregisterProvider()
     }
 
     override fun launchHostActivity() = activityLauncher.launchHostActivity(buildSessionData())
