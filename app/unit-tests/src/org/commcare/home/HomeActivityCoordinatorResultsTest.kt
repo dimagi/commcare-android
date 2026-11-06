@@ -145,10 +145,11 @@ class HomeActivityCoordinatorResultsTest {
     }
 
     @Test
-    fun `an app sync refreshes a visible home first`() {
+    fun `an auto sync refreshes a visible home first`() {
         host.moveTo(Lifecycle.State.STARTED)
+        seedPendingAutoSync()
 
-        coordinator.triggerSync(autoSyncPending = true)
+        coordinator.onHostResumed()
 
         assertEquals(1, host.refreshHostUiCount)
         assertEquals(1, syncer.formSendCount)
@@ -183,7 +184,7 @@ class HomeActivityCoordinatorResultsTest {
     fun `launch checks always clear one-time flags`() {
         HiddenPreferences.setPostUpdateSyncNeeded(true)
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
         assertFalse(CommCareApplication.instance().isPostUpdateSyncNeeded)
         assertFalse(
@@ -201,7 +202,7 @@ class HomeActivityCoordinatorResultsTest {
     fun `a pull during a blocked update resumes the update`() {
         UpdateActivity.sBlockedUpdateWorkflowInProgress = true
 
-        coordinator.onPullTaskFinished(PullTaskResult.DOWNLOAD_SUCCESS)
+        coordinator.appHealth.onPullTaskFinished(PullTaskResult.DOWNLOAD_SUCCESS)
 
         val intent = host.startedActivities.single()
         assertEquals(UpdateActivity::class.java.name, intent.component!!.className)
@@ -210,7 +211,7 @@ class HomeActivityCoordinatorResultsTest {
 
     @Test
     fun `a pull with no blocked update starts nothing`() {
-        coordinator.onPullTaskFinished(PullTaskResult.DOWNLOAD_SUCCESS)
+        coordinator.appHealth.onPullTaskFinished(PullTaskResult.DOWNLOAD_SUCCESS)
 
         assertTrue(host.startedActivities.isEmpty())
     }

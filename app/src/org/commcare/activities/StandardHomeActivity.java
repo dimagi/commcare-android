@@ -126,12 +126,12 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
-            coordinator.setWasExternal(true);
+            coordinator.getLaunchState().setWasExternal(true);
             if (getIntent().getBooleanExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC, false)) {
                 getIntent().removeExtra(DispatchActivity.CC_LAUNCH_REQUIRE_SYNC);
-                coordinator.setPendingEndpointNavigationAfterSync(true);
+                coordinator.getLaunchState().setPendingEndpointNavigationAfterSync(true);
                 coordinator.setRedirectedInOnCreate(true);
-                coordinator.triggerSync(false);
+                coordinator.getSync().sendFormsOrSync(false);
             } else if (processSessionEndpoint()) {
                 coordinator.getSessionNavigation().startNextSessionStep();
             }
@@ -219,10 +219,10 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     private void processFromLoginLaunch() {
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
-                !coordinator.getLoginExtraWasConsumed()) {
+                !coordinator.getLaunchState().getLoginExtraWasConsumed()) {
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
-            coordinator.setLoginExtraWasConsumed(true);
-            coordinator.setRedirectedInOnCreate(coordinator.runLaunchChecks());
+            coordinator.getLaunchState().setLoginExtraWasConsumed(true);
+            coordinator.setRedirectedInOnCreate(coordinator.getLaunchChecks().run());
         }
     }
 
@@ -290,11 +290,11 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     @Override
     public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
-        if (coordinator.getPendingEndpointNavigationAfterSync() && processSessionEndpoint()) {
+        if (coordinator.getLaunchState().getPendingEndpointNavigationAfterSync() && processSessionEndpoint()) {
             coordinator.getSessionNavigation().startNextSessionStep();
-            coordinator.setPendingEndpointNavigationAfterSync(false);
+            coordinator.getLaunchState().setPendingEndpointNavigationAfterSync(false);
         } else {
-            coordinator.onPullTaskFinished(result);
+            coordinator.getAppHealth().onPullTaskFinished(result);
         }
         uiController.refreshView();
     }

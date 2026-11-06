@@ -24,7 +24,7 @@ import org.robolectric.android.controller.ActivityController
 
 /**
  * Characterization pins for the login-launch check sequence run from `onCreateSessionSafe`
- * (`HomeActivityCoordinator.runLaunchChecks`): which step claims the launch, and the boolean it returns.
+ * (`LaunchChecksDelegate.run`): which step claims the launch, and the boolean it returns.
  *
  * That return value is the contract most likely to break silently. Step 1 (demo) halts with `false`,
  * steps 2-7 short-circuit with `true` when they claim the launch, and steps 8-9 (PIN, drift) are
@@ -321,7 +321,7 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     ) {
         val home: StandardHomeActivity = controller.get()
 
-        /** The boolean `runLaunchChecks` returned, as the coordinator stores it for the next resume. */
+        /** The boolean `LaunchChecksDelegate.run` returned, as the coordinator stores it for the next resume. */
         val claimedLaunch: Boolean = home.coordinator.redirectedInOnCreate
 
         /** Every activity started for result during create, oldest first. */

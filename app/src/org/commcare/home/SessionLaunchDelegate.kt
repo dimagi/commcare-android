@@ -34,7 +34,7 @@ import org.javarosa.xpath.XPathException
  * the session, reopened incomplete forms, the forms and sessions restored at login, and the result
  * of each.
  *
- * The launch state it reads, `wasExternal`, belongs to [HomeActivityCoordinator] and is passed in.
+ * The launch state it reads, `wasExternal`, belongs to [HomeLaunchState] and is passed in.
  */
 class SessionLaunchDelegate(
     private val host: HomeActivityHost,

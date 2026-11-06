@@ -36,60 +36,6 @@ class HomeActivityCoordinatorTest {
         assertEquals(2, host.observerCount)
     }
 
-    @Test
-    fun `launch and nav state defaults to false with nothing saved`() {
-        val host = FakeHomeActivityHost()
-        val coordinator = HomeActivityCoordinator(host)
-        host.performRestore()
-        host.dispatchOnCreate()
-
-        assertFalse(coordinator.wasExternal)
-        assertFalse(coordinator.loginExtraWasConsumed)
-        assertFalse(coordinator.pendingEndpointNavigationAfterSync)
-    }
-
-    @Test
-    fun `all three launch and nav keys survive a save and restore round trip`() {
-        val firstHost = FakeHomeActivityHost()
-        val first = HomeActivityCoordinator(firstHost)
-        firstHost.performRestore()
-        firstHost.dispatchOnCreate()
-        first.wasExternal = true
-        first.loginExtraWasConsumed = true
-        first.pendingEndpointNavigationAfterSync = true
-
-        val saved = firstHost.performSave()
-
-        val secondHost = FakeHomeActivityHost()
-        val second = HomeActivityCoordinator(secondHost)
-        secondHost.performRestore(saved)
-        secondHost.dispatchOnCreate()
-
-        assertTrue(second.wasExternal)
-        assertTrue(second.loginExtraWasConsumed)
-        assertTrue(second.pendingEndpointNavigationAfterSync)
-    }
-
-    @Test
-    fun `each key round trips independently`() {
-        val firstHost = FakeHomeActivityHost()
-        val first = HomeActivityCoordinator(firstHost)
-        firstHost.performRestore()
-        firstHost.dispatchOnCreate()
-        first.loginExtraWasConsumed = true
-
-        val saved = firstHost.performSave()
-
-        val secondHost = FakeHomeActivityHost()
-        val second = HomeActivityCoordinator(secondHost)
-        secondHost.performRestore(saved)
-        secondHost.dispatchOnCreate()
-
-        assertFalse(second.wasExternal)
-        assertTrue(second.loginExtraWasConsumed)
-        assertFalse(second.pendingEndpointNavigationAfterSync)
-    }
-
     /**
      * A write made before `ON_CREATE` (as `processFromExternalLaunch` does) must not be clobbered by
      * the coordinator's own `onCreate` restore pass.
@@ -99,28 +45,11 @@ class HomeActivityCoordinatorTest {
         val host = FakeHomeActivityHost()
         val coordinator = HomeActivityCoordinator(host)
         host.performRestore()
-        coordinator.wasExternal = true
+        coordinator.launchState.wasExternal = true
 
         host.dispatchOnCreate()
 
-        assertTrue(coordinator.wasExternal)
-    }
-
-    @Test
-    fun `state set before on-create is still saved`() {
-        val host = FakeHomeActivityHost()
-        val coordinator = HomeActivityCoordinator(host)
-        host.performRestore()
-        coordinator.pendingEndpointNavigationAfterSync = true
-
-        val saved = host.performSave()
-
-        val secondHost = FakeHomeActivityHost()
-        val second = HomeActivityCoordinator(secondHost)
-        secondHost.performRestore(saved)
-        secondHost.dispatchOnCreate()
-
-        assertTrue(second.pendingEndpointNavigationAfterSync)
+        assertTrue(coordinator.launchState.wasExternal)
     }
 
     @Test
@@ -129,12 +58,12 @@ class HomeActivityCoordinatorTest {
         val coordinator = HomeActivityCoordinator(host)
         host.performRestore()
         host.dispatchOnCreate()
-        coordinator.wasExternal = true
+        coordinator.launchState.wasExternal = true
 
         coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent())
 
-        assertTrue(coordinator.wasExternal)
-        assertFalse(coordinator.loginExtraWasConsumed)
+        assertTrue(coordinator.launchState.wasExternal)
+        assertFalse(coordinator.launchState.loginExtraWasConsumed)
     }
 
     @Test

@@ -85,7 +85,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         host.demoUser = true
         seedSessionCommand()
 
-        assertFalse(coordinator.runLaunchChecks())
+        assertFalse(coordinator.launchChecks.run())
 
         assertEquals(1, host.shownDialogs.size)
         assertTrue(host.shownDialogs.single() is StandardAlertDialog)
@@ -97,7 +97,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         seedSessionCommand()
         HiddenPreferences.setPostUpdateSyncNeeded(true)
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
         assertEquals(HomeRequestCodes.MODEL_RESULT, host.startedForResult.single().second)
         assertEquals(0, syncer.formSendCount)
@@ -108,7 +108,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         HiddenPreferences.setPostUpdateSyncNeeded(true)
         seedPendingSyncRequest()
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
         assertEquals(1, syncer.formSendCount)
         assertFalse(CommCareApplication.instance().isPostUpdateSyncNeeded)
@@ -119,7 +119,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         seedPendingSyncRequest()
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
         assertEquals(1, syncer.formSendCount)
         assertFalse(syncer.lastSendUserTriggered)
@@ -128,7 +128,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `with nothing pending, the checks end unclaimed`() {
-        assertFalse(coordinator.runLaunchChecks())
+        assertFalse(coordinator.launchChecks.run())
 
         assertEquals(0, syncer.formSendCount)
         assertTrue(host.startedForResult.isEmpty())
@@ -139,7 +139,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
     fun `a primed login launches pin creation unclaimed`() {
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
-        assertFalse(coordinator.runLaunchChecks())
+        assertFalse(coordinator.launchChecks.run())
 
         val (intent, requestCode) = host.startedForResult.single()
         assertEquals(CreatePinActivity::class.java.name, intent.component?.className)
@@ -152,7 +152,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         seedSessionCommand()
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
         assertTrue(host.startedForResult.none { it.first.component?.className == CreatePinActivity::class.java.name })
     }
