@@ -37,12 +37,15 @@ class FakeHomeActivityHost : HomeActivityHost {
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
     val shownShortToasts = mutableListOf<String>()
-    var sessionStepCount: Int = 0
-    var safeSessionStepCount: Int = 0
-    var formEntryLaunchingCount: Int = 0
     val shownFormArchives = mutableListOf<Pair<Boolean, FormRecord?>>()
     val finishedWithResults = mutableListOf<Int>()
-    val shownXPathErrors = mutableListOf<XPathException>()
+    var lastFinishData: Intent? = null
+    var finishCount: Int = 0
+    val shownXPathErrors = mutableListOf<Pair<XPathException, Boolean>>()
+    val shownErrorMessages = mutableListOf<Pair<String, Boolean>>()
+    val shownToasts = mutableListOf<String>()
+    val startedActivities = mutableListOf<Intent>()
+    var actionBarRefreshCount: Int = 0
 
     /** How many observers are registered on this host's lifecycle. */
     val observerCount: Int get() = lifecycleRegistry.observerCount
@@ -70,14 +73,6 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     override val formEntryTitle: String = "Fake home"
 
-    override fun startNextSessionStep() {
-        sessionStepCount++
-    }
-
-    override fun startNextSessionStepSafe() {
-        safeSessionStepCount++
-    }
-
     override fun showFormArchive(
         incomplete: Boolean,
         record: FormRecord?,
@@ -85,16 +80,42 @@ class FakeHomeActivityHost : HomeActivityHost {
         shownFormArchives += incomplete to record
     }
 
-    override fun finishWithResult(resultCode: Int) {
+    override fun finishWithResult(
+        resultCode: Int,
+        data: Intent?,
+    ) {
         finishedWithResults += resultCode
+        lastFinishData = data
     }
 
-    override fun showXPathErrorAndExit(exception: XPathException) {
-        shownXPathErrors += exception
+    override fun finish() {
+        finishCount++
     }
 
-    override fun onFormEntryLaunching() {
-        formEntryLaunchingCount++
+    override fun showXPathError(
+        exception: XPathException,
+        shouldExit: Boolean,
+    ) {
+        shownXPathErrors += exception to shouldExit
+    }
+
+    override fun showErrorDialog(
+        message: String,
+        shouldExit: Boolean,
+    ) {
+        shownErrorMessages += message to shouldExit
+    }
+
+    override fun displayToast(message: String) {
+        shownToasts += message
+    }
+
+    override fun startActivity(intent: Intent) {
+        startedActivities += intent
+    }
+
+    override fun refreshActionBar() {
+        actionBarRefreshCount++
     }
 
     override fun startActivityForResult(
@@ -140,6 +161,11 @@ class FakeHomeActivityHost : HomeActivityHost {
     /** `ComponentActivity.onCreate` step 2, dispatched only after `Activity.onCreate` returns. */
     fun dispatchOnCreate() {
         lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    }
+
+    /** Move the lifecycle to [state], as the activity's start and stop would. */
+    fun moveTo(state: Lifecycle.State) {
+        lifecycleRegistry.currentState = state
     }
 
     /** `ComponentActivity.onDestroy`, so delegates can be observed tearing down. */

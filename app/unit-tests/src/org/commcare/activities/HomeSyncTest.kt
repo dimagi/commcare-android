@@ -97,7 +97,7 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
     @Test
     fun `a real sync from the sync button reports back to the home screen`() {
         val home = buildVisibleHome()
-        home.setFormAndDataSyncer(FormAndDataSyncer())
+        home.coordinator.sync.setFormAndDataSyncer(FormAndDataSyncer())
         CommcareRequestEndpointsMock.setCaseFetchResponseCodes(arrayOf(200))
         LocalReferencePullResponseFactory.setRequestPayloads(arrayOf("$APP_RESOURCES/simple_data_restore.xml"))
 

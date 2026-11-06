@@ -152,7 +152,7 @@ public class FormAndDataSyncer {
     }
 
     public void performCustomRestoreFromFile(
-            CommCareActivity<?> context,
+            SyncDelegate receiver,
             File incomingRestoreFile
     ) {
         User u = CommCareApplication.instance().getSession().getLoggedInUser();
@@ -160,7 +160,7 @@ public class FormAndDataSyncer {
 
         LocalFilePullResponseFactory.setRequestPayloads(new File[]{incomingRestoreFile});
         syncData(
-                context,
+                receiver.getSyncTaskActivity(),
                 false,
                 false,
                 "fake-server-that-is-never-used",
