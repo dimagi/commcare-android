@@ -10,6 +10,7 @@ import com.google.android.material.button.MaterialButton
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel
+import org.commcare.connect.ConnectConstants
 import org.commcare.dalvik.R
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -188,6 +189,31 @@ class PersonalIdNameFragmentAddOrVerifyNameTest : BasePersonalIdNameFragmentTest
             activity.getString(R.string.personalid_configuration_locked_account),
             args?.getString("message"),
         )
+    }
+
+    @Test
+    fun `a REGISTRATION_INELIGIBLE error routes the user to the ineligible message screen`() {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(403)
+                .setBody("""{"error_code": "REGISTRATION_INELIGIBLE"}"""),
+        )
+
+        typeAndContinue("Ada Lovelace")
+
+        drainHttp()
+
+        assertEquals(R.id.personalid_message_display, navController.currentDestination?.id)
+        val args = navController.currentBackStackEntry?.arguments
+        assertEquals(
+            activity.getString(R.string.personalid_configuration_process_failed_title),
+            args?.getString("title"),
+        )
+        assertEquals(
+            activity.getString(R.string.personalid_registration_ineligible),
+            args?.getString("message"),
+        )
+        assertEquals(ConnectConstants.PERSONALID_DEVICE_CONFIGURATION_FAILED, args?.getInt("callingClass"))
     }
 
     @Test
