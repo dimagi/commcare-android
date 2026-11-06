@@ -33,7 +33,7 @@ object ConnectScreenshotData {
     const val NEW_OPPORTUNITY_ID = 4
 
     /** A PersonalID user with a full name, a Kenyan phone number and an email. */
-    fun user(hasConnectAccess: Boolean = false): ConnectUserRecord =
+    fun buildUser(hasConnectAccess: Boolean = false): ConnectUserRecord =
         ConnectUserRecord(
             "+254712345678",
             "showcase-user-id",
@@ -50,41 +50,41 @@ object ConnectScreenshotData {
         }
 
     /** One opportunity per state the opportunity list shows, with a long title and an expiry warning among them. */
-    fun opportunities(): List<ConnectJobRecord> =
+    fun buildOpportunities(): List<ConnectJobRecord> =
         listOf(
-            opportunity(
+            buildOpportunity(
                 LEARNING_OPPORTUNITY_ID,
                 "Household Malaria Prevention Survey",
                 ConnectJobRecord.STATUS_LEARNING,
                 endInDays = 21,
                 modulesDone = LEARNING_MODULES_DONE,
             ),
-            opportunity(
+            buildOpportunity(
                 DELIVERING_OPPORTUNITY_ID,
                 "Child Growth Monitoring and Nutrition Counselling, Kisumu County",
                 ConnectJobRecord.STATUS_DELIVERING,
                 endInDays = 2,
                 visitsDone = DELIVERY_VISITS,
             ),
-            opportunity(3, "Maternal Health Home Visits", ConnectJobRecord.STATUS_DELIVERING, endInDays = 60, visitsDone = 12),
-            opportunity(
+            buildOpportunity(3, "Maternal Health Home Visits", ConnectJobRecord.STATUS_DELIVERING, endInDays = 60, visitsDone = 12),
+            buildOpportunity(
                 NEW_OPPORTUNITY_ID,
                 "Community Vaccination Awareness Campaign",
                 ConnectJobRecord.STATUS_AVAILABLE_NEW,
                 endInDays = 45,
             ),
-            opportunity(5, "Polio Campaign Follow-up", ConnectJobRecord.STATUS_DELIVERING, endInDays = -14, visitsDone = MAX_VISITS),
-            opportunity(6, "Bed Net Distribution Check", ConnectJobRecord.STATUS_DELIVERING, endInDays = -40, visitsDone = 18),
+            buildOpportunity(5, "Polio Campaign Follow-up", ConnectJobRecord.STATUS_DELIVERING, endInDays = -14, visitsDone = MAX_VISITS),
+            buildOpportunity(6, "Bed Net Distribution Check", ConnectJobRecord.STATUS_DELIVERING, endInDays = -40, visitsDone = 18),
         )
 
     /** The opportunity UUID the server and the local database key the opportunity with [id] by. */
-    fun opportunityUuid(id: Int): String = "showcase-opportunity-$id"
+    fun getOpportunityUuid(id: Int): String = "showcase-opportunity-$id"
 
     /**
      * The learn progress response for the opportunity with [id]: the learning opportunity is part way through its
      * modules, and every other one has finished them and passed the assessment.
      */
-    fun learningProgressResponse(id: Int): String {
+    fun buildLearningProgressJson(id: Int): String {
         val modulesDone = if (id == LEARNING_OPPORTUNITY_ID) LEARNING_MODULES_DONE else LEARN_MODULES
         return JSONObject()
             .put(
@@ -94,7 +94,7 @@ object ConnectScreenshotData {
                         put(
                             JSONObject().apply {
                                 put("id", module)
-                                put("date", isoDateTime(minutesAgo = (40 - module * 6) * 24 * 60))
+                                put("date", formatIsoDateTime(minutesAgo = (40 - module * 6) * 24 * 60))
                                 put("module", module)
                                 put("duration", "01:45:00")
                             },
@@ -107,7 +107,7 @@ object ConnectScreenshotData {
                     if (modulesDone == LEARN_MODULES) {
                         put(
                             JSONObject().apply {
-                                put("date", isoDateTime(minutesAgo = 9 * 24 * 60))
+                                put("date", formatIsoDateTime(minutesAgo = 9 * 24 * 60))
                                 put("score", 92)
                                 put("passing_score", 80)
                                 put("passed", true)
@@ -122,7 +122,7 @@ object ConnectScreenshotData {
      * The delivery progress response for the delivering opportunity: its visits spread over the last week, the newest
      * of them still pending and one rejected, and two confirmed payments ahead of one still to confirm.
      */
-    fun deliveryProgressResponse(): String {
+    fun buildDeliveryProgressJson(): String {
         val rejectedVisit = 7
         val pendingVisits = 2
         val approvedVisits = DELIVERY_VISITS - pendingVisits - 1
@@ -140,54 +140,54 @@ object ConnectScreenshotData {
                                 visit == rejectedVisit -> "rejected"
                                 else -> "approved"
                             }
-                        put(delivery(visit, status, minutesAgo = (visit / VISITS_PER_DAY) * 24 * 60 + 30 + visit * 20))
+                        put(buildDeliveryJson(visit, status, minutesAgo = (visit / VISITS_PER_DAY) * 24 * 60 + 30 + visit * 20))
                     }
                 },
             ).put(
                 "payments",
                 JSONArray().apply {
-                    put(payment("1", visits = 12, daysAgo = 14, confirmed = true))
-                    put(payment("2", visits = 6, daysAgo = 7, confirmed = true))
-                    put(payment("3", visits = 5, daysAgo = 1, confirmed = false))
+                    put(buildPaymentJson("1", visits = 12, daysAgo = 14, confirmed = true))
+                    put(buildPaymentJson("2", visits = 6, daysAgo = 7, confirmed = true))
+                    put(buildPaymentJson("3", visits = 5, daysAgo = 1, confirmed = false))
                 },
             ).toString()
     }
 
     /** Subscribed channels with unread, read and sent last messages, plus one the worker has unsubscribed from. */
-    fun channels(): List<ConnectMessagingChannelRecord> =
+    fun buildChannels(): List<ConnectMessagingChannelRecord> =
         listOf(
-            channel(CONVERSATION_CHANNEL_ID, ORGANIZATION, consented = true),
-            channel("showcase-channel-support", "Connect Support", consented = true),
-            channel("showcase-channel-malaria", "Household Malaria Prevention Survey", consented = true),
-            channel("showcase-channel-nutrition", "Nutrition Programme Updates", consented = false),
+            buildChannel(CONVERSATION_CHANNEL_ID, ORGANIZATION, consented = true),
+            buildChannel("showcase-channel-support", "Connect Support", consented = true),
+            buildChannel("showcase-channel-malaria", "Household Malaria Prevention Survey", consented = true),
+            buildChannel("showcase-channel-nutrition", "Nutrition Programme Updates", consented = false),
         )
 
     /** A conversation in [CONVERSATION_CHANNEL_ID] ending in two unread messages, and a last message in each other subscribed channel. */
-    fun messages(): List<ConnectMessagingMessageRecord> =
+    fun buildMessages(): List<ConnectMessagingMessageRecord> =
         listOf(
-            message(
+            buildMessage(
                 CONVERSATION_CHANNEL_ID,
                 1,
                 minutesAgo = 26 * 60,
                 outgoing = false,
                 "Welcome to the Maternal Health Home Visits programme! Reply here if you have any questions.",
             ),
-            message(
+            buildMessage(
                 CONVERSATION_CHANNEL_ID,
                 2,
                 minutesAgo = 25 * 60,
                 outgoing = true,
                 "Thank you. Do I need to visit every household on my list this week?",
             ),
-            message(
+            buildMessage(
                 CONVERSATION_CHANNEL_ID,
                 3,
                 minutesAgo = 24 * 60,
                 outgoing = false,
                 "No, aim for 8 visits a day. Start with the households marked as high priority, and record each visit before you leave the house.",
             ),
-            message(CONVERSATION_CHANNEL_ID, 4, minutesAgo = 50, outgoing = true, "Understood. I finished 6 visits today."),
-            message(
+            buildMessage(CONVERSATION_CHANNEL_ID, 4, minutesAgo = 50, outgoing = true, "Understood. I finished 6 visits today."),
+            buildMessage(
                 CONVERSATION_CHANNEL_ID,
                 5,
                 minutesAgo = 12,
@@ -195,7 +195,7 @@ object ConnectScreenshotData {
                 "Great work! Your payment for last week has been approved.",
                 viewed = false,
             ),
-            message(
+            buildMessage(
                 CONVERSATION_CHANNEL_ID,
                 6,
                 minutesAgo = 10,
@@ -203,12 +203,24 @@ object ConnectScreenshotData {
                 "Remember that the programme ends on Friday.",
                 viewed = false,
             ),
-            message("showcase-channel-support", 1, minutesAgo = 30 * 60, outgoing = true, "My photo upload keeps failing, can you help?"),
-            message("showcase-channel-malaria", 1, minutesAgo = 6 * 24 * 60, outgoing = false, "The training modules are now available."),
+            buildMessage(
+                "showcase-channel-support",
+                1,
+                minutesAgo = 30 * 60,
+                outgoing = true,
+                "My photo upload keeps failing, can you help?",
+            ),
+            buildMessage(
+                "showcase-channel-malaria",
+                1,
+                minutesAgo = 6 * 24 * 60,
+                outgoing = false,
+                "The training modules are now available.",
+            ),
         )
 
     /** The credentials response for Work History: one entry per activity level, newest first once sorted. */
-    fun workHistoryResponse(): String =
+    fun buildWorkHistoryJson(): String =
         JSONObject()
             .put(
                 "credentials",
@@ -237,7 +249,7 @@ object ConnectScreenshotData {
                 },
             ).toString()
 
-    private fun channel(
+    private fun buildChannel(
         channelId: String,
         name: String,
         consented: Boolean,
@@ -256,7 +268,7 @@ object ConnectScreenshotData {
                 key = "showcase-key"
             }
 
-    private fun message(
+    private fun buildMessage(
         channelId: String,
         index: Int,
         minutesAgo: Int,
@@ -274,7 +286,7 @@ object ConnectScreenshotData {
             userViewed = viewed
         }
 
-    private fun opportunity(
+    private fun buildOpportunity(
         id: Int,
         title: String,
         status: Int,
@@ -282,11 +294,11 @@ object ConnectScreenshotData {
         modulesDone: Int = LEARN_MODULES,
         visitsDone: Int = 0,
     ): ConnectJobRecord =
-        ConnectJobRecord.fromJson(jobJson(id, title, endInDays, modulesDone, visitsDone)).apply {
+        ConnectJobRecord.fromJson(buildJobJson(id, title, endInDays, modulesDone, visitsDone)).apply {
             this.status = status
         }
 
-    private fun jobJson(
+    private fun buildJobJson(
         id: Int,
         title: String,
         endInDays: Int,
@@ -295,20 +307,20 @@ object ConnectScreenshotData {
     ): JSONObject =
         JSONObject().apply {
             put("id", id)
-            put("opportunity_id", opportunityUuid(id))
+            put("opportunity_id", getOpportunityUuid(id))
             put("name", title)
             put("description", "Visit households in your area, record what you find and share health guidance with each family.")
             put("short_description", "Visit households and record what you find.")
             put("organization", ORGANIZATION)
-            put("start_date", isoDate(endInDays - 120))
-            put("end_date", isoDate(endInDays))
+            put("start_date", formatIsoDate(endInDays - 120))
+            put("end_date", formatIsoDate(endInDays))
             put("max_visits_per_user", MAX_VISITS)
             put("daily_max_visits_per_user", 8)
             put("budget_per_visit", BUDGET_PER_VISIT)
             put("budget_per_user", BUDGET_PER_VISIT * MAX_VISITS)
             put("currency", CURRENCY)
             put("deliver_progress", visitsDone)
-            put("payment_units", paymentUnitsJson())
+            put("payment_units", buildPaymentUnitsJson())
             put(
                 "learn_progress",
                 JSONObject().apply {
@@ -316,11 +328,11 @@ object ConnectScreenshotData {
                     put("completed_modules", modulesDone)
                 },
             )
-            put("learn_app", appJson("showcase-learn-$id", withModules = true))
-            put("deliver_app", appJson("showcase-deliver-$id", withModules = false))
+            put("learn_app", buildAppJson("showcase-learn-$id", withModules = true))
+            put("deliver_app", buildAppJson("showcase-deliver-$id", withModules = false))
         }
 
-    private fun paymentUnitsJson(): JSONArray =
+    private fun buildPaymentUnitsJson(): JSONArray =
         JSONArray().put(
             JSONObject().apply {
                 put("id", 1)
@@ -332,14 +344,14 @@ object ConnectScreenshotData {
             },
         )
 
-    private fun delivery(
+    private fun buildDeliveryJson(
         visit: Int,
         status: String,
         minutesAgo: Int,
     ): JSONObject =
         JSONObject().apply {
             put("id", visit + 1)
-            put("visit_date", isoDateTime(minutesAgo))
+            put("visit_date", formatIsoDateTime(minutesAgo))
             put("status", status)
             put("deliver_unit_name", "Household visit")
             put("deliver_unit_slug", PAYMENT_UNIT_ID)
@@ -349,7 +361,7 @@ object ConnectScreenshotData {
             put("reason", if (status == "rejected") "The photo of the growth chart is missing." else "")
         }
 
-    private fun payment(
+    private fun buildPaymentJson(
         id: String,
         visits: Int,
         daysAgo: Int,
@@ -358,15 +370,15 @@ object ConnectScreenshotData {
         JSONObject().apply {
             put("id", id)
             put("payment_id", "showcase-payment-$id")
-            put("date_paid", isoDateTime(minutesAgo = daysAgo * 24 * 60))
+            put("date_paid", formatIsoDateTime(minutesAgo = daysAgo * 24 * 60))
             put("amount", visits * BUDGET_PER_VISIT)
             put("confirmed", confirmed)
             if (confirmed) {
-                put("date_confirmed", isoDate(-daysAgo + 1))
+                put("date_confirmed", formatIsoDate(-daysAgo + 1))
             }
         }
 
-    private fun appJson(
+    private fun buildAppJson(
         appId: String,
         withModules: Boolean,
     ): JSONObject =
@@ -378,10 +390,10 @@ object ConnectScreenshotData {
             put("organization", ORGANIZATION)
             put("passing_score", 80)
             put("install_url", "https://example.org/$appId.ccz")
-            put("learn_modules", if (withModules) modulesJson() else JSONArray())
+            put("learn_modules", if (withModules) buildModulesJson() else JSONArray())
         }
 
-    private fun modulesJson(): JSONArray =
+    private fun buildModulesJson(): JSONArray =
         JSONArray().apply {
             listOf("Introduction to Connect", "Talking with Households", "Recognising Danger Signs", "Recording a Visit", "Referrals")
                 .forEachIndexed { index, name ->
@@ -397,10 +409,10 @@ object ConnectScreenshotData {
                 }
         }
 
-    private fun isoDateTime(minutesAgo: Int): String =
+    private fun formatIsoDateTime(minutesAgo: Int): String =
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
             .format(Date(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(minutesAgo.toLong())))
 
-    private fun isoDate(daysFromNow: Int): String =
+    private fun formatIsoDate(daysFromNow: Int): String =
         SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, daysFromNow) }.time)
 }

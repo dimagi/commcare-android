@@ -49,7 +49,7 @@ abstract class BaseConnectScreenshotTest(
 
         ConnectTestUtils.createConnectDbFile()
         ConnectUserDatabaseUtil.storeUser(
-            ConnectScreenshotData.user(hasConnectAccess = true).apply {
+            ConnectScreenshotData.buildUser(hasConnectAccess = true).apply {
                 updateConnectToken("showcase-connect-token", ConnectTestUtils.daysFromNow(1))
             },
         )

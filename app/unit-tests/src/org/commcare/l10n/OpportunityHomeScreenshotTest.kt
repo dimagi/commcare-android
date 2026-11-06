@@ -32,7 +32,7 @@ class OpportunityHomeScreenshotTest(
 ) : BaseConnectScreenshotTest(target) {
     @Before
     fun seedOpportunities() {
-        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), ConnectScreenshotData.opportunities(), true)
+        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), ConnectScreenshotData.buildOpportunities(), true)
         ConnectSyncPreferences.getInstance().apply {
             markSessionStart()
             storeLastSyncTime(ConnectRepository.SYNC_KEY_OPPORTUNITIES)
@@ -48,11 +48,11 @@ class OpportunityHomeScreenshotTest(
                 ?.toIntOrNull() ?: return "{}"
         return when {
             path.endsWith("/learn_progress") -> {
-                ConnectScreenshotData.learningProgressResponse(opportunityId)
+                ConnectScreenshotData.buildLearningProgressJson(opportunityId)
             }
 
             path.endsWith("/delivery_progress") && opportunityId == ConnectScreenshotData.DELIVERING_OPPORTUNITY_ID -> {
-                ConnectScreenshotData.deliveryProgressResponse()
+                ConnectScreenshotData.buildDeliveryProgressJson()
             }
 
             else -> {
@@ -117,7 +117,7 @@ class OpportunityHomeScreenshotTest(
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), ConnectActivity::class.java).apply {
                 putExtra(ConnectConstants.GO_TO_JOB_STATUS, true)
-                putExtra(ConnectConstants.OPPORTUNITY_UUID, ConnectScreenshotData.opportunityUuid(opportunityId))
+                putExtra(ConnectConstants.OPPORTUNITY_UUID, ConnectScreenshotData.getOpportunityUuid(opportunityId))
             }
         val controller =
             Robolectric
