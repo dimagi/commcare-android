@@ -2,6 +2,7 @@ package org.commcare.home
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.savedstate.SavedStateRegistryOwner
 import org.commcare.views.dialogs.CommCareAlertDialog
@@ -9,7 +10,10 @@ import org.commcare.views.dialogs.CommCareAlertDialog
 /**
  * The capabilities [HomeActivityCoordinator] and its delegates need from a home activity.
  */
-interface HomeActivityHost : SavedStateRegistryOwner {
+interface HomeActivityHost :
+    SavedStateRegistryOwner,
+    SyncHost,
+    SessionLaunchHost {
     /** The host as a [Context], for delegates that build intents and read resources. */
     val hostContext: Context
 
@@ -25,6 +29,11 @@ interface HomeActivityHost : SavedStateRegistryOwner {
     /** Show [dialog] on the host, so dialogs survive the host's own dismissal bookkeeping. */
     fun showAlertDialog(dialog: CommCareAlertDialog)
 
+    /** Show a brief confirmation, such as a PIN being set. */
+    fun displayShortToast(message: String) {
+        Toast.makeText(hostContext, message, Toast.LENGTH_SHORT).show()
+    }
+
     /**
      * Signals that the coordinator-owned home actions may have changed, so the host should re-query
      * their availability and re-render wherever it presents them. An imperative "ask me again"
@@ -33,15 +42,17 @@ interface HomeActivityHost : SavedStateRegistryOwner {
     fun refreshActionSurface()
 
     /**
-     * Optional UI-refresh hook, used by actions like `changeLanguage()`. Hosts without a
-     * `WithUIController` implement it as a no-op.
+     * Optional UI-refresh hook. Hosts without a `WithUIController` implement it as a no-op.
      */
     fun refreshHostUi()
+
+    /** The user picked a new language, so the host should rebuild whatever text it shows. */
+    fun onLocaleChanged()
 
     /**
      * Demo-mode query, consumed only by the launch pipeline's demo halt.
      * Kept separate from [areAppActionsAvailable] because the two coincide for the session-gated hosts
-     * but are independent for `OpportunityHomeActivity`, where this is always `false`.
+     * but are independent for the Connect opportunity home in `ConnectActivity`, where this is always `false`.
      */
     fun isDemoUser(): Boolean
 

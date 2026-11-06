@@ -52,6 +52,9 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 abstract class BaseHomeScreenActivityTest {
+    /** The fake syncer most recently injected by [buildStandardHomeController] or [injectFakeSyncer]. */
+    protected lateinit var fakeSyncer: FormAndDataSyncerFake
+
     @Before
     fun baseSetUp() {
         clearPrefs()
@@ -125,7 +128,10 @@ abstract class BaseHomeScreenActivityTest {
     }
 
     /** Swap in a syncer that records instead of hitting the network. */
-    private fun injectFakeSyncer(home: StandardHomeActivity) = home.setFormAndDataSyncer(FormAndDataSyncerFake())
+    protected fun injectFakeSyncer(home: StandardHomeActivity) {
+        fakeSyncer = FormAndDataSyncerFake()
+        home.setFormAndDataSyncer(fakeSyncer)
+    }
 
     protected fun shadowOf(activity: StandardHomeActivity): ShadowActivity = Shadows.shadowOf(activity)
 
@@ -160,6 +166,17 @@ abstract class BaseHomeScreenActivityTest {
         click(home, card.findViewById(R.id.card_subtext))
     }
 
+    /** The sub-text under the button labelled [label]. Requires a [buildVisibleHome]. */
+    protected fun homeButtonSubText(
+        home: StandardHomeActivity,
+        label: String,
+    ): String {
+        val card =
+            homeButtonCards(home).firstOrNull { labelOf(it) == label }
+                ?: throw AssertionError("no home button labelled '$label'; rendered: ${homeButtonLabels(home)}")
+        return card.findViewById<TextView>(R.id.card_subtext).text.toString()
+    }
+
     private fun click(
         home: StandardHomeActivity,
         view: View,
@@ -188,7 +205,7 @@ abstract class BaseHomeScreenActivityTest {
 
     /**
      * Replace the standard session installed by [baseSetUp] with a demo-user session, so
-     * `HomeScreenBaseActivity.isDemoUser()` reports true. Call before building home.
+     * `StandardHomeActivity.isDemoUser()` reports true. Call before building home.
      */
     protected fun seatDemoUser() {
         CommCareApplication.instance().closeUserSession()
