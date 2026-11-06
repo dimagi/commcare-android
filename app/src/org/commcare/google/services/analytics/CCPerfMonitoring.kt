@@ -33,6 +33,11 @@ object CCPerfMonitoring {
     const val ATTR_FILE_KEYSTORE_ENCRYPTED = "file_keystore_encrypted"
     const val ATTR_CC_APP = "cc_app"
 
+    enum class CCFileEncryptionXmlType(val value: String) {
+        LOGS("logs"),
+        FORMS("forms")
+    }
+
     fun startTracing(traceName: String): Trace? {
         try {
             val trace = FirebasePerformance.getInstance().newTrace(traceName)
@@ -67,12 +72,12 @@ object CCPerfMonitoring {
         fileSizeBytes: Long,
         fileExtension: String,
         keystoreEncrypted: Boolean,
-        isLogsFile: Boolean,
+        xmlType: CCFileEncryptionXmlType? = null,
     ) {
         try {
             val attrs: MutableMap<String, String> = HashMap()
             attrs[ATTR_FILE_SIZE_BYTES] = fileSizeBytes.toString()
-            attrs[ATTR_FILE_TYPE] = fileExtension + (if (isLogsFile) "_logs" else "")
+            attrs[ATTR_FILE_TYPE] = fileExtension + (if (xmlType != null) "_" + xmlType.value else "")
             attrs[ATTR_FILE_KEYSTORE_ENCRYPTED] = keystoreEncrypted.toString()
             stopTracing(trace, attrs)
         } catch (e: java.lang.Exception) {

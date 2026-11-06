@@ -68,7 +68,7 @@ public class EncryptionIO {
                 fileSize,
                 FilenameUtils.getExtension(sourceFilePath),
                 isKeyFromKeystore,
-                false
+                null
         );
     }
 

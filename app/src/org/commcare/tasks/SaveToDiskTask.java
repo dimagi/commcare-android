@@ -281,7 +281,7 @@ public class SaveToDiskTask extends
                     payload.getLength(),
                     XML_EXTENSION,
                     symetricKey == null,
-                    false
+                    CCPerfMonitoring.CCFileEncryptionXmlType.FORMS
             );
         }
     }

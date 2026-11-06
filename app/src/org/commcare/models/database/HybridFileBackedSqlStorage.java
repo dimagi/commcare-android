@@ -351,7 +351,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     bos.size(),
                     FilenameUtils.getExtension(filename),
                     false,
-                    false
+                    null
             );
         }
     }
