@@ -15,6 +15,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class LatestTaskExecutor<T> {
     interface Callback<T> {
         fun onResult(result: T)
+
         fun onError(exception: Exception)
     }
 
@@ -26,15 +27,16 @@ class LatestTaskExecutor<T> {
         callback: Callback<T>,
     ) {
         currentJob?.cancel()
-        currentJob = scope.launch {
-            try {
-                val result = withContext(DispatcherProvider.io()) { task.call() }
-                withContext(DispatcherProvider.main()) { callback.onResult(result) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                withContext(DispatcherProvider.main()) { callback.onError(e) }
+        currentJob =
+            scope.launch {
+                try {
+                    val result = withContext(DispatcherProvider.io()) { task.call() }
+                    withContext(DispatcherProvider.main()) { callback.onResult(result) }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    withContext(DispatcherProvider.main()) { callback.onError(e) }
+                }
             }
-        }
     }
 }
