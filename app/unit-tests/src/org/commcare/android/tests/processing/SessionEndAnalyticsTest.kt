@@ -19,6 +19,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import java.util.Date
+import java.util.concurrent.TimeUnit
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
@@ -49,6 +51,12 @@ class SessionEndAnalyticsTest {
             "/commcare-apps/archive_form_tests/saved_form_payload.xml",
             FormRecord.STATUS_SAVED,
         )
+        val formStorage = CommCareApplication.instance().getUserStorage(FormRecord::class.java)
+        formStorage.forEachIndexed { index, form ->
+            val hoursAgo = if (index == 0) 3L else 1L
+            form.setLastModified(Date(System.currentTimeMillis() - TimeUnit.HOURS.toMillis(hoursAgo)))
+            formStorage.write(form)
+        }
         val ageMinutes = slot<Long>()
 
         CommCareApplication.instance().closeUserSession()
@@ -60,7 +68,7 @@ class SessionEndAnalyticsTest {
                 capture(ageMinutes),
             )
         }
-        assertTrue("The oldest unsent form has an age", ageMinutes.captured >= 0)
+        assertTrue("The oldest unsent form is three hours old", ageMinutes.captured in 180L..181L)
     }
 
     @Test

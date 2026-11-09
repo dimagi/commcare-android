@@ -133,7 +133,7 @@ import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.utils.StorageUtils;
+import org.commcare.utils.UnsentFormsSummary;
 import org.commcare.views.widgets.CleanRawMedia;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.RequestAbandonedException;
@@ -417,18 +417,14 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             return;
         }
         try {
-            FormRecord[] unsentForms =
-                    StorageUtils.getUnsentRecordsForCurrentApp(getUserStorage(FormRecord.class));
-            long oldestModified = System.currentTimeMillis();
-            for (FormRecord form : unsentForms) {
-                Date modified = form.lastModified();
-                if (modified != null) {
-                    oldestModified = Math.min(oldestModified, modified.getTime());
-                }
-            }
-            long oldestAgeMinutes =
-                    TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - oldestModified);
-            FirebaseAnalyticsUtil.reportSessionEnd(reason, unsentForms.length, oldestAgeMinutes);
+            UnsentFormsSummary unsentForms = UnsentFormsSummary.readForApp(
+                    getUserStorage(FormRecord.class), currentApp.getAppRecord().getApplicationId());
+            long now = System.currentTimeMillis();
+            Long oldestModified = unsentForms.getOldestModifiedMillis();
+            long oldestAgeMinutes = oldestModified == null
+                    ? 0 : TimeUnit.MILLISECONDS.toMinutes(now - oldestModified);
+            FirebaseAnalyticsUtil.reportSessionEnd(
+                    reason, unsentForms.getUnsentFormCount(), oldestAgeMinutes);
         } catch (Exception e) {
             Logger.exception("Error reporting the session end to analytics", e);
         }
