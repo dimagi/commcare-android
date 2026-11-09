@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,10 +80,12 @@ public class DispatchActivity extends AppCompatActivity {
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
     public static final int PERSONAL_ID_PENDING_BACKUP_CODE = 5;
-    private static final int CONNECT_LANDING = 6;
 
-    /** Result a startup Connect landing returns when the user cancels or fails the PersonalID unlock. */
-    public static final int RESULT_PERSONAL_ID_UNLOCK_DECLINED = RESULT_FIRST_USER;
+    /**
+     * Set by a startup Connect landing that relaunches routing after the user cancels or fails the
+     * PersonalID unlock.
+     */
+    public static final String EXTRA_PERSONAL_ID_UNLOCK_DECLINED = "personal_id_unlock_declined";
 
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
@@ -116,6 +119,9 @@ public class DispatchActivity extends AppCompatActivity {
         if (finishIfNotRoot()) {
             return;
         }
+        if (savedInstanceState == null && restartAsTaskRootIfStacked()) {
+            return;
+        }
         if (savedInstanceState != null) {
             awaitingActivityResult = savedInstanceState.getBoolean(KEY_AWAITING_ACTIVITY_RESULT);
             personalIdUnlockDeclined = savedInstanceState.getBoolean(KEY_PERSONAL_ID_UNLOCK_DECLINED);
@@ -129,10 +135,35 @@ public class DispatchActivity extends AppCompatActivity {
             );
             userTriggeredLogout = savedInstanceState.getBoolean(KEY_USER_TRIGGERED_LOGOUT);
         } else {
-            userTriggeredLogout = getIntent().getBooleanExtra(
-                    LoginActivity.USER_TRIGGERED_LOGOUT,
-                    false
-            );
+            readRoutingExtras(getIntent());
+        }
+    }
+
+    /** Builds the intent that restarts routing as the only screen in the task. */
+    public static Intent buildRestartIntent(Context context) {
+        return new Intent(context, DispatchActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+    private void readRoutingExtras(Intent intent) {
+        userTriggeredLogout = intent.getBooleanExtra(LoginActivity.USER_TRIGGERED_LOGOUT, false);
+        if (intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false)) {
+            needToExecuteRecoveryMeasures = true;
+        }
+        if (intent.getBooleanExtra(EXTRA_PERSONAL_ID_UNLOCK_DECLINED, false)) {
+            handlePersonalIdUnlockDeclined();
+        }
+    }
+
+    private void handlePersonalIdUnlockDeclined() {
+        if (CommCareSessionService.sessionAliveLock.isLocked()) {
+            // A sync holds the session, and App Home needs the unlock the user just declined, so exit the app
+            shouldFinish = true;
+        } else {
+            personalIdUnlockDeclined = true;
+            if (CommCareApplication.hasLoggedInUser()) {
+                CommCareApplication.instance().closeUserSession();
+            }
         }
     }
 
@@ -160,6 +191,25 @@ public class DispatchActivity extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Restarts with the same intent as the only screen in the task when this instance was opened above other
+     * screens and no caller is waiting for its result.
+     *
+     * @return if the restart was started and this instance finished
+     */
+    private boolean restartAsTaskRootIfStacked() {
+        if (isTaskRoot() || getCallingActivity() != null) {
+            return false;
+        }
+
+        Intent restartIntent = new Intent(getIntent())
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(restartIntent);
+        finish();
+
+        return true;
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -174,11 +224,11 @@ public class DispatchActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        userTriggeredLogout = intent.getBooleanExtra(LoginActivity.USER_TRIGGERED_LOGOUT, false);
         personalIdUnlockDeclined = false;
         leftLoginWithoutSignIn = false;
         awaitingActivityResult = false;
         shortcutExtraWasConsumed = false;
+        readRoutingExtras(intent);
     }
 
     @Override
@@ -281,7 +331,9 @@ public class DispatchActivity extends AppCompatActivity {
                 } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
                     ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
-                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job);
+                    Intent opportunityHomeIntent =
+                            ConnectNavHelper.buildOpportunityHomeTaskRootIntent(this, job.getJobUUID());
+                    startAsTaskRoot(opportunityHomeIntent);
                 } else if (startFromLogin && hasActiveSession) {
                     launchHomeScreen();
                 } else {
@@ -350,10 +402,15 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void openConnectLandingScreen(@Nullable String opportunityUuid) {
-        startActivityForResult(
-                ConnectNavHelper.buildStartupLandingIntent(this, opportunityUuid),
-                CONNECT_LANDING
-        );
+        Intent connectLandingIntent = ConnectNavHelper.buildStartupLandingIntent(this, opportunityUuid);
+        startAsTaskRoot(connectLandingIntent);
+    }
+
+    /** Opens {@code intent} as the only screen in the task. */
+    private void startAsTaskRoot(Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void launchSetupScreen() {
@@ -469,7 +526,7 @@ public class DispatchActivity extends AppCompatActivity {
         );
         startFromLogin = false;
         clearSessionEndpointIntentExtras();
-        startActivityForResult(intent, HOME_SCREEN);
+        startAsTaskRoot(intent);
     }
 
     private void clearSessionEndpointIntentExtras() {
@@ -648,19 +705,6 @@ public class DispatchActivity extends AppCompatActivity {
                     leftLoginWithoutSignIn = false;
                 } else {
                     leftLoginWithoutSignIn = true;
-                }
-                return;
-            case CONNECT_LANDING:
-                if (resultCode != RESULT_PERSONAL_ID_UNLOCK_DECLINED) {
-                    shouldFinish = true;
-                } else if (CommCareSessionService.sessionAliveLock.isLocked()) {
-                    // A sync holds the session, and App Home needs the unlock the user just declined
-                    shouldFinish = true;
-                } else {
-                    personalIdUnlockDeclined = true;
-                    if (CommCareApplication.hasLoggedInUser()) {
-                        CommCareApplication.instance().closeUserSession();
-                    }
                 }
                 return;
             case HOME_SCREEN:
