@@ -79,9 +79,9 @@ All `LoginActivity` flows now route through `LoginController`; the legacy `tryLo
 ### Back navigation and logout
 
 - **Back from Home** → the opportunity's Opportunity Home page, which launched it (`ConnectActivity` stays in the stack).
-- **Back from the opportunities list after a launch** → exits the app: `ConnectActivity` carries a per-instance flag set at launch (`markAppLaunchedFromConnect`), and a back press on the opportunities-list destination calls `finishAffinity()`. Without a launch (plain browsing) back returns to whatever opened Connect.
+- **Back from Opportunity Home after a launch** → exits the app: a fresh sign-in from an Opportunity Home with screens beneath it reopens that Opportunity Home as the bottom of a new task, with Home on top. See [App Navigation](app-navigation.md#back-path).
 - **View Job Status** (`StandardHomeActivity.userPressedOpportunityStatus`) opens the opportunity's Opportunity Home page in a fresh `ConnectActivity` over the live Home; resuming from it finishes that activity, so the backstack stays stable.
-- **Logout** (`userTriggeredLogout`) uses Home's standard `setResult(RESULT_OK) + finish`: a non-Connect app returns to the login screen; a Connect-launched app reveals the opportunities list with the session closed.
+- **Logout** (`userTriggeredLogout`) finishes Home with `RESULT_OK`, or relaunches `DispatchActivity` when Home is the bottom of the task: a non-Connect app returns to the login screen; a Connect-launched app reveals Opportunity Home with the session closed.
 - **CommCare Apps in the nav drawer** → the drawer no longer lists the installed apps; the row confirms, then ends the session and starts `DispatchActivity`, which lands on `LoginActivity` and its app picker. It starts Dispatch rather than reporting the choice back by result because a Connect-launched Home has no caller to read that result and a Home reached by `FLAG_ACTIVITY_REORDER_TO_FRONT` has one that no longer sits beneath it. `ConnectActivity` is left in the stack, so backing out of the login screen still lands on the opportunities list.
 
 ## Adding a new caller
