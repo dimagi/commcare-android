@@ -132,16 +132,22 @@ class ConnectAppLaunchController(
                 override fun dismissProgress() = dismissLaunchDialog()
 
                 override fun launchHome(alreadyLoggedIn: Boolean) {
-                    (activity as ConnectActivity).markAppLaunchedFromConnect()
                     listener.onLaunchSucceeded()
 
+                    val connectActivity = activity as ConnectActivity
                     val intent = StandardHomeActivity.buildHomeLaunchIntent(activity)
                     if (alreadyLoggedIn) {
                         // Already signed in, so reuse this app's existing Home. Home is shared across
                         // apps, so an unconditional reorder could surface a different app's instance.
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        activity.startActivity(intent)
+                    } else if (connectActivity.isOpportunityHomeAtTaskBottom) {
+                        activity.startActivity(intent)
+                    } else {
+                        val jobUuid = requireNotNull(connectActivity.activeJob).jobUUID
+                        val opportunityHomeIntent = ConnectNavHelper.buildOpportunityHomeTaskRootIntent(activity, jobUuid)
+                        activity.startActivities(arrayOf(opportunityHomeIntent, intent))
                     }
-                    activity.startActivity(intent)
                 }
 
                 override fun handleFailure(failure: AppLaunchFailure) {

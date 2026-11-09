@@ -1,5 +1,6 @@
 package org.commcare.fragments.connect
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -25,7 +26,9 @@ import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ActivityAssertions
 import org.commcare.android.util.ConnectTestUtils
+import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdSessionManager
@@ -42,7 +45,9 @@ import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.connect.CircleProgressBar
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -252,6 +257,67 @@ class ConnectOpportunityListFragmentTest {
     @Test
     fun `tapping a finished opportunity that was never claimed opens the learning surface`() =
         assertRowOpensConnectOpportunityHome<ConnectLearningProgressFragment>(EXPIRED_LEARNING_UUID)
+
+    @Test
+    fun `tapping a running opportunity opens its opportunity home with nothing beneath it`() {
+        tapRow(EXPIRING_SOON_UUID)
+
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
+        assertNull(navController.previousBackStackEntry)
+        assertTrue(activity.isOpportunityHomeAtTaskBottom)
+    }
+
+    @Test
+    fun `tapping a new opportunity opens its intro on top of the list`() {
+        tapRow(NEW_UUID)
+
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_jobs_list_fragment, navController.previousBackStackEntry?.destination?.id)
+        assertFalse(activity.isOpportunityHomeAtTaskBottom)
+    }
+
+    @Test
+    fun `tapping a running opportunity above another screen reopens Connect as the only screen in the task`() {
+        Shadows.shadowOf(activity).setIsTaskRoot(false)
+
+        tapRow(EXPIRING_SOON_UUID)
+
+        val reopened = ActivityAssertions.assertStarted(activity, ConnectActivity::class.java)
+        assertTrue(reopened.getBooleanExtra(ConnectConstants.GO_TO_JOB_STATUS, false))
+        assertEquals(EXPIRING_SOON_UUID, reopened.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        val taskRootFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        assertEquals(taskRootFlags, reopened.flags and taskRootFlags)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test
+    fun `back from a running opportunity's home exits Connect`() {
+        tapRow(EXPIRING_SOON_UUID)
+
+        pressBack()
+
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test
+    fun `back from a new opportunity's intro returns to the list`() {
+        tapRow(NEW_UUID)
+
+        pressBack()
+
+        assertFalse(activity.isFinishing)
+        assertEquals(R.id.connect_jobs_list_fragment, navController.currentDestination?.id)
+    }
+
+    private fun pressBack() {
+        activity.runOnUiThread { activity.onBackPressedDispatcher.onBackPressed() }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun tapRow(uuid: String) {
+        activity.runOnUiThread { getRowForJobUuid(uuid).performClick() }
+        ShadowLooper.idleMainLooper()
+    }
 
     /** Taps [uuid]'s row, checks where it landed, then navigates back so nothing is left mounted. */
     private inline fun <reified T : Fragment> assertRowOpensConnectOpportunityHome(uuid: String) {

@@ -20,6 +20,7 @@ import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEAR
 import org.commcare.connect.ConnectConstants.DELIVERY_APP
 import org.commcare.connect.ConnectConstants.LEARN_APP
 import org.commcare.connect.ConnectConstants.NEW_APP
+import org.commcare.connect.ConnectOpportunityHomeState
 import org.commcare.connect.database.ConnectAppDatabaseUtil
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -83,7 +84,7 @@ class ConnectOpportunityListFragment :
                 // protecting against double tap
                 if (!hasLeftJobsList()) {
                     setActiveJob(model.job)
-                    navigateToConnectOpportunityHome()
+                    openConnectOpportunityHome(model.job)
                 }
             }
 
@@ -95,11 +96,18 @@ class ConnectOpportunityListFragment :
     /** Whether a previous tap has already navigated away, so a second one must be ignored. */
     private fun hasLeftJobsList(): Boolean {
         val destination = binding.root.findNavController().currentDestination
-        return destination == null || destination.id != R.id.connect_jobs_list_fragment
+        return requireActivity().isFinishing || destination == null || destination.id != R.id.connect_jobs_list_fragment
     }
 
-    /** Opens the opportunity's page, which picks the surface from the job's phase. */
-    private fun navigateToConnectOpportunityHome() {
+    /**
+     * Opens the opportunity's page, which picks the surface from the job's phase. An intro opens on top of
+     * the list; any other phase opens as the only screen in the task.
+     */
+    private fun openConnectOpportunityHome(job: ConnectJobRecord) {
+        if (!ConnectOpportunityHomeState.isIntro(job)) {
+            (requireActivity() as ConnectActivity).openOpportunityHomeAtTaskBottom()
+            return
+        }
         binding.root.findNavController().navigate(
             ConnectOpportunityListFragmentDirections
                 .actionConnectJobsListFragmentToConnectOpportunityHomeFragment(),
