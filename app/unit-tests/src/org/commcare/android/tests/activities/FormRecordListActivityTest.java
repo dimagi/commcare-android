@@ -13,15 +13,18 @@ import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.home.HomeRequestCodes;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
+import org.robolectric.android.util.concurrent.InlineExecutorService;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowListView;
 import org.robolectric.shadows.ShadowLooper;
+import org.robolectric.shadows.ShadowPausedAsyncTask;
 
 import java.util.concurrent.ExecutionException;
 
@@ -39,11 +42,18 @@ import static org.junit.Assert.assertNotNull;
 public class FormRecordListActivityTest {
     @Before
     public void setup() {
+        // Run AsyncTasks (e.g. FormLoaderTask) inline so their results are posted before we idle the looper
+        ShadowPausedAsyncTask.overrideExecutor(new InlineExecutorService());
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
         SavedFormLoader.loadFormsFromPayload("/commcare-apps/form_nav_tests/form_instances_restore.xml",
                 FormRecord.STATUS_SAVED);
+    }
+
+    @After
+    public void tearDown() {
+        ShadowPausedAsyncTask.reset();
     }
 
     /**
