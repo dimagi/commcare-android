@@ -9,10 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.app.models.UserKeyRecord
@@ -26,7 +24,6 @@ import org.commcare.models.database.user.DemoUserBuilder
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.PrefValues
 import org.commcare.utils.ConnectivityStatus
-import org.commcare.utils.coroutines.DispatcherProvider
 import org.commcare.views.notifications.NotificationMessage
 import org.commcare.views.notifications.NotificationMessageFactory
 import org.junit.After
@@ -70,9 +67,6 @@ abstract class BaseHomeScreenActivityTest {
         mockkStatic(ConnectivityStatus::class)
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
         every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
-
-        mockkObject(DispatcherProvider)
-        every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
     }
 
     @After
