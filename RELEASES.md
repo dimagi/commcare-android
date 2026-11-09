@@ -10,6 +10,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
+- Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
 
 ### QA Notes
 
@@ -22,6 +23,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Regression check on form entry: finishing a form sends it and continues; backing out of a new form returns to the menu; saving a form as incomplete and reopening it from Incomplete Forms resumes it; opening a saved form and leaving it returns to Saved Forms; and a form interrupted by session expiration reopens after logging back in.
 - Regression check on the home menu and login checks: Saved Forms, Settings, Advanced, About CommCare, Change Language and Update App each open as before; with "Give option to use PIN for login" on in Developer Options, Set My PIN asks for the password, then sets the PIN, and logging in with that PIN works; a demo user still sees the demo-mode warning after login.
 - Regression check on sync across rotation: rotate the phone while a home-screen sync is running; the sync still finishes and the home screen shows its result.
+- With an incomplete PersonalID profile, open Connect and confirm the profile prompt appears on the opportunity list; tap Remind me Later and confirm it does not reappear on the list or opportunity home until the next day (moving the device date forward works).
+- Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
+- Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
+- Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
 
 ## CommCare 2.65
 
