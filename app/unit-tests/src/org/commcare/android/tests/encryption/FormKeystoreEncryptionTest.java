@@ -6,6 +6,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.security.AndroidKeyStore;
+import org.commcare.android.util.TestAppInstaller;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.EncryptionKeyAndTransform;
@@ -121,6 +122,9 @@ public class FormKeystoreEncryptionTest {
 
     @Test
     public void testGenerateLegacyKeyOrEmpty_withKeystoreAvailable() {
+        // The legacy key is generated from the user session, so callers always run logged in
+        TestAppInstaller.installAppAndLogin(
+                "jr://resource/commcare-apps/form_nav_tests/profile.ccpr", "test", "123");
         byte[] key = CommCareKeyManager.generateLegacyKeyOrEmpty();
         if (AndroidKeyStore.isKeystoreAvailable()) {
             Assert.assertEquals("Key should be empty when Keystore is available",
