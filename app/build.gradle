@@ -518,7 +518,7 @@ android {
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
             maxHeapSize = "2g"
-            maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+            maxParallelForks = Runtime.runtime.availableProcessors()
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
 
