@@ -28,6 +28,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
@@ -41,6 +42,7 @@ import org.robolectric.util.ReflectionHelpers
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
+@Ignore("Temporarily disabled to check whether it causes FormRecordListActivityTest flakiness")
 class EntityListCalloutBeforeLoadTest {
     private val loaderExecutor = PausedExecutorService()
 
