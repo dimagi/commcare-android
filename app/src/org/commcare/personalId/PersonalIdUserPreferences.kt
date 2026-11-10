@@ -17,6 +17,10 @@ object PersonalIdUserPreferences {
     private const val BACKUP_CODE_LOCKOUT_DURATION_MS = 24 * 60 * 60 * 1000L
     private const val KEY_BACKUP_CODE_REMINDER_NEXT_DUE = "backup_code_reminder_next_due"
     private const val KEY_BACKUP_CODE_REMINDER_COUNT = "backup_code_reminder_stage"
+    private const val KEY_DEMOGRAPHIC_PROMPT_COUNT = "demographic_prompt_count"
+    private const val KEY_DEMOGRAPHIC_PROMPT_NEXT_SHOW_AT = "demographic_prompt_next_show_at"
+    private const val KEY_LAST_ACCESSED_OPPORTUNITY_UUID = "last_accessed_opportunity_uuid"
+    private const val KEY_SEEN_ENDED_OPPORTUNITIES = "seen_ended_opportunities"
 
     private fun prefs(): SharedPreferences = CommCareApplication.instance().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
@@ -116,6 +120,51 @@ object PersonalIdUserPreferences {
     fun setBackupCodeReminderCount(stage: Int) {
         prefs().edit { putInt(KEY_BACKUP_CODE_REMINDER_COUNT, stage) }
     }
+
+    fun getDemographicPromptCount(): Int = prefs().getInt(KEY_DEMOGRAPHIC_PROMPT_COUNT, 0)
+
+    fun setDemographicPromptCount(count: Int) {
+        prefs().edit { putInt(KEY_DEMOGRAPHIC_PROMPT_COUNT, count) }
+    }
+
+    fun getDemographicPromptNextShowAt(): Long = prefs().getLong(KEY_DEMOGRAPHIC_PROMPT_NEXT_SHOW_AT, -1L)
+
+    fun setDemographicPromptNextShowAt(value: Long) {
+        prefs().edit { putLong(KEY_DEMOGRAPHIC_PROMPT_NEXT_SHOW_AT, value) }
+    }
+
+    /** The opportunity the user last opened past its intro; null when none has been. */
+    @JvmStatic
+    fun getLastAccessedOpportunityUuid(): String? = prefs().getString(KEY_LAST_ACCESSED_OPPORTUNITY_UUID, null)
+
+    @JvmStatic
+    fun setLastAccessedOpportunityUuid(value: String) {
+        prefs().edit { putString(KEY_LAST_ACCESSED_OPPORTUNITY_UUID, value) }
+    }
+
+    /** Whether the user has already been shown this opportunity after it ended. */
+    @JvmStatic
+    fun wasEndedOpportunitySeen(opportunityUuid: String): Boolean = getSeenEndedOpportunities().contains(opportunityUuid)
+
+    @JvmStatic
+    fun markEndedOpportunitySeen(opportunityUuid: String) {
+        val seenEndedOpportunities = getSeenEndedOpportunities()
+        if (seenEndedOpportunities.contains(opportunityUuid)) {
+            return
+        }
+        prefs().edit { putStringSet(KEY_SEEN_ENDED_OPPORTUNITIES, seenEndedOpportunities + opportunityUuid) }
+    }
+
+    @JvmStatic
+    fun clearEndedOpportunitySeen(opportunityUuid: String) {
+        val seenEndedOpportunities = getSeenEndedOpportunities()
+        if (!seenEndedOpportunities.contains(opportunityUuid)) {
+            return
+        }
+        prefs().edit { putStringSet(KEY_SEEN_ENDED_OPPORTUNITIES, seenEndedOpportunities - opportunityUuid) }
+    }
+
+    private fun getSeenEndedOpportunities(): Set<String> = prefs().getStringSet(KEY_SEEN_ENDED_OPPORTUNITIES, null).orEmpty()
 
     /** Remove every PersonalID preference. Called on PersonalId logout. */
     @JvmStatic

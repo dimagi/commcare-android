@@ -17,6 +17,7 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.android.util.runTeardownSteps
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
@@ -71,11 +72,13 @@ class PersonalIdProfileActivityTest {
 
     @After
     fun tearDown() {
-        activityController.pause().stop().destroy()
-        firebaseAnalyticsUtilMock.close()
-        mockApiServer.shutdown()
-        ConnectDatabaseHelper.teardown()
-        CommCareApplication.instance().getDatabasePath(ConnectDatabaseSchemaManager.DB_NAME).delete()
+        runTeardownSteps(
+            { activityController.pause().stop().destroy() },
+            { firebaseAnalyticsUtilMock.close() },
+            { mockApiServer.shutdown() },
+            { ConnectDatabaseHelper.teardown() },
+            { CommCareApplication.instance().getDatabasePath(ConnectDatabaseSchemaManager.DB_NAME).delete() },
+        )
     }
 
     /**

@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectDialogCoordinator;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
@@ -35,7 +36,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.personalId.PersonalIdBackupCodeReminderHelper;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -113,7 +113,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     protected void onResume() {
         super.onResume();
-        PersonalIdBackupCodeReminderHelper.checkAndShowReminder(this);
+        ConnectDialogCoordinator.showDueDialog(this);
     }
 
     @Override
@@ -161,12 +161,21 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         }
 
         redirectionAction = ConnectJobUtils.resolveGenericOpportunityDestination(
-                redirectionAction, job, getIntent().getStringExtra(PAYMENT_UUID));
-
+                redirectionAction,
+                job,
+                getIntent().getStringExtra(PAYMENT_UUID)
+        );
 
         startArgs.putString(REDIRECT_ACTION, redirectionAction);
-        startArgs.putBoolean(ConnectConstants.FROM_SMS_INVITE_LINK,
-                getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false));
+        startArgs.putBoolean(
+                ConnectConstants.FROM_SMS_INVITE_LINK,
+                getIntent().getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false)
+        );
+        startArgs.putBoolean(
+                ConnectConstants.FROM_STARTUP_ROUTING,
+                getIntent().getBooleanExtra(ConnectConstants.FROM_STARTUP_ROUTING, false)
+        );
+
         if (!TextUtils.isEmpty(opportunityUuid)) {
             startArgs.putString(OPPORTUNITY_UUID, opportunityUuid);
         }
