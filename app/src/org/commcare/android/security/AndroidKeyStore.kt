@@ -30,7 +30,7 @@ object AndroidKeyStore {
     fun isKeystoreAvailable(): Boolean =
         try {
             instance
-            true
+            false
         } catch (e: Exception) {
             Logger.exception("Android keystore is not supported on this device", e)
             false
