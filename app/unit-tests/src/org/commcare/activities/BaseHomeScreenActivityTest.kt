@@ -11,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import kotlinx.coroutines.Dispatchers
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.app.models.UserKeyRecord
@@ -23,6 +24,7 @@ import org.commcare.dalvik.R
 import org.commcare.models.database.user.DemoUserBuilder
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.PrefValues
+import org.commcare.tasks.LatestTaskExecutor
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.notifications.NotificationMessage
 import org.commcare.views.notifications.NotificationMessageFactory
@@ -67,10 +69,15 @@ abstract class BaseHomeScreenActivityTest {
         mockkStatic(ConnectivityStatus::class)
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
         every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
+
+        // The sync button's sub-text and the incomplete-forms count are filled in by background
+        // queries; run them inline so idling the main looper leaves the buttons fully rendered.
+        LatestTaskExecutor.ioDispatcher = Dispatchers.Unconfined
     }
 
     @After
     fun baseTearDown() {
+        LatestTaskExecutor.ioDispatcher = Dispatchers.IO
         unmockkAll()
         // PersonalIdSessionManager is a process-wide singleton holding its own login status, so a test that
         // signs in would otherwise leave the next one logged in.

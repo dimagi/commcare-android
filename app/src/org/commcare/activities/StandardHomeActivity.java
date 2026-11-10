@@ -289,6 +289,12 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        uiController.clearSyncButtonMessage();
+    }
+
+    @Override
     public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
         if (coordinator.getLaunchState().getPendingEndpointNavigationAfterSync() && processSessionEndpoint()) {
             coordinator.getSessionNavigation().startNextSessionStep();
