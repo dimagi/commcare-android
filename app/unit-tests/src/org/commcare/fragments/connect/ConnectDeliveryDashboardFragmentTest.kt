@@ -31,6 +31,7 @@ import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectJobTestData
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdSessionManager
@@ -410,6 +411,9 @@ class ConnectDeliveryDashboardFragmentTest {
             )
         val taskCard = dashboard.requireView().findViewById<View>(R.id.delivery_task_card)
 
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+
         assertTrue("The pending task is shown", taskCard.isVisible)
         activity.runOnUiThread { taskCard.performClick() }
         ShadowLooper.idleMainLooper()
@@ -417,6 +421,7 @@ class ConnectDeliveryDashboardFragmentTest {
         verify(exactly = 1) {
             FirebaseAnalyticsUtil.reportHomeButtonClick(AnalyticsParamValue.CONNECT_TASK_CARD)
         }
+        verify(exactly = 1) { ConnectAppUtils.downloadApp(any(), any()) }
     }
 
     @Test

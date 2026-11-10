@@ -103,6 +103,7 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
@@ -413,7 +414,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
     }
 
     private void reportSessionEnd(String reason) {
-        if (currentApp == null || !isSessionActive()) {
+        if (currentApp == null || !isSessionActive() || !MainConfigurablePreferences.isAnalyticsEnabled()) {
             return;
         }
         try {

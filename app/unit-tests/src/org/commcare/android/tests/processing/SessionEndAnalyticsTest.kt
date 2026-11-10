@@ -2,6 +2,7 @@ package org.commcare.android.tests.processing
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
+import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
@@ -13,6 +14,8 @@ import org.commcare.android.util.SavedFormLoader
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.preferences.MainConfigurablePreferences
+import org.commcare.utils.UnsentFormsSummary
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -86,5 +89,17 @@ class SessionEndAnalyticsTest {
         CommCareApplication.instance().closeUserSession()
 
         verify(exactly = 1) { FirebaseAnalyticsUtil.reportSessionEnd(any(), any(), any()) }
+    }
+
+    @Test
+    fun `with analytics turned off, logging out neither reads the forms nor reports`() {
+        mockkStatic(MainConfigurablePreferences::class)
+        every { MainConfigurablePreferences.isAnalyticsEnabled() } returns false
+        mockkObject(UnsentFormsSummary)
+
+        CommCareApplication.instance().closeUserSession()
+
+        verify(exactly = 0) { UnsentFormsSummary.readForApp(any(), any()) }
+        verify(exactly = 0) { FirebaseAnalyticsUtil.reportSessionEnd(any(), any(), any()) }
     }
 }
