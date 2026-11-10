@@ -139,6 +139,7 @@ class ConnectOpportunityListFragmentTest {
 
     @After
     fun tearDown() {
+        ConnectRequestManager.cancelAll()
         ConnectDatabaseHelper.teardown()
         PersonalIdSessionManager.getInstance().status = savedStatus
         mockApi.shutdown()
@@ -244,7 +245,8 @@ class ConnectOpportunityListFragmentTest {
      * phase, so the list no longer decides between the intro, learn progress and delivery home.
      */
     @Test
-    fun `tapping a new opportunity opens opportunity home`() = assertRowOpensConnectOpportunityHome<ConnectJobIntroFragment>(NEW_UUID)
+    fun `tapping a new opportunity opens opportunity home`() =
+        assertRowOpensConnectOpportunityHome<ConnectJobIntroFragment>(NEW_UUID, fetchesProgress = false)
 
     @Test
     fun `tapping a learning opportunity opens opportunity home`() =
@@ -260,7 +262,7 @@ class ConnectOpportunityListFragmentTest {
 
     @Test
     fun `tapping a running opportunity opens its opportunity home with nothing beneath it`() {
-        tapRow(EXPIRING_SOON_UUID)
+        tapRunningRow(EXPIRING_SOON_UUID)
 
         assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertNull(navController.previousBackStackEntry)
@@ -292,7 +294,7 @@ class ConnectOpportunityListFragmentTest {
 
     @Test
     fun `back from a running opportunity's home exits Connect`() {
-        tapRow(EXPIRING_SOON_UUID)
+        tapRunningRow(EXPIRING_SOON_UUID)
 
         pressBack()
 
@@ -319,10 +321,22 @@ class ConnectOpportunityListFragmentTest {
         ShadowLooper.idleMainLooper()
     }
 
+    /** Taps a running opportunity's row and waits for the progress request its Opportunity Home sends. */
+    private fun tapRunningRow(uuid: String) {
+        tapRow(uuid)
+        mockApi.awaitRequest()
+    }
+
     /** Taps [uuid]'s row, checks where it landed, then navigates back so nothing is left mounted. */
-    private inline fun <reified T : Fragment> assertRowOpensConnectOpportunityHome(uuid: String) {
+    private inline fun <reified T : Fragment> assertRowOpensConnectOpportunityHome(
+        uuid: String,
+        fetchesProgress: Boolean = true,
+    ) {
         activity.runOnUiThread { getRowForJobUuid(uuid).performClick() }
         ShadowLooper.idleMainLooper()
+        if (fetchesProgress) {
+            mockApi.awaitRequest()
+        }
 
         assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(uuid, activity.activeJob?.jobUUID)
