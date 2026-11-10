@@ -345,10 +345,13 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     /**
      * Delivers {@code result} to the screen beneath, or to a relaunched DispatchActivity when Home is the bottom
-     * of the task, then finishes.
+     * of the task or when it requests recovery measures and no caller is waiting for it, then finishes.
      */
     private void deliverResultAndFinish(Intent result) {
-        if (isTaskRoot()) {
+        boolean recoveryRequestUnheard = getCallingActivity() == null
+                && result.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false);
+
+        if (isTaskRoot() || recoveryRequestUnheard) {
             startActivity(DispatchActivity.buildRestartIntent(this)
                     .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
                     .putExtras(result));

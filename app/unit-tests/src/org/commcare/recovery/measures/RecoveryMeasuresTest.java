@@ -166,6 +166,23 @@ public class RecoveryMeasuresTest {
         assertTrue(intentActivityName.contentEquals(ExecuteRecoveryMeasuresActivity.class.getName()));
     }
 
+    @Test
+    public void homeAboveAnotherScreen_ShouldRestartDispatch_WhenRecoveryMeasuresArePending() {
+        requestRecoveryMeasures(REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION);
+        Intent homeIntent = StandardHomeActivity.buildHomeLaunchIntent(CommCareApplication.instance());
+        ActivityController<StandardHomeActivity> homeController =
+                Robolectric.buildActivity(StandardHomeActivity.class, homeIntent);
+        Shadows.shadowOf(homeController.get()).setIsTaskRoot(false);
+
+        StandardHomeActivity homeActivity = homeController.create().start().resume().get();
+
+        assertTrue(homeActivity.isFinishing());
+        Intent restartedDispatchIntent = Shadows.shadowOf(homeActivity).getNextStartedActivity();
+        assertTrue(restartedDispatchIntent.getComponent().getClassName()
+                .contentEquals(DispatchActivity.class.getName()));
+        assertTrue(restartedDispatchIntent.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false));
+    }
+
 
     @Test
     public void ccReinstallMeasure_ShouldlaunchCCReinstallPrompt() {

@@ -17,7 +17,7 @@ An ended opportunity reopens on the next launch only; later launches land on the
 Homes (CommCare App Home and Opportunity Home) sit at the bottom of the task, so back exits the app from them; every other screen backs out to the one that opened it.
 
 - **Landing.** `DispatchActivity` opens App Home and Connect landings with `NEW_TASK | CLEAR_TASK` and finishes. CommCare Login and Setup still open on top of it, since signing in hands back to it to open App Home. An Opportunity Home landing still on its intro gets the Opportunity List beneath it.
-- **Returning to routing.** App Home at the bottom of the task, a declined startup unlock, and session expiry relaunch `DispatchActivity` in a cleared task instead of returning a result to it. So does an external launch above other screens, after the user saves or discards any form in progress.
+- **Returning to routing.** App Home at the bottom of the task or asking for recovery measures with no caller waiting, a declined startup unlock, and session expiry relaunch `DispatchActivity` in a cleared task instead of returning a result to it. So does an external launch above other screens, after the user saves or discards any form in progress.
 - **Opportunity Home from the list** becomes the bottom of the task, unless it shows an intro, which opens on top of the list.
 - **Signing into an app** from an Opportunity Home with screens beneath it reopens that Opportunity Home in a new task, with App Home on top.
 
