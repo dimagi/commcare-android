@@ -2,6 +2,7 @@ package org.commcare.androidTests
 
 import android.app.Instrumentation
 import android.content.Intent
+import android.widget.CheckedTextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
@@ -11,9 +12,9 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isChecked
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -23,7 +24,6 @@ import org.commcare.dalvik.R
 import org.commcare.utils.CustomMatchers
 import org.commcare.utils.InstrumentationUtility
 import org.hamcrest.Matchers.allOf
-import org.hamcrest.Matchers.endsWith
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -147,7 +147,7 @@ class AppPreferenceSettingsTest : BaseTest() {
 
     private fun matchSelectedPreference(value: String) {
         onView(allOf(
-            withClassName(endsWith("AppCompatCheckedTextView")),
+            isAssignableFrom(CheckedTextView::class.java),
             withText(value)
         )).check(matches(isChecked()))
     }
