@@ -22,7 +22,7 @@ class OpportunityListScreenshotTest(
 ) : BaseConnectScreenshotTest(target) {
     @Before
     fun seedOpportunities() {
-        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), ConnectScreenshotData.opportunities(), true)
+        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), ConnectScreenshotData.buildOpportunities(), true)
         ConnectSyncPreferences.getInstance().apply {
             markSessionStart()
             storeLastSyncTime(ConnectRepository.SYNC_KEY_OPPORTUNITIES)

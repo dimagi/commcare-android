@@ -1,9 +1,9 @@
 package org.commcare.home
 
-import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import org.commcare.CommCareApplication
 import org.commcare.activities.FormAndDataSyncer
+import org.commcare.activities.UpdateActivity
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.preferences.HiddenPreferences
@@ -34,7 +34,7 @@ class SyncDelegate(
     private var userLaunchedSync = false
 
     /** The activity this delegate's tasks connect to. */
-    val connector get() = host.syncConnector
+    val syncTaskActivity get() = host.syncTaskActivity
 
     /** Send unsent forms; a sync follows once they are sent, or straight away when there are none. */
     fun sendFormsOrSync(userTriggered: Boolean) {
@@ -49,13 +49,36 @@ class SyncDelegate(
         formAndDataSyncer.startUnsentFormsTask(this, syncAfterwards, userTriggered)
     }
 
+    /** Launch step: run the sync an app update left pending, or that a blocked update waits on. */
+    fun runPostUpdateSyncIfNeeded(): Boolean {
+        if (!CommCareApplication.instance().isPostUpdateSyncNeeded && !UpdateActivity.isUpdateBlockedOnSync()) {
+            return false
+        }
+        HiddenPreferences.setPostUpdateSyncNeeded(false)
+        sendFormsOrSync(false)
+        return true
+    }
+
+    /** Launch step: run the sync FCM asked for while the user was logged out. */
+    fun runPendingSyncRequestIfNeeded(): Boolean {
+        val username =
+            CommCareApplication
+                .instance()
+                .session.loggedInUser.username
+        if (!HiddenPreferences.isPendingSyncRequest(username)) {
+            return false
+        }
+        sendFormsOrSync(false)
+        return true
+    }
+
     /** Pull data for the logged-in user without sending forms first. */
     fun syncDataForLoggedInUser(userTriggered: Boolean) {
         formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggered)
     }
 
     fun performCustomRestoreFromFile(restoreFile: File) {
-        formAndDataSyncer.performCustomRestoreFromFile(connector, restoreFile)
+        formAndDataSyncer.performCustomRestoreFromFile(syncTaskActivity, restoreFile)
     }
 
     @VisibleForTesting
@@ -76,7 +99,7 @@ class SyncDelegate(
     }
 
     override fun handlePullTaskUpdate(vararg update: Int?) {
-        val activity = connector
+        val activity = syncTaskActivity
         when (update[0]) {
             DataPullTask.PROGRESS_STARTED -> {
                 activity.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID)
@@ -137,7 +160,7 @@ class SyncDelegate(
     }
 
     fun handleSyncNotAttempted(message: String) {
-        Toast.makeText(connector, message, Toast.LENGTH_LONG).show()
+        host.displayToast(message)
     }
 
     fun handleFormUploadResult(
@@ -315,7 +338,7 @@ class SyncDelegate(
         dialog.setPositiveButton(Localization.get("rate.limit.error.dialog.close")) { shown, _ ->
             shown.dismiss()
         }
-        connector.showAlertDialog(dialog)
+        syncTaskActivity.showAlertDialog(dialog)
     }
 
     private fun syncProgressMessage(update: Array<out Int?>): String {

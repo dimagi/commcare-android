@@ -334,7 +334,6 @@ License.
     <string name="connect_verify_phone_resend">Vous n\'avez pas reçu votre code? Renvoyer</string>
     <string name="connect_verify_phone_change">Changer de numéro</string>
     <string name="connect_verify_phone_verify">Vérifier le code</string>
-    <string name="connect_title">Connecter</string>
     <string name="connect_no_jobs">Vous n\'avez encore été invité à aucune opportunité. Une fois que vous êtes invité à une opportunité, elle apparaîtra dans cette liste.</string>
     <string name="connect_learn_complete_by">Projet terminé par %s</string>
     <string name="connect_job_ended">Tâche terminée le %s</string>
@@ -409,6 +408,14 @@ License.
     <string name="personalid_user_photo_update_success">Votre photo de profil a été mise à jour avec succès.</string>
     <string name="personalid_manage_profile"><u>Gérer le profil</u></string>
     <string name="personalid_profile_title">Profil</string>
+    <string name="personalid_demographic_banner_title">Complétez votre profil</string>
+    <string name="personalid_demographic_banner_message">La mise à jour de vos données nous aide à personnaliser votre expérience et à vous proposer de meilleures opportunités de travail</string>
+    <string name="personalid_demographic_banner_warning">Les tâches de livraison pourraient être interrompues demain si les informations de votre profil ne sont pas mises à jour.</string>
+    <string name="personalid_demographic_banner_final">Veuillez mettre à jour votre profil en cliquant sur le bouton Compléter le profil, ou en accédant à votre profil depuis le menu, pour continuer à travailler sans interruption.</string>
+    <string name="personalid_demographic_banner_remind_later">Me le rappeler plus tard</string>
+    <string name="personalid_demographic_banner_dismiss">Ignorer</string>
+    <string name="personalid_demographic_banner_complete">Compléter le profil</string>
+    <string name="personalid_demographic_banner_snoozed">Nous vous rappellerons de mettre à jour votre profil demain</string>
     <string name="personalid_profile_edit_title">Modifier le profil</string>
     <string name="personalid_profile_section_personal_information">Informations personnelles</string>
     <string name="personalid_profile_field_name">Nom</string>

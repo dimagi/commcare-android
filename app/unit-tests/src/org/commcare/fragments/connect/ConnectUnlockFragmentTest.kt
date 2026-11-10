@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.view.View
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -14,12 +15,15 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
+import org.commcare.activities.DispatchActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ActivityAssertions
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
@@ -33,6 +37,7 @@ import org.commcare.personalId.PersonalIdUnlocker
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,6 +52,7 @@ class ConnectUnlockFragmentTest {
     private val uuid = "opp-uuid-1234"
     private val app = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
     private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
+    private val repository = mockk<ConnectRepository>(relaxed = true)
 
     @Before
     fun setUp() {
@@ -81,7 +87,6 @@ class ConnectUnlockFragmentTest {
             thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
 
-        val repository = mockk<ConnectRepository>(relaxed = true)
         every { repository.retrieveOpportunitiesForJava(any()) } answers {
             firstArg<ConnectActivityCompleteListener>().connectActivityComplete(true, null)
         }
@@ -135,6 +140,103 @@ class ConnectUnlockFragmentTest {
         assertEquals(R.id.connect_jobs_list_fragment, navController.currentDestination?.id)
         assertNull(navController.previousBackStackEntry)
     }
+
+    @Test
+    fun `a startup launch opens the opportunity's home without refreshing opportunities`() {
+        val activity = launchFromStartupRouting(uuid)
+
+        val navController = navControllerOf(activity)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
+        assertNull(navController.previousBackStackEntry)
+        verify(exactly = 0) { repository.retrieveOpportunitiesForJava(any()) }
+    }
+
+    @Test
+    fun `a startup launch without an opportunity opens the opportunities list`() {
+        val activity = launchFromStartupRouting(null)
+
+        assertEquals(R.id.connect_jobs_list_fragment, navControllerOf(activity).currentDestination?.id)
+    }
+
+    @Test
+    fun `a declined unlock on a startup launch hands back to DispatchActivity`() {
+        declineUnlock()
+
+        val activity = launchFromStartupRouting(uuid)
+
+        assertEquals(DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED, shadowOf(activity).resultCode)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test
+    fun `a declined unlock on any other launch just closes Connect`() {
+        declineUnlock()
+        val intent =
+            Intent(app, ConnectActivity::class.java).apply {
+                putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_DEST_PAYMENTS)
+                putExtra(ConnectConstants.OPPORTUNITY_UUID, uuid)
+            }
+
+        val activity = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        ActivityAssertions.assertStartedNothing(activity)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test
+    fun `a startup unlock shows the Connect logo behind the prompt`() {
+        holdUnlockPrompt()
+
+        val activity = launchFromStartupRouting(uuid)
+
+        assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.startup_logo).visibility)
+    }
+
+    @Test
+    fun `any other unlock hides the Connect logo`() {
+        holdUnlockPrompt()
+        val intent =
+            Intent(app, ConnectActivity::class.java).apply {
+                putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_DEST_PAYMENTS)
+                putExtra(ConnectConstants.OPPORTUNITY_UUID, uuid)
+            }
+
+        val activity = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(View.GONE, activity.findViewById<View>(R.id.startup_logo).visibility)
+    }
+
+    private fun holdUnlockPrompt() {
+        every { PersonalIdUnlocker.unlock(any(), any(), any()) } returns Unit
+    }
+
+    private fun declineUnlock() {
+        every { PersonalIdUnlocker.unlock(any(), any(), any()) } answers {
+            thirdArg<ConnectActivityCompleteListener>().connectActivityComplete(false, null)
+        }
+    }
+
+    private fun launchFromStartupRouting(opportunityUuid: String?): ConnectActivity {
+        val intent =
+            Intent(app, ConnectActivity::class.java).apply {
+                putExtra(ConnectConstants.FROM_STARTUP_ROUTING, true)
+                if (opportunityUuid != null) {
+                    putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_GENERIC_OPPORTUNITY)
+                    putExtra(ConnectConstants.OPPORTUNITY_UUID, opportunityUuid)
+                } else {
+                    putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_DEST_OPPORTUNITY_LIST)
+                }
+            }
+        val activity = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
+        shadowOf(Looper.getMainLooper()).idle()
+        return activity
+    }
+
+    private fun navControllerOf(activity: ConnectActivity): NavController =
+        (activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment)
+            .navController
 
     private fun assertUnlockOpensConnectOpportunityHome(
         redirectAction: String,

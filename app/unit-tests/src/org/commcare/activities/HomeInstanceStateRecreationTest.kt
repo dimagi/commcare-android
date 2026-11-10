@@ -10,7 +10,7 @@ import org.robolectric.shadows.ShadowLooper
 
 /**
  * The three launch/nav keys now live on `HomeActivityCoordinator` and persist through the host's
- * `SavedStateRegistry` instead of `HomeScreenBaseActivity.onSaveInstanceState`. These tests prove
+ * `SavedStateRegistry` instead of `onSaveInstanceState`. These tests prove
  * they still survive `recreate()`.
  */
 class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {

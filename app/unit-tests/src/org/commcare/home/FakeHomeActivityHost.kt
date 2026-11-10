@@ -10,8 +10,10 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.test.core.app.ApplicationProvider
 import org.commcare.activities.CommCareActivity
+import org.commcare.android.database.user.models.FormRecord
 import org.commcare.tasks.DataPullTask.PullTaskResult
 import org.commcare.views.dialogs.CommCareAlertDialog
+import org.javarosa.xpath.XPathException
 import org.robolectric.Robolectric
 
 /**
@@ -30,9 +32,17 @@ class FakeHomeActivityHost : HomeActivityHost {
     var actionsAvailable: Boolean = true
     var refreshActionSurfaceCount: Int = 0
     var refreshHostUiCount: Int = 0
+    var localeChangedCount: Int = 0
     var sessionLostCount: Int = 0
     val startedForResult = mutableListOf<Pair<Intent, Int>>()
     val shownDialogs = mutableListOf<CommCareAlertDialog>()
+    val shownShortToasts = mutableListOf<String>()
+    var sessionStepCount: Int = 0
+    var safeSessionStepCount: Int = 0
+    var formEntryLaunchingCount: Int = 0
+    val shownFormArchives = mutableListOf<Pair<Boolean, FormRecord?>>()
+    val finishedWithResults = mutableListOf<Int>()
+    val shownXPathErrors = mutableListOf<XPathException>()
 
     /** How many observers are registered on this host's lifecycle. */
     val observerCount: Int get() = lifecycleRegistry.observerCount
@@ -46,7 +56,7 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     override val hostActivity: AppCompatActivity get() = activityController.get()
 
-    override val syncConnector: CommCareActivity<*>
+    override val syncTaskActivity: CommCareActivity<*>
         get() = throw UnsupportedOperationException("coordinator tests don't run sync tasks")
 
     override fun updateUiAfterDataPullOrSend(
@@ -55,6 +65,37 @@ class FakeHomeActivityHost : HomeActivityHost {
     ) = Unit
 
     override fun onPullTaskFinished(result: PullTaskResult) = Unit
+
+    override var launchIntent: Intent? = Intent()
+
+    override val formEntryTitle: String = "Fake home"
+
+    override fun startNextSessionStep() {
+        sessionStepCount++
+    }
+
+    override fun startNextSessionStepSafe() {
+        safeSessionStepCount++
+    }
+
+    override fun showFormArchive(
+        incomplete: Boolean,
+        record: FormRecord?,
+    ) {
+        shownFormArchives += incomplete to record
+    }
+
+    override fun finishWithResult(resultCode: Int) {
+        finishedWithResults += resultCode
+    }
+
+    override fun showXPathErrorAndExit(exception: XPathException) {
+        shownXPathErrors += exception
+    }
+
+    override fun onFormEntryLaunching() {
+        formEntryLaunchingCount++
+    }
 
     override fun startActivityForResult(
         intent: Intent,
@@ -67,12 +108,20 @@ class FakeHomeActivityHost : HomeActivityHost {
         shownDialogs += dialog
     }
 
+    override fun displayShortToast(message: String) {
+        shownShortToasts += message
+    }
+
     override fun refreshActionSurface() {
         refreshActionSurfaceCount++
     }
 
     override fun refreshHostUi() {
         refreshHostUiCount++
+    }
+
+    override fun onLocaleChanged() {
+        localeChangedCount++
     }
 
     override fun isDemoUser(): Boolean = demoUser

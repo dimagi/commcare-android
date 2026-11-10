@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_dialog_bg"
+    android:padding="@dimen/connect_space_lg"
+    tools:theme="@style/ConnectTheme">
+
+    <org.commcare.views.connect.CircleProgressBar
+        android:id="@+id/demographic_prompt_progress"
+        android:layout_width="@dimen/connect_job_badge_ring_size"
+        android:layout_height="@dimen/connect_job_badge_ring_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:progressBackgroundColor="?attr/connectOutlineVariant"
+        app:progressColor="?attr/colorPrimary"
+        app:strokeWidth="@dimen/connect_job_badge_ring_stroke" />
+
+    <ImageView
+        android:layout_width="@dimen/connect_job_badge_icon_in_ring"
+        android:layout_height="@dimen/connect_job_badge_icon_in_ring"
+        android:background="@drawable/bg_connect_circle"
+        android:backgroundTint="?attr/colorPrimary"
+        android:contentDescription="@null"
+        android:padding="@dimen/connect_space_xs"
+        android:src="@drawable/ic_outline_person_24"
+        app:layout_constraintBottom_toBottomOf="@id/demographic_prompt_progress"
+        app:layout_constraintEnd_toEndOf="@id/demographic_prompt_progress"
+        app:layout_constraintStart_toStartOf="@id/demographic_prompt_progress"
+        app:layout_constraintTop_toTopOf="@id/demographic_prompt_progress"
+        app:tint="?attr/colorOnPrimary" />
+
+    <TextView
+        android:id="@+id/demographic_prompt_title"
+        style="@style/TextStyle.Connect.TitleS"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/connect_space_md"
+        android:text="@string/personalid_demographic_banner_title"
+        android:textColor="?attr/connectOnSurfaceStrong"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/demographic_prompt_progress"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/demographic_prompt_message"
+        style="@style/TextStyle.Connect.BodyS"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_xs"
+        android:text="@string/personalid_demographic_banner_message"
+        android:textColor="?attr/connectOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/demographic_prompt_title"
+        app:layout_constraintTop_toBottomOf="@id/demographic_prompt_title" />
+
+    <TextView
+        android:id="@+id/demographic_prompt_warning"
+        style="@style/Widget.Connect.WarningText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_sm"
+        android:text="@string/personalid_demographic_banner_warning"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/demographic_prompt_title"
+        app:layout_constraintTop_toBottomOf="@id/demographic_prompt_message"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/demographic_prompt_final"
+        style="@style/Widget.Connect.ErrorText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_sm"
+        android:text="@string/personalid_demographic_banner_final"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/demographic_prompt_title"
+        app:layout_constraintTop_toBottomOf="@id/demographic_prompt_warning" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_md"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/demographic_prompt_title"
+        app:layout_constraintTop_toBottomOf="@id/demographic_prompt_final">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/demographic_prompt_decline"
+            style="@style/Widget.Connect.CtaBarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="@dimen/connect_space_md"
+            android:paddingTop="@dimen/connect_space_sm"
+            android:paddingBottom="@dimen/connect_space_sm"
+            android:text="@string/personalid_demographic_banner_remind_later"
+            android:textColor="?attr/connectOnPrimaryContainer"
+            app:backgroundTint="?attr/connectPrimaryContainer"
+            app:cornerRadius="@dimen/connect_radius_card" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/demographic_prompt_complete"
+            style="@style/Widget.Connect.CtaBarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/connect_space_sm"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="@dimen/connect_space_md"
+            android:paddingTop="@dimen/connect_space_sm"
+            android:paddingBottom="@dimen/connect_space_sm"
+            android:text="@string/personalid_demographic_banner_complete"
+            android:textColor="?attr/colorOnPrimary"
+            app:backgroundTint="?attr/colorPrimary"
+            app:cornerRadius="@dimen/connect_radius_card" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

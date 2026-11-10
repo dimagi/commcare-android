@@ -14,6 +14,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.activities.camera.MicroImageActivity
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.android.util.runTeardownSteps
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
@@ -146,8 +147,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
     @After
     @CallSuper
     override fun tearDown() {
-        val errors = mutableListOf<Throwable>()
-        listOf(
+        runTeardownSteps(
             { activityController.pause().stop().destroy() },
             { Intents.release() },
             { mediaUtilMock.close() },
@@ -155,18 +155,7 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
             { mocksCloseable.close() },
             { MockAndroidKeyStoreProvider.deregisterProvider() },
             { super.tearDown() },
-        ).forEach { step ->
-            try {
-                step()
-            } catch (t: Throwable) {
-                errors.add(t)
-            }
-        }
-        if (errors.isNotEmpty()) {
-            val first = errors.first()
-            errors.drop(1).forEach { first.addSuppressed(it) }
-            throw first
-        }
+        )
     }
 }
 

@@ -211,7 +211,6 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
 
     @Test
     fun `a non-network start-learning failure opens the message dialog with its arguments`() {
-        seedConnectUser()
         val repo = ConnectRepository.getInstance()
         every { repo.startLearning(any()) } returns
             flow {
@@ -246,7 +245,6 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
 
     @Test
     fun `tapping the footer button starts learning and navigates to downloading`() {
-        seedConnectUser()
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
 
@@ -287,7 +285,6 @@ class ConnectJobIntroFragmentTest : BaseConnectJobIntroTest() {
 
     @Test
     fun `a failed learn install holds the intro and its cta retries the download only`() {
-        seedConnectUser()
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns false
         mockkObject(ConnectAppUtils)
