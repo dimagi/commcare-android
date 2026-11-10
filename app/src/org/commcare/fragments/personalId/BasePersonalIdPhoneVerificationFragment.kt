@@ -231,12 +231,10 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
      * Determines if we should auto-switch from Firebase to PersonalId auth based on the error type.
      * Only switches from Firebase to PersonalId, never the reverse.
      */
-    private fun shouldAutoSwitchToPersonalIdAuth(errorType: OtpErrorType): Boolean {
-        if (SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true)) {
-            return false
-        }
-        return errorType.isNonRecoverable && isFallbackAllowed()
-    }
+    private fun shouldAutoSwitchToPersonalIdAuth(errorType: OtpErrorType): Boolean =
+        !SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true) &&
+            errorType.isNonRecoverable &&
+            isFallbackAllowed()
 
     override fun onCreateView(
         inflater: LayoutInflater,
