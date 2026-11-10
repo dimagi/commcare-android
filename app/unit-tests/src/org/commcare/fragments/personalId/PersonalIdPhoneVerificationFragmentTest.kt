@@ -1,9 +1,12 @@
 package org.commcare.fragments.personalId
 
+import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.CallSuper
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.tasks.Tasks
@@ -17,12 +20,21 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthMissingActivityForRecaptchaException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GetTokenResult
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
+import io.mockk.verify
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.shadows.ShadowPhoneAuthProvider
 import org.commcare.android.util.FirebaseTestUtils
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.utils.OtpAnalyticsMapper
 import org.commcare.utils.OtpManager
 import org.commcare.views.connect.NumericCodeView
 import org.junit.Assert.assertEquals
@@ -64,10 +76,23 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         super.setUp()
         FirebaseTestUtils.initializeDefaultAppIfNeeded()
         ShadowPhoneAuthProvider.reset()
+        mockkStatic(FirebaseAnalyticsUtil::class)
+        every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
+            object : NavController.OnDestinationChangedListener {
+                override fun onDestinationChanged(
+                    controller: NavController,
+                    destination: NavDestination,
+                    arguments: Bundle?,
+                ) = Unit
+            }
+        every {
+            FirebaseAnalyticsUtil.reportOtpEvent(any(), any(), any(), any(), any(), any(), any())
+        } just Runs
     }
 
     @CallSuper
     override fun tearDown() {
+        unmockkStatic(FirebaseAnalyticsUtil::class)
         ShadowPhoneAuthProvider.reset()
         activityController.pause().stop().destroy()
         super.tearDown()
@@ -228,6 +253,80 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         assertEquals(OtpManager.SMS_METHOD_PERSONAL_ID, lastOtpMethod())
         assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
         assertEquals(2, sessionData.otpAttempts)
+    }
+
+    private fun verifyPhoneRequestReported(
+        outcome: String,
+        method: String,
+        reason: String?,
+        times: Int = 1,
+    ) {
+        verify(exactly = times) {
+            FirebaseAnalyticsUtil.reportOtpEvent(
+                OtpAnalyticsMapper.OtpOp.REQUEST_PHONE,
+                outcome,
+                method,
+                reason,
+                any(),
+                any(),
+                any(),
+            )
+        }
+    }
+
+    @Test
+    fun `a firebase failure handed off to PersonalID is reported as a fallback rather than a failure`() {
+        givenFirebaseFailsWith(FirebaseTooManyRequestsException("quota exceeded"))
+
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
+
+        verifyPhoneRequestReported(
+            AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID,
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            "too_many_requests",
+        )
+        verifyPhoneRequestReported(
+            AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            "too_many_requests",
+            times = 0,
+        )
+    }
+
+    @Test
+    fun `a firebase failure is reported as a failure when fallback is not allowed`() {
+        givenFirebaseFailsWith(FirebaseAuthException("ERROR_APP_NOT_AUTHORIZED", "not authorized"))
+
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = false)
+        ShadowLooper.idleMainLooper()
+
+        verifyPhoneRequestReported(
+            AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            "verification_failed",
+        )
+        verifyPhoneRequestReported(
+            AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID,
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            "verification_failed",
+            times = 0,
+        )
+    }
+
+    @Test
+    fun `a rejected phone number is reported as a failure`() {
+        givenFirebaseFailsWith(
+            FirebaseAuthInvalidCredentialsException("ERROR_INVALID_PHONE_NUMBER", "bad number"),
+        )
+
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
+        ShadowLooper.idleMainLooper()
+
+        verifyPhoneRequestReported(
+            AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+            AnalyticsParamValue.OTP_METHOD_FIREBASE,
+            "invalid_credential",
+        )
     }
 
     @Test

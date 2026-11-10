@@ -813,7 +813,8 @@ public class FirebaseAnalyticsUtil {
      * @param op             the OTP operation in flight; resolved to the event type. Logged under
      *                       {@link CCAnalyticsParam#OTP_EVENT_TYPE}.
      * @param outcome        one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
-     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE} /
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID}.
      * @param method         one of {@link AnalyticsParamValue#OTP_METHOD_FIREBASE} /
      *                       {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID} /
      *                       {@link AnalyticsParamValue#OTP_METHOD_EMAIL}.

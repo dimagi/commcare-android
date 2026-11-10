@@ -88,6 +88,24 @@ public class ConnectUserRecord extends Persisted {
     @MetaField(META_EMAIL)
     private String email;
 
+    @Persisting(value = 18, nullable = true)
+    private String gender;
+
+    @Persisting(value = 19, nullable = true)
+    private String dateOfBirth;
+
+    @Persisting(value = 20, nullable = true)
+    private String languages;
+
+    @Persisting(value = 21, nullable = true)
+    private String education;
+
+    @Persisting(value = 22, nullable = true)
+    private String chwExperience;
+
+    @Persisting(value = 23, nullable = true)
+    private String techProficiency;
+
     public ConnectUserRecord() {
         registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
         lastPasswordDate = new Date();
@@ -201,7 +219,7 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV25(ConnectUserRecordV25 oldRecord) {
+    public static ConnectUserRecord fromV30(ConnectUserRecordV30 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
@@ -218,7 +236,7 @@ public class ConnectUserRecord extends Persisted {
         newRecord.isDemo = oldRecord.isDemo();
         newRecord.requiredLock = oldRecord.getRequiredLock();
         newRecord.hasConnectAccess = oldRecord.hasConnectAccess();
-        newRecord.email = null;
+        newRecord.email = oldRecord.getEmail();
         return newRecord;
     }
 
@@ -254,5 +272,59 @@ public class ConnectUserRecord extends Persisted {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Nullable
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    @Nullable
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    @Nullable
+    public String getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(String languages) {
+        this.languages = languages;
+    }
+
+    @Nullable
+    public String getEducation() {
+        return education;
+    }
+
+    public void setEducation(String education) {
+        this.education = education;
+    }
+
+    @Nullable
+    public String getChwExperience() {
+        return chwExperience;
+    }
+
+    public void setChwExperience(String chwExperience) {
+        this.chwExperience = chwExperience;
+    }
+
+    @Nullable
+    public String getTechProficiency() {
+        return techProficiency;
+    }
+
+    public void setTechProficiency(String techProficiency) {
+        this.techProficiency = techProficiency;
     }
 }
