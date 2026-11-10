@@ -12,6 +12,7 @@ import org.commcare.android.util.ConnectTestUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdSessionManager
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity
@@ -26,6 +27,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
+import org.robolectric.util.ReflectionHelpers
 
 /** Where [DispatchActivity] opens the app, and that it decides once per launch rather than on every resume. */
 class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
@@ -42,6 +44,11 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
     @After
     fun forgetPersonalIdUser() {
         PersonalIdSessionManager.getInstance().forgetUser("dispatch activity landing test teardown")
+    }
+
+    @After
+    fun clearFormEntryInProgress() {
+        setFormEntryInProgress(false)
     }
 
     @Test
@@ -233,6 +240,33 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
     }
 
     @Test
+    fun `a launch above a form in progress asks the form to save or discard before restarting`() {
+        setFormEntryInProgress(true)
+
+        val dispatchActivity = buildStackedDispatchActivity().create().get()
+
+        val formEntryIntent = ActivityAssertions.assertStarted(dispatchActivity, FormEntryActivity::class.java)
+        val pendingRestartIntent = getPendingNavIntent(formEntryIntent)
+        assertEquals(DispatchActivity::class.java.name, pendingRestartIntent.component?.className)
+        assertEquals(
+            AnalyticsParamValue.EXTERNAL_LAUNCH,
+            formEntryIntent.getStringExtra(FormEntryActivity.EXTRA_PENDING_NAV_SOURCE),
+        )
+        assertOpensAsTaskRoot(dispatchActivity, pendingRestartIntent)
+    }
+
+    @Test
+    fun `a launch above a form whose session ended restarts routing without asking the form`() {
+        setFormEntryInProgress(true)
+        CommCareApplication.instance().closeUserSession()
+
+        val dispatchActivity = buildStackedDispatchActivity().create().get()
+
+        val restartIntent = ActivityAssertions.assertStarted(dispatchActivity, DispatchActivity::class.java)
+        assertOpensAsTaskRoot(dispatchActivity, restartIntent)
+    }
+
+    @Test
     fun `a launch above another app waiting for its result routes in place`() {
         CommCareApplication.instance().closeUserSession()
         val controller = Robolectric.buildActivity(DispatchActivity::class.java, Intent())
@@ -291,6 +325,20 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
         ActivityAssertions.startedIntents(controller.get())
         return controller
     }
+
+    private fun buildStackedDispatchActivity(): ActivityController<DispatchActivity> {
+        val controller = Robolectric.buildActivity(DispatchActivity::class.java, Intent())
+        Shadows.shadowOf(controller.get()).setIsTaskRoot(false)
+        return controller
+    }
+
+    private fun setFormEntryInProgress(inProgress: Boolean) {
+        ReflectionHelpers.setStaticField(FormEntryActivity::class.java, "isFormEntryActive", inProgress)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getPendingNavIntent(formEntry: Intent): Intent =
+        formEntry.getParcelableExtra<Intent>(FormEntryActivity.EXTRA_PENDING_NAV_INTENT)!!
 
     private fun buildUnlockDeclinedIntent(): Intent = Intent().putExtra(DispatchActivity.EXTRA_PERSONAL_ID_UNLOCK_DECLINED, true)
 

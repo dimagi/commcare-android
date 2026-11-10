@@ -193,7 +193,8 @@ public class DispatchActivity extends AppCompatActivity {
 
     /**
      * Restarts with the same intent as the only screen in the task when this instance was opened above other
-     * screens and no caller is waiting for its result.
+     * screens and no caller is waiting for its result. A form in progress in a live session is asked to save
+     * or discard first and then starts the restart.
      *
      * @return if the restart was started and this instance finished
      */
@@ -204,7 +205,18 @@ public class DispatchActivity extends AppCompatActivity {
 
         Intent restartIntent = new Intent(getIntent())
                 .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(restartIntent);
+
+        if (FormEntryActivity.isFormEntryInProgress() && CommCareApplication.hasLoggedInUser()) {
+            Intent formEntryIntent = new Intent(this, FormEntryActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_INTENT, restartIntent)
+                    .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_SOURCE, AnalyticsParamValue.EXTERNAL_LAUNCH);
+
+            startActivity(formEntryIntent);
+        } else {
+            startActivity(restartIntent);
+        }
+
         finish();
 
         return true;
