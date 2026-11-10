@@ -42,7 +42,6 @@ import org.robolectric.util.ReflectionHelpers
 
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
-@Ignore("Temporarily disabled to check whether it causes FormRecordListActivityTest flakiness")
 class EntityListCalloutBeforeLoadTest {
     private val loaderExecutor = PausedExecutorService()
 
@@ -83,6 +82,7 @@ class EntityListCalloutBeforeLoadTest {
         assertEquals(8, adapter.currentCount)
     }
 
+    @Ignore("Temporarily disabled to isolate FormRecordListActivityTest flakiness")
     @Test
     fun calloutResultOnRecreatedActivity_isAppliedWhenListLoads() {
         val controller = startEntitySelectActivity()
@@ -101,6 +101,7 @@ class EntityListCalloutBeforeLoadTest {
         assertListFilteredByCallout(finishLoading(activity), activity)
     }
 
+    @Ignore("Temporarily disabled to isolate FormRecordListActivityTest flakiness")
     @Test
     fun calloutResultOnLoadedList_replacesStoredResultsForRecreatedActivity() {
         val activity = ActivityLaunchUtils.launchEntitySelectActivity("m1-f0")
