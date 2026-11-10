@@ -141,6 +141,9 @@ class ConnectAppLaunchController(
                         // apps, so an unconditional reorder could surface a different app's instance.
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                         activity.startActivity(intent)
+                        if (!connectActivity.isOpportunityHomeAtTaskBottom) {
+                            connectActivity.finish()
+                        }
                     } else if (connectActivity.isOpportunityHomeAtTaskBottom) {
                         activity.startActivity(intent)
                     } else {

@@ -139,6 +139,26 @@ class ConnectAppLaunchControllerTest {
         verify(exactly = 0) { connectActivity.startActivities(any()) }
     }
 
+    @Test
+    fun `resuming an app already signed in from opportunity home above other screens closes that opportunity home`() {
+        stubLaunchIntents(opportunityHomeAtTaskBottom = false)
+
+        controller.launchApp(APP_ID, isLearning = true)
+        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = true))
+
+        verify(exactly = 1) { connectActivity.finish() }
+    }
+
+    @Test
+    fun `resuming an app already signed in from opportunity home at the bottom of the task keeps it open`() {
+        stubLaunchIntents(opportunityHomeAtTaskBottom = true)
+
+        controller.launchApp(APP_ID, isLearning = true)
+        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = true))
+
+        verify(exactly = 0) { connectActivity.finish() }
+    }
+
     /** Points the launch at [connectActivity] and returns the App Home intent it will start. */
     private fun stubLaunchIntents(opportunityHomeAtTaskBottom: Boolean): Intent {
         val homeIntent = mockk<Intent>(relaxed = true)
