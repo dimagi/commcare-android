@@ -1,8 +1,10 @@
 package org.commcare.activities
 
+import androidx.recyclerview.widget.RecyclerView
 import org.commcare.CommCareApplication
 import org.commcare.android.util.ActivityAssertions.assertStarted
 import org.commcare.android.util.ReflectionUtils
+import org.commcare.dalvik.R
 import org.commcare.home.SyncDelegate
 import org.commcare.network.CommcareRequestEndpointsMock
 import org.commcare.network.LocalReferencePullResponseFactory
@@ -21,6 +23,7 @@ import org.javarosa.core.services.locale.Localization
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
@@ -156,6 +159,41 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         deliverPullResult(home, PullTaskResult.DOWNLOAD_SUCCESS)
 
         assertTrue(pendingNotifications().none { it.title == badCertificateTitle() })
+    }
+
+    @Test
+    fun `the sync button keeps the pull message when the grid rebinds`() {
+        val home = buildVisibleHome()
+        deliverPullResult(home, PullTaskResult.AUTH_FAILED)
+
+        rebindHomeGrid(home)
+
+        assertEquals(
+            Localization.get("sync.fail.auth.loggedin"),
+            homeButtonSubText(home, Localization.get("home.sync")),
+        )
+    }
+
+    @Test
+    fun `the sync button drops the pull message once the user leaves home`() {
+        val controller = buildStandardHomeController().start().resume().visible()
+        ShadowLooper.idleMainLooper()
+        val home = controller.get()
+        deliverPullResult(home, PullTaskResult.AUTH_FAILED)
+
+        controller
+            .pause()
+            .stop()
+            .restart()
+            .start()
+            .resume()
+        ShadowLooper.idleMainLooper()
+        rebindHomeGrid(home)
+
+        assertNotEquals(
+            Localization.get("sync.fail.auth.loggedin"),
+            homeButtonSubText(home, Localization.get("home.sync")),
+        )
     }
 
     @Test
@@ -326,6 +364,11 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         result: PullTaskResult,
     ) {
         receiverOf(home).handlePullTaskResult(ResultAndError(result), true, true, true)
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun rebindHomeGrid(home: StandardHomeActivity) {
+        home.findViewById<RecyclerView>(R.id.home_gridview_buttons).adapter!!.notifyDataSetChanged()
         ShadowLooper.idleMainLooper()
     }
 
