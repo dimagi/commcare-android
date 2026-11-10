@@ -112,6 +112,12 @@ public class AnalyticsParamValue {
     public static final String CONNECT_SYNC_CARD = "connect_sync_card";
     public static final String CONNECT_TASK_CARD = "connect_task_card";
 
+    // Param values for Connect delivery home tabs
+    public static final String CONNECT_TAB_DASHBOARD = "dashboard";
+    public static final String CONNECT_TAB_PAYMENT = "payment";
+    public static final String CONNECT_TAB_VISITS = "visits";
+    public static final String CONNECT_TAB_MORE = "more";
+
     // Param values for form types
     public static final String INCOMPLETE = "incomplete";
     public static final String SAVED = "saved";

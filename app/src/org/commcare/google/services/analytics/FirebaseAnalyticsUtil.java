@@ -770,11 +770,12 @@ public class FirebaseAnalyticsUtil {
         reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
     }
 
-    public static void reportConnectTabChange(String tabName) {
+    /** Reports a tab change with its shown label and a key that stays the same in every language. */
+    public static void reportConnectTabChange(String tabName, String tabKey) {
         reportEvent(
                 CCAnalyticsEvent.CCC_TAB_CHANGE,
-                new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME},
-                new String[]{tabName}
+                new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME, CCAnalyticsParam.PARAM_CCC_TAB_KEY},
+                new String[]{tabName, tabKey}
         );
     }
 
