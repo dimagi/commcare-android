@@ -1,7 +1,6 @@
 package org.commcare.android.tests.formnav;
 
 import android.content.Intent;
-import android.util.Log;
 import android.view.View;
 
 import org.commcare.CommCareApplication;
@@ -34,8 +33,6 @@ import static junit.framework.Assert.assertTrue;
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
 public class EndOfFormTest {
-
-    private static final String TAG = EndOfFormTest.class.getSimpleName();
 
     @Before
     public void setup() {
@@ -83,12 +80,10 @@ public class EndOfFormTest {
         View finishButton = formEntryActivity.findViewById(R.id.nav_btn_finish);
         finishButton.performClick();
         RobolectricUtil.flushBackgroundThread(formEntryActivity);
-        ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
-        while (!formEntryActivity.isFinishing()) {
-            Log.d(TAG, "Waiting for the form to save and the form entry activity to finish");
-        }
+        assertTrue("Form entry should finish after the form is saved",
+                formEntryActivity.isFinishing());
 
-        return shadowFormEntryActivity;
+        return Shadows.shadowOf(formEntryActivity);
     }
 
     private void assertStoredForms() {

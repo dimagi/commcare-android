@@ -342,7 +342,12 @@ class SessionLaunchDelegate(
                 }
                 putExtra(FormEntryActivity.KEY_RESIZING_ENABLED, HiddenPreferences.getResizeMethod())
                 putExtra(FormEntryActivity.KEY_INCOMPLETE_ENABLED, HiddenPreferences.isIncompleteFormsEnabled())
-                putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(record.aesKey, Base64.DEFAULT))
+                if (record.aesKey.size > 0) {
+                    putExtra(
+                        FormEntryActivity.KEY_AES_STORAGE_KEY,
+                        Base64.encodeToString(record.aesKey, Base64.DEFAULT)
+                    )
+                }
                 putExtra(
                     FormEntrySessionWrapper.KEY_RECORD_FORM_ENTRY_SESSION,
                     DeveloperPreferences.isSessionSavingEnabled(),

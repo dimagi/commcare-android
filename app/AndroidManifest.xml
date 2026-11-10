@@ -592,6 +592,10 @@
             android:name="firebase_performance_collection_enabled"
             android:value="false" />
 
+        <meta-data
+            android:name="firebase_performance_logcat_enabled"
+            android:value="true" />
+
         <!-- The zebra-print-android library is not yet targeting Android 12 and at least one
             Activity doesn't have the required attribute exported. The entry below adds the
             attribute to the final Manifest.

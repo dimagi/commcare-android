@@ -9,7 +9,6 @@ import junit.framework.Assert;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.util.EncryptionUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,16 +30,7 @@ public class EncryptionUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        // register mock Android keystore provider, this is when the keystore becomes available
-        MockAndroidKeyStoreProvider.registerProvider();
-
         provider = new MockEncryptionKeyProvider(CommCareApplication.instance());
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        //deregister mock Android keystore provider
-        MockAndroidKeyStoreProvider.deregisterProvider();
     }
 
     @Test

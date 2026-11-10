@@ -151,6 +151,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private FormEntrySessionWrapper formEntryRestoreSession = new FormEntrySessionWrapper();
 
     private SecretKeySpec symetricKey = null;
+    private boolean isKeyFromKeystore = false;
 
     public static AndroidFormController mFormController;
     private static volatile boolean isFormEntryActive = false;
@@ -1136,7 +1137,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, instanceIsReadOnly,
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isKeyFromKeystore, instanceIsReadOnly,
                     formEntryRestoreSession.isRecording(), FormEntryInstanceState.mFormRecordPath, this, savedFormSession) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
@@ -1645,6 +1646,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException("Base64 encoding not available on this platform");
                 }
+            } else {
+                isKeyFromKeystore = true;
             }
             if (savedInstanceState.containsKey(KEY_HEADER_STRING)) {
                 mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
@@ -1685,6 +1688,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("Base64 encoding not available on this platform");
             }
+        } else {
+            isKeyFromKeystore = true;
         }
         if (intent.hasExtra(KEY_HEADER_STRING)) {
             FormEntryActivity.mHeaderString = intent.getStringExtra(KEY_HEADER_STRING);
@@ -1855,6 +1860,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     public SecretKeySpec getSymetricKey() {
         return symetricKey;
+    }
+
+    public boolean isKeyFromKeystore() {
+        return isKeyFromKeystore;
     }
 
     public void setPendingNavAfterSave(Intent pendingNav) {

@@ -21,13 +21,11 @@ class CommCareKeyManager {
 
         /**
          * An empty array indicates that the Android Keystore is supported and the key should be retrieved
-         * from the keystore.
-         * The Keystore availability check is currently disabled to allow for comparison of encryption times
-         * between keystore-backed keys and SecretKeySpec-backed keys.
+         * from the keystore
          */
         @JvmStatic
         fun generateLegacyKeyOrEmpty(): ByteArray =
-            if (false) { // AndroidKeyStore.isKeystoreAvailable()) {
+            if (AndroidKeyStore.isKeystoreAvailable()) {
                 ByteArray(0)
             } else {
                 CommCareApplication.instance().createNewSymmetricKey().encoded

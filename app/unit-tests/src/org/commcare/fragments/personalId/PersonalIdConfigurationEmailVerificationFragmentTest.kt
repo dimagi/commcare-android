@@ -18,10 +18,8 @@ import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.commcare.views.connect.NumericCodeView
 import org.json.JSONObject
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -52,12 +50,6 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     override fun setUp() {
         super.setUp()
         attachTestNavController()
-    }
-
-    @After
-    override fun tearDown() {
-        MockAndroidKeyStoreProvider.deregisterProvider()
-        super.tearDown()
     }
 
     private fun attachTestNavController() {
@@ -757,7 +749,6 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     private fun setUpForgotBackupCodeRecoveryFlow() {
-        MockAndroidKeyStoreProvider.registerProvider()
         val args =
             Bundle().apply {
                 putString("email", TEST_EMAIL)
@@ -784,7 +775,6 @@ class PersonalIdConfigurationEmailVerificationFragmentTest : BasePersonalIdEmail
     }
 
     private fun setUpRecoveryFlow() {
-        MockAndroidKeyStoreProvider.registerProvider()
         val args =
             Bundle().apply {
                 putString("email", TEST_EMAIL)
