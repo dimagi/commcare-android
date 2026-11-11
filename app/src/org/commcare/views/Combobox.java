@@ -99,11 +99,19 @@ public class Combobox extends AppCompatAutoCompleteTextView {
      */
     public void autoCorrectCapitalization() {
         String enteredText = getText().toString();
-        if (enteredText != null && !choices.contains(enteredText) &&
+        if (enteredText != null && !isValidChoice(enteredText) &&
                 choicesAllLowerCase.contains(enteredText.toLowerCase())) {
             int index = choicesAllLowerCase.indexOf(enteredText.toLowerCase());
             setText(choices.get(index).getDisplayText());
         }
     }
 
+    private boolean isValidChoice(String text) {
+        for (ComboItem comboItem : choices) {
+            if (comboItem.getDisplayText().equals(text)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

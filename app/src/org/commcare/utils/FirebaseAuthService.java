@@ -16,26 +16,30 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
-import org.commcare.connect.network.connectId.PersonalIdApiHandler;
+import org.commcare.connect.network.personalId.PersonalIdApiHandler;
+import org.commcare.core.network.AuthInfo;
 import org.javarosa.core.services.Logger;
 
 public class FirebaseAuthService implements OtpAuthService {
 
+    private static final String ERROR_SESSION_EXPIRED = "ERROR_SESSION_EXPIRED";
+
     private final FirebaseAuth firebaseAuth;
     private final OtpVerificationCallback callback;
     private final Activity activity;
-    private final PersonalIdSessionData personalIdSessionData;
+    private final AuthInfo authInfo;
     private PhoneAuthOptions.Builder optionsBuilder;
     private String verificationId;
 
-    public FirebaseAuthService(@NonNull Activity activity, @NonNull PersonalIdSessionData sessionData,
+    public FirebaseAuthService(@NonNull Activity activity, @NonNull AuthInfo authInfo,
             @NonNull OtpVerificationCallback callback) {
         this.callback = callback;
         this.firebaseAuth = FirebaseAuth.getInstance();
         this.activity = activity;
-        this.personalIdSessionData = sessionData;
+        this.authInfo = authInfo;
 
         PhoneAuthProvider.OnVerificationStateChangedCallbacks verificationCallbacks =
                 new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -94,7 +98,7 @@ public class FirebaseAuthService implements OtpAuthService {
                 callback.onPersonalIdApiFailure(failureCode, t);
             }
 
-        }.validateFirebaseIdToken(activity, code, personalIdSessionData);
+        }.validateFirebaseIdToken(activity, code, authInfo);
     }
 
     private void firebaseAuthenticator(PhoneAuthCredential credential) {
@@ -117,19 +121,36 @@ public class FirebaseAuthService implements OtpAuthService {
                 });
     }
 
-    private void handleFirebaseException(Exception e) {
+    /**
+     * Classifies a Firebase failure. The subclass checks must stay ahead of the
+     * {@link FirebaseAuthException} check, since that is what keeps a wrong verification code in
+     * INVALID_CREDENTIAL instead of the non-recoverable VERIFICATION_FAILED. Anything unrecognised
+     * falls through to GENERIC_ERROR, which is also where Firebase puts backend codes it has no
+     * mapping for.
+     */
+    @VisibleForTesting
+    static OtpErrorType errorTypeFrom(Exception e) {
         if (e instanceof FirebaseAuthInvalidCredentialsException) {
-            callback.onFailure(OtpErrorType.INVALID_CREDENTIAL, null);
+            String errorCode = ((FirebaseAuthInvalidCredentialsException) e).getErrorCode();
+            return ERROR_SESSION_EXPIRED.equals(errorCode)
+                    ? OtpErrorType.SESSION_EXPIRED
+                    : OtpErrorType.INVALID_CREDENTIAL;
         } else if (e instanceof FirebaseTooManyRequestsException) {
-            callback.onFailure(OtpErrorType.TOO_MANY_REQUESTS, null);
+            return OtpErrorType.TOO_MANY_REQUESTS;
         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
-            callback.onFailure(OtpErrorType.MISSING_ACTIVITY, null);
+            return OtpErrorType.MISSING_ACTIVITY;
         } else if (e instanceof FirebaseAuthException) {
-            callback.onFailure(OtpErrorType.VERIFICATION_FAILED, null);
-        } else {
-            callback.onFailure(OtpErrorType.GENERIC_ERROR,
-                    e != null ? e.getMessage() : "OTP verification failed");
+            return OtpErrorType.VERIFICATION_FAILED;
         }
+        return OtpErrorType.GENERIC_ERROR;
+    }
+
+    private void handleFirebaseException(Exception e) {
+        OtpErrorType errorType = errorTypeFrom(e);
+        String message = errorType == OtpErrorType.GENERIC_ERROR
+                ? (e != null ? e.getMessage() : "OTP verification failed")
+                : null;
+        callback.onFailure(errorType, message);
         if (e != null) {
             Logger.exception("Firebase OTP verification error", e);
         }

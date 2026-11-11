@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="audio_recording_button_size">160dp</dimen>
+    <dimen name="audio_recording_progress_size">290dp</dimen>
+    <dimen name="audio_recording_timer_text_size">64sp</dimen>
+    <dimen name="audio_recording_dialog_max_width">600dp</dimen>
+    <dimen name="audio_recording_header_text_size">18sp</dimen>
+    <dimen name="audio_recording_capture_label_text_size">40sp</dimen>
+    <dimen name="audio_recording_close_button_size">50dp</dimen>
+</resources>

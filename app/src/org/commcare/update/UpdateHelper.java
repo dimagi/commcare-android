@@ -13,6 +13,7 @@ import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.DataChangeLog;
 import org.commcare.logging.DataChangeLogger;
 import org.commcare.network.RequestStats;
+import org.commcare.utils.StringUtils;
 import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.preferences.PrefValues;
 import org.commcare.resources.ResourceInstallContext;
@@ -28,7 +29,6 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
@@ -101,12 +101,14 @@ public class UpdateHelper implements TableStateListener {
                     "App resources are incompatible with this device|");
             String error;
             if (e.isVersionMismatchException()) {
-                error = Localization.get("update.version.mismatch", new String[]{e.getRequiredVersionString(), e.getAvailableVesionString()});
+                Context appContext = CommCareApplication.instance();
+                error = StringUtils.getStringRobust(appContext, R.string.update_version_mismatch,
+                        new String[]{e.getRequiredVersionString(), e.getAvailableVesionString()});
                 error += " ";
                 if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MAJOR_APP_VERSION) {
-                    error += Localization.get("update.major.mismatch");
+                    error += StringUtils.getStringRobust(appContext, R.string.update_major_mismatch);
                 } else if (e.getRequirementType() == UnfullfilledRequirementsException.RequirementType.MINOR_APP_VERSION) {
-                    error += Localization.get("update.minor.mismatch");
+                    error += StringUtils.getStringRobust(appContext, R.string.update_minor_mismatch);
                 }
             } else {
                 error = e.getMessage();

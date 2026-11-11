@@ -486,6 +486,11 @@ public class FormUploadUtil {
         return isAudioVisualMimeType(filename);
     }
 
+    public static boolean isSupportedMediaOrEncryptedMedia(String filename) {
+        String nameWithoutAesExtension = MediaWidget.removeAESExtension(filename);
+        return isSupportedMultimediaFile(nameWithoutAesExtension);
+    }
+
     /**
      * Use the file's extension to determine if it has an audio,
      * video, or image mimetype.

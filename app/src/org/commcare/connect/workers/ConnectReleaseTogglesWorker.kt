@@ -11,8 +11,9 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import org.commcare.android.database.connect.models.ConnectReleaseToggleRecord
-import org.commcare.connect.PersonalIdManager
-import org.commcare.connect.network.connectId.PersonalIdApiHandler
+import org.commcare.connect.PersonalIdSessionManager
+import org.commcare.connect.database.ConnectUserDatabaseUtil
+import org.commcare.connect.network.personalId.PersonalIdApiHandler
 import org.javarosa.core.services.Logger
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
@@ -23,12 +24,12 @@ class ConnectReleaseTogglesWorker(
     workerParameters: WorkerParameters,
 ) : CoroutineWorker(context, workerParameters) {
     override suspend fun doWork(): Result {
-        val personalIdManager = PersonalIdManager.getInstance()
-        if (!personalIdManager.isloggedIn()) {
+        val personalIdSessionManager = PersonalIdSessionManager.getInstance()
+        if (!personalIdSessionManager.isloggedIn()) {
             return Result.failure()
         }
 
-        val user = personalIdManager.getUser(context)
+        val user = ConnectUserDatabaseUtil.getUser()
 
         return suspendCoroutine { continuation ->
             object : PersonalIdApiHandler<List<ConnectReleaseToggleRecord>>() {
@@ -80,9 +81,11 @@ class ConnectReleaseTogglesWorker(
                     ).setConstraints(getWorkConstraints())
                     .build()
 
+            // UPDATE keeps the existing schedule (so re-scheduling on unlock doesn't trigger an
+            // immediate run) while still picking up any changes to the request itself.
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 PERIODIC_FETCH_WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 workRequest,
             )
         }

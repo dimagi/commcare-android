@@ -10,7 +10,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.CommCarePreferenceFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class AppManagerDeveloperPreferences extends CommCarePreferenceFragment {
     @NonNull
     @Override
     protected String getTitle() {
-        return Localization.get("app.manager.developer.options.title");
+        return requireContext().getString(R.string.app_manager_developer_options_title);
     }
 
     @Nullable

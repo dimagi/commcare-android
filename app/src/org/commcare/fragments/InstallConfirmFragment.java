@@ -6,11 +6,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.views.SquareButtonWithText;
-import org.javarosa.core.services.locale.Localization;
 
 /**
  * Fragment to start, update or cancel an app installation.
@@ -40,24 +39,24 @@ public class InstallConfirmFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.install_confirm_fragment, container, false);
 
-        SquareButtonWithText btnStartInstall = view.findViewById(R.id.btn_start_install);
-        btnStartInstall.setText(Localization.get("install.button.start"));
+        Button btnStartInstall = view.findViewById(R.id.btn_start_install);
+        btnStartInstall.setText(getString(R.string.install_button_start));
         btnStartInstall.setEnabled(true);
         btnStartInstall.setOnClickListener(v -> buttonCommands.onStartInstallClicked());
 
-        SquareButtonWithText btnStopInstall = view.findViewById(R.id.btn_stop_install);
-        btnStopInstall.setText(Localization.get("install.button.startover"));
+        Button btnStopInstall = view.findViewById(R.id.btn_stop_install);
+        btnStopInstall.setText(getString(R.string.install_button_startover));
         btnStopInstall.setEnabled(true);
         btnStopInstall.setOnClickListener(v -> buttonCommands.onStopInstallClicked());
 
         TextView setupMsg = view.findViewById(R.id.str_setup_message);
-        setupMsg.setText(Localization.get("install.ready.top"));
+        setupMsg.setText(getString(R.string.install_ready_top));
 
         TextView setupMsg2 = view.findViewById(R.id.str_setup_message_2);
-        setupMsg2.setText(Localization.get("install.ready.bottom"));
+        setupMsg2.setText(getString(R.string.install_ready_bottom));
 
         TextView netWarn = view.findViewById(R.id.net_warn);
-        netWarn.setText(Localization.get("install.netwarn"));
+        netWarn.setText(getString(R.string.install_netwarn));
 
         return view;
     }

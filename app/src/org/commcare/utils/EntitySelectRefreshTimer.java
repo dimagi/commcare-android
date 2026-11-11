@@ -30,6 +30,9 @@ public class EntitySelectRefreshTimer {
                     public void run() {
                         activity.runOnUiThread(() -> {
                             if (!cancelled) {
+                                CrashUtil.log("EntitySelectActivity.loadEntities called from within EntitySelectRefreshTimer " +
+                                        "; currentCommand=" + activity.getSessionCommand() +
+                                        "; selectDatum=" + activity.getSelectDatum());
                                 activity.loadEntities();
                             }
                         });

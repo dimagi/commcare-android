@@ -12,7 +12,6 @@ public class ConnectConstants {
     public static final int NETWORK_ACTIVITY_ID = 7000;
     public static final int NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID = 8000;
     public static final String PERSONALID_MANAGED_LOGIN = "personalid-managed-login";
-    public static final String CONNECT_MANAGED_LOGIN = "connect-managed-login";
 
     public static final String PIN = "PIN";
     public static final String CONNECT_KEY_TOKEN = "access_token";
@@ -21,15 +20,17 @@ public class ConnectConstants {
     public static final String CCC_DEST_LEARN_PROGRESS = "ccc_learn_progress";
     public static final String CCC_DEST_DELIVERY_PROGRESS = "ccc_delivery_progress";
     public static final String CCC_DEST_PAYMENTS = "ccc_payment";
+    public static final String CCC_DEST_OPPORTUNITY_LIST = "ccc_opportunity_list";
     public static final String CCC_MESSAGE = "ccc_message";
     public static final String CCC_PAYMENT_INFO_CONFIRMATION = "ccc_payment_info_confirmation";
     public static final String CCC_PAYMENT_INFO_CONFIRMATION_STATUS = "confirmation_status";
     public static final String CCC_GENERIC_OPPORTUNITY = "ccc_generic_opportunity";
     public static final String REDIRECT_ACTION = "action";
     public static final String GO_TO_JOB_STATUS = "go_to_job_status";
-    public static final String SHOW_LAUNCH_BUTTON = "show_launch_button";
     public static final String OPPORTUNITY_ID = "opportunity_id";
     public static final String OPPORTUNITY_UUID = "opportunity_uuid";
+    public static final String FROM_SMS_INVITE_LINK = "from_sms_invite_link";
+    public static final String FROM_STARTUP_ROUTING = "from_startup_routing";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_UUID = "payment_uuid";
     public static final String NOTIFICATION_KEY = "key";
@@ -39,8 +40,7 @@ public class ConnectConstants {
     public static final String NEW_APP = "new-app";
     public static final String LEARN_APP = "learn-app";
     public static final String DELIVERY_APP = "delivery-app";
-    public final static int PERSONALID_NO_ACTIVITY =
-            ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET;
+    public final static int PERSONAL_ID_USER_STATUS_REGISTERED = 1000;
     public final static int PERSONALID_REGISTRATION_SUCCESS =
             ConnectConstants.PERSONAL_ID_TASK_ID_OFFSET + 1;
     public final static int PERSONALID_RECOVERY_SUCCESS =
@@ -66,7 +66,4 @@ public class ConnectConstants {
     public final static String NOTIFICATION_STATUS = "status";
     public final static String NOTIFICATION_MESSAGE_ID = "message_id";
     public final static String NOTIFICATION_CHANNEL_ID = "channel";
-    public final static String PAYMENT_CONFIRMATION_HIDDEN_SINCE_TIME =
-            "payment_confirmation_hidden_since_time";
-    public final static String RELEARN_TASKS_COMPLETED_TIME = "relearn_tasks_completed_time";
 }

@@ -75,7 +75,7 @@ public class ConnectUserRecordV5 extends Persisted {
     private Date connectTokenExpiration;
 
     public ConnectUserRecordV5() {
-        registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
+        registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
     }

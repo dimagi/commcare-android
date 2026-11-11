@@ -25,6 +25,7 @@ public class ConnectUserRecord extends Persisted {
     public static final String META_PIN = "pin";
     public static final String META_SECONDARY_PHONE_VERIFIED = "secondary_phone_verified";
     public static final String META_VERIFY_SECONDARY_PHONE_DATE = "verify_secondary_phone_by_date";
+    public static final String META_EMAIL = "email";
 
     @Persisting(1)
     private String userId;
@@ -83,8 +84,30 @@ public class ConnectUserRecord extends Persisted {
     @Persisting(value = 16)
     private boolean hasConnectAccess;
 
+    @Persisting(value = 17, nullable = true)
+    @MetaField(META_EMAIL)
+    private String email;
+
+    @Persisting(value = 18, nullable = true)
+    private String gender;
+
+    @Persisting(value = 19, nullable = true)
+    private String dateOfBirth;
+
+    @Persisting(value = 20, nullable = true)
+    private String languages;
+
+    @Persisting(value = 21, nullable = true)
+    private String education;
+
+    @Persisting(value = 22, nullable = true)
+    private String chwExperience;
+
+    @Persisting(value = 23, nullable = true)
+    private String techProficiency;
+
     public ConnectUserRecord() {
-        registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
+        registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;
@@ -196,12 +219,13 @@ public class ConnectUserRecord extends Persisted {
         return connectTokenExpiration;
     }
 
-    public static ConnectUserRecord fromV16(ConnectUserRecordV16 oldRecord, boolean hasConnectAccess) {
+    public static ConnectUserRecord fromV30(ConnectUserRecordV30 oldRecord) {
         ConnectUserRecord newRecord = new ConnectUserRecord();
         newRecord.userId = oldRecord.getUserId();
         newRecord.password = oldRecord.getPassword();
         newRecord.name = oldRecord.getName();
         newRecord.primaryPhone = oldRecord.getPrimaryPhone();
+        newRecord.pin = oldRecord.getPin();
         newRecord.alternatePhone = "";
         newRecord.registrationPhase = oldRecord.getRegistrationPhase();
         newRecord.lastPasswordDate = oldRecord.getLastPasswordDate();
@@ -211,7 +235,8 @@ public class ConnectUserRecord extends Persisted {
         newRecord.photo = oldRecord.getPhoto();
         newRecord.isDemo = oldRecord.isDemo();
         newRecord.requiredLock = oldRecord.getRequiredLock();
-        newRecord.hasConnectAccess = hasConnectAccess;
+        newRecord.hasConnectAccess = oldRecord.hasConnectAccess();
+        newRecord.email = oldRecord.getEmail();
         return newRecord;
     }
 
@@ -238,5 +263,68 @@ public class ConnectUserRecord extends Persisted {
 
     public boolean getIsDemo() {
         return isDemo;
+    }
+
+    @Nullable
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Nullable
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    @Nullable
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    @Nullable
+    public String getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(String languages) {
+        this.languages = languages;
+    }
+
+    @Nullable
+    public String getEducation() {
+        return education;
+    }
+
+    public void setEducation(String education) {
+        this.education = education;
+    }
+
+    @Nullable
+    public String getChwExperience() {
+        return chwExperience;
+    }
+
+    public void setChwExperience(String chwExperience) {
+        this.chwExperience = chwExperience;
+    }
+
+    @Nullable
+    public String getTechProficiency() {
+        return techProficiency;
+    }
+
+    public void setTechProficiency(String techProficiency) {
+        this.techProficiency = techProficiency;
     }
 }

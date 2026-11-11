@@ -10,10 +10,8 @@ class PersonalIdFeatureFlagChecker {
     @Retention(AnnotationRetention.SOURCE)
     annotation class FeatureFlag {
         companion object {
-            const val WORK_HISTORY = "work_history"
             const val WORK_HISTORY_PENDING_TAB = "work_history_pending_tab"
-            const val NOTIFICATIONS = "notifications"
-            const val DATA_REFRESH_INDICATOR = "data_refresh_indicator"
+            const val DEMOGRAPHIC_PROMPT = "demographic_prompt"
         }
     }
 
@@ -23,10 +21,8 @@ class PersonalIdFeatureFlagChecker {
             @FeatureFlag feature: String,
         ): Boolean =
             when (feature) {
-                FeatureFlag.WORK_HISTORY -> true
                 FeatureFlag.WORK_HISTORY_PENDING_TAB -> false
-                FeatureFlag.NOTIFICATIONS -> true
-                FeatureFlag.DATA_REFRESH_INDICATOR -> false
+                FeatureFlag.DEMOGRAPHIC_PROMPT -> false
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
     }

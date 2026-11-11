@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/connect_radius_card" />
+            <solid android:color="?attr/connectSurfaceContainerLow" />
+            <stroke
+                android:width="@dimen/connect_stroke_hairline"
+                android:color="?attr/connectOutlineVariant" />
+        </shape>
+    </item>
+    <item
+        android:drawable="@drawable/ic_login_dropdown_caret"
+        android:end="@dimen/connect_space_md"
+        android:gravity="end|center_vertical" />
+</layer-list>

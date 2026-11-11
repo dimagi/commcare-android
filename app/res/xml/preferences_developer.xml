@@ -93,6 +93,13 @@
         android:entryValues="@array/pref_load_form_payload_as_vals"
         android:key="cc-form-payload-status"
         android:title="Load form payload status"/>
+    <androidx.preference.ListPreference
+        android:defaultValue="default"
+        android:enabled="true"
+        android:entries="@array/pref_audio_quality_profile_labels"
+        android:entryValues="@array/pref_audio_quality_profile_vals"
+        android:key="cc-audio-quality-profile"
+        android:title="Default Audio Quality"/>
     <org.commcare.preferences.FilePreference
         android:defaultValue=""
         android:enabled="true"

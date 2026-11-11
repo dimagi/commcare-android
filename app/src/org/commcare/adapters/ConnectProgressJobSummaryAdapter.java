@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.commcare.android.database.connect.models.ConnectDeliveryPaymentSummaryInfo;
 import org.commcare.dalvik.R;
+import org.commcare.utils.ProgressUtils;
 import org.commcare.views.connect.LinearProgressBar;
 
 import java.util.List;
@@ -35,13 +36,20 @@ public class ConnectProgressJobSummaryAdapter extends RecyclerView.Adapter<Conne
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ConnectDeliveryPaymentSummaryInfo summary = deliverySummaries.get(position);
         holder.tvPrimaryVisitTitle.setText(summary.getPaymentUnitName());
+        if (!summary.hasDailyLimit()) {
+            holder.lpPrimaryVisitProgress.setVisibility(View.GONE);
+            holder.tvPrimaryVisitCount.setText(
+                    String.format(Locale.getDefault(), "%d", summary.getPaymentUnitAmount())
+            );
+            return;
+        }
+
+        holder.lpPrimaryVisitProgress.setVisibility(View.VISIBLE);
         holder.tvPrimaryVisitCount.setText(String.format(Locale.getDefault(), "%d/%d",
                 summary.getPaymentUnitAmount(), summary.getPaymentUnitMaxDaily()));
 
-        float percentage = 0;
-        if (summary.getPaymentUnitMaxDaily() > 0) {
-            percentage = ((float) summary.getPaymentUnitAmount() / summary.getPaymentUnitMaxDaily()) * 100;
-        }
+        float percentage = ProgressUtils.calculateProgress(
+                summary.getPaymentUnitAmount(), summary.getPaymentUnitMaxDaily()) * 100;
         if (summary.getPaymentUnitAmount() >= summary.getPaymentUnitMaxDaily()){
             holder.lpPrimaryVisitProgress.setProgressColor(holder.lpPrimaryVisitProgress.getResources().getColor(R.color.green));
         }

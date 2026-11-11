@@ -4,75 +4,81 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
-import org.commcare.engine.resource.installers.SingleAppInstallation;
+import org.commcare.home.SyncDelegate;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.network.mocks.LocalFilePullResponseFactory;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
-import org.commcare.suite.model.OfflineUserRestore;
-import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.FormSubmissionProgressBarListener;
 import org.commcare.sync.ProcessAndSendTask;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.PullTaskResultReceiver;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadResult;
 import org.javarosa.core.model.User;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Processes and submits forms and syncs data with server
  */
 public class FormAndDataSyncer {
 
-    protected FormAndDataSyncer() {
+    public FormAndDataSyncer() {
     }
 
-
-    void startUnsentFormsTask(SyncCapableCommCareActivity activity,
-                              final boolean syncAfterwards,
-                              boolean userTriggered) {
+    public void startUnsentFormsTask(
+            SyncDelegate receiver,
+            final boolean syncAfterwards,
+            boolean userTriggered
+    ) {
 
         // We only want to update the last upload sync time when it's a blocking sync
         if (syncAfterwards) {
             HiddenPreferences.updateLastUploadSyncAttemptTime();
         }
 
-        processAndSendForms(activity, syncAfterwards, userTriggered);
+        processAndSendForms(receiver, syncAfterwards, userTriggered);
     }
 
     @SuppressLint("NewApi")
-    protected void processAndSendForms(final SyncCapableCommCareActivity activity,
-                                       final boolean syncAfterwards,
-                                       final boolean userTriggered) {
-
-        ProcessAndSendTask<SyncCapableCommCareActivity> processAndSendTask =
-                new ProcessAndSendTask<SyncCapableCommCareActivity>(activity, syncAfterwards) {
+    protected void processAndSendForms(
+            final SyncDelegate receiver,
+            final boolean syncAfterwards,
+            final boolean userTriggered
+    ) {
+        CommCareActivity<?> connector = receiver.getSyncTaskActivity();
+        ProcessAndSendTask<SyncDelegate> processAndSendTask =
+                new ProcessAndSendTask<SyncDelegate>(connector, syncAfterwards) {
 
                     @Override
-                    protected void deliverResult(SyncCapableCommCareActivity receiver, FormUploadResult result) {
+                    protected void deliverResult(
+                            SyncDelegate receiver,
+                            FormUploadResult result
+                    ) {
                         if (CommCareApplication.instance().isConsumerApp()) {
                             // if this is a consumer app we don't want to show anything in the UI about
                             // sending forms, or do a sync afterward
                             return;
                         }
 
+                        CommCareActivity<?> activity = receiver.getSyncTaskActivity();
                         if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
-                            receiver.finish();
+                            activity.finish();
                             return;
                         }
 
-                        if (receiver instanceof WithUIController) {
-                            ((WithUIController)receiver).getUIController().refreshView();
+                        if (activity instanceof WithUIController) {
+                            ((WithUIController)activity).getUIController().refreshView();
                         }
 
-                        receiver.handleFormUploadResult(result, getLabelForFormsSent(), userTriggered);
+                        receiver.handleFormUploadResult(
+                                result,
+                                getLabelForFormsSent(),
+                                userTriggered
+                        );
 
                         if (result == FormUploadResult.FULL_SUCCESS && syncAfterwards) {
                             syncDataForLoggedInUser(receiver, true, userTriggered);
@@ -80,18 +86,29 @@ public class FormAndDataSyncer {
                     }
 
                     @Override
-                    protected void deliverUpdate(SyncCapableCommCareActivity receiver, Long... update) {
+                    protected void deliverUpdate(
+                            SyncDelegate receiver,
+                            Long... update
+                    ) {
                     }
 
                     @Override
-                    protected void deliverError(SyncCapableCommCareActivity receiver, Exception e) {
-                        receiver.handleFormUploadResult(FormUploadResult.UNSENT, getLabelForFormsSent(), userTriggered);
+                    protected void deliverError(SyncDelegate receiver, Exception e) {
+                        receiver.handleFormUploadResult(
+                                FormUploadResult.UNSENT,
+                                getLabelForFormsSent(),
+                                userTriggered
+                        );
                     }
 
                     @Override
-                    protected void handleCancellation(SyncCapableCommCareActivity receiver) {
+                    protected void handleCancellation(SyncDelegate receiver) {
                         super.handleCancellation(receiver);
-                        receiver.handleFormUploadResult(FormUploadResult.CANCELLED, getLabelForFormsSent(), userTriggered);
+                        receiver.handleFormUploadResult(
+                                FormUploadResult.CANCELLED,
+                                getLabelForFormsSent(),
+                                userTriggered
+                        );
                     }
                 };
 
@@ -100,106 +117,117 @@ public class FormAndDataSyncer {
                     CommCareApplication.instance().getSession().getListenerForSubmissionNotification());
         }
 
-        if (activity.usesSubmissionProgressBar()) {
-            processAndSendTask.addProgressBarSubmissionListener(
-                    new FormSubmissionProgressBarListener(activity));
-        }
-
-        processAndSendTask.connect(activity);
+        processAndSendTask.connect((CommCareTaskConnector)connector);
         processAndSendTask.executeParallel();
     }
 
-
-    public void syncDataForLoggedInUser(final SyncCapableCommCareActivity activity,
-                                        final boolean formsToSend, final boolean userTriggeredSync) {
+    public void syncDataForLoggedInUser(
+            final SyncDelegate receiver,
+            final boolean formsToSend,
+            final boolean userTriggeredSync
+    ) {
         User u = CommCareApplication.instance().getSession().getLoggedInUser();
 
         if (User.TYPE_DEMO.equals(u.getUserType())) {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.has.forms"));
+                    receiver.handleSyncNotAttempted(Localization.get("main.sync.demo.has.forms"));
                 } else {
-                    activity.handleSyncNotAttempted(Localization.get("main.sync.demo.no.forms"));
+                    receiver.handleSyncNotAttempted(Localization.get("main.sync.demo.no.forms"));
                 }
             }
             return;
         }
 
-        SharedPreferences prefs = CommCareApplication.instance().getCurrentApp().getAppPreferences();
-        syncData(activity, formsToSend, userTriggeredSync, ServerUrls.getDataServerKey(),
-                u.getUsername(), u.getCachedPwd(), u.getUniqueId());
+        syncData(
+                receiver.getSyncTaskActivity(),
+                formsToSend,
+                userTriggeredSync,
+                ServerUrls.getDataServerKey(),
+                u.getUsername(),
+                u.getCachedPwd(),
+                u.getUniqueId()
+        );
     }
 
-    public void performOtaRestore(LoginActivity context, String username, String password) {
-        syncData(context, false, false, ServerUrls.getDataServerKey(),
-                username, password, null);
-    }
-
-    public <I extends CommCareActivity & PullTaskResultReceiver> void performCustomRestoreFromFile(
-            I context,
-            File incomingRestoreFile) {
+    public void performCustomRestoreFromFile(
+            CommCareActivity<?> context,
+            File incomingRestoreFile
+    ) {
         User u = CommCareApplication.instance().getSession().getLoggedInUser();
         String username = u.getUsername();
 
         LocalFilePullResponseFactory.setRequestPayloads(new File[]{incomingRestoreFile});
-        syncData(context, false, false, "fake-server-that-is-never-used", username, null, "unused",
-                LocalFilePullResponseFactory.INSTANCE, true);
+        syncData(
+                context,
+                false,
+                false,
+                "fake-server-that-is-never-used",
+                username,
+                null,
+                "unused",
+                LocalFilePullResponseFactory.INSTANCE,
+                true
+        );
     }
 
-
-    public <I extends CommCareActivity & PullTaskResultReceiver> void performLocalRestore(
-            I context,
+    public void syncData(
+            final CommCareActivity<?> activity,
+            final boolean formsToSend,
+            final boolean userTriggeredSync,
+            String server,
             String username,
-            String password) {
+            String password,
+            String userId
+    ) {
 
-        try {
-            ReferenceManager.instance().DeriveReference(
-                    SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
-        } catch (InvalidReferenceException | IOException e) {
-            throw new RuntimeException("Local restore file missing");
-        }
-
-        LocalReferencePullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
-        syncData(context, false, false, "fake-server-that-is-never-used", username, password, "unused",
-                LocalReferencePullResponseFactory.INSTANCE, true);
+        syncData(
+                activity,
+                formsToSend,
+                userTriggeredSync,
+                server,
+                username,
+                password,
+                userId,
+                CommCareApplication.instance().getDataPullRequester(),
+                false
+        );
     }
 
-
-    public <I extends CommCareActivity & PullTaskResultReceiver> void performDemoUserRestore(
-            I context,
-            OfflineUserRestore offlineUserRestore) {
-        String[] demoUserRestore = new String[]{offlineUserRestore.getReference()};
-        LocalReferencePullResponseFactory.setRequestPayloads(demoUserRestore);
-        syncData(context, false, false, "fake-server-that-is-never-used",
-                offlineUserRestore.getUsername(), OfflineUserRestore.DEMO_USER_PASSWORD, "demo_id",
-                LocalReferencePullResponseFactory.INSTANCE, true);
-    }
-
-    public <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
-            final I activity, final boolean formsToSend,
-            final boolean userTriggeredSync, String server,
-            String username, String password, String userId) {
-
-        syncData(activity, formsToSend, userTriggeredSync, server, username, password, userId,
-                CommCareApplication.instance().getDataPullRequester(), false);
-    }
-
-    private <I extends CommCareActivity & PullTaskResultReceiver> void syncData(
-            final I activity, final boolean formsToSend,
-            final boolean userTriggeredSync, String server,
-            String username, String password, String userId,
-            DataPullRequester dataPullRequester, boolean blockRemoteKeyManagement) {
+    private void syncData(
+            final CommCareActivity<?> activity,
+            final boolean formsToSend,
+            final boolean userTriggeredSync,
+            String server,
+            String username,
+            String password,
+            String userId,
+            DataPullRequester dataPullRequester,
+            boolean blockRemoteKeyManagement
+    ) {
 
         DataPullTask<PullTaskResultReceiver> dataPullTask = new DataPullTask<PullTaskResultReceiver>(
-                username, password, userId, server, activity, dataPullRequester,
-                blockRemoteKeyManagement, false, userTriggeredSync) {
+                username,
+                password,
+                userId,
+                server,
+                activity,
+                dataPullRequester,
+                blockRemoteKeyManagement,
+                false,
+                userTriggeredSync
+        ) {
 
             @Override
-            protected void deliverResult(PullTaskResultReceiver receiver,
-                                         ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                receiver.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend,
-                        !blockRemoteKeyManagement);
+            protected void deliverResult(
+                    PullTaskResultReceiver receiver,
+                    ResultAndError<PullTaskResult> resultAndErrorMessage
+            ) {
+                receiver.handlePullTaskResult(
+                        resultAndErrorMessage, userTriggeredSync, formsToSend,
+                        !blockRemoteKeyManagement
+                );
             }
 
             @Override
@@ -208,14 +236,15 @@ public class FormAndDataSyncer {
             }
 
             @Override
-            protected void deliverError(PullTaskResultReceiver receiver,
-                                        Exception e) {
+            protected void deliverError(
+                    PullTaskResultReceiver receiver,
+                    Exception e
+            ) {
                 receiver.handlePullTaskError();
             }
         };
 
-        dataPullTask.connect(activity);
+        dataPullTask.connect((CommCareTaskConnector)activity);
         dataPullTask.executeParallel();
     }
-
 }

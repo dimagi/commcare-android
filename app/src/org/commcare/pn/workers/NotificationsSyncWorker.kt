@@ -14,24 +14,22 @@ import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAI
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_AVAILABLE_NEW
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_DELIVERING
 import org.commcare.android.database.connect.models.ConnectJobRecord.STATUS_LEARNING
-import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants.NOTIFICATION_BODY
 import org.commcare.connect.ConnectConstants.NOTIFICATION_ID
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_DELIVERY
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_STATUS_LEARN
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
-import org.commcare.connect.ConnectJobHelper
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.NotificationRecordDatabaseHelper.getNotificationById
+import org.commcare.connect.repository.ConnectRepository
+import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
 import org.commcare.util.LogTypes
 import org.commcare.utils.FirebaseMessagingUtil
 import org.commcare.utils.FirebaseMessagingUtil.cccCheckPassed
 import org.commcare.utils.PushNotificationApiHelper
 import org.javarosa.core.services.Logger
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * This worker is responsible to sync different API endpoints from Connect and PersonalID server based on the action
@@ -84,14 +82,18 @@ class NotificationsSyncWorker(
 
     private fun logResult(syncResult: PNApiResponseStatus) {
         val actionStr = syncAction?.toString()
-        Logger.log(LogTypes.TYPE_MAINTENANCE, "Sync Action: $actionStr completed with success: ${syncResult?.success}")
+        Logger.log(
+            LogTypes.TYPE_MAINTENANCE,
+            "Sync Action: $actionStr completed with success: ${syncResult?.success}",
+        )
     }
 
     private fun initStateFromInputData() {
         val notificationPayloadJson = inputData.getString(NOTIFICATION_PAYLOAD)
         if (notificationPayloadJson != null) {
             val mapType = object : TypeToken<HashMap<String, Any>>() {}.type
-            notificationPayload = Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
+            notificationPayload =
+                Gson().fromJson<HashMap<String, String>>(notificationPayloadJson, mapType)
         }
 
         val syncActionStr = inputData.getString(ACTION)
@@ -120,20 +122,26 @@ class NotificationsSyncWorker(
             }
         }
 
-    private suspend fun syncOpportunities(): PNApiResponseStatus =
-        suspendCoroutine { continuation ->
-            ConnectJobHelper.retrieveOpportunities(
-                appContext,
-                object : ConnectActivityCompleteListener {
-                    override fun connectActivityComplete(
-                        success: Boolean,
-                        error: String?,
-                    ) {
-                        continuation.resume(PNApiResponseStatus(success, !success))
+    private suspend fun syncOpportunities(): PNApiResponseStatus {
+        var success = false
+        ConnectRepository
+            .getInstance()
+            .getOpportunities(forceRefresh = true)
+            .collect { state ->
+                when (state) {
+                    is DataState.Success -> {
+                        success = true
                     }
-                },
-            )
-        }
+
+                    is DataState.Error -> {
+                        success = false
+                    }
+
+                    else -> {}
+                }
+            }
+        return PNApiResponseStatus(success, !success)
+    }
 
     private suspend fun syncPersonalIdNotifications(): PNApiResponseStatus {
         val result = PushNotificationApiHelper.retrieveLatestPushNotifications(appContext)
@@ -142,48 +150,54 @@ class NotificationsSyncWorker(
 
     private suspend fun syncJobProgress(): PNApiResponseStatus {
         job = getConnectJob()
-        return if (job == null) {
-            handleNoConnectJob()
-        } else {
-            suspendCoroutine { continuation ->
-                ConnectJobHelper.updateJobProgress(
-                    appContext,
-                    job!!,
-                    false,
-                    null,
-                    object : ConnectActivityCompleteListener {
-                        override fun connectActivityComplete(
-                            success: Boolean,
-                            error: String?,
-                        ) {
-                            continuation.resume(PNApiResponseStatus(success, !success))
-                        }
-                    },
-                )
+        if (job == null) return handleNoConnectJob()
+        var success = false
+        ConnectRepository
+            .getInstance()
+            .syncJobProgress(job!!)
+            .collect { state ->
+                when (state) {
+                    is DataState.Success -> {
+                        success = true
+                    }
+
+                    is DataState.Error -> {
+                        success = false
+                    }
+
+                    else -> {}
+                }
+            }
+        return PNApiResponseStatus(success, !success)
+    }
+
+    private fun checkForOpportunityStatus(): Boolean {
+        val payload = notificationPayload ?: return true
+        val currentJob = job ?: return true
+
+        if (!payload.containsKey(OPPORTUNITY_STATUS)) return true
+
+        val opportunityStatus = payload[OPPORTUNITY_STATUS]
+
+        return when (opportunityStatus) {
+            OPPORTUNITY_STATUS_LEARN -> {
+                currentJob.status in setOf(STATUS_LEARNING, STATUS_AVAILABLE, STATUS_AVAILABLE_NEW)
+            }
+
+            OPPORTUNITY_STATUS_DELIVERY -> {
+                currentJob.status == STATUS_DELIVERING
+            }
+
+            else -> {
+                false
             }
         }
     }
-
-    private fun checkForOpportunityStatus(): Boolean =
-        if (notificationPayload?.contains(OPPORTUNITY_STATUS) == true && job != null) {
-            val opportunityStatus = notificationPayload?.get(OPPORTUNITY_STATUS)
-            (job?.status == STATUS_LEARNING || job?.status == STATUS_AVAILABLE || job?.status == STATUS_AVAILABLE_NEW) &&
-                OPPORTUNITY_STATUS_LEARN.equals(
-                    opportunityStatus,
-                ) ||
-                job?.status == STATUS_DELIVERING &&
-                OPPORTUNITY_STATUS_DELIVERY.equals(
-                    opportunityStatus,
-                )
-        } else {
-            true
-        }
 
     private fun getConnectJob(): ConnectJobRecord? {
         val opportunityUUID = notificationPayload?.get(OPPORTUNITY_UUID)
         if (!TextUtils.isEmpty(opportunityUUID)) {
             return ConnectJobUtils.getCompositeJob(
-                appContext,
                 opportunityUUID!!,
             )
         }

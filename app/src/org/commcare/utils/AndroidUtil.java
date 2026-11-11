@@ -2,12 +2,10 @@ package org.commcare.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.WindowInsets;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -16,10 +14,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -81,7 +78,7 @@ public class AndroidUtil {
 
     /**
      * Attaches a WindowInsetsListener to the root view of the activity for devices running Android 15+. This
-     * listener applies padding to the view based on the system window insets.
+     * listener applies padding to the view based on the system window insets, including the keyboard.
      *
      * @param activity   The activity to which the listener is attached.
      * @param rootViewId The ID of the root view in the activity's layout.
@@ -91,18 +88,15 @@ public class AndroidUtil {
         View activityRootView = activity.findViewById(rootViewId);
 
         if (activityRootView != null) {
-            ViewCompat.setOnApplyWindowInsetsListener(activityRootView, new OnApplyWindowInsetsListener() {
-                @NonNull
-                @Override
-                public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
-                    WindowInsets windowInsets = activityRootView.getRootWindowInsets();
-                    if (windowInsets != null) {
-                        Insets systemBars = windowInsets.getSystemWindowInsets();
-                        // Apply padding so content doesn't overlap with system bars
-                        view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-                    }
-                    return insets;
-                }
+            ViewCompat.setOnApplyWindowInsetsListener(activityRootView, (view, insets) -> {
+                Insets obstructions = insets.getInsets(
+                        WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout()
+                                | WindowInsetsCompat.Type.ime());
+
+                // Apply padding so content doesn't overlap with system bars or the keyboard. Edge-to-edge
+                // enforcement makes adjustResize a no-op, so this is what makes room for the IME.
+                view.setPadding(obstructions.left, obstructions.top, obstructions.right, obstructions.bottom);
+                return insets;
             });
         }
     }

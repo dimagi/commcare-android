@@ -15,10 +15,27 @@
         android:overScrollMode="never"
         android:paddingBottom="10dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@+id/cardMessage"
+        app:layout_constraintBottom_toTopOf="@+id/tvUpdateBanner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvUpdateBanner"
+        style="@style/ConnectMessageAttachmentText.Label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/connect_space_sm"
+        android:layout_marginBottom="@dimen/connect_space_sm"
+        android:background="@drawable/error_banner_bg"
+        android:padding="@dimen/connect_space_md"
+        android:text="@string/connect_messaging_update_app_banner"
+        android:textColor="@color/dark_red_brick_red"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/cardMessage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
 
     <RelativeLayout
         android:id="@+id/cardMessage"

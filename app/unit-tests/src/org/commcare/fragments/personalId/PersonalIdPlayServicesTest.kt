@@ -5,25 +5,17 @@ import android.content.Context
 import android.content.DialogInterface
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
-import androidx.annotation.CallSuper
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import org.commcare.CommCareTestApplication
-import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.dalvik.R
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.MockitoAnnotations
-import org.robolectric.Robolectric
-import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
@@ -80,42 +72,15 @@ class ShadowGoogleApiAvailability {
  */
 @Config(application = CommCareTestApplication::class, shadows = [ShadowGoogleApiAvailability::class])
 @RunWith(AndroidJUnit4::class)
-class PersonalIdPlayServicesTest {
-    private lateinit var mocksCloseable: AutoCloseable
-    private lateinit var activityController: ActivityController<PersonalIdActivity>
-    private lateinit var activity: PersonalIdActivity
-    private lateinit var fragment: PersonalIdPhoneFragment
-    private lateinit var navController: NavController
-
-    @Before
-    @CallSuper
-    fun setUp() {
-        mocksCloseable = MockitoAnnotations.openMocks(this)
-    }
-
+class PersonalIdPlayServicesTest : BasePersonalIdConfigurationTest<PersonalIdPhoneFragment>() {
     private fun setUpPersonalIdActivityWithFragment() {
-        activityController = Robolectric.buildActivity(PersonalIdActivity::class.java)
-        activity =
-            activityController
-                .create()
-                .start()
-                .resume()
-                .get()
-
-        val navHostFragment =
-            activity.supportFragmentManager
-                .findFragmentById(R.id.nav_host_fragment_connectid) as NavHostFragment
-        fragment =
-            navHostFragment.childFragmentManager
-                .primaryNavigationFragment as PersonalIdPhoneFragment
-
-        navController = navHostFragment.navController
+        bootActivity()
+        captureNavFragment()
         ShadowLooper.idleMainLooper()
     }
 
     @After
-    @CallSuper
-    fun tearDown() {
+    override fun tearDown() {
         if (::activityController.isInitialized) {
             try {
                 activityController.pause().stop().destroy()
@@ -123,8 +88,8 @@ class PersonalIdPlayServicesTest {
                 // Ignore navigation errors during teardown
             }
         }
-        mocksCloseable.close()
         ShadowGoogleApiAvailability.reset()
+        super.tearDown()
     }
 
     @Test
@@ -164,14 +129,15 @@ class PersonalIdPlayServicesTest {
             ShadowGoogleApiAvailability.showErrorDialogCalled,
         )
 
+        val hostNavController = navHostFragment.navController
         assertEquals(
             "Should navigate to message display screen for non-resolvable error",
             R.id.personalid_message_display,
-            navController.currentDestination!!.id,
+            hostNavController.currentDestination!!.id,
         )
 
         val expectedMessage = activity.getString(R.string.play_service_update_error)
-        val actualMessage = navController.currentBackStackEntry!!.arguments!!.getString("message")
+        val actualMessage = hostNavController.currentBackStackEntry!!.arguments!!.getString("message")
 
         assertEquals(
             "Message should indicate play services error",

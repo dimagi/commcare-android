@@ -24,7 +24,7 @@
             android:id="@+id/imgChannel"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            app:cardBackgroundColor="@color/connect_lighter_grey"
+            app:cardBackgroundColor="@color/mist_gray"
             app:cardCornerRadius="7dp"
             app:cardElevation="0dp"
             app:layout_constraintStart_toStartOf="parent"

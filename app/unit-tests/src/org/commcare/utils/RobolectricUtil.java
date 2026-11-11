@@ -32,4 +32,15 @@ public class RobolectricUtil {
         }
         ShadowLooper.idleMainLooper();
     }
+
+    /**
+     * Like flushBackgroundThread, but keeps flushing until no task is in progress, so tasks
+     * launched while delivering a previous task's result (e.g. a sync after a POST) also complete.
+     */
+    public static void flushAllBackgroundTasks(CommCareActivity activity) {
+        while (activity.aTaskInProgress()) {
+            flushBackgroundThread(activity);
+        }
+        ShadowLooper.idleMainLooper();
+    }
 }

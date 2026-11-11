@@ -21,13 +21,7 @@ public class MenuActivity extends SessionAwareCommCareActivity<MenuActivity> {
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
         }
-        if (menuId.equals(Menu.ROOT_MENU_ID) && DispatchActivity.useRootMenuHomeActivity()) {
-            // Pressing back from any screen immediately after the RootMenuHomeActivity will take
-            // us here, so we want to redirect
-            finish();
-            return;
-        }
-        MenuList.setupMenuViewInActivity(this, menuId, useGridMenu(menuId), false);
+        MenuList.setupMenuViewInActivity(this, menuId, useGridMenu(menuId));
     }
 
     private static boolean useGridMenu(String currentCommand) {

@@ -7,8 +7,11 @@ import android.text.style.ImageSpan;
 
 import androidx.core.content.ContextCompat;
 
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
+import org.commcare.connect.messaging.ConnectMessagingMessagePackage;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.DimensionUtils;
@@ -23,14 +26,14 @@ import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
 public class ConnectMessagingDatabaseHelper {
     public static List<ConnectMessagingChannelRecord> getMessagingChannels(Context context) {
         List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingChannelRecord.class)
+                .getConnectStorage(ConnectMessagingChannelRecord.class)
                 .getRecordsForValues(new String[]{}, new Object[]{});
 
         Map<String, ConnectMessagingChannelRecord> channelMap = new HashMap<>();
         for (ConnectMessagingChannelRecord c : channels) {
             channelMap.put(c.getChannelId(), c);
         }
-        for (ConnectMessagingMessageRecord connectMessagingMessageRecord : getMessagingMessagesAll(context)) {
+        for (ConnectMessagingMessageRecord connectMessagingMessageRecord : getMessagingMessagesAll()) {
             ConnectMessagingChannelRecord connectMessagingChannelRecord =
                     channelMap.get(connectMessagingMessageRecord.getChannelId());
             connectMessagingChannelRecord.getMessages().add(connectMessagingMessageRecord);
@@ -43,10 +46,17 @@ public class ConnectMessagingDatabaseHelper {
             SpannableString preview;
 
             if (lastMessage != null && channel.getConsented()) {
-                String trimmed = lastMessage.getMessage().split("\n")[0];
-                int maxLength = 25;
-                if (trimmed.length() > maxLength) {
-                    trimmed = trimmed.substring(0, maxLength - 3) + "...";
+                String trimmed;
+                if (lastMessage.isUnsupportedVersion()) {
+                    trimmed = context.getString(R.string.connect_messaging_preview_update_app);
+                } else if (isAwaitingDownload(lastMessage)) {
+                    trimmed = context.getString(R.string.connect_messaging_preview_pending_download);
+                } else {
+                    trimmed = lastMessage.getDisplayText().split("\n")[0];
+                    int maxLength = 25;
+                    if (trimmed.length() > maxLength) {
+                        trimmed = trimmed.substring(0, maxLength - 3) + "...";
+                    }
                 }
 
                 preview = new SpannableString(
@@ -76,12 +86,22 @@ public class ConnectMessagingDatabaseHelper {
         return channels;
     }
 
+    private static boolean isAwaitingDownload(ConnectMessagingMessageRecord message) {
+        if (!message.isRich()) {
+            return false;
+        }
+        List<ConnectMessagingAttachmentRecord> attachments =
+                ConnectMessagingAttachmentDatabaseHelper.getAttachmentsForMessage(message.getMessageId());
+        return !attachments.isEmpty()
+                && ConnectMessagingMessagePackage.stateOfAttachments(attachments)
+                != ConnectMessagingAttachmentState.AVAILABLE;
+    }
+
     public static ConnectMessagingChannelRecord getMessagingChannel(
-            Context context,
             String channelId
     ) {
         List<ConnectMessagingChannelRecord> channels = ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingChannelRecord.class)
+                .getConnectStorage(ConnectMessagingChannelRecord.class)
                 .getRecordsForValues(
                         new String[]{ConnectMessagingChannelRecord.META_CHANNEL_ID},
                         new Object[]{channelId}
@@ -99,13 +119,13 @@ public class ConnectMessagingDatabaseHelper {
             ConnectMessagingChannelRecord channel
     ) {
         ConnectMessagingChannelRecord existing =
-                getMessagingChannel(context, channel.getChannelId());
+                getMessagingChannel(channel.getChannelId());
         if (existing != null) {
             channel.setID(existing.getID());
         }
 
         ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingChannelRecord.class)
+                .getConnectStorage(ConnectMessagingChannelRecord.class)
                 .write(channel);
     }
 
@@ -115,7 +135,6 @@ public class ConnectMessagingDatabaseHelper {
             boolean pruneMissing
     ) {
         SqlStorage<ConnectMessagingChannelRecord> storage = ConnectDatabaseHelper.getConnectStorage(
-                context,
                 ConnectMessagingChannelRecord.class
         );
 
@@ -160,27 +179,26 @@ public class ConnectMessagingDatabaseHelper {
         }
     }
 
-    public static List<ConnectMessagingMessageRecord> getMessagingMessagesAll(Context context) {
+    public static List<ConnectMessagingMessageRecord> getMessagingMessagesAll() {
         return ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingMessageRecord.class)
+                .getConnectStorage(ConnectMessagingMessageRecord.class)
                 .getRecordsForValues(new String[]{}, new Object[]{});
     }
 
     public static List<ConnectMessagingMessageRecord> getMessagingMessagesForChannel(
-            Context context,
             String channelId
     ) {
         return ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingMessageRecord.class)
+                .getConnectStorage(ConnectMessagingMessageRecord.class)
                 .getRecordsForValues(
                         new String[]{ConnectMessagingMessageRecord.META_MESSAGE_CHANNEL_ID},
                         new Object[]{channelId}
                 );
     }
 
-    public static List<ConnectMessagingMessageRecord> getUnviewedMessages(Context context) {
+    public static List<ConnectMessagingMessageRecord> getUnviewedMessages() {
         return ConnectDatabaseHelper
-                .getConnectStorage(context, ConnectMessagingMessageRecord.class)
+                .getConnectStorage(ConnectMessagingMessageRecord.class)
                 .getRecordsForValues(
                         new String[]{ConnectMessagingMessageRecord.META_MESSAGE_USER_VIEWED},
                         new Object[]{false}
@@ -192,12 +210,11 @@ public class ConnectMessagingDatabaseHelper {
             ConnectMessagingMessageRecord message
     ) {
         SqlStorage<ConnectMessagingMessageRecord> storage = ConnectDatabaseHelper.getConnectStorage(
-                context,
                 ConnectMessagingMessageRecord.class
         );
 
         List<ConnectMessagingMessageRecord> existingList =
-                getMessagingMessagesForChannel(context, message.getChannelId());
+                getMessagingMessagesForChannel(message.getChannelId());
         for (ConnectMessagingMessageRecord existing : existingList) {
             if (existing.getMessageId().equals(message.getMessageId())) {
                 message.setID(existing.getID());
@@ -214,11 +231,10 @@ public class ConnectMessagingDatabaseHelper {
             boolean pruneMissing
     ) {
         SqlStorage<ConnectMessagingMessageRecord> storage = ConnectDatabaseHelper.getConnectStorage(
-                context,
                 ConnectMessagingMessageRecord.class
         );
 
-        List<ConnectMessagingMessageRecord> existingList = getMessagingMessagesAll(context);
+        List<ConnectMessagingMessageRecord> existingList = getMessagingMessagesAll();
 
         //Delete payments that are no longer available
         Vector<Integer> recordIdsToDelete = new Vector<>();
@@ -227,6 +243,9 @@ public class ConnectMessagingDatabaseHelper {
             for (ConnectMessagingMessageRecord incoming : messages) {
                 if (existing.getMessageId().equals(incoming.getMessageId())) {
                     incoming.setID(existing.getID());
+                    if (incoming.getVersion() == existing.getVersion()) {
+                        incoming.setUserViewed(existing.getUserViewed());
+                    }
                     stillExists = true;
                     break;
                 }

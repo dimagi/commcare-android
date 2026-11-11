@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="org.commcare.activities.PushNotificationActivity">
+    tools:context="org.commcare.activities.PushNotificationActivity"
+    tools:theme="@style/ConnectTheme">
 
     <include
         android:id="@+id/include_tool_bar"
@@ -19,19 +20,20 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/standard_spacer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/include_tool_bar"
         tools:listitem="@layout/item_push_notification" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvNoNotifications"
+        style="@style/TextStyle.Connect.TitleM"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
+        android:layout_marginHorizontal="@dimen/standard_spacer_double"
         android:gravity="center_horizontal"
         android:text="@string/pn_no_notification_available"
-        android:textColor="@color/sonic_silver"
-        android:textSize="18sp"
+        android:textColor="?attr/connectOnSurfaceSecondary"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

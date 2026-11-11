@@ -2,7 +2,7 @@ package org.commcare.fragments.personalId;
 
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.BIOMETRIC_TYPE;
 import static org.commcare.android.database.connect.models.PersonalIdSessionData.PIN;
-import static org.commcare.connect.PersonalIdManager.BIOMETRIC_INVALIDATION_KEY;
+import static org.commcare.personalId.PersonalIdUnlockerKt.BIOMETRIC_INVALIDATION_KEY;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_FINGERPRINT;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CONTINUE_WITH_PIN;
 import static org.commcare.utils.BiometricsHelper.isAnyBiometricConfigured;
@@ -26,7 +26,7 @@ import androidx.navigation.Navigation;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.connect.viewmodel.PersonalIdSessionDataViewModel;
 import org.commcare.connect.ConnectConstants;
-import org.commcare.connect.PersonalIdManager;
+import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.ScreenPersonalidVerifyBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -75,7 +75,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
 
         binding.connectVerifyFingerprintButton.setOnClickListener(v -> onFingerprintButtonClicked());
         binding.connectVerifyPinButton.setOnClickListener(v -> onPinButtonClicked());
-        requireActivity().setTitle(R.string.connect_appbar_title_app_lock);
+        setTitle(R.string.connect_appbar_title_app_lock);
         return binding.getRoot();
     }
 
@@ -86,7 +86,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private BiometricManager getBiometricManager() {
-        return PersonalIdManager.getInstance().getBiometricManager(requireActivity());
+        return BiometricsHelper.getBiometricManager(requireActivity());
     }
 
     private BiometricPrompt.AuthenticationCallback setupBiometricCallback() {
@@ -222,7 +222,8 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private void onFingerprintButtonClicked() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),CONTINUE_WITH_FINGERPRINT);
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),
+                CONTINUE_WITH_FINGERPRINT, PersonalIdWorkflow.CONFIGURATION);
         BiometricsHelper.ConfigurationStatus status = BiometricsHelper.checkFingerprintStatus(getActivity(),
                 biometricManager);
 
@@ -271,7 +272,8 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
     }
 
     private void onPinButtonClicked() {
-        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),CONTINUE_WITH_PIN);
+        FirebaseAnalyticsUtil.reportPersonalIDContinueClicked(this.getClass().getSimpleName(),
+                CONTINUE_WITH_PIN, PersonalIdWorkflow.CONFIGURATION);
         BiometricsHelper.ConfigurationStatus status = BiometricsHelper.checkPinStatus(getActivity(),
                 biometricManager);
 

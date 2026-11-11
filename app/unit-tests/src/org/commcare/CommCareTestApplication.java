@@ -27,6 +27,7 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.database.UnencryptedDatabaseAdapter;
 import org.commcare.models.database.app.DatabaseAppOpenHelperMock;
+import org.commcare.models.database.connect.DatabaseConnectOpenHelperMock;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelperMock;
 import org.commcare.models.database.user.DatabaseUserOpenHelperMock;
 import org.commcare.models.encryption.ByteEncrypter;
@@ -54,6 +55,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.work.WorkManager;
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -61,6 +64,7 @@ import okhttp3.RequestBody;
 import static junit.framework.Assert.fail;
 import static org.robolectric.shadows.ShadowEnvironment.setExternalStorageState;
 
+import com.google.android.gms.common.GoogleApiAvailabilityLight;
 import com.google.common.collect.Multimap;
 
 /**
@@ -73,12 +77,16 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     private String cachedUserPassword;
 
     private final ArrayList<Throwable> asyncExceptions = new ArrayList<>();
-    private boolean skipWorkManager = false;
 
     @Override
     public void onCreate() {
         // set if before calling super to initialte the dataChangeLogger correctly
         setExternalStorageState(Environment.MEDIA_MOUNTED);
+
+        // initialize work manager before super.onCreate() to avoid IllegalStateException when WorkManager is used in onCreate() of CommCareApplication
+        initWorkManager();
+
+        primePlayServicesManifestCache();
 
         super.onCreate();
 
@@ -88,6 +96,15 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
+    }
+
+    /**
+     * Play Services reads the manifest's gms version once per JVM and keeps it, even when that
+     * read fails. Reading it here, against this live application, stops a later background call
+     * holding a finished test's stale context from caching 0 for every test after it.
+     */
+    private void primePlayServicesManifestCache() {
+        GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(this);
     }
 
     protected void attachISRGCert() {
@@ -112,8 +129,9 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         } catch (IllegalStateException e) {
             Configuration config = new Configuration.Builder()
                     .setMinimumLoggingLevel(Log.DEBUG)
+                    .setExecutor(new SynchronousExecutor())
                     .build();
-            WorkManager.initialize(context, config);
+            WorkManagerTestInitHelper.initializeTestWorkManager(context, config);
         }
     }
 
@@ -166,7 +184,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             String[] baseODK = new String[]{BuildConfig.BUILD_DIR
                     + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
                     , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"
-                    , BuildConfig.BUILD_DIR + "/tmp/kotlin-classes/commcareDebug/"};
+                    , BuildConfig.BUILD_DIR + "/tmp/kotlin-classes/commcareDebug/"
+                    , BuildConfig.BUILD_DIR + "/intermediates/built_in_kotlinc/commcareDebug/compileCommcareDebugKotlin/classes/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 
@@ -334,7 +353,11 @@ public class CommCareTestApplication extends CommCareApplication implements Test
     }
 
     public void setSkipWorkManager() {
-        skipWorkManager = true;
+    }
+
+    @Override
+    public IDatabase getConnectDbOpenHelper() {
+        return new UnencryptedDatabaseAdapter(new DatabaseConnectOpenHelperMock(this));
     }
 
     @Override

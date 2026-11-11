@@ -49,6 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="5dp"
+            android:freezesText="true"
             android:text=" ">
         </TextView>
 
@@ -97,7 +98,7 @@
 
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/send"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
@@ -109,7 +110,7 @@
 
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/discover"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
@@ -121,7 +122,7 @@
 
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/submit"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"
@@ -133,7 +134,7 @@
 
                 <org.commcare.views.SquareButtonWithText
                     android:id="@+id/mode"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_margin="4dp"
                     android:layout_weight="1"

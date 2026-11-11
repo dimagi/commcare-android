@@ -1,0 +1,66 @@
+package org.commcare.home
+
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.savedstate.SavedStateRegistryOwner
+import org.commcare.views.dialogs.CommCareAlertDialog
+
+/**
+ * The capabilities [HomeActivityCoordinator] and its delegates need from a home activity.
+ */
+interface HomeActivityHost :
+    SavedStateRegistryOwner,
+    SyncHost,
+    SessionLaunchHost {
+    /** The host as a [Context], for delegates that build intents and read resources. */
+    val hostContext: Context
+
+    /** The host as an [AppCompatActivity], for update flows that need a real activity. */
+    val hostActivity: AppCompatActivity
+
+    /** Launch [intent] for [requestCode]; results come back through the host's `onActivityResult`. */
+    fun startActivityForResult(
+        intent: Intent,
+        requestCode: Int,
+    )
+
+    /** Show [dialog] on the host, so dialogs survive the host's own dismissal bookkeeping. */
+    fun showAlertDialog(dialog: CommCareAlertDialog)
+
+    /** Show a brief confirmation, such as a PIN being set. */
+    fun displayShortToast(message: String) {
+        Toast.makeText(hostContext, message, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Signals that the coordinator-owned home actions may have changed, so the host should re-query
+     * their availability and re-render wherever it presents them. An imperative "ask me again"
+     * nudge rather than a state push; idempotent and cheap enough to call redundantly.
+     */
+    fun refreshActionSurface()
+
+    /**
+     * Optional UI-refresh hook. Hosts without a `WithUIController` implement it as a no-op.
+     */
+    fun refreshHostUi()
+
+    /** The user picked a new language, so the host should rebuild whatever text it shows. */
+    fun onLocaleChanged()
+
+    /**
+     * Demo-mode query, consumed only by the launch pipeline's demo halt.
+     * Kept separate from [areAppActionsAvailable] because the two coincide for the session-gated hosts
+     * but are independent for the Connect opportunity home in `ConnectActivity`, where this is always `false`.
+     */
+    fun isDemoUser(): Boolean
+
+    /**
+     * Per-action availability predicate for the action facade.
+     */
+    fun areAppActionsAvailable(): Boolean
+
+    /** The user session expired, or was found missing on resume, underneath this host. */
+    fun onSessionLost()
+}

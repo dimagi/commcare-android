@@ -21,6 +21,7 @@ import com.google.android.material.button.MaterialButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.camera.CameraOverlayActivity;
 import org.commcare.activities.components.FormEntryConstants;
 import org.commcare.activities.components.FormEntryInstanceState;
 import org.commcare.activities.components.ImageCaptureProcessing;
@@ -53,16 +54,16 @@ import androidx.appcompat.app.AppCompatActivity;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class ImageWidget extends QuestionWidget {
-
-    public static final int REQUEST_CAMERA_PERMISSION = 1001;
+public class ImageWidget extends QuestionWidget implements QuestionWidget.MediaCapableWidget {
 
     public static final Object IMAGE_VIEW_TAG = "image_view_tag";
 
-    private final Button mCaptureButton;
-    private final Button mChooseButton;
+    private static final String OVERLAY_SMALL = "overlay-small";
+
+    protected final Button mCaptureButton;
+    protected final Button mChooseButton;
     private final Button mDiscardButton;
-    private ImageView mImageView;
+    protected ImageView mImageView;
 
     private String mBinaryName;
 
@@ -71,7 +72,9 @@ public class ImageWidget extends QuestionWidget {
     private final TextView mErrorTextView;
 
     private int mMaxDimen;
-    private final PendingCalloutInterface pendingCalloutInterface;
+
+    private final boolean useRectangleOverlay;
+    protected final PendingCalloutInterface pendingCalloutInterface;
 
     public static File getTempFileForImageCapture() {
         return new File(CommCareApplication.instance().
@@ -98,6 +101,9 @@ public class ImageWidget extends QuestionWidget {
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(v -> {
+            if (warnIfAttachmentLimitReached()) {
+                return;
+            }
             mErrorTextView.setVisibility(View.GONE);
             if (Permissions.missingAppPermission((AppCompatActivity)getContext(), Manifest.permission.CAMERA)) {
                 pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
@@ -124,6 +130,9 @@ public class ImageWidget extends QuestionWidget {
 
         // launch capture intent on click
         mChooseButton.setOnClickListener(v -> {
+            if (warnIfAttachmentLimitReached()) {
+                return;
+            }
             if (ImageCaptureProcessing.getCustomImagePath() != null) {
                 // This block is only in use for a Calabash test and
                 // processes the custom file path set from a broadcast triggered by calabash test
@@ -153,7 +162,7 @@ public class ImageWidget extends QuestionWidget {
                 StringUtils.getStringSpannableRobust(getContext(), R.string.discard_image),
                 !mPrompt.isReadOnly());
         mDiscardButton.setOnClickListener(v -> {
-            deleteMedia();
+            clearBinaryAttachment();
             widgetEntryChanged();
         });
         mDiscardButton.setVisibility(View.GONE);
@@ -164,8 +173,10 @@ public class ImageWidget extends QuestionWidget {
         addView(mChooseButton);
         addView(mDiscardButton);
 
-        String acq = mPrompt.getAppearanceHint();
-        if (QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq)) {
+        String appearanceHint = mPrompt.getAppearanceHint();
+        boolean acquire = appearanceHint != null && appearanceHint.contains(QuestionWidget.ACQUIREFIELD);
+        useRectangleOverlay = appearanceHint != null && appearanceHint.contains(OVERLAY_SMALL);
+        if (acquire) {
             mChooseButton.setVisibility(View.GONE);
         }
         addView(mErrorTextView);
@@ -204,6 +215,7 @@ public class ImageWidget extends QuestionWidget {
                     mErrorTextView.setVisibility(View.VISIBLE);
                 }
                 mImageView.setImageBitmap(bmp);
+                mDiscardButton.setVisibility(View.VISIBLE);
             } else {
                 mImageView.setImageBitmap(null);
             }
@@ -215,8 +227,18 @@ public class ImageWidget extends QuestionWidget {
                     MediaWidget.playMedia(getContext(), "image/*", toDisplay.getAbsolutePath()));
 
             addView(mImageView);
-            mDiscardButton.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public String getBinaryName() {
+        return mBinaryName;
+    }
+
+    @Override
+    public void registerBinaryAttachment(String mediaName) {
+        mBinaryName = mediaName;
+        incrementAttachmentCount();
     }
 
     // If there is an image in the raw folder, use that as the display image, since it is better quality
@@ -239,22 +261,15 @@ public class ImageWidget extends QuestionWidget {
         return toDisplay;
     }
 
-    private void takePicture() {
-        Intent i = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
-
-        // We give the camera an absolute filename/path where to put the
-        // picture because of bug:
-        // http://code.google.com/p/android/issues/detail?id=1480
-        // The bug appears to be fixed in Android 2.0+, but as of feb 2,
-        // 2010, G1 phones only run 1.6. Without specifying the path the
-        // images returned by the camera in 1.6 (and earlier) are ~1/4
-        // the size. boo.
-        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
-        i.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        i.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    protected void takePicture() {
+        Intent intent;
+        if (useRectangleOverlay) {
+            intent = buildOverlayCaptureIntent();
+        } else {
+            intent = buildSystemCaptureIntent();
+        }
         try {
-            ((AppCompatActivity)getContext()).startActivityForResult(i,
+            ((AppCompatActivity)getContext()).startActivityForResult(intent,
                     FormEntryConstants.IMAGE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
@@ -265,18 +280,33 @@ public class ImageWidget extends QuestionWidget {
         }
     }
 
-    private void deleteMedia() {
+    private Intent buildOverlayCaptureIntent() {
+        Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
+        return CameraOverlayActivity.getIntent(getContext(), uri);
+    }
+
+    private Intent buildSystemCaptureIntent() {
+        Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+        Uri uri = FileUtil.getUriForExternalFile(getContext(), getTempFileForImageCapture());
+        intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, uri);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        return intent;
+    }
+
+    public void clearBinaryAttachment() {
         MediaWidget.deleteMediaFiles(mInstanceFolder, mBinaryName);
         // clean up variables
         mBinaryName = null;
         removeView(mImageView);
         mDiscardButton.setVisibility(View.GONE);
+        decrementAttachmentCount();
     }
 
     @Override
     public void clearAnswer() {
         // remove the file
-        deleteMedia();
+        clearBinaryAttachment();
         mImageView.setImageBitmap(null);
         mErrorTextView.setVisibility(View.GONE);
 
@@ -298,11 +328,11 @@ public class ImageWidget extends QuestionWidget {
         // you are replacing an answer. delete the previous image using the
         // content provider.
         if (mBinaryName != null) {
-            deleteMedia();
+            clearBinaryAttachment();
         }
 
         File f = new File(binaryPath.toString());
-        mBinaryName = f.getName();
+        registerBinaryAttachment(f.getName());
     }
 
     @Override

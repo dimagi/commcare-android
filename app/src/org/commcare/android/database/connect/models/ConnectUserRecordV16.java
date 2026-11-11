@@ -68,7 +68,7 @@ public class ConnectUserRecordV16 extends Persisted {
     private String requiredLock;
 
     public ConnectUserRecordV16() {
-        registrationPhase = ConnectConstants.PERSONALID_NO_ACTIVITY;
+        registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED;
         lastPasswordDate = new Date();
         connectTokenExpiration = new Date();
         secondaryPhoneVerified = true;

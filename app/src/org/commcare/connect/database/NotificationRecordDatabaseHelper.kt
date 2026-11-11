@@ -8,7 +8,7 @@ import org.commcare.models.database.SqlStorage
 
 object NotificationRecordDatabaseHelper {
     private fun getStorage(context: Context): SqlStorage<PushNotificationRecord> =
-        ConnectDatabaseHelper.getConnectStorage(context, PushNotificationRecord::class.java)
+        ConnectDatabaseHelper.getConnectStorage(PushNotificationRecord::class.java)
 
     /**
      * Fetch all notifications

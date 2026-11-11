@@ -1,5 +1,5 @@
 package org.commcare.fragments
 
 interface RefreshableFragment {
-    fun refresh()
+    fun refresh(forceRefresh: Boolean)
 }

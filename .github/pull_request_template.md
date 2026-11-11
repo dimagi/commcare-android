@@ -10,6 +10,13 @@ For non-invisible changes, describe the user-facing effects.
 - Describe the rationale and design decisions.
 -->
 
+## Documentation
+<!--
+Required for user-facing changes. Link the Confluence pages to update
+when the app release containing this change goes out. Include pages linked on the ticket that
+turned out not to need changes. Write "None" if no Confluence page is affected.
+-->
+
 ## Safety Assurance
 
 ### Safety story
@@ -23,12 +30,6 @@ In particular consider how existing data may be impacted by this change.
 
 ### Automated test coverage
 <!-- Identify the related test coverage and the conditions it will catch -->
-
-### QA Plan
-<!--
-- Describe QA plan that (along with test coverage) proves that this PR is regression free.
-- Link to QA Ticket
--->
 
 ## Labels and Review
 

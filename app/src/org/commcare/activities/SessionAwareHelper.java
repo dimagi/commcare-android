@@ -27,26 +27,31 @@ public class SessionAwareHelper {
         }
     }
 
-    protected static void onResumeHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
+    protected static void onResumeHelper(SessionAwareInterface sessionAware,
+                                         SessionExpirationHandler expirationHandler,
                                          boolean redirectedInOnCreate) {
         boolean redirectedToLogin =
-                SessionRegistrationHelper.handleSessionExpiration(a) ||
+                expirationHandler.handlePendingExpiration() ||
                         redirectedInOnCreate;
         if (!redirectedToLogin) {
             try {
                 sessionAware.onResumeSessionSafe();
             } catch (SessionUnavailableException e) {
-                SessionRegistrationHelper.redirectToLogin(a);
+                expirationHandler.handleSessionUnavailable();
             }
         }
     }
 
     protected static void onActivityResultHelper(AppCompatActivity a, SessionAwareInterface sessionAware,
+                                                 SessionExpirationHandler expirationHandler,
                                                  int requestCode, int resultCode, Intent intent) {
-        boolean redirectedToLogin =
-                SessionRegistrationHelper.handleSessionExpiration(a);
-        if (!redirectedToLogin) {
-            sessionAware.onActivityResultSessionSafe(requestCode, resultCode, intent);
+        boolean redirectedToLogin = expirationHandler.handlePendingExpiration();
+        if (redirectedToLogin) {
+            return;
         }
+        if (a.getActivityResultRegistry().dispatchResult(requestCode, resultCode, intent)) {
+            return;
+        }
+        sessionAware.onActivityResultSessionSafe(requestCode, resultCode, intent);
     }
 }

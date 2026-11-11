@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.activities.PromptApkUpdateActivity;
 import org.commcare.activities.TargetMismatchErrorActivity;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -30,7 +31,6 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationActionButtonInfo;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.net.MalformedURLException;
@@ -157,7 +157,7 @@ public class ResourceInstallUtils {
      * @param versionAvailable apk version available
      */
     public static void showApkUpdatePrompt(Context context, String versionRequired, String versionAvailable) {
-        String versionMismatch = Localization.get("install.version.mismatch", new String[]{versionRequired, versionAvailable});
+        String versionMismatch = context.getString(R.string.install_version_mismatch, versionRequired, versionAvailable);
         Intent intent = new Intent(context, PromptApkUpdateActivity.class);
         intent.putExtra(PromptApkUpdateActivity.REQUIRED_VERSION, versionRequired);
         intent.putExtra(PromptApkUpdateActivity.CUSTOM_PROMPT_TITLE, versionMismatch);

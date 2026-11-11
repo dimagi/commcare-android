@@ -1,53 +1,32 @@
 package org.commcare.fragments;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.R;
-import org.javarosa.core.services.Logger;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-/**
- * A fragment that manages a particular peer and allows interaction with device
- * i.e. setting up network connection and transferring data.
- */
 @SuppressLint("NewApi")
 public class FileServerFragment extends Fragment {
-    private static final String TAG = FileServerFragment.class.getSimpleName();
 
-    private static CommCareWiFiDirectActivity mActivity;
-
-    private static TextView mStatusText;
+    private TextView mStatusText;
     private View mView;
 
-    private static String receiveZipDirectory;
-
-    private FileServerAsyncTask mFileServer;
+    private FileServerViewModel viewModel;
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mActivity = (CommCareWiFiDirectActivity)context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement fileServerListener");
-        }
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(requireActivity()).get(FileServerViewModel.class);
     }
 
     @Override
@@ -62,121 +41,28 @@ public class FileServerFragment extends Fragment {
         return contentView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mView.setVisibility(viewModel.isRunning() ? View.VISIBLE : View.GONE);
+
+        viewModel.getStatusText().observe(getViewLifecycleOwner(), mStatusText::setText);
+        viewModel.getReceivedZipPaths().observe(getViewLifecycleOwner(), paths -> {
+            CommCareWiFiDirectActivity activity = (CommCareWiFiDirectActivity)requireActivity();
+            for (String path : paths) {
+                viewModel.onReceivedZipHandled(path);
+                activity.onFormsCopied(path);
+            }
+        });
+    }
 
     public interface FileServerListener {
         void onFormsCopied(String result);
     }
 
-    public void startServer(String mReceiveZipDirectory) {
-        Logger.log(TAG, "File Server starting...");
-
-        mStatusText.setText("Starting server");
+    public void startServer(String receiveZipDirectory) {
         mView.setVisibility(View.VISIBLE);
-        if (mFileServer != null) {
-            mFileServer.cancel(true);
-        }
-
-        mFileServer = new FileServerAsyncTask(this);
-
-        receiveZipDirectory = mReceiveZipDirectory;
-
-        //Execute on a true multithreaded chain. We should probably replace all of our calls with this
-        //but this is the big one for now.
-        mFileServer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        viewModel.startServer(receiveZipDirectory);
     }
-
-    /**
-     * A simple server socket that accepts connection and writes some data on
-     * the stream.
-     */
-    static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
-
-        private final FileServerFragment mListener;
-        private boolean socketOccupied;
-
-        FileServerAsyncTask(FileServerFragment mListener) {
-            this.mListener = mListener;
-
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-
-            Logger.log(TAG, "Executing FileServerAsyncTask");
-            socketOccupied = false;
-
-            try {
-                ServerSocket serverSocket = new ServerSocket(8988);
-                long time = System.currentTimeMillis();
-                String finalFileName = receiveZipDirectory + time + ".zip";
-
-                try {
-                    publishProgress("Ready to accept new file transfer.", null);
-                    Socket client = serverSocket.accept();
-                    Logger.log(TAG, "Ready in wi-fi direct file server receive loop");
-
-                    final File f = new File(finalFileName);
-
-                    File dirs = new File(f.getParent());
-
-                    dirs.mkdirs();
-
-                    f.createNewFile();
-
-                    Log.d(TAG, "server: copying files " + f.toString());
-                    InputStream inputstream = client.getInputStream();
-                    CommCareWiFiDirectActivity.copyFile(inputstream, new FileOutputStream(f));
-                    publishProgress("copied files: " + f.getAbsolutePath(), f.getAbsolutePath());
-                    publishProgress("File Server Resetting", null);
-                    return f.getAbsolutePath();
-
-                } catch (IOException e) {
-                    String errorMessage = "File Server crashed after transfer with IO Exception: " + e.getMessage();
-                    Logger.exception(errorMessage, e);
-                    publishProgress(errorMessage);
-                    return null;
-                } finally {
-                    try {
-                        serverSocket.close();
-                    } catch(IOException e) {
-                        // Can ignore
-                        e.printStackTrace();
-                    }
-                }
-            } catch (IOException ioe) {
-                publishProgress("Ready to accept new file transfer.", null);
-                Logger.log(TAG, "couldn't open socket!");
-                socketOccupied = true;
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            Log.e(TAG, "file server task post execute");
-
-            if (socketOccupied) {
-                Logger.log(TAG, "socket busy, cancelling this thread cycle");
-                return;
-            }
-
-            if (result != null) {
-                mActivity.onFormsCopied(result);
-            }
-            Logger.log(TAG, "file server post-execute, relaunching server");
-            mListener.startServer(receiveZipDirectory);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Logger.log(TAG, "pre-execute of file server launch");
-        }
-
-        @Override
-        protected void onProgressUpdate(String... params) {
-            mStatusText.setText(params[0]);
-        }
-
-    }
-
 }

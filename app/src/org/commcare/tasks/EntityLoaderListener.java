@@ -15,4 +15,6 @@ public interface EntityLoaderListener {
     void deliverLoadError(Exception e);
 
     void deliverProgress(Integer... values);
+
+    boolean shouldAbortDelivery();
 }

@@ -1,5 +1,7 @@
 package org.commcare.android.database.connect.models;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.database.Table;
@@ -15,6 +17,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +38,19 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     public static final String META_MESSAGE_IS_OUTGOING = "is_outgoing";
     public static final String META_MESSAGE_CONFIRM = "confirmed";
     public static final String META_MESSAGE_USER_VIEWED = "user_viewed";
+
+    public static final int VERSION_PLAIN = 0;
+    public static final int VERSION_RICH = 2;
+    private static final List<Integer> SUPPORTED_VERSIONS = Arrays.asList(VERSION_PLAIN, VERSION_RICH);
+    private static final long NO_EXPIRY = 0;
+
+    private static final String JSON_VERSION = "version";
+    private static final String JSON_RICH_TEXT = "rich_text";
+    private static final String JSON_FORMAT = "format";
+    private static final String JSON_EXPIRES_AT = "expires_at";
+    private static final String JSON_CIPHER_TEXT = "ciphertext";
+    private static final String JSON_NONCE = "nonce";
+    private static final String JSON_TAG = "tag";
 
     public ConnectMessagingMessageRecord() {
 
@@ -68,6 +84,34 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
     @MetaField(META_MESSAGE_USER_VIEWED)
     private boolean userViewed;
 
+    @Persisting(8)
+    private int version;
+
+    @Persisting(value = 9, nullable = true)
+    private String richText;
+
+    @Persisting(value = 10, nullable = true)
+    private String format;
+
+    @Persisting(11)
+    private long expiresAtMillis;
+
+    public static ConnectMessagingMessageRecord fromV29(ConnectMessagingMessageRecordV29 oldRecord) {
+        ConnectMessagingMessageRecord record = new ConnectMessagingMessageRecord();
+        record.messageId = oldRecord.getMessageId();
+        record.channelId = oldRecord.getChannelId();
+        record.timeStamp = oldRecord.getTimeStamp();
+        record.message = oldRecord.getMessage();
+        record.isOutgoing = oldRecord.isOutgoing();
+        record.confirmed = oldRecord.getConfirmed();
+        record.userViewed = oldRecord.getUserViewed();
+        record.version = VERSION_PLAIN;
+        record.richText = null;
+        record.format = null;
+        record.expiresAtMillis = NO_EXPIRY;
+        return record;
+    }
+
     /**
      * Creates a decrypted message record from encrypted JSON payload by using the channel key
      *
@@ -96,9 +140,19 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
         String dateString = json.getString(META_MESSAGE_TIMESTAMP);
         connectMessagingMessageRecord.timeStamp = DateUtils.parseDateTime(dateString);
 
-        String tag = json.getString("tag");
-        String nonce = json.getString("nonce");
-        String cipherText = json.getString("ciphertext");
+        connectMessagingMessageRecord.isOutgoing = false;
+        connectMessagingMessageRecord.confirmed = false;
+        connectMessagingMessageRecord.userViewed = false;
+
+        connectMessagingMessageRecord.version = json.optInt(JSON_VERSION, VERSION_PLAIN);
+        if (connectMessagingMessageRecord.isUnsupportedVersion()) {
+            connectMessagingMessageRecord.message = "";
+            return connectMessagingMessageRecord;
+        }
+
+        String tag = json.getString(JSON_TAG);
+        String nonce = json.getString(JSON_NONCE);
+        String cipherText = json.getString(JSON_CIPHER_TEXT);
 
         String decrypted = decrypt(cipherText, nonce, tag, channel.getKey());
 
@@ -108,11 +162,43 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
         connectMessagingMessageRecord.message = truncateMessage(decrypted, MESSAGE);
 
-        connectMessagingMessageRecord.isOutgoing = false;
-        connectMessagingMessageRecord.confirmed = false;
-        connectMessagingMessageRecord.userViewed = false;
+        if (connectMessagingMessageRecord.isRich()) {
+            readRichFields(connectMessagingMessageRecord, json, channel.getKey());
+        }
 
         return connectMessagingMessageRecord;
+    }
+
+    private static void readRichFields(ConnectMessagingMessageRecord record, JSONObject json, String key)
+            throws JSONException {
+        Object richTextValue = json.opt(JSON_RICH_TEXT);
+        if ("".equals(richTextValue)) {
+            record.richText = "";
+        } else if (richTextValue instanceof JSONObject) {
+            JSONObject richText = (JSONObject)richTextValue;
+            String decryptedRichText = decrypt(
+                    richText.optString(JSON_CIPHER_TEXT),
+                    richText.optString(JSON_NONCE),
+                    richText.optString(JSON_TAG),
+                    key
+            );
+            record.richText = decryptedRichText == null ? null : truncateMessage(decryptedRichText, MESSAGE);
+        }
+        if (record.richText != null) {
+            record.message = "";
+        }
+
+        record.format = json.has(JSON_FORMAT) ? json.getString(JSON_FORMAT) : null;
+
+        if (json.has(JSON_EXPIRES_AT)) {
+            String expiresAt = json.getString(JSON_EXPIRES_AT);
+            Date expiryDate = DateUtils.parseDateTime(expiresAt);
+            if (expiryDate == null) {
+                throw new JSONException("Invalid expires_at for message " + record.messageId + ": '"
+                        + expiresAt + "'");
+            }
+            record.expiresAtMillis = expiryDate.getTime();
+        }
     }
 
     private static ConnectMessagingChannelRecord getChannel(
@@ -232,5 +318,36 @@ public class ConnectMessagingMessageRecord extends Persisted implements Serializ
 
     public void setUserViewed(boolean userViewed) {
         this.userViewed = userViewed;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public boolean isRich() {
+        return version == VERSION_RICH;
+    }
+
+    public boolean isUnsupportedVersion() {
+        return !SUPPORTED_VERSIONS.contains(version);
+    }
+
+    @Nullable
+    public String getRichText() {
+        return richText;
+    }
+
+    @Nullable
+    public String getFormat() {
+        return format;
+    }
+
+    @Nullable
+    public Date getExpiresAt() {
+        return expiresAtMillis == NO_EXPIRY ? null : new Date(expiresAtMillis);
+    }
+
+    public String getDisplayText() {
+        return richText != null ? richText : message;
     }
 }

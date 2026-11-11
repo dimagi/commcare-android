@@ -1,19 +1,11 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
-import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
-import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
-import static org.commcare.connect.ConnectAppUtils.IS_LAUNCH_FROM_CONNECT;
-import static org.commcare.connect.ConnectConstants.CONNECT_MANAGED_LOGIN;
-import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
-import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
-import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import org.commcare.AppUtils;
 import org.commcare.CommCareApp;
@@ -21,14 +13,20 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.connect.ConnectJobHelper;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.PersonalIdSessionManager;
+import org.commcare.connect.database.ConnectJobUtils;
+import org.commcare.connect.utils.DeepLinkHelper;
 import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
-import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.personalId.PersonalIdUserPreferences;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
+import org.commcare.services.CommCareSessionService;
+import org.commcare.startup.LandingScreen;
+import org.commcare.startup.LandingScreenResolver;
+import org.commcare.startup.LandingStateProvider;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.CommCareLifecycleUtils;
 import org.commcare.utils.FirebaseMessagingUtil;
@@ -38,9 +36,14 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import javax.annotation.Nullable;
+
+import static org.commcare.activities.LoginActivity.EXTRA_APP_ID;
+import static org.commcare.activities.LoginActivity.EXTRA_FORCE_SINGLE_APP_MODE;
+import static org.commcare.commcaresupportlibrary.CommCareLauncher.SESSION_ENDPOINT_APP_ID;
+import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN;
+import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
 /**
  * Dispatches install, login, and home screen activities.
@@ -55,6 +58,7 @@ public class DispatchActivity extends AppCompatActivity {
     // Args to session endpoints can be passed as a name to value bundle or more loosely as a list
     public static final String SESSION_ENDPOINT_ARGUMENTS_BUNDLE = "ccodk_session_endpoint_arguments_bundle";
     public static final String SESSION_ENDPOINT_ARGUMENTS_LIST = "ccodk_session_endpoint_arguments_list";
+    public static final String CC_LAUNCH_REQUIRE_SYNC = "ccodk_require_sync";
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String EXIT_AFTER_FORM_SUBMISSION = "ccodk_exit_after_form_submission";
     public static final Boolean EXIT_AFTER_FORM_SUBMISSION_DEFAULT = true;
@@ -68,18 +72,22 @@ public class DispatchActivity extends AppCompatActivity {
     public static final int INIT_APP = 2;
     public static final int RECOVERY_MEASURES = 3;
 
-
     /**
      * Request code for automatically validating media.
      * Should signal a return from CommCareVerificationActivity.
      */
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
+    public static final int PERSONAL_ID_PENDING_BACKUP_CODE = 5;
+    private static final int CONNECT_LANDING = 6;
+
+    /** Result a startup Connect landing returns when the user cancels or fails the PersonalID unlock. */
+    public static final int RESULT_PERSONAL_ID_UNLOCK_DECLINED = RESULT_FIRST_USER;
+
     private boolean startFromLogin;
     private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
     private boolean personalIdManagedLogin;
-    private boolean connectManagedLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
@@ -88,14 +96,18 @@ public class DispatchActivity extends AppCompatActivity {
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
-
+    private static final String KEY_USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+    private static final String KEY_AWAITING_ACTIVITY_RESULT = "awaiting-activity-result";
+    private static final String KEY_PERSONAL_ID_UNLOCK_DECLINED = "personal-id-unlock-declined";
+    private static final String KEY_LEFT_LOGIN_WITHOUT_SIGN_IN = "left-login-without-sign-in";
     private boolean waitingForActivityResultFromLogin;
+    private boolean awaitingActivityResult;
+    private boolean personalIdUnlockDeclined;
+    private boolean leftLoginWithoutSignIn;
 
     boolean alreadyCheckedForAppFilesChange;
     static final String REBUILD_SESSION = "rebuild_session";
-    private boolean redirectToConnectHome = false;
     private boolean redirectToConnectOpportunityInfo = false;
-    private String redirectToLoginAppId = null;
     private boolean forceSingleAppMode = true;
 
     @Override
@@ -104,17 +116,28 @@ public class DispatchActivity extends AppCompatActivity {
         if (finishIfNotRoot()) {
             return;
         }
-
         if (savedInstanceState != null) {
+            awaitingActivityResult = savedInstanceState.getBoolean(KEY_AWAITING_ACTIVITY_RESULT);
+            personalIdUnlockDeclined = savedInstanceState.getBoolean(KEY_PERSONAL_ID_UNLOCK_DECLINED);
+            leftLoginWithoutSignIn = savedInstanceState.getBoolean(KEY_LEFT_LOGIN_WITHOUT_SIGN_IN);
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
-            alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(KEY_APP_FILES_CHECK_OCCURRED);
-            waitingForActivityResultFromLogin = savedInstanceState.getBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT);
+            alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(
+                    KEY_APP_FILES_CHECK_OCCURRED
+            );
+            waitingForActivityResultFromLogin = savedInstanceState.getBoolean(
+                    KEY_WAITING_FOR_ACTIVITY_RESULT
+            );
+            userTriggeredLogout = savedInstanceState.getBoolean(KEY_USER_TRIGGERED_LOGOUT);
+        } else {
+            userTriggeredLogout = getIntent().getBooleanExtra(
+                    LoginActivity.USER_TRIGGERED_LOGOUT,
+                    false
+            );
         }
     }
 
-
-    private Intent checkIfAnyPNIntentPresent(){
-        return FirebaseMessagingUtil.getIntentForPNIfAny(this,getIntent());
+    private Intent checkIfAnyPNIntentPresent() {
+        return FirebaseMessagingUtil.getIntentForPNIfAny(this, getIntent());
     }
 
     /**
@@ -128,7 +151,8 @@ public class DispatchActivity extends AppCompatActivity {
         if (!isTaskRoot()) {
             Intent intent = getIntent();
             String action = intent.getAction();
-            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && action != null && action.equals(Intent.ACTION_MAIN)) {
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+                    && action != null && action.equals(Intent.ACTION_MAIN)) {
                 finish();
                 return true;
             }
@@ -136,15 +160,25 @@ public class DispatchActivity extends AppCompatActivity {
         return false;
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         if (shouldFinish) {
             finish();
-        } else {
+        } else if (!awaitingActivityResult) {
             dispatch();
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        userTriggeredLogout = intent.getBooleanExtra(LoginActivity.USER_TRIGGERED_LOGOUT, false);
+        personalIdUnlockDeclined = false;
+        leftLoginWithoutSignIn = false;
+        awaitingActivityResult = false;
+        shortcutExtraWasConsumed = false;
     }
 
     @Override
@@ -153,6 +187,10 @@ public class DispatchActivity extends AppCompatActivity {
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
         outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
         outState.putBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT, waitingForActivityResultFromLogin);
+        outState.putBoolean(KEY_USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+        outState.putBoolean(KEY_AWAITING_ACTIVITY_RESULT, awaitingActivityResult);
+        outState.putBoolean(KEY_PERSONAL_ID_UNLOCK_DECLINED, personalIdUnlockDeclined);
+        outState.putBoolean(KEY_LEFT_LOGIN_WITHOUT_SIGN_IN, leftLoginWithoutSignIn);
     }
 
     private void checkForChangedCCZ() {
@@ -162,6 +200,14 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     private void dispatch() {
+        // Throws if the Connect DB is unreadable, so the user is prompted to recover before
+        // anything else reads it. This is the app's entry point, so it runs once per launch.
+        PersonalIdSessionManager.getInstance().reportUnreadableDatabase();
+
+        if (PersonalIdUserPreferences.isPendingBackupCode() && PersonalIdSessionManager.getInstance().isloggedIn()) {
+            ConnectNavHelper.goToProfileForPendingBackupCode(this);
+            return;
+        }
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
@@ -171,7 +217,6 @@ public class DispatchActivity extends AppCompatActivity {
 
         Intent pnIntent = checkIfAnyPNIntentPresent();
         if (pnIntent != null) {
-            String actionType = pnIntent.getStringExtra(REDIRECT_ACTION);
             FirebaseAnalyticsUtil.reportNotificationEvent(
                     AnalyticsParamValue.NOTIFICATION_EVENT_TYPE_CLICK,
                     AnalyticsParamValue.REPORT_NOTIFICATION_CLICK_NOTIFICATION_TRAY,
@@ -179,14 +224,23 @@ public class DispatchActivity extends AppCompatActivity {
                     pnIntent.getStringExtra(NOTIFICATION_ID)
             );
             startActivity(pnIntent);
-        }else if (currentApp == null) {
+            return;
+        }
+
+        Intent connectOppInviteIntent = DeepLinkHelper.INSTANCE
+                .retrieveConnectOppInviteIntentIfPresent(this, getIntent());
+        if (connectOppInviteIntent != null) {
+            startActivity(connectOppInviteIntent);
+            return;
+        }
+
+        if (currentApp == null) {
             if (MultipleAppsUtil.usableAppsPresent()) {
                 AppUtils.initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
                 dispatch();
             } else {
-                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-                this.startActivityForResult(i, INIT_APP);
+                openLandingScreen();
             }
         } else {
             if (needToExecuteRecoveryMeasures) {
@@ -207,6 +261,7 @@ public class DispatchActivity extends AppCompatActivity {
 
             ApplicationRecord currentRecord = currentApp.getAppRecord();
             try {
+                boolean hasActiveSession = CommCareApplication.hasLoggedInUser();
                 if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
                     // The seated app is damaged or corrupted
                     handleDamagedApp();
@@ -218,28 +273,19 @@ public class DispatchActivity extends AppCompatActivity {
                         // Recurse in order to make the correct decision based on the new state
                         dispatch();
                     }
-                } else if (!CommCareApplication.instance().getSession().isActive()) {
+                } else if (isIntentDrivenLaunch()) {
+                    handleIntentDrivenLaunch();
+                } else if ((userTriggeredLogout || leftLoginWithoutSignIn)
+                        && !hasActiveSession) {
                     launchLoginScreen();
-                } else if (needAnotherAppLogin()) {
-                    CommCareApplication.instance().closeUserSession();
-                    launchLoginScreen();
-                } else if (isExternalLaunch()) {
-                    // CommCare was launched from an external app, with a session descriptor
-                    handleExternalLaunch();
-                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT) &&
-                        !shortcutExtraWasConsumed) {
-                    // CommCare was launched from a shortcut
-                    handleShortcutLaunch();
-                } else if(redirectToConnectHome) {
-                    redirectToConnectHome = false;
-                    CommCareApplication.instance().closeUserSession();
-                    ConnectNavHelper.INSTANCE.goToConnectJobsList(this);
-                } else if(redirectToConnectOpportunityInfo) {
+                } else if (redirectToConnectOpportunityInfo) {
                     redirectToConnectOpportunityInfo = false;
-                    ConnectJobRecord job = ConnectJobHelper.INSTANCE.getJobForSeatedApp(this);
-                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job, true);
-                } else {
+                    ConnectJobRecord job = ConnectJobUtils.getJobForSeatedApp(this);
+                    ConnectNavHelper.INSTANCE.goToActiveInfoForJob(this, job);
+                } else if (startFromLogin && hasActiveSession) {
                     launchHomeScreen();
+                } else {
+                    openLandingScreen();
                 }
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
@@ -263,23 +309,87 @@ public class DispatchActivity extends AppCompatActivity {
                 this.getIntent().hasExtra(SESSION_ENDPOINT_ID);
     }
 
+    private boolean isShortcutLaunch() {
+        return getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT) && !shortcutExtraWasConsumed;
+    }
+
+    private boolean isIntentDrivenLaunch() {
+        return isExternalLaunch() || isShortcutLaunch() || getSessionEndpointAppId() != null;
+    }
+
+    private void handleIntentDrivenLaunch() {
+        if (!CommCareApplication.instance().getSession().isActive()) {
+            launchLoginScreen();
+        } else if (needAnotherAppLogin()) {
+            CommCareApplication.instance().closeUserSession();
+            launchLoginScreen();
+        } else if (isExternalLaunch()) {
+            handleExternalLaunch();
+        } else if (isShortcutLaunch()) {
+            handleShortcutLaunch();
+        } else {
+            launchHomeScreen();
+        }
+    }
+
+    private void openLandingScreen() {
+        LandingScreen landingScreen = LandingScreenResolver.resolve(
+                LandingStateProvider.getLandingState(personalIdUnlockDeclined)
+        );
+        if (landingScreen == LandingScreen.CommCareAppHome.INSTANCE) {
+            launchHomeScreen();
+        } else if (landingScreen == LandingScreen.CommCareLogin.INSTANCE) {
+            launchLoginScreen();
+        } else if (landingScreen == LandingScreen.CommCareSetup.INSTANCE) {
+            launchSetupScreen();
+        } else if (landingScreen instanceof LandingScreen.OpportunityHome opportunityHome) {
+            openConnectLandingScreen(opportunityHome.getOpportunityUuid());
+        } else {
+            openConnectLandingScreen(null);
+        }
+    }
+
+    private void openConnectLandingScreen(@Nullable String opportunityUuid) {
+        startActivityForResult(
+                ConnectNavHelper.buildStartupLandingIntent(this, opportunityUuid),
+                CONNECT_LANDING
+        );
+    }
+
+    private void launchSetupScreen() {
+        Intent intent = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+        startActivityForResult(intent, INIT_APP);
+    }
+
     private boolean isDbInBadState() {
         int dbState = CommCareApplication.instance().getDatabaseState();
         if (dbState == CommCareApplication.STATE_LEGACY_DETECTED) {
             // Starting from CommCare 2.44, we don't supoort upgrading from Legacy DB
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     getString(R.string.legacy_failure),
-                    getString(R.string.legacy_failure_title), false, false);
+                    getString(R.string.legacy_failure_title),
+                    false,
+                    false
+            );
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     getString(R.string.migration_definite_failure),
-                    getString(R.string.migration_failure_title), false, false);
+                    getString(R.string.migration_failure_title),
+                    false,
+                    false
+            );
             return true;
         } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     getString(R.string.migration_possible_failure),
-                    getString(R.string.migration_failure_title), false, true);
+                    getString(R.string.migration_failure_title),
+                    false,
+                    true
+            );
             return true;
         } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
             handleDamagedApp();
@@ -308,13 +418,16 @@ public class DispatchActivity extends AppCompatActivity {
     private void startRecoveryExecutionActivity() {
         startActivityForResult(
                 new Intent(this, ExecuteRecoveryMeasuresActivity.class),
-                RECOVERY_MEASURES);
+                RECOVERY_MEASURES
+        );
     }
 
     private void createNoStorageDialog() {
-        CommCareLifecycleUtils.triggerHandledAppExit(this,
+        CommCareLifecycleUtils.triggerHandledAppExit(
+                this,
                 Localization.get("app.storage.missing.message"),
-                Localization.get("app.storage.missing.title"));
+                Localization.get("app.storage.missing.title")
+        );
     }
 
     private void launchLoginScreen() {
@@ -322,13 +435,8 @@ public class DispatchActivity extends AppCompatActivity {
             // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
-            i.putExtra(IS_LAUNCH_FROM_CONNECT, getLaunchedFromConnect());
 
             String sessionEndpointAppID = getSessionEndpointAppId();
-            if(sessionEndpointAppID == null && redirectToLoginAppId != null) {
-                sessionEndpointAppID = redirectToLoginAppId;
-                redirectToLoginAppId = null;
-            }
             if (sessionEndpointAppID != null) {
                 i.putExtra(EXTRA_APP_ID, sessionEndpointAppID);
                 i.putExtra(EXTRA_FORCE_SINGLE_APP_MODE, forceSingleAppMode);
@@ -337,10 +445,12 @@ public class DispatchActivity extends AppCompatActivity {
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
         } else {
-            Log.w(TAG,
+            Log.w(
+                    TAG,
                     "Login redirection bug occurred; DispatchActivity is attempting to launch " +
                             "a new LoginActivity while it is still waiting for a result from " +
-                            "another one.");
+                            "another one."
+            );
         }
     }
 
@@ -349,38 +459,23 @@ public class DispatchActivity extends AppCompatActivity {
         return getIntent().getStringExtra(SESSION_ENDPOINT_APP_ID);
     }
 
-    private boolean getLaunchedFromConnect() {
-        boolean launchedFromConnect = getIntent().getBooleanExtra(IS_LAUNCH_FROM_CONNECT, false);
-        getIntent().removeExtra(IS_LAUNCH_FROM_CONNECT);
-        return launchedFromConnect;
-    }
-
     private void launchHomeScreen() {
-        Intent i;
-        if (useRootMenuHomeActivity()) {
-            i = new Intent(this, RootMenuHomeActivity.class);
-            // Since we are entering a menu list, the session state will expect this later
-            HomeScreenBaseActivity.addPendingDataExtra(i,
-                    CommCareApplication.instance().getCurrentSessionWrapper().getSession());
-        } else {
-            i = new Intent(this, StandardHomeActivity.class);
-        }
-        i.putExtra(START_FROM_LOGIN, startFromLogin);
-        i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
-        i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
-        i.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
+        Intent intent = StandardHomeActivity.buildHomeIntent(
+                this,
+                lastLoginMode,
+                startFromLogin,
+                userManuallyEnteredPasswordMode,
+                personalIdManagedLogin
+        );
         startFromLogin = false;
-        clearSessionEndpointAppId();
-        startActivityForResult(i, HOME_SCREEN);
+        clearSessionEndpointIntentExtras();
+        startActivityForResult(intent, HOME_SCREEN);
     }
 
-    public static boolean useRootMenuHomeActivity() {
-        return DeveloperPreferences.useRootModuleMenuAsHomeScreen() ||
-                CommCareApplication.instance().isConsumerApp();
-    }
-
-    private void clearSessionEndpointAppId() {
+    private void clearSessionEndpointIntentExtras() {
+        getIntent().removeExtra(SESSION_REQUEST);
         getIntent().removeExtra(SESSION_ENDPOINT_APP_ID);
+        getIntent().removeExtra(SESSION_ENDPOINT_ID);
     }
 
     /**
@@ -418,13 +513,16 @@ public class DispatchActivity extends AppCompatActivity {
         } else {
             // Means that there are no usable apps, but there are multiple apps who all don't have
             // MM verified -- show an error message and shut down
-            CommCareLifecycleUtils.triggerHandledAppExit(this,
+            CommCareLifecycleUtils.triggerHandledAppExit(
+                    this,
                     Localization.get("multiple.apps.unverified.message"),
-                    Localization.get("multiple.apps.unverified.title"));
+                    Localization.get("multiple.apps.unverified.title")
+            );
         }
     }
 
     private void handleExternalLaunch() {
+        awaitingActivityResult = true;
         //First off, make sure the incoming session is clear
         CommCareApplication.instance().getSession().proceedWithSavedSessionIfNeeded(() -> {
                     Intent i = null;
@@ -432,25 +530,35 @@ public class DispatchActivity extends AppCompatActivity {
                         String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
                         SessionStateDescriptor ssd = new SessionStateDescriptor();
                         ssd.fromBundle(sessionRequest);
-                        CommCareApplication.instance().getCurrentSessionWrapper().loadFromStateDescription(ssd);
+                        CommCareApplication.instance()
+                                .getCurrentSessionWrapper()
+                                .loadFromStateDescription(ssd);
                         i = new Intent(this, StandardHomeActivity.class);
                     } else if (getIntent().hasExtra(SESSION_ENDPOINT_ID)) {
                         String sessionEndpointId = this.getIntent().getStringExtra(SESSION_ENDPOINT_ID);
                         Bundle args = this.getIntent().getBundleExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE);
-                        ArrayList<String> argsList = this.getIntent().getStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST);
+                        ArrayList<String> argsList = this.getIntent().getStringArrayListExtra(
+                                SESSION_ENDPOINT_ARGUMENTS_LIST
+                        );
                         i = new Intent(this, StandardHomeActivity.class);
                         i.putExtra(SESSION_ENDPOINT_ID, sessionEndpointId);
                         i.putExtra(SESSION_ENDPOINT_ARGUMENTS_BUNDLE, args);
                         i.putStringArrayListExtra(SESSION_ENDPOINT_ARGUMENTS_LIST, argsList);
-
-                        // Session Endpoint extra is no longer needed. If not removed, it triggers
-                        // the external launch logic in subsequent logins
-                        getIntent().removeExtra(SESSION_ENDPOINT_ID);
+                        i.putExtra(
+                                CC_LAUNCH_REQUIRE_SYNC,
+                                getIntent().getBooleanExtra(CC_LAUNCH_REQUIRE_SYNC, false)
+                        );
                     }
+                    clearSessionEndpointIntentExtras();
                     if (i != null) {
                         i.putExtra(WAS_EXTERNAL, true);
-                        i.putExtra(EXIT_AFTER_FORM_SUBMISSION,
-                                getIntent().getBooleanExtra(EXIT_AFTER_FORM_SUBMISSION, EXIT_AFTER_FORM_SUBMISSION_DEFAULT));
+                        i.putExtra(
+                                EXIT_AFTER_FORM_SUBMISSION,
+                                getIntent().getBooleanExtra(
+                                        EXIT_AFTER_FORM_SUBMISSION,
+                                        EXIT_AFTER_FORM_SUBMISSION_DEFAULT
+                                )
+                        );
                         startActivityForResult(i, HOME_SCREEN);
                     }
                 }
@@ -485,12 +593,26 @@ public class DispatchActivity extends AppCompatActivity {
     }
 
     @Override
+    public void startActivityForResult(Intent intent, int requestCode, @Nullable Bundle options) {
+        // startActivity() passes -1 and never returns a result, so it must not block routing on resume
+        if (requestCode >= 0) {
+            awaitingActivityResult = true;
+        }
+        super.startActivityForResult(intent, requestCode, options);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        awaitingActivityResult = false;
         if (intent != null) {
-            needToExecuteRecoveryMeasures = intent.getBooleanExtra(EXECUTE_RECOVERY_MEASURES, false);
-            redirectToConnectOpportunityInfo = intent.getBooleanExtra(REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, false);
-            redirectToLoginAppId = intent.getStringExtra(EXTRA_APP_ID);
-            forceSingleAppMode = intent.getBooleanExtra(EXTRA_FORCE_SINGLE_APP_MODE, true);
+            needToExecuteRecoveryMeasures = intent.getBooleanExtra(
+                    EXECUTE_RECOVERY_MEASURES,
+                    false
+            );
+            redirectToConnectOpportunityInfo = intent.getBooleanExtra(
+                    REDIRECT_TO_CONNECT_OPPORTUNITY_INFO,
+                    false
+            );
         }
 
         // if handling new return code (want to return to home screen) but a return at the end of your statement
@@ -518,17 +640,32 @@ public class DispatchActivity extends AppCompatActivity {
                     lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                     userManuallyEnteredPasswordMode =
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                    personalIdManagedLogin = intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false);
-                    connectManagedLogin = intent.getBooleanExtra(CONNECT_MANAGED_LOGIN, false);
+                    personalIdManagedLogin = intent.getBooleanExtra(
+                            PERSONALID_MANAGED_LOGIN,
+                            false
+                    );
                     startFromLogin = true;
+                    leftLoginWithoutSignIn = false;
+                } else {
+                    leftLoginWithoutSignIn = true;
+                }
+                return;
+            case CONNECT_LANDING:
+                if (resultCode != RESULT_PERSONAL_ID_UNLOCK_DECLINED) {
+                    shouldFinish = true;
+                } else if (CommCareSessionService.sessionAliveLock.isLocked()) {
+                    // A sync holds the session, and App Home needs the unlock the user just declined
+                    shouldFinish = true;
+                } else {
+                    personalIdUnlockDeclined = true;
+                    if (CommCareApplication.hasLoggedInUser()) {
+                        CommCareApplication.instance().closeUserSession();
+                    }
                 }
                 return;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
-                    shouldFinish = !connectManagedLogin;
-                    if(connectManagedLogin) {
-                        redirectToConnectHome = true;
-                    }
+                    shouldFinish = true;
                     return;
                 } else {
                     userTriggeredLogout = true;
@@ -536,6 +673,8 @@ public class DispatchActivity extends AppCompatActivity {
                 return;
             case RECOVERY_MEASURES:
                 RecoveryMeasuresHelper.handleExecutionActivityResult(this, intent);
+                return;
+            case PERSONAL_ID_PENDING_BACKUP_CODE:
                 return;
         }
         super.onActivityResult(requestCode, resultCode, intent);

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Touch feedback for a task card. A plain selectableItemBackground foreground would square off the
+    card's rounded corners, so the ripple carries a mask matching the card's radius.
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/connect_radius_sm" />
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+</ripple>

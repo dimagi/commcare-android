@@ -4,7 +4,7 @@
         android:id="@+id/cloud_sync"
         android:title="@string/personalid_work_history_sync"
         android:contentDescription="@string/personalid_work_history_sync"
-        android:icon="@drawable/ic_backup"
+        android:icon="@drawable/ic_sync"
         app:iconTint="@color/white"
         app:showAsAction="always"/>
 </menu>

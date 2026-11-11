@@ -1,5 +1,6 @@
 package org.commcare.fragments.connectMessaging;
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,26 +22,38 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
+import androidx.core.view.OneShotPreDrawListener;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Fade;
 
 import org.commcare.activities.connect.ConnectMessagingActivity;
 import org.commcare.adapters.ConnectMessageAdapter;
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord;
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper;
 import org.commcare.connect.database.ConnectMessagingDatabaseHelper;
+import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadScheduler;
+import org.commcare.connect.messaging.ConnectMessagingMessagePackage;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.databinding.FragmentConnectMessageBinding;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.FirebaseMessagingUtil;
 import org.commcare.views.dialogs.CustomThreeButtonAlertDialog;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +65,7 @@ import static org.commcare.google.services.analytics.AnalyticsParamValue.CCC_MES
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CCC_MESSAGING_EVENT_TYPE_CONFIRM_UNSUBSCRIBE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CCC_MESSAGING_EVENT_TYPE_CONSENT_API_RESULT;
 
-public class ConnectMessageFragment extends Fragment {
+public class ConnectMessageFragment extends Fragment implements ConnectMessageAttachmentListener {
     private static String activeChannel;
     private String channelId;
     private FragmentConnectMessageBinding binding;
@@ -72,6 +85,13 @@ public class ConnectMessageFragment extends Fragment {
     private static final int MENU_RESUBSCRIBE = Menu.FIRST + 1;
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setExitTransition(new Fade().setDuration(ConnectMessageImageViewerFragment.TRANSITION_DURATION_MS));
+        setReenterTransition(null);
+    }
+
+    @Override
     public View onCreateView(
             @NonNull LayoutInflater inflater,
             ViewGroup container,
@@ -82,8 +102,7 @@ public class ConnectMessageFragment extends Fragment {
         ConnectMessageFragmentArgs args = ConnectMessageFragmentArgs.fromBundle(getArguments());
         channelId = args.getChannelId();
 
-        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(requireContext(), channelId);
-        requireActivity().setTitle(channel.getChannelName());
+        channel = ConnectMessagingDatabaseHelper.getMessagingChannel(channelId);
 
         handleSendButtonListener();
         setChatAdapter();
@@ -106,6 +125,13 @@ public class ConnectMessageFragment extends Fragment {
         }
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        postponeEnterTransition();
+        OneShotPreDrawListener.add(view, this::startPostponedEnterTransition);
     }
 
     private void setupMenuItems() {
@@ -167,6 +193,7 @@ public class ConnectMessageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        requireActivity().setTitle(channel.getDisplayName());
         activeChannel = channelId;
 
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(updateReceiver,
@@ -185,6 +212,7 @@ public class ConnectMessageFragment extends Fragment {
 
         // Stop the periodic API calls when the screen is not active
         handler.removeCallbacks(apiCallRunnable);
+        ConnectMessageAudioPlayer.INSTANCE.stop();
     }
 
     @Nullable
@@ -266,7 +294,7 @@ public class ConnectMessageFragment extends Fragment {
         binding.etMessage.setText("");
 
         ConnectMessagingDatabaseHelper.storeMessagingMessage(requireContext(), message);
-        ConnectMessageChatData chat = fromMessage(message);
+        ConnectMessageChatData chat = fromMessage(message, Collections.emptyMap());
         adapter.addMessage(chat);
         scrollToLatestMessage();
 
@@ -280,7 +308,6 @@ public class ConnectMessageFragment extends Fragment {
             } else {
                 chat.setMessageRead(success);
                 adapter.updateMessageReadStatus(chat);
-                scrollToLatestMessage();
                 FirebaseAnalyticsUtil.reportPersonalIDMessageSent();
             }
         });
@@ -288,7 +315,7 @@ public class ConnectMessageFragment extends Fragment {
 
     private void setChatAdapter() {
         List<ConnectMessageChatData> messages = new ArrayList<>();
-        adapter = new ConnectMessageAdapter(messages);
+        adapter = new ConnectMessageAdapter(messages, this);
         binding.rvChat.setAdapter(adapter);
         refreshUi();
     }
@@ -297,11 +324,15 @@ public class ConnectMessageFragment extends Fragment {
         Context context = getContext();
         if (context != null) {
             List<ConnectMessagingMessageRecord> messages = ConnectMessagingDatabaseHelper
-                    .getMessagingMessagesForChannel(context, channelId);
+                    .getMessagingMessagesForChannel(channelId);
+            Map<String, List<ConnectMessagingAttachmentRecord>> attachmentsByMessageId =
+                    ConnectMessagingAttachmentDatabaseHelper.getAttachmentsByMessageId(channelId);
             List<ConnectMessageChatData> chats = new ArrayList<>();
+            boolean hasUnsupportedMessages = false;
 
             for (ConnectMessagingMessageRecord message : messages) {
-                chats.add(fromMessage(message));
+                chats.add(fromMessage(message, attachmentsByMessageId));
+                hasUnsupportedMessages |= message.isUnsupportedVersion();
 
                 if (!message.getUserViewed()) {
                     message.setUserViewed(true);
@@ -309,23 +340,100 @@ public class ConnectMessageFragment extends Fragment {
                 }
             }
 
-            adapter.updateData(chats);
-            scrollToLatestMessage();
+            binding.tvUpdateBanner.setVisibility(hasUnsupportedMessages ? View.VISIBLE : View.GONE);
 
+            boolean initialLoad = adapter.getItemCount() == 0;
+            boolean wasNearBottom = isNearBottom();
+            boolean hasNewMessages = adapter.updateData(chats);
+
+            if (initialLoad) {
+                scrollToLatestMessage();
+            } else if (hasNewMessages && wasNearBottom) {
+                binding.rvChat.smoothScrollToPosition(adapter.getItemCount() - 1);
+            }
         }
     }
 
-    private ConnectMessageChatData fromMessage(ConnectMessagingMessageRecord message) {
+    private boolean isNearBottom() {
+        RecyclerView chatView = binding.rvChat;
+        int distanceFromBottom = chatView.computeVerticalScrollRange()
+                - chatView.computeVerticalScrollOffset()
+                - chatView.computeVerticalScrollExtent();
+        return distanceFromBottom <= getResources().getDimensionPixelSize(R.dimen.dp60);
+    }
+
+    private ConnectMessageChatData fromMessage(ConnectMessagingMessageRecord message,
+                                               Map<String, List<ConnectMessagingAttachmentRecord>> attachmentsByMessageId) {
         int viewType = message.getIsOutgoing()
                 ? ConnectMessageAdapter.RIGHTVIEW
                 : ConnectMessageAdapter.LEFTVIEW;
+        List<ConnectMessageAttachmentItem> attachments = new ArrayList<>();
+        ConnectMessagingAttachmentState pendingDownloadState = null;
+        List<ConnectMessagingAttachmentRecord> records = message.isRich()
+                ? attachmentsByMessageId.get(message.getMessageId())
+                : null;
+        if (records != null) {
+            ConnectMessagingAttachmentState packageState =
+                    ConnectMessagingMessagePackage.stateOfAttachments(records);
+            if (packageState == ConnectMessagingAttachmentState.AVAILABLE) {
+                for (ConnectMessagingAttachmentRecord record : records) {
+                    attachments.add(ConnectMessageAttachmentItem.fromRecord(requireContext(), record));
+                }
+            } else {
+                pendingDownloadState = packageState;
+            }
+        }
         return new ConnectMessageChatData(message.getMessageId(), viewType,
-                message.getMessage(),
+                message.getDisplayText(),
                 message.getIsOutgoing()
                         ? getString(R.string.connect_message_you)
                         : getString(R.string.connect_message_them),
                 message.getTimeStamp(),
-                message.getConfirmed());
+                message.getConfirmed(),
+                attachments,
+                message.isUnsupportedVersion(),
+                pendingDownloadState);
+    }
+
+    @Override
+    public void onMessageDownloadRequested(@NonNull String messageId) {
+        List<String> requeuedAttachmentIds = ConnectMessagingAttachmentDatabaseHelper.requeueMessage(messageId);
+        for (String attachmentId : requeuedAttachmentIds) {
+            ConnectMessagingAttachmentDownloadScheduler.downloadNow(requireContext(), attachmentId);
+        }
+        if (!requeuedAttachmentIds.isEmpty()) {
+            refreshUi();
+        }
+    }
+
+    @Override
+    public void onAttachmentOpenRequested(@NonNull ConnectMessageAttachmentItem attachment) {
+        File file = attachment.getFile();
+        if (file == null) {
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(FileUtil.getUriForExternalFile(requireContext(), file), attachment.getMimeType());
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(requireContext(), R.string.connect_messaging_attachment_open_failed,
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onImageOpenRequested(@NonNull ConnectMessageAttachmentItem attachment, @NonNull View imageView) {
+        if (attachment.getFile() == null) {
+            return;
+        }
+        FragmentNavigator.Extras sharedImage = new FragmentNavigator.Extras.Builder()
+                .addSharedElement(imageView, imageView.getTransitionName())
+                .build();
+        Navigation.findNavController(requireView()).navigate(ConnectMessageFragmentDirections
+                        .actionConnectMessageFragmentToConnectMessageImageViewerFragment(attachment.getAttachmentId()),
+                sharedImage);
     }
 
     private void scrollToLatestMessage() {
@@ -341,7 +449,7 @@ public class ConnectMessageFragment extends Fragment {
         if (menuItemId == MENU_UNSUBSCRIBE) {
             String titleText = getString(
                     R.string.connect_messaging_unsubscribe_dialog_title,
-                    channel.getChannelName()
+                    channel.getDisplayName()
             );
             String messageText = getString(R.string.connect_messaging_unsubscribe_dialog_body);
             String negativeButtonText =
@@ -377,11 +485,11 @@ public class ConnectMessageFragment extends Fragment {
         } else if (menuItemId == MENU_RESUBSCRIBE) {
             String titleText = getString(
                     R.string.connect_messaging_resubscribe_dialog_title,
-                    channel.getChannelName()
+                    channel.getDisplayName()
             );
             String messageText = getString(
                     R.string.connect_messaging_resubscribe_dialog_body,
-                    channel.getChannelName()
+                    channel.getDisplayName()
             );
             String negativeButtonText =
                     getString(R.string.connect_messaging_resubscribe_dialog_cancel);
@@ -467,7 +575,6 @@ public class ConnectMessageFragment extends Fragment {
                     if (!isAdded()) return;
 
                     channel = ConnectMessagingDatabaseHelper.getMessagingChannel(
-                            requireContext(),
                             channelId
                     );
                     activity.dismissProgressDialogForTask(
