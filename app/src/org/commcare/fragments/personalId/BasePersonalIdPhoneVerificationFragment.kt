@@ -143,15 +143,20 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                 errorMessage: String?,
             ) {
                 recordFailedVerificationAttempt()
+                val fallingBackToPersonalId = otpCallback != null && shouldAutoSwitchToPersonalIdAuth(errorType)
                 reportOtpAnalytics(
-                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    if (fallingBackToPersonalId) {
+                        AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID
+                    } else {
+                        AnalyticsParamValue.OTP_OUTCOME_FAILURE
+                    },
                     OtpAnalyticsMapper.reasonFrom(errorType),
                 )
 
                 if (otpCallback == null) return
 
                 // Auto-switch from Firebase to PersonalId for non-recoverable errors
-                if (shouldAutoSwitchToPersonalIdAuth(errorType) && setupOtpManager(true)) {
+                if (fallingBackToPersonalId && setupOtpManager(true)) {
                     Logger.log(
                         LogTypes.TYPE_MAINTENANCE,
                         "Auto-switching from Firebase to PersonalId auth due to error: $errorType",
@@ -226,12 +231,10 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
      * Determines if we should auto-switch from Firebase to PersonalId auth based on the error type.
      * Only switches from Firebase to PersonalId, never the reverse.
      */
-    private fun shouldAutoSwitchToPersonalIdAuth(errorType: OtpErrorType): Boolean {
-        if (SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true)) {
-            return false
-        }
-        return errorType.isNonRecoverable
-    }
+    private fun shouldAutoSwitchToPersonalIdAuth(errorType: OtpErrorType): Boolean =
+        !SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true) &&
+            errorType.isNonRecoverable &&
+            isFallbackAllowed()
 
     override fun onCreateView(
         inflater: LayoutInflater,

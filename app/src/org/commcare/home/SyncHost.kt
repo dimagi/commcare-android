@@ -1,5 +1,6 @@
 package org.commcare.home
 
+import android.widget.Toast
 import org.commcare.activities.CommCareActivity
 import org.commcare.tasks.DataPullTask.PullTaskResult
 
@@ -8,10 +9,10 @@ import org.commcare.tasks.DataPullTask.PullTaskResult
  */
 interface SyncHost {
     /**
-     * The activity sync tasks connect to, which shows their progress dialogs. Its `getReceiver()`
-     * must lead task results back to the delegate.
+     * The activity sync tasks connect to as their task connector, which shows their progress
+     * dialogs. Its `getReceiver()` must lead task results back to the delegate.
      */
-    val syncConnector: CommCareActivity<*>
+    val syncTaskActivity: CommCareActivity<*>
 
     /** Show the outcome of a finished pull or form send. */
     fun updateUiAfterDataPullOrSend(
@@ -21,4 +22,9 @@ interface SyncHost {
 
     /** A pull finished and the delegate has reported it; the host may react further. */
     fun onPullTaskFinished(result: PullTaskResult)
+
+    /** Show a sync message the user should see, such as why a sync was not attempted. */
+    fun displayToast(message: String) {
+        Toast.makeText(syncTaskActivity, message, Toast.LENGTH_LONG).show()
+    }
 }
