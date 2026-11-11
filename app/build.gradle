@@ -521,10 +521,11 @@ android {
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
 
-            if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-                def shortTmp = new File(rootDir.toPath().root.toFile(), 'rtmp')
-                doFirst { shortTmp.mkdirs() }
-                systemProperty 'java.io.tmpdir', shortTmp.absolutePath
+            def testTmpDir = project.findProperty('test.tmpdir')
+            if (testTmpDir) {
+                def tmpDir = file(testTmpDir)
+                doFirst { tmpDir.mkdirs() }
+                systemProperty 'java.io.tmpdir', tmpDir.absolutePath
             }
 
             def l10nLocale = project.findProperty('l10n.locale')
