@@ -853,6 +853,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     protected void onStop() {
         super.onStop();
         isVisible = false;
+        uiController.clearSyncButtonMessage();
     }
 
     private void attemptDispatchHomeScreen() {
