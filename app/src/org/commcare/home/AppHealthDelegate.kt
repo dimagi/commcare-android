@@ -1,6 +1,5 @@
 package org.commcare.home
 
-import android.app.Activity.RESULT_OK
 import android.content.Intent
 import androidx.lifecycle.Lifecycle
 import org.commcare.CommCareApplication
@@ -33,7 +32,7 @@ class AppHealthDelegate(
         try {
             CommCareApplication.instance().session
         } catch (e: SessionUnavailableException) {
-            host.finishWithResult(RESULT_OK)
+            host.deliverResultAndFinish(Intent())
             return
         }
         if (!runChecks()) {
@@ -77,10 +76,7 @@ class AppHealthDelegate(
         val kickedOff =
             when {
                 RecoveryMeasuresHelper.recoveryMeasuresPending() -> {
-                    host.finishWithResult(
-                        RESULT_OK,
-                        Intent().putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true),
-                    )
+                    host.deliverResultAndFinish(Intent().putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true))
                     true
                 }
 

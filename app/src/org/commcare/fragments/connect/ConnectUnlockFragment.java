@@ -3,6 +3,7 @@ package org.commcare.fragments.connect;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectOpportunityHomeState;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -104,7 +106,9 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void returnToStartupRoutingWithUnlockDeclined() {
-        requireActivity().setResult(DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED);
+        Intent dispatchIntent = DispatchActivity.buildRestartIntent(requireContext())
+                .putExtra(DispatchActivity.EXTRA_PERSONAL_ID_UNLOCK_DECLINED, true);
+        startActivity(dispatchIntent);
         requireActivity().finish();
     }
 
@@ -181,6 +185,17 @@ public class ConnectUnlockFragment extends Fragment {
         NavOptions options = new NavOptions.Builder()
                 .setPopUpTo(navController.getGraph().getStartDestinationId(), true, true)
                 .build();
-        navController.navigate(fragmentId, bundle, options);
+
+        if (fromStartupRouting && fragmentId == R.id.connect_opportunity_home_fragment && isActiveJobAtIntro()) {
+            navController.navigate(R.id.connect_jobs_list_fragment, null, options);
+            navController.navigate(fragmentId, bundle);
+        } else {
+            navController.navigate(fragmentId, bundle, options);
+        }
+    }
+
+    private boolean isActiveJobAtIntro() {
+        ConnectJobRecord job = ((ConnectActivity) requireActivity()).getActiveJob();
+        return job != null && ConnectOpportunityHomeState.isIntro(job);
     }
 }

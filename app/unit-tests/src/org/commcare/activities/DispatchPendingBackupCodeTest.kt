@@ -7,8 +7,6 @@ import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.personalId.profile.PersonalIdProfileActivity
 import org.junit.After
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.robolectric.Robolectric
@@ -97,7 +95,7 @@ class DispatchPendingBackupCodeTest : BaseHomeScreenActivityTest() {
     }
 
     @Test
-    fun `DispatchActivity does not finish when user exits pending backup code screen without setting code`() {
+    fun `DispatchActivity routes on when user exits pending backup code screen without setting code`() {
         val (activityController, activity, shadow, startedIntent) = setUpDispatchForResult()
 
         // isPendingBackupCode() still true — user abandoned without setting the code
@@ -105,20 +103,11 @@ class DispatchPendingBackupCodeTest : BaseHomeScreenActivityTest() {
         activityController.resume()
         ShadowLooper.idleMainLooper()
 
-        assertFalse(
-            "DispatchActivity should not finish when user exits without setting backup code",
-            activity.isFinishing,
-        )
-
-        val nextActivity = shadow.nextStartedActivity
-        assertTrue(
-            "dispatch should not re-trigger the pending backup code screen",
-            nextActivity == null || nextActivity.component?.className != PersonalIdProfileActivity::class.java.name,
-        )
+        ActivityAssertions.assertStarted(activity, StandardHomeActivity::class.java)
     }
 
     @Test
-    fun `DispatchActivity does not finish when user successfully sets backup code`() {
+    fun `DispatchActivity routes on when user successfully sets backup code`() {
         val (activityController, activity, shadow, startedIntent) = setUpDispatchForResult()
 
         // Simulate success — backup code was set before PersonalIdProfileActivity finished
@@ -127,19 +116,6 @@ class DispatchPendingBackupCodeTest : BaseHomeScreenActivityTest() {
         activityController.resume()
         ShadowLooper.idleMainLooper()
 
-        assertFalse(
-            "DispatchActivity should not finish when backup code was successfully set",
-            activity.isFinishing,
-        )
-
-        val nextActivity = shadow.nextStartedActivity
-        assertNotNull(
-            "Expected a new activity to be started",
-            nextActivity,
-        )
-        assertTrue(
-            "dispatch should re-run and start a non-PersonalIdProfileActivity",
-            nextActivity != null && nextActivity.component?.className != PersonalIdProfileActivity::class.java.name,
-        )
+        ActivityAssertions.assertStarted(activity, StandardHomeActivity::class.java)
     }
 }

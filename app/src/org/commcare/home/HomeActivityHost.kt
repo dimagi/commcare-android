@@ -32,6 +32,12 @@ interface HomeActivityHost :
     /** Close the host without changing the result it hands back. */
     fun finish()
 
+    /**
+     * Deliver [result] to the screen beneath, or to a relaunched DispatchActivity when the host is the
+     * bottom of the task or when it requests recovery measures and no caller is waiting for it, then finish.
+     */
+    fun deliverResultAndFinish(result: Intent)
+
     /** Show [dialog] on the host, so dialogs survive the host's own dismissal bookkeeping. */
     fun showAlertDialog(dialog: CommCareAlertDialog)
 

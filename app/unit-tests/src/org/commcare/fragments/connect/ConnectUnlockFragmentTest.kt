@@ -152,6 +152,19 @@ class ConnectUnlockFragmentTest {
     }
 
     @Test
+    fun `a startup launch on an opportunity's intro opens it on top of the opportunities list`() {
+        val introJob = mockk<ConnectJobRecord>(relaxed = true)
+        every { introJob.status } returns ConnectJobRecord.STATUS_AVAILABLE_NEW
+        every { ConnectJobUtils.getCompositeJob(eq(uuid)) } returns introJob
+
+        val activity = launchFromStartupRouting(uuid)
+
+        val navController = navControllerOf(activity)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
+        assertEquals(R.id.connect_jobs_list_fragment, navController.previousBackStackEntry?.destination?.id)
+    }
+
+    @Test
     fun `a startup launch without an opportunity opens the opportunities list`() {
         val activity = launchFromStartupRouting(null)
 
@@ -159,12 +172,15 @@ class ConnectUnlockFragmentTest {
     }
 
     @Test
-    fun `a declined unlock on a startup launch hands back to DispatchActivity`() {
+    fun `a declined unlock on a startup launch restarts routing as the only screen in the task`() {
         declineUnlock()
 
         val activity = launchFromStartupRouting(uuid)
 
-        assertEquals(DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED, shadowOf(activity).resultCode)
+        val dispatch = ActivityAssertions.assertStarted(activity, DispatchActivity::class.java)
+        assertTrue(dispatch.getBooleanExtra(DispatchActivity.EXTRA_PERSONAL_ID_UNLOCK_DECLINED, false))
+        val taskRootFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        assertEquals(taskRootFlags, dispatch.flags and taskRootFlags)
         assertTrue(activity.isFinishing)
     }
 

@@ -39,6 +39,7 @@ class FakeHomeActivityHost : HomeActivityHost {
     val shownShortToasts = mutableListOf<String>()
     val shownFormArchives = mutableListOf<Pair<Boolean, FormRecord?>>()
     val finishedWithResults = mutableListOf<Int>()
+    val deliveredResults = mutableListOf<Intent>()
     var lastFinishData: Intent? = null
     var finishCount: Int = 0
     val shownXPathErrors = mutableListOf<Pair<XPathException, Boolean>>()
@@ -90,6 +91,10 @@ class FakeHomeActivityHost : HomeActivityHost {
 
     override fun finish() {
         finishCount++
+    }
+
+    override fun deliverResultAndFinish(result: Intent) {
+        deliveredResults += result
     }
 
     override fun showXPathError(
