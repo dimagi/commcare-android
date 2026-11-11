@@ -78,7 +78,10 @@ dependencies {
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
-    implementation 'com.github.dimagi:zebra-print-android:v1.3'
+    implementation('com.github.dimagi:zebra-print-android:v1.3') {
+        // Only the Zebra SDK's Link-OS file upload uses httpmime, and CommCare never calls it
+        exclude group: 'org.apache.httpcomponents'
+    }
     implementation 'com.simprints:libsimprints:2024.2.2'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -102,7 +105,6 @@ dependencies {
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
-    implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
     implementation 'org.jsoup:jsoup:1.21.1'
     implementation 'com.scottyab:rootbeer-lib:0.1.1'
