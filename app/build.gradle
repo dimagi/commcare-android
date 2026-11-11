@@ -575,6 +575,21 @@ androidComponents {
         }
     }
     onVariants(selector().all()) { variant ->
+        // The manifest names its permission groups ${permissionGroupRoot}.permission-group.*.
+        // The production package shipped with the fixed root "commcare", so it keeps it to
+        // leave its existing permissions untouched. Every other package uses its own ID, so
+        // differently signed builds can be installed side by side without their groups clashing.
+        // The commcare flavor ships under defaultConfig's ID unchanged.
+        def productionApplicationId = android.defaultConfig.applicationId
+        def permissionGroupRoot = variant.applicationId.map { appId ->
+            appId == productionApplicationId ? 'commcare' : appId
+        }
+        variant.manifestPlaceholders.put('permissionGroupRoot', permissionGroupRoot)
+        // Test builds merge the app manifest again with their own placeholders.
+        (variant.hostTests.values() + variant.deviceTests.values()).each { test ->
+            test.manifestPlaceholders.put('permissionGroupRoot', permissionGroupRoot)
+        }
+
         if (variant.buildType in ['release', 'qaAutomation']) {
             variant.outputs.each { output ->
                 output.versionCode.set(computeVersionCode())
