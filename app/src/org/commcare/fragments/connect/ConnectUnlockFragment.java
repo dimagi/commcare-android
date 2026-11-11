@@ -78,7 +78,8 @@ public class ConnectUnlockFragment extends Fragment {
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
-        binding.startupLogo.setVisibility(fromStartupRouting ? View.VISIBLE : View.GONE);
+        boolean showStartupLogo = fromStartupRouting || openedFromNotificationOrInvite;
+        binding.startupLogo.setVisibility(showStartupLogo ? View.VISIBLE : View.GONE);
         if (requireActivity() instanceof ConnectActivity connectActivity) {
             connectActivity.setWaitDialogEnabled(false);
         }

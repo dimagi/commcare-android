@@ -244,7 +244,23 @@ class ConnectUnlockFragmentTest {
     }
 
     @Test
-    fun `any other unlock hides the Connect logo`() {
+    fun `an unlock for a notification or invite link shows the Connect logo behind the prompt`() {
+        holdUnlockPrompt()
+        val intent =
+            Intent(app, ConnectActivity::class.java).apply {
+                putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_DEST_PAYMENTS)
+                putExtra(ConnectConstants.OPPORTUNITY_UUID, uuid)
+                putExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, true)
+            }
+
+        val activity = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(View.VISIBLE, activity.findViewById<View>(R.id.startup_logo).visibility)
+    }
+
+    @Test
+    fun `an unlock opened from inside the app hides the Connect logo`() {
         holdUnlockPrompt()
         val intent =
             Intent(app, ConnectActivity::class.java).apply {
