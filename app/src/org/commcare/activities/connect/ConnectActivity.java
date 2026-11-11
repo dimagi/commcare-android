@@ -8,6 +8,7 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
@@ -50,7 +52,6 @@ import kotlin.Unit;
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
-    private boolean appLaunchedFromConnect = false;
     private String redirectionAction = "";
     private ConnectJobRecord job;
     private String opportunityUuid;
@@ -256,20 +257,30 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if (!backButtonAndActionBarEnabled) {
             return;
         }
-        if (appLaunchedFromConnect && isAtStartDestination()) {
-            finishAffinity();
-            return;
-        }
         super.onBackPressed();
     }
 
-    public void markAppLaunchedFromConnect() {
-        appLaunchedFromConnect = true;
+    /** Whether Opportunity Home is showing with nothing beneath it in the task. */
+    public boolean isOpportunityHomeAtTaskBottom() {
+        return isTaskRoot()
+                && navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.connect_opportunity_home_fragment
+                && navController.getPreviousBackStackEntry() == null;
     }
 
-    private boolean isAtStartDestination() {
-        return navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == navController.getGraph().getStartDestinationId();
+    /** Shows the active job's Opportunity Home as the only screen in the task. */
+    public void openOpportunityHomeAtTaskBottom() {
+        if (isTaskRoot()) {
+            NavOptions options = new NavOptions.Builder()
+                    .setPopUpTo(navController.getGraph().getId(), true)
+                    .build();
+            navController.navigate(R.id.connect_opportunity_home_fragment, null, options);
+        } else {
+            Intent opportunityHomeIntent =
+                    ConnectNavHelper.buildOpportunityHomeTaskRootIntent(this, job.getJobUUID());
+            startActivity(opportunityHomeIntent);
+            finish();
+        }
     }
 
     @Override

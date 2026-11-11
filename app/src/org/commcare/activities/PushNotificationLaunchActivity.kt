@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.util.LogTypes
 import org.javarosa.core.services.Logger
 
@@ -54,6 +55,7 @@ class PushNotificationLaunchActivity : Activity() {
             Intent(this, FormEntryActivity::class.java)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_INTENT, wrapped)
+                .putExtra(FormEntryActivity.EXTRA_PENDING_NAV_SOURCE, AnalyticsParamValue.PUSH_NOTIFICATION_TAP)
 
         startActivity(reroute)
     }
