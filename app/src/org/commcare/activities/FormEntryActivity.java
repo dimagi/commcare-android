@@ -133,6 +133,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_IS_RESTART_AFTER_EXPIRATION = "is-restart-after-session-expiration";
     public static final String EXTRA_PENDING_NAV_INTENT =
             "org.commcare.formentry.pending_nav_intent";
+    public static final String EXTRA_PENDING_NAV_SOURCE =
+            "org.commcare.formentry.pending_nav_source";
 
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
@@ -360,7 +362,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             pendingNav = intent.getParcelableExtra(EXTRA_PENDING_NAV_INTENT);
         }
         if (pendingNav != null) {
-            triggerUserQuitInputForExternalNav(pendingNav);
+            triggerUserQuitInputForExternalNav(pendingNav, intent.getStringExtra(EXTRA_PENDING_NAV_SOURCE));
         }
     }
 
@@ -1274,22 +1276,22 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     /**
      * Variant of {@link #triggerUserQuitInput()} for the case where the user is being
-     * pulled away from the form by an external navigation event (currently: tapping a push
-     * notification). On Save / Discard the form's existing exit handling runs and then
-     * pendingNav is started so the user reaches the notification's target.
+     * pulled away from the form by an external navigation event, such as tapping a push
+     * notification or an external launch of CommCare. On Save / Discard the form's existing exit
+     * handling runs and then pendingNav is started so the user reaches its target.
+     *
+     * @param source the {@link AnalyticsParamValue} naming the navigation event
      */
-    protected void triggerUserQuitInputForExternalNav(Intent pendingNav) {
+    protected void triggerUserQuitInputForExternalNav(Intent pendingNav, String source) {
         if (mSaveToDiskTask != null && mSaveToDiskTask.getStatus() != AsyncTask.Status.FINISHED) {
             Logger.exception("Navigation during form save", new Exception(
-                    "User attempted to navigate from a push notification during form save."
+                    "User attempted to navigate away (" + source + ") during form save."
             ));
             Toast.makeText(this, R.string.cannot_navigate_during_form_save, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        FirebaseAnalyticsUtil.reportFormQuitAttempt(
-                AnalyticsParamValue.PUSH_NOTIFICATION_TAP,
-                getCurrentFormXmlnsFailSafe());
+        FirebaseAnalyticsUtil.reportFormQuitAttempt(source, getCurrentFormXmlnsFailSafe());
 
         if (!formHasLoaded()) {
             startActivity(pendingNav);
