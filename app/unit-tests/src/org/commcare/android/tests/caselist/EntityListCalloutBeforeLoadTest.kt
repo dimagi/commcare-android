@@ -82,7 +82,6 @@ class EntityListCalloutBeforeLoadTest {
         assertEquals(8, adapter.currentCount)
     }
 
-    @Ignore("Temporarily disabled to isolate FormRecordListActivityTest flakiness")
     @Test
     fun calloutResultOnRecreatedActivity_isAppliedWhenListLoads() {
         val controller = startEntitySelectActivity()
