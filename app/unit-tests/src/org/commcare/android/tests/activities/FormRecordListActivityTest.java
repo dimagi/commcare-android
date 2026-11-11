@@ -40,10 +40,12 @@ import static org.junit.Assert.assertNotNull;
 @Config(application = CommCareTestApplication.class)
 @RunWith(AndroidJUnit4.class)
 public class FormRecordListActivityTest {
+    private final InlineExecutorService asyncTaskExecutor = new InlineExecutorService();
+
     @Before
     public void setup() {
         // Run AsyncTasks (e.g. FormLoaderTask) inline so their results are posted before we idle the looper
-        ShadowPausedAsyncTask.overrideExecutor(new InlineExecutorService());
+        ShadowPausedAsyncTask.overrideExecutor(asyncTaskExecutor);
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
@@ -54,6 +56,8 @@ public class FormRecordListActivityTest {
     @After
     public void tearDown() {
         ShadowPausedAsyncTask.reset();
+        // reset() only drops the override; the executor's worker thread lives until it is shut down
+        asyncTaskExecutor.shutdown();
     }
 
     /**
