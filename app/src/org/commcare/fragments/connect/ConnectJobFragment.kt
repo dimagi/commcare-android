@@ -9,6 +9,9 @@ import org.commcare.fragments.base.BaseConnectFragment
 abstract class ConnectJobFragment<T : ViewBinding> : BaseConnectFragment<T>() {
     protected lateinit var job: ConnectJobRecord
 
+    /** Keyed by job too, so an install one opportunity started never shows on another's screen. */
+    override val installOwnerKey: String get() = "${javaClass.name}:${job.jobUUID}"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         reloadActiveJob()

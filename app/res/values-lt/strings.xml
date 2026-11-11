@@ -80,6 +80,14 @@
     <string name="personalid_user_photo_update_success">Jūsų profilio nuotrauka sėkmingai atnaujinta.</string>
     <string name="personalid_manage_profile"><u>Tvarkyti profilį</u></string>
     <string name="personalid_profile_title">Profilis</string>
+    <string name="personalid_demographic_banner_title">Užpildykite savo profilį</string>
+    <string name="personalid_demographic_banner_message">Atnaujinti duomenys padeda mums pritaikyti jūsų patirtį ir pasiūlyti geresnių darbo galimybių</string>
+    <string name="personalid_demographic_banner_warning">Rytoj pristatymo užduotys gali būti sutrikdytos, jei jūsų profilio informacija nebus atnaujinta.</string>
+    <string name="personalid_demographic_banner_final">Atnaujinkite savo profilį spustelėdami mygtuką „Užpildyti profilį“ arba atidarę profilį iš meniu, kad galėtumėte toliau dirbti be pertraukų.</string>
+    <string name="personalid_demographic_banner_remind_later">Priminti vėliau</string>
+    <string name="personalid_demographic_banner_dismiss">Atmesti</string>
+    <string name="personalid_demographic_banner_complete">Užpildyti profilį</string>
+    <string name="personalid_demographic_banner_snoozed">Rytoj priminsime jums atnaujinti profilį</string>
     <string name="personalid_profile_edit_title">Redaguoti profilį</string>
     <string name="personalid_profile_section_personal_information">Asmeninė informacija</string>
     <string name="personalid_profile_field_name">Vardas</string>

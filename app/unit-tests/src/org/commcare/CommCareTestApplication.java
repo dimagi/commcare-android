@@ -64,6 +64,7 @@ import okhttp3.RequestBody;
 import static junit.framework.Assert.fail;
 import static org.robolectric.shadows.ShadowEnvironment.setExternalStorageState;
 
+import com.google.android.gms.common.GoogleApiAvailabilityLight;
 import com.google.common.collect.Multimap;
 
 /**
@@ -85,6 +86,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         // initialize work manager before super.onCreate() to avoid IllegalStateException when WorkManager is used in onCreate() of CommCareApplication
         initWorkManager();
 
+        primePlayServicesManifestCache();
+
         super.onCreate();
 
         // allow "jr://resource" references
@@ -93,6 +96,15 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             asyncExceptions.add(ex);
             Assert.fail(ex.getMessage());
         });
+    }
+
+    /**
+     * Play Services reads the manifest's gms version once per JVM and keeps it, even when that
+     * read fails. Reading it here, against this live application, stops a later background call
+     * holding a finished test's stale context from caching 0 for every test after it.
+     */
+    private void primePlayServicesManifestCache() {
+        GoogleApiAvailabilityLight.getInstance().isGooglePlayServicesAvailable(this);
     }
 
     protected void attachISRGCert() {
@@ -172,7 +184,8 @@ public class CommCareTestApplication extends CommCareApplication implements Test
             String[] baseODK = new String[]{BuildConfig.BUILD_DIR
                     + "/intermediates/javac/commcareDebug/compileCommcareDebugJavaWithJavac/classes/"
                     , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"
-                    , BuildConfig.BUILD_DIR + "/tmp/kotlin-classes/commcareDebug/"};
+                    , BuildConfig.BUILD_DIR + "/tmp/kotlin-classes/commcareDebug/"
+                    , BuildConfig.BUILD_DIR + "/intermediates/built_in_kotlinc/commcareDebug/compileCommcareDebugKotlin/classes/"};
             String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
 
 

@@ -9,9 +9,12 @@ import org.commcare.activities.connect.ConnectMessagingActivity
 import org.commcare.activities.connect.PersonalIdActivity
 import org.commcare.activities.connect.PersonalIdWorkHistoryActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.ConnectConstants.CCC_DEST_OPPORTUNITY_LIST
+import org.commcare.connect.ConnectConstants.CCC_GENERIC_OPPORTUNITY
+import org.commcare.connect.ConnectConstants.FROM_STARTUP_ROUTING
 import org.commcare.connect.ConnectConstants.GO_TO_JOB_STATUS
 import org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID
-import org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON
+import org.commcare.connect.ConnectConstants.REDIRECT_ACTION
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUnlocker
 import org.commcare.personalId.PersonalIdUserPreferences
@@ -88,12 +91,19 @@ object ConnectNavHelper {
         policy: UnlockPolicy = UnlockPolicy.ALWAYS,
         listener: ConnectActivityCompleteListener,
         initiateBackupCodeRecovery: Boolean = false,
+        openProfileEdit: Boolean = false,
     ) {
         unlockAndGoTo(
             activity,
             policy,
             listener,
-            { context -> goToProfile(context, initiateBackupCodeRecovery) },
+            { context ->
+                goToProfile(
+                    context,
+                    initiateBackupCodeRecovery = initiateBackupCodeRecovery,
+                    openProfileEdit = openProfileEdit,
+                )
+            },
         )
     }
 
@@ -101,6 +111,7 @@ object ConnectNavHelper {
         context: Context,
         initiateBackupCodeRecovery: Boolean = false,
         pendingBackupCode: Boolean = false,
+        openProfileEdit: Boolean = false,
     ) {
         val i = Intent(context, PersonalIdProfileActivity::class.java)
         if (initiateBackupCodeRecovery) {
@@ -108,6 +119,9 @@ object ConnectNavHelper {
         }
         if (pendingBackupCode) {
             i.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true)
+        }
+        if (openProfileEdit) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_OPEN_PROFILE_EDIT, true)
         }
         context.startActivity(i)
     }
@@ -152,16 +166,32 @@ object ConnectNavHelper {
         }
     }
 
+    /** Builds the intent that opens [opportunityUuid]'s Opportunity Home, or the Opportunity List when it is null. */
+    @JvmStatic
+    fun buildStartupLandingIntent(
+        context: Context,
+        opportunityUuid: String?,
+    ): Intent {
+        checkConnectAccess(context)
+
+        val redirectAction = if (opportunityUuid != null) CCC_GENERIC_OPPORTUNITY else CCC_DEST_OPPORTUNITY_LIST
+        val intent = Intent(context, ConnectActivity::class.java)
+
+        intent.putExtra(REDIRECT_ACTION, redirectAction)
+        intent.putExtra(FROM_STARTUP_ROUTING, true)
+        opportunityUuid?.let { intent.putExtra(OPPORTUNITY_UUID, it) }
+
+        return intent
+    }
+
     fun goToActiveInfoForJob(
         context: Context,
         job: ConnectJobRecord,
-        allowProgression: Boolean,
     ) {
         checkConnectAccess(context)
         val i = Intent(context, ConnectActivity::class.java)
         i.putExtra(GO_TO_JOB_STATUS, true)
         i.putExtra(OPPORTUNITY_UUID, job.jobUUID)
-        i.putExtra(SHOW_LAUNCH_BUTTON, allowProgression)
         context.startActivity(i)
     }
 }

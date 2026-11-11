@@ -1,9 +1,11 @@
 package org.commcare.connect.viewmodel
 
 import android.app.Application
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.dalvik.R
 import org.commcare.engine.resource.AppInstallStatus
@@ -85,6 +87,7 @@ class ConnectAppInstallViewModel(
         get() =
             _installState.value.let {
                 it is AppInstallState.Downloading ||
+                    it is AppInstallState.Installed ||
                     it is AppInstallState.Verifying ||
                     it is AppInstallState.Launching
             }
@@ -130,6 +133,20 @@ class ConnectAppInstallViewModel(
 
     fun markLaunching() {
         _installState.value = AppInstallState.Launching
+    }
+
+    /**
+     * Marks the launch of [target]'s already-installed app as in flight, so it holds the screen the
+     * way an install does. Answers false when an install is already running.
+     */
+    fun launch(target: AppInstallTarget): Boolean {
+        if (isInstalling) {
+            return false
+        }
+        this.target = target
+        failureHandled = false
+        _installState.value = AppInstallState.Launching
+        return true
     }
 
     /** Clears the state once the screen has acted on it, so re-observing does not replay it. */
@@ -225,4 +242,14 @@ class ConnectAppInstallViewModel(
         }
 
     private fun unknownErrorMessage() = getApplication<Application>().getString(R.string.connect_app_install_unknown_error)
+
+    companion object {
+        /** The one instance shared by every Connect screen in [activity]. */
+        @JvmStatic
+        fun of(activity: FragmentActivity): ConnectAppInstallViewModel =
+            ViewModelProvider(
+                activity,
+                ViewModelProvider.AndroidViewModelFactory.getInstance(activity.application),
+            )[ConnectAppInstallViewModel::class.java]
+    }
 }

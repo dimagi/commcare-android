@@ -6,18 +6,12 @@ interface LaunchActions {
 
     fun launchHome(alreadyLoggedIn: Boolean)
 
-    fun recoverFromSeatFailure()
-
-    fun promptRetry()
-
-    fun showPersistentError()
-
-    fun reportFailure(reason: String)
+    fun handleFailure(failure: AppLaunchFailure)
 }
 
 /** Maps each [LaunchOutcome] to its [LaunchActions] calls, always dismissing progress first. */
 object LaunchOutcomeRouter {
-    /** A retryable failure escalates to [LaunchActions.showPersistentError] once this many attempts have failed. */
+    /** A retryable failure is marked [AppLaunchFailure.Retryable.attemptsExhausted] once this many attempts have failed. */
     const val MAX_LAUNCH_ATTEMPTS = 3
 
     fun dispatch(
@@ -32,17 +26,13 @@ object LaunchOutcomeRouter {
             }
 
             LaunchOutcome.AppSeatFailed -> {
-                actions.reportFailure(outcome::class.java.simpleName)
-                actions.recoverFromSeatFailure()
+                actions.handleFailure(AppLaunchFailure.SeatFailed)
             }
 
             is LaunchOutcome.Retryable -> {
-                actions.reportFailure(outcome.error::class.java.simpleName)
-                if (failedAttempts >= MAX_LAUNCH_ATTEMPTS) {
-                    actions.showPersistentError()
-                } else {
-                    actions.promptRetry()
-                }
+                actions.handleFailure(
+                    AppLaunchFailure.Retryable(outcome.error, failedAttempts >= MAX_LAUNCH_ATTEMPTS),
+                )
             }
         }
     }

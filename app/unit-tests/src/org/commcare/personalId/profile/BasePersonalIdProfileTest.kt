@@ -7,6 +7,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.android.util.runTeardownSteps
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.dalvik.R
@@ -58,10 +59,12 @@ abstract class BasePersonalIdProfileTest {
 
     @After
     fun tearDown() {
-        activityController.pause().stop().destroy()
-        connectUserDatabaseUtilMock.close()
-        firebaseAnalyticsUtilMock.close()
-        mockApiServer.shutdown()
+        runTeardownSteps(
+            { activityController.pause().stop().destroy() },
+            { connectUserDatabaseUtilMock.close() },
+            { firebaseAnalyticsUtilMock.close() },
+            { mockApiServer.shutdown() },
+        )
     }
 
     protected open fun buildUser(): ConnectUserRecord =

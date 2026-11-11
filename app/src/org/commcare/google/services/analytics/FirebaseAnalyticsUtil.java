@@ -654,7 +654,6 @@ public class FirebaseAnalyticsUtil {
         reportEvent(CCAnalyticsEvent.CCC_API_PAYMENT_CONFIRMATION, b);
     }
 
-
     public static void reportPersonalIdAccountForgotten(String reason) {
         Bundle b = new Bundle();
         b.putString(CCAnalyticsParam.REASON, reason);
@@ -739,15 +738,20 @@ public class FirebaseAnalyticsUtil {
                         ((FragmentNavigator.Destination)destination).getClassName();
             }
 
-            Bundle bundle = new Bundle();
             CharSequence label = navDestination.getLabel();
-            bundle.putString(
-                    FirebaseAnalytics.Param.SCREEN_NAME,
-                    label != null ? label.toString() : currentFragmentClassName
+            reportScreenView(
+                    label != null ? label.toString() : currentFragmentClassName,
+                    currentFragmentClassName
             );
-            bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, currentFragmentClassName);
-            reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
         };
+    }
+
+    /** Reports a screen view, including for a screen hosted inside another destination. */
+    public static void reportScreenView(String screenName, String screenClass) {
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, screenName);
+        bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, screenClass);
+        reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
     }
 
     public static void reportConnectTabChange(String tabName) {
@@ -793,7 +797,8 @@ public class FirebaseAnalyticsUtil {
      * @param op             the OTP operation in flight; resolved to the event type. Logged under
      *                       {@link CCAnalyticsParam#OTP_EVENT_TYPE}.
      * @param outcome        one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
-     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE} /
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID}.
      * @param method         one of {@link AnalyticsParamValue#OTP_METHOD_FIREBASE} /
      *                       {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID} /
      *                       {@link AnalyticsParamValue#OTP_METHOD_EMAIL}.

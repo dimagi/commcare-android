@@ -18,11 +18,11 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class OpportunityListScreenshotTest(
-    locale: String,
-) : BaseConnectScreenshotTest(locale) {
+    target: ScreenshotTarget,
+) : BaseConnectScreenshotTest(target) {
     @Before
     fun seedOpportunities() {
-        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), ConnectScreenshotData.opportunities(), true)
+        ConnectJobUtils.storeJobs(ApplicationProvider.getApplicationContext(), ConnectScreenshotData.buildOpportunities(), true)
         ConnectSyncPreferences.getInstance().apply {
             markSessionStart()
             storeLastSyncTime(ConnectRepository.SYNC_KEY_OPPORTUNITIES)
@@ -38,7 +38,7 @@ class OpportunityListScreenshotTest(
                 .postCreate(null)
                 .start()
                 .resume()
-        L10nScreenshots.capture(controller, locale, "20_connect_opportunity_list")
+        L10nScreenshots.capture(controller, target, "20_connect_opportunity_list")
     }
 
     companion object {

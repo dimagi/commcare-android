@@ -20,13 +20,13 @@ import org.robolectric.shadows.ShadowLooper
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ChannelMessagesScreenshotTest(
-    locale: String,
-) : BaseConnectScreenshotTest(locale) {
+    target: ScreenshotTarget,
+) : BaseConnectScreenshotTest(target) {
     @Before
     fun seedMessaging() {
         val context = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
-        ConnectScreenshotData.channels().forEach { ConnectMessagingDatabaseHelper.storeMessagingChannel(context, it) }
-        ConnectScreenshotData.messages().forEach { ConnectMessagingDatabaseHelper.storeMessagingMessage(context, it) }
+        ConnectScreenshotData.buildChannels().forEach { ConnectMessagingDatabaseHelper.storeMessagingChannel(context, it) }
+        ConnectScreenshotData.buildMessages().forEach { ConnectMessagingDatabaseHelper.storeMessagingMessage(context, it) }
     }
 
     @Test
@@ -45,7 +45,7 @@ class ChannelMessagesScreenshotTest(
             Bundle().apply { putString(ConnectMessagingActivity.CHANNEL_ID, ConnectScreenshotData.CONVERSATION_CHANNEL_ID) },
         )
         ShadowLooper.idleMainLooper()
-        L10nScreenshots.capture(controller, locale, "31_connect_channel_messages")
+        L10nScreenshots.capture(controller, target, "31_connect_channel_messages")
     }
 
     companion object {

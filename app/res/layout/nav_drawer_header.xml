@@ -74,7 +74,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/TextStyle.Connect.BodyM"
-                        android:textColor="?attr/connectNavDrawerForeground"/>
+                        android:textColor="?attr/colorOnPrimary"/>
                     <TextView
                         android:id="@+id/header_manage_profile"
                         android:layout_width="wrap_content"

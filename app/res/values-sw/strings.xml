@@ -336,7 +336,6 @@
     <string name="connect_verify_phone_resend">Hukupokea nambari yako ya kuthibitisha? Tuma tena</string>
     <string name="connect_verify_phone_change">Badilisha nambari</string>
     <string name="connect_verify_phone_verify">Thibitisha msimbo</string>
-    <string name="connect_title">Unganisha</string>
     <string name="connect_no_jobs">Bado hujaalikwa kwenye fursa zozote. Mara tu unapoalikwa kwenye fursa, itaonekana katika orodha hii.</string>
     <string name="connect_learn_complete_by">Kamilisha Mradi kabla ya %s</string>
     <string name="connect_job_ended">Kazi ilimalizika mnamo %s</string>
@@ -411,6 +410,14 @@
     <string name="personalid_user_photo_update_success">Picha yako ya wasifu imesasishwa kwa mafanikio.</string>
     <string name="personalid_manage_profile"><u>Dhibiti Wasifu</u></string>
     <string name="personalid_profile_title">Wasifu</string>
+    <string name="personalid_demographic_banner_title">Kamilisha Wasifu Wako</string>
+    <string name="personalid_demographic_banner_message">Kusasisha data yako hutusaidia kuboresha uzoefu wako, na kukupa fursa bora za kazi</string>
+    <string name="personalid_demographic_banner_warning">Kazi za uwasilishaji zinaweza kukatizwa kesho, ikiwa taarifa za wasifu wako hazitasasishwa.</string>
+    <string name="personalid_demographic_banner_final">Tafadhali sasisha wasifu wako kwa kubofya kitufe cha Kamilisha Wasifu, au kufungua wasifu wako kutoka kwenye menyu, ili uendelee kufanya kazi bila kukatizwa.</string>
+    <string name="personalid_demographic_banner_remind_later">Nikumbushe Baadaye</string>
+    <string name="personalid_demographic_banner_dismiss">Ondoa</string>
+    <string name="personalid_demographic_banner_complete">Kamilisha Wasifu</string>
+    <string name="personalid_demographic_banner_snoozed">Tutakukumbusha kusasisha wasifu wako kesho</string>
     <string name="personalid_profile_edit_title">Hariri Wasifu</string>
     <string name="personalid_profile_section_personal_information">Taarifa binafsi</string>
     <string name="personalid_profile_field_name">Jina</string>
@@ -457,7 +464,6 @@
     <string name="personalid_set_backup_code_reminder_message">Huna nambari ya hifadhi iliyowekwa kwenye akaunti yako. Bonyeza Thibitisha ili uweke moja.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Weka Nambari ya Hifadhi</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Tafadhali weka nambari ya hifadhi kabla ya kutoka</string>
-    <string name="connect_progress">Maendeleo</string>
     <string name="connect_payment">Malipo</string>
     <string name="connect_payment_received">Imepokelewa</string>
     <string name="connect_payment_transferred">Imehamishwa</string>

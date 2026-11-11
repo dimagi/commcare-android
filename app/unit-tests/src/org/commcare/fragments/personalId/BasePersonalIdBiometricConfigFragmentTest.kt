@@ -8,6 +8,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.android.util.runTeardownSteps
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
 import org.commcare.utils.BiometricsHelper
@@ -68,12 +69,14 @@ abstract class BasePersonalIdBiometricConfigFragmentTest :
     @After
     @CallSuper
     override fun tearDown() {
-        activityController.pause().stop().destroy()
-        mocksCloseable.close()
-        unmockkObject(PersonalIdSessionManager.Companion)
-        biometricsHelperMock.close()
-        MockAndroidKeyStoreProvider.deregisterProvider()
-        super.tearDown()
+        runTeardownSteps(
+            { activityController.pause().stop().destroy() },
+            { mocksCloseable.close() },
+            { unmockkObject(PersonalIdSessionManager.Companion) },
+            { biometricsHelperMock.close() },
+            { MockAndroidKeyStoreProvider.deregisterProvider() },
+            { super.tearDown() },
+        )
     }
 }
 

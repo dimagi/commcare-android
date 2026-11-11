@@ -11,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import kotlinx.coroutines.Dispatchers
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.app.models.UserKeyRecord
@@ -23,6 +24,7 @@ import org.commcare.dalvik.R
 import org.commcare.models.database.user.DemoUserBuilder
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.PrefValues
+import org.commcare.tasks.LatestTaskExecutor
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.notifications.NotificationMessage
 import org.commcare.views.notifications.NotificationMessageFactory
@@ -52,6 +54,9 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 abstract class BaseHomeScreenActivityTest {
+    /** The fake syncer most recently injected by [buildStandardHomeController] or [injectFakeSyncer]. */
+    protected lateinit var fakeSyncer: FormAndDataSyncerFake
+
     @Before
     fun baseSetUp() {
         clearPrefs()
@@ -64,10 +69,15 @@ abstract class BaseHomeScreenActivityTest {
         mockkStatic(ConnectivityStatus::class)
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
         every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
+
+        // The sync button's sub-text and the incomplete-forms count are filled in by background
+        // queries; run them inline so idling the main looper leaves the buttons fully rendered.
+        LatestTaskExecutor.ioDispatcher = Dispatchers.Unconfined
     }
 
     @After
     fun baseTearDown() {
+        LatestTaskExecutor.ioDispatcher = Dispatchers.IO
         unmockkAll()
         // PersonalIdSessionManager is a process-wide singleton holding its own login status, so a test that
         // signs in would otherwise leave the next one logged in.
@@ -125,7 +135,10 @@ abstract class BaseHomeScreenActivityTest {
     }
 
     /** Swap in a syncer that records instead of hitting the network. */
-    private fun injectFakeSyncer(home: StandardHomeActivity) = home.setFormAndDataSyncer(FormAndDataSyncerFake())
+    protected fun injectFakeSyncer(home: StandardHomeActivity) {
+        fakeSyncer = FormAndDataSyncerFake()
+        home.setFormAndDataSyncer(fakeSyncer)
+    }
 
     protected fun shadowOf(activity: StandardHomeActivity): ShadowActivity = Shadows.shadowOf(activity)
 
@@ -160,6 +173,17 @@ abstract class BaseHomeScreenActivityTest {
         click(home, card.findViewById(R.id.card_subtext))
     }
 
+    /** The sub-text under the button labelled [label]. Requires a [buildVisibleHome]. */
+    protected fun homeButtonSubText(
+        home: StandardHomeActivity,
+        label: String,
+    ): String {
+        val card =
+            homeButtonCards(home).firstOrNull { labelOf(it) == label }
+                ?: throw AssertionError("no home button labelled '$label'; rendered: ${homeButtonLabels(home)}")
+        return card.findViewById<TextView>(R.id.card_subtext).text.toString()
+    }
+
     private fun click(
         home: StandardHomeActivity,
         view: View,
@@ -188,7 +212,7 @@ abstract class BaseHomeScreenActivityTest {
 
     /**
      * Replace the standard session installed by [baseSetUp] with a demo-user session, so
-     * `HomeScreenBaseActivity.isDemoUser()` reports true. Call before building home.
+     * `StandardHomeActivity.isDemoUser()` reports true. Call before building home.
      */
     protected fun seatDemoUser() {
         CommCareApplication.instance().closeUserSession()

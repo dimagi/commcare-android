@@ -273,7 +273,6 @@
     <string name="connect_verify_phone_resend">¿No recibiste tu código? Reenviar</string>
     <string name="connect_verify_phone_change">Cambiar número</string>
     <string name="connect_verify_phone_verify">Verificar código</string>
-    <string name="connect_title">Conectar</string>
     <string name="connect_no_jobs">Aún no has sido invitado a ninguna oportunidad. Una vez que hayas sido invitado a una oportunidad, aparecerá en esta lista.</string>
     <string name="connect_learn_complete_by">Proyecto completado por %s</string>
     <string name="connect_job_ended">La tarea finalizó el %s</string>
@@ -412,6 +411,14 @@
     <string name="personalid_user_photo_update_success">Tu foto de perfil se ha actualizado correctamente.</string>
     <string name="personalid_manage_profile"><u>Administrar perfil</u></string>
     <string name="personalid_profile_title">Perfil</string>
+    <string name="personalid_demographic_banner_title">Completa tu perfil</string>
+    <string name="personalid_demographic_banner_message">Actualizar tus datos nos ayuda a personalizar tu experiencia y ofrecerte mejores oportunidades de trabajo</string>
+    <string name="personalid_demographic_banner_warning">Las tareas de entrega pueden interrumpirse mañana si no actualizas la información de tu perfil.</string>
+    <string name="personalid_demographic_banner_final">Actualiza tu perfil pulsando el botón Completar perfil o accediendo a tu perfil desde el menú para seguir trabajando sin interrupciones.</string>
+    <string name="personalid_demographic_banner_remind_later">Recordármelo más tarde</string>
+    <string name="personalid_demographic_banner_dismiss">Descartar</string>
+    <string name="personalid_demographic_banner_complete">Completar perfil</string>
+    <string name="personalid_demographic_banner_snoozed">Te recordaremos actualizar tu perfil mañana</string>
     <string name="personalid_profile_edit_title">Editar perfil</string>
     <string name="personalid_profile_section_personal_information">Información personal</string>
     <string name="personalid_profile_field_name">Nombre</string>
@@ -458,7 +465,6 @@
     <string name="personalid_set_backup_code_reminder_message">No tienes un código de respaldo configurado en tu cuenta. Haz clic en Confirmar para configurar uno.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Establecer código de respaldo</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Por favor, establezca un código de respaldo antes de salir</string>
-    <string name="connect_progress">Progreso</string>
     <string name="connect_payment">Pago</string>
     <string name="connect_payment_received">Recibido</string>
     <string name="connect_payment_transferred">Transferido</string>

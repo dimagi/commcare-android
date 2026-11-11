@@ -173,7 +173,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_verify_phone_resend">Ba ku karɓi lambar ku ba? Sake aika</string>
     <string name="connect_verify_phone_change">Canja lamba</string>
     <string name="connect_verify_phone_verify">Tabbatar da lambar</string>
-    <string name="connect_title">Haɗa</string>
     <string name="connect_no_jobs">Ba a gayyace ka zuwa wata dama ba tukuna. Da zarar an gayyace ka zuwa wata dama, za ta bayyana a cikin wannan jerin.</string>
     <string name="connect_learn_complete_by">Kammala aikin da %s</string>
     <string name="connect_job_ended">Aikin ya ƙare a ranar %s</string>
@@ -248,6 +247,14 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_user_photo_update_success">An sabunta hoton bayanan martabarka cikin nasara.</string>
     <string name="personalid_manage_profile"><u>Sarrafa Bayanan Martaba</u></string>
     <string name="personalid_profile_title">Bayanan Martaba</string>
+    <string name="personalid_demographic_banner_title">Kammala Bayanan Martabarka</string>
+    <string name="personalid_demographic_banner_message">Sabunta bayananka yana taimaka mana mu keɓance kwarewarka, kuma mu samar maka da ingantattun damar aiki</string>
+    <string name="personalid_demographic_banner_warning">Ana iya katse ayyukan isarwa gobe, idan ba a sabunta bayanan martabarka ba.</string>
+    <string name="personalid_demographic_banner_final">Da fatan za a sabunta bayanan martabarka ta hanyar danna maɓallin Kammala Bayanan Martaba, ko shiga bayanan martabarka daga menu, don ci gaba da aiki ba tare da katsewa ba.</string>
+    <string name="personalid_demographic_banner_remind_later">Tunatar da ni Daga Baya</string>
+    <string name="personalid_demographic_banner_dismiss">Watsar</string>
+    <string name="personalid_demographic_banner_complete">Kammala Bayanan Martaba</string>
+    <string name="personalid_demographic_banner_snoozed">Za mu tunatar da kai ka sabunta bayanan martabarka gobe</string>
     <string name="personalid_profile_edit_title">Gyara Bayanan Martaba</string>
     <string name="personalid_profile_section_personal_information">Bayanan sirri</string>
     <string name="personalid_profile_field_name">Suna</string>
@@ -294,7 +301,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="personalid_set_backup_code_reminder_message">Ba ka da lambar ajiyar da aka saita a asusunka. Danna Tabbatarwa don saita ɗaya.</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_title">Saita Lambar Ajiyar</string>
     <string name="personalid_configuration_set_new_backup_code_abandon_message">Da fatan za a saita lambar ajiyar kafin fita</string>
-    <string name="connect_progress">Ci gaba</string>
     <string name="connect_payment">Biyan kuɗi</string>
     <string name="connect_payment_received">An karɓa</string>
     <string name="connect_payment_transferred">An canja wurin</string>

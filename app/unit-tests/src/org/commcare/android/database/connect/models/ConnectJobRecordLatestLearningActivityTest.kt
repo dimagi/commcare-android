@@ -2,7 +2,7 @@ package org.commcare.android.database.connect.models
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
-import org.commcare.connect.ConnectLearnJobTestData
+import org.commcare.connect.ConnectJobTestData
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -84,7 +84,7 @@ class ConnectJobRecordLatestLearningActivityTest {
         assessmentDates: List<String> = emptyList(),
         learningDates: List<String> = emptyList(),
     ): ConnectJobRecord =
-        ConnectLearnJobTestData.job(assessmentScore = null).apply {
+        ConnectJobTestData.job(assessmentScore = null).apply {
             assessments = assessmentDates.map { assessment(this, it) }
             learnings = learningDates.mapIndexed { index, date -> learning(this, index, date) }
         }
@@ -96,8 +96,8 @@ class ConnectJobRecordLatestLearningActivityTest {
         ConnectJobAssessmentRecord.fromJson(
             JSONObject().apply {
                 put(ConnectJobAssessmentRecord.META_DATE, date)
-                put(ConnectJobAssessmentRecord.META_SCORE, ConnectLearnJobTestData.PASSING_SCORE)
-                put(ConnectJobAssessmentRecord.META_PASSING_SCORE, ConnectLearnJobTestData.PASSING_SCORE)
+                put(ConnectJobAssessmentRecord.META_SCORE, ConnectJobTestData.PASSING_SCORE)
+                put(ConnectJobAssessmentRecord.META_PASSING_SCORE, ConnectJobTestData.PASSING_SCORE)
                 put(ConnectJobAssessmentRecord.META_PASSED, true)
             },
             job,

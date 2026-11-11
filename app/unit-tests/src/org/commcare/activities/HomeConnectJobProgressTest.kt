@@ -52,7 +52,6 @@ class HomeConnectJobProgressTest : BaseHomeScreenActivityTest() {
         val started = assertStarted(home, ConnectActivity::class.java)
         assertTrue(started.getBooleanExtra(ConnectConstants.GO_TO_JOB_STATUS, false))
         assertEquals(JOB_UUID, started.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
-        assertTrue(started.getBooleanExtra(ConnectConstants.SHOW_LAUNCH_BUTTON, false))
     }
 
     // ---- Delivery progress over the network ----

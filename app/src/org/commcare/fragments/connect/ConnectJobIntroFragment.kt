@@ -10,11 +10,12 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.NavDirections
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
+import org.commcare.connect.ConnectOpportunityHomeFragmentDirections
+import org.commcare.connect.ConnectOpportunityNavigator
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.DataState
@@ -32,14 +33,6 @@ import java.text.DateFormat
  */
 class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
     private lateinit var viewModel: ConnectJobIntroViewModel
-
-    /** Learning has started by the time the app launches, so back belongs on learn progress. */
-    override fun onAppLaunched() {
-        findNavController().navigate(
-            ConnectJobIntroFragmentDirections
-                .actionConnectJobIntroFragmentToConnectJobLearningProgressFragment(),
-        )
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -75,6 +68,11 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         populateDeliveryCards()
 
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        FirebaseAnalyticsUtil.reportScreenView("fragment_connect_job_intro", javaClass.name)
     }
 
     override fun onDestroyView() {
@@ -171,9 +169,9 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
                 totalHours,
             )
         binding.cardLearnModules.onCardClick = {
-            NavHostFragment.findNavController(this).navigate(
-                ConnectJobIntroFragmentDirections
-                    .actionConnectJobIntroFragmentToConnectLearnModulesBottomSheet(),
+            navigateFromOpportunityHost(
+                ConnectOpportunityHomeFragmentDirections
+                    .actionConnectOpportunityHomeFragmentToConnectLearnModulesBottomSheet(),
             )
         }
     }
@@ -195,7 +193,12 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
             )
     }
 
+    /** Once learning has started, the CTA left up by a failed learn install retries that install. */
     private fun startLearning() {
+        if (job.status == ConnectJobRecord.STATUS_LEARNING) {
+            launchApp(isLearning = true)
+            return
+        }
         viewModel.startLearning(job.jobUUID)
     }
 
@@ -220,14 +223,19 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         isCancellable: Boolean,
         buttonText: Int,
     ) {
-        val navDirections =
-            ConnectJobIntroFragmentDirections
-                .actionConnectJobIntroFragmentToPersonalidMessageDisplayDialog(
+        navigateFromOpportunityHost(
+            ConnectOpportunityHomeFragmentDirections
+                .actionConnectOpportunityHomeFragmentToPersonalidMessageDisplayDialog(
                     title,
                     message,
                     getString(buttonText),
                     null,
-                ).setIsCancellable(isCancellable)
-        NavHostFragment.findNavController(this).navigate(navDirections)
+                ).setIsCancellable(isCancellable),
+        )
+    }
+
+    /** Runs [directions] through the host page, so its already-navigated-away guard applies. */
+    private fun navigateFromOpportunityHost(directions: NavDirections) {
+        ConnectOpportunityNavigator.hostOf(this)?.navigateFromOpportunityHost(directions)
     }
 }

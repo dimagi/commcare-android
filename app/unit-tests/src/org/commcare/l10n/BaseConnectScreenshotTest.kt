@@ -3,7 +3,6 @@ package org.commcare.l10n
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.test.core.app.ApplicationProvider
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
@@ -15,7 +14,7 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.AppUtils
 import org.commcare.android.util.ConnectTestUtils
 import org.commcare.connect.MessageManager
-import org.commcare.connect.PersonalIdManager
+import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.network.ConnectMockApiServer
@@ -30,32 +29,31 @@ import org.junit.rules.TestRule
 
 /**
  * The showcase user signed in to Connect, whose screens read seeded data from the local database, with every
- * network call answered empty so none of it is pruned.
+ * network call answered by [responseBody], empty unless a test says otherwise, so none of it is pruned.
  */
 abstract class BaseConnectScreenshotTest(
-    protected val locale: String,
+    protected val target: ScreenshotTarget,
 ) {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
-    private val mockApi = ConnectMockApiServer()
+    protected val mockApi = ConnectMockApiServer()
 
     @Before
     fun setUpConnect() {
         mockApi.start()
-        mockApi.server.dispatcher = emptyJsonDispatcher()
+        mockApi.server.dispatcher = showcaseDispatcher()
         ConnectRepository.resetInstance()
         ConnectRequestManager.cancelAll()
         mockOutsideWorld()
 
         ConnectTestUtils.createConnectDbFile()
         ConnectUserDatabaseUtil.storeUser(
-            ConnectScreenshotData.user(hasConnectAccess = true).apply {
+            ConnectScreenshotData.buildUser(hasConnectAccess = true).apply {
                 updateConnectToken("showcase-connect-token", ConnectTestUtils.daysFromNow(1))
             },
         )
-        PersonalIdManager.getInstance().init(ApplicationProvider.getApplicationContext())
-        PersonalIdManager.getInstance().status = PersonalIdManager.PersonalIdStatus.LoggedIn
+        PersonalIdSessionManager.getInstance().status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
     }
 
     @After
@@ -88,8 +86,12 @@ abstract class BaseConnectScreenshotTest(
         every { AppUtils.isAppInstalled(any()) } returns true
     }
 
-    private fun emptyJsonDispatcher(): Dispatcher =
+    /** The JSON body the mock Connect server answers a request for [path] with. */
+    protected open fun responseBody(path: String): String = "{}"
+
+    private fun showcaseDispatcher(): Dispatcher =
         object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse = MockResponse().setResponseCode(200).setBody("{}")
+            override fun dispatch(request: RecordedRequest): MockResponse =
+                MockResponse().setResponseCode(200).setBody(responseBody(request.requestUrl?.encodedPath.orEmpty()))
         }
 }

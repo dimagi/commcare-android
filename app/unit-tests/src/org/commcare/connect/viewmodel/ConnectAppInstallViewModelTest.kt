@@ -83,8 +83,8 @@ class ConnectAppInstallViewModelTest {
     }
 
     /**
-     * Only [AppInstallState.Downloading] and [AppInstallState.Verifying] block a new install, so a
-     * finished one leaves the door open for the next app the user asks for.
+     * Only an install still in flight blocks a new one, so a finished one leaves the door open for
+     * the next app the user asks for.
      */
     @Test
     fun `an install can run again once the previous one has finished`() {
@@ -213,6 +213,36 @@ class ConnectAppInstallViewModelTest {
         assertEquals(AppInstallState.Idle, viewModel.installState.value)
         assertNull(viewModel.target)
         assertFalse(viewModel.isInstalling)
+    }
+
+    @Test
+    fun `launching an installed app holds the screen like an install`() {
+        assertTrue(viewModel.launch(buildAppInstallTarget()))
+
+        assertEquals(AppInstallState.Launching, viewModel.installState.value)
+        assertEquals(buildAppInstallTarget(), viewModel.target)
+        assertTrue(viewModel.isInstalling)
+        verify(exactly = 0) { ConnectAppUtils.downloadApp(any(), any()) }
+    }
+
+    @Test
+    fun `a launch is refused while an install is running`() {
+        viewModel.install(buildAppInstallTarget(), INSTALL_URL)
+
+        assertFalse(viewModel.launch(buildAppInstallTarget(appId = "other-app")))
+
+        assertEquals(AppInstallState.Downloading(0), viewModel.installState.value)
+        assertEquals(APP_ID, viewModel.target?.appId)
+    }
+
+    @Test
+    fun `a launch replaces a failure the user has not dismissed`() {
+        viewModel.failUnknown(AppInstallStatus.UnknownFailure)
+        viewModel.consumeFailure()
+
+        assertTrue(viewModel.launch(buildAppInstallTarget()))
+
+        assertEquals(AppInstallState.Launching, viewModel.installState.value)
     }
 
     private fun getInstallStateAsDownloading() = viewModel.installState.value as AppInstallState.Downloading

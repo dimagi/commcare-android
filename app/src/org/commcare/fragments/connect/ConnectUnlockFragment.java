@@ -2,7 +2,6 @@ package org.commcare.fragments.connect;
 
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
-import static org.commcare.connect.ConnectConstants.SHOW_LAUNCH_BUTTON;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +18,7 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
@@ -36,8 +36,8 @@ import org.javarosa.core.services.Logger;
 public class ConnectUnlockFragment extends Fragment {
     private FragmentConnectUnlockBinding binding;
     private String redirectionAction = "";
-    private boolean buttons = false;
     private boolean fromOppInviteLink = false;
+    private boolean fromStartupRouting = false;
     private String requestedOpportunityUuid = null;
 
     public ConnectUnlockFragment() {
@@ -50,42 +50,62 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState
+    ) {
         requireActivity().setTitle(R.string.connect_title);
 
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             redirectionAction = getArguments().getString(REDIRECT_ACTION);
-            buttons = getArguments().getBoolean(SHOW_LAUNCH_BUTTON, true);
             fromOppInviteLink = getArguments().getBoolean(
-                    ConnectConstants.FROM_SMS_INVITE_LINK, false);
+                    ConnectConstants.FROM_SMS_INVITE_LINK,
+                    false
+            );
+            fromStartupRouting = getArguments().getBoolean(
+                    ConnectConstants.FROM_STARTUP_ROUTING,
+                    false
+            );
             requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
         }
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
+        binding.startupLogo.setVisibility(fromStartupRouting ? View.VISIBLE : View.GONE);
+        if (requireActivity() instanceof ConnectActivity connectActivity) {
+            connectActivity.setWaitDialogEnabled(false);
+        }
 
         return binding.getRoot();
     }
 
-    private final Runnable unlockRunnable = new Runnable() {
-        @Override
-        public void run() {
-            PersonalIdUnlocker.INSTANCE.unlock((CommCareActivity<?>) requireActivity(), UnlockPolicy.SESSION_WITH_TIME_THRESHOLD, (success, error) -> {
-                if (success) {
+    private final Runnable unlockRunnable = () -> PersonalIdUnlocker.INSTANCE.unlock(
+            (CommCareActivity<?>) requireActivity(),
+            UnlockPolicy.SESSION_WITH_TIME_THRESHOLD,
+            (success, error) -> {
+                if (success && fromStartupRouting) {
+                    setFragmentRedirection();
+                } else if (success) {
                     retrieveOpportunities();
+                } else if (fromStartupRouting) {
+                    returnToStartupRoutingWithUnlockDeclined();
                 } else {
                     requireActivity().finish();
                 }
-            });
-        }
-    };
+            }
+    );
 
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         new Handler().post(unlockRunnable);
+    }
+
+    private void returnToStartupRoutingWithUnlockDeclined() {
+        requireActivity().setResult(DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED);
+        requireActivity().finish();
     }
 
     private void retrieveOpportunities() {
@@ -135,29 +155,20 @@ public class ConnectUnlockFragment extends Fragment {
                 AnalyticsParamValue.OPP_INVITE_PUSH_NOTIFICATION;
     }
 
-    /**
-     * Sets the fragment redirection based on the redirection action.
-     * This method determines the fragment to be displayed using the getFragmentId() method,
-     * prepares a bundle with additional data, and navigates to the appropriate fragment.
-     */
+    /** Resolves the redirection action to a destination fragment and navigates to it. */
     private void setFragmentRedirection() {
         Logger.log("ConnectUnlockFragment", "Redirecting after unlock fragment");
         Bundle bundle = new Bundle();
-        bundle.putBoolean(SHOW_LAUNCH_BUTTON, buttons);
 
         int fragmentId;
-        if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)) {
-            fragmentId = R.id.connect_job_intro_fragment;
-        } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)) {
-            fragmentId = R.id.connect_job_learning_progress_fragment;
-        } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
-            fragmentId = R.id.connect_delivery_home_fragment;
-            // Set the tab position in the bundle based on the redirection action
+        if (redirectionAction.equals(ConnectConstants.CCC_DEST_OPPORTUNITY_SUMMARY_PAGE)
+                || redirectionAction.equals(ConnectConstants.CCC_DEST_LEARN_PROGRESS)
+                || redirectionAction.equals(ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)) {
+            fragmentId = R.id.connect_opportunity_home_fragment;
             bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
                     ConnectDeliveryHomeFragment.TAB_DASHBOARD);
         } else if (redirectionAction.equals(ConnectConstants.CCC_DEST_PAYMENTS)) {
-            fragmentId = R.id.connect_delivery_home_fragment;
-            // Set the tab position in the bundle based on the redirection action
+            fragmentId = R.id.connect_opportunity_home_fragment;
             bundle.putInt(ConnectDeliveryHomeFragment.TAB_POSITION,
                     ConnectDeliveryHomeFragment.TAB_PAYMENT);
         } else {

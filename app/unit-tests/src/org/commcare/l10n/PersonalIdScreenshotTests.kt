@@ -30,13 +30,13 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class PhoneScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdPhoneFragmentTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     @Test
-    fun phone() = L10nScreenshots.capture(activityController, locale, "01_phone")
+    fun phone() = L10nScreenshots.capture(activityController, target, "01_phone")
 
     companion object {
         @JvmStatic
@@ -49,10 +49,10 @@ class PhoneScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class OtpScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdConfigurationTest<PersonalIdPhoneVerificationFragment>() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     override fun setUp() {
         super.setUp()
@@ -79,7 +79,7 @@ class OtpScreenshotTest(
             R.id.personalid_otp_page,
         )
         drainHttp()
-        L10nScreenshots.capture(activityController, locale, "02_otp")
+        L10nScreenshots.capture(activityController, target, "02_otp")
     }
 
     companion object {
@@ -93,13 +93,13 @@ class OtpScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class NameScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdNameFragmentTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     @Test
-    fun name() = L10nScreenshots.capture(activityController, locale, "03_name")
+    fun name() = L10nScreenshots.capture(activityController, target, "03_name")
 
     companion object {
         @JvmStatic
@@ -112,21 +112,21 @@ class NameScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class BackupCodeScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdBackupCodeFragmentTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     @Test
     fun backupCodeNewUser() {
         launchBackupCodeFragment()
-        L10nScreenshots.capture(activityController, locale, "04_backup_code_new")
+        L10nScreenshots.capture(activityController, target, "04_backup_code_new")
     }
 
     @Test
     fun backupCodeRecovery() {
         launchBackupCodeFragment(buildSessionData(accountExists = true))
-        L10nScreenshots.capture(activityController, locale, "05_backup_code_recovery")
+        L10nScreenshots.capture(activityController, target, "05_backup_code_recovery")
     }
 
     companion object {
@@ -140,17 +140,17 @@ class BackupCodeScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class BiometricScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdBiometricConfigFragmentTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     @Test
     fun biometricConfig() {
         `when`(mockBiometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG))
             .thenReturn(BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED)
         setUpBiometricFragment()
-        L10nScreenshots.capture(activityController, locale, "06_biometric_config")
+        L10nScreenshots.capture(activityController, target, "06_biometric_config")
     }
 
     companion object {
@@ -164,13 +164,13 @@ class BiometricScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class PhotoCaptureScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdPhotoCaptureFragmentTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     @Test
-    fun photoCapture() = L10nScreenshots.capture(activityController, locale, "07_photo_capture")
+    fun photoCapture() = L10nScreenshots.capture(activityController, target, "07_photo_capture")
 
     companion object {
         @JvmStatic
@@ -183,13 +183,13 @@ class PhotoCaptureScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class EmailScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdEmailFragmentTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     @Test
-    fun email() = L10nScreenshots.capture(activityController, locale, "08_email")
+    fun email() = L10nScreenshots.capture(activityController, target, "08_email")
 
     companion object {
         @JvmStatic
@@ -202,13 +202,13 @@ class EmailScreenshotTest(
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class EmailVerificationScreenshotTest(
-    private val locale: String,
+    private val target: ScreenshotTarget,
 ) : BasePersonalIdEmailVerificationFragmentTest() {
     @get:Rule
-    val localeRule: TestRule = L10nScreenshots.localeRule(locale)
+    val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
     @Test
-    fun emailVerification() = L10nScreenshots.capture(activityController, locale, "09_email_verification")
+    fun emailVerification() = L10nScreenshots.capture(activityController, target, "09_email_verification")
 
     companion object {
         @JvmStatic

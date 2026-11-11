@@ -12,7 +12,8 @@ import java.util.Locale
 
 /**
  * Covers [ConnectJobRecord.isFurtherWorkBlocked], which decides whether the delivery dashboard
- * renders its progress as disabled.
+ * renders its progress as disabled, and [ConnectJobRecord.canWorkFurther], which folds a pending
+ * task into that for the screens that also have to account for one.
  */
 class ConnectJobRecordWorkBlockedTest {
     private val visitDateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US)
@@ -55,6 +56,8 @@ class ConnectJobRecordWorkBlockedTest {
             ),
             ConnectJobRecord(),
         )
+
+    private fun pendingTask(): ConnectTaskRecord = ConnectTaskRecord().apply { status = ConnectTaskRecord.STATUS_ASSIGNED }
 
     private fun delivery(
         id: Int,
@@ -339,5 +342,35 @@ class ConnectJobRecordWorkBlockedTest {
         job.deliveries = listOf(delivery(1, 1, Date()))
 
         assertFalse(job.isFurtherWorkBlocked)
+    }
+
+    @Test
+    fun `work can continue when the job is workable and nothing is pending`() {
+        val job = job(maxVisits = 10, maxDailyVisits = 5)
+        job.deliveries = listOf(delivery(1, 1, Date()))
+
+        assertTrue(job.canWorkFurther(emptyList()))
+    }
+
+    @Test
+    fun `a pending task stops further work on an otherwise workable job`() {
+        val job = job(maxVisits = 10, maxDailyVisits = 5)
+        job.deliveries = listOf(delivery(1, 1, Date()))
+
+        assertFalse(job.canWorkFurther(listOf(pendingTask())))
+    }
+
+    @Test
+    fun `a blocked job stops further work even with nothing pending`() {
+        val job = job(active = false)
+
+        assertFalse(job.canWorkFurther(emptyList()))
+    }
+
+    @Test
+    fun `work cannot continue when the job is blocked and a task is pending`() {
+        val job = job(endDate = daysFromNow(-1))
+
+        assertFalse(job.canWorkFurther(listOf(pendingTask())))
     }
 }

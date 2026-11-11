@@ -542,7 +542,7 @@
     <string name="connect_offline">Offline</string>
     <string name="connect_back_online">Back Online</string>
     <string name="connect_never">Never</string>
-    <string name="connect_title">Connect</string>
+    <string name="connect_title" translatable="false">Connect</string>
     <string name="connect_no_jobs">You haven’t been invited to any opportunities yet. Once you’ve been invited to an opportunity, it will appear in this list.</string>
 
 
@@ -717,6 +717,14 @@
 
     <string name="personalid_manage_profile"><u>Manage Profile</u></string>
     <string name="personalid_profile_title">Profile</string>
+    <string name="personalid_demographic_banner_title">Complete Your Profile</string>
+    <string name="personalid_demographic_banner_message">Updating your data helps us personalize your experience and provide better work opportunities to you</string>
+    <string name="personalid_demographic_banner_warning">Delivery tasks may be interrupted tomorrow if your profile information is not updated.</string>
+    <string name="personalid_demographic_banner_final">To continue working without interruption, please update your profile by clicking the Complete Profile button or accessing it from the menu.</string>
+    <string name="personalid_demographic_banner_remind_later">Remind me Later</string>
+    <string name="personalid_demographic_banner_dismiss">Dismiss</string>
+    <string name="personalid_demographic_banner_complete">Complete Profile</string>
+    <string name="personalid_demographic_banner_snoozed">We\'ll remind you to update your profile tomorrow</string>
     <string name="personalid_profile_edit_title">Edit Profile</string>
     <string name="personalid_profile_section_personal_information">Personal information</string>
     <string name="personalid_profile_field_name">Name</string>
@@ -766,7 +774,6 @@
     <string name="connect_opportunity_modules_footer_note">Complete the modules, pass the assessment, and earn your certificate</string>
     <string name="connect_opportunity_footer_download_app">Download App</string>
 
-    <string name="connect_progress">Progress</string>
     <string name="connect_payment">Payment</string>
     <string name="connect_dashboard">Dashboard</string>
     <string name="connect_visits">Visits</string>
