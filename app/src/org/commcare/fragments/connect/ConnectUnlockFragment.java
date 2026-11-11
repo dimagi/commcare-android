@@ -3,7 +3,6 @@ package org.commcare.fragments.connect;
 import static org.commcare.connect.ConnectConstants.OPPORTUNITY_UUID;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -40,6 +39,7 @@ public class ConnectUnlockFragment extends Fragment {
     private String redirectionAction = "";
     private boolean fromOppInviteLink = false;
     private boolean fromStartupRouting = false;
+    private boolean openedFromNotificationOrInvite = false;
     private String requestedOpportunityUuid = null;
 
     public ConnectUnlockFragment() {
@@ -69,6 +69,10 @@ public class ConnectUnlockFragment extends Fragment {
                     ConnectConstants.FROM_STARTUP_ROUTING,
                     false
             );
+            openedFromNotificationOrInvite = getArguments().getBoolean(
+                    ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE,
+                    false
+            );
             requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
         }
 
@@ -90,7 +94,7 @@ public class ConnectUnlockFragment extends Fragment {
                     setFragmentRedirection();
                 } else if (success) {
                     retrieveOpportunities();
-                } else if (fromStartupRouting) {
+                } else if (fromStartupRouting || openedFromNotificationOrInvite) {
                     returnToStartupRoutingWithUnlockDeclined();
                 } else {
                     requireActivity().finish();
@@ -106,9 +110,7 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void returnToStartupRoutingWithUnlockDeclined() {
-        Intent dispatchIntent = DispatchActivity.buildRestartIntent(requireContext())
-                .putExtra(DispatchActivity.EXTRA_PERSONAL_ID_UNLOCK_DECLINED, true);
-        startActivity(dispatchIntent);
+        startActivity(DispatchActivity.buildUnlockDeclinedRestartIntent(requireContext()));
         requireActivity().finish();
     }
 

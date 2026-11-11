@@ -185,6 +185,40 @@ class ConnectUnlockFragmentTest {
     }
 
     @Test
+    fun `a declined unlock on a launch from outside the app restarts routing as the only screen in the task`() {
+        declineUnlock()
+        val intent =
+            Intent(app, ConnectActivity::class.java).apply {
+                putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_DEST_PAYMENTS)
+                putExtra(ConnectConstants.OPPORTUNITY_UUID, uuid)
+                putExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, true)
+            }
+
+        val activity = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val dispatch = ActivityAssertions.assertStarted(activity, DispatchActivity::class.java)
+        assertTrue(dispatch.getBooleanExtra(DispatchActivity.EXTRA_PERSONAL_ID_UNLOCK_DECLINED, false))
+        val taskRootFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        assertEquals(taskRootFlags, dispatch.flags and taskRootFlags)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test
+    fun `an Opportunity Home whose opportunity no longer exists opens the opportunities list`() {
+        every { ConnectJobUtils.getCompositeJob(eq("removed-uuid")) } returns null
+        val intent =
+            Intent(app, ConnectActivity::class.java)
+                .putExtra(ConnectConstants.GO_TO_JOB_STATUS, true)
+                .putExtra(ConnectConstants.OPPORTUNITY_UUID, "removed-uuid")
+
+        val activity = Robolectric.buildActivity(ConnectActivity::class.java, intent).setup().get()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals(R.id.connect_jobs_list_fragment, navControllerOf(activity).currentDestination?.id)
+    }
+
+    @Test
     fun `a declined unlock on any other launch just closes Connect`() {
         declineUnlock()
         val intent =
