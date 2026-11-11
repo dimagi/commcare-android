@@ -186,7 +186,7 @@ public class CommCareTestApplication extends CommCareApplication implements Test
                     , BuildConfig.BUILD_DIR + "/intermediates/javac/commcareDebug/classes/"
                     , BuildConfig.BUILD_DIR + "/tmp/kotlin-classes/commcareDebug/"
                     , BuildConfig.BUILD_DIR + "/intermediates/built_in_kotlinc/commcareDebug/compileCommcareDebugKotlin/classes/"};
-            String baseCC = BuildConfig.PROJECT_DIR + "/../../commcare-core/build/classes/java/main/";
+            String baseCC = BuildConfig.CORE_BUILD_DIR + "/classes/java/main/";
 
 
             for(String variant : baseODK) {

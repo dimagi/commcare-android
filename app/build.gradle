@@ -476,7 +476,8 @@ android {
             buildConfigField 'String', 'CC_AUTHORITY', "\"${applicationId}\""
             buildConfigField 'String', 'ODK_AUTHORITY', "\"${odkProviderStr}\""
             buildConfigField 'String', 'BUILD_DIR', fixEscaping("\"${buildDir}\"")
-            buildConfigField 'String', 'PROJECT_DIR', fixEscaping("\"${projectDir}\"")
+            buildConfigField 'String', 'CORE_BUILD_DIR',
+                    fixEscaping("\"${project(':commcare-core').layout.buildDirectory.get().asFile}\"")
 
             // disable crashlytics
             buildConfigField 'boolean', 'USE_CRASHLYTICS', 'false'
@@ -513,8 +514,22 @@ android {
 
     // Ignore un-minified graphing files
 
+    // AGP hands Robolectric the app's resources through paths relative to the project
+    // directory, which can't exist when localBuildRoot (see the root build.gradle) puts
+    // the build directory on another drive. In that layout, leave the resources out so
+    // the project still syncs, and stop unit test runs with an explanation instead.
+    def unitTestBuildDir = project.layout.buildDirectory.get().asFile
+    def buildDirOnOtherDrive = unitTestBuildDir.toPath().root != project.projectDir.toPath().root
+    def unitTestsUnavailable = "Unit tests can't run in this checkout: its build directory " +
+            "(${unitTestBuildDir}) is on a different drive from the project (${project.projectDir}), " +
+            "so Robolectric can't load the app's resources. Run them where both share a drive."
+
     testOptions {
         unitTests.all {
+            if (buildDirOnOtherDrive) {
+                doFirst { throw new GradleException(unitTestsUnavailable) }
+            }
+
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
             maxHeapSize = "2g"
@@ -537,7 +552,7 @@ android {
             }
         }
         unitTests {
-            includeAndroidResources = true
+            includeAndroidResources = !buildDirOnOtherDrive
         }
     }
 
