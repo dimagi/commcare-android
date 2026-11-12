@@ -81,6 +81,8 @@ sequenceDiagram
     participant SystemUI
     participant PushNotificationActivity
     participant DispatchActivity
+    participant PushNotificationLaunchActivity
+    participant FormEntryActivity
     participant FirebaseMessagingUtil
     participant TargetActivity
 
@@ -93,7 +95,12 @@ sequenceDiagram
         DispatchActivity->>TargetActivity: startActivities(NotificationTaskStack.build(targetIntent))
     else Click from Device Tray with PendingIntent
         User->>SystemUI: Clicks Notification
-        SystemUI->>TargetActivity: startActivities(NotificationTaskStack.build(targetIntent))
+        SystemUI->>PushNotificationLaunchActivity: startActivity(pendingIntent)
+        alt Form in progress
+            PushNotificationLaunchActivity->>FormEntryActivity: save or discard, then startActivity(targetIntent)
+        else No form in progress
+            PushNotificationLaunchActivity->>TargetActivity: startActivities(NotificationTaskStack.build(targetIntent))
+        end
     else Click from Notification History
         User->>PushNotificationActivity: Clicks Notification Item
         PushNotificationActivity->>FirebaseMessagingUtil: getIntentForPNClick(notificationRecord)
