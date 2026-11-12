@@ -9,6 +9,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.unmockkAll
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.DispatchActivity
@@ -25,6 +26,7 @@ import org.commcare.connect.network.PersonalIdMockApiServer
 import org.commcare.connect.network.personalId.parser.NotificationTestUtil
 import org.commcare.dalvik.R
 import org.commcare.personalId.PersonalIdUnlocker
+import org.commcare.utils.coroutines.DispatcherProvider
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -56,6 +58,8 @@ class ConnectMessagingNotificationTest {
         storeConsentedChannel()
         mockkObject(PersonalIdUnlocker)
         setUnlockResult(true)
+        mockkObject(DispatcherProvider)
+        every { DispatcherProvider.io() } returns UnconfinedTestDispatcher()
     }
 
     @After
