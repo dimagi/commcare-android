@@ -63,6 +63,7 @@ public class CCAnalyticsParam {
     public static final String OTP_METHOD = "method";
     public static final String OTP_FAILED_ATTEMPTS = "failed_attempts";
     public static final String OTP_WORKFLOW = "workflow";
+    public static final String OTP_ERROR_CODE = "error_code";
 
     // Param keys for user prompt analytics
     static final String USER_PROMPT_TYPE = "event_type";
