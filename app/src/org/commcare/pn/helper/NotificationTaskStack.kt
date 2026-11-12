@@ -36,11 +36,21 @@ object NotificationTaskStack {
 
         val homeIntent =
             when {
-                !PersonalIdSessionManager.getInstance().isloggedIn() -> null
-                targetClassName == ConnectMessagingActivity::class.java.name -> buildHomeIntent(context, null)
-                targetClassName == ConnectActivity::class.java.name && opensOpportunityIntro(targetIntent) ->
+                !PersonalIdSessionManager.getInstance().isloggedIn() -> {
+                    null
+                }
+
+                targetClassName == ConnectMessagingActivity::class.java.name -> {
+                    buildHomeIntent(context, null)
+                }
+
+                targetClassName == ConnectActivity::class.java.name && opensOpportunityIntro(targetIntent) -> {
                     buildHomeIntent(context, targetIntent.getStringExtra(OPPORTUNITY_UUID))
-                else -> null
+                }
+
+                else -> {
+                    null
+                }
             }
 
         if (homeIntent == null) {
