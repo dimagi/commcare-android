@@ -26,9 +26,9 @@ repositories {
     maven {url 'https://repository.liferay.com/nexus/content/repositories/public/'}
 }
 
-configurations {
-    // prevents libs from including commons-logging, which Android already does
-    all*.exclude group: 'commons-logging', module: 'commons-logging'
+// prevents libs from including commons-logging, which Android already does
+configurations.configureEach {
+    exclude group: 'commons-logging', module: 'commons-logging'
 }
 
 dependencies {
