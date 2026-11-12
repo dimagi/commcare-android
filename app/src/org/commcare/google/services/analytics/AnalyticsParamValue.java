@@ -230,6 +230,7 @@ public class AnalyticsParamValue {
     public static final String OTP_METHOD_PERSONAL_ID = "personal_id";
     public static final String OTP_OUTCOME_SUCCESS = "success";
     public static final String OTP_OUTCOME_FAILURE = "failure";
+    public static final String OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID = "fallback_to_personalid";
     public static final String OTP_EVENT_TYPE_REQUEST = "request";
     public static final String OTP_EVENT_TYPE_VERIFY = "verify";
     public static final String OTP_METHOD_EMAIL = "email";
