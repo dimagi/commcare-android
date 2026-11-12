@@ -819,6 +819,22 @@ public class FirebaseAnalyticsUtil {
                                       int requestCount,
                                       int failedAttempts,
                                       String workflow) {
+        reportOtpEvent(op, outcome, method, reason, null, requestCount, failedAttempts, workflow);
+    }
+
+    /**
+     * As {@link #reportOtpEvent(OtpAnalyticsMapper.OtpOp, String, String, String, int, int, String)},
+     * plus the provider's own error code for a failure, logged under
+     * {@link CCAnalyticsParam#OTP_ERROR_CODE} and omitted when null.
+     */
+    public static void reportOtpEvent(OtpAnalyticsMapper.OtpOp op,
+                                      String outcome,
+                                      String method,
+                                      @Nullable String reason,
+                                      @Nullable String errorCode,
+                                      int requestCount,
+                                      int failedAttempts,
+                                      String workflow) {
         String eventType = OtpAnalyticsMapper.getEventType(op);
         if (eventType == null) {
             return;
@@ -829,6 +845,9 @@ public class FirebaseAnalyticsUtil {
         bundle.putString(CCAnalyticsParam.OTP_METHOD, method);
         if (reason != null) {
             bundle.putString(CCAnalyticsParam.REASON, reason);
+        }
+        if (errorCode != null) {
+            bundle.putString(CCAnalyticsParam.OTP_ERROR_CODE, errorCode);
         }
         bundle.putLong(FirebaseAnalytics.Param.VALUE, requestCount);
         bundle.putLong(CCAnalyticsParam.OTP_FAILED_ATTEMPTS, failedAttempts);
