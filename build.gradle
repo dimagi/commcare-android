@@ -32,7 +32,7 @@ ext {
     lifecycle_version = '2.5.1'
     cameraX_version = '1.4.0'
     okhttp_version = '5.5.0'
-    retrofit_version = '2.9.0'
+    retrofit_version = '3.0.0'
     espresso_version = '3.6.1'
     work_version = '2.10.3'
     legacy_support_version = '1.0.0'
