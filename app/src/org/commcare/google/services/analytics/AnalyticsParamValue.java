@@ -17,6 +17,7 @@ public class AnalyticsParamValue {
     public static final String NAV_BUTTON_PRESS = "nav_button_press";
     public static final String BACK_BUTTON_PRESS = "back_button_press";
     public static final String PUSH_NOTIFICATION_TAP = "push_notification_tap";
+    public static final String EXTERNAL_LAUNCH = "external_launch";
     public static final String SWIPE = "swipe";
 
     // Param values for options menu items
@@ -229,6 +230,7 @@ public class AnalyticsParamValue {
     public static final String OTP_METHOD_PERSONAL_ID = "personal_id";
     public static final String OTP_OUTCOME_SUCCESS = "success";
     public static final String OTP_OUTCOME_FAILURE = "failure";
+    public static final String OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID = "fallback_to_personalid";
     public static final String OTP_EVENT_TYPE_REQUEST = "request";
     public static final String OTP_EVENT_TYPE_VERIFY = "verify";
     public static final String OTP_METHOD_EMAIL = "email";
