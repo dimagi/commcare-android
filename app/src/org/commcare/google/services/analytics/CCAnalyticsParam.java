@@ -35,6 +35,7 @@ public class CCAnalyticsParam {
 
     static final String USER_RETURNED = "user_returned";
     static final String PARAM_CCC_TAB_CHANGE_NAME = "ccc_tab_change_name";
+    static final String PARAM_CCC_TAB_KEY = "ccc_tab_key";
     static final String PARAM_CCC_LAUNCH_APP_TYPE = "ccc_launch_app_type";
     static final String PARAM_CCC_APP_NAME = "ccc_app_name";
     static final String PARAM_API_SUCCESS = "ccc_api_success";
