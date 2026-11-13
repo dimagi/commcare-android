@@ -64,3 +64,23 @@ class ServiceBackedSession : SeatedAppSession {
             null
         }
 }
+
+/**
+ * A [SeatedAppSession] for a host that can run with no user session: the in-app update prompt
+ * waits until a session is live.
+ */
+class LiveSessionOnlySession(
+    private val delegate: SeatedAppSession = ServiceBackedSession(),
+    private val isSessionLive: () -> Boolean = ::isUserSessionLive,
+) : SeatedAppSession by delegate {
+    override fun shouldShowInAppUpdate(): Boolean = isSessionLive() && delegate.shouldShowInAppUpdate()
+}
+
+/** Whether a user is logged in to the seated app right now. */
+fun isUserSessionLive(): Boolean =
+    try {
+        CommCareApplication.instance().session
+        true
+    } catch (e: SessionUnavailableException) {
+        false
+    }

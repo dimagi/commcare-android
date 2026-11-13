@@ -15,15 +15,15 @@ class LaunchOutcomeRouterTest {
 
         verifyOrder {
             actions.dismissProgress()
-            actions.launchHome(false)
+            actions.openApp(false)
         }
     }
 
     @Test
-    fun `launched forwards the already-logged-in flag to launchHome`() {
+    fun `launched forwards the already-logged-in flag to openApp`() {
         LaunchOutcomeRouter.dispatch(LaunchOutcome.Launched(alreadyLoggedIn = true), 0, actions)
 
-        verify(exactly = 1) { actions.launchHome(true) }
+        verify(exactly = 1) { actions.openApp(true) }
     }
 
     @Test

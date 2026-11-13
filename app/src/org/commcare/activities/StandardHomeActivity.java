@@ -31,14 +31,11 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.suite.model.Endpoint;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.AppLogoutHelper;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
@@ -67,7 +64,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     private static final String TAG = StandardHomeActivity.class.getSimpleName();
 
-    private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
@@ -240,17 +236,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     @Override
     public void deliverResultAndFinish(@NonNull Intent result) {
-        boolean recoveryRequestUnheard = getCallingActivity() == null
-                && result.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false);
-
-        if (isTaskRoot() || recoveryRequestUnheard) {
-            startActivity(DispatchActivity.buildRestartIntent(this)
-                    .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
-                    .putExtras(result));
-        } else {
-            setResult(RESULT_OK, result);
-        }
-        finish();
+        HomeResultDelivery.deliverResultAndFinish(this, result);
     }
 
     protected void userPressedOpportunityStatus() {
@@ -287,14 +273,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         intent.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manualSwitchToPwMode);
         intent.putExtra(PERSONALID_MANAGED_LOGIN, personalIdManagedLogin);
         return intent;
-    }
-
-    /**
-     * The Home intent used by Connect app launches that bypass LoginActivity. Exposed so callers can
-     * start it via {@code startActivityForResult} and react to the Home result (e.g. a back-out).
-     */
-    public static Intent buildHomeLaunchIntent(Context context) {
-        return buildHomeIntent(context, LoginMode.PASSWORD, true, false, true);
     }
 
     @Override
@@ -393,13 +371,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     }
 
     void enterRootModule() {
-        if (doPreStartChecks()) {
-            coordinator.getSessionNavigation().launchRootMenu();
-        }
-    }
-
-    private boolean doPreStartChecks() {
-        return ApkDependenciesUtils.performDependencyCheckFlow(this);
+        coordinator.getSessionNavigation().enterRootModule();
     }
 
     @Override
@@ -425,30 +397,9 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
      * Triggered by a user manually clicking the sync button
      */
     void syncButtonPressed() {
-        if (!ConnectivityStatus.isNetworkAvailable(StandardHomeActivity.this)) {
-            if (ConnectivityStatus.isAirplaneModeOn(StandardHomeActivity.this)) {
-                getReceiver().handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.Sync_AirplaneMode,
-                                AIRPLANE_MODE_CATEGORY));
-            } else {
-                getReceiver().handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.Sync_NoConnections,
-                                AIRPLANE_MODE_CATEGORY));
-            }
-            FirebaseAnalyticsUtil.reportSyncResult(
-                    false,
-                    AnalyticsParamValue.SYNC_TRIGGER_USER,
-                    AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
-                    AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
-            return;
+        if (coordinator.getActions().syncIfOnline()) {
+            fetchJobProgressOverNetwork();
         }
-        fetchJobProgressOverNetwork();
-        CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        coordinator.getActions().sync();
     }
 
     void syncSubTextPressed() {

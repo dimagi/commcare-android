@@ -8,7 +8,6 @@ import org.commcare.CommCareApplication
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.models.AndroidSessionWrapper
 import org.commcare.preferences.HiddenPreferences
-import org.commcare.utils.SessionUnavailableException
 
 /**
  * Composition root for the behavior shared by every CommCare home screen.
@@ -121,6 +120,35 @@ class HomeActivityCoordinator(
     }
 
     /**
+     * An app was opened for a host that runs it in place, such as Opportunity Home, instead of on App
+     * Home. Run the post-login checks after a new sign-in, then the app-health checks, and open the
+     * app's root menu unless one of them took over.
+     *
+     * @return whether the root menu opened
+     */
+    fun enterLaunchedApp(newSignIn: Boolean): Boolean {
+        if (newSignIn && launchChecks.run()) {
+            return false
+        }
+        if (appHealth.runChecksIfNotYetRun()) {
+            return false
+        }
+        return sessionNavigation.enterRootModule()
+    }
+
+    /**
+     * Route the result of a screen opened from the app actions menu, for a host that doesn't run
+     * session navigation.
+     *
+     * @return true when the result belonged to an app action
+     */
+    fun onAppActionResult(
+        requestCode: Int,
+        resultCode: Int,
+        intent: Intent?,
+    ): Boolean = appUpdate.onActivityResult(requestCode, resultCode) || actions.onActivityResult(requestCode, resultCode, intent)
+
+    /**
      * The host resumed with a live session. Unless a launch step or a returning result already
      * moved the user on, show home, or whatever app-health action is pending, then run any sync
      * that waited for form entry to finish.
@@ -160,11 +188,15 @@ class HomeActivityCoordinator(
         shouldWarnUser: Boolean,
     ) = sessionLaunch.clearSessionAndExit(currentState, shouldWarnUser, launchState.wasExternal)
 
+    companion object {
+        /** A coordinator for a host that can run with no user session, such as Opportunity Home. */
+        @JvmStatic
+        fun forSessionlessHost(host: HomeActivityHost): HomeActivityCoordinator = HomeActivityCoordinator(host, LiveSessionOnlySession())
+    }
+
     /** Home opened with a live session, so this CommCare version has run successfully. */
     private fun recordCommCareVersionIfSessionLive() {
-        try {
-            CommCareApplication.instance().session
-        } catch (e: SessionUnavailableException) {
+        if (!isUserSessionLive()) {
             return
         }
         PreferenceManager

@@ -8,15 +8,18 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
@@ -25,21 +28,36 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
 
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.HomeResultDelivery;
 import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDialogCoordinator;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.OpportunityHomeAppActionsMenu;
 import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
+import org.commcare.connect.viewmodel.AppSyncStatus;
+import org.commcare.connect.viewmodel.ConnectAppSyncStatusViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.home.HomeActivityCoordinator;
+import org.commcare.home.HomeActivityHost;
+import org.commcare.home.HomeRequestCodes;
+import org.commcare.home.SeatedAppSessionKt;
+import org.commcare.home.SyncDelegate;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
+import org.commcare.tasks.DataPullTask;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,16 +67,22 @@ import javax.annotation.Nullable;
 
 import kotlin.Unit;
 
-public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
+public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate>
+        implements HomeActivityHost {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
     private String opportunityUuid;
     private MenuItem notificationsMenuItem = null;
+    private ConnectAppSyncStatusViewModel appSyncStatus;
 
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
     private Map<Integer, String> menuIdToAnalyticsParam;
+
+    private final HomeActivityCoordinator coordinator = HomeActivityCoordinator.forSessionlessHost(this);
+    private final OpportunityHomeAppActionsMenu appActionsMenu =
+            new OpportunityHomeAppActionsMenu(coordinator.getActions());
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +95,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_title);
+        appSyncStatus().getStatus().observe(this, status -> invalidateOptionsMenu());
 
         PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
 
@@ -94,6 +119,11 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             Bundle startArgs = new Bundle();
             graph.setStartDestination(getStartDestinationId(startArgs));
             navController.setGraph(graph, startArgs);
+            navController.addOnDestinationChangedListener(
+                    (controller, destination, arguments) -> {
+                        invalidateOptionsMenu();
+                        refreshAppSyncStatus();
+                    });
 
             retrieveMessages();
         }else{
@@ -114,7 +144,19 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     protected void onResume() {
         super.onResume();
+        coordinator.getSessionExpiration().startListening();
+        coordinator.getSessionExpiration().handlePendingExpiration();
+        if (areAppActionsAvailable()) {
+            coordinator.onHostResumed();
+        }
+        refreshAppSyncStatus();
         ConnectDialogCoordinator.showDueDialog(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        coordinator.getSessionExpiration().stopListening();
     }
 
     @Override
@@ -188,11 +230,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_connect, menu);
 
-        MenuItem notification = menu.findItem(R.id.action_sync);
-        notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
-
         notificationsMenuItem = menu.findItem(R.id.action_bell);
         updateNotificationIcon();
+
+        appActionsMenu.inflate(menu, getMenuInflater());
 
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         return super.onCreateOptionsMenu(menu);
@@ -206,8 +247,17 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
+        MenuItem sync = menu.findItem(R.id.action_sync);
+        sync.setVisible(backButtonAndActionBarEnabled);
+        sync.setIcon(hasUnsentAppForms() ? R.drawable.ic_sync_pending : R.drawable.ic_sync);
+        MenuItemCompat.setIconTintList(sync, null);
+        appActionsMenu.prepare(menu, backButtonAndActionBarEnabled && isShowingOpportunityHome());
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean isShowingOpportunityHome() {
+        return navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.connect_opportunity_home_fragment;
     }
 
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
@@ -233,23 +283,82 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
-                menuIdToAnalyticsParam.get(item.getItemId()));
+        String analyticsParam = menuIdToAnalyticsParam.get(item.getItemId());
+        if (analyticsParam == null) {
+            analyticsParam = appActionsMenu.analyticsParam(item.getItemId());
+        }
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(), analyticsParam);
+        if (appActionsMenu.onItemSelected(item.getItemId())) {
+            return true;
+        }
         if (item.getItemId() == R.id.action_bell) {
             updateNotificationIcon();
             ConnectNavHelper.goToNotification(this);
             return true;
         }
 
-        if(item.getItemId() == R.id.action_sync) {
-            RefreshableFragment refreshable = getRefreshableFragment();
-            if(refreshable != null) {
-                refreshable.refresh(true);
-                return true;
-            }
+        if(item.getItemId() == R.id.action_sync && sync()) {
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Syncs what the page on screen shows. On Opportunity Home with the opportunity's app signed in, that
+     * includes the app: its forms are sent and its data pulled, as App Home's sync button did.
+     *
+     * @return whether there was a page to refresh
+     */
+    public boolean sync() {
+        if (isShowingOpportunityHome() && areAppActionsAvailable()) {
+            coordinator.getActions().syncIfOnline();
+        }
+        RefreshableFragment refreshable = getRefreshableFragment();
+        if (refreshable == null) {
+            return false;
+        }
+        refreshable.refresh(true);
+        return true;
+    }
+
+    private boolean hasUnsentAppForms() {
+        AppSyncStatus status = appSyncStatus().getStatus().getValue();
+        return status != null && status.getHasUnsentForms();
+    }
+
+    private void refreshAppSyncStatus() {
+        appSyncStatus().reload(areAppActionsAvailable());
+    }
+
+    private ConnectAppSyncStatusViewModel appSyncStatus() {
+        if (appSyncStatus == null) {
+            appSyncStatus = ConnectAppSyncStatusViewModel.of(this);
+        }
+        return appSyncStatus;
+    }
+
+    /**
+     * The opportunity's app was signed in to, or already was. It runs here rather than on App Home, so
+     * open its menu once the launch checks are done.
+     *
+     * @return whether the app's menu opened
+     */
+    public boolean onAppLaunched(boolean alreadyLoggedIn) {
+        refreshActionSurface();
+        return coordinator.enterLaunchedApp(!alreadyLoggedIn);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (HomeRequestCodes.isHomeRequest(requestCode) && SeatedAppSessionKt.isUserSessionLive()) {
+            coordinator.onActivityResult(requestCode, resultCode, intent);
+            return;
+        }
+        if (coordinator.onAppActionResult(requestCode, resultCode, intent)) {
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     @Override
@@ -296,6 +405,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
+        CustomProgressDialog syncDialog = coordinator.getSync().generateProgressDialog(taskId);
+        if (syncDialog != null) {
+            return syncDialog;
+        }
         if (waitDialogEnabled) {
             return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
         }
@@ -334,5 +447,126 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             return refreshable;
         }
         return null;
+    }
+
+    /**
+     * The coordinator this activity composes. Public so tests can reach the delegates it owns.
+     */
+    public HomeActivityCoordinator getCoordinator() {
+        return coordinator;
+    }
+
+    @Override
+    public SyncDelegate getReceiver() {
+        return coordinator.getSync();
+    }
+
+    @NonNull
+    @Override
+    public CommCareActivity<?> getSyncTaskActivity() {
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public Context getHostContext() {
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public AppCompatActivity getHostActivity() {
+        return this;
+    }
+
+    @Override
+    public void updateUiAfterDataPullOrSend(@NonNull String message, boolean success) {
+        displayToast(message);
+        refreshAppSyncStatus();
+    }
+
+    @Override
+    public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
+        coordinator.getAppHealth().onPullTaskFinished(result);
+        refreshAppSyncStatus();
+    }
+
+    @Override
+    public Intent getLaunchIntent() {
+        return getIntent();
+    }
+
+    @Override
+    public String getFormEntryTitle() {
+        return CommCareActivity.getTitle(this, null);
+    }
+
+    @Override
+    public void showFormArchive(boolean incomplete, FormRecord record) {
+        coordinator.getActions().showFormArchive(incomplete, record);
+    }
+
+    @Override
+    public void finishWithResult(int resultCode, Intent data) {
+        setResult(resultCode, data);
+        finish();
+    }
+
+    @Override
+    public void showXPathError(@NonNull XPathException exception, boolean shouldExit) {
+        new UserfacingErrorHandling<>().logErrorAndShowDialog(this, exception, shouldExit);
+    }
+
+    @Override
+    public void showErrorDialog(@NonNull String message, boolean shouldExit) {
+        new UserfacingErrorHandling<>().createErrorDialog(this, message, shouldExit);
+    }
+
+    @Override
+    public void deliverResultAndFinish(@NonNull Intent result) {
+        HomeResultDelivery.deliverResultAndFinish(this, result);
+    }
+
+    @Override
+    public void refreshActionSurface() {
+        invalidateOptionsMenu();
+        refreshAppSyncStatus();
+    }
+
+    @Override
+    public void refreshHostUi() {
+    }
+
+    @Override
+    public void onLocaleChanged() {
+        refreshActionSurface();
+    }
+
+    @Override
+    public boolean isDemoUser() {
+        return false;
+    }
+
+    /**
+     * App actions need a user logged in to the opportunity's app; without one the page still shows the
+     * opportunity.
+     */
+    @Override
+    public boolean areAppActionsAvailable() {
+        return SeatedAppSessionKt.isUserSessionLive() && isSeatedAppForActiveJob();
+    }
+
+    private boolean isSeatedAppForActiveJob() {
+        ConnectAppRecord seatedApp = ConnectJobUtils.getSeatedAppRecord();
+        return job != null && seatedApp != null && job.getJobUUID().equals(seatedApp.getJobUUID());
+    }
+
+    /**
+     * Unlike the session-gated homes, Connect doesn't need a session, so it stays open and drops the app
+     * actions instead of redirecting to login.
+     */
+    @Override
+    public void onSessionLost() {
+        refreshActionSurface();
     }
 }

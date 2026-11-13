@@ -11,6 +11,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
+- Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
 
 ### QA Notes
 
@@ -27,6 +28,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
+- From an opportunity, launch its learn or delivery app: confirm the app's first menu opens without the app home screen, and backing out of it returns to the opportunity screen.
+- After opening the app once, confirm the opportunity screen's ⋮ menu shows Report an Issue, Update App, Change Language, Settings and Advanced, each opening as it did from the app home screen; on another opportunity's screen, or before the app has been opened, those items don't show.
+- Finishing a form returns to the opportunity screen and sends the form; Sync there with unsent forms sends them and then syncs the app.
+- After opening the app, the opportunity screen's sync card shows the app's last sync. Finish a form offline: the card turns amber with "Forms pending: 1" and the action-bar sync icon gets a red dot. Back online, tapping the card sends the form, and the card turns green again with the dot gone.
 
 ## CommCare 2.65
 

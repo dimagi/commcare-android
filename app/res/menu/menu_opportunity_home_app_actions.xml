@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_report_problem"
+        android:title="Report an Issue"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_update"
+        android:title="Update App"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_update_commcare"
+        android:title="Update CommCare"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_change_language"
+        android:title="Change Language"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_preferences"
+        android:title="Settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_advanced"
+        android:title="Advanced"
+        app:showAsAction="never" />
+</menu>

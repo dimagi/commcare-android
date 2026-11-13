@@ -55,21 +55,9 @@ class ConnectLearnProgressView
             bindCtaBar(job, onCtaClick)
         }
 
-        /**
-         * Captions the sync card with [syncStatus], which the hosting fragment is told about, and
-         * warns while [synced] is false so stale figures read as stale.
-         */
-        fun updateSyncStatus(
-            syncStatus: CharSequence,
-            synced: Boolean,
-        ) {
-            binding.learnProgressSyncCard.bind(
-                ConnectSyncStatusCard.State(
-                    statusText = context.getString(R.string.connect_sync_card_press_to_sync),
-                    statusSubtext = syncStatus,
-                    warning = !synced,
-                ),
-            )
+        /** Shows [state] on the sync card, built by the hosting fragment, which is told the sync status. */
+        fun bindSyncCard(state: ConnectSyncStatusCard.State) {
+            binding.learnProgressSyncCard.bind(state)
         }
 
         private fun bindHeader(job: ConnectJobRecord) {

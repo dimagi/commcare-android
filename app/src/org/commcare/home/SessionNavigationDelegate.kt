@@ -27,6 +27,7 @@ import org.commcare.suite.model.EntityDatum
 import org.commcare.suite.model.Menu
 import org.commcare.suite.model.RemoteRequestEntry
 import org.commcare.util.DatumUtil
+import org.commcare.utils.ApkDependenciesUtils
 import org.commcare.utils.EntityDetailUtils
 import org.commcare.views.dialogs.StandardAlertDialog
 import org.javarosa.core.model.condition.EvaluationContext
@@ -67,6 +68,19 @@ class SessionNavigationDelegate(
                 if (host.isDemoUser()) Localization.get("demo.mode.feature.unavailable") else e.message.orEmpty()
             host.showErrorDialog(message, false)
         }
+    }
+
+    /**
+     * Open the root module menu once the app's APK dependencies are installed; otherwise prompt for them.
+     *
+     * @return whether the menu opened
+     */
+    fun enterRootModule(): Boolean {
+        if (!ApkDependenciesUtils.performDependencyCheckFlow(host.syncTaskActivity)) {
+            return false
+        }
+        launchRootMenu()
+        return true
     }
 
     /** Open the root module menu. */

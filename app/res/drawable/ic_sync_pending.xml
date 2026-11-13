@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_sync with a dot marking forms waiting to be sent -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_sync" />
+    <item
+        android:width="7dp"
+        android:height="7dp"
+        android:gravity="top|end"
+        android:top="3dp"
+        android:end="2dp">
+        <shape android:shape="oval">
+            <solid android:color="@color/cc_attention_negative_color" />
+        </shape>
+    </item>
+</layer-list>
