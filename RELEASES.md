@@ -31,6 +31,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - From an opportunity, launch its learn or delivery app: confirm the app's first menu opens without the app home screen, and backing out of it returns to the opportunity screen.
 - After opening the app once, confirm the opportunity screen's ⋮ menu shows Report an Issue, Update App, Change Language, Settings and Advanced, each opening as it did from the app home screen; on another opportunity's screen, or before the app has been opened, those items don't show.
 - Finishing a form returns to the opportunity screen and sends the form; Sync there with unsent forms sends them and then syncs the app.
+- After opening the app, the opportunity screen's sync card shows the app's last sync. Finish a form offline: the card turns amber with "Forms pending: 1" and the action-bar sync icon gets a red dot. Back online, tapping the card sends the form, and the card turns green again with the dot gone.
 
 ## CommCare 2.65
 

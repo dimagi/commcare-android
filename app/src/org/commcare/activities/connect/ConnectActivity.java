@@ -10,7 +10,6 @@ import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -20,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
@@ -42,6 +42,8 @@ import org.commcare.connect.OpportunityHomeAppActionsMenu;
 import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
+import org.commcare.connect.viewmodel.AppSyncStatus;
+import org.commcare.connect.viewmodel.ConnectAppSyncStatusViewModel;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
@@ -73,6 +75,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     private ConnectJobRecord job;
     private String opportunityUuid;
     private MenuItem notificationsMenuItem = null;
+    private ConnectAppSyncStatusViewModel appSyncStatus;
 
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
     private Map<Integer, String> menuIdToAnalyticsParam;
@@ -92,6 +95,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
 
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_title);
+        appSyncStatus().getStatus().observe(this, status -> invalidateOptionsMenu());
 
         PersonalIdSessionManager personalIdSessionManager = PersonalIdSessionManager.getInstance();
 
@@ -116,7 +120,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
             graph.setStartDestination(getStartDestinationId(startArgs));
             navController.setGraph(graph, startArgs);
             navController.addOnDestinationChangedListener(
-                    (controller, destination, arguments) -> invalidateOptionsMenu());
+                    (controller, destination, arguments) -> {
+                        invalidateOptionsMenu();
+                        refreshAppSyncStatus();
+                    });
 
             retrieveMessages();
         }else{
@@ -142,6 +149,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         if (areAppActionsAvailable()) {
             coordinator.onHostResumed();
         }
+        refreshAppSyncStatus();
         ConnectDialogCoordinator.showDueDialog(this);
     }
 
@@ -222,9 +230,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_connect, menu);
 
-        MenuItem notification = menu.findItem(R.id.action_sync);
-        notification.getIcon().setColorFilter(getResources().getColor(R.color.white), PorterDuff.Mode.SRC_ATOP);
-
         notificationsMenuItem = menu.findItem(R.id.action_bell);
         updateNotificationIcon();
 
@@ -242,7 +247,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
+        MenuItem sync = menu.findItem(R.id.action_sync);
+        sync.setVisible(backButtonAndActionBarEnabled);
+        sync.setIcon(hasUnsentAppForms() ? R.drawable.ic_sync_pending : R.drawable.ic_sync);
+        MenuItemCompat.setIconTintList(sync, null);
         appActionsMenu.prepare(menu, backButtonAndActionBarEnabled && isShowingOpportunityHome());
         return super.onPrepareOptionsMenu(menu);
     }
@@ -289,18 +297,45 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
             return true;
         }
 
-        if(item.getItemId() == R.id.action_sync) {
-            if (isShowingOpportunityHome() && areAppActionsAvailable()) {
-                coordinator.getActions().syncIfOnline();
-            }
-            RefreshableFragment refreshable = getRefreshableFragment();
-            if(refreshable != null) {
-                refreshable.refresh(true);
-                return true;
-            }
+        if(item.getItemId() == R.id.action_sync && sync()) {
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Syncs what the page on screen shows. On Opportunity Home with the opportunity's app signed in, that
+     * includes the app: its forms are sent and its data pulled, as App Home's sync button did.
+     *
+     * @return whether there was a page to refresh
+     */
+    public boolean sync() {
+        if (isShowingOpportunityHome() && areAppActionsAvailable()) {
+            coordinator.getActions().syncIfOnline();
+        }
+        RefreshableFragment refreshable = getRefreshableFragment();
+        if (refreshable == null) {
+            return false;
+        }
+        refreshable.refresh(true);
+        return true;
+    }
+
+    private boolean hasUnsentAppForms() {
+        AppSyncStatus status = appSyncStatus().getStatus().getValue();
+        return status != null && status.getHasUnsentForms();
+    }
+
+    private void refreshAppSyncStatus() {
+        appSyncStatus().reload(areAppActionsAvailable());
+    }
+
+    private ConnectAppSyncStatusViewModel appSyncStatus() {
+        if (appSyncStatus == null) {
+            appSyncStatus = ConnectAppSyncStatusViewModel.of(this);
+        }
+        return appSyncStatus;
     }
 
     /**
@@ -447,11 +482,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     @Override
     public void updateUiAfterDataPullOrSend(@NonNull String message, boolean success) {
         displayToast(message);
+        refreshAppSyncStatus();
     }
 
     @Override
     public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
         coordinator.getAppHealth().onPullTaskFinished(result);
+        refreshAppSyncStatus();
     }
 
     @Override
@@ -493,6 +530,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     @Override
     public void refreshActionSurface() {
         invalidateOptionsMenu();
+        refreshAppSyncStatus();
     }
 
     @Override

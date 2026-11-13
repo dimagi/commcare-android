@@ -2,6 +2,8 @@ package org.commcare.activities.connect
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
@@ -16,6 +18,7 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
@@ -35,6 +38,7 @@ import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.viewmodel.ConnectAppSyncStatusViewModel
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -46,6 +50,7 @@ import org.commcare.rules.MainCoroutineRule
 import org.commcare.tasks.DataPullTask
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.SessionRegistrationHelper
+import org.commcare.utils.SyncDetailCalculations
 import org.javarosa.core.services.locale.Localization
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -124,11 +129,14 @@ class ConnectActivityHomeHostTest {
 
         mockkStatic(ConnectivityStatus::class)
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
+
+        ConnectAppSyncStatusViewModel.defaultIoDispatcher = mainCoroutineRule.testDispatcher
     }
 
     @After
     fun tearDown() {
         PersonalIdSessionManager.getInstance().status = savedStatus
+        ConnectAppSyncStatusViewModel.defaultIoDispatcher = Dispatchers.IO
         SessionRegistrationHelper.unregisterSessionExpiration()
         unmockkAll()
     }
@@ -334,6 +342,33 @@ class ConnectActivityHomeHostTest {
     }
 
     @Test
+    fun `unsent app forms mark the sync button`() {
+        logIn()
+        mockkStatic(SyncDetailCalculations::class)
+        every { SyncDetailCalculations.getNumUnsentForms() } returns 2
+        val activity = launchLoggedInConnect()
+
+        assertTrue(syncIcon(activity) is LayerDrawable)
+        assertEquals(
+            2,
+            ConnectAppSyncStatusViewModel
+                .of(activity)
+                .status.value
+                ?.unsentForms,
+        )
+    }
+
+    @Test
+    fun `no app status without a session`() {
+        mockkStatic(SyncDetailCalculations::class)
+        every { SyncDetailCalculations.getNumUnsentForms() } returns 2
+        val activity = launchConnect()
+
+        assertFalse(syncIcon(activity) is LayerDrawable)
+        assertNull(ConnectAppSyncStatusViewModel.of(activity).status.value)
+    }
+
+    @Test
     fun `a launched app opens its menu here`() {
         logIn()
         val activity = launchLoggedInConnect()
@@ -377,6 +412,12 @@ class ConnectActivityHomeHostTest {
 
     private fun navController(activity: ConnectActivity) =
         (activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment).navController
+
+    private fun syncIcon(activity: ConnectActivity): Drawable? {
+        activity.invalidateOptionsMenu()
+        shadowOf(Looper.getMainLooper()).idle()
+        return menuItem(activity, R.id.action_sync).icon
+    }
 
     private fun fakeSyncer(activity: ConnectActivity) = FormAndDataSyncerFake().also { activity.coordinator.sync.setFormAndDataSyncer(it) }
 
