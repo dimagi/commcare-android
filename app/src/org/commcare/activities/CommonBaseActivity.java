@@ -2,13 +2,19 @@ package org.commcare.activities;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 
+import org.commcare.google.services.analytics.AnalyticsParamValue;
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.SystemNavigationMode;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 public class CommonBaseActivity extends AppCompatActivity {
@@ -83,5 +89,30 @@ public class CommonBaseActivity extends AppCompatActivity {
             getWindow().getDecorView().post(this::openOptionsMenu);
         }
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN
+                && event.getRepeatCount() == 0) {
+            reportSystemBackUsed();
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+    private void reportSystemBackUsed() {
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(getWindow().getDecorView());
+        String control = SystemNavigationMode.isGestureNavigation(insets)
+                ? AnalyticsParamValue.SYSTEM_NAV_BACK_GESTURE
+                : AnalyticsParamValue.SYSTEM_NAV_BACK_BUTTON_PRESS;
+        FirebaseAnalyticsUtil.reportNavControlUsed(control, getClass().getSimpleName());
+    }
+
+    protected void reportAppBarBackUsed() {
+        FirebaseAnalyticsUtil.reportNavControlUsed(
+                AnalyticsParamValue.APP_BAR_BACK_BUTTON_PRESS,
+                getClass().getSimpleName()
+        );
     }
 }
