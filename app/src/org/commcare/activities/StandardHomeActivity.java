@@ -33,12 +33,10 @@ import org.commcare.suite.model.Endpoint;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.AppLogoutHelper;
-import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathException;
@@ -67,7 +65,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     private static final String TAG = StandardHomeActivity.class.getSimpleName();
 
-    private static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
     private StandardHomeActivityUIController uiController;
     private Map<Integer, String> menuIdToAnalyticsParam;
@@ -415,30 +412,9 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
      * Triggered by a user manually clicking the sync button
      */
     void syncButtonPressed() {
-        if (!ConnectivityStatus.isNetworkAvailable(StandardHomeActivity.this)) {
-            if (ConnectivityStatus.isAirplaneModeOn(StandardHomeActivity.this)) {
-                getReceiver().handleSyncNotAttempted(Localization.get("notification.sync.airplane.action"));
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.Sync_AirplaneMode,
-                                AIRPLANE_MODE_CATEGORY));
-            } else {
-                getReceiver().handleSyncNotAttempted(Localization.get("notification.sync.connections.action"));
-                CommCareApplication.notificationManager().reportNotificationMessage(
-                        NotificationMessageFactory.message(
-                                NotificationMessageFactory.StockMessages.Sync_NoConnections,
-                                AIRPLANE_MODE_CATEGORY));
-            }
-            FirebaseAnalyticsUtil.reportSyncResult(
-                    false,
-                    AnalyticsParamValue.SYNC_TRIGGER_USER,
-                    AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
-                    AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION);
-            return;
+        if (coordinator.getActions().syncIfOnline()) {
+            fetchJobProgressOverNetwork();
         }
-        fetchJobProgressOverNetwork();
-        CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY);
-        coordinator.getActions().sync();
     }
 
     void syncSubTextPressed() {

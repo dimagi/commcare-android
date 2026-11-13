@@ -22,7 +22,9 @@ import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.ReportProblemActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
+import org.commcare.android.database.connect.models.ConnectAppRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
@@ -39,7 +41,9 @@ import org.commcare.home.HomeResultCodes
 import org.commcare.preferences.AdvancedActionsPreferences
 import org.commcare.rules.MainCoroutineRule
 import org.commcare.tasks.DataPullTask
+import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.SessionRegistrationHelper
+import org.javarosa.core.services.locale.Localization
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -70,6 +74,9 @@ class ConnectActivityHomeHostTest {
 
     private val uuid = "opp-uuid-1234"
     private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
+    private lateinit var job: ConnectJobRecord
+    private lateinit var seatedApp: ConnectAppRecord
+    private lateinit var repository: ConnectRepository
 
     @Before
     fun setUp() {
@@ -89,16 +96,20 @@ class ConnectActivityHomeHostTest {
                 ) = Unit
             }
 
-        val job = mockk<ConnectJobRecord>(relaxed = true)
+        job = mockk(relaxed = true)
         every { job.status } returns ConnectJobRecord.STATUS_DELIVERING
+        every { job.jobUUID } returns uuid
+        seatedApp = mockk(relaxed = true)
+        every { seatedApp.jobUUID } returns uuid
         mockkStatic(ConnectJobUtils::class)
         every { ConnectJobUtils.getCompositeJob(eq(uuid)) } returns job
+        every { ConnectJobUtils.getSeatedAppRecord() } returns seatedApp
         every { ConnectJobUtils.getPaymentsSortedByDate(any()) } returns emptyList()
 
         mockkStatic(MessageManager::class)
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
 
-        val repository = mockk<ConnectRepository>(relaxed = true)
+        repository = mockk(relaxed = true)
         every { repository.getDeliveryProgress(any(), any(), any()) } returns flowOf(DataState.Loading)
         mockkObject(ConnectRepository.Companion)
         every { ConnectRepository.getInstance() } returns repository
@@ -107,6 +118,9 @@ class ConnectActivityHomeHostTest {
         every { AppUtils.isAppInstalled(any()) } returns false
         mockkObject(ConnectAppUtils)
         every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+
+        mockkStatic(ConnectivityStatus::class)
+        every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
     }
 
     @After
@@ -130,6 +144,16 @@ class ConnectActivityHomeHostTest {
         val activity = launchConnect()
 
         assertTrue(activity.areAppActionsAvailable())
+    }
+
+    @Test
+    fun `no app actions for another opp`() {
+        logIn()
+        every { seatedApp.jobUUID } returns "another-opp-uuid"
+
+        val activity = launchConnect()
+
+        assertFalse(activity.areAppActionsAvailable())
     }
 
     @Test
@@ -248,6 +272,65 @@ class ConnectActivityHomeHostTest {
         assertEquals("Advanced", ShadowToast.getTextOfLatestToast())
         assertFalse(activity.isFinishing)
     }
+
+    @Test
+    fun `sync also syncs the app`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+        val syncer = fakeSyncer(activity)
+
+        activity.onOptionsItemSelected(menuItem(activity, R.id.action_sync))
+
+        assertEquals(1, syncer.formSendCount)
+        assertTrue(syncer.lastSendSyncsAfterwards)
+        assertTrue(syncer.lastSendUserTriggered)
+        verify { repository.getDeliveryProgress(job, true, any()) }
+    }
+
+    @Test
+    fun `sync with no session`() {
+        val activity = launchConnect()
+        val syncer = fakeSyncer(activity)
+
+        activity.onOptionsItemSelected(menuItem(activity, R.id.action_sync))
+
+        assertEquals(0, syncer.formSendCount)
+        verify { repository.getDeliveryProgress(job, true, any()) }
+    }
+
+    @Test
+    fun `offline sync skips the app`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+        val syncer = fakeSyncer(activity)
+        every { ConnectivityStatus.isNetworkAvailable(any()) } returns false
+        every { ConnectivityStatus.isAirplaneModeOn(any()) } returns false
+
+        activity.onOptionsItemSelected(menuItem(activity, R.id.action_sync))
+
+        assertEquals(0, syncer.formSendCount)
+        assertEquals(
+            Localization.get("notification.sync.connections.action"),
+            ShadowToast.getTextOfLatestToast(),
+        )
+        verify { repository.getDeliveryProgress(job, true, any()) }
+    }
+
+    @Test
+    fun `sync off Opp Home`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+        val syncer = fakeSyncer(activity)
+        val navHost = activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
+        navHost.navController.navigate(R.id.connect_jobs_list_fragment)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        activity.onOptionsItemSelected(menuItem(activity, R.id.action_sync))
+
+        assertEquals(0, syncer.formSendCount)
+    }
+
+    private fun fakeSyncer(activity: ConnectActivity) = FormAndDataSyncerFake().also { activity.coordinator.sync.setFormAndDataSyncer(it) }
 
     private fun launchLoggedInConnect(): ConnectActivity {
         val activity = launchConnect()

@@ -34,6 +34,7 @@ import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDialogCoordinator;
+import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
@@ -285,6 +286,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         }
 
         if(item.getItemId() == R.id.action_sync) {
+            if (isShowingOpportunityHome() && areAppActionsAvailable()) {
+                coordinator.getActions().syncIfOnline();
+            }
             RefreshableFragment refreshable = getRefreshableFragment();
             if(refreshable != null) {
                 refreshable.refresh(true);
@@ -492,7 +496,12 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
      */
     @Override
     public boolean areAppActionsAvailable() {
-        return SeatedAppSessionKt.isUserSessionLive();
+        return SeatedAppSessionKt.isUserSessionLive() && isSeatedAppForActiveJob();
+    }
+
+    private boolean isSeatedAppForActiveJob() {
+        ConnectAppRecord seatedApp = ConnectJobUtils.getSeatedAppRecord();
+        return job != null && seatedApp != null && job.getJobUUID().equals(seatedApp.getJobUUID());
     }
 
     /**

@@ -3,19 +3,23 @@ package org.commcare.home
 import android.content.Intent
 import android.widget.AdapterView
 import android.widget.Toast
+import org.commcare.CommCareApplication
 import org.commcare.activities.CommCarePreferenceActivity
 import org.commcare.activities.FormRecordListActivity
 import org.commcare.activities.ReportProblemActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
 import org.commcare.android.database.user.models.FormRecord
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.preferences.AdvancedActionsPreferences
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.MainConfigurablePreferences
 import org.commcare.utils.ChangeLocaleUtil
+import org.commcare.utils.ConnectivityStatus
 import org.commcare.views.dialogs.DialogChoiceItem
 import org.commcare.views.dialogs.DialogCreationHelpers
 import org.commcare.views.dialogs.PaneledChoiceDialog
+import org.commcare.views.notifications.NotificationMessageFactory
 import org.javarosa.core.services.locale.Localization
 import java.io.File
 
@@ -34,6 +38,40 @@ class HomeActionsDelegate(
 
     /** Send unsent forms, then pull data, at the user's request. */
     fun sync() = sync.sendFormsOrSync(true)
+
+    /**
+     * [sync] when there is a network. Without one, says why not and posts a notification instead.
+     * Returns whether the sync started.
+     */
+    fun syncIfOnline(): Boolean {
+        val context = host.hostContext
+        if (!ConnectivityStatus.isNetworkAvailable(context)) {
+            reportNoConnection(ConnectivityStatus.isAirplaneModeOn(context))
+            return false
+        }
+        CommCareApplication.notificationManager().clearNotifications(AIRPLANE_MODE_CATEGORY)
+        sync()
+        return true
+    }
+
+    private fun reportNoConnection(airplaneMode: Boolean) {
+        val (messageKey, stockMessage) =
+            if (airplaneMode) {
+                "notification.sync.airplane.action" to NotificationMessageFactory.StockMessages.Sync_AirplaneMode
+            } else {
+                "notification.sync.connections.action" to NotificationMessageFactory.StockMessages.Sync_NoConnections
+            }
+        sync.handleSyncNotAttempted(Localization.get(messageKey))
+        CommCareApplication.notificationManager().reportNotificationMessage(
+            NotificationMessageFactory.message(stockMessage, AIRPLANE_MODE_CATEGORY),
+        )
+        FirebaseAnalyticsUtil.reportSyncResult(
+            false,
+            AnalyticsParamValue.SYNC_TRIGGER_USER,
+            AnalyticsParamValue.SYNC_MODE_SEND_FORMS,
+            AnalyticsParamValue.SYNC_FAIL_NO_CONNECTION,
+        )
+    }
 
     fun canViewSavedForms(): Boolean = host.areAppActionsAvailable()
 
@@ -197,5 +235,6 @@ class HomeActionsDelegate(
 
     private companion object {
         const val DEVELOPER_MODE_DISMISSALS = 4
+        const val AIRPLANE_MODE_CATEGORY = "airplane-mode"
     }
 }
