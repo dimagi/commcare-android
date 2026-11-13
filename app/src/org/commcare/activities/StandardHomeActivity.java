@@ -240,17 +240,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
 
     @Override
     public void deliverResultAndFinish(@NonNull Intent result) {
-        boolean recoveryRequestUnheard = getCallingActivity() == null
-                && result.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false);
-
-        if (isTaskRoot() || recoveryRequestUnheard) {
-            startActivity(DispatchActivity.buildRestartIntent(this)
-                    .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
-                    .putExtras(result));
-        } else {
-            setResult(RESULT_OK, result);
-        }
-        finish();
+        HomeResultDelivery.deliverResultAndFinish(this, result);
     }
 
     protected void userPressedOpportunityStatus() {

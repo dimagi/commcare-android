@@ -8,7 +8,6 @@ import org.commcare.CommCareApplication
 import org.commcare.android.logging.ReportingUtils
 import org.commcare.models.AndroidSessionWrapper
 import org.commcare.preferences.HiddenPreferences
-import org.commcare.utils.SessionUnavailableException
 
 /**
  * Composition root for the behavior shared by every CommCare home screen.
@@ -160,11 +159,15 @@ class HomeActivityCoordinator(
         shouldWarnUser: Boolean,
     ) = sessionLaunch.clearSessionAndExit(currentState, shouldWarnUser, launchState.wasExternal)
 
+    companion object {
+        /** A coordinator for a host that can run with no user session, such as Opportunity Home. */
+        @JvmStatic
+        fun forSessionlessHost(host: HomeActivityHost): HomeActivityCoordinator = HomeActivityCoordinator(host, LiveSessionOnlySession())
+    }
+
     /** Home opened with a live session, so this CommCare version has run successfully. */
     private fun recordCommCareVersionIfSessionLive() {
-        try {
-            CommCareApplication.instance().session
-        } catch (e: SessionUnavailableException) {
+        if (!isUserSessionLive()) {
             return
         }
         PreferenceManager

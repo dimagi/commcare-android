@@ -8,6 +8,7 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -16,7 +17,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
@@ -25,7 +28,10 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
 
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.HomeResultDelivery;
 import org.commcare.activities.NavigationHostCommCareActivity;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDialogCoordinator;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
@@ -38,8 +44,15 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.home.HomeActivityCoordinator;
+import org.commcare.home.HomeActivityHost;
+import org.commcare.home.SeatedAppSessionKt;
+import org.commcare.home.SyncDelegate;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
+import org.commcare.tasks.DataPullTask;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.xpath.XPathException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +62,8 @@ import javax.annotation.Nullable;
 
 import kotlin.Unit;
 
-public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
+public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate>
+        implements HomeActivityHost {
     private boolean backButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
@@ -59,6 +73,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
     private Map<Integer, String> menuIdToAnalyticsParam;
+
+    private final HomeActivityCoordinator coordinator = HomeActivityCoordinator.forSessionlessHost(this);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,7 +130,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     @Override
     protected void onResume() {
         super.onResume();
+        coordinator.getSessionExpiration().startListening();
+        coordinator.getSessionExpiration().handlePendingExpiration();
         ConnectDialogCoordinator.showDueDialog(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        coordinator.getSessionExpiration().stopListening();
     }
 
     @Override
@@ -296,6 +320,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
+        CustomProgressDialog syncDialog = coordinator.getSync().generateProgressDialog(taskId);
+        if (syncDialog != null) {
+            return syncDialog;
+        }
         if (waitDialogEnabled) {
             return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
         }
@@ -334,5 +362,118 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             return refreshable;
         }
         return null;
+    }
+
+    /**
+     * The coordinator this activity composes. Public so tests can reach the delegates it owns.
+     */
+    public HomeActivityCoordinator getCoordinator() {
+        return coordinator;
+    }
+
+    @Override
+    public SyncDelegate getReceiver() {
+        return coordinator.getSync();
+    }
+
+    @NonNull
+    @Override
+    public CommCareActivity<?> getSyncTaskActivity() {
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public Context getHostContext() {
+        return this;
+    }
+
+    @NonNull
+    @Override
+    public AppCompatActivity getHostActivity() {
+        return this;
+    }
+
+    @Override
+    public void updateUiAfterDataPullOrSend(@NonNull String message, boolean success) {
+        displayToast(message);
+    }
+
+    @Override
+    public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
+        coordinator.getAppHealth().onPullTaskFinished(result);
+    }
+
+    @Override
+    public Intent getLaunchIntent() {
+        return getIntent();
+    }
+
+    @Override
+    public String getFormEntryTitle() {
+        return CommCareActivity.getTitle(this, null);
+    }
+
+    @Override
+    public void showFormArchive(boolean incomplete, FormRecord record) {
+        coordinator.getActions().showFormArchive(incomplete, record);
+    }
+
+    @Override
+    public void finishWithResult(int resultCode, Intent data) {
+        setResult(resultCode, data);
+        finish();
+    }
+
+    @Override
+    public void showXPathError(@NonNull XPathException exception, boolean shouldExit) {
+        new UserfacingErrorHandling<>().logErrorAndShowDialog(this, exception, shouldExit);
+    }
+
+    @Override
+    public void showErrorDialog(@NonNull String message, boolean shouldExit) {
+        new UserfacingErrorHandling<>().createErrorDialog(this, message, shouldExit);
+    }
+
+    @Override
+    public void deliverResultAndFinish(@NonNull Intent result) {
+        HomeResultDelivery.deliverResultAndFinish(this, result);
+    }
+
+    @Override
+    public void refreshActionSurface() {
+        invalidateOptionsMenu();
+    }
+
+    @Override
+    public void refreshHostUi() {
+    }
+
+    @Override
+    public void onLocaleChanged() {
+        refreshActionSurface();
+    }
+
+    @Override
+    public boolean isDemoUser() {
+        return false;
+    }
+
+    /**
+     * App actions need a user logged in to the opportunity's app; without one the page still shows the
+     * opportunity.
+     */
+    @Override
+    public boolean areAppActionsAvailable() {
+        return SeatedAppSessionKt.isUserSessionLive();
+    }
+
+    /**
+     * Unlike the session-gated homes, Connect doesn't need a session, so it stays open and drops the app
+     * actions instead of redirecting to login.
+     */
+    @Override
+    public void onSessionLost() {
+        refreshActionSurface();
     }
 }
