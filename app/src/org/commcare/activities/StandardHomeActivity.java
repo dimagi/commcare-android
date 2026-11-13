@@ -275,14 +275,6 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
         return intent;
     }
 
-    /**
-     * The Home intent used by Connect app launches that bypass LoginActivity. Exposed so callers can
-     * start it via {@code startActivityForResult} and react to the Home result (e.g. a back-out).
-     */
-    public static Intent buildHomeLaunchIntent(Context context) {
-        return buildHomeIntent(context, LoginMode.PASSWORD, true, false, true);
-    }
-
     @Override
     public void onResumeSessionSafe() {
         coordinator.onHostResumed();
