@@ -28,6 +28,9 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
+- From an opportunity, launch its learn or delivery app: confirm the app's first menu opens without the app home screen, and backing out of it returns to the opportunity screen.
+- After opening the app once, confirm the opportunity screen's ⋮ menu shows Report an Issue, Update App, Change Language, Settings and Advanced, each opening as it did from the app home screen; on another opportunity's screen, or before the app has been opened, those items don't show.
+- Finishing a form returns to the opportunity screen and sends the form; Sync there with unsent forms sends them and then syncs the app.
 
 ## CommCare 2.65
 
