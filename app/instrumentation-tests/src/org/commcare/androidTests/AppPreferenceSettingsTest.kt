@@ -32,7 +32,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @BrowserstackTests
 class AppPreferenceSettingsTest : BaseTest() {
-
     companion object {
         const val CCZ_NAME = "settings_sheet_tests.ccz"
         const val APP_NAME = "App for Settings Sheet"
@@ -99,7 +98,7 @@ class AppPreferenceSettingsTest : BaseTest() {
             .perform(click())
         selectSetting("Set Print Template")
 
-        //Create a dummy file selection intent
+        // Create a dummy file selection intent
         val resultData = Intent()
         val expectedIntent = CustomMatchers.withIntent(Intent.ACTION_GET_CONTENT, Intent.CATEGORY_OPENABLE, "*/*")
         val result = Instrumentation.ActivityResult(AppCompatActivity.RESULT_CANCELED, resultData)
@@ -117,9 +116,11 @@ class AppPreferenceSettingsTest : BaseTest() {
         onView(withText("CommCare > Settings"))
             .check(matches(isDisplayed()))
         onView(withId(androidx.preference.R.id.recycler_view))
-            .perform(RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
-                hasDescendant(withText(text))
-                ))
+            .perform(
+                RecyclerViewActions.scrollTo<RecyclerView.ViewHolder>(
+                    hasDescendant(withText(text)),
+                ),
+            )
         onView(withText(text))
             .perform(click())
     }
@@ -131,12 +132,15 @@ class AppPreferenceSettingsTest : BaseTest() {
             .check(matches(isDisplayed()))
     }
 
-    private fun changePreferenceAndCheckPersistence(newPref: String, setting: String) {
+    private fun changePreferenceAndCheckPersistence(
+        newPref: String,
+        setting: String,
+    ) {
         // Change to new preference
         onView(withText(newPref))
             .perform(click())
 
-        //Rotate and check the selection persists.
+        // Rotate and check the selection persists.
         InstrumentationUtility.rotateLeft()
         selectSetting(setting)
         matchSelectedPreference(newPref)
@@ -146,10 +150,11 @@ class AppPreferenceSettingsTest : BaseTest() {
     }
 
     private fun matchSelectedPreference(value: String) {
-        onView(allOf(
-            isAssignableFrom(CheckedTextView::class.java),
-            withText(value)
-        )).check(matches(isChecked()))
+        onView(
+            allOf(
+                isAssignableFrom(CheckedTextView::class.java),
+                withText(value),
+            ),
+        ).check(matches(isChecked()))
     }
-
 }
