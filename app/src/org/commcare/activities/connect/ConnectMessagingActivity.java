@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
+import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.connect.models.ConnectMessagingChannelRecord;
 import org.commcare.android.database.connect.models.ConnectMessagingMessageRecord;
@@ -27,6 +28,7 @@ import org.commcare.views.dialogs.DialogController;
 import static org.commcare.connect.ConnectConstants.CCC_MESSAGE;
 import static org.commcare.connect.ConnectConstants.NETWORK_ACTIVITY_MESSAGING_CHANNEL_ID;
 import static org.commcare.connect.ConnectConstants.NOTIFICATION_ID;
+import static org.commcare.connect.ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE;
 import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 
@@ -166,6 +168,9 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
                             .updateReadStatus(this, notificationId, true);
                 }
                 handleChannelForValidity(channelId);
+            } else if (isOpenedFromNotificationOrInvite()) {
+                startActivity(DispatchActivity.buildUnlockDeclinedRestartIntent(this));
+                finish();
             } else {
                 finish();
             }
@@ -232,18 +237,31 @@ public class ConnectMessagingActivity extends NavigationHostCommCareActivity<Con
     private void showChannelListFragmentForConsent(String channelId) {
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
-        navController.navigate(R.id.channelListFragment, bundle, getNavOptions());
+        navController.navigate(R.id.channelListFragment, bundle, buildClearBackStackNavOptions());
     }
 
     private void showConnectMessageFragment(String channelId) {
         Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_ID, channelId);
-        navController.navigate(R.id.connectMessageFragment, bundle, getNavOptions());
+        NavOptions navOptions = isOpenedFromNotificationOrInvite()
+                ? buildKeepChannelListNavOptions()
+                : buildClearBackStackNavOptions();
+        navController.navigate(R.id.connectMessageFragment, bundle, navOptions);
     }
 
-    private NavOptions getNavOptions() {
+    private boolean isOpenedFromNotificationOrInvite() {
+        return getIntent().getBooleanExtra(OPENED_FROM_NOTIFICATION_OR_INVITE, false);
+    }
+
+    private NavOptions buildClearBackStackNavOptions() {
         return new NavOptions.Builder()
                 .setPopUpTo(navController.getGraph().getStartDestinationId(), true)
+                .build();
+    }
+
+    private NavOptions buildKeepChannelListNavOptions() {
+        return new NavOptions.Builder()
+                .setPopUpTo(R.id.channelListFragment, false)
                 .build();
     }
 }

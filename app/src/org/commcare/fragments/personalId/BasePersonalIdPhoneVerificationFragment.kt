@@ -141,17 +141,24 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             override fun onFailure(
                 errorType: OtpErrorType,
                 errorMessage: String?,
+                errorCode: String?,
             ) {
                 recordFailedVerificationAttempt()
+                val fallingBackToPersonalId = otpCallback != null && shouldAutoSwitchToPersonalIdAuth(errorType)
                 reportOtpAnalytics(
-                    AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                    if (fallingBackToPersonalId) {
+                        AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID
+                    } else {
+                        AnalyticsParamValue.OTP_OUTCOME_FAILURE
+                    },
                     OtpAnalyticsMapper.reasonFrom(errorType),
+                    errorCode,
                 )
 
                 if (otpCallback == null) return
 
                 // Auto-switch from Firebase to PersonalId for non-recoverable errors
-                if (shouldAutoSwitchToPersonalIdAuth(errorType) && setupOtpManager(true)) {
+                if (fallingBackToPersonalId && setupOtpManager(true)) {
                     Logger.log(
                         LogTypes.TYPE_MAINTENANCE,
                         "Auto-switching from Firebase to PersonalId auth due to error: $errorType",
@@ -200,6 +207,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                 reportOtpAnalytics(
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                     OtpAnalyticsMapper.reasonFrom(failureCode),
+                    failureCode.name,
                 )
                 if (otpCallback == null) return
 
@@ -226,12 +234,10 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
      * Determines if we should auto-switch from Firebase to PersonalId auth based on the error type.
      * Only switches from Firebase to PersonalId, never the reverse.
      */
-    private fun shouldAutoSwitchToPersonalIdAuth(errorType: OtpErrorType): Boolean {
-        if (SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true)) {
-            return false
-        }
-        return errorType.isNonRecoverable
-    }
+    private fun shouldAutoSwitchToPersonalIdAuth(errorType: OtpErrorType): Boolean =
+        !SMS_METHOD_PERSONAL_ID.equals(defaultSmsMethod(), ignoreCase = true) &&
+            errorType.isNonRecoverable &&
+            isFallbackAllowed()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -440,6 +446,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
     private fun reportOtpAnalytics(
         outcome: String,
         reason: String?,
+        errorCode: String? = null,
     ) {
         val method = OtpAnalyticsMapper.methodFromSmsMethod(lastOtpMethod)
         FirebaseAnalyticsUtil.reportOtpEvent(
@@ -447,6 +454,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             outcome,
             method,
             reason,
+            errorCode,
             attemptCounter().requestCount,
             attemptCounter().failedAttempts,
             OtpAnalyticsMapper.workflowParam(analyticsWorkflow()),

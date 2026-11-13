@@ -31,6 +31,7 @@ public class ConnectConstants {
     public static final String OPPORTUNITY_UUID = "opportunity_uuid";
     public static final String FROM_SMS_INVITE_LINK = "from_sms_invite_link";
     public static final String FROM_STARTUP_ROUTING = "from_startup_routing";
+    public static final String OPENED_FROM_NOTIFICATION_OR_INVITE = "opened_from_notification_or_invite";
     public static final String PAYMENT_ID = "payment_id";
     public static final String PAYMENT_UUID = "payment_uuid";
     public static final String NOTIFICATION_KEY = "key";

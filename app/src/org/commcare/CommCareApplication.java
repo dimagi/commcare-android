@@ -44,6 +44,7 @@ import org.commcare.personalId.PersonalIdUnlocker;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.ForceCloseLogger;
@@ -61,6 +62,7 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
+import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
 import org.commcare.logging.AndroidLogger;
@@ -101,6 +103,7 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.LocalePreferences;
+import org.commcare.preferences.MainConfigurablePreferences;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.sync.FormSubmissionHelper;
 import org.commcare.sync.FormSubmissionWorker;
@@ -131,6 +134,7 @@ import org.commcare.connect.repository.ConnectSyncPreferences;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.UnsentFormsSummary;
 import org.commcare.views.widgets.CleanRawMedia;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.RequestAbandonedException;
@@ -388,7 +392,13 @@ public class CommCareApplication extends Application implements LifecycleEventOb
      * manual user log-outs.
      */
     public void closeUserSession() {
+        closeUserSession(AnalyticsParamValue.SESSION_END_REASON_LOGOUT);
+    }
+
+    private void closeUserSession(String reason) {
         synchronized (serviceLock) {
+            reportSessionEnd(reason);
+
             // Cancel any running tasks before closing down the user database.
             ManagedAsyncTask.cancelTasks();
 
@@ -400,6 +410,24 @@ public class CommCareApplication extends Application implements LifecycleEventOb
             setupLoggerStorage(false);
 
             CrashUtil.registerUserData();
+        }
+    }
+
+    private void reportSessionEnd(String reason) {
+        if (currentApp == null || !isSessionActive() || !MainConfigurablePreferences.isAnalyticsEnabled()) {
+            return;
+        }
+        try {
+            UnsentFormsSummary unsentForms = UnsentFormsSummary.readForApp(
+                    getUserStorage(FormRecord.class), currentApp.getAppRecord().getApplicationId());
+            long now = System.currentTimeMillis();
+            Long oldestModified = unsentForms.getOldestModifiedMillis();
+            long oldestAgeMinutes = oldestModified == null
+                    ? 0 : TimeUnit.MILLISECONDS.toMinutes(now - oldestModified);
+            FirebaseAnalyticsUtil.reportSessionEnd(
+                    reason, unsentForms.getUnsentFormCount(), oldestAgeMinutes);
+        } catch (Exception e) {
+            Logger.exception("Error reporting the session end to analytics", e);
         }
     }
 
@@ -418,7 +446,7 @@ public class CommCareApplication extends Application implements LifecycleEventOb
      */
     public void expireUserSession() {
         synchronized (serviceLock) {
-            closeUserSession();
+            closeUserSession(AnalyticsParamValue.SESSION_END_REASON_EXPIRY);
             SessionRegistrationHelper.registerSessionExpiration();
             sendBroadcast(
                     new Intent(SessionRegistrationHelper.USER_SESSION_EXPIRED)

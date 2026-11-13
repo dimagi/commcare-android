@@ -340,7 +340,24 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
             return;
         }
         CommCareApplication.instance().closeUserSession();
-        setResult(RESULT_OK);
+        deliverResultAndFinish(new Intent());
+    }
+
+    /**
+     * Delivers {@code result} to the screen beneath, or to a relaunched DispatchActivity when Home is the bottom
+     * of the task or when it requests recovery measures and no caller is waiting for it, then finishes.
+     */
+    private void deliverResultAndFinish(Intent result) {
+        boolean recoveryRequestUnheard = getCallingActivity() == null
+                && result.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false);
+
+        if (isTaskRoot() || recoveryRequestUnheard) {
+            startActivity(DispatchActivity.buildRestartIntent(this)
+                    .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
+                    .putExtras(result));
+        } else {
+            setResult(RESULT_OK, result);
+        }
         finish();
     }
 
@@ -853,6 +870,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     protected void onStop() {
         super.onStop();
         isVisible = false;
+        uiController.clearSyncButtonMessage();
     }
 
     private void attemptDispatchHomeScreen() {
@@ -860,8 +878,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
             CommCareApplication.instance().getSession();
         } catch (SessionUnavailableException e) {
             // User was logged out somehow, so we want to return to dispatch activity
-            setResult(RESULT_OK);
-            this.finish();
+            deliverResultAndFinish(new Intent());
             return;
         }
 
@@ -924,8 +941,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     private void finishWithExecutionIntent() {
         Intent i = new Intent();
         i.putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true);
-        setResult(RESULT_OK, i);
-        finish();
+        deliverResultAndFinish(i);
     }
 
     @Override
