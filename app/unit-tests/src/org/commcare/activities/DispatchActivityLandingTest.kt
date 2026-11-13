@@ -3,6 +3,7 @@ package org.commcare.activities
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
+import android.net.Uri
 import io.mockk.every
 import io.mockk.mockkStatic
 import org.commcare.CommCareApplication
@@ -12,6 +13,7 @@ import org.commcare.android.util.ConnectTestUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdSessionManager
+import org.commcare.dalvik.BuildConfig
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
@@ -296,6 +298,45 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
         assertTrue(connect.getBooleanExtra(ConnectConstants.GO_TO_JOB_STATUS, false))
         assertEquals(ConnectTestUtils.JOB_UUID, connect.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
         assertOpensAsTaskRoot(controller.get(), connect)
+    }
+
+    @Test
+    fun `an invite link opens the invited opportunity above the Opportunity List without the router beneath`() {
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
+        val inviteUri = Uri.parse("https://${BuildConfig.CCC_HOST}/users/invite_redirect/invited-job-uuid")
+
+        val dispatchActivity = buildDispatchActivity(Intent(Intent.ACTION_VIEW, inviteUri)).get()
+
+        val (opportunityListIntent, invitedIntent) =
+            ActivityAssertions.assertTwoScreenTask(ActivityAssertions.startedIntents(dispatchActivity))
+        assertEquals(ConnectActivity::class.java.name, opportunityListIntent.component?.className)
+        assertFalse(opportunityListIntent.hasExtra(ConnectConstants.REDIRECT_ACTION))
+        assertOpensAsTaskRoot(dispatchActivity, opportunityListIntent)
+        assertEquals(ConnectActivity::class.java.name, invitedIntent.component?.className)
+        assertEquals("invited-job-uuid", invitedIntent.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        assertTrue(invitedIntent.getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false))
+        assertTrue(invitedIntent.getBooleanExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, false))
+    }
+
+    @Test
+    fun `a tray notification for a new opportunity opens it above the Opportunity List without the router beneath`() {
+        every { FirebaseAnalyticsUtil.reportNotificationEvent(any(), any(), any(), any()) } returns Unit
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
+        val notificationIntent =
+            Intent()
+                .putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)
+                .putExtra(ConnectConstants.OPPORTUNITY_UUID, "new-job-uuid")
+
+        val dispatchActivity = buildDispatchActivity(notificationIntent).get()
+
+        val (opportunityListIntent, targetIntent) =
+            ActivityAssertions.assertTwoScreenTask(ActivityAssertions.startedIntents(dispatchActivity))
+        assertEquals(ConnectActivity::class.java.name, opportunityListIntent.component?.className)
+        assertFalse(opportunityListIntent.hasExtra(ConnectConstants.REDIRECT_ACTION))
+        assertOpensAsTaskRoot(dispatchActivity, opportunityListIntent)
+        assertEquals(ConnectActivity::class.java.name, targetIntent.component?.className)
+        assertEquals("new-job-uuid", targetIntent.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        assertTrue(targetIntent.getBooleanExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, false))
     }
 
     private fun deliverResult(
