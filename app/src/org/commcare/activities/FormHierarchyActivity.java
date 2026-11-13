@@ -282,6 +282,7 @@ public class FormHierarchyActivity extends SessionAwareListActivity implements A
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             if (!isFinishing()) {
+                reportAppBarBackUsed();
                 this.onBackPressed();
             }
             return true;

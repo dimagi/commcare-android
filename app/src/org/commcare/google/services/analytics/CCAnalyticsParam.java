@@ -32,6 +32,7 @@ public class CCAnalyticsParam {
     static final String REQUEST_ID = "request_id";
     static final String RESULT_CODE = "result_code";
     static final String TRIGGER = "trigger";
+    static final String CONTROL = "control";
 
     static final String USER_RETURNED = "user_returned";
     static final String PARAM_CCC_TAB_CHANGE_NAME = "ccc_tab_change_name";

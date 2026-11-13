@@ -184,6 +184,14 @@ public class FirebaseAnalyticsUtil {
         );
     }
 
+    public static void reportNavControlUsed(String control, String screenName) {
+        reportEvent(
+                CCAnalyticsEvent.NAV_CONTROL_USED,
+                new String[]{CCAnalyticsParam.CONTROL, FirebaseAnalytics.Param.ITEM_NAME},
+                new String[]{control, screenName}
+        );
+    }
+
     /**
      * Report a user event of changing the value of a SharedPreference
      */
