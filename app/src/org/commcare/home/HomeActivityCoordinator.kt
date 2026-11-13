@@ -120,6 +120,23 @@ class HomeActivityCoordinator(
     }
 
     /**
+     * An app was opened for a host that runs it in place, such as Opportunity Home, instead of on App
+     * Home. Run the post-login checks after a new sign-in, then the app-health checks, and open the
+     * app's root menu unless one of them took over.
+     *
+     * @return whether the root menu opened
+     */
+    fun enterLaunchedApp(newSignIn: Boolean): Boolean {
+        if (newSignIn && launchChecks.run()) {
+            return false
+        }
+        if (appHealth.runChecksIfNotYetRun()) {
+            return false
+        }
+        return sessionNavigation.enterRootModule()
+    }
+
+    /**
      * Route the result of a screen opened from the app actions menu, for a host that doesn't run
      * session navigation.
      *

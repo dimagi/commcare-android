@@ -48,6 +48,7 @@ import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.home.HomeActivityHost;
+import org.commcare.home.HomeRequestCodes;
 import org.commcare.home.SeatedAppSessionKt;
 import org.commcare.home.SyncDelegate;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
@@ -138,6 +139,9 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         super.onResume();
         coordinator.getSessionExpiration().startListening();
         coordinator.getSessionExpiration().handlePendingExpiration();
+        if (areAppActionsAvailable()) {
+            coordinator.onHostResumed();
+        }
         ConnectDialogCoordinator.showDueDialog(this);
     }
 
@@ -299,8 +303,23 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * The opportunity's app was signed in to, or already was. It runs here rather than on App Home, so
+     * open its menu once the launch checks are done.
+     *
+     * @return whether the app's menu opened
+     */
+    public boolean onAppLaunched(boolean alreadyLoggedIn) {
+        refreshActionSurface();
+        return coordinator.enterLaunchedApp(!alreadyLoggedIn);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (HomeRequestCodes.isHomeRequest(requestCode) && SeatedAppSessionKt.isUserSessionLive()) {
+            coordinator.onActivityResult(requestCode, resultCode, intent);
+            return;
+        }
         if (coordinator.onAppActionResult(requestCode, resultCode, intent)) {
             return;
         }

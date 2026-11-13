@@ -1,5 +1,6 @@
 package org.commcare.activities.connect
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
+import org.commcare.activities.MenuActivity
 import org.commcare.activities.ReportProblemActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
 import org.commcare.android.database.connect.models.ConnectAppRecord
@@ -39,6 +41,7 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.home.HomeRequestCodes
 import org.commcare.home.HomeResultCodes
 import org.commcare.preferences.AdvancedActionsPreferences
+import org.commcare.preferences.HiddenPreferences
 import org.commcare.rules.MainCoroutineRule
 import org.commcare.tasks.DataPullTask
 import org.commcare.utils.ConnectivityStatus
@@ -329,6 +332,51 @@ class ConnectActivityHomeHostTest {
 
         assertEquals(0, syncer.formSendCount)
     }
+
+    @Test
+    fun `a launched app opens its menu here`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+
+        assertTrue(activity.onAppLaunched(true))
+
+        val menu = shadowOf(activity).nextStartedActivityForResult
+        assertEquals(MenuActivity::class.java.name, menu.intent.component?.className)
+        assertEquals(HomeRequestCodes.GET_COMMAND, menu.requestCode)
+    }
+
+    @Test
+    fun `backing out of the app menu returns to Opp Home`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+        activity.onAppLaunched(true)
+        val menu = shadowOf(activity).nextStartedActivityForResult
+        shadowOf(activity).nextStartedActivity
+
+        shadowOf(activity).receiveResult(menu.intent, Activity.RESULT_CANCELED, null)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertFalse(activity.isFinishing)
+        assertNull(shadowOf(activity).nextStartedActivity)
+        assertEquals(R.id.connect_opportunity_home_fragment, navController(activity).currentDestination?.id)
+        assertNull(CommCareApplication.instance().currentSession.command)
+    }
+
+    @Test
+    fun `a new sign-in runs the launch checks before the menu`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+        val syncer = fakeSyncer(activity)
+        HiddenPreferences.setPostUpdateSyncNeeded(true)
+
+        assertFalse(activity.onAppLaunched(false))
+
+        assertEquals(1, syncer.formSendCount)
+        assertNull(shadowOf(activity).nextStartedActivityForResult)
+    }
+
+    private fun navController(activity: ConnectActivity) =
+        (activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment).navController
 
     private fun fakeSyncer(activity: ConnectActivity) = FormAndDataSyncerFake().also { activity.coordinator.sync.setFormAndDataSyncer(it) }
 

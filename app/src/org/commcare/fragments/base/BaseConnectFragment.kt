@@ -117,7 +117,13 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         ConnectAppLaunchController(
             this,
             object : ConnectAppLaunchListener {
-                override fun onLaunchSucceeded() = holdLaunchUntilHidden()
+                override fun onLaunchSucceeded(menuOpened: Boolean) {
+                    if (menuOpened) {
+                        holdLaunchUntilHidden()
+                    } else {
+                        clearOwnedLaunch()
+                    }
+                }
 
                 override fun onLaunchFailed(failure: AppLaunchFailure) =
                     onAppLaunchFailed(failure, appLaunchController::retryLaunch, ::clearOwnedLaunch)

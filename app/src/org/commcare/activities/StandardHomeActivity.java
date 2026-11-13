@@ -31,7 +31,6 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.suite.model.Endpoint;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.utils.ApkDependenciesUtils;
 import org.commcare.utils.AppLogoutHelper;
 import org.commcare.utils.SessionRegistrationHelper;
 import org.commcare.utils.SessionUnavailableException;
@@ -380,13 +379,7 @@ public class StandardHomeActivity extends SessionAwareCommCareActivity<SyncDeleg
     }
 
     void enterRootModule() {
-        if (doPreStartChecks()) {
-            coordinator.getSessionNavigation().launchRootMenu();
-        }
-    }
-
-    private boolean doPreStartChecks() {
-        return ApkDependenciesUtils.performDependencyCheckFlow(this);
+        coordinator.getSessionNavigation().enterRootModule();
     }
 
     @Override
