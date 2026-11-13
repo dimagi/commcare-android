@@ -1,33 +1,37 @@
 package org.commcare.home
 
 import android.content.Intent
-import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import org.commcare.activities.DriftHelper
+import androidx.preference.PreferenceManager
+import org.commcare.CommCareApplication
+import org.commcare.android.logging.ReportingUtils
 import org.commcare.models.AndroidSessionWrapper
-import org.commcare.views.dialogs.StandardAlertDialog
-import org.javarosa.core.services.locale.Localization
+import org.commcare.preferences.HiddenPreferences
+import org.commcare.utils.SessionUnavailableException
 
 /**
  * Composition root for the behavior shared by every CommCare home screen.
  *
  * - Registers itself on the host lifecycle during init — before `ON_CREATE` is dispatched — so it
  * observes the host directly instead of being driven by forwarded calls.
- * - Owns the launch/nav instance state that describes *how the activity was launched*, persisting
- * it through the host's `SavedStateRegistry`.
- * - Runs the post-login launch checks in order, and routes activity results to the delegates.
+ * - Routes each activity result to the delegate that opened the screen, and decides what home
+ * shows when the host resumes.
  *
  * @property appUpdate owns the binary and content app updates. Session-independent, registered on the
  * host lifecycle.
  * @property sync owns form sending and data pulls; the host's task receiver.
  * @property sessionLaunch starts form entry and handles its result, and owns the form and session
  * restoration launch steps.
+ * @property sessionNavigation walks the session and handles the menu, case and remote-request results.
  * @property sessionExpiration reports session loss to the host. Driven by the session-aware activity
  * chain, not the lifecycle.
  * @property pin owns the PIN creation offer, the set-PIN action and the PIN screens' results.
  * @property actions the home actions, each paired with an availability query, for the host to surface
- * wherever it likes.
+ * wherever it likes, and the results of the Settings and Advanced Actions screens.
+ * @property appHealth the app-health checks and the syncs home owes while the user is on it.
+ * @property launchState how the activity was launched, kept through recreation.
+ * @property launchChecks the checks that run once after login.
  */
 class HomeActivityCoordinator(
     private val host: HomeActivityHost,
@@ -38,47 +42,34 @@ class HomeActivityCoordinator(
     val sessionExpiration: SessionExpirationDelegate = SessionExpirationDelegate(host = host),
     val pin: PinDelegate = PinDelegate(host = host, session = session),
     val actions: HomeActionsDelegate = HomeActionsDelegate(host = host, sync = sync, appUpdate = appUpdate, pin = pin),
+    val appHealth: AppHealthDelegate = AppHealthDelegate(host = host, sync = sync, appUpdate = appUpdate),
 ) : DefaultLifecycleObserver {
     constructor(host: HomeActivityHost) : this(host, ServiceBackedSession())
 
-    private var restored = false
+    private var navigationProceedingAfterResult = false
 
-    private var externalLaunch = false
-    private var loginExtraConsumed = false
-    private var endpointNavPendingAfterSync = false
+    val launchState = HomeLaunchState(host)
 
-    /** Activity was launched by an external app, so form submission may redispatch back to it. */
-    var wasExternal: Boolean
-        get() {
-            ensureRestored()
-            return externalLaunch
-        }
-        set(value) {
-            ensureRestored()
-            externalLaunch = value
+    val sessionNavigation =
+        SessionNavigationDelegate(host = host, sessionLaunch = sessionLaunch) { state, shouldWarnUser ->
+            clearSessionAndExit(state, shouldWarnUser)
         }
 
-    /** The one-shot `START_FROM_LOGIN` extra has already driven the post-login launch checks. */
-    var loginExtraWasConsumed: Boolean
-        get() {
-            ensureRestored()
-            return loginExtraConsumed
-        }
-        set(value) {
-            ensureRestored()
-            loginExtraConsumed = value
-        }
+    val launchChecks =
+        LaunchChecksDelegate(
+            host = host,
+            sessionLaunch = sessionLaunch,
+            sessionNavigation = sessionNavigation,
+            sync = sync,
+            appUpdate = appUpdate,
+            pin = pin,
+        )
 
-    /** A session-endpoint launch needs a blocking sync before navigating to the endpoint. */
-    var pendingEndpointNavigationAfterSync: Boolean
-        get() {
-            ensureRestored()
-            return endpointNavPendingAfterSync
-        }
-        set(value) {
-            ensureRestored()
-            endpointNavPendingAfterSync = value
-        }
+    /**
+     * A launch step or launch sync took over in `onCreate`, so the next resume leaves the screen it
+     * started alone.
+     */
+    var redirectedInOnCreate = false
 
     init {
         host.lifecycle.addObserver(this)
@@ -86,56 +77,65 @@ class HomeActivityCoordinator(
     }
 
     override fun onCreate(owner: LifecycleOwner) {
-        ensureRestored()
+        launchState.ensureRestored()
+        recordCommCareVersionIfSessionLive()
     }
 
     /**
-     * Fan an activity result out to the delegates that need it.
-     *
-     * @return true when the result was consumed and the host should not handle it further
+     * Route an activity result to the delegate that launched the screen, then continue session
+     * navigation unless that result ended it.
      */
     fun onActivityResult(
         requestCode: Int,
         resultCode: Int,
         intent: Intent?,
-    ): Boolean =
-        appUpdate.onActivityResult(requestCode, resultCode) ||
-            pin.onActivityResult(requestCode, resultCode, intent)
+    ) {
+        if (appUpdate.onActivityResult(requestCode, resultCode) || pin.onActivityResult(requestCode, resultCode, intent)) {
+            return
+        }
+        if (resultCode == HomeResultCodes.RESULT_RESTART) {
+            sessionNavigation.restartAfterCallout(intent)
+            return
+        }
+        if (actions.onActivityResult(requestCode, resultCode, intent)) {
+            return
+        }
+        val continueSessionNav =
+            when (requestCode) {
+                HomeRequestCodes.GET_INCOMPLETE_FORM -> {
+                    sessionLaunch.handleIncompleteFormResult(resultCode, intent)
+                }
+
+                HomeRequestCodes.MODEL_RESULT -> {
+                    handleFormEntryResult(resultCode, intent) && !appHealth.runChecksIfNotYetRun()
+                }
+
+                else -> {
+                    sessionNavigation.handleCalloutResult(requestCode, resultCode, intent)
+                }
+            }
+        if (continueSessionNav) {
+            navigationProceedingAfterResult = true
+            sessionNavigation.startNextSessionStepSafe()
+        }
+    }
 
     /**
-     * Run the post-login launch checks. The order is deliberate: demo mode skips everything else,
-     * form and session restoration come before any sync that could invalidate them, a post-update
-     * sync includes the plain form send, and the PIN and drift checks run only once nothing else
-     * has taken over.
-     *
-     * @return true when a step claimed the launch by starting another screen or a blocking task
+     * The host resumed with a live session. Unless a launch step or a returning result already
+     * moved the user on, show home, or whatever app-health action is pending, then run any sync
+     * that waited for form entry to finish.
      */
-    fun runLaunchChecks(): Boolean {
-        if (host.isDemoUser()) {
-            showDemoModeWarning()
-            return false
+    fun onHostResumed() {
+        if (!redirectedInOnCreate && !navigationProceedingAfterResult) {
+            host.refreshActionBar()
+            appHealth.showHomeOrPendingAction()
         }
-        if (sessionLaunch.showUpdateInfoForm()) {
-            return true
+        if (!sessionLaunch.formEntryStartedSinceResume) {
+            appHealth.runPendingSyncRequest()
         }
-        if (sessionLaunch.tryRestoringFormFromSessionExpiration()) {
-            return true
-        }
-        if (sessionLaunch.tryRestoringSession()) {
-            return true
-        }
-        if (sync.runPostUpdateSyncIfNeeded()) {
-            return true
-        }
-        if (sync.runPendingSyncRequestIfNeeded()) {
-            return true
-        }
-        if (appUpdate.promptForUpdateIfNeeded(false)) {
-            return true
-        }
-        pin.checkLaunchConditions()
-        checkForDrift()
-        return false
+        redirectedInOnCreate = false
+        navigationProceedingAfterResult = false
+        sessionLaunch.formEntryStartedSinceResume = false
     }
 
     /**
@@ -147,7 +147,7 @@ class HomeActivityCoordinator(
         resultCode: Int,
         intent: Intent?,
     ): Boolean {
-        val outcome = sessionLaunch.handleFormEntryResult(resultCode, intent, wasExternal)
+        val outcome = sessionLaunch.handleFormEntryResult(resultCode, intent, launchState.wasExternal)
         if (outcome.formCompleted) {
             sync.startUnsentFormsTask(syncAfterwards = false, userTriggered = false)
         }
@@ -158,59 +158,19 @@ class HomeActivityCoordinator(
     fun clearSessionAndExit(
         currentState: AndroidSessionWrapper,
         shouldWarnUser: Boolean,
-    ) = sessionLaunch.clearSessionAndExit(currentState, shouldWarnUser, wasExternal)
+    ) = sessionLaunch.clearSessionAndExit(currentState, shouldWarnUser, launchState.wasExternal)
 
-    private fun showDemoModeWarning() {
-        val dialog =
-            StandardAlertDialog.getBasicAlertDialogWithIcon(
-                Localization.get("demo.mode.warning.title"),
-                Localization.get("demo.mode.warning.main"),
-                android.R.drawable.ic_dialog_info,
-                null,
-            )
-        dialog.setEmphasizedMessage(Localization.get("demo.mode.warning.emphasized"))
-        host.showAlertDialog(dialog)
-    }
-
-    /** Launch step: warn while the device clock drifts from the server's, at most once a day. */
-    private fun checkForDrift() {
-        if (DriftHelper.shouldShowDriftWarning() && DriftHelper.getCurrentDrift() != 0L) {
-            host.showAlertDialog(DriftHelper.getDriftDialog(host.hostContext))
-            DriftHelper.updateLastDriftWarningTime()
-        }
-    }
-
-    /**
-     * Consume any saved launch/nav state and register the provider that writes it back. Idempotent.
-     *
-     * Called lazily from the property accessors rather than only from [onCreate] because the
-     * session-gated hosts read this state inside `onCreateSessionSafe`, which runs during
-     * `Activity.onCreate` — before `ON_CREATE` is dispatched.
-     */
-    private fun ensureRestored() {
-        if (restored) {
+    /** Home opened with a live session, so this CommCare version has run successfully. */
+    private fun recordCommCareVersionIfSessionLive() {
+        try {
+            CommCareApplication.instance().session
+        } catch (e: SessionUnavailableException) {
             return
         }
-        restored = true
-        val registry = host.savedStateRegistry
-        registry.consumeRestoredStateForKey(PROVIDER_KEY)?.let { state ->
-            externalLaunch = state.getBoolean(KEY_WAS_EXTERNAL)
-            loginExtraConsumed = state.getBoolean(KEY_LOGIN_EXTRA_CONSUMED)
-            endpointNavPendingAfterSync = state.getBoolean(KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC)
-        }
-        registry.registerSavedStateProvider(PROVIDER_KEY) {
-            Bundle().apply {
-                putBoolean(KEY_WAS_EXTERNAL, externalLaunch)
-                putBoolean(KEY_LOGIN_EXTRA_CONSUMED, loginExtraConsumed)
-                putBoolean(KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC, endpointNavPendingAfterSync)
-            }
-        }
-    }
-
-    companion object {
-        private const val PROVIDER_KEY = "org.commcare.home.HomeActivityCoordinator"
-        private const val KEY_WAS_EXTERNAL = "was_external"
-        private const val KEY_LOGIN_EXTRA_CONSUMED = "login_extra_was_consumed"
-        private const val KEY_PENDING_ENDPOINT_NAV_AFTER_SYNC = "pending_endpoint_nav_after_sync"
+        PreferenceManager
+            .getDefaultSharedPreferences(CommCareApplication.instance())
+            .edit()
+            .putString(HiddenPreferences.LAST_SUCCESSFUL_CC_VERSION, ReportingUtils.getCommCareVersionString())
+            .apply()
     }
 }

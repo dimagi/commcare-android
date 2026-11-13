@@ -2,14 +2,16 @@ package org.commcare.activities
 
 import org.commcare.android.util.ActivityAssertions.assertOnly
 import org.commcare.android.util.ActivityAssertions.startedForResultIntents
+import org.commcare.home.HomeLaunchState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
 
 /**
- * The three launch/nav keys now live on `HomeActivityCoordinator` and persist through the host's
+ * The three launch/nav keys now live on `HomeLaunchState` and persist through the host's
  * `SavedStateRegistry` instead of `onSaveInstanceState`. These tests prove
  * they still survive `recreate()`.
  */
@@ -21,7 +23,7 @@ class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
                 putExtra(DispatchActivity.WAS_EXTERNAL, true)
             }
 
-        assertTrue(home.coordinator.wasExternal)
+        assertTrue(home.coordinator.launchState.wasExternal)
     }
 
     @Test
@@ -30,52 +32,52 @@ class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
             buildStandardHomeController {
                 putExtra(DispatchActivity.WAS_EXTERNAL, true)
             }
-        assertTrue(controller.get().coordinator.wasExternal)
+        assertTrue(controller.launchState.wasExternal)
 
         controller.recreate()
         ShadowLooper.idleMainLooper()
 
-        assertTrue(controller.get().coordinator.wasExternal)
+        assertTrue(controller.launchState.wasExternal)
     }
 
     @Test
     fun `login-extra-consumed survives recreation`() {
         val controller = buildStandardHomeController()
-        controller.get().coordinator.loginExtraWasConsumed = true
+        controller.launchState.loginExtraWasConsumed = true
 
         controller.recreate()
         ShadowLooper.idleMainLooper()
 
-        assertTrue(controller.get().coordinator.loginExtraWasConsumed)
+        assertTrue(controller.launchState.loginExtraWasConsumed)
     }
 
     @Test
     fun `pending endpoint navigation survives recreation`() {
         val controller = buildStandardHomeController()
-        controller.get().coordinator.pendingEndpointNavigationAfterSync = true
+        controller.launchState.pendingEndpointNavigationAfterSync = true
 
         controller.recreate()
         ShadowLooper.idleMainLooper()
 
-        assertTrue(controller.get().coordinator.pendingEndpointNavigationAfterSync)
+        assertTrue(controller.launchState.pendingEndpointNavigationAfterSync)
     }
 
     @Test
     fun `all three keys survive recreation together`() {
         val controller = buildStandardHomeController()
         controller.get().coordinator.apply {
-            wasExternal = true
-            loginExtraWasConsumed = true
-            pendingEndpointNavigationAfterSync = true
+            launchState.wasExternal = true
+            launchState.loginExtraWasConsumed = true
+            launchState.pendingEndpointNavigationAfterSync = true
         }
 
         controller.recreate()
         ShadowLooper.idleMainLooper()
 
         controller.get().coordinator.let {
-            assertTrue(it.wasExternal)
-            assertTrue(it.loginExtraWasConsumed)
-            assertTrue(it.pendingEndpointNavigationAfterSync)
+            assertTrue(it.launchState.wasExternal)
+            assertTrue(it.launchState.loginExtraWasConsumed)
+            assertTrue(it.launchState.pendingEndpointNavigationAfterSync)
         }
     }
 
@@ -87,9 +89,9 @@ class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
         ShadowLooper.idleMainLooper()
 
         controller.get().coordinator.let {
-            assertFalse(it.wasExternal)
-            assertFalse(it.loginExtraWasConsumed)
-            assertFalse(it.pendingEndpointNavigationAfterSync)
+            assertFalse(it.launchState.wasExternal)
+            assertFalse(it.launchState.loginExtraWasConsumed)
+            assertFalse(it.launchState.pendingEndpointNavigationAfterSync)
         }
     }
 
@@ -112,7 +114,7 @@ class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
                 putExtra(DispatchActivity.START_FROM_LOGIN, true)
                 putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
             }
-        assertTrue(controller.get().coordinator.loginExtraWasConsumed)
+        assertTrue(controller.launchState.loginExtraWasConsumed)
         assertEquals(
             "the first login launch should run the checks through to the PIN step",
             CreatePinActivity::class.java.name,
@@ -124,7 +126,7 @@ class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
         ShadowLooper.idleMainLooper()
 
         val recreated = controller.get()
-        assertTrue(recreated.coordinator.loginExtraWasConsumed)
+        assertTrue(recreated.coordinator.launchState.loginExtraWasConsumed)
         assertEquals(
             "the restored flag should keep the launch checks from running a second time",
             emptyList<String>(),
@@ -132,4 +134,7 @@ class HomeInstanceStateRecreationTest : BaseHomeScreenActivityTest() {
         )
         assertFalse(recreated.isFinishing)
     }
+
+    private val ActivityController<StandardHomeActivity>.launchState: HomeLaunchState
+        get() = get().coordinator.launchState
 }

@@ -26,6 +26,18 @@ interface HomeActivityHost :
         requestCode: Int,
     )
 
+    /** Launch [intent] without waiting for a result. */
+    fun startActivity(intent: Intent)
+
+    /** Close the host without changing the result it hands back. */
+    fun finish()
+
+    /**
+     * Deliver [result] to the screen beneath, or to a relaunched DispatchActivity when the host is the
+     * bottom of the task or when it requests recovery measures and no caller is waiting for it, then finish.
+     */
+    fun deliverResultAndFinish(result: Intent)
+
     /** Show [dialog] on the host, so dialogs survive the host's own dismissal bookkeeping. */
     fun showAlertDialog(dialog: CommCareAlertDialog)
 
@@ -45,6 +57,9 @@ interface HomeActivityHost :
      * Optional UI-refresh hook. Hosts without a `WithUIController` implement it as a no-op.
      */
     fun refreshHostUi()
+
+    /** The host's title or user may have changed while it was in the background. */
+    fun refreshActionBar()
 
     /** The user picked a new language, so the host should rebuild whatever text it shows. */
     fun onLocaleChanged()
