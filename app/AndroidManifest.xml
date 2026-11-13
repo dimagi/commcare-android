@@ -61,19 +61,19 @@
     com.google.firebase.crashlytics, com.google.firebase.iid, com.appmattus.certificatetransparency"/>
 
     <permission-group
-        android:name="commcare.permission-group.DATABASE"
+        android:name="${permissionGroupRoot}.permission-group.DATABASE"
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
         />
 
     <permission-group
-        android:name="commcare.permission-group.EXTERNAL_ACTION"
+        android:name="${permissionGroupRoot}.permission-group.EXTERNAL_ACTION"
         android:description="@string/permission_external_action_description"
         android:label="@string/permission_external_action_label"
         />
 
     <permission-group
-        android:name="commcare.permission-group.INTERNAL_ACTION"
+        android:name="${permissionGroupRoot}.permission-group.INTERNAL_ACTION"
         android:label="@string/permission_group_internal_action_label"
         />
 
@@ -81,7 +81,7 @@
         android:description="@string/permission_content_provider_description"
         android:label="@string/permission_content_provider_label"
         android:name="${applicationId}.provider.cases.read"
-        android:permissionGroup="commcare.permission-group.DATABASE"
+        android:permissionGroup="${permissionGroupRoot}.permission-group.DATABASE"
         android:protectionLevel="dangerous">
     </permission>
 
@@ -89,7 +89,7 @@
         android:name="${applicationId}.permission.COMMCARE_LOGOUT"
         android:description="@string/permission_commcare_logout_description"
         android:label="@string/permission_commcare_logout_label"
-        android:permissionGroup="commcare.permission-group.EXTERNAL_ACTION"
+        android:permissionGroup="${permissionGroupRoot}.permission-group.EXTERNAL_ACTION"
         android:protectionLevel="dangerous">
     </permission>
 
@@ -97,7 +97,7 @@
         android:name="${applicationId}.permission.PROTECT_FALSELY_EXPOSED_COMPONENTS"
         android:label="@string/permission_protect_falsely_exposed_components_label"
         android:description="@string/permission_protect_falsely_exposed_components_description"
-        android:permissionGroup="commcare.permission-group.INTERNAL_ACTION"
+        android:permissionGroup="${permissionGroupRoot}.permission-group.INTERNAL_ACTION"
         android:protectionLevel="signature">
     </permission>
 
