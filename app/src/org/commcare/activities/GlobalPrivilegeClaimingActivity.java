@@ -168,6 +168,7 @@ public class GlobalPrivilegeClaimingActivity extends CommonBaseActivity {
                 return true;
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
+                reportAppBarBackUsed();
                 finish();
                 return true;
         }

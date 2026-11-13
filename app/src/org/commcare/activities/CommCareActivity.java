@@ -261,6 +261,7 @@ public abstract class CommCareActivity<R> extends CommonBaseActivity
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (!isFinishing()) {
+                    reportAppBarBackUsed();
                     this.onBackPressed();
                 }
                 return true;

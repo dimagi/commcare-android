@@ -651,6 +651,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(pref, FormEntryConstants.FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
+                reportAppBarBackUsed();
                 FirebaseAnalyticsUtil.reportFormQuitAttempt(AnalyticsParamValue.NAV_BUTTON_PRESS, getCurrentFormXmlnsFailSafe());
                 triggerUserQuitInput();
                 return true;
