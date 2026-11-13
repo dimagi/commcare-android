@@ -1,7 +1,9 @@
 package org.commcare.activities
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
+import android.net.Uri
 import io.mockk.every
 import io.mockk.mockkStatic
 import org.commcare.CommCareApplication
@@ -11,6 +13,8 @@ import org.commcare.android.util.ConnectTestUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.PersonalIdSessionManager
+import org.commcare.dalvik.BuildConfig
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.PersonalIdUserPreferences
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity
@@ -25,6 +29,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLooper
+import org.robolectric.util.ReflectionHelpers
 
 /** Where [DispatchActivity] opens the app, and that it decides once per launch rather than on every resume. */
 class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
@@ -43,16 +48,24 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
         PersonalIdSessionManager.getInstance().forgetUser("dispatch activity landing test teardown")
     }
 
+    @After
+    fun clearFormEntryInProgress() {
+        setFormEntryInProgress(false)
+    }
+
     @Test
-    fun `an active session opens CommCare App Home`() {
+    fun `an active session opens CommCare App Home as the only screen in the task`() {
         val dispatchActivity = buildDispatchActivity().get()
 
-        ActivityAssertions.assertStartedForResult(dispatchActivity, StandardHomeActivity::class.java)
+        val home = ActivityAssertions.assertStarted(dispatchActivity, StandardHomeActivity::class.java)
+        assertOpensAsTaskRoot(dispatchActivity, home)
     }
 
     @Test
     fun `resuming without a result does not route again`() {
+        CommCareApplication.instance().closeUserSession()
         val controller = buildDispatchActivity()
+        ActivityAssertions.startedForResultIntents(controller.get())
         ActivityAssertions.startedIntents(controller.get())
 
         controller.pause().resume()
@@ -63,26 +76,36 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
 
     @Test
     fun `returning from a screen started without a result routes again`() {
-        ConnectTestUtils.signInToPersonalId()
-        PersonalIdUserPreferences.setPendingBackupCode(true)
-        val controller = buildDispatchActivity()
-        ActivityAssertions.startedIntents(controller.get())
+        val controller = buildDispatchActivityAfterPendingBackupCode()
 
         controller.pause().resume()
         ShadowLooper.idleMainLooper()
 
-        ActivityAssertions.assertStartedForResult(controller.get(), StandardHomeActivity::class.java)
+        ActivityAssertions.assertStarted(controller.get(), StandardHomeActivity::class.java)
     }
 
     @Test
     fun `a new intent routes again`() {
-        val controller = buildDispatchActivity()
-        ActivityAssertions.startedIntents(controller.get())
+        val controller = buildDispatchActivityAfterPendingBackupCode()
 
         controller.pause().newIntent(Intent()).resume()
         ShadowLooper.idleMainLooper()
 
         ActivityAssertions.assertStarted(controller.get(), StandardHomeActivity::class.java)
+    }
+
+    @Test
+    fun `a new intent is routed by its own extras`() {
+        val controller = buildDispatchActivityAfterPendingBackupCode()
+
+        CommCareApplication.instance().closeUserSession()
+        controller
+            .pause()
+            .newIntent(Intent().putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true))
+            .resume()
+        ShadowLooper.idleMainLooper()
+
+        ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
     }
 
     @Test
@@ -105,90 +128,74 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
     }
 
     @Test
-    fun `a seated app with no session opens CommCare Login`() {
+    fun `a seated app with no session opens CommCare Login on top of the router`() {
         CommCareApplication.instance().closeUserSession()
 
         val dispatchActivity = buildDispatchActivity().get()
 
         ActivityAssertions.assertStartedForResult(dispatchActivity, LoginActivity::class.java)
+        assertFalse(dispatchActivity.isFinishing)
     }
 
     @Test
     fun `a declined unlock opens CommCare Login instead of the opportunity`() {
         ConnectTestUtils.seatJob(ConnectTestUtils.connectJob())
         CommCareApplication.instance().closeUserSession()
-        val controller = buildDispatchActivity()
-        val connect = ActivityAssertions.assertStartedForResult(controller.get(), ConnectActivity::class.java)
-        ActivityAssertions.startedIntents(controller.get())
 
-        deliverResult(controller, connect, DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED)
+        val dispatchActivity = buildDispatchActivity(buildUnlockDeclinedIntent()).get()
 
-        ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
-        assertFalse(controller.get().isFinishing)
+        ActivityAssertions.assertStartedForResult(dispatchActivity, LoginActivity::class.java)
+        assertFalse(dispatchActivity.isFinishing)
     }
 
     @Test
     fun `a declined unlock with an active session logs out and opens CommCare Login`() {
         ConnectTestUtils.seatJob(ConnectTestUtils.connectJob())
-        val controller = buildDispatchActivity()
-        val connect = ActivityAssertions.assertStartedForResult(controller.get(), ConnectActivity::class.java)
-        ActivityAssertions.startedIntents(controller.get())
 
-        deliverResult(controller, connect, DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED)
+        val dispatchActivity = buildDispatchActivity(buildUnlockDeclinedIntent()).get()
 
         assertFalse(CommCareApplication.hasLoggedInUser())
-        ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
+        ActivityAssertions.assertStartedForResult(dispatchActivity, LoginActivity::class.java)
     }
 
     @Test
     fun `a declined unlock during a sync closes the app and keeps the session`() {
         ConnectTestUtils.seatJob(ConnectTestUtils.connectJob())
-        val controller = buildDispatchActivity()
-        val connect = ActivityAssertions.assertStartedForResult(controller.get(), ConnectActivity::class.java)
 
         CommCareSessionService.sessionAliveLock.lock()
-        try {
-            deliverResult(controller, connect, DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED)
-        } finally {
-            CommCareSessionService.sessionAliveLock.unlock()
-        }
+        val dispatchActivity =
+            try {
+                buildDispatchActivity(buildUnlockDeclinedIntent()).get()
+            } finally {
+                CommCareSessionService.sessionAliveLock.unlock()
+            }
 
-        assertTrue(controller.get().isFinishing)
+        assertTrue(dispatchActivity.isFinishing)
         assertTrue(CommCareApplication.hasLoggedInUser())
     }
 
     @Test
-    fun `a new intent is routed by its own extras`() {
-        ConnectTestUtils.seatJob(ConnectTestUtils.connectJob())
-        val controller = buildDispatchActivity()
-        ActivityAssertions.startedIntents(controller.get())
-        ActivityAssertions.startedForResultIntents(controller.get())
-
-        CommCareApplication.instance().closeUserSession()
-        controller
-            .pause()
-            .newIntent(Intent().putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true))
-            .resume()
-        ShadowLooper.idleMainLooper()
-
-        ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
-    }
-
-    @Test
     fun `logging out of CommCare App Home opens CommCare Login`() {
-        val controller = buildDispatchActivity()
-        val home = ActivityAssertions.assertStartedForResult(controller.get(), StandardHomeActivity::class.java)
-        ActivityAssertions.startedIntents(controller.get())
-
         ConnectTestUtils.seatJob(ConnectTestUtils.connectJob())
         CommCareApplication.instance().closeUserSession()
-        deliverResult(controller, home, Activity.RESULT_OK)
 
-        ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
+        val dispatchActivity =
+            buildDispatchActivity(Intent().putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)).get()
+
+        ActivityAssertions.assertStartedForResult(dispatchActivity, LoginActivity::class.java)
     }
 
     @Test
-    fun `signing in on CommCare Login opens CommCare App Home`() {
+    fun `recovery measures started from CommCare App Home run before routing again`() {
+        val recoveryIntent = Intent().putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true)
+
+        val dispatchActivity = buildDispatchActivity(recoveryIntent).get()
+
+        ActivityAssertions.assertStartedForResult(dispatchActivity, ExecuteRecoveryMeasuresActivity::class.java)
+    }
+
+    @Test
+    fun `signing in on CommCare Login opens CommCare App Home as the only screen in the task`() {
         CommCareApplication.instance().closeUserSession()
         val controller = buildDispatchActivity()
         val login = ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
@@ -197,7 +204,8 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
         TestAppInstaller.login(TEST_USER, TEST_PASSWORD)
         deliverResult(controller, login, Activity.RESULT_OK, Intent())
 
-        ActivityAssertions.assertStartedForResult(controller.get(), StandardHomeActivity::class.java)
+        val home = ActivityAssertions.assertStarted(controller.get(), StandardHomeActivity::class.java)
+        assertOpensAsTaskRoot(controller.get(), home)
     }
 
     @Test
@@ -214,6 +222,121 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
         deliverResult(controller, recovery, Activity.RESULT_OK)
 
         ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
+    }
+
+    @Test
+    fun `a launch above other screens restarts routing as the only screen in the task`() {
+        val logoutIntent =
+            Intent()
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true)
+        val controller = Robolectric.buildActivity(DispatchActivity::class.java, logoutIntent)
+        Shadows.shadowOf(controller.get()).setIsTaskRoot(false)
+
+        val dispatchActivity = controller.create().get()
+
+        val restart = ActivityAssertions.assertStarted(dispatchActivity, DispatchActivity::class.java)
+        assertTrue(restart.getBooleanExtra(LoginActivity.USER_TRIGGERED_LOGOUT, false))
+        assertEquals(0, restart.flags and Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        assertOpensAsTaskRoot(dispatchActivity, restart)
+    }
+
+    @Test
+    fun `a launch above a form in progress asks the form to save or discard before restarting`() {
+        setFormEntryInProgress(true)
+
+        val dispatchActivity = buildStackedDispatchActivity().create().get()
+
+        val formEntryIntent = ActivityAssertions.assertStarted(dispatchActivity, FormEntryActivity::class.java)
+        val pendingRestartIntent = getPendingNavIntent(formEntryIntent)
+        assertEquals(DispatchActivity::class.java.name, pendingRestartIntent.component?.className)
+        assertEquals(
+            AnalyticsParamValue.EXTERNAL_LAUNCH,
+            formEntryIntent.getStringExtra(FormEntryActivity.EXTRA_PENDING_NAV_SOURCE),
+        )
+        assertOpensAsTaskRoot(dispatchActivity, pendingRestartIntent)
+    }
+
+    @Test
+    fun `a launch above a form whose session ended restarts routing without asking the form`() {
+        setFormEntryInProgress(true)
+        CommCareApplication.instance().closeUserSession()
+
+        val dispatchActivity = buildStackedDispatchActivity().create().get()
+
+        val restartIntent = ActivityAssertions.assertStarted(dispatchActivity, DispatchActivity::class.java)
+        assertOpensAsTaskRoot(dispatchActivity, restartIntent)
+    }
+
+    @Test
+    fun `a launch above another app waiting for its result routes in place`() {
+        CommCareApplication.instance().closeUserSession()
+        val controller = Robolectric.buildActivity(DispatchActivity::class.java, Intent())
+        Shadows.shadowOf(controller.get()).setIsTaskRoot(false)
+        Shadows.shadowOf(controller.get()).setCallingActivity(ComponentName("org.example.caller", "CallerActivity"))
+
+        val dispatchActivity = controller.create().resume().get()
+        ShadowLooper.idleMainLooper()
+
+        ActivityAssertions.assertStartedForResult(dispatchActivity, LoginActivity::class.java)
+        assertFalse(dispatchActivity.isFinishing)
+    }
+
+    @Test
+    fun `signing in on CommCare Login to view an opportunity opens its home as the only screen in the task`() {
+        ConnectTestUtils.seatJob(ConnectTestUtils.connectJob())
+        CommCareApplication.instance().closeUserSession()
+        val controller = buildDispatchActivity(buildUnlockDeclinedIntent())
+        val login = ActivityAssertions.assertStartedForResult(controller.get(), LoginActivity::class.java)
+        ActivityAssertions.startedIntents(controller.get())
+
+        TestAppInstaller.login(TEST_USER, TEST_PASSWORD)
+        val redirectResult = Intent().putExtra(DispatchActivity.REDIRECT_TO_CONNECT_OPPORTUNITY_INFO, true)
+        deliverResult(controller, login, Activity.RESULT_OK, redirectResult)
+
+        val connect = ActivityAssertions.assertStarted(controller.get(), ConnectActivity::class.java)
+        assertTrue(connect.getBooleanExtra(ConnectConstants.GO_TO_JOB_STATUS, false))
+        assertEquals(ConnectTestUtils.JOB_UUID, connect.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        assertOpensAsTaskRoot(controller.get(), connect)
+    }
+
+    @Test
+    fun `an invite link opens the invited opportunity above the Opportunity List without the router beneath`() {
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
+        val inviteUri = Uri.parse("https://${BuildConfig.CCC_HOST}/users/invite_redirect/invited-job-uuid")
+
+        val dispatchActivity = buildDispatchActivity(Intent(Intent.ACTION_VIEW, inviteUri)).get()
+
+        val (opportunityListIntent, invitedIntent) =
+            ActivityAssertions.assertTwoScreenTask(ActivityAssertions.startedIntents(dispatchActivity))
+        assertEquals(ConnectActivity::class.java.name, opportunityListIntent.component?.className)
+        assertFalse(opportunityListIntent.hasExtra(ConnectConstants.REDIRECT_ACTION))
+        assertOpensAsTaskRoot(dispatchActivity, opportunityListIntent)
+        assertEquals(ConnectActivity::class.java.name, invitedIntent.component?.className)
+        assertEquals("invited-job-uuid", invitedIntent.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        assertTrue(invitedIntent.getBooleanExtra(ConnectConstants.FROM_SMS_INVITE_LINK, false))
+        assertTrue(invitedIntent.getBooleanExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, false))
+    }
+
+    @Test
+    fun `a tray notification for a new opportunity opens it above the Opportunity List without the router beneath`() {
+        every { FirebaseAnalyticsUtil.reportNotificationEvent(any(), any(), any(), any()) } returns Unit
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
+        val notificationIntent =
+            Intent()
+                .putExtra(ConnectConstants.REDIRECT_ACTION, ConnectConstants.CCC_DEST_DELIVERY_PROGRESS)
+                .putExtra(ConnectConstants.OPPORTUNITY_UUID, "new-job-uuid")
+
+        val dispatchActivity = buildDispatchActivity(notificationIntent).get()
+
+        val (opportunityListIntent, targetIntent) =
+            ActivityAssertions.assertTwoScreenTask(ActivityAssertions.startedIntents(dispatchActivity))
+        assertEquals(ConnectActivity::class.java.name, opportunityListIntent.component?.className)
+        assertFalse(opportunityListIntent.hasExtra(ConnectConstants.REDIRECT_ACTION))
+        assertOpensAsTaskRoot(dispatchActivity, opportunityListIntent)
+        assertEquals(ConnectActivity::class.java.name, targetIntent.component?.className)
+        assertEquals("new-job-uuid", targetIntent.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
+        assertTrue(targetIntent.getBooleanExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, false))
     }
 
     private fun deliverResult(
@@ -235,10 +358,44 @@ class DispatchActivityLandingTest : BaseHomeScreenActivityTest() {
             .resume()
             .also { ShadowLooper.idleMainLooper() }
 
+    /** Routes first to the pending backup code screen, which leaves the router open beneath it. */
+    private fun buildDispatchActivityAfterPendingBackupCode(): ActivityController<DispatchActivity> {
+        ConnectTestUtils.signInToPersonalId()
+        PersonalIdUserPreferences.setPendingBackupCode(true)
+        val controller = buildDispatchActivity()
+        ActivityAssertions.startedIntents(controller.get())
+        return controller
+    }
+
+    private fun buildStackedDispatchActivity(): ActivityController<DispatchActivity> {
+        val controller = Robolectric.buildActivity(DispatchActivity::class.java, Intent())
+        Shadows.shadowOf(controller.get()).setIsTaskRoot(false)
+        return controller
+    }
+
+    private fun setFormEntryInProgress(inProgress: Boolean) {
+        ReflectionHelpers.setStaticField(FormEntryActivity::class.java, "isFormEntryActive", inProgress)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun getPendingNavIntent(formEntry: Intent): Intent =
+        formEntry.getParcelableExtra<Intent>(FormEntryActivity.EXTRA_PENDING_NAV_INTENT)!!
+
+    private fun buildUnlockDeclinedIntent(): Intent = Intent().putExtra(DispatchActivity.EXTRA_PERSONAL_ID_UNLOCK_DECLINED, true)
+
     private fun assertStartedOpportunityHome(dispatchActivity: DispatchActivity) {
-        val connect = ActivityAssertions.assertStartedForResult(dispatchActivity, ConnectActivity::class.java)
+        val connect = ActivityAssertions.assertStarted(dispatchActivity, ConnectActivity::class.java)
         assertTrue(connect.getBooleanExtra(ConnectConstants.FROM_STARTUP_ROUTING, false))
         assertEquals(ConnectTestUtils.JOB_UUID, connect.getStringExtra(ConnectConstants.OPPORTUNITY_UUID))
-        assertFalse(dispatchActivity.isFinishing)
+        assertOpensAsTaskRoot(dispatchActivity, connect)
+    }
+
+    private fun assertOpensAsTaskRoot(
+        dispatchActivity: DispatchActivity,
+        landing: Intent,
+    ) {
+        val taskRootFlags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        assertEquals(taskRootFlags, landing.flags and taskRootFlags)
+        assertTrue(dispatchActivity.isFinishing)
     }
 }

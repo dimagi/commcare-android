@@ -14,6 +14,8 @@ import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -26,6 +28,11 @@ import org.javarosa.core.services.Logger;
 public class FirebaseAuthService implements OtpAuthService {
 
     private static final String ERROR_SESSION_EXPIRED = "ERROR_SESSION_EXPIRED";
+    @VisibleForTesting
+    static final String ERROR_NO_VERIFICATION_ID = "NO_VERIFICATION_ID";
+    @VisibleForTesting
+    static final int MAX_ERROR_CODE_LENGTH = 100;
+    private static final Pattern BRACKETED_CODE = Pattern.compile("\\[\\s*([^\\[\\]]*?)\\s*]");
 
     private final FirebaseAuth firebaseAuth;
     private final OtpVerificationCallback callback;
@@ -76,7 +83,8 @@ public class FirebaseAuthService implements OtpAuthService {
     @Override
     public void verifyOtp(@NonNull String code) {
         if (verificationId == null) {
-            callback.onFailure(OtpErrorType.GENERIC_ERROR, "Please request OTP again.");
+            callback.onFailure(OtpErrorType.GENERIC_ERROR, "Please request OTP again.",
+                    ERROR_NO_VERIFICATION_ID);
             return;
         }
 
@@ -145,12 +153,49 @@ public class FirebaseAuthService implements OtpAuthService {
         return OtpErrorType.GENERIC_ERROR;
     }
 
+    /**
+     * The Firebase error code behind a failure, for analytics, cut to GA4's 100-character limit:
+     * a {@link FirebaseAuthException}'s own code; for an unclassified failure, the backend code
+     * Firebase puts in brackets at the end of its message; otherwise the exception's class name.
+     */
+    @VisibleForTesting
+    static String errorCodeFrom(Exception e) {
+        if (e == null) {
+            return null;
+        }
+        String code;
+        if (e instanceof FirebaseAuthException) {
+            code = ((FirebaseAuthException) e).getErrorCode();
+        } else {
+            code = errorTypeFrom(e) == OtpErrorType.GENERIC_ERROR ? bracketedCodeFrom(e.getMessage()) : null;
+            if (code == null) {
+                code = e.getClass().getSimpleName();
+            }
+            if (code.isEmpty()) {
+                code = e.getClass().getName();
+            }
+        }
+        return code.length() > MAX_ERROR_CODE_LENGTH ? code.substring(0, MAX_ERROR_CODE_LENGTH) : code;
+    }
+
+    private static String bracketedCodeFrom(String message) {
+        if (message == null) {
+            return null;
+        }
+        String code = null;
+        Matcher matcher = BRACKETED_CODE.matcher(message);
+        while (matcher.find()) {
+            code = matcher.group(1);
+        }
+        return code == null || code.isEmpty() ? null : code;
+    }
+
     private void handleFirebaseException(Exception e) {
         OtpErrorType errorType = errorTypeFrom(e);
         String message = errorType == OtpErrorType.GENERIC_ERROR
                 ? (e != null ? e.getMessage() : "OTP verification failed")
                 : null;
-        callback.onFailure(errorType, message);
+        callback.onFailure(errorType, message, errorCodeFrom(e));
         if (e != null) {
             Logger.exception("Firebase OTP verification error", e);
         }

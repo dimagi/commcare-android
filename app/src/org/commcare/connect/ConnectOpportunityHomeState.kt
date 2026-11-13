@@ -21,6 +21,10 @@ enum class ConnectOpportunityHomeState {
                 else -> resolveUnrecognised(jobStatus)
             }
 
+        /** Whether Opportunity Home shows [job]'s intro. */
+        @JvmStatic
+        fun isIntro(job: ConnectJobRecord): Boolean = resolve(job.status) == JOB_INTRO
+
         private fun resolveUnrecognised(jobStatus: Int): ConnectOpportunityHomeState {
             Logger.exception(
                 "Opportunity Home resolved an unrecognised job status",

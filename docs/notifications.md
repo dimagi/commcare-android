@@ -81,6 +81,8 @@ sequenceDiagram
     participant SystemUI
     participant PushNotificationActivity
     participant DispatchActivity
+    participant PushNotificationLaunchActivity
+    participant FormEntryActivity
     participant FirebaseMessagingUtil
     participant TargetActivity
 
@@ -90,10 +92,15 @@ sequenceDiagram
         DispatchActivity->>FirebaseMessagingUtil: getIntentForPNIfAny(intent)
         FirebaseMessagingUtil->>FirebaseMessagingUtil: handleNotification(data)
         FirebaseMessagingUtil-->>DispatchActivity: returns target Intent
-        DispatchActivity->>TargetActivity: startActivity(targetIntent)
+        DispatchActivity->>TargetActivity: startActivities(NotificationTaskStack.build(targetIntent))
     else Click from Device Tray with PendingIntent
         User->>SystemUI: Clicks Notification
-        SystemUI->>TargetActivity: startActivity(pendingIntent)
+        SystemUI->>PushNotificationLaunchActivity: startActivity(pendingIntent)
+        alt Form in progress
+            PushNotificationLaunchActivity->>FormEntryActivity: save or discard, then startActivity(targetIntent)
+        else No form in progress
+            PushNotificationLaunchActivity->>TargetActivity: startActivities(NotificationTaskStack.build(targetIntent))
+        end
     else Click from Notification History
         User->>PushNotificationActivity: Clicks Notification Item
         PushNotificationActivity->>FirebaseMessagingUtil: getIntentForPNClick(notificationRecord)
@@ -102,6 +109,8 @@ sequenceDiagram
         PushNotificationActivity->>TargetActivity: startActivity(targetIntent)
     end
 ```
+
+A tray tap opens its target in a new task with the user's home beneath when needed; see the back path in [App Navigation](commcare/app-navigation.md).
 
 ## Key Classes
 
