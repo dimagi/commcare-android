@@ -5,6 +5,7 @@ import android.widget.AdapterView
 import android.widget.Toast
 import org.commcare.activities.CommCarePreferenceActivity
 import org.commcare.activities.FormRecordListActivity
+import org.commcare.activities.ReportProblemActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
 import org.commcare.android.database.user.models.FormRecord
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -55,8 +56,8 @@ class HomeActionsDelegate(
         host.startActivityForResult(intent, HomeRequestCodes.GET_INCOMPLETE_FORM)
     }
 
-    /** Always true: the language stays on offer to every user, demo users included. */
-    fun canChangeLanguage(): Boolean = true
+    /** Demo users keep the language even though other app actions are withheld from them. */
+    fun canChangeLanguage(): Boolean = host.isDemoUser() || host.areAppActionsAvailable()
 
     fun changeLanguage() {
         val dialog = PaneledChoiceDialog(host.hostContext, Localization.get("home.menu.locale.select"))
@@ -117,6 +118,11 @@ class HomeActionsDelegate(
     fun canUpdateCommCare(): Boolean = host.areAppActionsAvailable() && appUpdate.showCommCareUpdateMenu
 
     fun updateCommCare() = appUpdate.startCommCareUpdate()
+
+    /** Unless the app hides issue reports. */
+    fun canReportProblem(): Boolean = host.areAppActionsAvailable() && !DeveloperPreferences.shouldHideReportIssue()
+
+    fun reportProblem() = host.startActivity(Intent(host.hostContext, ReportProblemActivity::class.java))
 
     /**
      * Handle the results of the Settings and Advanced Actions screens.

@@ -37,6 +37,7 @@ import org.commcare.connect.ConnectDialogCoordinator;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.MessageManager;
+import org.commcare.connect.OpportunityHomeAppActionsMenu;
 import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.NotificationRecordDatabaseHelper;
@@ -75,6 +76,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     private Map<Integer, String> menuIdToAnalyticsParam;
 
     private final HomeActivityCoordinator coordinator = HomeActivityCoordinator.forSessionlessHost(this);
+    private final OpportunityHomeAppActionsMenu appActionsMenu =
+            new OpportunityHomeAppActionsMenu(coordinator.getActions());
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,6 +113,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
             Bundle startArgs = new Bundle();
             graph.setStartDestination(getStartDestinationId(startArgs));
             navController.setGraph(graph, startArgs);
+            navController.addOnDestinationChangedListener(
+                    (controller, destination, arguments) -> invalidateOptionsMenu());
 
             retrieveMessages();
         }else{
@@ -218,6 +223,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         notificationsMenuItem = menu.findItem(R.id.action_bell);
         updateNotificationIcon();
 
+        appActionsMenu.inflate(menu, getMenuInflater());
+
         menuIdToAnalyticsParam = createMenuItemToAnalyticsParamMapping();
         return super.onCreateOptionsMenu(menu);
     }
@@ -231,7 +238,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
+        appActionsMenu.prepare(menu, backButtonAndActionBarEnabled && isShowingOpportunityHome());
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean isShowingOpportunityHome() {
+        return navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == R.id.connect_opportunity_home_fragment;
     }
 
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
@@ -257,8 +270,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(),
-                menuIdToAnalyticsParam.get(item.getItemId()));
+        String analyticsParam = menuIdToAnalyticsParam.get(item.getItemId());
+        if (analyticsParam == null) {
+            analyticsParam = appActionsMenu.analyticsParam(item.getItemId());
+        }
+        FirebaseAnalyticsUtil.reportOptionsMenuItemClick(this.getClass(), analyticsParam);
+        if (appActionsMenu.onItemSelected(item.getItemId())) {
+            return true;
+        }
         if (item.getItemId() == R.id.action_bell) {
             updateNotificationIcon();
             ConnectNavHelper.goToNotification(this);
@@ -274,6 +293,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (coordinator.onAppActionResult(requestCode, resultCode, intent)) {
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     @Override

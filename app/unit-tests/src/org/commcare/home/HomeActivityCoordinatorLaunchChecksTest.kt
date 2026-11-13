@@ -162,9 +162,10 @@ class HomeActivityCoordinatorLaunchChecksTest {
     // region action availability
 
     @Test
-    fun `withheld actions leave only the language available`() {
+    fun `a demo user keeps only the language`() {
         setOfferPinForLogin(true)
         demoteCommCareUpdateToAction()
+        host.demoUser = true
         host.actionsAvailable = false
 
         assertFalse(coordinator.actions.canViewSavedForms())
@@ -175,6 +176,13 @@ class HomeActivityCoordinatorLaunchChecksTest {
         assertFalse(coordinator.actions.canSetPin())
         assertFalse(coordinator.actions.canUpdateCommCare())
         assertTrue(coordinator.actions.canChangeLanguage())
+    }
+
+    @Test
+    fun `withheld actions take the language with them for other users`() {
+        host.actionsAvailable = false
+
+        assertFalse(coordinator.actions.canChangeLanguage())
     }
 
     @Test

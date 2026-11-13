@@ -120,6 +120,18 @@ class HomeActivityCoordinator(
     }
 
     /**
+     * Route the result of a screen opened from the app actions menu, for a host that doesn't run
+     * session navigation.
+     *
+     * @return true when the result belonged to an app action
+     */
+    fun onAppActionResult(
+        requestCode: Int,
+        resultCode: Int,
+        intent: Intent?,
+    ): Boolean = appUpdate.onActivityResult(requestCode, resultCode) || actions.onActivityResult(requestCode, resultCode, intent)
+
+    /**
      * The host resumed with a live session. Unless a launch step or a returning result already
      * moved the user on, show home, or whatever app-health action is pending, then run any sync
      * that waited for form entry to finish.

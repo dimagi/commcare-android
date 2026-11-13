@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Looper
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.fragment.NavHostFragment
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
@@ -13,11 +14,14 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
+import org.commcare.activities.ReportProblemActivity
+import org.commcare.activities.SessionAwarePreferenceActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectAppUtils
@@ -27,11 +31,17 @@ import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.home.HomeRequestCodes
+import org.commcare.home.HomeResultCodes
+import org.commcare.preferences.AdvancedActionsPreferences
 import org.commcare.rules.MainCoroutineRule
 import org.commcare.tasks.DataPullTask
 import org.commcare.utils.SessionRegistrationHelper
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -45,6 +55,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
+import org.robolectric.shadows.ShadowToast
 
 /**
  * [ConnectActivity] as a home host: it keeps a coordinator whether or not a user session is live,
@@ -68,6 +79,7 @@ class ConnectActivityHomeHostTest {
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
+        every { FirebaseAnalyticsUtil.reportOptionsMenuItemClick(any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
             object : NavController.OnDestinationChangedListener {
                 override fun onDestinationChanged(
@@ -144,6 +156,121 @@ class ConnectActivityHomeHostTest {
         assertNull(activity.generateProgressDialog(NON_SYNC_TASK_ID))
     }
 
+    @Test
+    fun `the app actions menu is hidden without a user session`() {
+        val activity = launchConnect()
+
+        APP_ACTION_ITEMS.forEach { assertFalse(isMenuItemVisible(activity, it)) }
+    }
+
+    @Test
+    fun `the app actions menu shows localized titles while a user is logged in`() {
+        logIn()
+
+        val activity = launchConnect()
+
+        APP_ACTION_ITEMS.minus(R.id.action_update_commcare).forEach { assertTrue(isMenuItemVisible(activity, it)) }
+        assertEquals("Report an Issue", menuItem(activity, R.id.action_report_problem).title.toString())
+        assertEquals("Settings", menuItem(activity, R.id.action_preferences).title.toString())
+    }
+
+    @Test
+    fun `the app actions menu leaves out reporting when the app hides it`() {
+        logIn()
+        CommCareApplication
+            .instance()
+            .currentApp.appPreferences
+            .edit()
+            .putString("cc-hide-issue-report", "yes")
+            .commit()
+
+        val activity = launchConnect()
+
+        assertFalse(isMenuItemVisible(activity, R.id.action_report_problem))
+        assertTrue(isMenuItemVisible(activity, R.id.action_preferences))
+    }
+
+    @Test
+    fun `the app actions menu is only on Opportunity Home`() {
+        logIn()
+        val activity = launchConnect()
+
+        val navHost = activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
+        navHost.navController.navigate(R.id.connect_jobs_list_fragment)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        APP_ACTION_ITEMS.forEach { assertFalse(isMenuItemVisible(activity, it)) }
+    }
+
+    @Test
+    fun `reporting an issue opens the report screen and logs the menu click`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+
+        activity.onOptionsItemSelected(menuItem(activity, R.id.action_report_problem))
+
+        assertEquals(
+            ReportProblemActivity::class.java.name,
+            shadowOf(activity).nextStartedActivity.component?.className,
+        )
+        verify { FirebaseAnalyticsUtil.reportOptionsMenuItemClick(ConnectActivity::class.java, AnalyticsParamValue.REPORT_PROBLEM) }
+    }
+
+    @Test
+    fun `a data reset from settings closes the page`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+
+        activity.onOptionsItemSelected(menuItem(activity, R.id.action_preferences))
+        val settings = shadowOf(activity).nextStartedActivityForResult
+
+        assertEquals(SessionAwarePreferenceActivity::class.java.name, settings.intent.component?.className)
+        assertEquals(HomeRequestCodes.PREFERENCES_ACTIVITY, settings.requestCode)
+        verify { FirebaseAnalyticsUtil.reportOptionsMenuItemClick(ConnectActivity::class.java, AnalyticsParamValue.ITEM_SETTINGS) }
+        shadowOf(activity).receiveResult(settings.intent, HomeResultCodes.RESULT_DATA_RESET, null)
+        assertTrue(activity.isFinishing)
+    }
+
+    @Test
+    fun `forms processed in advanced actions are reported in a toast`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+
+        activity.onOptionsItemSelected(menuItem(activity, R.id.action_advanced))
+        val advanced = shadowOf(activity).nextStartedActivityForResult
+        val result =
+            Intent()
+                .putExtra(AdvancedActionsPreferences.FORM_PROCESS_COUNT_KEY, 3)
+                .putExtra(AdvancedActionsPreferences.FORM_PROCESS_MESSAGE_KEY, "home.menu.advanced")
+
+        assertEquals(HomeRequestCodes.ADVANCED_ACTIONS_ACTIVITY, advanced.requestCode)
+        shadowOf(activity).receiveResult(advanced.intent, HomeResultCodes.RESULT_FORMS_PROCESSED, result)
+        assertEquals("Advanced", ShadowToast.getTextOfLatestToast())
+        assertFalse(activity.isFinishing)
+    }
+
+    private fun launchLoggedInConnect(): ConnectActivity {
+        val activity = launchConnect()
+        while (shadowOf(activity).nextStartedActivity != null) {
+            continue
+        }
+        return activity
+    }
+
+    private fun menuItem(
+        activity: ConnectActivity,
+        id: Int,
+    ) = shadowOf(activity).optionsMenu.findItem(id)
+
+    private fun isMenuItemVisible(
+        activity: ConnectActivity,
+        id: Int,
+    ): Boolean {
+        activity.invalidateOptionsMenu()
+        shadowOf(Looper.getMainLooper()).idle()
+        return menuItem(activity, id).isVisible
+    }
+
     private fun launchConnect(): ConnectActivity {
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), ConnectActivity::class.java).apply {
@@ -174,5 +301,14 @@ class ConnectActivityHomeHostTest {
         const val TEST_USER = "test"
         const val TEST_PASSWORD = "123"
         const val NON_SYNC_TASK_ID = -1
+        val APP_ACTION_ITEMS =
+            listOf(
+                R.id.action_report_problem,
+                R.id.action_update,
+                R.id.action_update_commcare,
+                R.id.action_change_language,
+                R.id.action_preferences,
+                R.id.action_advanced,
+            )
     }
 }
