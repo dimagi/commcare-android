@@ -7,18 +7,18 @@ import org.commcare.connect.messaging.ConnectMessagingAttachmentDownloadSchedule
 import org.commcare.models.database.connect.DatabaseConnectOpenHelper;
 import org.commcare.preferences.ConnectMessagingPreferences;
 
+import java.util.Iterator;
+
 public class ConnectUserDatabaseUtil {
 
     public static ConnectUserRecord getUser() {
         if (!ConnectDatabaseHelper.dbExists()) {
             return null;
         }
-        Iterable<ConnectUserRecord> records = ConnectDatabaseHelper.getConnectStorage(
-                ConnectUserRecord.class);
-        if (records.iterator().hasNext()) {
-            return records.iterator().next();
-        }
-        return null;
+        // A single iterator: SqlStorageIterator only closes its cursor once read to the end
+        Iterator<ConnectUserRecord> records = ConnectDatabaseHelper.getConnectStorage(
+                ConnectUserRecord.class).iterator();
+        return records.hasNext() ? records.next() : null;
     }
 
     public static void storeUser(ConnectUserRecord user) {
