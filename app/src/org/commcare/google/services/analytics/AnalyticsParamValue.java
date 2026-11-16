@@ -20,6 +20,11 @@ public class AnalyticsParamValue {
     public static final String EXTERNAL_LAUNCH = "external_launch";
     public static final String SWIPE = "swipe";
 
+    // Param values for navigation controls
+    public static final String APP_BAR_BACK_BUTTON_PRESS = "app_bar_back_button_press";
+    public static final String SYSTEM_NAV_BACK_BUTTON_PRESS = "system_nav_back_button_press";
+    public static final String SYSTEM_NAV_BACK_GESTURE = "system_nav_back_gesture";
+
     // Param values for options menu items
     public static final String ITEM_CONNECT_SYNC = "connect_sync";
     public static final String ITEM_NOTIFICATIONS_BELL = "notifications_bell";
