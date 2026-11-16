@@ -83,7 +83,7 @@ class ConnectActivityHomeHostTest {
     private val uuid = "opp-uuid-1234"
     private lateinit var savedStatus: PersonalIdSessionManager.PersonalIdStatus
     private lateinit var job: ConnectJobRecord
-    private lateinit var seatedApp: ConnectAppRecord
+    private lateinit var deliveryApp: ConnectAppRecord
     private lateinit var repository: ConnectRepository
 
     @Before
@@ -107,11 +107,11 @@ class ConnectActivityHomeHostTest {
         job = mockk(relaxed = true)
         every { job.status } returns ConnectJobRecord.STATUS_DELIVERING
         every { job.jobUUID } returns uuid
-        seatedApp = mockk(relaxed = true)
-        every { seatedApp.jobUUID } returns uuid
+        deliveryApp = mockk(relaxed = true)
+        every { deliveryApp.appId } answers { CommCareApplication.instance().currentApp?.uniqueId ?: "" }
+        every { job.deliveryAppInfo } returns deliveryApp
         mockkStatic(ConnectJobUtils::class)
         every { ConnectJobUtils.getCompositeJob(eq(uuid)) } returns job
-        every { ConnectJobUtils.getSeatedAppRecord() } returns seatedApp
         every { ConnectJobUtils.getPaymentsSortedByDate(any()) } returns emptyList()
 
         mockkStatic(MessageManager::class)
@@ -160,7 +160,7 @@ class ConnectActivityHomeHostTest {
     @Test
     fun `no app actions for another opp`() {
         logIn()
-        every { seatedApp.jobUUID } returns "another-opp-uuid"
+        every { deliveryApp.appId } returns "another-opp-app-id"
 
         val activity = launchConnect()
 

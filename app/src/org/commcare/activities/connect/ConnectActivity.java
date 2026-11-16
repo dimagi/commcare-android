@@ -28,6 +28,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.HomeResultDelivery;
 import org.commcare.activities.NavigationHostCommCareActivity;
@@ -555,8 +556,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     }
 
     private boolean isSeatedAppForActiveJob() {
-        ConnectAppRecord seatedApp = ConnectJobUtils.getSeatedAppRecord();
-        return job != null && seatedApp != null && job.getJobUUID().equals(seatedApp.getJobUUID());
+        if (job == null) {
+            return false;
+        }
+        String seatedAppId = CommCareApplication.instance().getCurrentApp().getUniqueId();
+        return isApp(job.getLearnAppInfo(), seatedAppId) || isApp(job.getDeliveryAppInfo(), seatedAppId);
+    }
+
+    private static boolean isApp(ConnectAppRecord appInfo, String appId) {
+        return appInfo != null && appId.equals(appInfo.getAppId());
     }
 
     /**
