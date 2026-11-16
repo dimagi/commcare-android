@@ -1,7 +1,13 @@
 package org.commcare.connect
 
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.view.View
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
 import io.mockk.every
@@ -22,6 +28,7 @@ import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.AppInstallTarget
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
 import org.commcare.dalvik.R
+import org.commcare.engine.resource.AppInstallStatus
 import org.commcare.fragments.connect.BaseConnectJobIntroTest
 import org.commcare.fragments.connect.ConnectDeliveryHomeFragment
 import org.commcare.fragments.connect.ConnectJobIntroFragment
@@ -36,6 +43,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 
@@ -314,6 +322,51 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
     }
 
     @Test
+    fun `an intro kept on screen by a failed install keeps its close icon`() {
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+        every { repository.startLearning(any()) } returns flowOf(DataState.Success(Unit))
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        openPageAtTaskBottom()
+        val introFragment = navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+        val startLearningButton = introFragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        activity.runOnUiThread { startLearningButton.performClick() }
+        ShadowLooper.idleMainLooper()
+
+        failAppInstall()
+
+        assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
+        assertSame(introFragment, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
+        assertEquals(R.drawable.ic_connect_close, shadowOf(getNavigationIcon()).createdFromResId)
+        assertEquals(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, getDrawerLockMode())
+    }
+
+    @Test
+    fun `the sidebar is locked while an install runs and unlocked once it fails`() {
+        mockkStatic(AppUtils::class)
+        every { AppUtils.isAppInstalled(any()) } returns false
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        openPageAtTaskBottom()
+        val learningProgressFragment = navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+        val downloadLearnAppButton =
+            learningProgressFragment
+                .requireView()
+                .findViewById<View>(R.id.learnProgressView)
+                .findViewById<MaterialButton>(R.id.cta_button)
+
+        activity.runOnUiThread { downloadLearnAppButton.performClick() }
+        ShadowLooper.idleMainLooper()
+        assertEquals(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, getDrawerLockMode())
+        assertEquals(0f, (getNavigationIcon() as DrawerArrowDrawable).progress)
+
+        failAppInstall()
+        assertEquals(DrawerLayout.LOCK_MODE_UNLOCKED, getDrawerLockMode())
+        assertEquals(0f, (getNavigationIcon() as DrawerArrowDrawable).progress)
+    }
+
+    @Test
     fun `an install another screen started does not keep the page from showing a surface`() {
         installViewModel().launch(AppInstallTarget("other-app", true, "other-screen"))
         job.status = ConnectJobRecord.STATUS_LEARNING
@@ -394,4 +447,18 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
     }
 
     private fun installViewModel(): ConnectAppInstallViewModel = ConnectAppInstallViewModel.of(activity)
+
+    private fun openPageAtTaskBottom() {
+        activity.runOnUiThread { activity.openOpportunityHomeAtTaskBottom() }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun failAppInstall() {
+        activity.runOnUiThread { installViewModel().failUnknown(AppInstallStatus.UnknownFailure) }
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun getNavigationIcon(): Drawable? = activity.findViewById<Toolbar>(R.id.toolbar).navigationIcon
+
+    private fun getDrawerLockMode(): Int = activity.findViewById<DrawerLayout>(R.id.drawer_layout).getDrawerLockMode(GravityCompat.START)
 }

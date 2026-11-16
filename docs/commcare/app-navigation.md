@@ -24,7 +24,7 @@ Homes (CommCare App Home and Opportunity Home) sit at the bottom of the task, so
 
 ## Sidebar sections
 
-Messaging and Work History are **sidebar sections**: screens the user moves between from the sidebar. Each drawer screen names the sidebar item it corresponds to via `BaseDrawerActivity.currentDrawerSection`, and sections also set `isSidebarSection`. Whether the sidebar appears follows `shouldShowDrawerAfterCheck`.
+Messaging, Work History, and an Opportunity List opened from the sidebar are **sidebar sections**: screens the user moves between from the sidebar. Each drawer screen names the sidebar item it corresponds to via `BaseDrawerActivity.currentDrawerSection`, and sections also set `isSidebarSection`. Whether the sidebar appears follows `shouldShowDrawerAfterCheck`. The Opportunity List and Opportunity Home show the sidebar when nothing is beneath them in `ConnectActivity`, except on an opportunity's intro; while an app install runs, the sidebar can't be opened.
 
 - **Sections replace each other.** Opening Messaging, Work History or Opportunities from a section's sidebar replaces the current section, so back returns to wherever the user was working before, not to the previous section.
 - **Tapping the open section** just closes the sidebar.
