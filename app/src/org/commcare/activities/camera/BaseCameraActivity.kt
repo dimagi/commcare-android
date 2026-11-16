@@ -69,6 +69,7 @@ abstract class BaseCameraActivity :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
+            reportAppBarBackUsed()
             onBackPressedDispatcher.onBackPressed()
             return true
         }

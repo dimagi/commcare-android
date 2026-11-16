@@ -5,8 +5,8 @@ import org.commcare.android.database.user.models.FormRecord
 import org.javarosa.xpath.XPathException
 
 /**
- * What [SessionLaunchDelegate] needs from the activity it launches form entry for, beyond the rest
- * of [HomeActivityHost].
+ * What [SessionLaunchDelegate] and [SessionNavigationDelegate] need from the activity they launch
+ * screens for, beyond the rest of [HomeActivityHost].
  */
 interface SessionLaunchHost {
     /** The intent the host was launched with, which says whether to exit once a form is done. */
@@ -15,24 +15,27 @@ interface SessionLaunchHost {
     /** The header form entry shows for a form started from the session. */
     val formEntryTitle: String?
 
-    /** Advance the session navigator to its next step. */
-    fun startNextSessionStep()
-
-    /** Like [startNextSessionStep], but steps back with an error when a fixture fails to load. */
-    fun startNextSessionStepSafe()
-
     /** Open the saved forms list, or the incomplete one, with [record] selected when given. */
     fun showFormArchive(
         incomplete: Boolean,
         record: FormRecord?,
     )
 
-    /** Finish the host with [resultCode], handing control back to whoever launched it. */
-    fun finishWithResult(resultCode: Int)
+    /** Finish the host with [resultCode] and [data], handing control back to whoever launched it. */
+    fun finishWithResult(
+        resultCode: Int,
+        data: Intent? = null,
+    )
 
-    /** Show [exception] from ending a session, then close the host. */
-    fun showXPathErrorAndExit(exception: XPathException)
+    /** Log [exception] against the app and show it, closing the host on dismissal when [shouldExit]. */
+    fun showXPathError(
+        exception: XPathException,
+        shouldExit: Boolean,
+    )
 
-    /** Form entry is about to start, so the host holds off background syncs until it next resumes. */
-    fun onFormEntryLaunching()
+    /** Show an error dialog, closing the host on dismissal when [shouldExit]. */
+    fun showErrorDialog(
+        message: String,
+        shouldExit: Boolean,
+    )
 }

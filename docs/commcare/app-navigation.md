@@ -30,3 +30,7 @@ Messaging and Work History are **sidebar sections**: screens the user moves betw
 - **Tapping the open section** just closes the sidebar.
 - **CommCare Apps** from a section or Home takes the user to the Login page as the only screen in the task. If they're logged in to an app, they're asked to confirm the logout first.
 - **Screens nested inside a section**, like a Messaging chat, show back instead of the sidebar, and the sidebar can't be swiped open there.
+
+## Analytics
+
+Back presses on screens extending `CommonBaseActivity` log `nav_control_used` with the screen and which control was used: the app-bar arrow, the system back button, or the system back gesture. Gesture and button are told apart by the device's navigation mode, since both reach the app as the same back key.

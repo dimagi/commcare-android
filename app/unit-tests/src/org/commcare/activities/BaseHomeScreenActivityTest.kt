@@ -137,7 +137,7 @@ abstract class BaseHomeScreenActivityTest {
     /** Swap in a syncer that records instead of hitting the network. */
     protected fun injectFakeSyncer(home: StandardHomeActivity) {
         fakeSyncer = FormAndDataSyncerFake()
-        home.setFormAndDataSyncer(fakeSyncer)
+        home.coordinator.sync.setFormAndDataSyncer(fakeSyncer)
     }
 
     protected fun shadowOf(activity: StandardHomeActivity): ShadowActivity = Shadows.shadowOf(activity)

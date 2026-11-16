@@ -12,6 +12,7 @@ import org.commcare.android.util.runTeardownSteps
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
 import org.commcare.utils.BiometricsHelper
+import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
 import org.mockito.Mock

@@ -20,6 +20,11 @@ public class AnalyticsParamValue {
     public static final String EXTERNAL_LAUNCH = "external_launch";
     public static final String SWIPE = "swipe";
 
+    // Param values for navigation controls
+    public static final String APP_BAR_BACK_BUTTON_PRESS = "app_bar_back_button_press";
+    public static final String SYSTEM_NAV_BACK_BUTTON_PRESS = "system_nav_back_button_press";
+    public static final String SYSTEM_NAV_BACK_GESTURE = "system_nav_back_gesture";
+
     // Param values for options menu items
     public static final String ITEM_CONNECT_SYNC = "connect_sync";
     public static final String ITEM_NOTIFICATIONS_BELL = "notifications_bell";
@@ -205,6 +210,7 @@ public class AnalyticsParamValue {
             "start_configuration_integrity_check_failure";
     public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE =
             "start_configuration_locked_account_failure";
+    public static final String REGISTRATION_INELIGIBLE_FAILURE = "registration_ineligible_failure";
     public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";
     public static final String MIN_BIOMETRIC_HARDWARE_ABSENT = "min_biometric_hardware_absent";
     public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE =
