@@ -368,14 +368,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         super.onBackPressed();
     }
 
-    /** Whether Opportunity Home is showing with nothing beneath it in the task. */
-    public boolean isOpportunityHomeAtTaskBottom() {
-        return isTaskRoot()
-                && navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.connect_opportunity_home_fragment
-                && navController.getPreviousBackStackEntry() == null;
-    }
-
     /** Shows the active job's Opportunity Home as the only screen in the task. */
     public void openOpportunityHomeAtTaskBottom() {
         if (isTaskRoot()) {
