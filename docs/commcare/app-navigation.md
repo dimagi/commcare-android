@@ -20,6 +20,7 @@ Homes (CommCare App Home and Opportunity Home) sit at the bottom of the task, so
 - **Returning to routing.** App Home at the bottom of the task or asking for recovery measures with no caller waiting, a declined startup unlock, and session expiry relaunch `DispatchActivity` in a cleared task instead of returning a result to it. So does an external launch above other screens, after the user saves or discards any form in progress.
 - **Opportunity Home from the list** becomes the bottom of the task, unless it shows an intro, which opens on top of the list.
 - **Signing into an app** from an Opportunity Home with screens beneath it reopens that Opportunity Home in a new task, with App Home on top.
+- **Notifications and invite links** open in a new cleared task built by `NotificationTaskStack`. A Messaging chat opens above the channel list, and it and an opportunity showing its intro get the Connect home beneath them: the last accessed opportunity's Opportunity Home, else the Opportunity List. Any other target is the only screen. A declined unlock on these paths re-runs routing, like at startup.
 
 ## Sidebar sections
 

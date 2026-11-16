@@ -93,7 +93,7 @@ class ConnectActivityHomeHostTest {
         manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
 
         mockkStatic(FirebaseAnalyticsUtil::class)
-        every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
+        every { FirebaseAnalyticsUtil.reportConnectTabChange(any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.reportOptionsMenuItemClick(any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
             object : NavController.OnDestinationChangedListener {

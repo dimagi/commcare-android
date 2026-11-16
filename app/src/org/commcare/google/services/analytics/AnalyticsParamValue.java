@@ -110,6 +110,14 @@ public class AnalyticsParamValue {
     public static final String SYNC_SUBTEXT = "sync_subtext";
     public static final String REPORT_BUTTON = "report_an_issue";
     public static final String CONNECT_BUTTON = "connect_info";
+    public static final String CONNECT_SYNC_CARD = "connect_sync_card";
+    public static final String CONNECT_TASK_CARD = "connect_task_card";
+
+    // Param values for Connect delivery home tabs
+    public static final String CONNECT_TAB_DASHBOARD = "dashboard";
+    public static final String CONNECT_TAB_PAYMENT = "payment";
+    public static final String CONNECT_TAB_VISITS = "visits";
+    public static final String CONNECT_TAB_MORE = "more";
 
     // Param values for form types
     public static final String INCOMPLETE = "incomplete";
@@ -154,6 +162,10 @@ public class AnalyticsParamValue {
     public static final String UPDATE_RESET = "update_reset";
     public static final String CORRUPT_APP_STATE = "corrupt_app_state";
     public static final String RSA_KEYSTORE_KEY_RETRIEVAL = "rsa_keystore_key_retrieval";
+    public static final String SESSION_END = "session_end";
+
+    public static final String SESSION_END_REASON_LOGOUT = "logout";
+    public static final String SESSION_END_REASON_EXPIRY = "expiry";
 
     public static final String UPDATE_RESET_REASON_CORRUPT = "update_corrupt";
     public static final String UPDATE_RESET_REASON_TIMEOUT = "update_timeout";
@@ -193,6 +205,7 @@ public class AnalyticsParamValue {
             "start_configuration_integrity_check_failure";
     public static final String START_CONFIGURATION_LOCKED_ACCOUNT_FAILURE =
             "start_configuration_locked_account_failure";
+    public static final String REGISTRATION_INELIGIBLE_FAILURE = "registration_ineligible_failure";
     public static final String BIOMETRIC_ENROLLMENT_FAILED = "biometric_enrollment_failed";
     public static final String MIN_BIOMETRIC_HARDWARE_ABSENT = "min_biometric_hardware_absent";
     public static final String MIN_BIOMETRIC_HARDWARE_UNAVAILABLE =
