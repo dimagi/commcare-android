@@ -44,7 +44,7 @@ class SessionLaunchDelegateTest {
         delegate.startForm(state)
 
         val (intent, requestCode) = host.startedForResult.single()
-        assertEquals(SessionLaunchDelegate.FORM_ENTRY_REQUEST_CODE, requestCode)
+        assertEquals(HomeRequestCodes.MODEL_RESULT, requestCode)
         assertEquals(FormEntryActivity::class.java.name, intent.component!!.className)
         assertEquals(
             CommCareApplication.instance().commCarePlatform.getFormDefId(state.formRecord.formNamespace),

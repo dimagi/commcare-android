@@ -10,6 +10,13 @@ For non-invisible changes, describe the user-facing effects.
 - Describe the rationale and design decisions.
 -->
 
+## Documentation
+<!--
+Required for user-facing changes. Link the Confluence pages to update
+when the app release containing this change goes out. Include pages linked on the ticket that
+turned out not to need changes. Write "None" if no Confluence page is affected.
+-->
+
 ## Safety Assurance
 
 ### Safety story

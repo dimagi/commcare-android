@@ -7,6 +7,7 @@ import org.commcare.CommCareApplication
 import org.commcare.android.util.ActivityAssertions.assertStartedForResult
 import org.commcare.android.util.ActivityAssertions.assertStartedNothing
 import org.commcare.android.util.ActivityAssertions.startedIntents
+import org.commcare.home.HomeRequestCodes
 import org.commcare.session.SessionFrame
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertNotNull
@@ -32,7 +33,7 @@ class HomeSessionNavigationTest : BaseHomeScreenActivityTest() {
         val callout = calloutToRootMenu(home)
 
         home.onActivityResultSessionSafe(
-            HomeScreenBaseActivity.GET_COMMAND,
+            HomeRequestCodes.GET_COMMAND,
             RESULT_OK,
             chose(FORM_COMMAND, callout),
         )
@@ -45,7 +46,7 @@ class HomeSessionNavigationTest : BaseHomeScreenActivityTest() {
         val home = buildVisibleHome()
         calloutToRootMenu(home)
 
-        home.onActivityResultSessionSafe(HomeScreenBaseActivity.GET_COMMAND, RESULT_CANCELED, Intent())
+        home.onActivityResultSessionSafe(HomeRequestCodes.GET_COMMAND, RESULT_CANCELED, Intent())
 
         assertStartedNothing(home)
         assertNull("stepping back from the root menu should clear the command", currentCommand())
@@ -59,7 +60,7 @@ class HomeSessionNavigationTest : BaseHomeScreenActivityTest() {
         calloutToRootMenu(home)
 
         val stale = chose(FORM_COMMAND, Intent().putExtra(PENDING_SESSION_DATA, SessionFrame.STATE_DATUM_VAL))
-        home.onActivityResultSessionSafe(HomeScreenBaseActivity.GET_COMMAND, RESULT_OK, stale)
+        home.onActivityResultSessionSafe(HomeRequestCodes.GET_COMMAND, RESULT_OK, stale)
 
         assertStartedNothing(home)
         assertNull("a stale callout must not leave the chosen command seated", currentCommand())
@@ -95,7 +96,7 @@ class HomeSessionNavigationTest : BaseHomeScreenActivityTest() {
     companion object {
         private const val FORM_COMMAND = "m0-f0"
 
-        /** Matches `HomeScreenBaseActivity.KEY_PENDING_SESSION_DATA`, which is private. */
+        /** Matches `StandardHomeActivity.KEY_PENDING_SESSION_DATA`, which is private. */
         private const val PENDING_SESSION_DATA = "pending-session-data-id"
     }
 }

@@ -1,5 +1,10 @@
 package org.commcare.activities;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+
+import org.commcare.home.HomeRequestCodes;
 import org.commcare.utils.SessionRegistrationHelper;
 
 /**
@@ -21,5 +26,20 @@ public class SessionAwarePreferenceActivity extends CommCarePreferenceActivity {
         super.onPause();
 
         SessionRegistrationHelper.unregisterSessionExpirationReceiver(this);
+    }
+
+    /**
+     * The CommCare settings screen, which reports back under {@link HomeRequestCodes#PREFERENCES_ACTIVITY}.
+     */
+    public static Intent buildCommCareSettingsIntent(Context context) {
+        return new Intent(context, SessionAwarePreferenceActivity.class)
+                .putExtra(EXTRA_PREF_TYPE, PREF_TYPE_COMMCARE);
+    }
+
+    public static void launchCommCareSettings(Activity activity) {
+        activity.startActivityForResult(
+                buildCommCareSettingsIntent(activity),
+                HomeRequestCodes.PREFERENCES_ACTIVITY
+        );
     }
 }

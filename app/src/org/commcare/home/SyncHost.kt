@@ -9,10 +9,10 @@ import org.commcare.tasks.DataPullTask.PullTaskResult
  */
 interface SyncHost {
     /**
-     * The activity sync tasks connect to, which shows their progress dialogs. Its `getReceiver()`
-     * must lead task results back to the delegate.
+     * The activity sync tasks connect to as their task connector, which shows their progress
+     * dialogs. Its `getReceiver()` must lead task results back to the delegate.
      */
-    val syncConnector: CommCareActivity<*>
+    val syncTaskActivity: CommCareActivity<*>
 
     /** Show the outcome of a finished pull or form send. */
     fun updateUiAfterDataPullOrSend(
@@ -25,6 +25,6 @@ interface SyncHost {
 
     /** Show a sync message the user should see, such as why a sync was not attempted. */
     fun displayToast(message: String) {
-        Toast.makeText(syncConnector, message, Toast.LENGTH_LONG).show()
+        Toast.makeText(syncTaskActivity, message, Toast.LENGTH_LONG).show()
     }
 }

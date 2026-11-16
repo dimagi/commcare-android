@@ -35,6 +35,7 @@ import static com.google.firebase.analytics.FirebaseAnalytics.Param.METHOD;
 import static com.google.firebase.analytics.FirebaseAnalytics.Param.VALUE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.CORRUPT_APP_STATE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.RSA_KEYSTORE_KEY_RETRIEVAL;
+import static org.commcare.google.services.analytics.AnalyticsParamValue.SESSION_END;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.STAGE_UPDATE_FAILURE;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.UPDATE_RESET;
 import static org.commcare.google.services.analytics.AnalyticsParamValue.VIDEO_USAGE_FULL;
@@ -506,6 +507,21 @@ public class FirebaseAnalyticsUtil {
         );
     }
 
+    /**
+     * Reports a user session closing, with the forms still waiting to be sent and how long the
+     * oldest of them has waited.
+     */
+    public static void reportSessionEnd(String reason, int unsentForms, long oldestUnsentAgeMinutes) {
+        Bundle b = new Bundle();
+        b.putString(FirebaseAnalytics.Param.ITEM_ID, SESSION_END);
+        b.putString(CCAnalyticsParam.REASON, reason);
+        b.putLong(FirebaseAnalytics.Param.VALUE, unsentForms);
+        if (unsentForms > 0) {
+            b.putLong(CCAnalyticsParam.TIME_IN_MINUTES, oldestUnsentAgeMinutes);
+        }
+        reportEvent(CCAnalyticsEvent.COMMON_COMMCARE_EVENT, b);
+    }
+
     public static void reportFormQuarantined(String quarantineReasonType) {
         reportEvent(
                 CCAnalyticsEvent.FORM_QUARANTINE_EVENT,
@@ -754,11 +770,12 @@ public class FirebaseAnalyticsUtil {
         reportEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
     }
 
-    public static void reportConnectTabChange(String tabName) {
+    /** Reports a tab change with its shown label and a key that stays the same in every language. */
+    public static void reportConnectTabChange(String tabName, String tabKey) {
         reportEvent(
                 CCAnalyticsEvent.CCC_TAB_CHANGE,
-                new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME},
-                new String[]{tabName}
+                new String[]{CCAnalyticsParam.PARAM_CCC_TAB_CHANGE_NAME, CCAnalyticsParam.PARAM_CCC_TAB_KEY},
+                new String[]{tabName, tabKey}
         );
     }
 
@@ -797,7 +814,8 @@ public class FirebaseAnalyticsUtil {
      * @param op             the OTP operation in flight; resolved to the event type. Logged under
      *                       {@link CCAnalyticsParam#OTP_EVENT_TYPE}.
      * @param outcome        one of {@link AnalyticsParamValue#OTP_OUTCOME_SUCCESS} /
-     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE}.
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FAILURE} /
+     *                       {@link AnalyticsParamValue#OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID}.
      * @param method         one of {@link AnalyticsParamValue#OTP_METHOD_FIREBASE} /
      *                       {@link AnalyticsParamValue#OTP_METHOD_PERSONAL_ID} /
      *                       {@link AnalyticsParamValue#OTP_METHOD_EMAIL}.
@@ -818,6 +836,22 @@ public class FirebaseAnalyticsUtil {
                                       int requestCount,
                                       int failedAttempts,
                                       String workflow) {
+        reportOtpEvent(op, outcome, method, reason, null, requestCount, failedAttempts, workflow);
+    }
+
+    /**
+     * As {@link #reportOtpEvent(OtpAnalyticsMapper.OtpOp, String, String, String, int, int, String)},
+     * plus the provider's own error code for a failure, logged under
+     * {@link CCAnalyticsParam#OTP_ERROR_CODE} and omitted when null.
+     */
+    public static void reportOtpEvent(OtpAnalyticsMapper.OtpOp op,
+                                      String outcome,
+                                      String method,
+                                      @Nullable String reason,
+                                      @Nullable String errorCode,
+                                      int requestCount,
+                                      int failedAttempts,
+                                      String workflow) {
         String eventType = OtpAnalyticsMapper.getEventType(op);
         if (eventType == null) {
             return;
@@ -828,6 +862,9 @@ public class FirebaseAnalyticsUtil {
         bundle.putString(CCAnalyticsParam.OTP_METHOD, method);
         if (reason != null) {
             bundle.putString(CCAnalyticsParam.REASON, reason);
+        }
+        if (errorCode != null) {
+            bundle.putString(CCAnalyticsParam.OTP_ERROR_CODE, errorCode);
         }
         bundle.putLong(FirebaseAnalytics.Param.VALUE, requestCount);
         bundle.putLong(CCAnalyticsParam.OTP_FAILED_ATTEMPTS, failedAttempts);

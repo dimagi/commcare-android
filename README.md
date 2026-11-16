@@ -94,6 +94,8 @@ cd commcare-android
 
 and view the results from the output file generated.
 
+On Windows, Robolectric's temp paths can exceed `MAX_PATH`; point them at a short folder by adding `test.tmpdir=C:/rtmp` to `~/.gradle/gradle.properties`.
+
 ### Run unit-tests from Android Studio
 
 Unit tests can be ran from Android Studio via an auto-configured Gradle task by right-clicking on the test folder in the file explorer and then clicking on "Run 'org.commcare.tests'".

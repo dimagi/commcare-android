@@ -302,4 +302,10 @@ public class StandardHomeActivityUIController implements CommCareActivityUIContr
         adapter.setMessagePayload(adapter.getSyncButtonPosition(), message);
         adapter.notifyItemChanged(adapter.getSyncButtonPosition());
     }
+
+    protected void clearSyncButtonMessage() {
+        if (adapter != null) {
+            adapter.clearMessagePayloads();
+        }
+    }
 }

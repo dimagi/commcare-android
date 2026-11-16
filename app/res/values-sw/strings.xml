@@ -410,6 +410,14 @@
     <string name="personalid_user_photo_update_success">Picha yako ya wasifu imesasishwa kwa mafanikio.</string>
     <string name="personalid_manage_profile"><u>Dhibiti Wasifu</u></string>
     <string name="personalid_profile_title">Wasifu</string>
+    <string name="personalid_demographic_banner_title">Kamilisha Wasifu Wako</string>
+    <string name="personalid_demographic_banner_message">Kusasisha data yako hutusaidia kuboresha uzoefu wako, na kukupa fursa bora za kazi</string>
+    <string name="personalid_demographic_banner_warning">Kazi za uwasilishaji zinaweza kukatizwa kesho, ikiwa taarifa za wasifu wako hazitasasishwa.</string>
+    <string name="personalid_demographic_banner_final">Tafadhali sasisha wasifu wako kwa kubofya kitufe cha Kamilisha Wasifu, au kufungua wasifu wako kutoka kwenye menyu, ili uendelee kufanya kazi bila kukatizwa.</string>
+    <string name="personalid_demographic_banner_remind_later">Nikumbushe Baadaye</string>
+    <string name="personalid_demographic_banner_dismiss">Ondoa</string>
+    <string name="personalid_demographic_banner_complete">Kamilisha Wasifu</string>
+    <string name="personalid_demographic_banner_snoozed">Tutakukumbusha kusasisha wasifu wako kesho</string>
     <string name="personalid_profile_edit_title">Hariri Wasifu</string>
     <string name="personalid_profile_section_personal_information">Taarifa binafsi</string>
     <string name="personalid_profile_field_name">Jina</string>

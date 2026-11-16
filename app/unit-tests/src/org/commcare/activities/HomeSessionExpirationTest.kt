@@ -5,6 +5,7 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import org.commcare.CommCareApplication
 import org.commcare.android.util.ActivityAssertions.assertStarted
+import org.commcare.home.HomeRequestCodes
 import org.commcare.utils.SessionRegistrationHelper
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -52,7 +53,7 @@ class HomeSessionExpirationTest : BaseHomeScreenActivityTest() {
         drainStartedActivities(homeScreen)
         SessionRegistrationHelper.registerSessionExpiration()
 
-        homeScreen.startActivityForResult(Intent(), HomeScreenBaseActivity.CREATE_PIN)
+        homeScreen.startActivityForResult(Intent(), HomeRequestCodes.CREATE_PIN)
         val pinRequest = shadowOf(homeScreen).nextStartedActivityForResult.intent
 
         shadowOf(homeScreen).receiveResult(pinRequest, RESULT_OK, Intent())

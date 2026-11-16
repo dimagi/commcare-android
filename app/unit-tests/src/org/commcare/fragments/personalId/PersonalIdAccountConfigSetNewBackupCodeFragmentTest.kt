@@ -9,6 +9,7 @@ import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.android.util.runTeardownSteps
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.dalvik.R
@@ -69,11 +70,13 @@ class PersonalIdAccountConfigSetNewBackupCodeFragmentTest :
 
     @After
     override fun tearDown() {
-        activityController.pause().stop().destroy()
-        PersonalIdUserPreferences.setPendingBackupCode(false)
-        unmockkObject(PersonalIdUnlocker)
-        connectUserDatabaseUtilMock.close()
-        super.tearDown()
+        runTeardownSteps(
+            { activityController.pause().stop().destroy() },
+            { PersonalIdUserPreferences.setPendingBackupCode(false) },
+            { unmockkObject(PersonalIdUnlocker) },
+            { connectUserDatabaseUtilMock.close() },
+            { super.tearDown() },
+        )
     }
 
     private fun sessionData() =

@@ -21,8 +21,8 @@ class ChannelListScreenshotTest(
     @Before
     fun seedMessaging() {
         val context = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
-        ConnectScreenshotData.channels().forEach { ConnectMessagingDatabaseHelper.storeMessagingChannel(context, it) }
-        ConnectScreenshotData.messages().forEach { ConnectMessagingDatabaseHelper.storeMessagingMessage(context, it) }
+        ConnectScreenshotData.buildChannels().forEach { ConnectMessagingDatabaseHelper.storeMessagingChannel(context, it) }
+        ConnectScreenshotData.buildMessages().forEach { ConnectMessagingDatabaseHelper.storeMessagingMessage(context, it) }
     }
 
     @Test

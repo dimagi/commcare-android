@@ -18,6 +18,7 @@ import org.commcare.core.network.HTTPMethod;
 import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.home.SyncDelegate;
+import org.commcare.home.SyncHost;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ModernHttpTask;
@@ -45,8 +46,8 @@ import okhttp3.RequestBody;
  */
 @ManagedUi(R.layout.http_request_layout)
 public class PostRequestActivity
-        extends SyncCapableCommCareActivity<PostRequestActivity>
-        implements ConnectorWithHttpResponseProcessor<PostRequestActivity>, PullTaskResultReceiver {
+        extends SessionAwareCommCareActivity<PostRequestActivity>
+        implements SyncHost, ConnectorWithHttpResponseProcessor<PostRequestActivity>, PullTaskResultReceiver {
     private static final String TAG = PostRequestActivity.class.getSimpleName();
 
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
@@ -112,9 +113,14 @@ public class PostRequestActivity
         retryButton.setOnClickListener(v -> retryPost());
     }
 
+    @NonNull
     @Override
-    protected SyncDelegate getSyncDelegate() {
-        return syncDelegate;
+    public CommCareActivity<?> getSyncTaskActivity() {
+        return this;
+    }
+
+    @Override
+    public void onPullTaskFinished(@NonNull DataPullTask.PullTaskResult result) {
     }
 
     @Override

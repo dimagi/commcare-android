@@ -71,6 +71,8 @@ abstract class BaseConnectJobIntroTest {
             }
         every { FirebaseAnalyticsUtil.reportCccApiStartLearning(any()) } returns Unit
 
+        seedConnectUser()
+
         activityController =
             Robolectric
                 .buildActivity(ConnectActivity::class.java)

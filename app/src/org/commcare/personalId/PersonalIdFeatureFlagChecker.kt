@@ -11,6 +11,7 @@ class PersonalIdFeatureFlagChecker {
     annotation class FeatureFlag {
         companion object {
             const val WORK_HISTORY_PENDING_TAB = "work_history_pending_tab"
+            const val DEMOGRAPHIC_PROMPT = "demographic_prompt"
         }
     }
 
@@ -21,6 +22,7 @@ class PersonalIdFeatureFlagChecker {
         ): Boolean =
             when (feature) {
                 FeatureFlag.WORK_HISTORY_PENDING_TAB -> false
+                FeatureFlag.DEMOGRAPHIC_PROMPT -> false
                 else -> throw IllegalStateException("Unknown feature flag: $feature")
             }
     }

@@ -21,7 +21,7 @@ class ProfileScreenshotTest(
     @get:Rule
     val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
-    override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.user()
+    override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.buildUser()
 
     @Test
     fun profile() = L10nScreenshots.capture(activityController, target, "40_personalid_profile")
@@ -42,7 +42,7 @@ class ProfileEditScreenshotTest(
     @get:Rule
     val localeRule: TestRule = L10nScreenshots.localeRule(target)
 
-    override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.user()
+    override fun buildUser(): ConnectUserRecord = ConnectScreenshotData.buildUser()
 
     @Test
     fun profileEdit() {

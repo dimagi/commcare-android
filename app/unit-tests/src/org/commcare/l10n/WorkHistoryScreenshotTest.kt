@@ -25,7 +25,7 @@ class WorkHistoryScreenshotTest(
     @Before
     fun serveWorkHistory() {
         personalIdApi.start()
-        personalIdApi.server.enqueue(MockResponse().setResponseCode(200).setBody(ConnectScreenshotData.workHistoryResponse()))
+        personalIdApi.server.enqueue(MockResponse().setResponseCode(200).setBody(ConnectScreenshotData.buildWorkHistoryJson()))
     }
 
     @After

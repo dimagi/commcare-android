@@ -21,6 +21,7 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
     companion object {
         const val EXTRA_PENDING_BACKUP_CODE = "extra_pending_backup_code"
         const val EXTRA_INITIATE_BACKUP_CODE_RECOVERY = "extra_initiate_backup_code_recovery"
+        const val EXTRA_OPEN_PROFILE_EDIT = "extra_open_profile_edit"
     }
 
     override fun getLayoutResource(): Int = R.layout.activity_personalid_profile
@@ -33,6 +34,13 @@ class PersonalIdProfileActivity : NavigationHostCommCareActivity<PersonalIdProfi
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
         if (savedInstanceState == null) {
             initiateBackupCodeRecoveryIfRequired()
+            openProfileEditIfRequired()
+        }
+    }
+
+    private fun openProfileEditIfRequired() {
+        if (intent.getBooleanExtra(EXTRA_OPEN_PROFILE_EDIT, false)) {
+            navController.navigate(R.id.action_profile_to_profile_edit)
         }
     }
 

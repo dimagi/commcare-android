@@ -91,12 +91,19 @@ object ConnectNavHelper {
         policy: UnlockPolicy = UnlockPolicy.ALWAYS,
         listener: ConnectActivityCompleteListener,
         initiateBackupCodeRecovery: Boolean = false,
+        openProfileEdit: Boolean = false,
     ) {
         unlockAndGoTo(
             activity,
             policy,
             listener,
-            { context -> goToProfile(context, initiateBackupCodeRecovery) },
+            { context ->
+                goToProfile(
+                    context,
+                    initiateBackupCodeRecovery = initiateBackupCodeRecovery,
+                    openProfileEdit = openProfileEdit,
+                )
+            },
         )
     }
 
@@ -104,6 +111,7 @@ object ConnectNavHelper {
         context: Context,
         initiateBackupCodeRecovery: Boolean = false,
         pendingBackupCode: Boolean = false,
+        openProfileEdit: Boolean = false,
     ) {
         val i = Intent(context, PersonalIdProfileActivity::class.java)
         if (initiateBackupCodeRecovery) {
@@ -111,6 +119,9 @@ object ConnectNavHelper {
         }
         if (pendingBackupCode) {
             i.putExtra(PersonalIdProfileActivity.EXTRA_PENDING_BACKUP_CODE, true)
+        }
+        if (openProfileEdit) {
+            i.putExtra(PersonalIdProfileActivity.EXTRA_OPEN_PROFILE_EDIT, true)
         }
         context.startActivity(i)
     }
@@ -172,6 +183,17 @@ object ConnectNavHelper {
 
         return intent
     }
+
+    /** Builds the intent that opens [opportunityUuid]'s Opportunity Home as the only screen in the task. */
+    @JvmStatic
+    fun buildOpportunityHomeTaskRootIntent(
+        context: Context,
+        opportunityUuid: String,
+    ): Intent =
+        Intent(context, ConnectActivity::class.java)
+            .putExtra(GO_TO_JOB_STATUS, true)
+            .putExtra(OPPORTUNITY_UUID, opportunityUuid)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
     fun goToActiveInfoForJob(
         context: Context,

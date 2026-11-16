@@ -76,7 +76,7 @@ public class HomeScreenAdapter
         } else {
             if (payload == null || payload.isEmpty()) {
                 payload = new ArrayList<>();
-                payload.add(messagePayload.remove(i));
+                payload.add(messagePayload.get(i));
             }
 
             super.onBindViewHolder(holder, i, payload);
@@ -89,7 +89,7 @@ public class HomeScreenAdapter
             bindHeader((HeaderViewHolder)holder);
         } else {
             ArrayList<Object> payload = new ArrayList<>();
-            payload.add(messagePayload.remove(i));
+            payload.add(messagePayload.get(i));
 
             super.onBindViewHolder(holder, i, payload);
         }
@@ -137,6 +137,10 @@ public class HomeScreenAdapter
 
     public void setMessagePayload(int position, String message) {
         messagePayload.put(position, message);
+    }
+
+    public void clearMessagePayloads() {
+        messagePayload.clear();
     }
 
     private static class HeaderViewHolder extends RecyclerView.ViewHolder {

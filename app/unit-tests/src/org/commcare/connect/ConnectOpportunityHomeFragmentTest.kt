@@ -296,7 +296,6 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
 
     @Test
     fun `a finished download keeps the intro through the hand-off to verification`() {
-        seedConnectUser()
         mockkObject(ConnectAppUtils)
         every { ConnectAppUtils.downloadApp(any(), any()) } returns true
         every { repository.startLearning(any()) } returns flowOf(DataState.Success(Unit))
@@ -376,7 +375,6 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
 
     /** The learn app is already on the device, and its launch never reports an outcome, so it stays in flight. */
     private fun startLaunchOfInstalledLearnApp(): ConnectJobIntroFragment {
-        seedConnectUser()
         mockkStatic(AppUtils::class)
         every { AppUtils.isAppInstalled(any()) } returns true
         mockkConstructor(ConnectAppLauncher::class)

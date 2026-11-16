@@ -1,7 +1,9 @@
 package org.commcare.l10n
 
 import android.app.Activity
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.captureScreenRoboImage
 import org.junit.Assume.assumeTrue
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -104,12 +106,27 @@ object L10nScreenshots {
     ) {
         controller.visible()
         ShadowLooper.idleMainLooper()
-        val file = File(File(outDir, target.folder), "$screen.png")
-        file.parentFile?.mkdirs()
         controller
             .get()
             .window
             .decorView
-            .captureRoboImage(file.absolutePath)
+            .captureRoboImage(outputFile(target, screen).absolutePath)
     }
+
+    /** Records every window on screen, so a dialog or bottom sheet shows over the activity beneath it. */
+    @OptIn(ExperimentalRoborazziApi::class)
+    fun captureScreen(
+        controller: ActivityController<out Activity>,
+        target: ScreenshotTarget,
+        screen: String,
+    ) {
+        controller.visible()
+        ShadowLooper.idleMainLooper()
+        captureScreenRoboImage(outputFile(target, screen).absolutePath)
+    }
+
+    private fun outputFile(
+        target: ScreenshotTarget,
+        screen: String,
+    ): File = File(File(outDir, target.folder), "$screen.png").also { it.parentFile?.mkdirs() }
 }

@@ -4,6 +4,7 @@ import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import org.commcare.android.util.ActivityAssertions.assertStartedForResult
+import org.commcare.home.HomeRequestCodes
 import org.javarosa.core.services.locale.Localization
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -26,7 +27,7 @@ class HomeActivityResultTest : BaseHomeScreenActivityTest() {
         val home = buildHome()
 
         home.onActivityResultSessionSafe(
-            HomeScreenBaseActivity.AUTHENTICATION_FOR_PIN,
+            HomeRequestCodes.AUTHENTICATION_FOR_PIN,
             RESULT_OK,
             Intent(),
         )
@@ -38,7 +39,7 @@ class HomeActivityResultTest : BaseHomeScreenActivityTest() {
     fun `create pin success shows success toast`() {
         val home = buildHome()
 
-        home.onActivityResultSessionSafe(HomeScreenBaseActivity.CREATE_PIN, RESULT_OK, Intent())
+        home.onActivityResultSessionSafe(HomeRequestCodes.CREATE_PIN, RESULT_OK, Intent())
 
         assertEquals(Localization.get("pin.set.success"), ShadowToast.getTextOfLatestToast())
     }
@@ -47,7 +48,7 @@ class HomeActivityResultTest : BaseHomeScreenActivityTest() {
     fun `create pin failure shows not-set toast`() {
         val home = buildHome()
 
-        home.onActivityResultSessionSafe(HomeScreenBaseActivity.CREATE_PIN, RESULT_CANCELED, Intent())
+        home.onActivityResultSessionSafe(HomeRequestCodes.CREATE_PIN, RESULT_CANCELED, Intent())
 
         assertEquals(Localization.get("pin.not.set"), ShadowToast.getTextOfLatestToast())
     }

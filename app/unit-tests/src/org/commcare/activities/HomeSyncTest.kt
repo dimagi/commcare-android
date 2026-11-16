@@ -1,8 +1,11 @@
 package org.commcare.activities
 
+import androidx.recyclerview.widget.RecyclerView
 import org.commcare.CommCareApplication
 import org.commcare.android.util.ActivityAssertions.assertStarted
 import org.commcare.android.util.ReflectionUtils
+import org.commcare.dalvik.R
+import org.commcare.home.SyncDelegate
 import org.commcare.network.CommcareRequestEndpointsMock
 import org.commcare.network.LocalReferencePullResponseFactory
 import org.commcare.preferences.HiddenPreferences
@@ -10,6 +13,7 @@ import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.DataPullTask.PullTaskResult
 import org.commcare.tasks.PullTaskResultReceiver
 import org.commcare.tasks.ResultAndError
+import org.commcare.tasks.templates.CommCareTask
 import org.commcare.utils.FormUploadResult
 import org.commcare.utils.RobolectricUtil
 import org.commcare.views.notifications.NotificationActionButtonInfo
@@ -19,12 +23,16 @@ import org.javarosa.core.services.locale.Localization
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.robolectric.shadows.ShadowLooper
 import org.robolectric.shadows.ShadowToast
+import java.util.concurrent.CountDownLatch
 
 /**
  * Characterization pins for the home screen's sync path: what starting a sync asks the syncer for,
@@ -104,6 +112,30 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         assertEquals(expected, homeButtonSubText(home, Localization.get("home.sync")))
     }
 
+    @Test
+    fun `a sync running across a rotation reports to the new home's sync delegate`() {
+        val controller = buildStandardHomeController().start().resume().visible()
+        ShadowLooper.idleMainLooper()
+        val homeBeforeRotation = controller.get()
+        val task = BlockingPullTask()
+        task.connect(homeBeforeRotation)
+        task.executeParallel()
+
+        controller.recreate()
+        ShadowLooper.idleMainLooper()
+        val homeAfterRotation = controller.get()
+        injectFakeSyncer(homeAfterRotation)
+        task.finish()
+        ShadowLooper.idleMainLooper()
+
+        assertNotSame(homeBeforeRotation, homeAfterRotation)
+        assertSame(homeAfterRotation.receiver, task.deliveredTo)
+        assertNotSame(homeBeforeRotation.receiver, task.deliveredTo)
+        val expected = Localization.get("sync.success.synced")
+        assertEquals(expected, ShadowToast.getTextOfLatestToast())
+        assertEquals(expected, homeButtonSubText(homeAfterRotation, Localization.get("home.sync")))
+    }
+
     // endregion
 
     // region pull results
@@ -127,6 +159,41 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         deliverPullResult(home, PullTaskResult.DOWNLOAD_SUCCESS)
 
         assertTrue(pendingNotifications().none { it.title == badCertificateTitle() })
+    }
+
+    @Test
+    fun `the sync button keeps the pull message when the grid rebinds`() {
+        val home = buildVisibleHome()
+        deliverPullResult(home, PullTaskResult.AUTH_FAILED)
+
+        rebindHomeGrid(home)
+
+        assertEquals(
+            Localization.get("sync.fail.auth.loggedin"),
+            homeButtonSubText(home, Localization.get("home.sync")),
+        )
+    }
+
+    @Test
+    fun `the sync button drops the pull message once the user leaves home`() {
+        val controller = buildStandardHomeController().start().resume().visible()
+        ShadowLooper.idleMainLooper()
+        val home = controller.get()
+        deliverPullResult(home, PullTaskResult.AUTH_FAILED)
+
+        controller
+            .pause()
+            .stop()
+            .restart()
+            .start()
+            .resume()
+        ShadowLooper.idleMainLooper()
+        rebindHomeGrid(home)
+
+        assertNotEquals(
+            Localization.get("sync.fail.auth.loggedin"),
+            homeButtonSubText(home, Localization.get("home.sync")),
+        )
     }
 
     @Test
@@ -249,6 +316,47 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
 
     // endregion
 
+    private class BlockingPullTask : CommCareTask<Void, Int, ResultAndError<PullTaskResult>, SyncDelegate>() {
+        private val release = CountDownLatch(1)
+        var deliveredTo: SyncDelegate? = null
+
+        init {
+            taskId = DataPullTask.DATA_PULL_TASK_ID
+        }
+
+        fun finish() {
+            release.countDown()
+            get()
+        }
+
+        override fun doTaskBackground(vararg params: Void?): ResultAndError<PullTaskResult> {
+            release.await()
+            return ResultAndError(PullTaskResult.DOWNLOAD_SUCCESS)
+        }
+
+        override fun deliverResult(
+            receiver: SyncDelegate,
+            result: ResultAndError<PullTaskResult>,
+        ) {
+            deliveredTo = receiver
+            receiver.handlePullTaskResult(result, true, false, false)
+        }
+
+        override fun deliverUpdate(
+            receiver: SyncDelegate,
+            vararg update: Int?,
+        ) {
+            receiver.handlePullTaskUpdate(*update)
+        }
+
+        override fun deliverError(
+            receiver: SyncDelegate,
+            e: Exception,
+        ) {
+            receiver.handlePullTaskError()
+        }
+    }
+
     private fun receiverOf(home: StandardHomeActivity): PullTaskResultReceiver = home.receiver
 
     private fun deliverPullResult(
@@ -256,6 +364,11 @@ class HomeSyncTest : BaseHomeScreenActivityTest() {
         result: PullTaskResult,
     ) {
         receiverOf(home).handlePullTaskResult(ResultAndError(result), true, true, true)
+        ShadowLooper.idleMainLooper()
+    }
+
+    private fun rebindHomeGrid(home: StandardHomeActivity) {
+        home.findViewById<RecyclerView>(R.id.home_gridview_buttons).adapter!!.notifyDataSetChanged()
         ShadowLooper.idleMainLooper()
     }
 

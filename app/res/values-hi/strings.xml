@@ -408,6 +408,14 @@ License.
     <string name="personalid_user_photo_update_success">आपकी प्रोफ़ाइल फ़ोटो सफलतापूर्वक अपडेट कर दी गई है।</string>
     <string name="personalid_manage_profile"><u>प्रोफ़ाइल प्रबंधित करें</u></string>
     <string name="personalid_profile_title">प्रोफ़ाइल</string>
+    <string name="personalid_demographic_banner_title">अपनी प्रोफ़ाइल पूरी करें</string>
+    <string name="personalid_demographic_banner_message">अपना डेटा अपडेट करने से हमें आपके अनुभव को बेहतर बनाने और आपको बेहतर काम के अवसर देने में मदद मिलती है</string>
+    <string name="personalid_demographic_banner_warning">अगर आपकी प्रोफ़ाइल जानकारी अपडेट नहीं की गई, तो कल डिलीवरी कार्य बाधित हो सकते हैं।</string>
+    <string name="personalid_demographic_banner_final">बिना रुकावट काम जारी रखने के लिए, कृपया प्रोफ़ाइल पूरी करें बटन पर क्लिक करके या मेनू से अपनी प्रोफ़ाइल खोलकर अपनी प्रोफ़ाइल अपडेट करें।</string>
+    <string name="personalid_demographic_banner_remind_later">मुझे बाद में याद दिलाएं</string>
+    <string name="personalid_demographic_banner_dismiss">खारिज करें</string>
+    <string name="personalid_demographic_banner_complete">प्रोफ़ाइल पूरी करें</string>
+    <string name="personalid_demographic_banner_snoozed">हम आपको कल अपनी प्रोफ़ाइल अपडेट करने की याद दिलाएंगे</string>
     <string name="personalid_profile_edit_title">प्रोफ़ाइल संपादित करें</string>
     <string name="personalid_profile_section_personal_information">व्यक्तिगत जानकारी</string>
     <string name="personalid_profile_field_name">नाम</string>

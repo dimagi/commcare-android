@@ -1,6 +1,6 @@
 package org.commcare.activities;
 
-import static org.commcare.activities.HomeScreenBaseActivity.RESULT_RESTART;
+import static org.commcare.home.HomeResultCodes.RESULT_RESTART;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -807,7 +807,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 return true;
             // this is needed because superclasses do not implement the menu_settings click
             case R.id.menu_settings:
-                HomeScreenBaseActivity.createPreferencesMenu(this);
+                SessionAwarePreferenceActivity.launchCommCareSettings(this);
                 return true;
         }
         return super.onOptionsItemSelected(item);

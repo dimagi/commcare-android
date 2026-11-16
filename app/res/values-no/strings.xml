@@ -80,6 +80,14 @@
     <string name="personalid_user_photo_update_success">Profilbildet ditt er oppdatert.</string>
     <string name="personalid_manage_profile"><u>Administrer profil</u></string>
     <string name="personalid_profile_title">Profil</string>
+    <string name="personalid_demographic_banner_title">Fullfør profilen din</string>
+    <string name="personalid_demographic_banner_message">Å oppdatere dataene dine hjelper oss med å tilpasse opplevelsen din og gi deg bedre jobbmuligheter</string>
+    <string name="personalid_demographic_banner_warning">Leveringsoppgaver kan bli avbrutt i morgen hvis profilinformasjonen din ikke er oppdatert.</string>
+    <string name="personalid_demographic_banner_final">Oppdater profilen din ved å trykke på knappen Fullfør profil, eller ved å åpne profilen fra menyen, for å fortsette å jobbe uten avbrudd.</string>
+    <string name="personalid_demographic_banner_remind_later">Minn meg på senere</string>
+    <string name="personalid_demographic_banner_dismiss">Avvis</string>
+    <string name="personalid_demographic_banner_complete">Fullfør profil</string>
+    <string name="personalid_demographic_banner_snoozed">Vi minner deg på å oppdatere profilen din i morgen</string>
     <string name="personalid_profile_edit_title">Rediger profil</string>
     <string name="personalid_profile_section_personal_information">Personlig informasjon</string>
     <string name="personalid_profile_field_name">Navn</string>

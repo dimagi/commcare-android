@@ -12,6 +12,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
+import org.commcare.home.HomeRequestCodes;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,7 +79,7 @@ public class FormRecordListActivityTest {
                 Robolectric.buildActivity(StandardHomeActivity.class).create().get();
         ShadowActivity homeActivityShadow = Shadows.shadowOf(homeActivity);
         homeActivity.startActivityForResult(savedFormsIntent,
-                StandardHomeActivity.GET_INCOMPLETE_FORM);
+                HomeRequestCodes.GET_INCOMPLETE_FORM);
 
         // Call this to remove activity from stack, so we can access future activities...
         homeActivityShadow.getNextStartedActivityForResult();

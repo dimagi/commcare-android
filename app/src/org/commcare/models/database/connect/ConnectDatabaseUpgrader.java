@@ -43,6 +43,7 @@ import org.commcare.android.database.connect.models.ConnectUserRecordV13;
 import org.commcare.android.database.connect.models.ConnectUserRecordV14;
 import org.commcare.android.database.connect.models.ConnectUserRecordV16;
 import org.commcare.android.database.connect.models.ConnectUserRecordV25;
+import org.commcare.android.database.connect.models.ConnectUserRecordV30;
 import org.commcare.android.database.connect.models.ConnectUserRecordV5;
 import org.commcare.android.database.connect.models.PersonalIdWorkHistory;
 import org.commcare.android.database.connect.models.PushNotificationRecord;
@@ -208,6 +209,11 @@ public class ConnectDatabaseUpgrader {
         if (oldVersion == 29) {
             upgradeTwentyNineThirty(db);
             oldVersion = 30;
+        }
+
+        if (oldVersion == 30) {
+            upgradeThirtyThirtyOne(db);
+            oldVersion = 31;
         }
     }
 
@@ -1104,8 +1110,8 @@ public class ConnectDatabaseUpgrader {
         db.beginTransaction();
         try {
             db.execSQL(DbUtil.addColumnToTable(
-                    ConnectUserRecord.STORAGE_KEY,
-                    ConnectUserRecord.META_EMAIL,
+                    ConnectUserRecordV30.STORAGE_KEY,
+                    ConnectUserRecordV30.META_EMAIL,
                     "TEXT"));
 
             SqlStorage<ConnectUserRecordV25> oldStorage = new SqlStorage<>(
@@ -1113,13 +1119,13 @@ public class ConnectDatabaseUpgrader {
                     ConnectUserRecordV25.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            SqlStorage<ConnectUserRecord> newStorage = new SqlStorage<>(
-                    ConnectUserRecord.STORAGE_KEY,
-                    ConnectUserRecord.class,
+            SqlStorage<ConnectUserRecordV30> newStorage = new SqlStorage<>(
+                    ConnectUserRecordV30.STORAGE_KEY,
+                    ConnectUserRecordV30.class,
                     new ConcreteAndroidDbHelper(c, db));
 
             for (ConnectUserRecordV25 oldRecord : oldStorage) {
-                ConnectUserRecord newRecord = ConnectUserRecord.fromV25(oldRecord);
+                ConnectUserRecordV30 newRecord = ConnectUserRecordV30.fromV25(oldRecord);
                 newRecord.setID(oldRecord.getID());
                 newStorage.write(newRecord);
             }
@@ -1216,6 +1222,30 @@ public class ConnectDatabaseUpgrader {
             addTableForNewModel(db, ConnectMessagingAttachmentRecord.STORAGE_KEY,
                     new ConnectMessagingAttachmentRecord());
 
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void upgradeThirtyThirtyOne(IDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<ConnectUserRecordV30> oldStorage = new SqlStorage<>(
+                    ConnectUserRecordV30.STORAGE_KEY,
+                    ConnectUserRecordV30.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            SqlStorage<ConnectUserRecord> newStorage = new SqlStorage<>(
+                    ConnectUserRecord.STORAGE_KEY,
+                    ConnectUserRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (ConnectUserRecordV30 oldRecord : oldStorage) {
+                ConnectUserRecord newRecord = ConnectUserRecord.fromV30(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                newStorage.write(newRecord);
+            }
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

@@ -34,10 +34,12 @@ object PersonalIdBackupCodeReminderHelper {
     }
 
     @JvmStatic
-    fun checkAndShowReminder(activity: CommCareActivity<*>) {
-        if (PersonalIdSessionManager.getInstance().isloggedIn() && isDue()) {
-            BackupCodeReminderDialog.show(activity)
-            scheduleNext()
+    fun checkAndShowReminder(activity: CommCareActivity<*>): Boolean {
+        if (!PersonalIdSessionManager.getInstance().isloggedIn() || !isDue()) {
+            return false
         }
+        BackupCodeReminderDialog.show(activity)
+        scheduleNext()
+        return true
     }
 }

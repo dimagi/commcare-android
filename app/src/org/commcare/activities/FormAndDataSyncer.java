@@ -49,7 +49,7 @@ public class FormAndDataSyncer {
             final boolean syncAfterwards,
             final boolean userTriggered
     ) {
-        CommCareActivity<?> connector = receiver.getConnector();
+        CommCareActivity<?> connector = receiver.getSyncTaskActivity();
         ProcessAndSendTask<SyncDelegate> processAndSendTask =
                 new ProcessAndSendTask<SyncDelegate>(connector, syncAfterwards) {
 
@@ -64,7 +64,7 @@ public class FormAndDataSyncer {
                             return;
                         }
 
-                        CommCareActivity<?> activity = receiver.getConnector();
+                        CommCareActivity<?> activity = receiver.getSyncTaskActivity();
                         if (result == FormUploadResult.PROGRESS_LOGGED_OUT) {
                             activity.finish();
                             return;
@@ -141,7 +141,7 @@ public class FormAndDataSyncer {
         }
 
         syncData(
-                receiver.getConnector(),
+                receiver.getSyncTaskActivity(),
                 formsToSend,
                 userTriggeredSync,
                 ServerUrls.getDataServerKey(),
