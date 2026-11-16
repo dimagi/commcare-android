@@ -27,6 +27,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.RefreshableTab
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
 /**
@@ -44,16 +45,33 @@ class ConnectDeliveryHomeFragment :
 
     private data class TabItem(
         val titleRes: Int,
+        val analyticsKey: String,
         val fragmentFactory: () -> Fragment,
         val visible: Boolean = true,
     )
 
     private val tabs =
         listOf(
-            TabItem(R.string.connect_dashboard, { ConnectDeliveryDashboardFragment.newInstance() }),
-            TabItem(R.string.connect_payment, { ConnectDeliveryPaymentFragment.newInstance() }),
-            TabItem(R.string.connect_visits, { ConnectDeliveryVisitsFragment.newInstance() }),
-            TabItem(R.string.connect_more, { ConnectDeliveryMoreFragment.newInstance() }),
+            TabItem(
+                R.string.connect_dashboard,
+                AnalyticsParamValue.CONNECT_TAB_DASHBOARD,
+                { ConnectDeliveryDashboardFragment.newInstance() },
+            ),
+            TabItem(
+                R.string.connect_payment,
+                AnalyticsParamValue.CONNECT_TAB_PAYMENT,
+                { ConnectDeliveryPaymentFragment.newInstance() },
+            ),
+            TabItem(
+                R.string.connect_visits,
+                AnalyticsParamValue.CONNECT_TAB_VISITS,
+                { ConnectDeliveryVisitsFragment.newInstance() },
+            ),
+            TabItem(
+                R.string.connect_more,
+                AnalyticsParamValue.CONNECT_TAB_MORE,
+                { ConnectDeliveryMoreFragment.newInstance() },
+            ),
         )
 
     private val visibleTabs get() = tabs.filter { it.visible }
@@ -123,7 +141,7 @@ class ConnectDeliveryHomeFragment :
                     }
                     currentTabPosition = position
                     tabLayout.getTabAt(position)?.text?.let {
-                        FirebaseAnalyticsUtil.reportConnectTabChange(it.toString())
+                        FirebaseAnalyticsUtil.reportConnectTabChange(it.toString(), visibleTabs[position].analyticsKey)
                     }
                 }
             },

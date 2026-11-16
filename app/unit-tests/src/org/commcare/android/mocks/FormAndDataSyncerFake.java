@@ -5,6 +5,10 @@ import android.util.Log;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.home.SyncDelegate;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data
  *
@@ -17,6 +21,7 @@ public class FormAndDataSyncerFake extends FormAndDataSyncer {
     public boolean lastSendSyncsAfterwards;
     public boolean lastSendUserTriggered;
     public int dataSyncCount = 0;
+    public final List<File> customRestoreFiles = new ArrayList<>();
 
     public FormAndDataSyncerFake() {
     }
@@ -34,6 +39,11 @@ public class FormAndDataSyncerFake extends FormAndDataSyncer {
                                         boolean formsToSend, boolean userTriggeredSync) {
         Log.d(TAG, "faking data sync");
         dataSyncCount++;
+    }
+
+    @Override
+    public void performCustomRestoreFromFile(SyncDelegate receiver, File incomingRestoreFile) {
+        customRestoreFiles.add(incomingRestoreFile);
     }
     
 }
