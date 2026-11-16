@@ -27,6 +27,7 @@ import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ConnectTestUtils
 import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
@@ -70,6 +71,7 @@ class ConnectDeliveryHomeFragmentTest {
         val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
         manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit

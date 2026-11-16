@@ -24,6 +24,7 @@ import org.commcare.activities.DispatchActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.util.ActivityAssertions
+import org.commcare.android.util.ConnectTestUtils
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
@@ -59,6 +60,7 @@ class ConnectUnlockFragmentTest {
         val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
         manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
 
         mockkStatic(FirebaseAnalyticsUtil::class)
         every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
