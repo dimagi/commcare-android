@@ -53,18 +53,16 @@ class SessionLaunchDelegateTest {
         assertEquals(host.formEntryTitle, intent.getStringExtra(FormEntryActivity.KEY_HEADER_STRING))
         assertFalse(intent.getBooleanExtra(FormEntryActivity.KEY_IS_RESTART_AFTER_EXPIRATION, true))
         assertEquals(FormRecord.STATUS_UNSTARTED, state.formRecord.status)
-        assertEquals("background syncs are held off for form entry", 1, host.formEntryLaunchingCount)
+        assertTrue("background syncs are held off for form entry", delegate.formEntryStartedSinceResume)
     }
 
     @Test
     fun `session restoration claims the launch only when the session has a command`() {
-        assertFalse(delegate.tryRestoringSession())
-        assertEquals(0, host.sessionStepCount)
+        assertFalse(delegate.prepareSessionRestore())
 
         seatFormCommand()
 
-        assertTrue(delegate.tryRestoringSession())
-        assertEquals(1, host.sessionStepCount)
+        assertTrue(delegate.prepareSessionRestore())
     }
 
     @Test
@@ -76,7 +74,7 @@ class SessionLaunchDelegateTest {
             .putString(DevSessionRestorer.CURRENT_FORM_ENTRY_SESSION, SAVED_FORM_ENTRY_SESSION)
             .apply()
         val state = seatFormCommand()
-        delegate.tryRestoringSession()
+        delegate.prepareSessionRestore()
 
         delegate.startForm(state)
         state.setFormRecordId(-1)
@@ -109,8 +107,10 @@ class SessionLaunchDelegateTest {
 
     @Test
     fun `the update info form step does nothing unless an update asked for it`() {
-        assertFalse(delegate.showUpdateInfoForm())
-        assertEquals(0, host.safeSessionStepCount)
+        val commandBefore = CommCareApplication.instance().currentSession.command
+
+        assertFalse(delegate.prepareUpdateInfoForm())
+        assertEquals(commandBefore, CommCareApplication.instance().currentSession.command)
     }
 
     @Test
