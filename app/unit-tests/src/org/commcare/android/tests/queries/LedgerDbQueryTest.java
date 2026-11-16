@@ -4,9 +4,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
+import org.commcare.models.database.IDatabase;
 import org.commcare.test.utilities.CaseTestUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,17 +27,27 @@ import static org.junit.Assert.assertTrue;
 @RunWith(AndroidJUnit4.class)
 public class LedgerDbQueryTest {
 
+    private IDatabase db;
+
     @Before
     public void setUp() throws Exception {
         TestUtils.initializeStaticTestStorage();
+        db = TestUtils.getTestDb();
 
         TestUtils.processResourceTransaction("/create_case_for_ledger.xml");
         TestUtils.processResourceTransaction("/ledger_create_basic.xml");
     }
 
+    @After
+    public void closeDb() {
+        if (db != null) {
+            db.close();
+        }
+    }
+
     @Test
     public void ledgerQueriesWithLedgerData() throws XPathSyntaxException {
-        EvaluationContext evalContext = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext evalContext = TestUtils.getEvaluationContextWithoutSession(db);
 
         // case id 'market_basket' exists, and ledger data has been attached it
         assertTrue(

@@ -197,7 +197,7 @@ public class TestUtils {
     /**
      * @return The hook for the test user-db
      */
-    private static IDatabase getTestDb() {
+    public static IDatabase getTestDb() {
         return ((CommCareApplication)ApplicationProvider.getApplicationContext()).getUserDbOpenHelper("Test", "Test");
     }
 
@@ -206,14 +206,9 @@ public class TestUtils {
     }
 
     /**
-     * @return A test-db case storage object
+     * The returned storage keeps using {@code db}, so the caller must close it once done with the storage.
      */
-    public static SqlStorage<ACase> getCaseStorage() {
-        return getCaseStorage(getTestDb());
-    }
-
-    public static <T extends Persistable> SqlStorage<T> getStorage(String storageKey, Class<T> prototypeModel) {
-        IDatabase db = getTestDb();
+    public static <T extends Persistable> SqlStorage<T> getStorage(IDatabase db, String storageKey, Class<T> prototypeModel) {
         TableBuilder builder = new TableBuilder(storageKey);
 
         try {
@@ -237,9 +232,9 @@ public class TestUtils {
     }
 
     /**
-     * @return The case storage object for the provided db
+     * The returned storage keeps using {@code db}, so the caller must close it once done with the storage.
      */
-    private static SqlStorage<ACase> getCaseStorage(IDatabase db) {
+    public static SqlStorage<ACase> getCaseStorage(IDatabase db) {
         return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(ApplicationProvider.getApplicationContext(), db) {
             @Override
             public PrototypeFactory getPrototypeFactory() {
@@ -266,19 +261,18 @@ public class TestUtils {
 
     /**
      * @return An evaluation context which is capable of evaluating against
-     * the connected storage instances: casedb is the only one supported for now
+     * the connected storage instances: casedb is the only one supported for now.
+     * The context keeps using {@code db}, so the caller must close it once done with the context.
      */
-    public static EvaluationContext getEvaluationContextWithoutSession() {
-        return getEvaluationContextWithoutSession(null);
+    public static EvaluationContext getEvaluationContextWithoutSession(IDatabase db) {
+        return getEvaluationContextWithoutSession(db, null);
     }
 
-    public static EvaluationContext getEvaluationContextWithoutSession(DataInstance mainInstanceForEC) {
-        return buildEvaluationContext(buildTestInstanceInitializer(), mainInstanceForEC);
+    public static EvaluationContext getEvaluationContextWithoutSession(IDatabase db, DataInstance mainInstanceForEC) {
+        return buildEvaluationContext(buildTestInstanceInitializer(db), mainInstanceForEC);
     }
 
-    private static AndroidInstanceInitializer buildTestInstanceInitializer() {
-        final IDatabase db = getTestDb();
-
+    private static AndroidInstanceInitializer buildTestInstanceInitializer(final IDatabase db) {
         return new AndroidInstanceInitializer() {
             @Override
             public InstanceRoot setupCaseData(ExternalDataInstance instance) {
@@ -310,9 +304,12 @@ public class TestUtils {
         return new EvaluationContext(new EvaluationContext(mainInstance), formInstances, TreeReference.rootRef());
     }
 
-    public static DataInstance getCaseDbInstance() {
+    /**
+     * The returned instance keeps using {@code db}, so the caller must close it once done with the instance.
+     */
+    public static DataInstance getCaseDbInstance(IDatabase db) {
         ExternalDataInstance edi = new ExternalDataInstance(CaseTestUtils.CASE_INSTANCE, "casedb");
-        return edi.initialize(buildTestInstanceInitializer(), "casedb");
+        return edi.initialize(buildTestInstanceInitializer(db), "casedb");
     }
 
     public static RuntimeException wrapError(Exception e, String prefix) {

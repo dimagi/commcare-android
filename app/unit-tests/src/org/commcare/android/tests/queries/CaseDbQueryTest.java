@@ -4,6 +4,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
+import org.commcare.models.database.IDatabase;
 import org.commcare.cases.query.QueryContext;
 import org.commcare.cases.query.queryset.CurrentModelQuerySet;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -16,6 +17,7 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.FunctionUtils;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,9 +44,19 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(AndroidJUnit4.class)
 public class CaseDbQueryTest {
 
+    private IDatabase db;
+
     @Before
     public void setupTests() {
         TestUtils.initializeStaticTestStorage();
+        db = TestUtils.getTestDb();
+    }
+
+    @After
+    public void closeDb() {
+        if (db != null) {
+            db.close();
+        }
     }
 
     /**
@@ -54,7 +66,7 @@ public class CaseDbQueryTest {
     public void testBasicCaseQueries() {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
 
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("count(instance('casedb')/casedb/case[@case_id = 'test_case_id'])", "1", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
@@ -76,7 +88,7 @@ public class CaseDbQueryTest {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
         TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
 
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id_child']/index/parent", "test_case_id", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/index/missing", "", ec);
@@ -92,7 +104,7 @@ public class CaseDbQueryTest {
     @Test
     public void testCaseOptimizationTriggers() {
         TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml");
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent']/@case_id)", "child_one,child_two,child_three", ec);
         evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent'][@case_id = 'child_two']/@case_id)", "child_two", ec);
@@ -103,7 +115,7 @@ public class CaseDbQueryTest {
     @Test
     public void testIndexSetMemberOptimizations() {
         TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml");
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
         evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent test_case_parent_2', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
@@ -115,7 +127,7 @@ public class CaseDbQueryTest {
     @Test
     public void testModelQueryLookupDerivations() {
         TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child'][@status='open'][true() and " +
                 "instance('casedb')/casedb/case[@case_id = instance('casedb')/casedb/case[@case_id=current()/index/parent]/index/parent]/test = 'true']/@case_id)", "child_ptwo_one_one,child_one_one", ec);
@@ -125,7 +137,7 @@ public class CaseDbQueryTest {
     @Test
     public void testModelSelfReference() {
         TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child'][@status='open'][true() and " +
                 "count(instance('casedb')/casedb/case[index/parent = instance('casedb')/casedb/case[@case_id=current()/@case_id]/index/parent][false = 'true']) > 0]/@case_id)", "", ec);
@@ -135,7 +147,7 @@ public class CaseDbQueryTest {
     @Test
     public void testBulkQueryProcessingOutcomes() {
         TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml", true);
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
         evaluate("join(',',instance('casedb')/casedb/case[selected('test_case_parent test_case_parent_2', index/parent)]/@case_id)", "child_one,child_two,child_three", ec);
@@ -148,7 +160,7 @@ public class CaseDbQueryTest {
     @Test
     public void testModelQueryTransformFallback() throws XPathSyntaxException {
         TestUtils.processResourceTransaction("/inputs/case_test_model_query_fallbacks.xml");
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession();
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db);
 
         evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child'][@status='open'][" +
                 "string(instance('casedb')/casedb/case[@case_id = instance('casedb')/casedb/case[@case_id=current()/index/parent]/index/parent]/case_name) = 'Valid']/@case_id)", "child_ptwo_one_one", ec);
