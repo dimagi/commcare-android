@@ -12,6 +12,7 @@ import java.text.DateFormat
 
 class WorkHistoryEarnedAdapter(
     private val listener: OnWorkHistoryItemClickListener,
+    private val userName: String?,
     private val profilePic: String?,
 ) : RecyclerView.Adapter<WorkHistoryEarnedAdapter.WorkHistoryViewHolder>() {
     private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
@@ -43,6 +44,7 @@ class WorkHistoryEarnedAdapter(
 
         with(holder.binding) {
             tvAppName.text = item.title
+            tvUserName.text = userName
             tvIssuedDate.text = formattedIssuedDate
             tvActivity.text = StringUtils.getLocalizedLevel(item.level, holder.itemView.context)
             Glide.with(ivProfilePic).load(profilePic).into(ivProfilePic)

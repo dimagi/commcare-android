@@ -47,6 +47,7 @@ class WorkHistoryEarnedFragment : Fragment() {
                         override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
                         }
                     },
+                userName = userName,
                 profilePic = profilePic ?: "",
             )
         binding!!.rvEarnedWorkHistory.adapter = workHistoryEarnedAdapter
