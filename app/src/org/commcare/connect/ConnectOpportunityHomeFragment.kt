@@ -117,6 +117,7 @@ class ConnectOpportunityHomeFragment :
     }
 
     private fun showState(state: ConnectOpportunityHomeState) {
+        (activity as? ConnectActivity)?.refreshDrawerTopLevel()
         if (childFragmentManager.findFragmentByTag(state.name) != null) {
             return
         }
@@ -124,7 +125,6 @@ class ConnectOpportunityHomeFragment :
             .beginTransaction()
             .replace(R.id.connect_opportunity_home_container, surfaceFor(state), state.name)
             .commit()
-        (activity as? ConnectActivity)?.refreshDrawerTopLevel()
     }
 
     private fun surfaceFor(state: ConnectOpportunityHomeState): Fragment =

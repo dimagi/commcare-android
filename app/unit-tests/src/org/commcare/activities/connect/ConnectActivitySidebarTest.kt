@@ -9,10 +9,12 @@ import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.core.view.children
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockkObject
+import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.emptyFlow
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -21,6 +23,7 @@ import org.commcare.android.util.ActivityAssertions.assertStartedNothing
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.ConnectOpportunityHomeFragment
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.dalvik.R
 import org.commcare.fragments.connect.BaseConnectJobIntroTest
@@ -88,6 +91,16 @@ class ConnectActivitySidebarTest : BaseConnectJobIntroTest() {
         ShadowLooper.idleMainLooper()
 
         assertShowsSidebar()
+    }
+
+    @Test
+    fun `the intro with nothing beneath it keeps its close icon after the screen is recreated`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        openOpportunityHomeAtTaskBottom()
+
+        recreateActivity()
+
+        assertShowsIntroCloseIcon()
     }
 
     @Test
@@ -165,6 +178,15 @@ class ConnectActivitySidebarTest : BaseConnectJobIntroTest() {
         return navHostFragment.childFragmentManager.fragments
             .filterIsInstance<ConnectOpportunityHomeFragment>()
             .single()
+    }
+
+    private fun recreateActivity() {
+        mockkStatic(ConnectJobUtils::class)
+        every { ConnectJobUtils.getCompositeJob(job.jobUUID) } returns job
+        activityController.recreate()
+        activity = activityController.get()
+        navHostFragment = activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
+        ShadowLooper.idleMainLooper()
     }
 
     private fun assertShowsSidebar() {
