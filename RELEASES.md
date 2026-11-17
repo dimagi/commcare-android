@@ -28,6 +28,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
+- On an opportunity whose budget is fully used, pass the learning assessment with a new user and tap the button to download the delivery app; confirm the error says no more paid visits are available, instead of the generic "Unable to claim" message.
+  - On an opportunity whose end date has passed, do the same and confirm the error says the opportunity has ended.
 
 ## CommCare 2.65
 
