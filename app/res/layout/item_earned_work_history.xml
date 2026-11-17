@@ -68,13 +68,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:paddingHorizontal="15dp"
             tools:text="3 Months of Activity"
             android:textColor="@color/personal_id_work_history_earned_activity"
             android:textSize="12sp"
             app:layout_constraintBottom_toTopOf="@id/ivRibbin"
-            app:layout_constraintEnd_toEndOf="@id/ivRibbin"
-            app:layout_constraintStart_toStartOf="@id/ivRibbin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvUserName" />
 
         <androidx.appcompat.widget.AppCompatImageView
