@@ -135,8 +135,22 @@ class ConnectActivitySidebarTest : BaseConnectJobIntroTest() {
 
     @Test
     fun `tapping opportunities on the list only closes the sidebar`() {
+        val drawerLayout = activity.findViewById<DrawerLayout>(R.id.drawer_layout)
+        drawerLayout.openDrawer(GravityCompat.START, false)
+        var drawerStartedClosing = false
+        drawerLayout.addDrawerListener(
+            object : DrawerLayout.SimpleDrawerListener() {
+                override fun onDrawerStateChanged(newState: Int) {
+                    if (newState == DrawerLayout.STATE_SETTLING) {
+                        drawerStartedClosing = true
+                    }
+                }
+            },
+        )
+
         clickDrawerItem(R.string.nav_drawer_opportunities)
 
+        assertTrue(drawerStartedClosing)
         assertStartedNothing(activity)
         assertFalse(activity.isFinishing)
     }
