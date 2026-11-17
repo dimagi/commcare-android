@@ -47,6 +47,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:gravity="center"
             tools:text="Jane Doe"
             android:textColor="@color/white"
             android:textSize="14sp"
