@@ -28,7 +28,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
-- While logged in to a CommCare app, open Work History from the sidebar, leave the app and return; confirm the title still reads Work History, each card shows your name, and the text just above the ribbon fits on one line.
+- While logged in to a CommCare app, open Work History from the sidebar, switch to another app and back; confirm the title still reads Work History, earned cards show your name, and in English the text just above the ribbon fits on one line.
 
 ## CommCare 2.65
 
