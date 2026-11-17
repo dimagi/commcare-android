@@ -1,6 +1,5 @@
 package org.commcare.activities.connect
 
-import android.os.Build
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import okhttp3.mockwebserver.MockResponse
@@ -16,10 +15,8 @@ import org.junit.Before
 import org.junit.Test
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
-import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 
-@Config(sdk = [Build.VERSION_CODES.P])
 class PersonalIdWorkHistoryActivityTest : BaseHomeScreenActivityTest() {
     private val personalIdApi = PersonalIdMockApiServer(PersonalIdMockApiServer.CallbackMode.MAIN_LOOPER)
 
