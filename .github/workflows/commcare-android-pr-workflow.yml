@@ -25,6 +25,7 @@ jobs:
     # Pinned until dimagi/mobile-deploy's cross-request script supports Python 3.10+;
     # setup-python has no Python 3.9 build for Ubuntu 26.04.
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
       pull-requests: write
