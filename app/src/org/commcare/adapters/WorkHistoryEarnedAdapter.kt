@@ -11,13 +11,12 @@ import org.commcare.utils.StringUtils
 import java.text.DateFormat
 
 class WorkHistoryEarnedAdapter(
-    private val listener: OnWorkHistoryItemClickListener,
     private val userName: String?,
     private val profilePic: String?,
 ) : RecyclerView.Adapter<WorkHistoryEarnedAdapter.WorkHistoryViewHolder>() {
     private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class WorkHistoryViewHolder(
+    class WorkHistoryViewHolder(
         val binding: ItemEarnedWorkHistoryBinding,
     ) : RecyclerView.ViewHolder(binding.root)
 
@@ -57,9 +56,5 @@ class WorkHistoryEarnedAdapter(
         workHistoryList.clear()
         workHistoryList.addAll(newList)
         notifyDataSetChanged()
-    }
-
-    interface OnWorkHistoryItemClickListener {
-        fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory)
     }
 }

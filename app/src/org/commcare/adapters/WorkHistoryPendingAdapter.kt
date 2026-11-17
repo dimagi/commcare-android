@@ -7,12 +7,10 @@ import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.dalvik.databinding.ItemPendingWorkHistoryBinding
 import org.commcare.utils.StringUtils
 
-class WorkHistoryPendingAdapter(
-    private val listener: OnWorkHistoryItemClickListener,
-) : RecyclerView.Adapter<WorkHistoryPendingAdapter.WorkHistoryViewHolder>() {
+class WorkHistoryPendingAdapter : RecyclerView.Adapter<WorkHistoryPendingAdapter.WorkHistoryViewHolder>() {
     private val workHistoryList = mutableListOf<PersonalIdWorkHistory>()
 
-    inner class WorkHistoryViewHolder(
+    class WorkHistoryViewHolder(
         val binding: ItemPendingWorkHistoryBinding,
     ) : RecyclerView.ViewHolder(binding.root)
 
@@ -46,9 +44,5 @@ class WorkHistoryPendingAdapter(
         workHistoryList.clear()
         workHistoryList.addAll(newList)
         notifyDataSetChanged()
-    }
-
-    interface OnWorkHistoryItemClickListener {
-        fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory)
     }
 }
