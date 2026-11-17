@@ -39,8 +39,9 @@ abstract class NavigationHostCommCareActivity<T> : BaseDrawerActivity<T>() {
     }
 
     /** Whether the current destination shows the sidebar rather than back; by default only the graph's start destination does. */
-    protected open fun isCurrentDestinationTopLevel(): Boolean =
-        navController.currentDestination?.id == navController.graph.startDestinationId
+    protected open fun isCurrentDestinationTopLevel(): Boolean = isShowingDestination(navController.graph.startDestinationId)
+
+    protected fun isShowingDestination(destinationId: Int): Boolean = navController.currentDestination?.id == destinationId
 
     /** Whether the sidebar is kept closed even where the sidebar icon shows; never by default. */
     protected open fun isDrawerLocked(): Boolean = false

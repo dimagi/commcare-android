@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavDestination;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
 import androidx.navigation.NavOptions;
@@ -264,8 +263,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     /** Whether Opportunity Home is showing with nothing beneath it in the task. */
     public boolean isOpportunityHomeAtTaskBottom() {
         return isTaskRoot()
-                && navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.connect_opportunity_home_fragment
+                && isShowingDestination(R.id.connect_opportunity_home_fragment)
                 && navController.getPreviousBackStackEntry() == null;
     }
 
@@ -339,9 +337,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
             return true;
         }
 
-        NavDestination destination = navController.getCurrentDestination();
-        boolean showingOpportunityHome = destination != null
-                && destination.getId() == R.id.connect_opportunity_home_fragment;
+        boolean showingOpportunityHome = isShowingDestination(R.id.connect_opportunity_home_fragment);
         boolean showingIntro = getCurrentNavFragment() instanceof ConnectOpportunityHomeFragment opportunityHome
                 && opportunityHome.isShowingIntro();
 
@@ -355,8 +351,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     }
 
     private boolean isShowingOpportunityList() {
-        NavDestination destination = navController.getCurrentDestination();
-        return destination != null && destination.getId() == R.id.connect_jobs_list_fragment;
+        return isShowingDestination(R.id.connect_jobs_list_fragment);
     }
 
     public void setWaitDialogEnabled(boolean enabled) {
