@@ -565,6 +565,7 @@
     <string name="camera_permission_msg">Para tomar una foto, CommCare necesita permiso para usar la cámara de tu dispositivo.</string>
     <string name="personalid_capture_photo">Tomar foto</string>
     <string name="personalid_configuration_locked_account">Su cuenta ha sido bloqueada. Por favor, contacte con el servicio de asistencia.</string>
+    <string name="personalid_registration_ineligible">No reúne los requisitos para registrar una cuenta de PersonalID.</string>
     <string name="personalid_backup_code_locked">Su código de respaldo ha sido bloqueado. Por favor, verifique su correo electrónico para establecer uno nuevo.</string>
     <string name="personalid_work_history_title">Mi Historial Laboral</string>
     <string name="personalid_work_history">Historial Laboral</string>
@@ -572,12 +573,12 @@
     <string name="personalid_work_history_no_records_available">No hay registros de trabajo disponibles actualmente. Haga clic en actualizar o vuelva a consultar más tarde.</string>    <string name="personalid_work_history_earned">Ganado</string>
     <string name="personalid_work_history_pending">Pendiente</string>
     <string name="personalid_work_history_sync">Sincronizar</string>
-    <string name="personalid_work_history_level_1_month_active">1 Mes de\nActividad</string>
-    <string name="personalid_work_history_level_2_month_active">2 Meses de\nActividad</string>
-    <string name="personalid_work_history_level_3_month_active">3 Meses de\nActividad</string>
-    <string name="personalid_work_history_level_6_month_active">6 Meses de\nActividad</string>
-    <string name="personalid_work_history_level_9_month_active">9 Meses de\nActividad</string>
-    <string name="personalid_work_history_level_12_month_active">12 Meses de\nActividad</string>
+    <string name="personalid_work_history_level_1_month_active">1 Mes de Actividad</string>
+    <string name="personalid_work_history_level_2_month_active">2 Meses de Actividad</string>
+    <string name="personalid_work_history_level_3_month_active">3 Meses de Actividad</string>
+    <string name="personalid_work_history_level_6_month_active">6 Meses de Actividad</string>
+    <string name="personalid_work_history_level_9_month_active">9 Meses de Actividad</string>
+    <string name="personalid_work_history_level_12_month_active">12 Meses de Actividad</string>
     <string name="personalid_work_history_no_pending_records">No hay registros pendientes en este momento</string>
 
     <string name="personalid_notification">Notificaciones</string>

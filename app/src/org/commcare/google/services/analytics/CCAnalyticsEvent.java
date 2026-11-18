@@ -22,6 +22,7 @@ public class CCAnalyticsEvent {
     static final String OPEN_ARCHIVED_FORM = "open_archived_form";
     static final String SELECT_OPTIONS_MENU_ITEM = "select_options_menu_item";
     static final String OPTIONS_MENU_OPENED = "options_menu_opened";
+    static final String NAV_CONTROL_USED = "nav_control_used";
     static final String SYNC_ATTEMPT = "sync_attempt";
     static final String VIEW_ARCHIVED_FORMS_LIST = "view_archived_forms_list";
     static final String VIEW_QUESTION_MEDIA = "view_question_media";

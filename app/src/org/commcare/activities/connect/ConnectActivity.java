@@ -43,7 +43,6 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -127,8 +126,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private int getStartDestinationId(Bundle startArgs) {
         int startDestinationId = R.id.connect_jobs_list_fragment;
-        if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
-            startDestinationId = handleInfoRedirect();
+        if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false) && job != null) {
+            startDestinationId = R.id.connect_opportunity_home_fragment;
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             startDestinationId = handleSecureRedirect(startArgs);
         }
@@ -141,11 +140,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if (job == null && !TextUtils.isEmpty(opportunityUuid)) {
             job = ConnectJobUtils.getCompositeJob(opportunityUuid);
         }
-    }
-
-    private int handleInfoRedirect() {
-        Objects.requireNonNull(job);
-        return R.id.connect_opportunity_home_fragment;
     }
 
     private int handleSecureRedirect(Bundle startArgs) {
@@ -175,6 +169,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         startArgs.putBoolean(
                 ConnectConstants.FROM_STARTUP_ROUTING,
                 getIntent().getBooleanExtra(ConnectConstants.FROM_STARTUP_ROUTING, false)
+        );
+        startArgs.putBoolean(
+                ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE,
+                getIntent().getBooleanExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, false)
         );
 
         if (!TextUtils.isEmpty(opportunityUuid)) {

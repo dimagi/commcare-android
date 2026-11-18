@@ -22,6 +22,7 @@ import org.commcare.dalvik.R;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.personalId.PersonalIdUserPreferences;
+import org.commcare.pn.helper.NotificationTaskStack;
 import org.commcare.recovery.measures.ExecuteRecoveryMeasuresActivity;
 import org.commcare.recovery.measures.RecoveryMeasuresHelper;
 import org.commcare.services.CommCareSessionService;
@@ -143,6 +144,11 @@ public class DispatchActivity extends AppCompatActivity {
     public static Intent buildRestartIntent(Context context) {
         return new Intent(context, DispatchActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    }
+
+    /** Builds the intent that restarts routing as the only screen in the task after a declined unlock. */
+    public static Intent buildUnlockDeclinedRestartIntent(Context context) {
+        return buildRestartIntent(context).putExtra(EXTRA_PERSONAL_ID_UNLOCK_DECLINED, true);
     }
 
     private void readRoutingExtras(Intent intent) {
@@ -285,14 +291,14 @@ public class DispatchActivity extends AppCompatActivity {
                     getNotificationActionFromIntent(pnIntent),
                     pnIntent.getStringExtra(NOTIFICATION_ID)
             );
-            startActivity(pnIntent);
+            startNotificationTaskStack(pnIntent);
             return;
         }
 
         Intent connectOppInviteIntent = DeepLinkHelper.INSTANCE
                 .retrieveConnectOppInviteIntentIfPresent(this, getIntent());
         if (connectOppInviteIntent != null) {
-            startActivity(connectOppInviteIntent);
+            startNotificationTaskStack(connectOppInviteIntent);
             return;
         }
 
@@ -422,6 +428,12 @@ public class DispatchActivity extends AppCompatActivity {
     private void startAsTaskRoot(Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+        finish();
+    }
+
+    /** Opens a notification's or deep link's {@code target} in the task {@link NotificationTaskStack} builds. */
+    private void startNotificationTaskStack(Intent target) {
+        startActivities(NotificationTaskStack.build(this, target));
         finish();
     }
 

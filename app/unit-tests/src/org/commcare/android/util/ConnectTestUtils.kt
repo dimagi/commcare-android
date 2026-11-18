@@ -48,6 +48,11 @@ object ConnectTestUtils {
         apps.write(appRecordFor(job, UNSEATED_APP_ID, !isLearning))
     }
 
+    /** Write [job] without linking it to any CommCare app, as a job the user hasn't started yet. */
+    fun storeJob(job: ConnectJobRecord) {
+        connectStorage(ConnectJobRecord::class.java).write(job)
+    }
+
     /**
      * A job with no warning to show: active, running, and well under both visit caps, so
      * `getCardMessageText()` returns null. Individual tests push it past one of those edges.

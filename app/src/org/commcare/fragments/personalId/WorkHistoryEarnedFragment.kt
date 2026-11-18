@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryEarnedAdapter
-import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.dalvik.databinding.FragmentWorkHistoryEarnedBinding
 
 class WorkHistoryEarnedFragment : Fragment() {
@@ -42,11 +41,7 @@ class WorkHistoryEarnedFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         workHistoryEarnedAdapter =
             WorkHistoryEarnedAdapter(
-                listener =
-                    object : WorkHistoryEarnedAdapter.OnWorkHistoryItemClickListener {
-                        override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
-                        }
-                    },
+                userName = userName,
                 profilePic = profilePic ?: "",
             )
         binding!!.rvEarnedWorkHistory.adapter = workHistoryEarnedAdapter

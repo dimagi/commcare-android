@@ -62,6 +62,21 @@ object ActivityAssertions {
         return started.single()
     }
 
+    /**
+     * Asserts [started] is one `startActivities` launch of two screens, and returns the screen beneath (the one
+     * clearing the task) and the screen on top. Robolectric doesn't record such a launch in order.
+     */
+    fun assertTwoScreenTask(started: List<Intent>): Pair<Intent, Intent> {
+        assertEquals(
+            "expected two started activities, got ${started.map { className(it) }}",
+            2,
+            started.size,
+        )
+        val (bottom, top) = started.partition { it.flags and Intent.FLAG_ACTIVITY_CLEAR_TASK != 0 }
+        assertEquals("expected exactly one activity to clear the task", 1, bottom.size)
+        return bottom.single() to top.single()
+    }
+
     private fun assertTargets(
         intent: Intent?,
         target: Class<*>,

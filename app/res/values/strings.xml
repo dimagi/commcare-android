@@ -854,6 +854,7 @@
     <string name="personalid_name_fragment_subtitle">Please enter your name as it appears on your government-issued identification</string>
     <string name="personalid_configuration_process_failed_title">Process Failed</string>
     <string name="personalid_configuration_locked_account">Your account has been locked. Please contact support</string>
+    <string name="personalid_registration_ineligible">You are ineligible to register for a PersonalID account.</string>
     <string name="personalid_backup_code_locked">Your backup code has been locked. Please verify your email to set a new one.</string>
     <string name="personalid_configuration_process_failed_subtitle">Unfortunately, this device did not pass the security checks required to sign up for PersonalID. Please try again on a different device.</string>
     <string name="personalid_configuration_process_failed_play_services">Please make sure Play Store is available on your device and is updated.</string>
@@ -934,12 +935,12 @@
     <string name="nav_drawer_switch_app_dialog_confirm">Continue</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Cancel</string>
 
-    <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
-    <string name="personalid_work_history_level_2_month_active">2 Months of\nActivity</string>
-    <string name="personalid_work_history_level_3_month_active">3 Months of\nActivity</string>
-    <string name="personalid_work_history_level_6_month_active">6 Months of\nActivity</string>
-    <string name="personalid_work_history_level_9_month_active">9 Months of\nActivity</string>
-    <string name="personalid_work_history_level_12_month_active">12 Months of\nActivity</string>
+    <string name="personalid_work_history_level_1_month_active">1 Month of Activity</string>
+    <string name="personalid_work_history_level_2_month_active">2 Months of Activity</string>
+    <string name="personalid_work_history_level_3_month_active">3 Months of Activity</string>
+    <string name="personalid_work_history_level_6_month_active">6 Months of Activity</string>
+    <string name="personalid_work_history_level_9_month_active">9 Months of Activity</string>
+    <string name="personalid_work_history_level_12_month_active">12 Months of Activity</string>
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
     <string name="personalid_notification">Notifications</string>
