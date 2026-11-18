@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import io.mockk.every
 import io.mockk.mockkObject
-import io.mockk.mockkStatic
 import kotlinx.coroutines.flow.emptyFlow
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
@@ -195,8 +194,7 @@ class ConnectActivitySidebarTest : BaseConnectJobIntroTest() {
     }
 
     private fun recreateActivity() {
-        mockkStatic(ConnectJobUtils::class)
-        every { ConnectJobUtils.getCompositeJob(job.jobUUID) } returns job
+        ConnectJobUtils.storeJobs(activity, listOf(job), true)
         activityController.recreate()
         activity = activityController.get()
         navHostFragment = activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment
