@@ -579,12 +579,12 @@
     <string name="personalid_work_history_no_records_available">Nenhum registro de trabalho está disponível no momento. Clique em atualizar ou verifique novamente mais tarde.</string>    <string name="personalid_work_history_earned">Ganhos</string>
     <string name="personalid_work_history_pending">Pendente</string>
     <string name="personalid_work_history_sync">Sincronizar</string>
-    <string name="personalid_work_history_level_1_month_active">1 Mês de\nAtividade</string>
-    <string name="personalid_work_history_level_2_month_active">2 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_3_month_active">3 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_6_month_active">6 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_9_month_active">9 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_12_month_active">12 Meses de\nAtividade</string>
+    <string name="personalid_work_history_level_1_month_active">1 Mês de Atividade</string>
+    <string name="personalid_work_history_level_2_month_active">2 Meses de Atividade</string>
+    <string name="personalid_work_history_level_3_month_active">3 Meses de Atividade</string>
+    <string name="personalid_work_history_level_6_month_active">6 Meses de Atividade</string>
+    <string name="personalid_work_history_level_9_month_active">9 Meses de Atividade</string>
+    <string name="personalid_work_history_level_12_month_active">12 Meses de Atividade</string>
     <string name="personalid_work_history_no_pending_records">Não há registros pendentes no momento</string>
 
     <string name="personalid_notification">Notificações</string>

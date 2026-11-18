@@ -564,12 +564,12 @@
     <string name="personalid_work_history_no_records_available">ህሉው ናይ ስራሕ መዝገባት የለዉን። ሓድስ ነገር ንምርኣይ ጠውቕ፣ ወይ ድሕሪኡ ተመለስ።</string>    <string name="personalid_work_history_earned">ዝተረኽበ</string>
     <string name="personalid_work_history_pending">ኣብ ከይዲ ዘሎ</string>
     <string name="personalid_work_history_sync">Sync</string>
-    <string name="personalid_work_history_level_1_month_active">1 ወርሒ\nተግባር</string>
-    <string name="personalid_work_history_level_2_month_active">2 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_work_history_level_3_month_active">3 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_work_history_level_6_month_active">6 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_work_history_level_9_month_active">9 ኣዋርሕ\nተግባር</string>
-    <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ\nተግባር</string>
+    <string name="personalid_work_history_level_1_month_active">1 ወርሒ ተግባር</string>
+    <string name="personalid_work_history_level_2_month_active">2 ኣዋርሕ ተግባር</string>
+    <string name="personalid_work_history_level_3_month_active">3 ኣዋርሕ ተግባር</string>
+    <string name="personalid_work_history_level_6_month_active">6 ኣዋርሕ ተግባር</string>
+    <string name="personalid_work_history_level_9_month_active">9 ኣዋርሕ ተግባር</string>
+    <string name="personalid_work_history_level_12_month_active">12 ኣዋርሕ ተግባር</string>
 
     <string name="personalid_notification">መፍለጥታትን</string>
     <string name="pn_no_notification_available">ዝርከብ መፍለጢ የለን</string>

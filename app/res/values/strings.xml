@@ -931,12 +931,12 @@
     <string name="nav_drawer_switch_app_dialog_confirm">Continue</string>
     <string name="nav_drawer_switch_app_dialog_cancel">Cancel</string>
 
-    <string name="personalid_work_history_level_1_month_active">1 Month of\nActivity</string>
-    <string name="personalid_work_history_level_2_month_active">2 Months of\nActivity</string>
-    <string name="personalid_work_history_level_3_month_active">3 Months of\nActivity</string>
-    <string name="personalid_work_history_level_6_month_active">6 Months of\nActivity</string>
-    <string name="personalid_work_history_level_9_month_active">9 Months of\nActivity</string>
-    <string name="personalid_work_history_level_12_month_active">12 Months of\nActivity</string>
+    <string name="personalid_work_history_level_1_month_active">1 Month of Activity</string>
+    <string name="personalid_work_history_level_2_month_active">2 Months of Activity</string>
+    <string name="personalid_work_history_level_3_month_active">3 Months of Activity</string>
+    <string name="personalid_work_history_level_6_month_active">6 Months of Activity</string>
+    <string name="personalid_work_history_level_9_month_active">9 Months of Activity</string>
+    <string name="personalid_work_history_level_12_month_active">12 Months of Activity</string>
     <string name="personalid_work_history_no_pending_records">There are no pending records at the moment</string>
 
     <string name="personalid_notification">Notifications</string>

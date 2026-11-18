@@ -572,12 +572,12 @@ License.
     <string name="personalid_work_history_no_records_available">Aucun dossier de travail n\'est actuellement disponible. Cliquez sur Actualiser ou revenez plus tard.</string>    <string name="personalid_work_history_earned">Gagné</string>
     <string name="personalid_work_history_pending">En attente</string>
     <string name="personalid_work_history_sync">Synchroniser</string>
-    <string name="personalid_work_history_level_1_month_active">1 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_2_month_active">2 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_3_month_active">3 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_6_month_active">6 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_9_month_active">9 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_12_month_active">12 Mois d\'\nActivité</string>
+    <string name="personalid_work_history_level_1_month_active">1 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_2_month_active">2 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_3_month_active">3 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_6_month_active">6 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_9_month_active">9 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_12_month_active">12 Mois d\'Activité</string>
     <string name="personalid_work_history_no_pending_records">Il n\'y a aucun enregistrement en attente pour le moment</string>
 
     <string name="personalid_notification">Notifications</string>
