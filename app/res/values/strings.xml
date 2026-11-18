@@ -50,7 +50,7 @@
     <string name="privilege_enabled_text">The following privileges are enabled on your device:\n\n %s</string>
     <string name="privilege_not_enabled_text">Special privileges are not enabled on your device.</string>
     <string name="privilege_claim_failed">Could not claim privileges</string>
-    <string name="privilege_claim_bad_version">Didn\'t recognize the privilege activation code. Please update CommCare</string>
+    <string name="privilege_claim_bad_version">Didn\'t recognise the privilege activation code. Please update CommCare</string>
     <string name="privilege_instructions">If you have a superuser account on HQ, you can enable certain privileges on your device by going to the \'Enable Privileges on Mobile\' tab of your \'My Account Settings\' page, and then scanning the barcode that appears there.</string>
     <string name="see_available_apps">See Available Apps</string>
     <!-- endregion -->
@@ -282,7 +282,7 @@
     <string name="recovery_network_outdated" cc:translatable="true">This app is outdated. Please update the app on the Google Play Store in order to proceed.</string>
     <string name="personalid_token_unavailable">There was a network issue. Please try again.</string>
     <string name="personalid_token_request_rejected">Lost PersonalID configuration with server, please recover your PersonalID account and retry</string>
-    <string name="recovery_network_unauthorized">You are not authorized to make this request.</string>
+    <string name="recovery_network_unauthorized">You are not authorised to make this request.</string>
     <string name="recovery_network_server_error">There was an error processing your request.</string>
     <string name="recovery_network_cooldown">Too many request attempts. Please try again after an hour.</string>
     <string name="recovery_network_unknown">Something went wrong. Please try again.</string>
@@ -402,7 +402,7 @@
     <string name="personalid_email_hint">Email address</string>
     <string name="personalid_email_skip">Skip for now</string>
     <string name="personalid_email_skip_confirm_title">Protect your account</string>
-    <string name="personalid_email_skip_confirm_message">Adding an email strengthens your account security. It helps verify important account changes, prevents unauthorized recovery attempts, and gives you a secure way to regain access if you lose your device.</string>
+    <string name="personalid_email_skip_confirm_message">Adding an email strengthens your account security. It helps verify important account changes, prevents unauthorised recovery attempts, and gives you a secure way to regain access if you lose your device.</string>
     <string name="personalid_email_skip_confirm_skip">Skip</string>
     <string name="personalid_email_skip_confirm_add">Add Email</string>
     <string name="personalid_email_invalid_format">Please enter a valid email address.</string>
@@ -718,7 +718,7 @@
     <string name="personalid_manage_profile"><u>Manage Profile</u></string>
     <string name="personalid_profile_title">Profile</string>
     <string name="personalid_demographic_banner_title">Complete Your Profile</string>
-    <string name="personalid_demographic_banner_message">Updating your data helps us personalize your experience and provide better work opportunities to you</string>
+    <string name="personalid_demographic_banner_message">Updating your data helps us personalise your experience and provide better work opportunities to you</string>
     <string name="personalid_demographic_banner_warning">Delivery tasks may be interrupted tomorrow if your profile information is not updated.</string>
     <string name="personalid_demographic_banner_final">To continue working without interruption, please update your profile by clicking the Complete Profile button or accessing it from the menu.</string>
     <string name="personalid_demographic_banner_remind_later">Remind me Later</string>
@@ -836,7 +836,7 @@
 
     <!--    Entity List Progresss Indicators-->
 
-    <string name="entity_list_initializing" cc:translatable="true">Initializing list…</string>
+    <string name="entity_list_initializing" cc:translatable="true">Initialising list…</string>
     <string name="entity_list_loading" cc:translatable="true">Loading list: %s</string>
     <string name="entity_list_finishing" cc:translatable="true">Finishing list calculations…</string>
 
@@ -992,8 +992,8 @@
     <string name="recording_notification_resume_action" cc:translatable="true">Resume</string>
 
     <string name="clear_search_button_description">Clear query</string>
-    <string name="face_capture_manual_instructions" cc:translatable="true">Center a face inside the green outline then tap the white button to take the picture</string>
-    <string name="face_capture_auto_instructions" cc:translatable="true">Center a face inside the green outline and hold still, the photo will capture automatically</string>
+    <string name="face_capture_manual_instructions" cc:translatable="true">Centre a face inside the green outline then tap the white button to take the picture</string>
+    <string name="face_capture_auto_instructions" cc:translatable="true">Centre a face inside the green outline and hold still, the photo will capture automatically</string>
     <string name="face_capture_auto_mode" cc:translatable="true">Auto capture</string>
     <string name="face_capture_manual_mode" cc:translatable="true">Manual capture</string>
     <string name="face_capture_front_camera_unavailable" cc:translatable="true">Front-facing camera is not available, the option to switch cameras will be disabled</string>

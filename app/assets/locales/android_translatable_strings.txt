@@ -182,7 +182,7 @@ login.password=Password
 login.pin.password=PIN
 login.primed.prompt=Your password has been saved for you! Just press 'Log In'.
 login.button=Login
-login.sync=Synchronize with server
+login.sync=Synchronise with server
 login.bad.password=We couldn't find a user with this password. Please try another!
 login.show.password=SHOW
 login.hide.password=HIDE
@@ -321,7 +321,7 @@ bulk.form.sd.emulated=Cannot detect your external SD card. Please try inserting 
 bulk.form.start=Starting form dump...
 bulk.form.send.start=Starting form send...
 bulk.form.progress=Dumped ${0} out of ${1} forms
-bulk.form.cancel=Form dump canceled!
+bulk.form.cancel=Form dump cancelled!
 bulk.form.end=Bulk form finished successfully!
 bulk.form.warning=Do not use this feature unless you have been trained to do so. Do you wish to proceed?
 bulk.form.alert.title=Form Dump
@@ -512,12 +512,12 @@ pin.primed.mode.message=You will use the PIN you create here to log into CommCar
 refresh.build.base.message=Refreshing to your latest build...
 refresh.build.up.to.date=Your app is already up to date, so no refresh occurred.
 refresh.build.update.error=An error occurred while attempting to update, so no refresh occurred.
-refresh.build.update.canceled=The update was canceled, so no refresh occurred.
+refresh.build.update.canceled=The update was cancelled, so no refresh occurred.
 refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
 refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Options menu.
 
 login.attempt.fail.auth.title=Invalid Username or Password
-login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
+login.attempt.fail.auth.detail=Your username or password was not recognised, please type them again and retry.
 
 login.attempt.fail.empty.url.title=URL not set
 login.attempt.fail.empty.url.detail=Sync URL is empty. Please contact CommCare Support.
@@ -540,7 +540,7 @@ login.attempt.insufficient.role.permission.detail=The role assigned to your user
 login.attempt.insufficient.role.permission.action=Contact Support for assistance with this matter
 
 notification.credential.mismatch.title=Mismatching Login Credentials
-notification.credential.mismatch.detail=The server recognized your password, but the password it sent to the device does not match 
+notification.credential.mismatch.detail=The server recognised your password, but the password it sent to the device does not match 
 notification.credential.mismatch.action=Contact CommCare Support for assistance with your account
 
 notification.restore.remote.error.title=Remote Server Error
@@ -632,8 +632,8 @@ notification.install.badreqs.action=${0}
 notification.update.failed.general.title=Update failed due to an error
 notification.update.failed.general.detail=${0}
 
-notification.update.resource.init.fail.title=Resource initialization failed
-notification.update.resource.init.fail.detail=An app resource failed to initialize. This is usually because a file is missing or the database has been corrupted.
+notification.update.resource.init.fail.title=Resource initialisation failed
+notification.update.resource.init.fail.detail=An app resource failed to initialise. This is usually because a file is missing or the database has been corrupted.
 notification.update.resource.init.fail.action=Fixing this will usually require reinstalling CommCare.
 
 notification.reinstall.invalid.ccz.title=Invalid CCZ File
@@ -707,9 +707,9 @@ notification.processing.nosdcard.action=A USB Cable was probably plugged in and 
 notification.sending.loggedout.title=Logged out while processing/submitting
 notification.sending.loggedout.detail=You were logged out while CommCare was processing or submitting data. Your forms will be processed/sent when you log back in.
 
-notification.sync.airplane.title=Phone in Airplane Mode
+notification.sync.airplane.title=Phone in Aeroplane Mode
 notification.sync.airplane.detail=Cannot access the Internet
-notification.sync.airplane.action=You are in airplane mode and unable to connect to the Internet. Turn off airplane mode and try again.
+notification.sync.airplane.action=You are in aeroplane mode and unable to connect to the Internet. Turn off aeroplane mode and try again.
 
 notification.case.filter.title=Case List failed to sort
 notification.case.filter.detail=Sort property not have the expected datatype
