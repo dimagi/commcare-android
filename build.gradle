@@ -27,6 +27,23 @@ allprojects {
     }
 }
 
+// Optional: send build output somewhere other than ./build, so a checkout on a
+// network share can be built on local disk. Turned on by setting `localBuildRoot`
+// (an absolute path) in that machine's ~/.gradle/gradle.properties.
+//
+// If localBuildRoot is on a different drive from the project (e.g. the project is
+// opened by its \\server\share path), Robolectric unit tests can't run in that
+// checkout; app/build.gradle disables them. To keep them, open the share through a
+// directory symlink on the build drive, e.g. `mklink /D F:\src\commcare \\server\share\commcare`.
+def localBuildRoot = providers.gradleProperty('localBuildRoot').orNull
+if (localBuildRoot != null) {
+    def buildRoot = file(localBuildRoot)
+    allprojects { p ->
+        def subdir = (p == rootProject) ? '_root' : p.path.substring(1).replace(':', '/')
+        p.layout.buildDirectory.set(new File(buildRoot, "${rootProject.name}/${subdir}"))
+    }
+}
+
 ext {
     markwon_version = '4.6.2'
     lifecycle_version = '2.5.1'

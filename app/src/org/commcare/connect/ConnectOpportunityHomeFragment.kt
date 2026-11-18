@@ -57,7 +57,7 @@ class ConnectOpportunityHomeFragment :
      * and the mark clears if the opportunity is extended or reactivated.
      */
     private fun recordOpportunityVisit() {
-        if (ConnectOpportunityHomeState.resolve(job.status) != ConnectOpportunityHomeState.JOB_INTRO) {
+        if (!ConnectOpportunityHomeState.isIntro(job)) {
             PersonalIdUserPreferences.setLastAccessedOpportunityUuid(job.jobUUID)
         }
 

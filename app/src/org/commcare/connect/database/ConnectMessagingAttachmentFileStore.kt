@@ -29,7 +29,7 @@ object ConnectMessagingAttachmentFileStore {
         val partialFile = File(directory, attachmentId + PARTIAL_FILE_SUFFIX)
         partialFile.writeBytes(contents)
         val completeFile = fileFor(context, attachmentId)
-        if (!partialFile.renameTo(completeFile)) {
+        if (!partialFile.renameTo(completeFile) && !(completeFile.delete() && partialFile.renameTo(completeFile))) {
             partialFile.delete()
             throw IOException("Could not move $partialFile to $completeFile")
         }

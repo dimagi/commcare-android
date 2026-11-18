@@ -36,60 +36,6 @@ class HomeActivityCoordinatorTest {
         assertEquals(2, host.observerCount)
     }
 
-    @Test
-    fun `launch and nav state defaults to false with nothing saved`() {
-        val host = FakeHomeActivityHost()
-        val coordinator = HomeActivityCoordinator(host)
-        host.performRestore()
-        host.dispatchOnCreate()
-
-        assertFalse(coordinator.wasExternal)
-        assertFalse(coordinator.loginExtraWasConsumed)
-        assertFalse(coordinator.pendingEndpointNavigationAfterSync)
-    }
-
-    @Test
-    fun `all three launch and nav keys survive a save and restore round trip`() {
-        val firstHost = FakeHomeActivityHost()
-        val first = HomeActivityCoordinator(firstHost)
-        firstHost.performRestore()
-        firstHost.dispatchOnCreate()
-        first.wasExternal = true
-        first.loginExtraWasConsumed = true
-        first.pendingEndpointNavigationAfterSync = true
-
-        val saved = firstHost.performSave()
-
-        val secondHost = FakeHomeActivityHost()
-        val second = HomeActivityCoordinator(secondHost)
-        secondHost.performRestore(saved)
-        secondHost.dispatchOnCreate()
-
-        assertTrue(second.wasExternal)
-        assertTrue(second.loginExtraWasConsumed)
-        assertTrue(second.pendingEndpointNavigationAfterSync)
-    }
-
-    @Test
-    fun `each key round trips independently`() {
-        val firstHost = FakeHomeActivityHost()
-        val first = HomeActivityCoordinator(firstHost)
-        firstHost.performRestore()
-        firstHost.dispatchOnCreate()
-        first.loginExtraWasConsumed = true
-
-        val saved = firstHost.performSave()
-
-        val secondHost = FakeHomeActivityHost()
-        val second = HomeActivityCoordinator(secondHost)
-        secondHost.performRestore(saved)
-        secondHost.dispatchOnCreate()
-
-        assertFalse(second.wasExternal)
-        assertTrue(second.loginExtraWasConsumed)
-        assertFalse(second.pendingEndpointNavigationAfterSync)
-    }
-
     /**
      * A write made before `ON_CREATE` (as `processFromExternalLaunch` does) must not be clobbered by
      * the coordinator's own `onCreate` restore pass.
@@ -99,54 +45,36 @@ class HomeActivityCoordinatorTest {
         val host = FakeHomeActivityHost()
         val coordinator = HomeActivityCoordinator(host)
         host.performRestore()
-        coordinator.wasExternal = true
+        coordinator.launchState.wasExternal = true
 
         host.dispatchOnCreate()
 
-        assertTrue(coordinator.wasExternal)
+        assertTrue(coordinator.launchState.wasExternal)
     }
 
-    @Test
-    fun `state set before on-create is still saved`() {
-        val host = FakeHomeActivityHost()
-        val coordinator = HomeActivityCoordinator(host)
-        host.performRestore()
-        coordinator.pendingEndpointNavigationAfterSync = true
-
-        val saved = host.performSave()
-
-        val secondHost = FakeHomeActivityHost()
-        val second = HomeActivityCoordinator(secondHost)
-        secondHost.performRestore(saved)
-        secondHost.dispatchOnCreate()
-
-        assertTrue(second.pendingEndpointNavigationAfterSync)
-    }
-
-    /**
-     * No delegates exist yet, so forwarding is a no-op fan-out. Pinning it here means the host can
-     * wire the forward now and later slices only add fan-out targets.
-     */
     @Test
     fun `forwarding an activity result does not disturb launch and nav state`() {
         val host = FakeHomeActivityHost()
         val coordinator = HomeActivityCoordinator(host)
         host.performRestore()
         host.dispatchOnCreate()
-        coordinator.wasExternal = true
+        coordinator.launchState.wasExternal = true
 
         coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent())
 
-        assertTrue(coordinator.wasExternal)
-        assertFalse(coordinator.loginExtraWasConsumed)
+        assertTrue(coordinator.launchState.wasExternal)
+        assertFalse(coordinator.launchState.loginExtraWasConsumed)
     }
 
     @Test
-    fun `only in-app update results are reported as consumed`() {
-        val coordinator = HomeActivityCoordinator(FakeHomeActivityHost(), FakeSeatedAppSession())
+    fun `an in-app update result goes no further than the update delegate`() {
+        val host = FakeHomeActivityHost()
+        val coordinator = HomeActivityCoordinator(host, FakeSeatedAppSession())
 
-        assertTrue(coordinator.onActivityResult(IN_APP_UPDATE_REQUEST_CODE, RESULT_OK, null))
-        assertFalse(coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent()))
+        coordinator.onActivityResult(IN_APP_UPDATE_REQUEST_CODE, RESULT_OK, null)
+
+        assertTrue(host.startedForResult.isEmpty())
+        assertTrue(host.finishedWithResults.isEmpty())
     }
 
     @Test

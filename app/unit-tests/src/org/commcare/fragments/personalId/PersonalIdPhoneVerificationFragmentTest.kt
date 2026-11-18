@@ -31,6 +31,7 @@ import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.shadows.ShadowPhoneAuthProvider
 import org.commcare.android.util.FirebaseTestUtils
+import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -86,7 +87,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
                 ) = Unit
             }
         every {
-            FirebaseAnalyticsUtil.reportOtpEvent(any(), any(), any(), any(), any(), any(), any())
+            FirebaseAnalyticsUtil.reportOtpEvent(any(), any(), any(), any(), any(), any(), any(), any())
         } just Runs
     }
 
@@ -259,6 +260,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         outcome: String,
         method: String,
         reason: String?,
+        errorCode: String?,
         times: Int = 1,
     ) {
         verify(exactly = times) {
@@ -267,6 +269,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
                 outcome,
                 method,
                 reason,
+                errorCode,
                 any(),
                 any(),
                 any(),
@@ -284,11 +287,13 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "too_many_requests",
+            "FirebaseTooManyRequestsException",
         )
         verifyPhoneRequestReported(
             AnalyticsParamValue.OTP_OUTCOME_FAILURE,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "too_many_requests",
+            "FirebaseTooManyRequestsException",
             times = 0,
         )
     }
@@ -304,11 +309,13 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             AnalyticsParamValue.OTP_OUTCOME_FAILURE,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "verification_failed",
+            "ERROR_APP_NOT_AUTHORIZED",
         )
         verifyPhoneRequestReported(
             AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "verification_failed",
+            "ERROR_APP_NOT_AUTHORIZED",
             times = 0,
         )
     }
@@ -326,6 +333,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             AnalyticsParamValue.OTP_OUTCOME_FAILURE,
             AnalyticsParamValue.OTP_METHOD_FIREBASE,
             "invalid_credential",
+            "ERROR_INVALID_PHONE_NUMBER",
         )
     }
 
@@ -348,6 +356,58 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
                 "${exception.javaClass.simpleName} should switch to PersonalID",
                 OtpManager.SMS_METHOD_PERSONAL_ID,
                 lastOtpMethod(),
+            )
+        }
+    }
+
+    @Test
+    fun `every firebase failure that blocks delivery reports its error code on the handoff`() {
+        mapOf(
+            FirebaseException("An internal error has occurred. [ BILLING_NOT_ENABLED ]") to "BILLING_NOT_ENABLED",
+            FirebaseException("An internal error has occurred.") to "FirebaseException",
+            FirebaseNetworkException("A network error has occurred.") to "FirebaseNetworkException",
+            FirebaseAuthMissingActivityForRecaptchaException().let { it to it.errorCode },
+        ).forEach { (exception, errorCode) ->
+            ShadowPhoneAuthProvider.reset()
+            givenFirebaseFailsWith(exception)
+
+            launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
+            ShadowLooper.idleMainLooper()
+
+            verify(atLeast = 1) {
+                FirebaseAnalyticsUtil.reportOtpEvent(
+                    OtpAnalyticsMapper.OtpOp.REQUEST_PHONE,
+                    AnalyticsParamValue.OTP_OUTCOME_FALLBACK_TO_PERSONAL_ID,
+                    AnalyticsParamValue.OTP_METHOD_FIREBASE,
+                    any(),
+                    errorCode,
+                    any(),
+                    any(),
+                    any(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `verifying before firebase has sent a code reports the missing verification id`() {
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = false)
+        ShadowLooper.idleMainLooper()
+
+        codeView().setCode("123456")
+        verifyButton().performClick()
+        ShadowLooper.idleMainLooper()
+
+        verify {
+            FirebaseAnalyticsUtil.reportOtpEvent(
+                OtpAnalyticsMapper.OtpOp.VERIFY_PHONE,
+                AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                AnalyticsParamValue.OTP_METHOD_FIREBASE,
+                any(),
+                "NO_VERIFICATION_ID",
+                any(),
+                any(),
+                any(),
             )
         }
     }
@@ -513,6 +573,25 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
             activity.getString(R.string.personalid_otp_limit_exceeded),
             errorView().text.toString(),
         )
+    }
+
+    @Test
+    fun `a PersonalID verification failure reports its error code`() {
+        launchOnPersonalIdPath()
+        submitCodeAgainst(otpLimitExceededResponse())
+
+        verify {
+            FirebaseAnalyticsUtil.reportOtpEvent(
+                OtpAnalyticsMapper.OtpOp.VERIFY_PHONE,
+                AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                AnalyticsParamValue.OTP_METHOD_PERSONAL_ID,
+                any(),
+                PersonalIdOrConnectApiErrorCodes.OTP_LIMIT_EXCEEDED_ERROR.name,
+                any(),
+                any(),
+                any(),
+            )
+        }
     }
 
     @Test

@@ -541,6 +541,7 @@ License.
     <string name="personalid_name_fragment_subtitle">Veuillez saisir votre nom tel qu\'il apparaît sur votre pièce d\'identité émise par le gouvernement</string>
     <string name="personalid_configuration_process_failed_title">Échec du processus</string>
     <string name="personalid_configuration_locked_account">Votre compte a été bloqué. Veuillez contacter le support</string>
+    <string name="personalid_registration_ineligible">Vous n\'êtes pas éligible à l\'inscription d\'un compte PersonalID.</string>
     <string name="personalid_backup_code_locked">Votre code de secours a été bloqué. Veuillez vérifier votre e-mail pour en définir un nouveau.</string>
     <string name="personalid_configuration_process_failed_subtitle">Malheureusement, cet appareil n\'a pas réussi les contrôles de sécurité requis pour s\'inscrire à PersonalID. Veuillez réessayer sur un autre appareil.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">Le code PIN de cet appareil est actuellement indisponible. Veuillez réessayer plus tard.</string>
@@ -571,12 +572,12 @@ License.
     <string name="personalid_work_history_no_records_available">Aucun dossier de travail n\'est actuellement disponible. Cliquez sur Actualiser ou revenez plus tard.</string>    <string name="personalid_work_history_earned">Gagné</string>
     <string name="personalid_work_history_pending">En attente</string>
     <string name="personalid_work_history_sync">Synchroniser</string>
-    <string name="personalid_work_history_level_1_month_active">1 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_2_month_active">2 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_3_month_active">3 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_6_month_active">6 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_9_month_active">9 Mois d\'\nActivité</string>
-    <string name="personalid_work_history_level_12_month_active">12 Mois d\'\nActivité</string>
+    <string name="personalid_work_history_level_1_month_active">1 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_2_month_active">2 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_3_month_active">3 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_6_month_active">6 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_9_month_active">9 Mois d\'Activité</string>
+    <string name="personalid_work_history_level_12_month_active">12 Mois d\'Activité</string>
     <string name="personalid_work_history_no_pending_records">Il n\'y a aucun enregistrement en attente pour le moment</string>
 
     <string name="personalid_notification">Notifications</string>

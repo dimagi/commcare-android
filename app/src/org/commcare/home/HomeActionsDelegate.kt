@@ -2,11 +2,13 @@ package org.commcare.home
 
 import android.content.Intent
 import android.widget.AdapterView
+import android.widget.Toast
 import org.commcare.activities.CommCarePreferenceActivity
 import org.commcare.activities.FormRecordListActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
 import org.commcare.android.database.user.models.FormRecord
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.preferences.AdvancedActionsPreferences
 import org.commcare.preferences.DeveloperPreferences
 import org.commcare.preferences.MainConfigurablePreferences
 import org.commcare.utils.ChangeLocaleUtil
@@ -14,10 +16,12 @@ import org.commcare.views.dialogs.DialogChoiceItem
 import org.commcare.views.dialogs.DialogCreationHelpers
 import org.commcare.views.dialogs.PaneledChoiceDialog
 import org.javarosa.core.services.locale.Localization
+import java.io.File
 
 /**
  * The home screen's actions, each paired with an availability query. The host decides where each
- * one is surfaced: overflow menu, on-screen button or drawer entry.
+ * one is surfaced: overflow menu, on-screen button or drawer entry. Handles the results of the
+ * Settings and Advanced Actions screens it opens.
  */
 class HomeActionsDelegate(
     private val host: HomeActivityHost,
@@ -113,6 +117,69 @@ class HomeActionsDelegate(
     fun canUpdateCommCare(): Boolean = host.areAppActionsAvailable() && appUpdate.showCommCareUpdateMenu
 
     fun updateCommCare() = appUpdate.startCommCareUpdate()
+
+    /**
+     * Handle the results of the Settings and Advanced Actions screens.
+     *
+     * @return true when [requestCode] belonged to one of them
+     */
+    fun onActivityResult(
+        requestCode: Int,
+        resultCode: Int,
+        intent: Intent?,
+    ): Boolean {
+        when (requestCode) {
+            HomeRequestCodes.PREFERENCES_ACTIVITY -> handlePreferencesResult(resultCode)
+            HomeRequestCodes.ADVANCED_ACTIONS_ACTIVITY -> handleAdvancedActionsResult(resultCode, intent)
+            else -> return false
+        }
+        return true
+    }
+
+    private fun handlePreferencesResult(resultCode: Int) {
+        if (resultCode == HomeResultCodes.RESULT_DATA_RESET) {
+            host.finish()
+        } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
+            performCustomRestore()
+        }
+    }
+
+    private fun performCustomRestore() {
+        val failureMessageKey =
+            try {
+                val filePath = DeveloperPreferences.getCustomRestoreDocLocation()
+                when {
+                    filePath.isNullOrEmpty() -> {
+                        "custom.restore.file.not.set"
+                    }
+
+                    !File(filePath).exists() -> {
+                        "custom.restore.file.not.exist"
+                    }
+
+                    else -> {
+                        sync.performCustomRestoreFromFile(File(filePath))
+                        null
+                    }
+                }
+            } catch (e: Exception) {
+                "custom.restore.error"
+            }
+        failureMessageKey?.let { Toast.makeText(host.hostContext, Localization.get(it), Toast.LENGTH_LONG).show() }
+    }
+
+    private fun handleAdvancedActionsResult(
+        resultCode: Int,
+        intent: Intent?,
+    ) {
+        if (resultCode != HomeResultCodes.RESULT_FORMS_PROCESSED) {
+            return
+        }
+        val formProcessCount = intent!!.getIntExtra(AdvancedActionsPreferences.FORM_PROCESS_COUNT_KEY, 0)
+        val localizationKey = intent.getStringExtra(AdvancedActionsPreferences.FORM_PROCESS_MESSAGE_KEY)
+        host.displayToast(Localization.get(localizationKey, arrayOf(formProcessCount.toString())))
+        host.refreshHostUi()
+    }
 
     private fun countAboutDialogDismissal() {
         aboutDialogDismissals++
