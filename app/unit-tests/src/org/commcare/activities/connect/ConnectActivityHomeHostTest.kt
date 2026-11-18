@@ -328,7 +328,7 @@ class ConnectActivityHomeHostTest {
     }
 
     @Test
-    fun `sync off Opp Home`() {
+    fun `sync off Opp Home also syncs the app`() {
         logIn()
         val activity = launchLoggedInConnect()
         val syncer = fakeSyncer(activity)
@@ -338,7 +338,7 @@ class ConnectActivityHomeHostTest {
 
         activity.onOptionsItemSelected(menuItem(activity, R.id.action_sync))
 
-        assertEquals(0, syncer.formSendCount)
+        assertEquals(1, syncer.formSendCount)
     }
 
     @Test

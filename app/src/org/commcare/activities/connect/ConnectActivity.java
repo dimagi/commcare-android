@@ -304,13 +304,13 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     }
 
     /**
-     * Syncs what the page on screen shows. On Opportunity Home with the opportunity's app signed in, that
-     * includes the app: its forms are sent and its data pulled, as App Home's sync button did.
+     * Syncs what the page on screen shows. With the opportunity's app signed in, that includes the app on
+     * every page: its forms are sent and its data pulled, as App Home's sync button did.
      *
      * @return whether there was a page to refresh
      */
     public boolean sync() {
-        if (isShowingOpportunityHome() && areAppActionsAvailable()) {
+        if (areAppActionsAvailable()) {
             coordinator.getActions().syncIfOnline();
         }
         RefreshableFragment refreshable = getRefreshableFragment();
