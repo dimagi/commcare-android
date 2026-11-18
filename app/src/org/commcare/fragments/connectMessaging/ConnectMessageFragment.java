@@ -201,6 +201,7 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
 
         // Start periodic API calls
         handler.post(apiCallRunnable);
+        adapter.setCardsActive(binding.rvChat, true);
     }
 
     @Override
@@ -213,6 +214,14 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
         // Stop the periodic API calls when the screen is not active
         handler.removeCallbacks(apiCallRunnable);
         ConnectMessageAudioPlayer.INSTANCE.stop();
+        adapter.setCardsActive(binding.rvChat, false);
+    }
+
+    @Override
+    public void onDestroyView() {
+        // Recycles every row, which destroys any card's WebView
+        binding.rvChat.setAdapter(null);
+        super.onDestroyView();
     }
 
     @Nullable
@@ -392,7 +401,8 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
                 message.getConfirmed(),
                 attachments,
                 message.isUnsupportedVersion(),
-                pendingDownloadState);
+                pendingDownloadState,
+                message.getFormat());
     }
 
     @Override
@@ -410,6 +420,11 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
     public void onAttachmentOpenRequested(@NonNull ConnectMessageAttachmentItem attachment) {
         File file = attachment.getFile();
         if (file == null) {
+            return;
+        }
+        if (!ConnectMessageAttachmentOpenPolicy.canOpenInAnotherApp(attachment.getMimeType(), attachment.getName())) {
+            Toast.makeText(requireContext(), R.string.connect_messaging_attachment_cannot_open,
+                    Toast.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -434,6 +449,12 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
         Navigation.findNavController(requireView()).navigate(ConnectMessageFragmentDirections
                         .actionConnectMessageFragmentToConnectMessageImageViewerFragment(attachment.getAttachmentId()),
                 sharedImage);
+    }
+
+    @Override
+    public void onCardOpenRequested(@NonNull String messageId) {
+        Navigation.findNavController(requireView()).navigate(ConnectMessageFragmentDirections
+                .actionConnectMessageFragmentToConnectMessageCardViewerFragment(messageId));
     }
 
     private void scrollToLatestMessage() {

@@ -36,6 +36,9 @@
         <action
             android:id="@+id/action_connectMessageFragment_to_connectMessageImageViewerFragment"
             app:destination="@id/connectMessageImageViewerFragment" />
+        <action
+            android:id="@+id/action_connectMessageFragment_to_connectMessageCardViewerFragment"
+            app:destination="@id/connectMessageCardViewerFragment" />
     </fragment>
 
     <fragment
@@ -44,6 +47,16 @@
         tools:layout="@layout/fragment_connect_message_image_viewer">
         <argument
             android:name="attachment_id"
+            app:argType="string"
+            app:nullable="false"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/connectMessageCardViewerFragment"
+        android:name="org.commcare.fragments.connectMessaging.ConnectMessageCardViewerFragment"
+        tools:layout="@layout/fragment_connect_message_card_viewer">
+        <argument
+            android:name="message_id"
             app:argType="string"
             app:nullable="false"/>
     </fragment>

@@ -20,6 +20,7 @@ import org.commcare.dalvik.databinding.ItemChatLeftViewBinding;
 import org.commcare.dalvik.databinding.ItemChatRightViewBinding;
 import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentListener;
 import org.commcare.fragments.connectMessaging.ConnectMessageAttachmentsBinder;
+import org.commcare.fragments.connectMessaging.ConnectMessageCardSupport;
 import org.commcare.fragments.connectMessaging.ConnectMessageChatData;
 import org.commcare.fragments.connectMessaging.ConnectMessageMediaSizer;
 import org.commcare.utils.MarkupUtil;
@@ -139,7 +140,8 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             return oldChat.getType() == newChat.getType()
                     && Objects.equals(oldChat.getMessage(), newChat.getMessage())
                     && Objects.equals(oldChat.getTimestamp(), newChat.getTimestamp())
-                    && oldChat.isUnsupportedVersion() == newChat.isUnsupportedVersion();
+                    && oldChat.isUnsupportedVersion() == newChat.isUnsupportedVersion()
+                    && Objects.equals(oldChat.getFormat(), newChat.getFormat());
         }
     }
 
@@ -194,6 +196,9 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 layout = attachmentsBinder.bindUnsupportedMessage();
             } else if (awaitingDownload) {
                 layout = attachmentsBinder.bindPendingMessage(chat.getMessageId(), chat.getPendingDownloadState());
+            } else if (ConnectMessageCardSupport.isCard(chat.getFormat())) {
+                layout = attachmentsBinder.bindCard(chat.getMessageId(), chat.getAttachments(), maxMediaWidth(),
+                        displayMetrics().heightPixels);
             } else {
                 layout = attachmentsBinder.bind(chat.getAttachments(), maxMediaWidth(), maxMediaHeight());
             }
@@ -310,6 +315,25 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             ((BaseMessageViewHolder)holder).bindReadStatus(messages.get(position));
         } else {
             onBindViewHolder(holder, position);
+        }
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder instanceof RichLeftViewHolder) {
+            // A card's WebView must be destroyed, not left for the next message bound to this row
+            ((RichLeftViewHolder)holder).attachmentsBinder.release();
+        }
+    }
+
+    /** Pauses or resumes the cards on screen, as the chat pauses and resumes. */
+    public void setCardsActive(RecyclerView messageList, boolean active) {
+        for (int index = 0; index < messageList.getChildCount(); index++) {
+            RecyclerView.ViewHolder holder = messageList.getChildViewHolder(messageList.getChildAt(index));
+            if (holder instanceof RichLeftViewHolder) {
+                ((RichLeftViewHolder)holder).attachmentsBinder.setCardsActive(active);
+            }
         }
     }
 

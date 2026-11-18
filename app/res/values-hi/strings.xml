@@ -789,6 +789,11 @@ License.
     <string name="connect_messaging_attachment_tap_to_retry">फिर से कोशिश करने के लिए टैप करें</string>
     <string name="connect_messaging_attachment_expired">अब उपलब्ध नहीं है</string>
     <string name="connect_messaging_attachment_open_failed">इस फ़ोन पर कोई भी ऐप यह फ़ाइल नहीं खोल सकता</string>
+    <string name="connect_messaging_attachment_cannot_open">यह फ़ाइल नहीं खोली जा सकती</string>
+    <string name="connect_messaging_card_open">खोलें</string>
+    <string name="connect_messaging_card_unsupported_device">यह सामग्री इस डिवाइस पर नहीं दिखाई जा सकती</string>
+    <string name="connect_messaging_card_missing_entry">यह सामग्री नहीं दिखाई जा सकती</string>
+    <string name="connect_messaging_card_stopped">इस सामग्री ने काम करना बंद कर दिया</string>
     <string name="connect_messaging_audio_play">ऑडियो चलाएं</string>
     <string name="connect_messaging_audio_pause">ऑडियो रोकें</string>
     <string name="connect_messaging_audio_play_failed">यह ऑडियो नहीं चलाया जा सका</string>

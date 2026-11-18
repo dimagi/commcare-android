@@ -20,6 +20,8 @@ public class ConnectMessageChatData {
     private final boolean unsupportedVersion;
     @Nullable
     private final ConnectMessagingAttachmentState pendingDownloadState;
+    @Nullable
+    private final String format;
 
     // Constructor with parameters
     public ConnectMessageChatData(String messageId, int type, String message, String userName, Date timestamp, boolean isMessageRead) {
@@ -30,6 +32,16 @@ public class ConnectMessageChatData {
                                   boolean isMessageRead, List<ConnectMessageAttachmentItem> attachments,
                                   boolean unsupportedVersion,
                                   @Nullable ConnectMessagingAttachmentState pendingDownloadState) {
+        this(messageId, type, message, userName, timestamp, isMessageRead, attachments, unsupportedVersion,
+                pendingDownloadState, null);
+    }
+
+    public ConnectMessageChatData(String messageId, int type, String message, String userName, Date timestamp,
+                                  boolean isMessageRead, List<ConnectMessageAttachmentItem> attachments,
+                                  boolean unsupportedVersion,
+                                  @Nullable ConnectMessagingAttachmentState pendingDownloadState,
+                                  @Nullable String format) {
+        this.format = format;
         this.messageId = messageId;
         this.type = type;
         this.message = message;
@@ -52,6 +64,12 @@ public class ConnectMessageChatData {
     @Nullable
     public ConnectMessagingAttachmentState getPendingDownloadState() {
         return pendingDownloadState;
+    }
+
+    /** How the sender asked for the message to be shown, e.g. "card-html"; null for plain messages. */
+    @Nullable
+    public String getFormat() {
+        return format;
     }
 
     public boolean isAwaitingDownload() {

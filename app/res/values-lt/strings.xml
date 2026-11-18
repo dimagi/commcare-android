@@ -514,6 +514,11 @@
     <string name="connect_messaging_attachment_tap_to_retry">Palieskite, kad bandytumėte dar kartą</string>
     <string name="connect_messaging_attachment_expired">Nebepasiekiama</string>
     <string name="connect_messaging_attachment_open_failed">Jokia šio telefono programa negali atidaryti šio failo</string>
+    <string name="connect_messaging_attachment_cannot_open">Šio failo negalima atidaryti</string>
+    <string name="connect_messaging_card_open">Atidaryti</string>
+    <string name="connect_messaging_card_unsupported_device">Šio turinio negalima parodyti šiame įrenginyje</string>
+    <string name="connect_messaging_card_missing_entry">Šio turinio negalima parodyti</string>
+    <string name="connect_messaging_card_stopped">Šis turinys nustojo veikti</string>
     <string name="connect_messaging_audio_play">Leisti garso įrašą</string>
     <string name="connect_messaging_audio_pause">Pristabdyti garso įrašą</string>
     <string name="connect_messaging_audio_play_failed">Nepavyko paleisti šio garso įrašo</string>
