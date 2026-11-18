@@ -30,6 +30,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
 - On an opportunity whose budget is fully used, pass the learning assessment with a new user and tap the button to download the delivery app; confirm the error says no more paid visits are available, instead of the generic "Unable to claim" message.
   - On an opportunity whose end date has passed, do the same and confirm the error says the opportunity has ended.
+- While logged in to a CommCare app, open Work History from the sidebar, switch to another app and back; confirm the title still reads "My Work History", earned cards show your name, and at the default font size the English text just above the ribbon fits on one line. Then set the device font to its largest size and confirm that text wraps onto a second line if needed, without being cut off.
 
 ## CommCare 2.65
 

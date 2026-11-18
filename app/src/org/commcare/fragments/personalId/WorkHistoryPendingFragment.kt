@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.activities.connect.viewmodel.PersonalIdWorkHistoryViewModel
 import org.commcare.adapters.WorkHistoryPendingAdapter
-import org.commcare.android.database.connect.models.PersonalIdWorkHistory
 import org.commcare.dalvik.databinding.FragmentWorkHistoryPendingBinding
 
 class WorkHistoryPendingFragment : Fragment() {
@@ -39,15 +38,7 @@ class WorkHistoryPendingFragment : Fragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        workHistoryPendingAdapter =
-            WorkHistoryPendingAdapter(
-                listener =
-                    object :
-                        WorkHistoryPendingAdapter.OnWorkHistoryItemClickListener {
-                        override fun onWorkHistoryItemClick(workHistory: PersonalIdWorkHistory) {
-                        }
-                    },
-            )
+        workHistoryPendingAdapter = WorkHistoryPendingAdapter()
         binding!!.rvPendingWorkHistory.adapter = workHistoryPendingAdapter
         viewModel = ViewModelProvider(requireActivity())[PersonalIdWorkHistoryViewModel::class.java]
         viewModel.pendingWorkHistory.observe(viewLifecycleOwner) { pendingList ->
