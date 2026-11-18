@@ -64,12 +64,13 @@ object ConnectMessageCardSupport {
         messageId: String,
         attachmentNames: Collection<String>,
         deviceSupported: Boolean,
-    ): Int? =
-        when {
+    ): Int? {
+        val hasEntry = ConnectMessageCardLoader.ENTRY_FILE in attachmentNames && ConnectMessageCardLoader.isValidMessageId(messageId)
+        return when {
             !deviceSupported -> R.string.connect_messaging_card_unsupported_device
-            ConnectMessageCardLoader.ENTRY_FILE !in attachmentNames || !ConnectMessageCardLoader.isValidMessageId(messageId) ->
-                R.string.connect_messaging_card_missing_entry
+            !hasEntry -> R.string.connect_messaging_card_missing_entry
             hasStopped(messageId) -> R.string.connect_messaging_card_stopped
             else -> null
         }
+    }
 }

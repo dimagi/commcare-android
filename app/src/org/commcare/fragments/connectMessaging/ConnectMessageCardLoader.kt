@@ -97,7 +97,9 @@ class ConnectMessageCardLoader private constructor(
                 "woff2" to "font/woff2",
                 "ttf" to "font/ttf",
             )
-        private val TEXT_MIME_TYPES = setOf("text/html", "text/css", "text/javascript", "application/json", "text/plain", "image/svg+xml")
+
+        private val TEXT_MIME_TYPES =
+            setOf("text/html", "text/css", "text/javascript", "application/json", "text/plain", "image/svg+xml")
 
         @JvmStatic
         fun isValidMessageId(messageId: String): Boolean = MESSAGE_ID.matches(messageId)
@@ -147,7 +149,8 @@ class ConnectMessageCardLoader private constructor(
         @JvmStatic
         fun mimeTypeFor(name: String): String? = MIME_TYPES[name.substringAfterLast('.', "").lowercase(Locale.ROOT)]
 
-        private fun notFound(): WebResourceResponse = response("text/plain", HTTP_NOT_FOUND, "Not Found", ByteArrayInputStream(ByteArray(0)))
+        private fun notFound(): WebResourceResponse =
+            response("text/plain", HTTP_NOT_FOUND, "Not Found", ByteArrayInputStream(ByteArray(0)))
 
         private fun response(
             mimeType: String,

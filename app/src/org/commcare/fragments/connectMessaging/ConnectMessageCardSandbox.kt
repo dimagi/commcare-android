@@ -2,9 +2,11 @@ package org.commcare.fragments.connectMessaging
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.Message
 import android.view.View
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
@@ -188,7 +190,7 @@ object ConnectMessageCardSandbox {
 
         override fun onShowFileChooser(
             webView: WebView,
-            filePathCallback: ValueCallback<Array<android.net.Uri>>,
+            filePathCallback: ValueCallback<Array<Uri>>,
             fileChooserParams: FileChooserParams,
         ): Boolean = false
 
@@ -238,7 +240,7 @@ object ConnectMessageCardSandbox {
             view: WebView,
             isDialog: Boolean,
             isUserGesture: Boolean,
-            resultMsg: android.os.Message?,
+            resultMsg: Message?,
         ): Boolean = false
 
         override fun onShowCustomView(

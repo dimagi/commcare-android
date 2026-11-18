@@ -210,7 +210,14 @@ class ConnectMessageAttachmentsBinderTest {
         val files =
             names.map { name ->
                 val file = File(context.cacheDir, "card-$name").apply { writeText(name) }
-                ConnectMessageAttachmentItem(name, name, "application/octet-stream", file.length(), ConnectMessagingAttachmentState.AVAILABLE, file)
+                ConnectMessageAttachmentItem(
+                    name,
+                    name,
+                    "application/octet-stream",
+                    file.length(),
+                    ConnectMessagingAttachmentState.AVAILABLE,
+                    file,
+                )
             }
         cardBinder.bindCard(CARD_MESSAGE_ID, files, MAX_WIDTH, WINDOW_HEIGHT)
         return ViewConnectMessageAttachmentPendingBinding.bind(container.getChildAt(0))

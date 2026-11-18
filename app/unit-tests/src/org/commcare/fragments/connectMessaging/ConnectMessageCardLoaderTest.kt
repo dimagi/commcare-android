@@ -62,16 +62,18 @@ class ConnectMessageCardLoaderTest {
     @Test
     fun `other origins resolve to nothing`() {
         val names = files.keys
-        for (url in listOf(
-            "http://${loader.host}/index.html",
-            "https://${loader.host}:8443/index.html",
-            "https://user@${loader.host}/index.html",
-            "https://other.card.invalid/index.html",
-            "https://example.com/index.html",
-            "file:///index.html",
-            "content://org.commcare.dalvik.external.files.provider/index.html",
-            "not a url",
-        )) {
+        val otherUrls =
+            listOf(
+                "http://${loader.host}/index.html",
+                "https://${loader.host}:8443/index.html",
+                "https://user@${loader.host}/index.html",
+                "https://other.card.invalid/index.html",
+                "https://example.com/index.html",
+                "file:///index.html",
+                "content://org.commcare.dalvik.external.files.provider/index.html",
+                "not a url",
+            )
+        for (url in otherUrls) {
             assertNull(url, ConnectMessageCardLoader.resolve(url, "GET", loader.host, names))
         }
     }
@@ -88,7 +90,8 @@ class ConnectMessageCardLoaderTest {
 
     @Test
     fun `everything else is an empty 404 with the same headers, never null`() {
-        for (url in listOf(loader.origin + "/missing.txt", "https://example.com/tracker.gif", "ws://example.com/socket")) {
+        val urls = listOf(loader.origin + "/missing.txt", "https://example.com/tracker.gif", "ws://example.com/socket")
+        for (url in urls) {
             val response = loader.respond(url, "GET")
 
             assertNotNull(url, response)
@@ -116,10 +119,18 @@ class ConnectMessageCardLoaderTest {
     @Test
     fun `the policy blocks every network directive the spec lists`() {
         val policy = ConnectMessageCardLoader.CONTENT_SECURITY_POLICY
-        for (directive in listOf(
-            "default-src 'self'", "connect-src 'self'", "frame-src 'none'", "child-src 'none'",
-            "worker-src 'none'", "object-src 'none'", "form-action 'none'", "base-uri 'none'",
-        )) {
+        val directives =
+            listOf(
+                "default-src 'self'",
+                "connect-src 'self'",
+                "frame-src 'none'",
+                "child-src 'none'",
+                "worker-src 'none'",
+                "object-src 'none'",
+                "form-action 'none'",
+                "base-uri 'none'",
+            )
+        for (directive in directives) {
             assertTrue(directive, policy.contains(directive))
         }
     }

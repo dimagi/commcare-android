@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import org.commcare.android.database.connect.models.ConnectMessagingAttachmentRecord
 import org.commcare.android.database.connect.models.ConnectMessagingAttachmentState
 import org.commcare.connect.database.ConnectMessagingAttachmentDatabaseHelper
 import org.commcare.connect.database.ConnectMessagingAttachmentFileStore
@@ -52,10 +53,7 @@ class ConnectMessageCardViewerFragment : Fragment() {
         val message = ConnectMessagingAttachmentDatabaseHelper.getMessage(messageId)
         val records = ConnectMessagingAttachmentDatabaseHelper.getAttachmentsForMessage(messageId)
         val card = binding?.card
-        if (card == null || message == null || !ConnectMessageCardSupport.isCard(message.format) ||
-            ConnectMessagingMessagePackage.stateOfAttachments(records) != ConnectMessagingAttachmentState.AVAILABLE ||
-            ConnectMessageCardSupport.unavailableNotice(messageId, records.map { it.name }, ConnectMessageCardSupport.isDeviceSupported()) != null
-        ) {
+        if (card == null || message == null || !canShow(messageId, message.format, records)) {
             findNavController().popBackStack()
             return
         }
@@ -70,6 +68,21 @@ class ConnectMessageCardViewerFragment : Fragment() {
                 message.timeStamp.time,
                 DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or DateUtils.FORMAT_ABBREV_MONTH,
             )
+    }
+
+    // The same checks the chat makes before loading the card inline
+    private fun canShow(
+        messageId: String,
+        format: String?,
+        records: List<ConnectMessagingAttachmentRecord>,
+    ): Boolean {
+        if (!ConnectMessageCardSupport.isCard(format) ||
+            ConnectMessagingMessagePackage.stateOfAttachments(records) != ConnectMessagingAttachmentState.AVAILABLE
+        ) {
+            return false
+        }
+        val names = records.map { it.name }
+        return ConnectMessageCardSupport.unavailableNotice(messageId, names, ConnectMessageCardSupport.isDeviceSupported()) == null
     }
 
     override fun onResume() {
