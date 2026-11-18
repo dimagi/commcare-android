@@ -63,7 +63,7 @@ class ConnectUnlockFragmentTest {
         ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
 
         mockkStatic(FirebaseAnalyticsUtil::class)
-        every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
+        every { FirebaseAnalyticsUtil.reportConnectTabChange(any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(any(), any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
             object : NavController.OnDestinationChangedListener {

@@ -111,6 +111,9 @@ abstract class BaseApiHandler<T>(
         // The verified email is already tied to another active account.
         EMAIL_ALREADY_IN_USE_ERROR,
 
+        // The server does not allow the user to register a PersonalID account.
+        REGISTRATION_INELIGIBLE_ERROR,
+
         ;
 
         fun shouldAllowRetry(): Boolean =
