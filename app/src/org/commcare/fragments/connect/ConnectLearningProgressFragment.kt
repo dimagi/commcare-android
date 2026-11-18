@@ -9,6 +9,7 @@ import org.commcare.AppUtils
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectOpportunityNavigator
+import org.commcare.connect.ConnectOpportunitySurface
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -29,7 +30,8 @@ import java.util.Date
 
 class ConnectLearningProgressFragment :
     ConnectJobFragment<FragmentConnectLearningProgressBinding>(),
-    RefreshableFragment {
+    RefreshableFragment,
+    ConnectOpportunitySurface {
     private lateinit var viewModel: ConnectLearningProgressViewModel
     private val appSyncStatus by lazy { ConnectAppSyncStatusViewModel.of(requireActivity()) }
 
@@ -65,6 +67,11 @@ class ConnectLearningProgressFragment :
 
     override fun refresh(forceRefresh: Boolean) {
         viewModel.loadLearningProgress(job, forceRefresh)
+    }
+
+    override fun onActiveJobRefreshed() {
+        reloadActiveJob()
+        updateLearningUI()
     }
 
     override fun informSyncStatus(
