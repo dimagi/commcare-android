@@ -11,13 +11,16 @@ import android.webkit.WebView
 /**
  * The WebView a card runs in. It takes taps but never text (D29, spec section 6.6): it has no input
  * connection, cannot take focus, offers no text selection or paste, ignores dropped text, and is left
- * out of autofill so saved passwords are never offered to a card's form.
+ * out of autofill so saved passwords are never offered to a card's form. It also lives in the cards'
+ * own WebView profile where one is available.
  */
 @SuppressLint("ViewConstructor")
 class ConnectMessageCardWebView(
     context: Context,
 ) : WebView(context) {
     init {
+        // First: a profile must be set before anything else uses the WebView
+        ConnectMessageCardSandbox.useCardProfile(this)
         isFocusable = false
         isFocusableInTouchMode = false
         isLongClickable = false

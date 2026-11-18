@@ -30,8 +30,17 @@ class ConnectMessageCardLoaderTest {
 
     @Test
     fun `each card gets its own lower-case https origin`() {
-        assertEquals("https://3f2a6c1e-0000-4000-8000-00000000abcd.card.invalid", loader.origin)
+        assertEquals("https://3f2a6c1e-0000-4000-8000-00000000abcd.invalid", loader.origin)
         assertEquals(loader.origin + "/index.html", loader.entryUrl)
+    }
+
+    @Test
+    fun `cards share no parent domain that a cookie could be set on`() {
+        val other = ConnectMessageCardLoader.forMessage("8d2b0c4f-0000-4000-8000-0000000000ef", files)!!
+
+        // One label under .invalid: the only common suffix is the reserved name, which takes no cookies
+        assertEquals("invalid", loader.host.substringAfter('.'))
+        assertEquals("invalid", other.host.substringAfter('.'))
     }
 
     @Test
@@ -67,7 +76,8 @@ class ConnectMessageCardLoaderTest {
                 "http://${loader.host}/index.html",
                 "https://${loader.host}:8443/index.html",
                 "https://user@${loader.host}/index.html",
-                "https://other.card.invalid/index.html",
+                "https://other.invalid/index.html",
+                "https://sub.${loader.host}/index.html",
                 "https://example.com/index.html",
                 "file:///index.html",
                 "content://org.commcare.dalvik.external.files.provider/index.html",

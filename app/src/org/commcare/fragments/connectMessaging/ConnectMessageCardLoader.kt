@@ -14,8 +14,10 @@ import java.util.Locale
 /**
  * Serves one card's files to its WebView, and nothing else (rich-messaging spec 12, section 6.2).
  *
- * Each card has its own origin, `https://<message id>.card.invalid`, so storage and cookies are
- * never shared between cards. A request is answered from the card's attachments only when its path
+ * Each card has its own origin, `https://<message id>.invalid`, so storage and cookies are never
+ * shared between cards. The host is a single label under `.invalid` on purpose: with a shared parent
+ * such as `card.invalid`, a card could set a cookie with `Domain=card.invalid` that every other card
+ * would read. A request is answered from the card's attachments only when its path
  * exactly matches an attachment name with an allowed extension. Everything else, including every
  * other host and scheme, gets an empty 404. Never answering null matters: null would send the
  * request to the network.
@@ -47,7 +49,10 @@ class ConnectMessageCardLoader private constructor(
     companion object {
         const val ENTRY_FILE = "index.html"
         private const val SCHEME_PREFIX = "https://"
-        private const val HOST_SUFFIX = ".card.invalid"
+
+        // One label under the reserved .invalid name, so no two cards share a parent domain (see above)
+        private const val HOST_SUFFIX = ".invalid"
+
         private const val HTTP_OK = 200
         private const val HTTP_NOT_FOUND = 404
 

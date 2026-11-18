@@ -77,14 +77,17 @@ class ConnectMessageAttachmentsBinder(
             return bindNotice(notice)
         }
         val width = ConnectMessageCardSizer.widthPx(maxMediaWidth, context.resources.displayMetrics.density)
+        val maxHeight = ConnectMessageCardSizer.maxInlineHeightPx(windowHeight)
         val shown = container.getChildAt(0) as? ConnectMessageCardView
         if (container.childCount == 1 && shown != null && shown.isShowing(messageId) && shown.cardWidthPx == width) {
+            // Same card at the same width: keep its page, and only take the current cap
+            shown.setMaxInlineHeight(maxHeight)
             return Layout(true, width)
         }
         clear()
         val card = ConnectMessageCardView(context)
         val files = attachments.mapNotNull { attachment -> attachment.file?.let { attachment.name to it } }.toMap()
-        if (!card.showInline(messageId, files, width, ConnectMessageCardSizer.maxInlineHeightPx(windowHeight), cardListener)) {
+        if (!card.showInline(messageId, files, width, maxHeight, cardListener)) {
             card.destroy()
             return bindNotice(R.string.connect_messaging_card_unsupported_device)
         }

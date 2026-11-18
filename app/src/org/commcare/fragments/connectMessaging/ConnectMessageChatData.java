@@ -77,7 +77,9 @@ public class ConnectMessageChatData {
     }
 
     public boolean hasRichContent() {
-        return !attachments.isEmpty() || unsupportedVersion || isAwaitingDownload();
+        // A card with no files still needs the rich row, to show its "can't be shown" notice
+        return !attachments.isEmpty() || unsupportedVersion || isAwaitingDownload()
+                || ConnectMessageCardSupport.isCard(format);
     }
 
     // Getters and setters

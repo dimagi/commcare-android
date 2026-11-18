@@ -115,7 +115,20 @@ class ConnectMessageCardView
 
         fun isShowing(messageId: String): Boolean = webView != null && this.messageId == messageId
 
-        /** Pauses or resumes the card's timers and media, as its screen pauses and resumes. */
+        /** A new inline height cap, for a card kept when its row is bound again (the window may have changed). */
+        fun setMaxInlineHeight(maxInlineHeightPx: Int) {
+            if (!inline || maxInlineHeightPx == this.maxInlineHeightPx) {
+                return
+            }
+            this.maxInlineHeightPx = maxInlineHeightPx
+            applyCap()
+        }
+
+        /**
+         * Pauses or resumes the card's drawing and animations as its row or screen goes and comes back.
+         * Its JavaScript timers keep running: WebView can only pause those for every WebView in the app
+         * at once (pauseTimers), which would also stop the app's other WebViews.
+         */
         fun setActive(active: Boolean) {
             val view = webView ?: return
             if (active) view.onResume() else view.onPause()
@@ -160,6 +173,11 @@ class ConnectMessageCardView
             }
             this.contentHeightPx = contentHeightPx
             webView?.let { view -> view.layoutParams = view.layoutParams.apply { height = contentHeightPx } }
+            applyCap()
+        }
+
+        // Cuts the card off at the cap, with the fade and "Open", or shows it whole
+        private fun applyCap() {
             inlineHeightPx = minOf(contentHeightPx, maxInlineHeightPx)
             val cutOff = contentHeightPx > maxInlineHeightPx
             binding.vFade.visibility = if (cutOff) VISIBLE else GONE

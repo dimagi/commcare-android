@@ -23,6 +23,7 @@ import android.webkit.WebSettings
 import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.webkit.ProfileStore
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import androidx.webkit.WebViewRenderProcess
@@ -37,6 +38,9 @@ import kotlin.math.roundToInt
 object ConnectMessageCardSandbox {
     // The object the page sees as window.cardHost; it only carries the height
     const val HOST_OBJECT_NAME = "cardHost"
+
+    // Cards keep their cookies and storage in their own WebView profile, apart from the app's other WebViews
+    const val PROFILE_NAME = "connect-message-cards"
 
     /**
      * Section 6.7. Removes WebRTC before the page's own scripts run (a speed bump, not a wall: D28
@@ -73,6 +77,19 @@ object ConnectMessageCardSandbox {
         fun onStopped()
     }
 
+    /**
+     * Puts a new card WebView in the cards' own profile, where the WebView supports profiles. Must run
+     * before anything else uses the WebView. On older WebViews cards share the default profile.
+     */
+    @JvmStatic
+    @SuppressLint("RequiresFeature")
+    fun useCardProfile(webView: WebView) {
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+            ProfileStore.getInstance().getOrCreateProfile(PROFILE_NAME)
+            WebViewCompat.setProfile(webView, PROFILE_NAME)
+        }
+    }
+
     /** Configures the WebView as a sandbox for this card and loads it. Device support must already be checked. */
     @JvmStatic
     @SuppressLint("RequiresFeature")
@@ -105,18 +122,38 @@ object ConnectMessageCardSandbox {
     }
 
     /**
-     * Clears what cards may have stored on their own origins (IndexedDB, Cache Storage, cookies), for
-     * logout. Both calls reach every WebView in the app; the others keep nothing that must survive.
+     * Clears what cards stored on their own origins, for logout. Where WebView supports profiles, cards
+     * live in their own profile, and deleting it removes everything they stored, Cache Storage and
+     * cookies included, without touching the app's other WebViews. Older WebViews keep cards in the
+     * default profile, where these calls reach IndexedDB, Web Storage and cookies but may leave Cache
+     * Storage behind.
      */
     @JvmStatic
     fun clearStoredData() {
         Handler(Looper.getMainLooper()).post {
             try {
-                WebStorage.getInstance().deleteAllData()
-                CookieManager.getInstance().removeAllCookies(null)
+                if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                    deleteCardProfile()
+                } else {
+                    WebStorage.getInstance().deleteAllData()
+                    CookieManager.getInstance().removeAllCookies(null)
+                }
             } catch (e: RuntimeException) {
                 // No WebView provider on this device, so no card ever stored anything
             }
+        }
+    }
+
+    @SuppressLint("RequiresFeature")
+    private fun deleteCardProfile() {
+        val store = ProfileStore.getInstance()
+        val profile = store.getProfile(PROFILE_NAME) ?: return
+        try {
+            store.deleteProfile(PROFILE_NAME)
+        } catch (e: IllegalStateException) {
+            // A card WebView still holds the profile: clear what its own storage and cookie APIs reach
+            profile.webStorage.deleteAllData()
+            profile.cookieManager.removeAllCookies(null)
         }
     }
 

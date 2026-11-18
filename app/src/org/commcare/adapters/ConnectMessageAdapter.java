@@ -41,6 +41,8 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private static final float MEDIA_BUBBLE_WIDTH_FRACTION = 1f;
     private List<ConnectMessageChatData> messages;
     private final ConnectMessageAttachmentListener attachmentListener;
+    // Whether the chat is showing; cards run only while it is and their row is on screen
+    private boolean cardsActive = true;
 
     public ConnectMessageAdapter(List<ConnectMessageChatData> messages,
                                  ConnectMessageAttachmentListener attachmentListener) {
@@ -180,8 +182,9 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         public void bindAttachments(ConnectMessageChatData chat) {
             boolean unsupported = chat.isUnsupportedVersion();
             boolean awaitingDownload = chat.isAwaitingDownload();
+            boolean isCard = ConnectMessageCardSupport.isCard(chat.getFormat());
             boolean showsTile = unsupported || awaitingDownload;
-            boolean hasAttachments = showsTile || !chat.getAttachments().isEmpty();
+            boolean hasAttachments = showsTile || isCard || !chat.getAttachments().isEmpty();
             boolean hasText = chat.getMessage() != null && !chat.getMessage().trim().isEmpty();
             richBinding.tvChatMessage.setVisibility(showsTile || !hasText ? View.GONE : View.VISIBLE);
             ConstraintLayout.LayoutParams guidelineParams =
@@ -196,9 +199,10 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 layout = attachmentsBinder.bindUnsupportedMessage();
             } else if (awaitingDownload) {
                 layout = attachmentsBinder.bindPendingMessage(chat.getMessageId(), chat.getPendingDownloadState());
-            } else if (ConnectMessageCardSupport.isCard(chat.getFormat())) {
+            } else if (isCard) {
                 layout = attachmentsBinder.bindCard(chat.getMessageId(), chat.getAttachments(), maxMediaWidth(),
                         displayMetrics().heightPixels);
+                attachmentsBinder.setCardsActive(cardsActive);
             } else {
                 layout = attachmentsBinder.bind(chat.getAttachments(), maxMediaWidth(), maxMediaHeight());
             }
@@ -327,8 +331,26 @@ public class ConnectMessageAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         }
     }
 
+    // A row scrolled off screen may sit in the list's cache without being recycled; its card pauses here
+    @Override
+    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        if (holder instanceof RichLeftViewHolder) {
+            ((RichLeftViewHolder)holder).attachmentsBinder.setCardsActive(false);
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        if (holder instanceof RichLeftViewHolder) {
+            ((RichLeftViewHolder)holder).attachmentsBinder.setCardsActive(cardsActive);
+        }
+    }
+
     /** Pauses or resumes the cards on screen, as the chat pauses and resumes. */
     public void setCardsActive(RecyclerView messageList, boolean active) {
+        cardsActive = active;
         for (int index = 0; index < messageList.getChildCount(); index++) {
             RecyclerView.ViewHolder holder = messageList.getChildViewHolder(messageList.getChildAt(index));
             if (holder instanceof RichLeftViewHolder) {
