@@ -1,6 +1,7 @@
 package org.commcare.fragments.connectMessaging
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -28,6 +29,7 @@ import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
 import androidx.webkit.WebViewRenderProcess
 import androidx.webkit.WebViewRenderProcessClient
+import java.util.UUID
 import kotlin.math.roundToInt
 
 /**
@@ -39,8 +41,15 @@ object ConnectMessageCardSandbox {
     // The object the page sees as window.cardHost; it only carries the height
     const val HOST_OBJECT_NAME = "cardHost"
 
-    // Cards keep their cookies and storage in their own WebView profile, apart from the app's other WebViews
-    const val PROFILE_NAME = "connect-message-cards"
+    // Cards keep their cookies and storage in a WebView profile of their own, apart from the app's other
+    // WebViews. Each login gets a fresh one, named "connect-message-cards-<random id>" (see clearStoredData)
+    private const val PROFILE_PREFIX = "connect-message-cards"
+    private const val PROFILE_PREFERENCES = "connect_message_cards"
+    private const val CURRENT_PROFILE_KEY = "current_profile"
+
+    // Profiles left by earlier logins are deleted once per run, before the current one is first loaded
+    @Volatile
+    private var staleProfilesDeleted = false
 
     /**
      * Section 6.7. Removes WebRTC before the page's own scripts run (a speed bump, not a wall: D28
@@ -78,17 +87,32 @@ object ConnectMessageCardSandbox {
     }
 
     /**
-     * Puts a new card WebView in the cards' own profile, where the WebView supports profiles. Must run
-     * before anything else uses the WebView. On older WebViews cards share the default profile.
+     * Puts a new card WebView in the cards' current profile, where the WebView supports profiles. Must
+     * run before anything else uses the WebView. The first time in each run it also deletes the
+     * profiles earlier logins left behind: a profile can only be deleted before it is loaded in the
+     * running app. On older WebViews cards share the default profile.
      */
     @JvmStatic
     @SuppressLint("RequiresFeature")
     fun useCardProfile(webView: WebView) {
-        if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
-            ProfileStore.getInstance().getOrCreateProfile(PROFILE_NAME)
-            WebViewCompat.setProfile(webView, PROFILE_NAME)
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+            return
         }
+        val current = currentProfileName(webView.context)
+        if (!staleProfilesDeleted) {
+            staleProfilesDeleted = true
+            staleCardProfiles(ProfileStore.getInstance().allProfileNames, current).forEach { deleteUnloadedProfile(it) }
+        }
+        ProfileStore.getInstance().getOrCreateProfile(current)
+        WebViewCompat.setProfile(webView, current)
     }
+
+    /** The card profiles to delete: every one but the current, including the unnumbered name early builds used. */
+    @JvmStatic
+    fun staleCardProfiles(
+        profileNames: List<String>,
+        current: String,
+    ): List<String> = profileNames.filter { it.startsWith(PROFILE_PREFIX) && it != current }
 
     /** Configures the WebView as a sandbox for this card and loads it. Device support must already be checked. */
     @JvmStatic
@@ -122,18 +146,24 @@ object ConnectMessageCardSandbox {
     }
 
     /**
-     * Clears what cards stored on their own origins, for logout. Where WebView supports profiles, cards
-     * live in their own profile, and deleting it removes everything they stored, Cache Storage and
-     * cookies included, without touching the app's other WebViews. Older WebViews keep cards in the
-     * default profile, where these calls reach IndexedDB, Web Storage and cookies but may leave Cache
-     * Storage behind.
+     * Clears what cards stored on their own origins, for logout.
+     *
+     * Where WebView supports profiles, cards from now on use a fresh, empty profile, even before the
+     * app restarts, and the old one is deleted, which removes everything cards stored, Cache Storage
+     * included, without touching the app's other WebViews. If a card was shown in this run, the old
+     * profile is loaded and cannot be deleted until the next run (useCardProfile does it then); its
+     * IndexedDB and cookies are cleared now.
+     *
+     * Older WebViews keep cards in the default profile, where these calls reach IndexedDB, Web Storage
+     * and cookies but may leave Cache Storage behind.
      */
     @JvmStatic
-    fun clearStoredData() {
+    fun clearStoredData(context: Context) {
+        val appContext = context.applicationContext
         Handler(Looper.getMainLooper()).post {
             try {
                 if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
-                    deleteCardProfile()
+                    retireCardProfile(appContext)
                 } else {
                     WebStorage.getInstance().deleteAllData()
                     CookieManager.getInstance().removeAllCookies(null)
@@ -145,17 +175,40 @@ object ConnectMessageCardSandbox {
     }
 
     @SuppressLint("RequiresFeature")
-    private fun deleteCardProfile() {
-        val store = ProfileStore.getInstance()
-        val profile = store.getProfile(PROFILE_NAME) ?: return
-        try {
-            store.deleteProfile(PROFILE_NAME)
-        } catch (e: IllegalStateException) {
-            // A card WebView still holds the profile: clear what its own storage and cookie APIs reach
-            profile.webStorage.deleteAllData()
-            profile.cookieManager.removeAllCookies(null)
+    private fun retireCardProfile(context: Context) {
+        val previous = currentProfileName(context)
+        startNewProfile(context)
+        if (!deleteUnloadedProfile(previous)) {
+            // Loaded in this run, so getProfile loads nothing new; clear what its own APIs reach until then
+            ProfileStore.getInstance().getProfile(previous)?.let { profile ->
+                profile.webStorage.deleteAllData()
+                profile.cookieManager.removeAllCookies(null)
+            }
         }
     }
+
+    // False when the profile is loaded in this run, which deleteProfile refuses; a later run deletes it
+    @SuppressLint("RequiresFeature")
+    private fun deleteUnloadedProfile(name: String): Boolean =
+        try {
+            ProfileStore.getInstance().deleteProfile(name)
+            true
+        } catch (e: IllegalStateException) {
+            false
+        }
+
+    private fun currentProfileName(context: Context): String =
+        profilePreferences(context).getString(CURRENT_PROFILE_KEY, null) ?: startNewProfile(context)
+
+    private fun startNewProfile(context: Context): String {
+        val name = "$PROFILE_PREFIX-${UUID.randomUUID()}"
+        profilePreferences(context).edit().putString(CURRENT_PROFILE_KEY, name).apply()
+        return name
+    }
+
+    // Not the messaging preferences, which logout clears: the current profile's name must outlive logout
+    private fun profilePreferences(context: Context) =
+        context.applicationContext.getSharedPreferences(PROFILE_PREFERENCES, Context.MODE_PRIVATE)
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun configure(

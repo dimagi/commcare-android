@@ -32,7 +32,7 @@ public class ConnectUserDatabaseUtil {
     public static void forgetUser() {
         ConnectMessagingAttachmentDownloadScheduler.cancelDownloads(CommCareApplication.instance());
         ConnectMessagingAttachmentFileStore.deleteAll(CommCareApplication.instance());
-        ConnectMessageCardSandbox.clearStoredData();
+        ConnectMessageCardSandbox.clearStoredData(CommCareApplication.instance());
         ConnectMessagingPreferences.clear(CommCareApplication.instance());
         DatabaseConnectOpenHelper.deleteDb();
         CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).removeAll();
