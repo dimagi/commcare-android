@@ -36,7 +36,6 @@ import org.commcare.network.LocalReferencePullResponseFactory;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
-import org.javarosa.core.reference.ReferenceHandler;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.services.storage.Persistable;
@@ -302,7 +301,6 @@ public class CommCareTestApplication extends CommCareApplication implements Test
         }
 
         ConnectDatabaseHelper.teardown();
-        ReferenceHandler.clearInstance();
 
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
