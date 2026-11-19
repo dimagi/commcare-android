@@ -32,12 +32,12 @@ jobs:
       id-token: write
     steps:
       - name: Checkout commcare-android
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           path: commcare-android
       - name: Install python
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.9'
       - name: Download cross request script
@@ -53,7 +53,7 @@ jobs:
         run: python checkout_cross_request_repo.py commcare-android ${{ github.event.number }} commcare-core . ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout commcare-core for cross-repo CI
         if: ${{ inputs.commcare_core_sha }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           repository: dimagi/commcare-core
           ref: ${{ inputs.commcare_core_sha }}
@@ -61,7 +61,7 @@ jobs:
       - name: Generate GitHub App token
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
         with:
           app-id: ${{ secrets.CROSS_REPO_CI_APP_ID }}
           private-key: ${{ secrets.CROSS_REPO_CI_PRIVATE_KEY }}
@@ -88,18 +88,18 @@ jobs:
           MAPBOX_SDK_API_KEY=${{ secrets.MAPBOX_SDK_API_KEY }}
           EOF
       - name: Setup JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: 'temurin'
           java-version: '17'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
       - name: Run Tests
         run: ./gradlew testCommcareDebug
         working-directory: commcare-android
       - name: Upload unit test report
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: unit-test-report
           path: commcare-android/app/build/reports/tests/testCommcareDebugUnitTest
@@ -111,14 +111,14 @@ jobs:
         working-directory: commcare-android
       - name: Upload JaCoCo Report
         continue-on-error: true
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports/jacoco
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
         with:
           files: commcare-android/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           use_oidc: true
@@ -134,7 +134,7 @@ jobs:
         run: ./gradlew assembleCommcareRelease
         working-directory: commcare-android
       - name: Upload CommCare apk
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: commcare-release-apk
           path: commcare-android/app/build/outputs/apk/commcare/release/app-commcare-release.apk
@@ -142,7 +142,7 @@ jobs:
         run: ./gradlew bundleCommcareRelease
         working-directory: commcare-android
       - name: Upload CommCare aab
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: commcare-release-aab
           path: commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab
@@ -150,7 +150,7 @@ jobs:
         run: ./gradlew assembleCccStagingRelease
         working-directory: commcare-android
       - name: Upload CCC Staging apk
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ccc-staging-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/release/app-cccStaging-release.apk
@@ -160,7 +160,7 @@ jobs:
         working-directory: commcare-android
       - name: Upload CommCare qaAutomation apk
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: commcare-qaAutomation-release-apk
           path: commcare-android/app/build/outputs/apk/commcare/qaAutomation/app-commcare-qaAutomation.apk
@@ -171,7 +171,7 @@ jobs:
         working-directory: commcare-android
       - name: Upload CCC Staging qaAutomation apk
         if: github.event_name == 'workflow_dispatch'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ccc-staging-qaAutomation-release-apk
           path: commcare-android/app/build/outputs/apk/cccStaging/qaAutomation/app-cccStaging-qaAutomation.apk
@@ -188,13 +188,13 @@ jobs:
         env:
           HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
       - name: Upload CommCare apk for Instrumentation Testing
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: commcare-release-androidTest-apk
           path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc
       - name: Report status to commcare-core
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         env:
           COMMCARE_CORE_STATUS_SHA: ${{ inputs.commcare_core_status_sha || inputs.commcare_core_sha }}
           COMMCARE_CORE_CHECK_NAME: ${{ inputs.commcare_core_check_name }}
@@ -221,20 +221,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout commcare-android
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           path: commcare-android
       - name: Install python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.x'
       - name: Download release APK
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: commcare-release-apk
           path: commcare-release-apk
       - name: Download androidTest APK
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           name: commcare-release-androidTest-apk
           path: commcare-release-androidTest-apk
