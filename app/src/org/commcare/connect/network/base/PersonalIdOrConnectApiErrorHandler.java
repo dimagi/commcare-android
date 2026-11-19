@@ -72,6 +72,10 @@ public class PersonalIdOrConnectApiErrorHandler {
                 return context.getString(R.string.personalid_email_already_in_use);
             case REGISTRATION_INELIGIBLE_ERROR:
                 return context.getString(R.string.personalid_registration_ineligible);
+            case OPPORTUNITY_FULL_ERROR:
+                return context.getString(R.string.connect_opportunity_full_claim_error);
+            case OPPORTUNITY_ENDED_ERROR:
+                return context.getString(R.string.connect_opportunity_ended_claim_error);
             default:
                 if (t != null) {
                     Logger.exception("Unhandled throwable passed with API error code: " + errorCode, t);

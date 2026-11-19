@@ -180,6 +180,8 @@
     <string name="recovery_forms_state_unavailable">Os formulários não estão disponíveis. Verifique se o armazenamento do seu telefone está disponível</string>
     <string name="recovery_network_unavailable">Sem conexão de rede. Verifique sua internet e tente novamente.</string>
     <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade. Tente novamente ou entre em contato com o suporte.</string>
+    <string name="connect_opportunity_full_claim_error">Não há mais visitas pagas disponíveis. Entre em contato com o seu administrador.</string>
+    <string name="connect_opportunity_ended_claim_error">Esta oportunidade foi encerrada. Entre em contato com o seu administrador.</string>
     <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
     <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
     <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
