@@ -30,13 +30,17 @@ import org.commcare.activities.ReportProblemActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
 import org.commcare.android.database.connect.models.ConnectAppRecord
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.database.connect.models.ConnectUserRecord
+import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
 import org.commcare.connect.MessageManager
 import org.commcare.connect.PersonalIdSessionManager
+import org.commcare.connect.database.ConnectDatabaseHelper
 import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectAppSyncStatusViewModel
@@ -69,6 +73,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import org.robolectric.shadows.ShadowToast
+import java.util.Date
 
 /**
  * [ConnectActivity] as a home host: it keeps a coordinator whether or not a user session is live,
@@ -132,6 +137,28 @@ class ConnectActivityHomeHostTest {
         every { ConnectivityStatus.isNetworkAvailable(any()) } returns true
 
         ConnectAppSyncStatusViewModel.defaultIoDispatcher = mainCoroutineRule.testDispatcher
+
+        seedConnectUser()
+    }
+
+    /** Opportunity Home shows the sidebar, whose header reads the PersonalID user. */
+    private fun seedConnectUser() {
+        mockkStatic(ConnectDatabaseHelper::class)
+        every { ConnectDatabaseHelper.dbExists() } returns true
+        ConnectUserDatabaseUtil.storeUser(
+            ConnectUserRecord(
+                "1234567890",
+                "test-user-id",
+                "password",
+                "Test User",
+                "1234",
+                Date(),
+                null,
+                false,
+                PersonalIdSessionData.PIN,
+                true,
+            ),
+        )
     }
 
     @After

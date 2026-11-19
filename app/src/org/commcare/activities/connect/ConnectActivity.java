@@ -39,6 +39,7 @@ import org.commcare.connect.ConnectDialogCoordinator;
 import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.ConnectOpportunityHomeFragment;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.OpportunityHomeAppActionsMenu;
 import org.commcare.connect.PersonalIdSessionManager;
@@ -55,6 +56,7 @@ import org.commcare.home.HomeActivityHost;
 import org.commcare.home.HomeRequestCodes;
 import org.commcare.home.SeatedAppSessionKt;
 import org.commcare.home.SyncDelegate;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.views.UserfacingErrorHandling;
@@ -70,7 +72,7 @@ import kotlin.Unit;
 
 public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate>
         implements HomeActivityHost {
-    private boolean backButtonAndActionBarEnabled = true;
+    private boolean navButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
@@ -248,16 +250,15 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem sync = menu.findItem(R.id.action_sync);
-        sync.setVisible(backButtonAndActionBarEnabled);
+        sync.setVisible(navButtonAndActionBarEnabled);
         sync.setIcon(hasUnsentAppForms() ? R.drawable.ic_sync_pending : R.drawable.ic_sync);
         MenuItemCompat.setIconTintList(sync, null);
-        appActionsMenu.prepare(menu, backButtonAndActionBarEnabled && isShowingOpportunityHome());
+        appActionsMenu.prepare(menu, navButtonAndActionBarEnabled && isShowingOpportunityHome());
         return super.onPrepareOptionsMenu(menu);
     }
 
     private boolean isShowingOpportunityHome() {
-        return navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.connect_opportunity_home_fragment;
+        return isShowingDestination(R.id.connect_opportunity_home_fragment);
     }
 
     private static Map<Integer, String> createMenuItemToAnalyticsParamMapping() {
@@ -363,7 +364,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
 
     @Override
     public void onBackPressed() {
-        if (!backButtonAndActionBarEnabled) {
+        if (!navButtonAndActionBarEnabled) {
             return;
         }
         super.onBackPressed();
@@ -407,9 +408,57 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         return null;
     }
 
-    public void setBackButtonAndActionBarState(boolean enabled) {
-        backButtonAndActionBarEnabled = enabled;
+    public void setNavButtonAndActionBarState(boolean enabled) {
+        navButtonAndActionBarEnabled = enabled;
         invalidateOptionsMenu();
+        refreshDrawerTopLevel();
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+        return shouldShowDrawerAfterCheck(true);
+    }
+
+    @Override
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
+        return isShowingOpportunityList() ? BaseDrawerController.NavItemType.OPPORTUNITIES : null;
+    }
+
+    @Override
+    protected boolean isSidebarSection() {
+        boolean openedAsSection = !isTaskRoot();
+        return isShowingOpportunityList() && openedAsSection;
+    }
+
+    /**
+     * The Opportunity List and Opportunity Home show the sidebar when nothing is beneath them in this screen,
+     * except while Opportunity Home still shows its intro.
+     */
+    @Override
+    protected boolean isCurrentDestinationTopLevel() {
+        if (navController.getPreviousBackStackEntry() != null) {
+            return false;
+        }
+
+        if (isShowingOpportunityList()) {
+            return true;
+        }
+
+        boolean showingOpportunityHome = isShowingDestination(R.id.connect_opportunity_home_fragment);
+        boolean showingIntro = getCurrentNavFragment() instanceof ConnectOpportunityHomeFragment opportunityHome
+                && opportunityHome.isShowingIntro();
+
+        return showingOpportunityHome && !showingIntro;
+    }
+
+    /** The sidebar stays closed while an app install runs. */
+    @Override
+    protected boolean isDrawerLocked() {
+        return !navButtonAndActionBarEnabled;
+    }
+
+    private boolean isShowingOpportunityList() {
+        return isShowingDestination(R.id.connect_jobs_list_fragment);
     }
 
     public void setWaitDialogEnabled(boolean enabled) {
@@ -431,11 +480,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
 
     @Nullable
     private RefreshableFragment getRefreshableFragment() {
-        NavHostFragment navHostFragment =
-                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        Fragment currentFragment =
-                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (currentFragment instanceof RefreshableFragment refreshable) {
+        if (getCurrentNavFragment() instanceof RefreshableFragment refreshable) {
             return refreshable;
         }
         return null;
@@ -572,5 +617,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     @Override
     public void onSessionLost() {
         refreshActionSurface();
+    }
+
+    @Nullable
+    private Fragment getCurrentNavFragment() {
+        return getHostFragment().getChildFragmentManager().getPrimaryNavigationFragment();
     }
 }
