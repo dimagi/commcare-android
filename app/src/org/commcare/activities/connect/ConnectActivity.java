@@ -30,6 +30,7 @@ import com.google.common.base.Strings;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.HomeResultDelivery;
 import org.commcare.activities.NavigationHostCommCareActivity;
 import org.commcare.android.database.user.models.FormRecord;
@@ -497,10 +498,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         coordinator.getActions().showFormArchive(incomplete, record);
     }
 
+    /** Opportunity Home outlives the app's session, so it stays open where App Home would close. */
     @Override
     public void finishWithResult(int resultCode, Intent data) {
-        setResult(resultCode, data);
-        finish();
+        refreshActionSurface();
     }
 
     @Override
@@ -513,9 +514,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         new UserfacingErrorHandling<>().createErrorDialog(this, message, shouldExit);
     }
 
+    /** Only pending recovery measures leave Opportunity Home, since DispatchActivity runs them. */
     @Override
     public void deliverResultAndFinish(@NonNull Intent result) {
-        HomeResultDelivery.deliverResultAndFinish(this, result);
+        if (result.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false)) {
+            HomeResultDelivery.deliverResultAndFinish(this, result);
+        } else {
+            refreshActionSurface();
+        }
     }
 
     @Override

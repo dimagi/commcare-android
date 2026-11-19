@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
+import org.commcare.activities.DispatchActivity
 import org.commcare.activities.MenuActivity
 import org.commcare.activities.ReportProblemActivity
 import org.commcare.activities.SessionAwarePreferenceActivity
@@ -168,7 +169,7 @@ class ConnectActivityHomeHostTest {
     }
 
     @Test
-    fun `losing the session leaves the page open`() {
+    fun `the expiration notice leaves the page open`() {
         logIn()
         val activity = launchConnect()
         while (shadowOf(activity).nextStartedActivity != null) {
@@ -179,6 +180,45 @@ class ConnectActivityHomeHostTest {
 
         assertFalse(activity.isFinishing)
         assertNull(shadowOf(activity).nextStartedActivity)
+    }
+
+    @Test
+    fun `a session closed before the expiration notice leaves the page open without app actions`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+
+        CommCareApplication.instance().closeUserSession()
+        broadcastExpiration()
+
+        assertFalse(activity.isFinishing)
+        assertNull(shadowOf(activity).nextStartedActivity)
+        assertFalse(activity.areAppActionsAvailable())
+        assertNull(ConnectAppSyncStatusViewModel.of(activity).status.value)
+    }
+
+    @Test
+    fun `a result that would close App Home leaves the page open`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+
+        activity.deliverResultAndFinish(Intent())
+        activity.finishWithResult(Activity.RESULT_CANCELED, null)
+
+        assertFalse(activity.isFinishing)
+        assertNull(shadowOf(activity).nextStartedActivity)
+    }
+
+    @Test
+    fun `pending recovery measures hand over to dispatch`() {
+        logIn()
+        val activity = launchLoggedInConnect()
+
+        activity.deliverResultAndFinish(Intent().putExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, true))
+
+        assertTrue(activity.isFinishing)
+        val dispatch = shadowOf(activity).nextStartedActivity
+        assertEquals(DispatchActivity::class.java.name, dispatch.component?.className)
+        assertTrue(dispatch.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false))
     }
 
     @Test
