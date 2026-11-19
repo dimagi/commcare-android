@@ -30,6 +30,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDialogCoordinator;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.ConnectOpportunityHomeFragment;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -38,6 +39,7 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
@@ -49,7 +51,7 @@ import javax.annotation.Nullable;
 import kotlin.Unit;
 
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
-    private boolean backButtonAndActionBarEnabled = true;
+    private boolean navButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
     private ConnectJobRecord job;
@@ -204,7 +206,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
+        menu.findItem(R.id.action_sync).setVisible(navButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -252,7 +254,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public void onBackPressed() {
-        if (!backButtonAndActionBarEnabled) {
+        if (!navButtonAndActionBarEnabled) {
             return;
         }
         super.onBackPressed();
@@ -261,8 +263,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
     /** Whether Opportunity Home is showing with nothing beneath it in the task. */
     public boolean isOpportunityHomeAtTaskBottom() {
         return isTaskRoot()
-                && navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.connect_opportunity_home_fragment
+                && isShowingDestination(R.id.connect_opportunity_home_fragment)
                 && navController.getPreviousBackStackEntry() == null;
     }
 
@@ -300,9 +301,57 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         return null;
     }
 
-    public void setBackButtonAndActionBarState(boolean enabled) {
-        backButtonAndActionBarEnabled = enabled;
+    public void setNavButtonAndActionBarState(boolean enabled) {
+        navButtonAndActionBarEnabled = enabled;
         invalidateOptionsMenu();
+        refreshDrawerTopLevel();
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+        return shouldShowDrawerAfterCheck(true);
+    }
+
+    @Override
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
+        return isShowingOpportunityList() ? BaseDrawerController.NavItemType.OPPORTUNITIES : null;
+    }
+
+    @Override
+    protected boolean isSidebarSection() {
+        boolean openedAsSection = !isTaskRoot();
+        return isShowingOpportunityList() && openedAsSection;
+    }
+
+    /**
+     * The Opportunity List and Opportunity Home show the sidebar when nothing is beneath them in this screen,
+     * except while Opportunity Home still shows its intro.
+     */
+    @Override
+    protected boolean isCurrentDestinationTopLevel() {
+        if (navController.getPreviousBackStackEntry() != null) {
+            return false;
+        }
+
+        if (isShowingOpportunityList()) {
+            return true;
+        }
+
+        boolean showingOpportunityHome = isShowingDestination(R.id.connect_opportunity_home_fragment);
+        boolean showingIntro = getCurrentNavFragment() instanceof ConnectOpportunityHomeFragment opportunityHome
+                && opportunityHome.isShowingIntro();
+
+        return showingOpportunityHome && !showingIntro;
+    }
+
+    /** The sidebar stays closed while an app install runs. */
+    @Override
+    protected boolean isDrawerLocked() {
+        return !navButtonAndActionBarEnabled;
+    }
+
+    private boolean isShowingOpportunityList() {
+        return isShowingDestination(R.id.connect_jobs_list_fragment);
     }
 
     public void setWaitDialogEnabled(boolean enabled) {
@@ -324,13 +373,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Nullable
     private RefreshableFragment getRefreshableFragment() {
-        NavHostFragment navHostFragment =
-                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        Fragment currentFragment =
-                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (currentFragment instanceof RefreshableFragment refreshable) {
+        if (getCurrentNavFragment() instanceof RefreshableFragment refreshable) {
             return refreshable;
         }
         return null;
+    }
+
+    @Nullable
+    private Fragment getCurrentNavFragment() {
+        return getHostFragment().getChildFragmentManager().getPrimaryNavigationFragment();
     }
 }

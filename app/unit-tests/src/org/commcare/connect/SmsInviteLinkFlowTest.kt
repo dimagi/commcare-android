@@ -19,6 +19,7 @@ import org.commcare.activities.DispatchActivity
 import org.commcare.activities.LoginActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ConnectTestUtils
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.dalvik.BuildConfig
 import org.commcare.dalvik.R
@@ -201,6 +202,7 @@ class SmsInviteLinkFlowTest {
         uri: Uri,
         jobInDb: ConnectJobRecord?,
     ): String? {
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
         val intent = Intent(Intent.ACTION_VIEW, uri)
         val dispatch =
             Robolectric

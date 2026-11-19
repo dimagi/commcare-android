@@ -3,6 +3,8 @@ package org.commcare.navdrawer
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.DrawableRes
+import androidx.drawerlayout.widget.DrawerLayout
 import org.commcare.activities.CommCareActivity
 import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper.unlockAndGoToConnectJobsList
@@ -65,6 +67,9 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
     private fun checkForDrawerSetUp() {
         if (shouldShowDrawer()) {
             setupDrawerController()
+        } else {
+            // Without a sidebar, keep the drawer in the layout from being swiped open from the left edge.
+            findViewById<DrawerLayout?>(R.id.drawer_layout)?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         }
     }
 
@@ -184,8 +189,18 @@ abstract class BaseDrawerActivity<T> : CommCareActivity<T>() {
         return showDrawer
     }
 
-    protected fun setDrawerTopLevel(isTopLevel: Boolean) {
-        drawerController?.setTopLevel(isTopLevel)
+    protected fun setDrawerTopLevel(
+        isTopLevel: Boolean,
+        isLocked: Boolean = false,
+    ) {
+        drawerController?.setTopLevel(isTopLevel, isLocked)
+    }
+
+    /** Sets the top-left nav icon shown in place of the back arrow; null restores the default. */
+    fun setUpIndicator(
+        @DrawableRes iconRes: Int?,
+    ) {
+        drawerController?.setUpIndicator(iconRes) ?: supportActionBar?.setHomeAsUpIndicator(iconRes ?: 0)
     }
 
     fun isShowingGlobalError(): Boolean = drawerController?.isShowingError() ?: false
