@@ -62,6 +62,7 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
+import org.commcare.fragments.connectMessaging.ConnectMessageCardSandbox;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
 import org.commcare.heartbeat.HeartbeatRequester;
@@ -287,6 +288,11 @@ public class CommCareApplication extends Application implements LifecycleEventOb
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
         NotificationsSyncWorkerManager.schedulePeriodicPushNotificationRetrievalChecked(
                 CommCareApplication.instance());
+
+        // Message cards' WebView storage that a logout could not delete, because WebView only lets a
+        // profile be deleted before the process loads it. A preferences read unless a logout left a
+        // sentinel; never throws.
+        ConnectMessageCardSandbox.deleteStaleProfilesIfPending(this);
     }
 
     protected void loadSqliteLibs() {

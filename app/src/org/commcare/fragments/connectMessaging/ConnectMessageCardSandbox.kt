@@ -24,6 +24,7 @@ import android.webkit.WebSettings
 import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.content.edit
 import androidx.webkit.ProfileStore
 import androidx.webkit.WebViewCompat
 import androidx.webkit.WebViewFeature
@@ -46,6 +47,9 @@ object ConnectMessageCardSandbox {
     private const val PROFILE_PREFIX = "connect-message-cards"
     private const val PROFILE_PREFERENCES = "connect_message_cards"
     private const val CURRENT_PROFILE_KEY = "current_profile"
+
+    // Sentinel left by a logout that could not delete the old card profile (see retireCardProfile)
+    private const val CLEANUP_PENDING_KEY = "cleanup_pending"
 
     // Profiles left by earlier logins are deleted once per run, before the current one is first loaded
     @Volatile
@@ -99,12 +103,49 @@ object ConnectMessageCardSandbox {
             return
         }
         val current = currentProfileName(webView.context)
-        if (!staleProfilesDeleted) {
-            staleProfilesDeleted = true
-            staleCardProfiles(ProfileStore.getInstance().allProfileNames, current).forEach { deleteUnloadedProfile(it) }
-        }
+        // Usually already done at startup (deleteStaleProfilesIfPending); this covers a run that skipped it
+        deleteStaleProfiles(webView.context, current)
         ProfileStore.getInstance().getOrCreateProfile(current)
         WebViewCompat.setProfile(webView, current)
+    }
+
+    /**
+     * The startup half of the logout cleanup. Never throws, so it is safe to call from
+     * Application.onCreate.
+     *
+     * WebView refuses to delete a profile once it has been loaded in the running process, and a
+     * loaded profile stays loaded until the process ends. So the card profile in use at logout cannot
+     * be deleted then: its Cache Storage in particular stays on disk until a new process deletes the
+     * whole profile, before any card loads one. Logout leaves a sentinel for this (retireCardProfile);
+     * this deletes the old profiles at the next app start, without waiting for the user to open
+     * messaging again.
+     *
+     * With no sentinel this is one preferences read. WebView is only touched, which loads its engine
+     * and is a real cost at startup, when there is something to delete, and that work is posted to
+     * run after Application.onCreate rather than inside it.
+     */
+    @JvmStatic
+    fun deleteStaleProfilesIfPending(context: Context) {
+        try {
+            val appContext = context.applicationContext
+            if (!isCleanupPending(appContext)) {
+                return
+            }
+            Handler(Looper.getMainLooper()).post {
+                try {
+                    if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                        deleteStaleProfiles(appContext, currentProfileName(appContext))
+                    } else {
+                        // The WebView no longer supports profiles, so none can be deleted; stop asking
+                        setCleanupPending(appContext, false)
+                    }
+                } catch (e: RuntimeException) {
+                    // No WebView provider right now: the sentinel stays for the next start
+                }
+            }
+        } catch (e: RuntimeException) {
+            // Card cleanup must never affect app startup
+        }
     }
 
     /** The card profiles to delete: every one but the current, including the unnumbered name early builds used. */
@@ -151,8 +192,9 @@ object ConnectMessageCardSandbox {
      * Where WebView supports profiles, cards from now on use a fresh, empty profile, even before the
      * app restarts, and the old one is deleted, which removes everything cards stored, Cache Storage
      * included, without touching the app's other WebViews. If a card was shown in this run, the old
-     * profile is loaded and cannot be deleted until the next run (useCardProfile does it then); its
-     * IndexedDB and cookies are cleared now.
+     * profile is loaded and cannot be deleted until the process restarts: its IndexedDB and cookies
+     * are cleared now, and a sentinel has the next app start delete the rest
+     * (deleteStaleProfilesIfPending).
      *
      * Older WebViews keep cards in the default profile, where these calls reach IndexedDB, Web Storage
      * and cookies but may leave Cache Storage behind.
@@ -179,11 +221,33 @@ object ConnectMessageCardSandbox {
         val previous = currentProfileName(context)
         startNewProfile(context)
         if (!deleteUnloadedProfile(previous)) {
-            // Loaded in this run, so getProfile loads nothing new; clear what its own APIs reach until then
+            // A card loaded this profile in the running process, so WebView will not delete it until the
+            // process restarts. Leave the sentinel for the next app start, and meanwhile clear what the
+            // profile's own APIs reach (IndexedDB and cookies, not Cache Storage). It is already loaded,
+            // so getProfile changes nothing.
+            setCleanupPending(context, true)
             ProfileStore.getInstance().getProfile(previous)?.let { profile ->
                 profile.webStorage.deleteAllData()
                 profile.cookieManager.removeAllCookies(null)
             }
+        }
+    }
+
+    // Once per run, before the current profile is loaded: no other card profile can be loaded yet, so
+    // each deletion succeeds. The sentinel is cleared only when every old profile is gone.
+    @SuppressLint("RequiresFeature")
+    private fun deleteStaleProfiles(
+        context: Context,
+        current: String,
+    ) {
+        if (staleProfilesDeleted) {
+            return
+        }
+        staleProfilesDeleted = true
+        val stale = staleCardProfiles(ProfileStore.getInstance().allProfileNames, current)
+        val deleted = stale.map { deleteUnloadedProfile(it) }
+        if (deleted.all { it }) {
+            setCleanupPending(context, false)
         }
     }
 
@@ -202,8 +266,17 @@ object ConnectMessageCardSandbox {
 
     private fun startNewProfile(context: Context): String {
         val name = "$PROFILE_PREFIX-${UUID.randomUUID()}"
-        profilePreferences(context).edit().putString(CURRENT_PROFILE_KEY, name).apply()
+        profilePreferences(context).edit { putString(CURRENT_PROFILE_KEY, name) }
         return name
+    }
+
+    private fun isCleanupPending(context: Context): Boolean = profilePreferences(context).getBoolean(CLEANUP_PENDING_KEY, false)
+
+    private fun setCleanupPending(
+        context: Context,
+        pending: Boolean,
+    ) {
+        profilePreferences(context).edit { putBoolean(CLEANUP_PENDING_KEY, pending) }
     }
 
     // Not the messaging preferences, which logout clears: the current profile's name must outlive logout
