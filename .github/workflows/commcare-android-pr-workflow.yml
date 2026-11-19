@@ -75,10 +75,10 @@ jobs:
           org.gradle.parallel=false
           TEST_BUILD_TYPE=release
           ALLOW_DEBUG_SIGNED_RELEASE=${{ github.event.pull_request.head.repo.fork == true }}
-          RELEASE_STORE_FILE=/home/runner/.gradle/commcare-odk-keys.keystore
-          RELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }}
-          RELEASE_KEY_ALIAS=${{ secrets.ALIAS }}
-          RELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          RELEASE_STORE_FILE=/home/runner/.gradle/commcare-ci.keystore
+          RELEASE_STORE_PASSWORD=${{ secrets.CI_KEY_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS=${{ secrets.CI_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD=${{ secrets.CI_KEY_PASSWORD }}
           GOOGLE_CLOUD_PROJECT_NUMBER=${{ secrets.GOOGLE_CLOUD_PROJECT_NUMBER }}
           GOOGLE_SERVICES_API_KEY=${{ secrets.GOOGLE_SERVICES_API_KEY }}
           FIREBASE_DATABASE_URL=${{ secrets.FIREBASE_DATABASE_URL }}
@@ -123,13 +123,15 @@ jobs:
           files: commcare-android/app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           use_oidc: true
           fail_ci_if_error: false
-      - name: Restore Keystore
+      # PR builds are signed with a CI-only key, never the production signing key.
+      # Artifacts from this workflow are therefore not upgrade-compatible with Play/HQ builds.
+      - name: Restore CI Keystore
         run: |
-          if [ -n "$SIGNING_KEY" ]; then
-            echo "$SIGNING_KEY" | base64 -d > ~/.gradle/commcare-odk-keys.keystore
+          if [ -n "$CI_SIGNING_KEY" ]; then
+            echo "$CI_SIGNING_KEY" | base64 -d > ~/.gradle/commcare-ci.keystore
           fi
         env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          CI_SIGNING_KEY: ${{ secrets.CI_SIGNING_KEY }}
       - name: Assemble Release apk
         run: ./gradlew assembleCommcareRelease
         working-directory: commcare-android
