@@ -42,23 +42,15 @@ jobs:
           python-version: '3.9'
       - name: Download cross request script
         if: ${{ github.event_name == 'pull_request' }}
-        env:
-          MOBILE_DEPLOY_SHA: 87fb26f7e5585d0e321117f7815132f47d624295
         run: |
-          curl -fsSL https://raw.githubusercontent.com/dimagi/mobile-deploy/$MOBILE_DEPLOY_SHA/requirements.txt -o requirements.txt
-          curl -fsSL https://raw.githubusercontent.com/dimagi/mobile-deploy/$MOBILE_DEPLOY_SHA/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
-          sha256sum -c - <<'EOF'
-          6377acbf683875501af31276ef5aacf2d7f26aeec620f020d0676ade851950ad  requirements.txt
-          8983e9e5afeec90f8ff794d168cf00d3cc5da773fc202e8c5f0936f741c7c34b  checkout_cross_request_repo.py
-          EOF
+          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/requirements.txt -o requirements.txt
+          curl https://raw.githubusercontent.com/dimagi/mobile-deploy/master/checkout_cross_request_repo.py -o checkout_cross_request_repo.py
       - name: Install Python dependencies
         if: ${{ github.event_name == 'pull_request' }}
         run: python -m pip install -r requirements.txt
       - name: Run cross request script
         if: ${{ github.event_name == 'pull_request' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python checkout_cross_request_repo.py commcare-android ${{ github.event.number }} commcare-core . "$GH_TOKEN"
+        run: python checkout_cross_request_repo.py commcare-android ${{ github.event.number }} commcare-core . ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout commcare-core for cross-repo CI
         if: ${{ inputs.commcare_core_sha }}
         uses: actions/checkout@v6
