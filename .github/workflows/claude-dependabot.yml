@@ -39,8 +39,9 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number || github.event.pull_request.number }}
         run: |
-          PR_NUMBER="${{ inputs.pr_number || github.event.pull_request.number }}"
+          [[ "$PR_NUMBER" =~ ^[0-9]+$ ]] || { echo "Invalid PR number: $PR_NUMBER"; exit 1; }
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
           REF=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json headRefOid --jq '.headRefOid')
           echo "ref=$REF" >> $GITHUB_OUTPUT
@@ -50,6 +51,7 @@ jobs:
         with:
           ref: ${{ steps.pr.outputs.ref }}
           fetch-depth: 2
+          persist-credentials: false
 
       - name: Checkout commcare-core
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
@@ -57,6 +59,7 @@ jobs:
           repository: dimagi/commcare-core
           ref: master
           path: commcare-core
+          persist-credentials: false
 
       - name: Run Claude Dependabot Analysis
         id: claude_review
