@@ -1,5 +1,6 @@
 package org.commcare.connect
 
+import android.app.Activity
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -273,10 +274,7 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
     fun `a lock during an installed app's launch keeps the intro until the launch is over`() {
         val intro = startLaunchOfInstalledLearnApp()
 
-        activity.runOnUiThread { activityController.pause().stop() }
-        ShadowLooper.idleMainLooper()
-        activity.runOnUiThread { activityController.start().resume() }
-        ShadowLooper.idleMainLooper()
+        leaveAndReturnToScreen()
 
         assertSame(intro, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
         assertEquals(AppInstallState.Launching, installViewModel().installState.value)
@@ -304,34 +302,18 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
 
     @Test
     fun `a finished download keeps the intro through the hand-off to verification`() {
-        mockkObject(ConnectAppUtils)
-        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
-        every { repository.startLearning(any()) } returns flowOf(DataState.Success(Unit))
-        job.status = ConnectJobRecord.STATUS_AVAILABLE
-        openPage()
-        val intro = navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
-        val cta = intro.requireView().findViewById<MaterialButton>(R.id.cta_button)
-        activity.runOnUiThread { cta.performClick() }
-        ShadowLooper.idleMainLooper()
+        val introFragment = startLearnAppDownloadFromIntro()
 
         activity.runOnUiThread { installViewModel().reportSuccess(true) }
         ShadowLooper.idleMainLooper()
 
-        assertSame(intro, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
+        assertSame(introFragment, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
         assertEquals(AppInstallState.Verifying, installViewModel().installState.value)
     }
 
     @Test
     fun `an intro kept on screen by a failed install keeps its close icon`() {
-        mockkObject(ConnectAppUtils)
-        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
-        every { repository.startLearning(any()) } returns flowOf(DataState.Success(Unit))
-        job.status = ConnectJobRecord.STATUS_AVAILABLE
-        openPageAtTaskBottom()
-        val introFragment = navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
-        val startLearningButton = introFragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
-        activity.runOnUiThread { startLearningButton.performClick() }
-        ShadowLooper.idleMainLooper()
+        val introFragment = startLearnAppDownloadFromIntro()
 
         failAppInstall()
 
@@ -364,6 +346,32 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         failAppInstall()
         assertEquals(DrawerLayout.LOCK_MODE_UNLOCKED, getDrawerLockMode())
         assertEquals(0f, (getNavigationIcon() as DrawerArrowDrawable).progress)
+    }
+
+    @Test
+    fun `a successful install unlocks the sidebar once the page moves on to learn`() {
+        mockkConstructor(ConnectAppLauncher::class)
+        every { anyConstructed<ConnectAppLauncher>().start(any(), any(), any(), any(), any(), any()) } answers {
+            arg<ConnectAppLauncher.OutcomeCallback>(5).onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = false))
+            Job()
+        }
+        startLearnAppDownloadFromIntro()
+
+        activity.runOnUiThread { installViewModel().reportSuccess(true) }
+        ShadowLooper.idleMainLooper()
+        assertEquals(AppInstallState.Verifying, installViewModel().installState.value)
+        assertEquals(R.drawable.ic_connect_close, shadowOf(getNavigationIcon()).createdFromResId)
+        assertEquals(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, getDrawerLockMode())
+
+        val verificationIntent = shadowOf(activity).nextStartedActivity
+        activity.runOnUiThread { shadowOf(activity).receiveResult(verificationIntent, Activity.RESULT_OK, null) }
+        ShadowLooper.idleMainLooper()
+        leaveAndReturnToScreen()
+
+        navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+        assertEquals(AppInstallState.Idle, installViewModel().installState.value)
+        assertEquals(0f, (getNavigationIcon() as DrawerArrowDrawable).progress)
+        assertEquals(DrawerLayout.LOCK_MODE_UNLOCKED, getDrawerLockMode())
     }
 
     @Test
@@ -444,6 +452,28 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
         assertEquals(AppInstallState.Launching, installViewModel().installState.value)
         return intro
+    }
+
+    /** The learn app isn't on the device yet, so tapping Start learning starts its download, which stays in flight. */
+    private fun startLearnAppDownloadFromIntro(): ConnectJobIntroFragment {
+        mockkObject(ConnectAppUtils)
+        every { ConnectAppUtils.downloadApp(any(), any()) } returns true
+        every { repository.startLearning(any()) } returns flowOf(DataState.Success(Unit))
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        openPageAtTaskBottom()
+
+        val introFragment = navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+        val startLearningButton = introFragment.requireView().findViewById<MaterialButton>(R.id.cta_button)
+        activity.runOnUiThread { startLearningButton.performClick() }
+        ShadowLooper.idleMainLooper()
+        return introFragment
+    }
+
+    private fun leaveAndReturnToScreen() {
+        activity.runOnUiThread { activityController.pause().stop() }
+        ShadowLooper.idleMainLooper()
+        activity.runOnUiThread { activityController.start().resume() }
+        ShadowLooper.idleMainLooper()
     }
 
     private fun installViewModel(): ConnectAppInstallViewModel = ConnectAppInstallViewModel.of(activity)
