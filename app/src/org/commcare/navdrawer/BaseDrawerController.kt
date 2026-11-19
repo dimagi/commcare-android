@@ -3,6 +3,7 @@ package org.commcare.navdrawer
 import android.graphics.Color
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
@@ -37,6 +38,11 @@ class BaseDrawerController(
     private lateinit var navDrawerAdapter: NavDrawerAdapter
     private var hasRefreshed = false
     private var showingError = false
+    private val backArrow =
+        DrawerArrowDrawable(activity).apply {
+            color = Color.WHITE
+            progress = 1f
+        }
     var lastPhotoUploadFailed: Boolean = false
 
     /** Enum to represent navigation drawer menu items */
@@ -91,12 +97,7 @@ class BaseDrawerController(
         (activity as? AppCompatActivity)?.apply {
             drawerToggle.drawerArrowDrawable.color = Color.WHITE
             // The toolbar has no up icon yet, so supply the back arrow shown when the sidebar icon is off.
-            drawerToggle.setHomeAsUpIndicator(
-                DrawerArrowDrawable(activity).apply {
-                    color = Color.WHITE
-                    progress = 1f
-                },
-            )
+            drawerToggle.setHomeAsUpIndicator(backArrow)
             drawerToggle.syncState()
         }
     }
@@ -295,10 +296,25 @@ class BaseDrawerController(
     }
 
     // Screens nested inside a section show back and can't swipe the sidebar open.
-    fun setTopLevel(isTopLevel: Boolean) {
+    fun setTopLevel(
+        isTopLevel: Boolean,
+        isLocked: Boolean = false,
+    ) {
         drawerToggle.isDrawerIndicatorEnabled = isTopLevel
-        val lockMode = if (isTopLevel) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        val lockMode =
+            if (isTopLevel && !isLocked) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
         binding.drawerLayout.setDrawerLockMode(lockMode)
+    }
+
+    /** Sets the icon shown in place of the sidebar icon; null restores the back arrow. */
+    fun setUpIndicator(
+        @DrawableRes iconRes: Int?,
+    ) {
+        if (iconRes == null) {
+            drawerToggle.setHomeAsUpIndicator(backArrow)
+        } else {
+            drawerToggle.setHomeAsUpIndicator(iconRes)
+        }
     }
 
     fun isShowingError(): Boolean = showingError
