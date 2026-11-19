@@ -121,6 +121,8 @@ class ConnectOpportunityHomeFragment :
 
     override fun jobStatus(): Int = job.status
 
+    fun isShowingIntro(): Boolean = stateController.currentState == ConnectOpportunityHomeState.JOB_INTRO
+
     override fun shouldBlockPhaseTransition(): Boolean =
         (currentSurface() as? BaseConnectFragment<*>)
             ?.holdsAppInstall == true
@@ -152,6 +154,7 @@ class ConnectOpportunityHomeFragment :
     }
 
     private fun showState(state: ConnectOpportunityHomeState) {
+        (activity as? ConnectActivity)?.refreshDrawerTopLevel()
         if (childFragmentManager.findFragmentByTag(state.name) != null) {
             return
         }
