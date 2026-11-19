@@ -39,11 +39,13 @@ jobs:
       - name: Checkout commcare-android
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           ref: ${{ env.ANDROID_REF }}
           path: commcare-android
       - name: Checkout the contact sheet script
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           path: workflow-scripts
           sparse-checkout: scripts/l10n_contact_sheet.py
           sparse-checkout-cone-mode: false
@@ -63,6 +65,7 @@ jobs:
       - name: Checkout commcare-core
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           repository: dimagi/commcare-core
           ref: ${{ steps.core.outputs.ref }}
           path: commcare-core
