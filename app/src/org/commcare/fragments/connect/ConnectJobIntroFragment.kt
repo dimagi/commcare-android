@@ -7,7 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDirections
@@ -25,6 +24,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectJobIntroBinding
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.navdrawer.BaseDrawerActivity
 import java.text.DateFormat
 
 /**
@@ -43,9 +43,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
         requireActivity().title = job.title
         hideSyncMenuItem()
 
-        (requireActivity() as AppCompatActivity)
-            .supportActionBar!!
-            .setHomeAsUpIndicator(R.drawable.ic_connect_close)
+        (requireActivity() as BaseDrawerActivity<*>).setUpIndicator(R.drawable.ic_connect_close)
 
         viewModel =
             ViewModelProvider(
@@ -77,7 +75,7 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
 
     override fun onDestroyView() {
         super.onDestroyView()
-        (requireActivity() as AppCompatActivity).supportActionBar!!.setHomeAsUpIndicator(0)
+        (requireActivity() as BaseDrawerActivity<*>).setUpIndicator(null)
     }
 
     private fun hideSyncMenuItem() {
