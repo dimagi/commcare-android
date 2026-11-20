@@ -95,8 +95,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_button_logged_in">Je zuwa menu na Haɗawa</string>
     <string name="connect_registration_title">Fara da PersonalID</string>
     <string name="connect_consent_message_1">Na karanta kuma na yarda da Dimagi\'s</string>
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0</string>
     <string name="connect_otp_sent">An aika lambar sirri mai lambobi 6 zuwa lambar wayarku.</string>
     <string name="connect_otp_verified">Nasara! An tabbatar da lambar wayarku.</string>
     <string name="connect_enter_otp">Da fatan za a shigar da lambar sirri mai lambobi 6 da aka aika zuwa lambar wayarku.</string>

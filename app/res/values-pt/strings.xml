@@ -259,8 +259,6 @@
     <string name="personalid_generic_error">Ocorreu um problema. Configure sua conta PersonalID novamente.</string>
     <string name="connect_registration_title">Comece a usar o PersonalID</string>
     <string name="connect_consent_message_1">Li e concordo com a <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidade</a>, os <a href="https://www.dimagi.com/terms/latest/tos/">Termos de Serviço</a>, o <a href="https://www.dimagi.com/terms/latest/ba/">Contrato Comercial</a> e a <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceitável</a> da Dimagi.</string>
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">Foi enviado um código de acesso de 6 dígitos para o seu número de telefone.</string>
     <string name="connect_otp_verified">Sucesso! O seu número de telefone foi verificado.</string>
     <string name="connect_enter_otp">Por favor, introduza o código de acesso de 6 dígitos que foi enviado para o seu número de telefone.</string>

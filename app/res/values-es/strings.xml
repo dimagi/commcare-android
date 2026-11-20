@@ -195,8 +195,6 @@
     <string name="personalid_generic_error">Ocurrió un problema con la base de datos, recupera tu cuenta.</string>
     <string name="connect_registration_title">Comience a usar PersonalID</string>
     <string name="connect_consent_message_1">He leído y acepto la <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidad</a>, los <a href="https://www.dimagi.com/terms/latest/tos/">Términos de Servicio</a>, el <a href="https://www.dimagi.com/terms/latest/ba/">Acuerdo Comercial</a> y la <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceptable</a> de Dimagi.</string>
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">Se ha enviado un código de acceso de 6 dígitos a su número de teléfono.</string>
     <string name="connect_otp_verified">¡Éxito! Su número de teléfono ha sido verificado.</string>
     <string name="connect_enter_otp">Por favor, ingrese el código de acceso de 6 dígitos que se envió a su número de teléfono.</string>
