@@ -9,7 +9,7 @@ from subprocess import PIPE
 import sys
 import json
 import time
-import urllib.error
+import http.client
 import urllib.request
 
 def appendData(command, dataUrl):
@@ -136,9 +136,9 @@ def shouldSkipAndroidTest():
     if token:
         request.add_header("Authorization", "Bearer {}".format(token))
     try:
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(request, timeout=30) as response:
             gitPRLabels = json.load(response)["labels"]
-    except (urllib.error.URLError, KeyError, ValueError) as e:
+    except (OSError, http.client.HTTPException, KeyError, ValueError) as e:
         print("Couldn't read PR labels ({}), running the tests.".format(e))
         return False
     return any(label["name"] == "skip-integration-tests" for label in gitPRLabels)
