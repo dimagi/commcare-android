@@ -266,7 +266,7 @@ class ConnectOpportunityListFragmentTest {
 
         assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertNull(navController.previousBackStackEntry)
-        assertTrue(activity.isOpportunityHomeAtTaskBottom)
+        assertTrue(activity.isTaskRoot)
     }
 
     @Test
@@ -275,7 +275,6 @@ class ConnectOpportunityListFragmentTest {
 
         assertEquals(R.id.connect_opportunity_home_fragment, navController.currentDestination?.id)
         assertEquals(R.id.connect_jobs_list_fragment, navController.previousBackStackEntry?.destination?.id)
-        assertFalse(activity.isOpportunityHomeAtTaskBottom)
     }
 
     @Test

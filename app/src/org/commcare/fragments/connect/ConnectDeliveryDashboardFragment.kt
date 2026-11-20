@@ -9,11 +9,13 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import org.commcare.activities.CommCareActivity
+import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectPaymentUnitRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.database.ConnectTaskUtils
+import org.commcare.connect.viewmodel.ConnectAppSyncStatusViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding
 import org.commcare.fragments.RefreshableTab
@@ -21,8 +23,8 @@ import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.views.connect.ConnectInfoHalfCard
 import org.commcare.views.connect.ConnectProgressCard
-import org.commcare.views.connect.ConnectSyncStatusCard
 import org.commcare.views.connect.ConnectTaskPresenter
+import org.commcare.views.connect.opportunitySyncCardState
 import java.text.DateFormat
 
 /**
@@ -36,6 +38,7 @@ class ConnectDeliveryDashboardFragment :
     ConnectJobFragment<FragmentConnectDeliveryDashboardBinding>(),
     RefreshableTab {
     private val host get() = requireParentFragment() as ConnectDeliveryHomeFragment
+    private val appSyncStatus by lazy { ConnectAppSyncStatusViewModel.of(requireActivity()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +48,14 @@ class ConnectDeliveryDashboardFragment :
         val view = super.onCreateView(inflater, container, savedInstanceState)
         updateView()
         return view
+    }
+
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?,
+    ) {
+        super.onViewCreated(view, savedInstanceState)
+        appSyncStatus.status.observe(viewLifecycleOwner) { bindSyncCard(host.syncStatus, host.isSynced) }
     }
 
     override fun updateView() {
@@ -216,15 +227,11 @@ class ConnectDeliveryDashboardFragment :
         synced: Boolean,
     ) {
         binding.deliverySyncCard.bind(
-            ConnectSyncStatusCard.State(
-                statusText = getString(R.string.connect_sync_card_press_to_sync),
-                statusSubtext = syncStatus,
-                warning = !synced,
-            ),
+            opportunitySyncCardState(requireContext(), syncStatus, synced, appSyncStatus.status.value),
         )
         binding.deliverySyncCard.onCardClick = {
             FirebaseAnalyticsUtil.reportHomeButtonClick(AnalyticsParamValue.CONNECT_SYNC_CARD)
-            host.refresh(true)
+            (requireActivity() as ConnectActivity).sync()
         }
     }
 
