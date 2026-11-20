@@ -141,7 +141,7 @@ abstract class BaseConnectJobIntroTest {
         ShadowLooper.idleMainLooper()
     }
 
-    private fun buildJob(): ConnectJobRecord =
+    protected fun buildJob(): ConnectJobRecord =
         ConnectJobRecord.fromJson(
             JSONObject().apply {
                 put("id", 1)

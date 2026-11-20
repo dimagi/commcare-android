@@ -10,7 +10,7 @@ How users move between CommCare's top-level screens.
 - **App seated, no session** → its opportunity's Opportunity Home if it has one, else CommCare Login.
 - **No usable app** → the last accessed opportunity, the only opportunity, or the Opportunity List; CommCare Setup when nothing is set up.
 
-An ended opportunity reopens on the next launch only; later launches land on the Opportunity List. Connect landings open behind `ConnectUnlockFragment`; a declined unlock relaunches `DispatchActivity`, which closes any active session and then picks CommCare Login or CommCare Setup. `PersonalIdUserPreferences` stores the last accessed opportunity and the ended opportunities already seen, both written by Opportunity Home.
+An ended opportunity reopens on the next launch only; later launches land on the Opportunity List. Connect landings open behind `ConnectUnlockFragment`; a declined unlock relaunches `DispatchActivity`, which closes any active session and then picks CommCare Login or CommCare Setup. `PersonalIdUserPreferences` stores the last accessed opportunity and the ended opportunities already seen, both written by Opportunity Home. Since a landing skips the unlock screen's opportunity refresh, Opportunity Home refreshes the opportunities itself when it opens and the cache is stale, then redraws or swaps its surface.
 
 ## Back path
 

@@ -3,12 +3,16 @@ package org.commcare.connect
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.database.ConnectJobUtils
+import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
+import org.commcare.connect.viewmodel.ConnectOpportunityHomeViewModel
 import org.commcare.dalvik.R
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.base.BaseConnectFragment
@@ -31,6 +35,7 @@ class ConnectOpportunityHomeFragment :
     ConnectOpportunityNavigator,
     RefreshableFragment {
     private val stateController by lazy { ConnectOpportunityHomeStateController(this) }
+    private val viewModel: ConnectOpportunityHomeViewModel by viewModels()
 
     private val job: ConnectJobRecord
         get() =
@@ -44,12 +49,14 @@ class ConnectOpportunityHomeFragment :
     ) {
         super.onViewCreated(view, savedInstanceState)
         observeAppInstall()
+        observeOpportunityRefresh()
     }
 
     override fun onResume() {
         super.onResume()
         updateState()
         recordOpportunityVisit()
+        viewModel.refreshOpportunities()
     }
 
     /**
@@ -77,8 +84,38 @@ class ConnectOpportunityHomeFragment :
         }
     }
 
+    /**
+     * Startup can land here without the opportunity refresh the unlock screen used to do, so the page
+     * fetches it itself. The job is read back from storage, which the fetch updates and which keeps the
+     * learning and delivery progress the opportunities response lacks.
+     */
+    private fun observeOpportunityRefresh() {
+        viewModel.opportunities.observe(viewLifecycleOwner) { state ->
+            if (state is DataState.Success) {
+                ConnectJobUtils.getCompositeJob(job.jobUUID)?.let(::publishRefreshedJob)
+            }
+        }
+    }
+
+    /** A status change swaps the surface; otherwise the surface redraws, since ending or extending keeps it. */
+    private fun publishRefreshedJob(refreshed: ConnectJobRecord) {
+        (requireActivity() as ConnectActivity).activeJob = refreshed
+        if (!hasLiveView() || childFragmentManager.isStateSaved) {
+            return
+        }
+        val surfaceSwapped = stateController.reResolveState()
+        if (surfaceSwapped) {
+            stateController.currentState?.let(::showState)
+        } else {
+            (currentSurface() as? ConnectOpportunitySurface)?.onActiveJobRefreshed()
+        }
+        recordOpportunityVisit()
+    }
+
+    private fun currentSurface(): Fragment? = childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container)
+
     override fun refresh(forceRefresh: Boolean) {
-        (childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container) as? RefreshableFragment)
+        (currentSurface() as? RefreshableFragment)
             ?.refresh(forceRefresh)
     }
 
@@ -87,7 +124,7 @@ class ConnectOpportunityHomeFragment :
     fun isShowingIntro(): Boolean = stateController.currentState == ConnectOpportunityHomeState.JOB_INTRO
 
     override fun shouldBlockPhaseTransition(): Boolean =
-        (childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container) as? BaseConnectFragment<*>)
+        (currentSurface() as? BaseConnectFragment<*>)
             ?.holdsAppInstall == true
 
     /** Ignored while the page cannot swap surfaces; the next resume re-resolves instead. */
