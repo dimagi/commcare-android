@@ -9,6 +9,8 @@ from subprocess import PIPE
 import sys
 import json
 import time
+import urllib.error
+import urllib.request
 
 def appendData(command, dataUrl):
     var = "file=@{}".format(dataUrl)
@@ -127,15 +129,19 @@ def shouldSkipAndroidTest():
     gitPRId = os.environ.get("PR_NUMBER", "")
     if not gitPRId:
         return False
-    gitPRCmd = 'curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/dimagi/commcare-android/pulls/{}'.format(gitPRId)
-    gitPRCmdOutput = subprocess.Popen(shlex.split(gitPRCmd), stdout=PIPE, stderr=None, shell=False).communicate()
-    gitPRLabels = json.loads(gitPRCmdOutput[0])["labels"]
-    shouldSkip = False
-    for label in gitPRLabels:
-        if label["name"] == "skip-integration-tests":
-            shouldSkip = True
-            break
-    return shouldSkip
+    request = urllib.request.Request(
+        "https://api.github.com/repos/dimagi/commcare-android/pulls/{}".format(gitPRId),
+        headers={"Accept": "application/vnd.github+json"})
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if token:
+        request.add_header("Authorization", "Bearer {}".format(token))
+    try:
+        with urllib.request.urlopen(request) as response:
+            gitPRLabels = json.load(response)["labels"]
+    except (urllib.error.URLError, KeyError, ValueError) as e:
+        print("Couldn't read PR labels ({}), running the tests.".format(e))
+        return False
+    return any(label["name"] == "skip-integration-tests" for label in gitPRLabels)
 
 def runAndroidTest():
 
