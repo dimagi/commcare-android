@@ -29,9 +29,6 @@ interface HomeActivityHost :
     /** Launch [intent] without waiting for a result. */
     fun startActivity(intent: Intent)
 
-    /** Close the host without changing the result it hands back. */
-    fun finish()
-
     /**
      * Deliver [result] to the screen beneath, or to a relaunched DispatchActivity when the host is the
      * bottom of the task or when it requests recovery measures and no caller is waiting for it, then finish.
