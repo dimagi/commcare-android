@@ -249,7 +249,6 @@
     <string name="dependency_missing_dialog_playstore_not_found">Nenhuma Play Store encontrada no seu dispositivo</string>
     <string name="fcm_default_notification_channel">notificações-canal-notificações push</string>
     <string name="personalid_login_via">Via PersonalId (ou pressione aqui)</string>
-    <string name="personalid_choice_or">OU</string>
     <string name="login_choice_or">OU</string>
     <string name="connect_download_delivery">Baixar entrega</string>
     <string name="connect_app_install_setting_up">Configurando o aplicativo…</string>

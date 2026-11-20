@@ -247,7 +247,6 @@
     <string name="dependency_missing_dialog_playstore_not_found">Hakuna Duka la Google Play lililopatikana kwenye kifaa chako</string>
     <string name="fcm_default_notification_channel">arifa-chaneli-kusukuma-arifa</string>
     <string name="personalid_login_via">Kupitia PersonalId (au bonyeza hapa)</string>
-    <string name="personalid_choice_or">____________ AU _____________</string>
     <string name="login_choice_or">AU</string>
     <string name="connect_download_delivery">Pakua Uwasilishaji</string>
     <string name="connect_app_install_setting_up">Inasanidi programu…</string>

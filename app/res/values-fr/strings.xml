@@ -246,7 +246,6 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">Aucun Play Store trouvé sur votre appareil</string>
     <string name="fcm_default_notification_channel">canal de notification-notifications-push</string>
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
-    <string name="personalid_choice_or">_____________    OU    _____________</string>
     <string name="login_choice_or">OU</string>
     <string name="connect_download_delivery">Télécharger Livraison</string>
     <string name="connect_app_install_setting_up">Configuration de l\'application…</string>

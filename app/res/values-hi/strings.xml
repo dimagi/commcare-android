@@ -246,7 +246,6 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">आपके डिवाइस पर कोई Play Store नहीं मिला</string>
     <string name="fcm_default_notification_channel">अधिसूचना-चैनल-पुश-अधिसूचनाएं</string>
     <string name="personalid_login_via">PersonalId के माध्यम से (या यहां टैप करें)</string>
-    <string name="personalid_choice_or">_____________    या    _____________</string>
     <string name="login_choice_or">या</string>
     <string name="connect_download_delivery">वितरण डाउनलोड करें</string>
     <string name="connect_app_install_setting_up">ऐप सेट किया जा रहा है…</string>

@@ -87,7 +87,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="playback_start_time">0:00</string>
     <string name="fcm_default_notification_channel">sanarwar-tashar-tura-sanarwa</string>
     <string name="personalid_login_via">Ta hanyar PersonalID (ko danna nan)</string>
-    <string name="personalid_choice_or">_________ KO _________</string>
     <string name="login_choice_or">KO</string>
     <string name="connect_download_delivery">Sauke Isarwa</string>
     <string name="connect_app_install_setting_up">Ana saita manhaja…</string>
