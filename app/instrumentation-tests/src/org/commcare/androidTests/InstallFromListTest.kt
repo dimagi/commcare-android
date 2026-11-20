@@ -20,8 +20,8 @@ import org.commcare.activities.InstallFromListActivity
 import org.commcare.android.database.global.models.AppAvailableToInstall
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
-import org.commcare.dalvik.test.BuildConfig
 import org.commcare.utils.CustomMatchers
+import org.commcare.utils.HQApiCredentials
 import org.commcare.utils.InstrumentationUtility
 import org.commcare.utils.isPresent
 import org.hamcrest.Matchers.allOf
@@ -122,8 +122,8 @@ class InstallFromListTest : BaseTest() {
     @Test
     fun testAppInstall_usingWebWorkerDetails() {
         // Test getting app list for a mobile user
-        InstrumentationUtility.enterText(R.id.edit_email, BuildConfig.HQ_API_USERNAME)
-        InstrumentationUtility.enterText(R.id.edit_password, BuildConfig.HQ_API_PASSWORD)
+        InstrumentationUtility.enterText(R.id.edit_email, HQApiCredentials.getUsername())
+        InstrumentationUtility.enterText(R.id.edit_password, HQApiCredentials.getPassword())
         onView(withId(R.id.get_apps_button))
             .perform(click())
 

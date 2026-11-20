@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableMultimap;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.core.network.CommCareNetworkService;
 import org.commcare.core.network.CommCareNetworkServiceGenerator;
-import org.commcare.dalvik.test.BuildConfig;
 import org.commcare.modern.util.Pair;
 import org.commcare.network.HttpUtils;
 import org.joda.time.DateTime;
@@ -284,7 +283,7 @@ public class HQApi {
 
     private static String getCaseCloseXml(String caseId, String userId) {
         String time = "2018-01-15T07:41:01.615143Z";
-        String userName = BuildConfig.HQ_API_USERNAME;
+        String userName = HQApiCredentials.getUsername();
         String uid = UUID.randomUUID().toString();
         return "<?xml version='1.0' ?>" + "\n" +
                 "<system version=\"1\" uiVersion=\"1\" xmlns=\"http://commcarehq.org/case\" "
@@ -326,7 +325,7 @@ public class HQApi {
     }
 
     private static CommCareNetworkService createTestNetworkService() {
-        AuthInfo authInfo = new AuthInfo.ProvidedAuth(BuildConfig.HQ_API_USERNAME, BuildConfig.HQ_API_PASSWORD,false);
+        AuthInfo authInfo = new AuthInfo.ProvidedAuth(HQApiCredentials.getUsername(), HQApiCredentials.getPassword(),false);
         CommCareNetworkService networkService =
                 CommCareNetworkServiceGenerator.createCommCareNetworkService(
                         HttpUtils.getCredential(authInfo),
