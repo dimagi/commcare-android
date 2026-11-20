@@ -185,7 +185,6 @@
     <string name="dependency_missing_dialog_playstore_not_found">No se encontró Play Store en tu dispositivo</string>
     <string name="fcm_default_notification_channel">canal-de-notificación-notificaciones-push</string>
     <string name="personalid_login_via">Vía PersonalId (o toca aquí)</string>
-    <string name="personalid_choice_or">_____________    O    _____________</string>
     <string name="login_choice_or">O</string>
     <string name="connect_download_delivery">Descargar Entrega</string>
     <string name="connect_app_install_setting_up">Configurando la aplicación…</string>
@@ -196,8 +195,6 @@
     <string name="personalid_generic_error">Ocurrió un problema con la base de datos, recupera tu cuenta.</string>
     <string name="connect_registration_title">Comience a usar PersonalID</string>
     <string name="connect_consent_message_1">He leído y acepto la <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidad</a>, los <a href="https://www.dimagi.com/terms/latest/tos/">Términos de Servicio</a>, el <a href="https://www.dimagi.com/terms/latest/ba/">Acuerdo Comercial</a> y la <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceptable</a> de Dimagi.</string>
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">Se ha enviado un código de acceso de 6 dígitos a su número de teléfono.</string>
     <string name="connect_otp_verified">¡Éxito! Su número de teléfono ha sido verificado.</string>
     <string name="connect_enter_otp">Por favor, ingrese el código de acceso de 6 dígitos que se envió a su número de teléfono.</string>
