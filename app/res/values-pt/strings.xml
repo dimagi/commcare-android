@@ -799,6 +799,11 @@
     <string name="connect_messaging_attachment_tap_to_retry">Toque para tentar novamente</string>
     <string name="connect_messaging_attachment_expired">Não está mais disponível</string>
     <string name="connect_messaging_attachment_open_failed">Nenhum aplicativo neste telefone pode abrir este arquivo</string>
+    <string name="connect_messaging_attachment_cannot_open">Não é possível abrir este arquivo</string>
+    <string name="connect_messaging_card_open">Abrir</string>
+    <string name="connect_messaging_card_unsupported_device">Este conteúdo não pode ser exibido neste dispositivo</string>
+    <string name="connect_messaging_card_missing_entry">Este conteúdo não pode ser exibido</string>
+    <string name="connect_messaging_card_stopped">Este conteúdo parou de funcionar</string>
     <string name="connect_messaging_audio_play">Reproduzir áudio</string>
     <string name="connect_messaging_audio_pause">Pausar áudio</string>
     <string name="connect_messaging_audio_play_failed">Não foi possível reproduzir este áudio</string>

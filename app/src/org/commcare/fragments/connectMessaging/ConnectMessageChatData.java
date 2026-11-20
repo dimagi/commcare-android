@@ -20,6 +20,8 @@ public class ConnectMessageChatData {
     private final boolean unsupportedVersion;
     @Nullable
     private final ConnectMessagingAttachmentState pendingDownloadState;
+    @Nullable
+    private final String format;
 
     // Constructor with parameters
     public ConnectMessageChatData(String messageId, int type, String message, String userName, Date timestamp, boolean isMessageRead) {
@@ -30,6 +32,16 @@ public class ConnectMessageChatData {
                                   boolean isMessageRead, List<ConnectMessageAttachmentItem> attachments,
                                   boolean unsupportedVersion,
                                   @Nullable ConnectMessagingAttachmentState pendingDownloadState) {
+        this(messageId, type, message, userName, timestamp, isMessageRead, attachments, unsupportedVersion,
+                pendingDownloadState, null);
+    }
+
+    public ConnectMessageChatData(String messageId, int type, String message, String userName, Date timestamp,
+                                  boolean isMessageRead, List<ConnectMessageAttachmentItem> attachments,
+                                  boolean unsupportedVersion,
+                                  @Nullable ConnectMessagingAttachmentState pendingDownloadState,
+                                  @Nullable String format) {
+        this.format = format;
         this.messageId = messageId;
         this.type = type;
         this.message = message;
@@ -54,12 +66,20 @@ public class ConnectMessageChatData {
         return pendingDownloadState;
     }
 
+    /** How the sender asked for the message to be shown, e.g. "card-html"; null for plain messages. */
+    @Nullable
+    public String getFormat() {
+        return format;
+    }
+
     public boolean isAwaitingDownload() {
         return pendingDownloadState != null;
     }
 
     public boolean hasRichContent() {
-        return !attachments.isEmpty() || unsupportedVersion || isAwaitingDownload();
+        // A card with no files still needs the rich row, to show its "can't be shown" notice
+        return !attachments.isEmpty() || unsupportedVersion || isAwaitingDownload()
+                || ConnectMessageCardSupport.isCard(format);
     }
 
     // Getters and setters

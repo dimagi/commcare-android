@@ -145,6 +145,7 @@
     <dimen name="connect_message_pending_tile_width">240dp</dimen>
     <dimen name="connect_message_pending_tile_min_height">128dp</dimen>
     <dimen name="connect_message_pending_button_size">56dp</dimen>
+    <dimen name="connect_message_card_fade_height">40dp</dimen>
     <dimen name="connect_message_progress_size">48dp</dimen>
     <dimen name="connect_message_progress_thickness">4dp</dimen>
 

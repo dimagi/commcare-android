@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -20,7 +21,11 @@ import java.io.File
 class ConnectMessageAttachmentsBinder(
     private val container: LinearLayout,
     private val listener: ConnectMessageAttachmentListener,
+    private val cardsSupported: () -> Boolean,
 ) {
+    constructor(container: LinearLayout, listener: ConnectMessageAttachmentListener) :
+        this(container, listener, ConnectMessageCardSupport::isDeviceSupported)
+
     class Layout(
         val fillsBubbleWidth: Boolean,
         val contentWidth: Int,
@@ -29,20 +34,89 @@ class ConnectMessageAttachmentsBinder(
     private val context = container.context
     private val inflater = LayoutInflater.from(context)
 
+    private val cardListener =
+        object : ConnectMessageCardView.Listener {
+            override fun onCardStopped(messageId: String) {
+                bindNotice(R.string.connect_messaging_card_stopped)
+            }
+
+            override fun onCardOpenRequested(messageId: String) {
+                listener.onCardOpenRequested(messageId)
+            }
+        }
+
     fun bindPendingMessage(
         messageId: String,
         pendingState: ConnectMessagingAttachmentState,
     ): Layout = bindTile(createPendingView(messageId, pendingState))
 
-    fun bindUnsupportedMessage(): Layout {
+    fun bindUnsupportedMessage(): Layout = bindNotice(R.string.connect_messaging_update_app_notice)
+
+    /** A tile with a sentence and no action, in place of the attachments. */
+    fun bindNotice(
+        @StringRes notice: Int,
+    ): Layout {
         val binding = ViewConnectMessageAttachmentPendingBinding.inflate(inflater, container, false)
         binding.flAction.visibility = View.GONE
-        binding.tvLabel.setText(R.string.connect_messaging_update_app_notice)
+        binding.tvLabel.setText(notice)
         return bindTile(binding.root)
     }
 
-    private fun bindTile(tile: View): Layout {
+    /**
+     * A `card-html` message: its attachments shown as one sandboxed card, or a notice when they
+     * cannot be (rich-messaging spec 12, sections 4 and 8). Never the attachment list.
+     */
+    fun bindCard(
+        messageId: String,
+        attachments: List<ConnectMessageAttachmentItem>,
+        maxMediaWidth: Int,
+        windowHeight: Int,
+    ): Layout {
+        val notice = ConnectMessageCardSupport.unavailableNotice(messageId, attachments.map { it.name }, cardsSupported())
+        if (notice != null) {
+            return bindNotice(notice)
+        }
+        val width = ConnectMessageCardSizer.widthPx(maxMediaWidth, context.resources.displayMetrics.density)
+        val maxHeight = ConnectMessageCardSizer.maxInlineHeightPx(windowHeight)
+        val shown = container.getChildAt(0) as? ConnectMessageCardView
+        if (container.childCount == 1 && shown != null && shown.isShowing(messageId) && shown.cardWidthPx == width) {
+            // Same card at the same width: keep its page, and only take the current cap
+            shown.setMaxInlineHeight(maxHeight)
+            return Layout(true, width)
+        }
+        clear()
+        val card = ConnectMessageCardView(context)
+        val files = attachments.mapNotNull { attachment -> attachment.file?.let { attachment.name to it } }.toMap()
+        if (!card.showInline(messageId, files, width, maxHeight, cardListener)) {
+            card.destroy()
+            return bindNotice(R.string.connect_messaging_card_unsupported_device)
+        }
+        container.visibility = View.VISIBLE
+        container.addView(card, LinearLayout.LayoutParams(width, card.inlineHeightPx).apply { gravity = Gravity.CENTER_HORIZONTAL })
+        return Layout(true, width)
+    }
+
+    /** Pauses or resumes any card shown, as the chat pauses and resumes. */
+    fun setCardsActive(active: Boolean) {
+        for (index in 0 until container.childCount) {
+            (container.getChildAt(index) as? ConnectMessageCardView)?.setActive(active)
+        }
+    }
+
+    /** Destroys any card's WebView, for when this row is recycled or the chat goes away. */
+    fun release() {
+        clear()
+    }
+
+    private fun clear() {
+        for (index in 0 until container.childCount) {
+            (container.getChildAt(index) as? ConnectMessageCardView)?.destroy()
+        }
         container.removeAllViews()
+    }
+
+    private fun bindTile(tile: View): Layout {
+        clear()
         container.visibility = View.VISIBLE
         container.addView(tile)
         return Layout(false, context.resources.getDimensionPixelSize(R.dimen.connect_message_pending_tile_width))
@@ -53,7 +127,7 @@ class ConnectMessageAttachmentsBinder(
         maxMediaWidth: Int,
         maxMediaHeight: Int,
     ): Layout {
-        container.removeAllViews()
+        clear()
         container.visibility = if (attachments.isEmpty()) View.GONE else View.VISIBLE
         var fillsBubbleWidth = false
         var contentWidth = 0
