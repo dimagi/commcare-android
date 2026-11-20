@@ -503,7 +503,7 @@ abstract class BaseConnectFragment<B : ViewBinding> :
     private fun onAppInstallState(state: AppInstallState) {
         // Re-applied on every state so a screen recreated mid-install locks itself down again, and
         // any screen re-enables the action bar once the install that disabled it is over.
-        setBackButtonAndActionBarState(!installViewModel.isInstalling)
+        setNavButtonAndActionBarState(!installViewModel.isInstalling)
 
         ownedAppInstallTarget?.let { target ->
             onAppInstallStateChanged(state, target.isLearning)
@@ -678,8 +678,8 @@ abstract class BaseConnectFragment<B : ViewBinding> :
         installDialog = null
     }
 
-    private fun setBackButtonAndActionBarState(enabled: Boolean) {
-        (activity as? ConnectActivity)?.setBackButtonAndActionBarState(enabled)
+    private fun setNavButtonAndActionBarState(enabled: Boolean) {
+        (activity as? ConnectActivity)?.setNavButtonAndActionBarState(enabled)
     }
 
     @StringRes
