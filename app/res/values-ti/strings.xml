@@ -246,7 +246,7 @@
     <string name="entity_map_error_message">ኣብ ውቅር ኣፕ ጌጋ ኣጋጢሙ ብሰንኪ እዚ ድማ ኩሎም ኣብቲ ካርታ ዘለዉ ማርከራት ብትኽክል ኣይጽዓኑን እዮም።</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">ብ PersonalID ጀምር</string>
-    <string name="connect_consent_message_1">ኣነ ናይ ዲማጊ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
+    <string name="connect_consent_message_1">ኣነ ናይ Dimagi <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
     <string name="connect_otp_sent">ናይ 6 ኣሃዛት መሕለፊ ኮድ ናብ ቁጽሪ ስልክኻ ተላኢኹ ኣሎ።</string>
     <string name="connect_otp_verified">ተዓዊቱ! ቁጽሪ ስልክኻ ተረጋጊጹ ኣሎ።</string>
     <string name="connect_enter_otp">በጃኻ ናብ ቁጽሪ ስልክኻ ዝተላእኸ ናይ 6 ኣሃዛት መሕለፊ ኮድ ኣእቱ።</string>
