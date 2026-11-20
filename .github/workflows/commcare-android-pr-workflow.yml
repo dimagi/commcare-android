@@ -219,6 +219,9 @@ jobs:
     needs: build-test-assemble
     name: BrowserStack Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout commcare-android
         uses: actions/checkout@v6
@@ -255,3 +258,4 @@ jobs:
           TEST_APP_LOCATION: commcare-release-androidTest-apk/app-commcare-release-androidTest.apk
           BROWSERSTACK_DEVICES: "Samsung Galaxy S20-10.0"
           PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
