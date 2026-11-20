@@ -31,6 +31,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - On an opportunity whose budget is fully used, pass the learning assessment with a new user and tap the button to download the delivery app; confirm the error says no more paid visits are available, instead of the generic "Unable to claim" message.
   - On an opportunity whose end date has passed, do the same and confirm the error says the opportunity has ended.
 - While logged in to a CommCare app, open Work History from the sidebar, switch to another app and back; confirm the title still reads "My Work History", earned cards show your name, and at the default font size the English text just above the ribbon fits on one line. Then set the device font to its largest size and confirm that text wraps onto a second line if needed, without being cut off.
+- PersonalID translation fixes:
+  - In Hausa and Tigrinya, confirm the PersonalID phone screen's consent text is fully translated and all four policy links open.
+  - In Hindi, Hausa and Tigrinya, confirm the phone placeholders read "+1" and "0000000000", and the country code is still filled in from the SIM.
+  - In Portuguese, confirm the OR divider has lines on both sides on the login, app setup and PersonalID fingerprint/PIN setup screens.
 
 ## CommCare 2.65
 
