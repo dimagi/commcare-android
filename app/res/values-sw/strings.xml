@@ -180,6 +180,8 @@
     <string name="recovery_forms_state_unavailable">Fomu hazipatikani. Hakikisha hifadhi ya simu yako inapatikana</string>
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
     <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa. Tafadhali jaribu tena au wasiliana na usaidizi.</string>
+    <string name="connect_opportunity_full_claim_error">Hakuna ziara zaidi za kulipwa zinazopatikana. Wasiliana na msimamizi wako.</string>
+    <string name="connect_opportunity_ended_claim_error">Fursa hii imeisha. Wasiliana na msimamizi wako.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
     <string name="personalid_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
     <string name="personalid_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>

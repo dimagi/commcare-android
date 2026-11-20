@@ -42,7 +42,7 @@ abstract class BaseApiCallback<T>(
             }
 
             400 -> {
-                if (!NetworkUtils.checkForLoginFromDifferentDevice(errorBody) ||
+                if (!NetworkUtils.hasErrorCode(errorBody, NetworkUtils.LOGIN_FROM_DIFFERENT_DEVICE) ||
                     !GlobalErrorUtil.triggerGlobalError(
                         GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR,
                     )
