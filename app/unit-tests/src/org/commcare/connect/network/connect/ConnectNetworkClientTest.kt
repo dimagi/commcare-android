@@ -307,6 +307,36 @@ class ConnectNetworkClientTest {
         }
 
     @Test
+    fun `a claim rejected with OPPORTUNITY_FULL fails with the opportunity full error`() =
+        runBlocking {
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.OPPORTUNITY_FULL_ERROR,
+                getClaimErrorCode(400, """{"error_code":"OPPORTUNITY_FULL"}"""),
+            )
+        }
+
+    @Test
+    fun `a claim rejected with OPPORTUNITY_ENDED fails with the opportunity ended error`() =
+        runBlocking {
+            assertEquals(
+                PersonalIdOrConnectApiErrorCodes.OPPORTUNITY_ENDED_ERROR,
+                getClaimErrorCode(400, """{"error_code":"OPPORTUNITY_ENDED"}"""),
+            )
+        }
+
+    @Test
+    fun `a claim rejected with any other 400 body fails with a bad request`() =
+        runBlocking {
+            listOf("", "{}", """{"error_code":"OTHER"}""", "<html>400</html>").forEach { body ->
+                assertEquals(
+                    "body: $body",
+                    PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR,
+                    getClaimErrorCode(400, body),
+                )
+            }
+        }
+
+    @Test
     fun testConfirmPayments_success_returnsSuccess() =
         runBlocking {
             val requestSlot = slot<ConfirmPaymentsRequest>()
@@ -353,4 +383,13 @@ class ConnectNetworkClientTest {
             assertEquals(PaymentConfirmationBody("pay-1", "true"), requestSlot.captured.payments[0])
             assertEquals(PaymentConfirmationBody("pay-2", "false"), requestSlot.captured.payments[1])
         }
+
+    private suspend fun getClaimErrorCode(
+        responseCode: Int,
+        body: String,
+    ): PersonalIdOrConnectApiErrorCodes {
+        coEvery { mockApiService.claimJob(any(), any(), any(), any()) } returns
+            Response.error(responseCode, body.toResponseBody("application/json".toMediaType()))
+        return (client.claimJob(mockUser, "test-uuid").exceptionOrNull() as ConnectApiException).errorCode
+    }
 }

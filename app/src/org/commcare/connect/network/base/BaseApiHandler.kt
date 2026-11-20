@@ -114,6 +114,12 @@ abstract class BaseApiHandler<T>(
         // The server does not allow the user to register a PersonalID account.
         REGISTRATION_INELIGIBLE_ERROR,
 
+        // The opportunity has no budget left for another user to claim it.
+        OPPORTUNITY_FULL_ERROR,
+
+        // The opportunity's end date has passed, so it can no longer be claimed.
+        OPPORTUNITY_ENDED_ERROR,
+
         ;
 
         fun shouldAllowRetry(): Boolean =

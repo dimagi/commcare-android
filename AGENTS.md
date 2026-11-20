@@ -39,6 +39,7 @@ When planning or writing a spec for a new feature, consult [`docs/common-edge-ca
 - Give variables and functions specific names that say what they hold or do (e.g. `retryCount` not `count`, `pendingUploads` not `list`); functions should usually start with an action verb (e.g. `getDisplayName`, `fetchProfile`, `validateEmail`)
 - Before creating a new resource (layout, drawable, image, icon, color, style, etc.), search all modules for an existing one that matches or can be reused, to avoid duplicates
 - In XML layouts, strictly use existing dimension and style resources instead of hardcoded values, and use theme color roles (`?attr/...`) instead of raw `@color/` or hex colors; if no suitable resource or role exists, flag it rather than hardcoding one
+- Write user-facing English strings in British English, "-ise" form (e.g. "cancelled", "initialise", "centre", "aeroplane mode")
 - Do not add any in-code comments unless explicitly requested.
 
 ## Testing
