@@ -34,7 +34,7 @@ object LandingStateProvider {
         )
     }
 
-    private fun getOpportunityLandingInfos(): List<OpportunityLandingInfo> =
+    fun getOpportunityLandingInfos(): List<OpportunityLandingInfo> =
         ConnectJobUtils.getJobs().map { job ->
             OpportunityLandingInfo(
                 uuid = job.jobUUID,

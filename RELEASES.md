@@ -16,16 +16,21 @@ This file is meant as an easy way for us to collate notes and change logs across
 
 - On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
 - With the dashboard progress breakdown collapsed, confirm the three payment units shown are the most recently visited ones.
+- On a phone number that already has a PersonalID account, start a new PersonalID signup with a clearly different name; confirm signup stops right after the name step with a message that the user can't register, that it reveals nothing about the existing account, and that dismissing it closes PersonalID.
 - Regression check on sync: from the home screen, Sync with unsent forms sends them and then syncs, and the sync button shows the result; finishing a form still sends it in the background.
 - Regression check on case claim: a successful claim still syncs and continues, and a failed one shows the error with Retry.
 - Regression check on session expiration: when the session times out, whether on the home screen, in the background, or while in a form, returning to home still lands on the login screen.
 - Regression check on form entry: finishing a form sends it and continues; backing out of a new form returns to the menu; saving a form as incomplete and reopening it from Incomplete Forms resumes it; opening a saved form and leaving it returns to Saved Forms; and a form interrupted by session expiration reopens after logging back in.
 - Regression check on the home menu and login checks: Saved Forms, Settings, Advanced, About CommCare, Change Language and Update App each open as before; with "Give option to use PIN for login" on in Developer Options, Set My PIN asks for the password, then sets the PIN, and logging in with that PIN works; a demo user still sees the demo-mode warning after login.
 - Regression check on sync across rotation: rotate the phone while a home-screen sync is running; the sync still finishes and the home screen shows its result.
+- Regression check on menus and case lists: from Start, open a module, its case list, a case's details and a form, and press back at each step; each returns to the previous screen, and backing out of the first menu returns home.
 - With an incomplete PersonalID profile, open Connect and confirm the profile prompt appears on the opportunity list; tap Remind me Later and confirm it does not reappear on the list or opportunity home until the next day (moving the device date forward works).
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
+- On an opportunity whose budget is fully used, pass the learning assessment with a new user and tap the button to download the delivery app; confirm the error says no more paid visits are available, instead of the generic "Unable to claim" message.
+  - On an opportunity whose end date has passed, do the same and confirm the error says the opportunity has ended.
+- While logged in to a CommCare app, open Work History from the sidebar, switch to another app and back; confirm the title still reads "My Work History", earned cards show your name, and at the default font size the English text just above the ribbon fits on one line. Then set the device font to its largest size and confirm that text wraps onto a second line if needed, without being cut off.
 
 ## CommCare 2.65
 

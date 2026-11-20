@@ -141,6 +141,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             override fun onFailure(
                 errorType: OtpErrorType,
                 errorMessage: String?,
+                errorCode: String?,
             ) {
                 recordFailedVerificationAttempt()
                 val fallingBackToPersonalId = otpCallback != null && shouldAutoSwitchToPersonalIdAuth(errorType)
@@ -151,6 +152,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                         AnalyticsParamValue.OTP_OUTCOME_FAILURE
                     },
                     OtpAnalyticsMapper.reasonFrom(errorType),
+                    errorCode,
                 )
 
                 if (otpCallback == null) return
@@ -205,6 +207,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                 reportOtpAnalytics(
                     AnalyticsParamValue.OTP_OUTCOME_FAILURE,
                     OtpAnalyticsMapper.reasonFrom(failureCode),
+                    failureCode.name,
                 )
                 if (otpCallback == null) return
 
@@ -443,6 +446,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
     private fun reportOtpAnalytics(
         outcome: String,
         reason: String?,
+        errorCode: String? = null,
     ) {
         val method = OtpAnalyticsMapper.methodFromSmsMethod(lastOtpMethod)
         FirebaseAnalyticsUtil.reportOtpEvent(
@@ -450,6 +454,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             outcome,
             method,
             reason,
+            errorCode,
             attemptCounter().requestCount,
             attemptCounter().failedAttempts,
             OtpAnalyticsMapper.workflowParam(analyticsWorkflow()),

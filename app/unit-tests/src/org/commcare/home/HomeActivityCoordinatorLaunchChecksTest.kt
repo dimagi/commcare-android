@@ -85,11 +85,11 @@ class HomeActivityCoordinatorLaunchChecksTest {
         host.demoUser = true
         seedSessionCommand()
 
-        assertFalse(coordinator.runLaunchChecks())
+        assertFalse(coordinator.launchChecks.run())
 
         assertEquals(1, host.shownDialogs.size)
         assertTrue(host.shownDialogs.single() is StandardAlertDialog)
-        assertEquals(0, host.sessionStepCount)
+        assertTrue(host.startedForResult.isEmpty())
     }
 
     @Test
@@ -97,11 +97,10 @@ class HomeActivityCoordinatorLaunchChecksTest {
         seedSessionCommand()
         HiddenPreferences.setPostUpdateSyncNeeded(true)
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
-        assertEquals(1, host.sessionStepCount)
+        assertEquals(HomeRequestCodes.MODEL_RESULT, host.startedForResult.single().second)
         assertEquals(0, syncer.formSendCount)
-        assertTrue(CommCareApplication.instance().isPostUpdateSyncNeeded)
     }
 
     @Test
@@ -109,7 +108,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         HiddenPreferences.setPostUpdateSyncNeeded(true)
         seedPendingSyncRequest()
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
         assertEquals(1, syncer.formSendCount)
         assertFalse(CommCareApplication.instance().isPostUpdateSyncNeeded)
@@ -120,7 +119,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         seedPendingSyncRequest()
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
         assertEquals(1, syncer.formSendCount)
         assertFalse(syncer.lastSendUserTriggered)
@@ -129,9 +128,8 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `with nothing pending, the checks end unclaimed`() {
-        assertFalse(coordinator.runLaunchChecks())
+        assertFalse(coordinator.launchChecks.run())
 
-        assertEquals(0, host.sessionStepCount)
         assertEquals(0, syncer.formSendCount)
         assertTrue(host.startedForResult.isEmpty())
     }
@@ -141,7 +139,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
     fun `a primed login launches pin creation unclaimed`() {
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
-        assertFalse(coordinator.runLaunchChecks())
+        assertFalse(coordinator.launchChecks.run())
 
         val (intent, requestCode) = host.startedForResult.single()
         assertEquals(CreatePinActivity::class.java.name, intent.component?.className)
@@ -154,9 +152,9 @@ class HomeActivityCoordinatorLaunchChecksTest {
         seedSessionCommand()
         host.launchIntent = Intent().putExtra(LoginActivity.LOGIN_MODE, LoginMode.PRIMED)
 
-        assertTrue(coordinator.runLaunchChecks())
+        assertTrue(coordinator.launchChecks.run())
 
-        assertTrue(host.startedForResult.isEmpty())
+        assertTrue(host.startedForResult.none { it.first.component?.className == CreatePinActivity::class.java.name })
     }
 
     // endregion
@@ -273,9 +271,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
         assertEquals(PinAuthenticationActivity::class.java.name, authIntent.component?.className)
         assertEquals(HomeRequestCodes.AUTHENTICATION_FOR_PIN, authCode)
 
-        assertTrue(
-            coordinator.onActivityResult(HomeRequestCodes.AUTHENTICATION_FOR_PIN, RESULT_OK, null),
-        )
+        coordinator.onActivityResult(HomeRequestCodes.AUTHENTICATION_FOR_PIN, RESULT_OK, null)
 
         val (createIntent, createCode) = host.startedForResult.last()
         assertEquals(CreatePinActivity::class.java.name, createIntent.component?.className)
@@ -285,9 +281,7 @@ class HomeActivityCoordinatorLaunchChecksTest {
 
     @Test
     fun `a cancelled password check starts no pin creation`() {
-        assertTrue(
-            coordinator.onActivityResult(HomeRequestCodes.AUTHENTICATION_FOR_PIN, RESULT_CANCELED, null),
-        )
+        coordinator.onActivityResult(HomeRequestCodes.AUTHENTICATION_FOR_PIN, RESULT_CANCELED, null)
 
         assertTrue(host.startedForResult.isEmpty())
     }

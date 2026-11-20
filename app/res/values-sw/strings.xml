@@ -180,6 +180,8 @@
     <string name="recovery_forms_state_unavailable">Fomu hazipatikani. Hakikisha hifadhi ya simu yako inapatikana</string>
     <string name="recovery_network_unavailable">Hakuna muunganisho wa mtandao. Tafadhali angalia intaneti yako na ujaribu tena.</string>
     <string name="recovery_unable_to_claim_opportunity">Imeshindwa kudai fursa. Tafadhali jaribu tena au wasiliana na usaidizi.</string>
+    <string name="connect_opportunity_full_claim_error">Hakuna ziara zaidi za kulipwa zinazopatikana. Wasiliana na msimamizi wako.</string>
+    <string name="connect_opportunity_ended_claim_error">Fursa hii imeisha. Wasiliana na msimamizi wako.</string>
     <string name="recovery_network_outdated">Programu hii imepitwa na wakati. Tafadhali sasisha programu kwenye Google Play Store ili uendelee.</string>
     <string name="personalid_token_unavailable">Kulikuwa na tatizo la mtandao. Tafadhali jaribu tena.</string>
     <string name="personalid_token_request_rejected">Imepoteza usanidi wa PersonalID na seva, tafadhali rejesha akaunti yako ya PersonalID na ujaribu tena</string>
@@ -547,6 +549,7 @@
     <string name="personalid_name_fragment_subtitle">Tafadhali ingiza jina lako jinsi linavyoonekana kwenye kitambulisho chako kilichotolewa na serikali</string>
     <string name="personalid_configuration_process_failed_title">Mchakato Umeshindwa</string>
     <string name="personalid_configuration_locked_account">Akaunti yako imefungwa. Tafadhali wasiliana na usaidizi</string>
+    <string name="personalid_registration_ineligible">Huna sifa ya kusajili akaunti ya PersonalID.</string>
     <string name="personalid_backup_code_locked">Msimbo wako wa akiba umefungwa. Tafadhali thibitisha barua pepe yako ili kuweka mpya.</string>
     <string name="personalid_configuration_process_failed_subtitle">Kwa bahati mbaya, kifaa hiki hakikufaulu ukaguzi wa usalama unaohitajika ili kujisajili kwa PersonalID. Tafadhali jaribu tena kwenye kifaa tofauti.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">PIN kwenye kifaa hiki haipatikani kwa sasa. Tafadhali jaribu tena baadaye.</string>
@@ -577,12 +580,12 @@
     <string name="personalid_work_history_no_records_available">Hakuna rekodi za kazi zinazopatikana kwa sasa. Bofya onyesha upya, au angalia tena baadaye.</string>    <string name="personalid_work_history_earned">Imelipwa</string>
     <string name="personalid_work_history_pending">Inasubiri</string>
     <string name="personalid_work_history_sync">Sawazisha</string>
-    <string name="personalid_work_history_level_1_month_active">Mwezi 1 wa\nShughuli</string>
-    <string name="personalid_work_history_level_2_month_active">Miezi 2 ya\nShughuli</string>
-    <string name="personalid_work_history_level_3_month_active">Miezi 3 ya\nShughuli</string>
-    <string name="personalid_work_history_level_6_month_active">Miezi 6 ya\nShughuli</string>
-    <string name="personalid_work_history_level_9_month_active">Miezi 9 ya\nShughuli</string>
-    <string name="personalid_work_history_level_12_month_active">Miezi 12 ya\nShughuli</string>
+    <string name="personalid_work_history_level_1_month_active">Mwezi 1 wa Shughuli</string>
+    <string name="personalid_work_history_level_2_month_active">Miezi 2 ya Shughuli</string>
+    <string name="personalid_work_history_level_3_month_active">Miezi 3 ya Shughuli</string>
+    <string name="personalid_work_history_level_6_month_active">Miezi 6 ya Shughuli</string>
+    <string name="personalid_work_history_level_9_month_active">Miezi 9 ya Shughuli</string>
+    <string name="personalid_work_history_level_12_month_active">Miezi 12 ya Shughuli</string>
     <string name="personalid_work_history_no_pending_records">Hakuna rekodi zinazosubiri kwa sasa</string>
 
     <string name="personalid_notification">Arifa</string>

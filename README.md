@@ -81,6 +81,18 @@ cd commcare-android
 # the apk can now be found in the build/outputs/apk/ directory
 ```
 
+### Split builds from a remote source
+
+If you are building from a remote network share, you can define a build root on your local machine to prevent complications with network file systems. 
+
+Add the following to the local machine's central `gradle.properties` file, and a `commcare-android` folder will be created in the local build root for the project's build files.
+
+```
+localBuildRoot=...
+```
+
+Note that due to limitations with AGP, robolectric tests will not be available in the local environment, and will need to be run directly on the remote.
+
 ## Unit Tests
 
 The commcare-android repository uses [Robolectric](http://robolectric.org/), which provides mocks, allowing you to run Android specific code on your local machine.
@@ -93,6 +105,8 @@ cd commcare-android
 ```
 
 and view the results from the output file generated.
+
+On Windows, Robolectric's temp paths can exceed `MAX_PATH`; point them at a short folder by adding `test.tmpdir=C:/rtmp` to `~/.gradle/gradle.properties`.
 
 ### Run unit-tests from Android Studio
 

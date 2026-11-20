@@ -96,7 +96,7 @@ class ConnectDeliveryMoreFragmentTest {
         every { MessageManager.retrieveMessages(any(), any()) } returns Unit
 
         mockkStatic(FirebaseAnalyticsUtil::class)
-        every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
+        every { FirebaseAnalyticsUtil.reportConnectTabChange(any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
             object : NavController.OnDestinationChangedListener {
                 override fun onDestinationChanged(

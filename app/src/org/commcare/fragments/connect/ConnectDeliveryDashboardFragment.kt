@@ -17,6 +17,8 @@ import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryDashboardBinding
 import org.commcare.fragments.RefreshableTab
+import org.commcare.google.services.analytics.AnalyticsParamValue
+import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.views.connect.ConnectInfoHalfCard
 import org.commcare.views.connect.ConnectProgressCard
 import org.commcare.views.connect.ConnectSyncStatusCard
@@ -188,7 +190,10 @@ class ConnectDeliveryDashboardFragment :
                 chipLabel = getString(R.string.connect_task_pending_chip),
                 subtitle = getString(R.string.connect_task_blocking_subtitle),
                 iconOnCircle = false,
-                onClick = { openTask(task) },
+                onClick = {
+                    FirebaseAnalyticsUtil.reportHomeButtonClick(AnalyticsParamValue.CONNECT_TASK_CARD)
+                    openTask(task)
+                },
             ),
         )
     }
@@ -217,7 +222,10 @@ class ConnectDeliveryDashboardFragment :
                 warning = !synced,
             ),
         )
-        binding.deliverySyncCard.onCardClick = { host.refresh(true) }
+        binding.deliverySyncCard.onCardClick = {
+            FirebaseAnalyticsUtil.reportHomeButtonClick(AnalyticsParamValue.CONNECT_SYNC_CARD)
+            host.refresh(true)
+        }
     }
 
     private fun bindProgressGrid(

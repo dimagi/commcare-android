@@ -176,6 +176,8 @@ License.
     <string name="recovery_forms_send_parital_success">फॉर्म भेजते समय त्रुटियां हुईं। केवल %s भेजे गए थे। कृपया बाद में पुनः प्रयास करें।</string>
     <string name="recovery_forms_send_network_error">खराब नेटवर्क के कारण फॉर्म भेजने में विफल रहा</string>
     <string name="recovery_unable_to_claim_opportunity">अवसर का दावा करने में असमर्थ। कृपया पुनः प्रयास करें या सहायता से संपर्क करें।</string>
+    <string name="connect_opportunity_full_claim_error">कोई और भुगतान वाली विज़िट उपलब्ध नहीं है। अपने व्यवस्थापक से संपर्क करें।</string>
+    <string name="connect_opportunity_ended_claim_error">यह अवसर समाप्त हो गया है। अपने व्यवस्थापक से संपर्क करें।</string>
     <string name="recovery_forms_send_error">फॉर्म भेजते समय त्रुटि</string>
     <string name="recovery_forms_state_unavailable">फॉर्म उपलब्ध नहीं हैं। जांचें कि आपके फ़ोन का संग्रहण स्थान उपलब्ध है।</string>
     <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</string>
@@ -561,6 +563,7 @@ License.
     <string name="camera_permission_msg">तस्वीर लेने के लिए, CommCare को आपके डिवाइस के कैमरे का उपयोग करने की अनुमति चाहिए।</string>
     <string name="personalid_capture_photo">तस्वीर लें</string>
     <string name="personalid_configuration_locked_account">आपका खाता लॉक कर दिया गया है। कृपया सहायता से संपर्क करें</string>
+    <string name="personalid_registration_ineligible">आप PersonalID खाता पंजीकृत करने के पात्र नहीं हैं।</string>
     <string name="personalid_backup_code_locked">आपका बैकअप कोड लॉक कर दिया गया है। नया कोड सेट करने के लिए कृपया अपना ईमेल सत्यापित करें।</string>
     <string name="personalid_work_history_title">मेरा कार्य इतिहास</string>
     <string name="personalid_work_history">कार्य इतिहास</string>
@@ -568,12 +571,12 @@ License.
     <string name="personalid_work_history_no_records_available">वर्तमान में कोई कार्य रिकॉर्ड उपलब्ध नहीं है। रीफ़्रेश पर क्लिक करें, या बाद में वापस देखें।</string>    <string name="personalid_work_history_earned">अर्जित</string>
     <string name="personalid_work_history_pending">लंबित</string>
     <string name="personalid_work_history_sync">सिंक</string>
-    <string name="personalid_work_history_level_1_month_active">1 महीने की\nगतिविधि</string>
-    <string name="personalid_work_history_level_2_month_active">2 महीने की\nगतिविधि</string>
-    <string name="personalid_work_history_level_3_month_active">3 महीने की\nगतिविधि</string>
-    <string name="personalid_work_history_level_6_month_active">6 महीने की\nगतिविधि</string>
-    <string name="personalid_work_history_level_9_month_active">9 महीने की\nगतिविधि</string>
-    <string name="personalid_work_history_level_12_month_active">12 महीने की\nगतिविधि</string>
+    <string name="personalid_work_history_level_1_month_active">1 महीने की गतिविधि</string>
+    <string name="personalid_work_history_level_2_month_active">2 महीने की गतिविधि</string>
+    <string name="personalid_work_history_level_3_month_active">3 महीने की गतिविधि</string>
+    <string name="personalid_work_history_level_6_month_active">6 महीने की गतिविधि</string>
+    <string name="personalid_work_history_level_9_month_active">9 महीने की गतिविधि</string>
+    <string name="personalid_work_history_level_12_month_active">12 महीने की गतिविधि</string>
 
     <string name="personalid_notification">सूचनाएं</string>
     <string name="pn_no_notification_available">कोई सूचना उपलब्ध नहीं है</string>
