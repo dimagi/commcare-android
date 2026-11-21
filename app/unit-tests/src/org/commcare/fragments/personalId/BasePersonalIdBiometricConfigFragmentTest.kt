@@ -40,7 +40,6 @@ abstract class BasePersonalIdBiometricConfigFragmentTest :
     override fun setUp() {
         super.setUp()
         mocksCloseable = MockitoAnnotations.openMocks(this)
-        MockAndroidKeyStoreProvider.registerProvider()
         mockBiometricManager()
     }
 

@@ -14,7 +14,6 @@ import org.commcare.connect.database.ConnectDatabaseUtils
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
@@ -40,7 +39,6 @@ import org.robolectric.shadows.ShadowToast
 class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmentTest() {
     @Before
     override fun setUp() {
-        MockAndroidKeyStoreProvider.registerProvider()
         super.setUp()
         launchBackupCodeFragment(buildSessionData(accountExists = true, photoBase64 = TEST_PHOTO_BASE64))
     }
@@ -48,7 +46,6 @@ class PersonalIdBackupCodeFragmentRecoveryTest : BasePersonalIdBackupCodeFragmen
     @After
     override fun tearDown() {
         super.tearDown()
-        MockAndroidKeyStoreProvider.deregisterProvider()
     }
 
     // ========== Initial State ==========

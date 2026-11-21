@@ -9,6 +9,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.util.Pair;
 import org.commcare.preferences.HiddenPreferences;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.utils.FileExtensionNotFoundException;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
@@ -67,7 +68,13 @@ public class ImageCaptureProcessing {
         if (HiddenPreferences.isMediaCaptureEncryptionEnabled()) {
             finalFilePath = finalFilePath + MediaWidget.AES_EXTENSION;
             try {
-                EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey());
+                if (formEntryActivity.isKeyFromKeystore()) {
+                    EncryptionIO.encryptFile(sourcePath, finalFilePath,
+                            CommCareKeyManager.retrieveSessionKeyAndTransformation());
+                } else {
+                    EncryptionIO.encryptFile(sourcePath, finalFilePath, formEntryActivity.getSymetricKey(),
+                            null, false);
+                }
             } catch (Exception e) {
                 throw new IOException("Failed to encrypt " + sourcePath +
                         " to " + finalFilePath, e);

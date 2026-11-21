@@ -217,6 +217,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return aesKey;
     }
 
+    public boolean usesKeystoreEncryption() {
+        return aesKey == null || aesKey.length == 0;
+    }
+
     public String getStatus() {
         return status;
     }

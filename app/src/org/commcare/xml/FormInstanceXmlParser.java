@@ -4,8 +4,10 @@ import android.content.Context;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.services.CommCareKeyManager;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.utils.FileUtil;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.kxml2.io.KXmlParser;
@@ -15,21 +17,15 @@ import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -81,7 +77,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
 
         FormRecord formRecord = new FormRecord(FormRecord.STATUS_UNINDEXED,
                 xmlns,
-                CommCareApplication.instance().createNewSymmetricKey().getEncoded(),
+                CommCareKeyManager.generateLegacyKeyOrEmpty(),
                 null,
                 new Date(0),
                 CommCareApplication.instance().getCurrentApp().getAppRecord().getApplicationId());
@@ -93,33 +89,32 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         formRecord.setFilePath(filePath);
         formRecordStorage.write(formRecord);
 
-        OutputStream o = new FileOutputStream(filePath);
-        BufferedOutputStream bos = null;
-
+        OutputStream os;
         try {
-            Cipher encrypter = Cipher.getInstance("AES");
-
-            SecretKeySpec key = new SecretKeySpec(formRecord.getAesKey(), "AES");
-            encrypter.init(Cipher.ENCRYPT_MODE, key);
-            CipherOutputStream cos = new CipherOutputStream(o, encrypter);
-            bos = new BufferedOutputStream(cos, 1024 * 256);
-
-            serializer.setOutput(bos, "UTF-8");
-
-            document.write(serializer);
-        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
+            os = openEncryptedOutputStream(formRecord, filePath);
+        } catch (RuntimeException e) {
             // writing the form instance to xml failed, so remove the record
             storage.remove(formRecord);
-            throw new RuntimeException(e.getMessage());
+            throw e;
+        }
+
+        try {
+            serializer.setOutput(os, "UTF-8");
+            document.write(serializer);
         } finally {
-            //since bos might not have even been created.
-            if (bos != null) {
-                bos.close();
-            } else {
-                o.close();
-            }
+            os.close();
         }
         return formRecord;
+    }
+
+    private static OutputStream openEncryptedOutputStream(FormRecord formRecord, String filePath)
+            throws FileNotFoundException {
+        if (formRecord.usesKeystoreEncryption()) {
+            return EncryptionIO.createFileOutputStreamWithKeystore(
+                    filePath, CommCareKeyManager.retrieveSessionKeyAndTransformation());
+        }
+        return EncryptionIO.createFileOutputStream(
+                filePath, new SecretKeySpec(formRecord.getAesKey(), "AES"));
     }
 
     private SqlStorage<FormRecord> cachedStorage() {

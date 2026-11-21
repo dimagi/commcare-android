@@ -166,7 +166,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) throws FileNotFoundException {
         SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-        return EncryptionIO.getFileInputStream(filename, aesKey);
+        return EncryptionIO.getFileInputStream(filename, aesKey, null, false);
     }
 
     @Override
@@ -351,7 +351,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     bos.size(),
                     FilenameUtils.getExtension(filename),
                     false,
-                    false
+                    null
             );
         }
     }

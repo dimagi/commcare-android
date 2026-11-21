@@ -18,7 +18,6 @@ import org.commcare.android.util.runTeardownSteps
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.utils.MediaUtil
-import org.commcare.utils.MockAndroidKeyStoreProvider
 import org.junit.After
 import org.junit.Before
 import org.mockito.ArgumentMatchers.any
@@ -58,7 +57,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
     override fun setUp() {
         super.setUp()
         mocksCloseable = MockitoAnnotations.openMocks(this)
-        MockAndroidKeyStoreProvider.registerProvider()
         Intents.init()
         openStaticMocks()
         setUpPhotoCaptureFragment()
@@ -153,7 +151,6 @@ abstract class BasePersonalIdPhotoCaptureFragmentTest : BasePersonalIdConfigurat
             { mediaUtilMock.close() },
             { firebaseAnalyticsUtilMock.close() },
             { mocksCloseable.close() },
-            { MockAndroidKeyStoreProvider.deregisterProvider() },
             { super.tearDown() },
         )
     }

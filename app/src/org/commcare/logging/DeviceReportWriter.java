@@ -112,7 +112,7 @@ public class DeviceReportWriter {
                         countingOutputStream.getCount(),
                         XML_EXTENSION,
                         encryptionWithKeystore,
-                        true
+                        CCPerfMonitoring.CCFileEncryptionXmlType.LOGS
                 );
                 countingOutputStream.close();
             } catch (IOException e) {
