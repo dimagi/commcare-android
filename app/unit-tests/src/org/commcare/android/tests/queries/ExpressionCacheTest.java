@@ -4,6 +4,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
+import org.commcare.models.database.IDatabase;
 import org.commcare.cases.instance.CaseChildElement;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
@@ -14,6 +15,7 @@ import org.javarosa.core.model.trace.ReducingTraceReporter;
 import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +32,7 @@ public class ExpressionCacheTest {
 
     private FormInstance mainFormInstance;
     private TreeElement formRoot;
+    private IDatabase db;
 
     @Before
     public void setup() {
@@ -37,7 +40,15 @@ public class ExpressionCacheTest {
         mainFormInstance = new FormInstance(formRoot);
 
         TestUtils.initializeStaticTestStorage();
+        db = TestUtils.getTestDb();
         TestUtils.processResourceTransaction("/inputs/case_test_model_query_lookups.xml");
+    }
+
+    @After
+    public void closeDb() {
+        if (db != null) {
+            db.close();
+        }
     }
 
     @Test
@@ -61,7 +72,7 @@ public class ExpressionCacheTest {
     }
 
     private long getNumExpressionsCached(String exprString, boolean enableCaching) throws XPathSyntaxException {
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db, mainFormInstance);
         EvaluationTraceReporter reporter = new ReducingTraceReporter(true);
         ec.setDebugModeOn(reporter);
         if (enableCaching) {
@@ -82,7 +93,7 @@ public class ExpressionCacheTest {
 
     @Test
     public void testAccuracyWithCaching() {
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
+        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db, mainFormInstance);
         ec.enableExpressionCaching();
         for (int i = 0; i < 3; i++) {
             CaseDbQueryTest.evaluate("join(',',instance('casedb')/casedb/case[@case_type='unit_test_child_child']" +
@@ -95,7 +106,7 @@ public class ExpressionCacheTest {
 
     @Test
     public void testCheckForContextNodeCacheability() throws XPathSyntaxException {
-        EvaluationContext rootContextEC = TestUtils.getEvaluationContextWithoutSession(mainFormInstance);
+        EvaluationContext rootContextEC = TestUtils.getEvaluationContextWithoutSession(db, mainFormInstance);
 
         TreeElement questionElt = new TreeElement("q1");
         formRoot.addChild(questionElt);
@@ -112,7 +123,7 @@ public class ExpressionCacheTest {
                 questionContextEC, true);
 
         CaseChildElement caseDbChildElement =
-                (CaseChildElement)TestUtils.getCaseDbInstance().getRoot().getChildrenWithName("case").get(0);
+                (CaseChildElement)TestUtils.getCaseDbInstance(db).getRoot().getChildrenWithName("case").get(0);
         EvaluationContext caseEltContextEC = questionContextEC.rescope(
                 TreeReference.buildRefFromTreeElement(caseDbChildElement), 1,
                 questionContextEC.getCurrentQueryContext());

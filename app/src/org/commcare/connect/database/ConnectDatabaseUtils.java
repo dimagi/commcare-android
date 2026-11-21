@@ -10,6 +10,8 @@ import org.commcare.util.EncryptionUtils;
 import org.commcare.utils.EncryptionKeyAndTransform;
 import org.commcare.utils.EncryptionKeyProvider;
 
+import java.util.Iterator;
+
 public class ConnectDatabaseUtils {
     // the value of the key should not be renamed due to backward compatibility
     private static final String SECRET_NAME = "secret";
@@ -39,13 +41,10 @@ public class ConnectDatabaseUtils {
     }
 
     public static ConnectKeyRecord getKeyRecord() {
-        Iterable<ConnectKeyRecord> records = CommCareApplication.instance()
-                .getGlobalStorage(ConnectKeyRecord.class);
-
-        if (records.iterator().hasNext()) {
-            return records.iterator().next();
-        }
-        return null;
+        // A single iterator: SqlStorageIterator only closes its cursor once read to the end
+        Iterator<ConnectKeyRecord> records = CommCareApplication.instance()
+                .getGlobalStorage(ConnectKeyRecord.class).iterator();
+        return records.hasNext() ? records.next() : null;
     }
 
     public static void storeConnectDbPassphrase(String base64EncodedPassphrase) {

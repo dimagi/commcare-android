@@ -8,6 +8,9 @@ import org.commcare.cases.model.Case;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.engine.cases.CaseUtils;
+import org.commcare.models.database.IDatabase;
+import org.commcare.models.database.SqlStorage;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,39 +25,51 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(AndroidJUnit4.class)
 public class ProcessingTest {
 
+    private IDatabase db;
+    private SqlStorage<ACase> caseStorage;
+
     @Before
     public void setupTests() {
         TestUtils.initializeStaticTestStorage();
+        db = TestUtils.getTestDb();
+        caseStorage = TestUtils.getCaseStorage(db);
+    }
+
+    @After
+    public void closeDb() {
+        if (db != null) {
+            db.close();
+        }
     }
 
     @Test
     public void testIndexRemoval() {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
-        Case c = TestUtils.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
+        Case c = caseStorage.getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
         assertEquals("Case Name", "Test Case", c.getName());
         assertEquals("Case Property", "initial", c.getPropertyString("test_value"));
 
         TestUtils.processResourceTransaction("/inputs/case_update.xml");
-        Case c2 = TestUtils.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
+        Case c2 = caseStorage.getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
         assertEquals("Updated", "changed", c2.getPropertyString("test_value"));
 
         TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
-        Case c3 = TestUtils.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id_child");
+        Case c3 = caseStorage.getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id_child");
         assertEquals("Indexed", "test_case_id", c3.getIndices().elementAt(0).getTarget());
 
         TestUtils.processResourceTransaction("/inputs/case_break_index.xml");
-        Case c4 = TestUtils.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id_child");
+        Case c4 = caseStorage.getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id_child");
         assertEquals("Removed Index Count", 0, c4.getIndices().size());
     }
 
     @Test
     public void testTypeChange() {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
-        Case c = TestUtils.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
+        Case c = caseStorage.getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
         assertEquals("Initial Type", "unit_test", c.getTypeId());
 
         TestUtils.processResourceTransaction("/inputs/case_change_type.xml");
-        Case c2 = TestUtils.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
+        Case c2 = caseStorage.getRecordForValue(ACase.INDEX_CASE_ID, "test_case_id");
         assertEquals("Changed Type", "changed_unit_test", c2.getTypeId());
     }
 
@@ -70,9 +85,9 @@ public class ProcessingTest {
     }
 
     private void assertHashesEqual() {
-        String rawCalcHash = CaseDBUtils.computeCaseDbHash(TestUtils.getCaseStorage());
+        String rawCalcHash = CaseDBUtils.computeCaseDbHash(caseStorage);
 
-        String fastCalcHash = CaseUtils.computeCaseDbHash(TestUtils.getCaseStorage());
+        String fastCalcHash = CaseUtils.computeCaseDbHash(caseStorage);
 
         assertEquals("fasthash incorrect", rawCalcHash, fastCalcHash);
     }

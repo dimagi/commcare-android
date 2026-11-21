@@ -18,6 +18,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.commcare.android.util.TestUtils;
+import org.commcare.models.database.IDatabase;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeElement;
@@ -58,26 +59,31 @@ public class FormCacheEligibilityTester {
         Map<XPathExpression, Integer> notComputable = new HashMap<>();
 
         FormInstance instance = new FormInstance(new TreeElement("data"));
-        EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(instance);
-        for (XPathExpression expr : allExpressions) {
+        IDatabase db = TestUtils.getTestDb();
+        try {
+            EvaluationContext ec = TestUtils.getEvaluationContextWithoutSession(db, instance);
+            for (XPathExpression expr : allExpressions) {
             
-            boolean isCacheable;
-            try {
-                isCacheable = !InFormCacheableExpr.referencesMainFormInstance(expr, ec) &&
-                        !InFormCacheableExpr.containsUncacheableSubExpression(expr, ec);
-            } catch (Exception e) {
-                int count = notComputable.containsKey(expr) ? notComputable.get(expr) : 0;
-                notComputable.put(expr, count+1);
-                continue;
-            }
+                boolean isCacheable;
+                try {
+                    isCacheable = !InFormCacheableExpr.referencesMainFormInstance(expr, ec) &&
+                            !InFormCacheableExpr.containsUncacheableSubExpression(expr, ec);
+                } catch (Exception e) {
+                    int count = notComputable.containsKey(expr) ? notComputable.get(expr) : 0;
+                    notComputable.put(expr, count+1);
+                    continue;
+                }
 
-            if (isCacheable) {
-                int count = cacheable.containsKey(expr) ? cacheable.get(expr) : 0;
-                cacheable.put(expr, count+1);
-            } else {
-                int count = notCacheable.containsKey(expr) ? notCacheable.get(expr) : 0;
-                notCacheable.put(expr, count+1);
+                if (isCacheable) {
+                    int count = cacheable.containsKey(expr) ? cacheable.get(expr) : 0;
+                    cacheable.put(expr, count+1);
+                } else {
+                    int count = notCacheable.containsKey(expr) ? notCacheable.get(expr) : 0;
+                    notCacheable.put(expr, count+1);
+                }
             }
+        } finally {
+            db.close();
         }
 
         System.out.println();
