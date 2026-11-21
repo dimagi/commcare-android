@@ -985,6 +985,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected void onPause() {
         super.onPause();
 
+        uiController.cancelNavigation();
+
         if (!isFinishing() && uiController.questionsView != null && currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(false);
         }
