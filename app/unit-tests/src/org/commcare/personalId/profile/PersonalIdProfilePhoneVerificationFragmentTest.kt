@@ -238,6 +238,29 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
     }
 
     @Test
+    fun `a blocked country shows why and stays on Firebase`() {
+        ShadowPhoneAuthProvider.failWith(FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", REGION_BLOCKED_MESSAGE))
+        launch()
+
+        assertSentOnlyThroughFirebase()
+        assertEquals(
+            activity.getString(R.string.personalid_otp_region_blocked),
+            errorView().text.toString(),
+        )
+    }
+
+    @Test
+    fun `resend after a blocked country stays on Firebase`() {
+        ShadowPhoneAuthProvider.failWith(FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", REGION_BLOCKED_MESSAGE))
+        launch()
+
+        onUiThread { resendButton().performClick() }
+
+        assertEquals(2, ShadowPhoneAuthProvider.getRequestCount())
+        assertEquals(0, mockWebServer.requestCount)
+    }
+
+    @Test
     fun `verified OTP navigates to send email otp with the unmasked pending email`() {
         launchOnPersonalIdPath()
         verifyCodeWithServer()
@@ -364,5 +387,7 @@ class PersonalIdProfilePhoneVerificationFragmentTest : BasePersonalIdProfileTest
         private const val CORRECT_CODE = "123456"
         private const val WRONG_CODE = "000000"
         private const val FIREBASE_ID_TOKEN = "firebase-id-token"
+        private const val REGION_BLOCKED_MESSAGE =
+            "This operation is not allowed. [ SMS unable to be sent until this region enabled by the app developer. ]"
     }
 }
