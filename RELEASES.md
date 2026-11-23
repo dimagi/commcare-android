@@ -36,6 +36,11 @@ This file is meant as an easy way for us to collate notes and change logs across
   - In Hausa and Tigrinya, confirm the PersonalID phone screen's consent text is fully translated and all four policy links open.
   - In Hindi, Hausa and Tigrinya, confirm the phone placeholders read "+1" and "0000000000", and the country code is still filled in from the SIM.
   - In Portuguese, confirm the OR divider has lines on both sides on the login, app setup and PersonalID fingerprint/PIN setup screens.
+- In PersonalID, open Profile → Edit and confirm the six new fields appear under Personal information (Gender, Languages spoken, Date of birth) and Work experience (Education, Experience as a CHW, Technical proficiency), and that empty fields have an amber border.
+  - Fill in only some fields and Save; confirm Save is allowed, the profile shows the chosen values and a dash for the rest, and the amber border stays only on the empty fields when editing again.
+  - In Languages spoken, search for a language (e.g. "Hindi"), select it and tap Done; confirm it appears as a chip, the ✕ on a chip removes it, and when reopening the list the selected languages are ticked at the top, followed by the device's language.
+  - Pick a date of birth and confirm future dates can't be selected and the same date shows after saving and reopening.
+  - With the device language set to another supported language (e.g. French or Hindi), confirm the new labels and options are translated.
 
 ## CommCare 2.65
 
