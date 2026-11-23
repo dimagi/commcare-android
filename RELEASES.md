@@ -11,6 +11,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
+- The PersonalID profile now has Gender, Languages spoken, Date of birth, Education, Experience as a CHW and Technical proficiency. Workers can fill them in from Edit Profile at their own pace, a few at a time; empty fields are highlighted as a reminder.
 
 ### QA Notes
 
