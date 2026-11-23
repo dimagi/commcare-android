@@ -29,6 +29,9 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
+- With a country on the Firebase SMS region deny list, start PersonalID signup with a number there; confirm a "Process Failed" screen says verification isn't available for this country, no code is sent by PersonalID SMS, and OK closes PersonalID.
+  - Signed in, change your phone number from the profile to a number in that country; confirm the same message shows on the verification screen and Resend doesn't send the code by PersonalID SMS.
+  - With Firebase phone sign-in disabled, request an OTP for any number and confirm it still falls back to PersonalID SMS.
 - While logged in to a CommCare app, open Work History from the sidebar, switch to another app and back; confirm the title still reads "My Work History", earned cards show your name, and at the default font size the English text just above the ribbon fits on one line. Then set the device font to its largest size and confirm that text wraps onto a second line if needed, without being cut off.
 
 ## CommCare 2.65
