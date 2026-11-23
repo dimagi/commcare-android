@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.MenuProvider
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -130,5 +131,14 @@ class PersonalIdProfileFragment : BasePersonalIdProfileFragment() {
         binding.profileValueName.text = profileDisplayModel.name
         binding.profileValuePhone.text = profileDisplayModel.displayPhone
         binding.profileValueEmail.text = profileDisplayModel.email
+
+        val notSet = getString(R.string.personalid_profile_value_not_set)
+        binding.profileValueGender.text = profileDisplayModel.gender ?: notSet
+        binding.profileValueDateOfBirth.text = profileDisplayModel.dateOfBirth ?: notSet
+        binding.profileValueEducation.text = profileDisplayModel.education ?: notSet
+        binding.profileValueChwExperience.text = profileDisplayModel.chwExperience ?: notSet
+        binding.profileValueTechProficiency.text = profileDisplayModel.techProficiency ?: notSet
+        LanguageChips.render(binding.profileValueLanguages, profileDisplayModel.languages, onRemove = null)
+        binding.profileValueLanguagesNotSet.isVisible = profileDisplayModel.languages.isEmpty()
     }
 }
