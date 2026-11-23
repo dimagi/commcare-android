@@ -176,6 +176,8 @@ License.
     <string name="recovery_forms_send_parital_success">फॉर्म भेजते समय त्रुटियां हुईं। केवल %s भेजे गए थे। कृपया बाद में पुनः प्रयास करें।</string>
     <string name="recovery_forms_send_network_error">खराब नेटवर्क के कारण फॉर्म भेजने में विफल रहा</string>
     <string name="recovery_unable_to_claim_opportunity">अवसर का दावा करने में असमर्थ। कृपया पुनः प्रयास करें या सहायता से संपर्क करें।</string>
+    <string name="connect_opportunity_full_claim_error">कोई और भुगतान वाली विज़िट उपलब्ध नहीं है। अपने व्यवस्थापक से संपर्क करें।</string>
+    <string name="connect_opportunity_ended_claim_error">यह अवसर समाप्त हो गया है। अपने व्यवस्थापक से संपर्क करें।</string>
     <string name="recovery_forms_send_error">फॉर्म भेजते समय त्रुटि</string>
     <string name="recovery_forms_state_unavailable">फॉर्म उपलब्ध नहीं हैं। जांचें कि आपके फ़ोन का संग्रहण स्थान उपलब्ध है।</string>
     <string name="recovery_network_unavailable">कोई नेटवर्क कनेक्शन नहीं। कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।</string>
@@ -244,7 +246,6 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">आपके डिवाइस पर कोई Play Store नहीं मिला</string>
     <string name="fcm_default_notification_channel">अधिसूचना-चैनल-पुश-अधिसूचनाएं</string>
     <string name="personalid_login_via">PersonalId के माध्यम से (या यहां टैप करें)</string>
-    <string name="personalid_choice_or">_____________    या    _____________</string>
     <string name="login_choice_or">या</string>
     <string name="connect_download_delivery">वितरण डाउनलोड करें</string>
     <string name="connect_app_install_setting_up">ऐप सेट किया जा रहा है…</string>
@@ -255,8 +256,6 @@ License.
     <string name="personalid_generic_error">डेटाबेस के साथ कोई समस्या हुई है, कृपया अपना खाता पुनर्प्राप्त करें।</string>
     <string name="connect_registration_title">पर्सनलआईडी के साथ शुरुआत करें</string>
     <string name="connect_consent_message_1">मैंने डिमागी की <a href="https://www.dimagi.com/terms/latest/privacy/">गोपनीयता नीति</a>, <a href="https://www.dimagi.com/terms/latest/tos/">सेवा की शर्तें</a>, <a href="https://www.dimagi.com/terms/latest/ba/">व्यावसायिक समझौता</a> और <a href="https://www.dimagi.com/terms/latest/aup/">स्वीकार्य उपयोग नीति</a> पढ़ ली है और मैं उनसे सहमत हूं।</string>
-    <string name="connect_phone_country_code_default">+91</string>
-    <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">आपके फ़ोन नंबर पर 6 अंकों का पासकोड भेजा गया है।</string>
     <string name="connect_otp_verified">सफलता! आपका फ़ोन नंबर सत्यापित हो गया है।</string>
     <string name="connect_enter_otp">कृपया 6-अंकीय पासकोड दर्ज करें जो आपके फ़ोन नंबर पर भेजा गया था।</string>

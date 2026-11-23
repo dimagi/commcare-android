@@ -21,6 +21,10 @@ import java.io.InputStream
 import java.nio.charset.StandardCharsets
 
 object NetworkUtils {
+    const val LOGIN_FROM_DIFFERENT_DEVICE = "LOGIN_FROM_DIFFERENT_DEVICE"
+    private const val OPPORTUNITY_FULL = "OPPORTUNITY_FULL"
+    private const val OPPORTUNITY_ENDED = "OPPORTUNITY_ENDED"
+
     @JvmStatic
     fun getErrorBody(stream: InputStream?): String {
         try {
@@ -154,11 +158,14 @@ object NetworkUtils {
     }
 
     @JvmStatic
-    fun checkForLoginFromDifferentDevice(errorBody: String?): Boolean {
+    fun hasErrorCode(
+        errorBody: String?,
+        errorCode: String,
+    ): Boolean {
         if (errorBody == null) return false
         return try {
             val json = JSONObject(errorBody)
-            "LOGIN_FROM_DIFFERENT_DEVICE" == json.optStringSafe("error_code", null)
+            errorCode == json.optStringSafe("error_code", null)
         } catch (_: JSONException) {
             false
         }
@@ -183,10 +190,24 @@ object NetworkUtils {
             }
 
             400 -> {
-                if (checkForLoginFromDifferentDevice(errorBody)) {
-                    GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR)
+                when {
+                    hasErrorCode(errorBody, LOGIN_FROM_DIFFERENT_DEVICE) -> {
+                        GlobalErrorUtil.triggerGlobalError(GlobalErrors.PERSONALID_LOGIN_FROM_DIFFERENT_DEVICE_ERROR)
+                        BaseApiHandler.PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR
+                    }
+
+                    hasErrorCode(errorBody, OPPORTUNITY_FULL) -> {
+                        BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OPPORTUNITY_FULL_ERROR
+                    }
+
+                    hasErrorCode(errorBody, OPPORTUNITY_ENDED) -> {
+                        BaseApiHandler.PersonalIdOrConnectApiErrorCodes.OPPORTUNITY_ENDED_ERROR
+                    }
+
+                    else -> {
+                        BaseApiHandler.PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR
+                    }
                 }
-                BaseApiHandler.PersonalIdOrConnectApiErrorCodes.BAD_REQUEST_ERROR
             }
 
             in 500..509 -> {

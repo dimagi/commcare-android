@@ -213,6 +213,8 @@
     </plurals>
     <string name="personalid_email_already_in_use">Denne e-postadressen er allerede knyttet til en annen konto. Bruk en annen e-postadresse.</string>
     <string name="personalid_registration_ineligible">Du er ikke kvalifisert til å registrere en PersonalID-konto.</string>
+    <string name="connect_opportunity_full_claim_error">Ingen flere betalte besøk tilgjengelig. Kontakt administratoren din.</string>
+    <string name="connect_opportunity_ended_claim_error">Denne muligheten er avsluttet. Kontakt administratoren din.</string>
     <string name="connect_backup_code_mismatch">Reservekodene du taster inn, må stemme overens.</string>
     <string name="personalid_network_response_parsing_error">Feil ved lesing av data fra serveren. Kontakt kundestøtte.</string>
     <string name="personalid_email_appbar_title">E-post</string>

@@ -168,6 +168,8 @@
     <string name="recovery_forms_state_unavailable">ቅጥዕታት የለዉን:: ናይ ስልክካ ሰቶሬጅ ቦታ ከምዘለዎ ኣረጋግፅ</string>
     <string name="recovery_network_unavailable">ናይ ኔትወርክ ምትእስሳር የለን::በይዝኦም ኢንተርኔቶም ኣረጋጊፆም እንደገና ይፈትኑ</string>
     <string name="recovery_unable_to_claim_opportunity">ነቲ ዕድል ክትጥቀሙሉ ኣይከኣልኩምን። በጃኹም ደጊምኩም ፈትኑ ወይ ንደገፍ ተወከሱ።</string>
+    <string name="connect_opportunity_full_claim_error">ዝኽፈሎ ተወሳኺ ምብጻሕ የለን። ንኣመሓዳሪኹም ተወከሱ።</string>
+    <string name="connect_opportunity_ended_claim_error">እዚ ዕድል ተዛዚሙ እዩ። ንኣመሓዳሪኹም ተወከሱ።</string>
     <string name="recovery_network_outdated">እዛ ኣፕሊኬሽን ጊዜኣ ሓሊፉ\'ዩ። ንምቕጻል በጃኹም ነቲ ኣፕሊኬሽን ኣብ Google Play Store ኣዕብይዎ።</string>
     <string name="personalid_token_unavailable">ናይ ኔትወርክ ጉዳይ ነይሩ። በጃኹም ደጊምኩም ፈትኑ።</string>
     <string name="personalid_token_request_rejected">ምስ ሰርቨር ዝጠፍአ ናይ PersonalID ውቅር፣ በጃኻ ናይ PersonalID ኣካውንትካ ምምላስ እሞ ዳግማይ ፈትን።</string>
@@ -235,7 +237,6 @@
     <string name="dependency_missing_dialog_playstore_not_found">ኣብ መሳርሒኻ/ሞባልካ ዝኾነ ፕለይ ስቶር/ መከዘኒ ኣፕሊክሸናት ኣይተረኽበን።</string>
     <string name="fcm_default_notification_channel">ሓበሬታ መዘካከሪ-ቻነል-ደፍእ-ሓበሬታ መዘካከሪታት</string>
     <string name="personalid_login_via">ብመንገዲ PersonalId (ወይ ኣብዚ ጽቐጥ)</string>
-    <string name="personalid_choice_or">_____________ ወይ _____________</string>
     <string name="login_choice_or">ወይ</string>
     <string name="connect_download_delivery">ዳውንሎድ ምብፃሕ</string>
     <string name="connect_app_install_setting_up">መተግበሪ ይዳሎ ኣሎ…</string>
@@ -245,9 +246,7 @@
     <string name="entity_map_error_message">ኣብ ውቅር ኣፕ ጌጋ ኣጋጢሙ ብሰንኪ እዚ ድማ ኩሎም ኣብቲ ካርታ ዘለዉ ማርከራት ብትኽክል ኣይጽዓኑን እዮም።</string>
     <string name="personalid_generic_error">ጸገም ኣጋጢሙ፡ በጃኻ PersonalID ኣካውንትካ እንደገና ኣወሃህቦ።</string>
     <string name="connect_registration_title">ብ PersonalID ጀምር</string>
-    <string name="connect_consent_message_1">ኣነ <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> Dimagi\'s/ ዲማጊ ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
-    <string name="connect_phone_country_code_default">1</string>
-    <string name="connect_phone_number_hint">0</string>
+    <string name="connect_consent_message_1">ኣነ ናይ Dimagi <a href="https://www.dimagi.com/terms/latest/privacy/">ፖሊሲ ውልቃዊ ሓበሬታ</a>፡ <a href="https://www.dimagi.com/terms/latest/tos/">ውዕል ኣገልግሎት</a>፡ <a href="https://www.dimagi.com/terms/latest/ba/">ስምምዕ ንግዲ</a>ን <a href="https://www.dimagi.com/terms/latest/aup/">ፖሊሲ ቅቡል ኣጠቓቕማን</a> ኣንቢበን ተሰማሚዐን ኣለኹ።</string>
     <string name="connect_otp_sent">ናይ 6 ኣሃዛት መሕለፊ ኮድ ናብ ቁጽሪ ስልክኻ ተላኢኹ ኣሎ።</string>
     <string name="connect_otp_verified">ተዓዊቱ! ቁጽሪ ስልክኻ ተረጋጊጹ ኣሎ።</string>
     <string name="connect_enter_otp">በጃኻ ናብ ቁጽሪ ስልክኻ ዝተላእኸ ናይ 6 ኣሃዛት መሕለፊ ኮድ ኣእቱ።</string>

@@ -73,6 +73,8 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="managed_configuration_password_description">Kalmar sirri ta mai amfani da wayar hannu</string>
     <string name="managed_configuration_profile_url_description">URL ɗin zuwa Aikace-aikacen CommCare ɗinku daga shafin bugawa na CommCareHQ</string>
     <string name="recovery_unable_to_claim_opportunity">Ba za a iya neman damar ba. Da fatan za a sake gwadawa ko a tuntuɓi tallafi.</string>
+    <string name="connect_opportunity_full_claim_error">Babu sauran ziyarar da ake biya. Tuntuɓi mai gudanarwa.</string>
+    <string name="connect_opportunity_ended_claim_error">Wannan damar ta ƙare. Tuntuɓi mai gudanarwa.</string>
     <string name="personalid_token_unavailable">Akwai matsalar hanyar sadarwa. Da fatan za a sake gwadawa.</string>
     <string name="personalid_token_request_rejected">Saitin PersonalID da aka rasa tare da uwar garken, da fatan za a dawo da PersonalID asusun ku kuma sake gwadawa</string>
     <string name="personalid_error_title_login_different_device">Asusun da ake amfani da shi akan wata na\'ura</string>
@@ -85,7 +87,6 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="playback_start_time">0:00</string>
     <string name="fcm_default_notification_channel">sanarwar-tashar-tura-sanarwa</string>
     <string name="personalid_login_via">Ta hanyar PersonalID (ko danna nan)</string>
-    <string name="personalid_choice_or">_________ KO _________</string>
     <string name="login_choice_or">KO</string>
     <string name="connect_download_delivery">Sauke Isarwa</string>
     <string name="connect_app_install_setting_up">Ana saita manhaja…</string>
@@ -93,9 +94,7 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_app_launching">An gama sauke, ana buɗe manhaja…</string>
     <string name="connect_button_logged_in">Je zuwa menu na Haɗawa</string>
     <string name="connect_registration_title">Fara da PersonalID</string>
-    <string name="connect_consent_message_1">Na karanta kuma na yarda da Dimagi\'s</string>
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0</string>
+    <string name="connect_consent_message_1">Na karanta kuma na yarda da <a href="https://www.dimagi.com/terms/latest/privacy/">Manufar Sirri</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Sharuɗɗan Sabis</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Yarjejeniyar Kasuwanci</a> da <a href="https://www.dimagi.com/terms/latest/aup/">Manufar Amfani da Aka Amince</a> na Dimagi.</string>
     <string name="connect_otp_sent">An aika lambar sirri mai lambobi 6 zuwa lambar wayarku.</string>
     <string name="connect_otp_verified">Nasara! An tabbatar da lambar wayarku.</string>
     <string name="connect_enter_otp">Da fatan za a shigar da lambar sirri mai lambobi 6 da aka aika zuwa lambar wayarku.</string>
