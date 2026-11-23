@@ -794,8 +794,7 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         assertEquals(4, sessionData.otpAttempts)
     }
 
-    private fun regionBlocked() =
-        FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", "$NOT_ALLOWED_MESSAGE $REGION_BLOCKED_REASON")
+    private fun regionBlocked() = FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", "$NOT_ALLOWED_MESSAGE $REGION_BLOCKED_REASON")
 
     private companion object {
         /** Firebase's generic text for ERROR_OPERATION_NOT_ALLOWED, shared by a region block and disabled sign-in. */
