@@ -29,6 +29,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
+import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.util.Date
@@ -39,6 +40,7 @@ class ConnectMessageUnsupportedVersionTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val mockApi = PersonalIdMockApiServer()
     private lateinit var activity: ConnectMessagingActivity
+    private var activityController: ActivityController<ConnectMessagingActivity>? = null
     private lateinit var savedPersonalIdStatus: PersonalIdSessionManager.PersonalIdStatus
     private lateinit var channel: ConnectMessagingChannelRecord
 
@@ -65,6 +67,7 @@ class ConnectMessageUnsupportedVersionTest {
 
     @After
     fun tearDown() {
+        activityController?.pause()?.stop()?.destroy()
         mockApi.shutdown()
         ConnectDatabaseHelper.teardown()
         PersonalIdSessionManager.getInstance().status = savedPersonalIdStatus
@@ -111,7 +114,12 @@ class ConnectMessageUnsupportedVersionTest {
     }
 
     private fun openChat() {
-        activity = Robolectric.buildActivity(ConnectMessagingActivity::class.java).setup().get()
+        activity =
+            Robolectric
+                .buildActivity(ConnectMessagingActivity::class.java)
+                .setup()
+                .also { activityController = it }
+                .get()
         mockApi.drainHttp()
         navController().navigate(R.id.connectMessageFragment, Bundle().apply { putString("channel_id", CHANNEL_ID) })
         ShadowLooper.idleMainLooper()

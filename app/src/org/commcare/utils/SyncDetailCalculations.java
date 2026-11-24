@@ -210,7 +210,7 @@ public class SyncDetailCalculations {
         }
     }
 
-    private static boolean isSyncStronglyNeeded(int numUnsentForms, long lastSyncTime) {
+    public static boolean isSyncStronglyNeeded(int numUnsentForms, long lastSyncTime) {
         return unsentFormNumberLimitExceeded(numUnsentForms)
                 || unsentFormTimeLimitExceeded(lastSyncTime);
     }
