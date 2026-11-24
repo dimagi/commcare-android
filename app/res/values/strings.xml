@@ -364,13 +364,12 @@
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your phone number</string>
 
-    <string name="personalid_choice_or">___________    OR    ___________</string>
     <string name="login_choice_or">OR</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
 
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0000000000</string>
+    <string name="connect_phone_country_code_default" translatable="false">+1</string>
+    <string name="connect_phone_number_hint" translatable="false">0000000000</string>
 
     <string name="connect_otp_sent">A 6-digit passcode has been sent to your phone number.</string>
     <string name="connect_otp_verified">Success! Your phone number has been verified.</string>
@@ -531,6 +530,7 @@
     <string name="connect_sync_successful">Last synced: Just Now</string>
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
     <string name="connect_sync_card_press_to_sync">Press here to sync</string>
+    <string name="connect_sync_card_forms_pending">Forms pending: %d</string>
     <string name="connect_app_launch_dialog_title">Launching App</string>
     <string name="connect_app_launch_dialog_seating_message">Loading your app…</string>
     <string name="connect_app_launch_dialog_signing_in_message">Logging in…</string>

@@ -54,15 +54,13 @@
 
             </LinearLayout>
 
-            <TextView
-                android:textStyle="bold"
+            <include
                 android:id="@+id/connect_verify_or"
-                android:layout_width="wrap_content"
+                layout="@layout/or_divider"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="@dimen/content_min_margin"
-                android:text="@string/personalid_choice_or"
-                android:textSize="@dimen/text_medium" />
+                android:layout_marginHorizontal="@dimen/connect_space_lg"
+                android:layout_marginTop="@dimen/connect_space_md" />
 
             <LinearLayout
                 android:id="@+id/connect_verify_pin_container"

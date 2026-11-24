@@ -9,10 +9,14 @@ from subprocess import PIPE
 import sys
 import json
 import time
+import http.client
+import urllib.request
+
 
 def appendData(command, dataUrl):
     var = "file=@{}".format(dataUrl)
     return command + " " + json.dumps(var)
+
 
 def buildTestCommand(appToken, testToken, classes=None):
     test = {}
@@ -34,19 +38,22 @@ def buildTestCommand(appToken, testToken, classes=None):
         test["class"] = classes
         classSize = len(classes)
         if classSize > 5:
-            test["shards"] = { "numberOfShards": 5 }
+            test["shards"] = {"numberOfShards": 5}
         else:
             mapping = []
             for index, name in enumerate(classes, start=1):
-                mapping.append({"name" : "Shard " + str(index), "strategy": "class", "values": [name]})
-            test["shards"] = { "numberOfShards": classSize, "mapping": mapping }
+                mapping.append({"name": "Shard " + str(index), "strategy": "class", "values": [name]})
+            test["shards"] = {"numberOfShards": classSize, "mapping": mapping}
     else:
-        test["shards"] = { "numberOfShards": 5 }
+        test["shards"] = {"numberOfShards": 5}
 
     return json.dumps(json.dumps(test))
 
+
 def isSuccessfulBuild(buildId):
-    resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'.format(userName, password, buildId)
+    resultCommand = ('curl -u "{}:{}" -X GET '
+                     '"https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'
+                     ).format(userName, password, buildId)
     result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
     status = json.loads(result.communicate()[0])["status"]
 
@@ -70,7 +77,9 @@ def testResult(appToken, testToken, buildId, retryCount):
     retryCount = retryCount + 1
 
     # Get the sessionID from test result
-    resultCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'.format(userName, password, buildId)
+    resultCommand = ('curl -u "{}:{}" -X GET '
+                     '"https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}"'
+                     ).format(userName, password, buildId)
     result = subprocess.Popen(shlex.split(resultCommand), stdout=PIPE, stderr=None, shell=False)
     jsonResult = json.loads(result.communicate()[0])
     print(jsonResult)
@@ -86,7 +95,9 @@ def testResult(appToken, testToken, buildId, retryCount):
         sessionId = session["id"]
 
         # Gather the sessionDetails
-        testDetailsCommand = 'curl -u "{}:{}" -X GET "https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}/sessions/{}"'.format(userName, password, buildId, sessionId)
+        testDetailsCommand = ('curl -u "{}:{}" -X GET '
+                              '"https://api-cloud.browserstack.com/app-automate/espresso/v2/builds/{}/sessions/{}"'
+                              ).format(userName, password, buildId, sessionId)
         testDetailsResult = subprocess.Popen(shlex.split(testDetailsCommand), stdout=PIPE, stderr=None, shell=False)
         jsonResult = json.loads(testDetailsResult.communicate()[0])
         print(jsonResult)
@@ -106,7 +117,8 @@ def testResult(appToken, testToken, buildId, retryCount):
     print("Failing test classes :: ", classes)
 
     runConfig = buildTestCommand(appToken, testToken, classes)
-    runCmd = 'curl -X POST "{}" -d \ {} -H "Content-Type: application/json" -u "{}:{}"'.format(espressoUrl, runConfig, userName, password)
+    runCmd = 'curl -X POST "{}" -d \\ {} -H "Content-Type: application/json" -u "{}:{}"'.format(
+        espressoUrl, runConfig, userName, password)
     output = subprocess.Popen(shlex.split(runCmd), stdout=PIPE, stderr=None, shell=False).communicate()
     jsonResult = json.loads(output[0])
     print(jsonResult)
@@ -123,19 +135,25 @@ def testResult(appToken, testToken, buildId, retryCount):
     else:
         print("Instrumentation Tests Passed.")
 
+
 def shouldSkipAndroidTest():
     gitPRId = os.environ.get("PR_NUMBER", "")
     if not gitPRId:
         return False
-    gitPRCmd = 'curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/dimagi/commcare-android/pulls/{}'.format(gitPRId)
-    gitPRCmdOutput = subprocess.Popen(shlex.split(gitPRCmd), stdout=PIPE, stderr=None, shell=False).communicate()
-    gitPRLabels = json.loads(gitPRCmdOutput[0])["labels"]
-    shouldSkip = False
-    for label in gitPRLabels:
-        if label["name"] == "skip-integration-tests":
-            shouldSkip = True
-            break
-    return shouldSkip
+    request = urllib.request.Request(
+        "https://api.github.com/repos/dimagi/commcare-android/pulls/{}".format(gitPRId),
+        headers={"Accept": "application/vnd.github+json"})
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if token:
+        request.add_header("Authorization", "Bearer {}".format(token))
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            gitPRLabels = json.load(response)["labels"]
+    except (OSError, http.client.HTTPException, KeyError, ValueError) as e:
+        print("Couldn't read PR labels ({}), running the tests.".format(e))
+        return False
+    return any(label["name"] == "skip-integration-tests" for label in gitPRLabels)
+
 
 def runAndroidTest():
 
@@ -156,7 +174,8 @@ def runAndroidTest():
     # Running the tests
 
     runConfig = buildTestCommand(appToken, testToken)
-    runCmd = 'curl -X POST "{}" -d \ {} -H "Content-Type: application/json" -u "{}:{}"'.format(espressoUrl, runConfig, userName, password)
+    runCmd = 'curl -X POST "{}" -d \\ {} -H "Content-Type: application/json" -u "{}:{}"'.format(
+        espressoUrl, runConfig, userName, password)
 
     output = subprocess.Popen(shlex.split(runCmd), stdout=PIPE, stderr=None, shell=False).communicate()
     print(output)
