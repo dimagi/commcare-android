@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import org.commcare.AppUtils
+import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectOpportunityNavigator
 import org.commcare.connect.PersonalIdSessionManager
@@ -16,18 +17,21 @@ import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.connect.viewmodel.AppInstallState
+import org.commcare.connect.viewmodel.ConnectAppSyncStatusViewModel
 import org.commcare.connect.viewmodel.ConnectLearningProgressViewModel
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectLearningProgressBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.views.connect.opportunitySyncCardState
 import java.util.Date
 
 class ConnectLearningProgressFragment :
     ConnectJobFragment<FragmentConnectLearningProgressBinding>(),
     RefreshableFragment {
     private lateinit var viewModel: ConnectLearningProgressViewModel
+    private val appSyncStatus by lazy { ConnectAppSyncStatusViewModel.of(requireActivity()) }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +51,7 @@ class ConnectLearningProgressFragment :
         updateLearningUI()
         observeLearningProgress()
         observeClaimJob()
+        appSyncStatus.status.observe(viewLifecycleOwner) { informSyncStatus(syncStatus, isSynced) }
         return view
     }
 
@@ -66,7 +71,9 @@ class ConnectLearningProgressFragment :
         lastSyncStatus: CharSequence,
         synced: Boolean,
     ) {
-        binding.learnProgressView.updateSyncStatus(lastSyncStatus, synced)
+        binding.learnProgressView.bindSyncCard(
+            opportunitySyncCardState(requireContext(), lastSyncStatus, synced, appSyncStatus.status.value),
+        )
     }
 
     private fun observeLearningProgress() {
@@ -110,7 +117,7 @@ class ConnectLearningProgressFragment :
             binding.learnProgressView.bind(
                 job,
                 { launchApp(isLearning = true) },
-                { refresh(true) },
+                { (requireActivity() as ConnectActivity).sync() },
             )
         }
     }

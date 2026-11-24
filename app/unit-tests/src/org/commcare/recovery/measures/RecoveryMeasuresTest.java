@@ -169,7 +169,7 @@ public class RecoveryMeasuresTest {
     @Test
     public void homeAboveAnotherScreen_ShouldRestartDispatch_WhenRecoveryMeasuresArePending() {
         requestRecoveryMeasures(REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION);
-        Intent homeIntent = StandardHomeActivity.buildHomeLaunchIntent(CommCareApplication.instance());
+        Intent homeIntent = new Intent(CommCareApplication.instance(), StandardHomeActivity.class);
         ActivityController<StandardHomeActivity> homeController =
                 Robolectric.buildActivity(StandardHomeActivity.class, homeIntent);
         Shadows.shadowOf(homeController.get()).setIsTaskRoot(false);
