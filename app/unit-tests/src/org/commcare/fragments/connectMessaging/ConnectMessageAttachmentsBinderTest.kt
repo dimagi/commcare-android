@@ -28,26 +28,24 @@ class ConnectMessageAttachmentsBinderTest {
     private val requestedDownloads = mutableListOf<String>()
     private val openedAttachments = mutableListOf<String>()
     private val openedImages = mutableListOf<Pair<String, View>>()
-    private val binder =
-        ConnectMessageAttachmentsBinder(
-            container,
-            object : ConnectMessageAttachmentListener {
-                override fun onMessageDownloadRequested(messageId: String) {
-                    requestedDownloads.add(messageId)
-                }
+    private val binderListener =
+        object : ConnectMessageAttachmentListener {
+            override fun onMessageDownloadRequested(messageId: String) {
+                requestedDownloads.add(messageId)
+            }
 
-                override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) {
-                    openedAttachments.add(attachment.attachmentId)
-                }
+            override fun onAttachmentOpenRequested(attachment: ConnectMessageAttachmentItem) {
+                openedAttachments.add(attachment.attachmentId)
+            }
 
-                override fun onImageOpenRequested(
-                    attachment: ConnectMessageAttachmentItem,
-                    imageView: View,
-                ) {
-                    openedImages.add(attachment.attachmentId to imageView)
-                }
-            },
-        )
+            override fun onImageOpenRequested(
+                attachment: ConnectMessageAttachmentItem,
+                imageView: View,
+            ) {
+                openedImages.add(attachment.attachmentId to imageView)
+            }
+        }
+    private val binder = ConnectMessageAttachmentsBinder(container, binderListener)
 
     @Test
     fun `no attachments hides the attachment block`() {
@@ -178,6 +176,53 @@ class ConnectMessageAttachmentsBinderTest {
         assertFalse(tile.root.hasOnClickListeners())
     }
 
+    @Test
+    fun `card on a device that cannot sandbox it shows the device notice instead of its files`() {
+        val tile = bindCard(cardsSupported = false, "index.html", "data.json")
+
+        assertEquals(context.getString(R.string.connect_messaging_card_unsupported_device), tile.tvLabel.text.toString())
+        assertEquals(1, container.childCount)
+        assertEquals(View.GONE, tile.flAction.visibility)
+    }
+
+    @Test
+    fun `card without index html says it cannot be shown instead of listing its files`() {
+        val tile = bindCard(cardsSupported = true, "card.html", "style.css")
+
+        assertEquals(context.getString(R.string.connect_messaging_card_missing_entry), tile.tvLabel.text.toString())
+        assertEquals(1, container.childCount)
+    }
+
+    @Test
+    fun `card whose renderer stopped earlier is not loaded again`() {
+        ConnectMessageCardSupport.markStopped(CARD_MESSAGE_ID)
+
+        val tile = bindCard(cardsSupported = true, "index.html")
+
+        assertEquals(context.getString(R.string.connect_messaging_card_stopped), tile.tvLabel.text.toString())
+    }
+
+    private fun bindCard(
+        cardsSupported: Boolean,
+        vararg names: String,
+    ): ViewConnectMessageAttachmentPendingBinding {
+        val cardBinder = ConnectMessageAttachmentsBinder(container, binderListener) { cardsSupported }
+        val files =
+            names.map { name ->
+                val file = File(context.cacheDir, "card-$name").apply { writeText(name) }
+                ConnectMessageAttachmentItem(
+                    name,
+                    name,
+                    "application/octet-stream",
+                    file.length(),
+                    ConnectMessagingAttachmentState.AVAILABLE,
+                    file,
+                )
+            }
+        cardBinder.bindCard(CARD_MESSAGE_ID, files, MAX_WIDTH, WINDOW_HEIGHT)
+        return ViewConnectMessageAttachmentPendingBinding.bind(container.getChildAt(0))
+    }
+
     private fun bindPendingTile(state: ConnectMessagingAttachmentState): ViewConnectMessageAttachmentPendingBinding {
         binder.bindPendingMessage("message-1", state)
         return ViewConnectMessageAttachmentPendingBinding.bind(container.getChildAt(0))
@@ -219,5 +264,7 @@ class ConnectMessageAttachmentsBinderTest {
     private companion object {
         const val MAX_WIDTH = 344
         const val MAX_HEIGHT = 361
+        const val WINDOW_HEIGHT = 1800
+        const val CARD_MESSAGE_ID = "5b1c0d2e-0000-4000-8000-0000000000c1"
     }
 }

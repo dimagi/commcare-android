@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.FrameLayout">
+
+    <!-- Holds the card's WebView, which is added in code -->
+    <FrameLayout
+        android:id="@+id/flWebView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <View
+        android:id="@+id/vFade"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/connect_message_card_fade_height"
+        android:layout_gravity="bottom"
+        android:background="@drawable/connect_message_card_fade"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tvOpen"
+        style="@style/ConnectMessageAttachmentText.Label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/connect_space_sm"
+        android:background="@drawable/connect_message_pending_tile_bg"
+        android:minWidth="@dimen/connect_touch_target_min"
+        android:minHeight="@dimen/connect_touch_target_min"
+        android:paddingHorizontal="@dimen/connect_space_md"
+        android:text="@string/connect_messaging_card_open"
+        android:visibility="gone" />
+</merge>

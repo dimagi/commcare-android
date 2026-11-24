@@ -793,6 +793,11 @@ License.
     <string name="connect_messaging_attachment_tap_to_retry">Appuyez pour réessayer</string>
     <string name="connect_messaging_attachment_expired">N\'est plus disponible</string>
     <string name="connect_messaging_attachment_open_failed">Aucune application sur ce téléphone ne peut ouvrir ce fichier</string>
+    <string name="connect_messaging_attachment_cannot_open">Ce fichier ne peut pas être ouvert</string>
+    <string name="connect_messaging_card_open">Ouvrir</string>
+    <string name="connect_messaging_card_unsupported_device">Ce contenu ne peut pas être affiché sur cet appareil</string>
+    <string name="connect_messaging_card_missing_entry">Ce contenu ne peut pas être affiché</string>
+    <string name="connect_messaging_card_stopped">Ce contenu a cessé de fonctionner</string>
     <string name="connect_messaging_audio_play">Lire l\'audio</string>
     <string name="connect_messaging_audio_pause">Mettre l\'audio en pause</string>
     <string name="connect_messaging_audio_play_failed">Impossible de lire cet audio</string>

@@ -158,6 +158,27 @@ class ConnectMessageAdapterTest {
     }
 
     @Test
+    fun `card message without files still uses the rich row, where its notice shows`() {
+        val card =
+            ConnectMessageChatData(
+                "card",
+                ConnectMessageAdapter.LEFTVIEW,
+                "caption",
+                "them",
+                Date(TIMESTAMP),
+                false,
+                emptyList(),
+                false,
+                null,
+                "card-html",
+            )
+
+        adapter.updateData(listOf(card))
+
+        assertEquals(ConnectMessageAdapter.LEFT_RICH_VIEW, adapter.getItemViewType(0))
+    }
+
+    @Test
     fun `download state change is a payload-only change on the owning row`() {
         val queued = ConnectMessagingAttachmentState.QUEUED
         adapter.updateData(listOf(getPendingChat("a", queued), getPendingChat("b", queued)))

@@ -54,4 +54,7 @@ interface ConnectMessageAttachmentListener {
         attachment: ConnectMessageAttachmentItem,
         imageView: View,
     )
+
+    /** A `card-html` message cut off at its height cap asked to be shown full screen. */
+    fun onCardOpenRequested(messageId: String) {}
 }

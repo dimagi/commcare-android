@@ -788,6 +788,11 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_messaging_attachment_tap_to_retry">Taɓa don sake gwadawa</string>
     <string name="connect_messaging_attachment_expired">Ba a samunsa yanzu</string>
     <string name="connect_messaging_attachment_open_failed">Babu wata manhaja a wannan wayar da za ta iya buɗe wannan fayil</string>
+    <string name="connect_messaging_attachment_cannot_open">Ba za a iya buɗe wannan fayil ba</string>
+    <string name="connect_messaging_card_open">Buɗe</string>
+    <string name="connect_messaging_card_unsupported_device">Ba za a iya nuna wannan abun ciki a wannan wayar ba</string>
+    <string name="connect_messaging_card_missing_entry">Ba za a iya nuna wannan abun ciki ba</string>
+    <string name="connect_messaging_card_stopped">Wannan abun ciki ya daina aiki</string>
     <string name="connect_messaging_audio_play">Kunna sauti</string>
     <string name="connect_messaging_audio_pause">Dakatar da sauti</string>
     <string name="connect_messaging_audio_play_failed">Ba a iya kunna wannan sautin ba</string>

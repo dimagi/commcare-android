@@ -488,6 +488,11 @@
     <string name="connect_messaging_attachment_tap_to_retry">Trykk for å prøve igjen</string>
     <string name="connect_messaging_attachment_expired">Ikke lenger tilgjengelig</string>
     <string name="connect_messaging_attachment_open_failed">Ingen app på denne telefonen kan åpne denne filen</string>
+    <string name="connect_messaging_attachment_cannot_open">Denne filen kan ikke åpnes</string>
+    <string name="connect_messaging_card_open">Åpne</string>
+    <string name="connect_messaging_card_unsupported_device">Dette innholdet kan ikke vises på denne enheten</string>
+    <string name="connect_messaging_card_missing_entry">Dette innholdet kan ikke vises</string>
+    <string name="connect_messaging_card_stopped">Dette innholdet sluttet å virke</string>
     <string name="connect_messaging_audio_play">Spill av lyd</string>
     <string name="connect_messaging_audio_pause">Sett lyden på pause</string>
     <string name="connect_messaging_audio_play_failed">Lyden kunne ikke spilles av</string>

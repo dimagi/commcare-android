@@ -512,6 +512,11 @@
     <string name="connect_messaging_attachment_expired">No longer available</string>
     <string name="connect_messaging_preview_pending_download">[Media message to download]</string>
     <string name="connect_messaging_attachment_open_failed">No app on this phone can open this file</string>
+    <string name="connect_messaging_attachment_cannot_open">This file can\'t be opened</string>
+    <string name="connect_messaging_card_open">Open</string>
+    <string name="connect_messaging_card_unsupported_device">This content can\'t be shown on this device</string>
+    <string name="connect_messaging_card_missing_entry">This content can\'t be shown</string>
+    <string name="connect_messaging_card_stopped">This content stopped working</string>
     <string name="connect_messaging_audio_play">Play audio</string>
     <string name="connect_messaging_audio_pause">Pause audio</string>
     <string name="connect_messaging_audio_play_failed">This audio could not be played</string>

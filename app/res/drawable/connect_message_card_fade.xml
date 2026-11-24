@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fades the bottom of a card cut off at its height cap into the receiver bubble's colour -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:endColor="@color/cornflower_blue"
+        android:startColor="#005C6FD0" />
+</shape>

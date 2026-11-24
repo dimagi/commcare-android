@@ -782,6 +782,11 @@
     <string name="connect_messaging_attachment_tap_to_retry">ደጊምካ ንምፍታን ጠውቕ</string>
     <string name="connect_messaging_attachment_expired">ድሕሪ ሕጂ ኣይርከብን</string>
     <string name="connect_messaging_attachment_open_failed">ነዚ ፋይል ክኸፍቶ ዝኽእል ኣፕ ኣብዚ ተሌፎን የለን</string>
+    <string name="connect_messaging_attachment_cannot_open">እዚ ፋይል ክኽፈት ኣይክእልን</string>
+    <string name="connect_messaging_card_open">ክፈት</string>
+    <string name="connect_messaging_card_unsupported_device">እዚ ትሕዝቶ ኣብዚ መሳርሒ ክርአ ኣይክእልን</string>
+    <string name="connect_messaging_card_missing_entry">እዚ ትሕዝቶ ክርአ ኣይክእልን</string>
+    <string name="connect_messaging_card_stopped">እዚ ትሕዝቶ ምስራሕ ኣቋሪጹ</string>
     <string name="connect_messaging_audio_play">ድምጺ ተጻወት</string>
     <string name="connect_messaging_audio_pause">ድምጺ ደው ኣብል</string>
     <string name="connect_messaging_audio_play_failed">እዚ ድምጺ ክጻወት ኣይከኣለን</string>
