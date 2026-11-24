@@ -218,7 +218,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             StandardAlertDialog dialog = new StandardAlertDialog(
                     Localization.get("tts.data.missing.title"),
                     Localization.get("tts.data.missing.message", language));
-            dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+            dialog.setPositiveButton(StringUtils.getStringRobust(FormEntryActivity.this, R.string.ok), (dialog1, which) -> {
                 Intent installIntent = new Intent();
                 installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
                 startActivity(installIntent);
@@ -1781,7 +1781,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         Localization.get("background.sync.pending.form.entry.detail"), (buttonView, isChecked) -> {
                             HiddenPreferences.setPendingSyncDialogDisabled(isChecked);
                         });
-                dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+                dialog.setPositiveButton(StringUtils.getStringRobust(this, R.string.ok), (dialog1, which) -> {
                     dialog1.dismiss();
                 });
                 showAlertDialog(dialog);

@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -114,7 +115,7 @@ public class StandardAlertDialog extends CommCareAlertDialog {
         Button positiveButton = this.view.findViewById(R.id.positive_button);
         if (positiveButtonListener != null) {
             if (positiveButtonDisplayText == null) {
-                positiveButtonDisplayText = Localization.get("dialog.ok");
+                positiveButtonDisplayText = StringUtils.getStringRobust(view.getContext(), R.string.ok);
             }
             positiveButton.setText(positiveButtonDisplayText);
             positiveButton.setOnClickListener(
