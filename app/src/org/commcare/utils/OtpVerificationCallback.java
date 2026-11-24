@@ -37,9 +37,10 @@ public interface OtpVerificationCallback {
     /**
      * Called when an error occurs during the OTP process.
      *
-     * @param message A description of the error that occurred
+     * @param message   A description of the error that occurred
+     * @param errorCode The provider's own error code for analytics, if known
      */
-    void onFailure(OtpErrorType errorType, @Nullable String message);
+    void onFailure(OtpErrorType errorType, @Nullable String message, @Nullable String errorCode);
 
     /**
      * Called when the PersonalId API request related to OTP verification fails.

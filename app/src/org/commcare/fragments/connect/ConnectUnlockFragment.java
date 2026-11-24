@@ -22,6 +22,7 @@ import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.connect.ConnectActivity;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectConstants;
+import org.commcare.connect.ConnectOpportunityHomeState;
 import org.commcare.connect.repository.ConnectRepository;
 import org.commcare.connect.database.ConnectJobUtils;
 import org.commcare.connect.database.ConnectUserDatabaseUtil;
@@ -38,6 +39,7 @@ public class ConnectUnlockFragment extends Fragment {
     private String redirectionAction = "";
     private boolean fromOppInviteLink = false;
     private boolean fromStartupRouting = false;
+    private boolean openedFromNotificationOrInvite = false;
     private String requestedOpportunityUuid = null;
 
     public ConnectUnlockFragment() {
@@ -67,12 +69,17 @@ public class ConnectUnlockFragment extends Fragment {
                     ConnectConstants.FROM_STARTUP_ROUTING,
                     false
             );
+            openedFromNotificationOrInvite = getArguments().getBoolean(
+                    ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE,
+                    false
+            );
             requestedOpportunityUuid = getArguments().getString(OPPORTUNITY_UUID);
         }
 
         binding = FragmentConnectUnlockBinding.inflate(inflater, container, false);
         binding.getRoot().setBackgroundColor(getResources().getColor(R.color.white));
-        binding.startupLogo.setVisibility(fromStartupRouting ? View.VISIBLE : View.GONE);
+        boolean showStartupLogo = fromStartupRouting || openedFromNotificationOrInvite;
+        binding.startupLogo.setVisibility(showStartupLogo ? View.VISIBLE : View.GONE);
         if (requireActivity() instanceof ConnectActivity connectActivity) {
             connectActivity.setWaitDialogEnabled(false);
         }
@@ -88,7 +95,7 @@ public class ConnectUnlockFragment extends Fragment {
                     setFragmentRedirection();
                 } else if (success) {
                     retrieveOpportunities();
-                } else if (fromStartupRouting) {
+                } else if (fromStartupRouting || openedFromNotificationOrInvite) {
                     returnToStartupRoutingWithUnlockDeclined();
                 } else {
                     requireActivity().finish();
@@ -104,7 +111,7 @@ public class ConnectUnlockFragment extends Fragment {
     }
 
     private void returnToStartupRoutingWithUnlockDeclined() {
-        requireActivity().setResult(DispatchActivity.RESULT_PERSONAL_ID_UNLOCK_DECLINED);
+        startActivity(DispatchActivity.buildUnlockDeclinedRestartIntent(requireContext()));
         requireActivity().finish();
     }
 
@@ -181,6 +188,17 @@ public class ConnectUnlockFragment extends Fragment {
         NavOptions options = new NavOptions.Builder()
                 .setPopUpTo(navController.getGraph().getStartDestinationId(), true, true)
                 .build();
-        navController.navigate(fragmentId, bundle, options);
+
+        if (fromStartupRouting && fragmentId == R.id.connect_opportunity_home_fragment && isActiveJobAtIntro()) {
+            navController.navigate(R.id.connect_jobs_list_fragment, null, options);
+            navController.navigate(fragmentId, bundle);
+        } else {
+            navController.navigate(fragmentId, bundle, options);
+        }
+    }
+
+    private boolean isActiveJobAtIntro() {
+        ConnectJobRecord job = ((ConnectActivity) requireActivity()).getActiveJob();
+        return job != null && ConnectOpportunityHomeState.isIntro(job);
     }
 }

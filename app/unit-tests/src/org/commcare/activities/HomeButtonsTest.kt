@@ -59,12 +59,24 @@ class HomeButtonsTest : BaseHomeScreenActivityTest() {
     }
 
     @Test
-    fun `log out closes the session and finishes home`() {
+    fun `log out from home at the bottom of the task restarts routing as a logout`() {
         val home = buildVisibleHome()
 
         clickHomeButton(home, Localization.get("home.logout"))
 
-        assertTrue("logging out should finish home so dispatch can route to login", home.isFinishing)
+        assertTrue(home.isFinishing)
+        val dispatch = assertStarted(home, DispatchActivity::class.java)
+        assertTrue(dispatch.getBooleanExtra(LoginActivity.USER_TRIGGERED_LOGOUT, false))
+    }
+
+    @Test
+    fun `log out from home above another screen hands the logout back to it`() {
+        val home = buildVisibleHome()
+        shadowOf(home).setIsTaskRoot(false)
+
+        clickHomeButton(home, Localization.get("home.logout"))
+
+        assertTrue(home.isFinishing)
         assertEquals(android.app.Activity.RESULT_OK, shadowOf(home).resultCode)
     }
 

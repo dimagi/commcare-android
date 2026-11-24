@@ -180,6 +180,8 @@
     <string name="recovery_forms_state_unavailable">Os formulários não estão disponíveis. Verifique se o armazenamento do seu telefone está disponível</string>
     <string name="recovery_network_unavailable">Sem conexão de rede. Verifique sua internet e tente novamente.</string>
     <string name="recovery_unable_to_claim_opportunity">Não é possível reivindicar a oportunidade. Tente novamente ou entre em contato com o suporte.</string>
+    <string name="connect_opportunity_full_claim_error">Não há mais visitas pagas disponíveis. Entre em contato com o seu administrador.</string>
+    <string name="connect_opportunity_ended_claim_error">Esta oportunidade foi encerrada. Entre em contato com o seu administrador.</string>
     <string name="recovery_network_outdated">Este aplicativo está desatualizado. Atualize o aplicativo na Google Play Store para continuar.</string>
     <string name="personalid_token_unavailable">Ocorreu um problema de rede. Por favor, tente novamente.</string>
     <string name="personalid_token_request_rejected">A configuração do seu PersonalID com o servidor foi perdida. Recupere a sua conta de PersonalID e tente novamente.</string>
@@ -247,7 +249,6 @@
     <string name="dependency_missing_dialog_playstore_not_found">Nenhuma Play Store encontrada no seu dispositivo</string>
     <string name="fcm_default_notification_channel">notificações-canal-notificações push</string>
     <string name="personalid_login_via">Via PersonalId (ou pressione aqui)</string>
-    <string name="personalid_choice_or">OU</string>
     <string name="login_choice_or">OU</string>
     <string name="connect_download_delivery">Baixar entrega</string>
     <string name="connect_app_install_setting_up">Configurando o aplicativo…</string>
@@ -258,8 +259,6 @@
     <string name="personalid_generic_error">Ocorreu um problema. Configure sua conta PersonalID novamente.</string>
     <string name="connect_registration_title">Comece a usar o PersonalID</string>
     <string name="connect_consent_message_1">Li e concordo com a <a href="https://www.dimagi.com/terms/latest/privacy/">Política de Privacidade</a>, os <a href="https://www.dimagi.com/terms/latest/tos/">Termos de Serviço</a>, o <a href="https://www.dimagi.com/terms/latest/ba/">Contrato Comercial</a> e a <a href="https://www.dimagi.com/terms/latest/aup/">Política de Uso Aceitável</a> da Dimagi.</string>
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">Foi enviado um código de acesso de 6 dígitos para o seu número de telefone.</string>
     <string name="connect_otp_verified">Sucesso! O seu número de telefone foi verificado.</string>
     <string name="connect_enter_otp">Por favor, introduza o código de acesso de 6 dígitos que foi enviado para o seu número de telefone.</string>
@@ -548,6 +547,7 @@
     <string name="personalid_name_fragment_subtitle">Por favor, insira o seu nome tal como aparece na sua identificação emitida pelo governo</string>
     <string name="personalid_configuration_process_failed_title">Falha no processo</string>
     <string name="personalid_configuration_locked_account">A sua conta foi bloqueada. Entre em contacto com o suporte</string>
+    <string name="personalid_registration_ineligible">Você não é elegível para registrar uma conta PersonalID.</string>
     <string name="personalid_backup_code_locked">O seu código de segurança foi bloqueado. Verifique o seu e-mail para definir um novo.</string>
     <string name="personalid_configuration_process_failed_subtitle">Lamentavelmente, este dispositivo não passou nas verificações de segurança necessárias para se inscrever no PersonalID. Por favor, tente novamente num dispositivo diferente.</string>
     <string name="personalid_configuration_process_pin_unavailable_message">O PIN neste dispositivo está indisponível de momento. Por favor, tente novamente mais tarde.</string>
@@ -578,12 +578,12 @@
     <string name="personalid_work_history_no_records_available">Nenhum registro de trabalho está disponível no momento. Clique em atualizar ou verifique novamente mais tarde.</string>    <string name="personalid_work_history_earned">Ganhos</string>
     <string name="personalid_work_history_pending">Pendente</string>
     <string name="personalid_work_history_sync">Sincronizar</string>
-    <string name="personalid_work_history_level_1_month_active">1 Mês de\nAtividade</string>
-    <string name="personalid_work_history_level_2_month_active">2 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_3_month_active">3 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_6_month_active">6 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_9_month_active">9 Meses de\nAtividade</string>
-    <string name="personalid_work_history_level_12_month_active">12 Meses de\nAtividade</string>
+    <string name="personalid_work_history_level_1_month_active">1 Mês de Atividade</string>
+    <string name="personalid_work_history_level_2_month_active">2 Meses de Atividade</string>
+    <string name="personalid_work_history_level_3_month_active">3 Meses de Atividade</string>
+    <string name="personalid_work_history_level_6_month_active">6 Meses de Atividade</string>
+    <string name="personalid_work_history_level_9_month_active">9 Meses de Atividade</string>
+    <string name="personalid_work_history_level_12_month_active">12 Meses de Atividade</string>
     <string name="personalid_work_history_no_pending_records">Não há registros pendentes no momento</string>
 
     <string name="personalid_notification">Notificações</string>

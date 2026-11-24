@@ -26,9 +26,9 @@ repositories {
     maven {url 'https://repository.liferay.com/nexus/content/repositories/public/'}
 }
 
-configurations {
-    // prevents libs from including commons-logging, which Android already does
-    all*.exclude group: 'commons-logging', module: 'commons-logging'
+// prevents libs from including commons-logging, which Android already does
+configurations.configureEach {
+    exclude group: 'commons-logging', module: 'commons-logging'
 }
 
 dependencies {
@@ -46,7 +46,7 @@ dependencies {
     testImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'io.mockk:mockk:1.12.7'
-    testImplementation 'org.json:json:20250517'
+    testImplementation 'org.json:json:20260814'
     testImplementation 'org.mockito:mockito-core:5.5.0'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
     testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
@@ -78,7 +78,10 @@ dependencies {
     // this syntax doesn't work for compiling .aar files, so those have to be loaded manually
     implementation fileTree(include: '*.jar', exclude: 'regexp-me.jar', dir: 'libs')
     implementation(name: 'htmlspanner-custom', ext: 'aar')
-    implementation 'com.github.dimagi:zebra-print-android:v1.3'
+    implementation('com.github.dimagi:zebra-print-android:v1.3') {
+        // Only the Zebra SDK's Link-OS file upload uses httpmime, and CommCare never calls it
+        exclude group: 'org.apache.httpcomponents'
+    }
     implementation 'com.simprints:libsimprints:2024.2.2'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -102,7 +105,6 @@ dependencies {
     implementation('org.apache.james:apache-mime4j:0.7.2') {
         exclude module: 'commons-io'
     }
-    implementation('org.apache.httpcomponents:httpmime:4.5.6')
     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.26'
     implementation 'org.jsoup:jsoup:1.21.1'
     implementation 'com.scottyab:rootbeer-lib:0.1.1'
@@ -476,7 +478,8 @@ android {
             buildConfigField 'String', 'CC_AUTHORITY', "\"${applicationId}\""
             buildConfigField 'String', 'ODK_AUTHORITY', "\"${odkProviderStr}\""
             buildConfigField 'String', 'BUILD_DIR', fixEscaping("\"${buildDir}\"")
-            buildConfigField 'String', 'PROJECT_DIR', fixEscaping("\"${projectDir}\"")
+            buildConfigField 'String', 'CORE_BUILD_DIR',
+                    fixEscaping("\"${project(':commcare-core').layout.buildDirectory.get().asFile}\"")
 
             // disable crashlytics
             buildConfigField 'boolean', 'USE_CRASHLYTICS', 'false'
@@ -513,13 +516,36 @@ android {
 
     // Ignore un-minified graphing files
 
+    // AGP hands Robolectric the app's resources through paths relative to the project
+    // directory, which can't exist when localBuildRoot (see the root build.gradle) puts
+    // the build directory on another drive. In that layout, leave the resources out so
+    // the project still syncs, and stop unit test runs with an explanation instead.
+    def unitTestBuildDir = project.layout.buildDirectory.get().asFile
+    def buildDirOnOtherDrive = unitTestBuildDir.toPath().root != project.projectDir.toPath().root
+    def unitTestsUnavailable = "Unit tests can't run in this checkout: its build directory " +
+            "(${unitTestBuildDir}) is on a different drive from the project (${project.projectDir}), " +
+            "so Robolectric can't load the app's resources. Run them where both share a drive."
+
     testOptions {
         unitTests.all {
+            if (buildDirOnOtherDrive) {
+                doFirst { throw new GradleException(unitTestsUnavailable) }
+            }
+
             // Needed for robolectric tests to work with kxml for some bizarre reason
             jvmArgs '-noverify'
             maxHeapSize = "2g"
+            maxParallelForks = Runtime.runtime.availableProcessors() >= 4 ? 2 : 1
+            forkEvery = 100
             systemProperty 'robolectric.logging.enable', true
             systemProperty 'robolectric.logging', 'stdout'
+
+            def testTmpDir = project.findProperty('test.tmpdir')
+            if (testTmpDir) {
+                def tmpDir = file(testTmpDir)
+                doFirst { tmpDir.mkdirs() }
+                systemProperty 'java.io.tmpdir', tmpDir.absolutePath
+            }
 
             def l10nLocale = project.findProperty('l10n.locale')
             if (l10nLocale) {
@@ -537,7 +563,7 @@ android {
             }
         }
         unitTests {
-            includeAndroidResources = true
+            includeAndroidResources = !buildDirOnOtherDrive
         }
     }
 
@@ -560,6 +586,21 @@ androidComponents {
         }
     }
     onVariants(selector().all()) { variant ->
+        // The manifest names its permission groups ${permissionGroupRoot}.permission-group.*.
+        // The production package shipped with the fixed root "commcare", so it keeps it to
+        // leave its existing permissions untouched. Every other package uses its own ID, so
+        // differently signed builds can be installed side by side without their groups clashing.
+        // The commcare flavor ships under defaultConfig's ID unchanged.
+        def productionApplicationId = android.defaultConfig.applicationId
+        def permissionGroupRoot = variant.applicationId.map { appId ->
+            appId == productionApplicationId ? 'commcare' : appId
+        }
+        variant.manifestPlaceholders.put('permissionGroupRoot', permissionGroupRoot)
+        // Test builds merge the app manifest again with their own placeholders.
+        (variant.hostTests.values() + variant.deviceTests.values()).each { test ->
+            test.manifestPlaceholders.put('permissionGroupRoot', permissionGroupRoot)
+        }
+
         if (variant.buildType in ['release', 'qaAutomation']) {
             variant.outputs.each { output ->
                 output.versionCode.set(computeVersionCode())

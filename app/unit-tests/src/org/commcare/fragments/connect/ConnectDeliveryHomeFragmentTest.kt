@@ -27,6 +27,7 @@ import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.android.util.ConnectTestUtils
 import org.commcare.android.util.ReflectionUtils
 import org.commcare.connect.ConnectAppUtils
 import org.commcare.connect.ConnectConstants
@@ -37,6 +38,7 @@ import org.commcare.connect.opportunityHomeSurface
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.rules.MainCoroutineRule
 import org.commcare.views.connect.ConnectCtaBar
@@ -70,9 +72,10 @@ class ConnectDeliveryHomeFragmentTest {
         val manager = PersonalIdSessionManager.getInstance()
         savedStatus = manager.status
         manager.status = PersonalIdSessionManager.PersonalIdStatus.LoggedIn
+        ConnectTestUtils.signInToPersonalId(hasConnectAccess = true)
 
         mockkStatic(FirebaseAnalyticsUtil::class)
-        every { FirebaseAnalyticsUtil.reportConnectTabChange(any()) } returns Unit
+        every { FirebaseAnalyticsUtil.reportConnectTabChange(any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.reportExternalAppLaunchEvent(any(), any(), any()) } returns Unit
         every { FirebaseAnalyticsUtil.getNavControllerPageChangeLoggingListener() } returns
             object : NavController.OnDestinationChangedListener {
@@ -193,6 +196,20 @@ class ConnectDeliveryHomeFragmentTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         assertEquals(ConnectDeliveryHomeFragment.TAB_VISITS, viewPager.currentItem)
+    }
+
+    @Test
+    fun `changing tab reports the tab's stable key beside its label`() {
+        val oppHome = launchHome()
+        val tabLayout = oppHome.requireView().findViewById<TabLayout>(R.id.connect_delivery_home_tabs)
+
+        tabLayout.getTabAt(ConnectDeliveryHomeFragment.TAB_VISITS)?.select()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val visitsLabel = tabLayout.getTabAt(ConnectDeliveryHomeFragment.TAB_VISITS)?.text.toString()
+        verify(exactly = 1) {
+            FirebaseAnalyticsUtil.reportConnectTabChange(visitsLabel, AnalyticsParamValue.CONNECT_TAB_VISITS)
+        }
     }
 
     @Test

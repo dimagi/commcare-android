@@ -54,6 +54,8 @@ class PersonalIdWorkHistoryActivity : BaseDrawerActivity<PersonalIdWorkHistoryAc
 
     override fun shouldShowDrawer(): Boolean = shouldShowDrawerAfterCheck(true)
 
+    override fun shouldShowBreadcrumbBar(): Boolean = false
+
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         supportActionBar!!.title = getString(R.string.personalid_work_history_title)

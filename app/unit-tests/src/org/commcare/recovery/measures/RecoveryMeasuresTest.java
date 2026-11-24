@@ -150,18 +150,37 @@ public class RecoveryMeasuresTest {
                         .create().start().resume().get();
         ShadowActivity shadowHomeActivity = Shadows.shadowOf(homeActivity);
 
-        // Verify HomeActivity finishes since recovery measures are pending
+        // Verify HomeActivity finishes since recovery measures are pending, restarting Dispatch
         assertTrue(homeActivity.isFinishing());
+        Intent restartedDispatchIntent = shadowHomeActivity.getNextStartedActivity();
+        assertTrue(restartedDispatchIntent.getComponent().getClassName()
+                .contentEquals(DispatchActivity.class.getName()));
 
-        shadowDispatchActivity.receiveResult(homeActivityIntent,
-                shadowHomeActivity.getResultCode(),
-                shadowHomeActivity.getResultIntent());
-
-        // Verify that Dispatch fires up the ExecuteRecoveryMeasuresActivity this time
-        dispatchActivityController.resume();
-        Intent executeRecoveryMeasuresActivityIntent = shadowDispatchActivity.getNextStartedActivity();
+        // Verify that the restarted Dispatch fires up the ExecuteRecoveryMeasuresActivity this time
+        DispatchActivity restartedDispatch = Robolectric
+                .buildActivity(DispatchActivity.class, restartedDispatchIntent)
+                .create().resume().get();
+        Intent executeRecoveryMeasuresActivityIntent =
+                Shadows.shadowOf(restartedDispatch).getNextStartedActivity();
         intentActivityName  = executeRecoveryMeasuresActivityIntent.getComponent().getClassName();
         assertTrue(intentActivityName.contentEquals(ExecuteRecoveryMeasuresActivity.class.getName()));
+    }
+
+    @Test
+    public void homeAboveAnotherScreen_ShouldRestartDispatch_WhenRecoveryMeasuresArePending() {
+        requestRecoveryMeasures(REINSTALL_AND_UPDATE_VALID_FOR_CURRENT_APP_VERSION);
+        Intent homeIntent = StandardHomeActivity.buildHomeLaunchIntent(CommCareApplication.instance());
+        ActivityController<StandardHomeActivity> homeController =
+                Robolectric.buildActivity(StandardHomeActivity.class, homeIntent);
+        Shadows.shadowOf(homeController.get()).setIsTaskRoot(false);
+
+        StandardHomeActivity homeActivity = homeController.create().start().resume().get();
+
+        assertTrue(homeActivity.isFinishing());
+        Intent restartedDispatchIntent = Shadows.shadowOf(homeActivity).getNextStartedActivity();
+        assertTrue(restartedDispatchIntent.getComponent().getClassName()
+                .contentEquals(DispatchActivity.class.getName()));
+        assertTrue(restartedDispatchIntent.getBooleanExtra(DispatchActivity.EXECUTE_RECOVERY_MEASURES, false));
     }
 
 

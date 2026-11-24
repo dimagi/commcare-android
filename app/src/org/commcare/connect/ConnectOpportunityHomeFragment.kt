@@ -57,7 +57,7 @@ class ConnectOpportunityHomeFragment :
      * and the mark clears if the opportunity is extended or reactivated.
      */
     private fun recordOpportunityVisit() {
-        if (ConnectOpportunityHomeState.resolve(job.status) != ConnectOpportunityHomeState.JOB_INTRO) {
+        if (!ConnectOpportunityHomeState.isIntro(job)) {
             PersonalIdUserPreferences.setLastAccessedOpportunityUuid(job.jobUUID)
         }
 
@@ -83,6 +83,8 @@ class ConnectOpportunityHomeFragment :
     }
 
     override fun jobStatus(): Int = job.status
+
+    fun isShowingIntro(): Boolean = stateController.currentState == ConnectOpportunityHomeState.JOB_INTRO
 
     override fun shouldBlockPhaseTransition(): Boolean =
         (childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container) as? BaseConnectFragment<*>)
@@ -115,6 +117,7 @@ class ConnectOpportunityHomeFragment :
     }
 
     private fun showState(state: ConnectOpportunityHomeState) {
+        (activity as? ConnectActivity)?.refreshDrawerTopLevel()
         if (childFragmentManager.findFragmentByTag(state.name) != null) {
             return
         }

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -434,6 +435,22 @@ class ConnectLearningProgressFragmentTest {
         assertEquals(ConnectJobRecord.STATUS_LEARNING, job.status)
     }
 
+    @Test
+    fun `a claim rejected because the opportunity is full says no paid visits are left`() {
+        assertClaimFailureMessage(
+            serverErrorCode = "OPPORTUNITY_FULL",
+            expectedMessage = R.string.connect_opportunity_full_claim_error,
+        )
+    }
+
+    @Test
+    fun `a claim rejected because the opportunity has ended says it has ended`() {
+        assertClaimFailureMessage(
+            serverErrorCode = "OPPORTUNITY_ENDED",
+            expectedMessage = R.string.connect_opportunity_ended_claim_error,
+        )
+    }
+
     /**
      * The sync card is the in-page equivalent of the action bar's sync, so the click has to make the
      * same learn-progress call and leave the card reporting the sync that landed.
@@ -576,12 +593,32 @@ class ConnectLearningProgressFragmentTest {
         )
     }
 
+    private fun assertClaimFailureMessage(
+        serverErrorCode: String,
+        @StringRes expectedMessage: Int,
+    ) {
+        val fragment = launch(ConnectJobTestData.job())
+
+        clickCta(fragment)
+        respondToClaim(responseCode = 400, body = """{"error_code":"$serverErrorCode"}""")
+
+        val failureCard =
+            fragment.requireView().findViewById<ConnectSuccessFailureCard>(
+                R.id.learn_complete_failure_card,
+            )
+        assertEquals(View.VISIBLE, failureCard.visibility)
+        assertEquals(activity.getString(expectedMessage), failureCard.messageText.toString())
+    }
+
     /**
      * Answers the pending claim request with [responseCode] and drains the response callback,
      * returning the request the fragment actually sent.
      */
-    private fun respondToClaim(responseCode: Int): RecordedRequest {
-        mockApi.server.enqueue(MockResponse().setResponseCode(responseCode).setBody("{}"))
+    private fun respondToClaim(
+        responseCode: Int,
+        body: String = "{}",
+    ): RecordedRequest {
+        mockApi.server.enqueue(MockResponse().setResponseCode(responseCode).setBody(body))
         val request = mockApi.drainHttp()
         ShadowLooper.idleMainLooper()
         return request

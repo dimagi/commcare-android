@@ -8,6 +8,7 @@ import static org.commcare.connect.ConnectConstants.REDIRECT_ACTION;
 import static org.commcare.utils.FirebaseMessagingUtil.getNotificationActionFromIntent;
 import static org.commcare.utils.NotificationUtil.getNotificationIcon;
 
+import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavInflater;
+import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.common.base.Strings;
@@ -28,6 +30,7 @@ import org.commcare.connect.ConnectConstants;
 import org.commcare.connect.ConnectDialogCoordinator;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
+import org.commcare.connect.ConnectOpportunityHomeFragment;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.PersonalIdSessionManager;
 import org.commcare.connect.database.ConnectJobUtils;
@@ -36,21 +39,20 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.RefreshableFragment;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.views.dialogs.CustomProgressDialog;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.annotation.Nullable;
 
 import kotlin.Unit;
 
 public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActivity> {
-    private boolean backButtonAndActionBarEnabled = true;
+    private boolean navButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
-    private boolean appLaunchedFromConnect = false;
     private String redirectionAction = "";
     private ConnectJobRecord job;
     private String opportunityUuid;
@@ -126,8 +128,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     private int getStartDestinationId(Bundle startArgs) {
         int startDestinationId = R.id.connect_jobs_list_fragment;
-        if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false)) {
-            startDestinationId = handleInfoRedirect();
+        if (getIntent().getBooleanExtra(GO_TO_JOB_STATUS, false) && job != null) {
+            startDestinationId = R.id.connect_opportunity_home_fragment;
         } else if (!Strings.isNullOrEmpty(redirectionAction)) {
             startDestinationId = handleSecureRedirect(startArgs);
         }
@@ -140,11 +142,6 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         if (job == null && !TextUtils.isEmpty(opportunityUuid)) {
             job = ConnectJobUtils.getCompositeJob(opportunityUuid);
         }
-    }
-
-    private int handleInfoRedirect() {
-        Objects.requireNonNull(job);
-        return R.id.connect_opportunity_home_fragment;
     }
 
     private int handleSecureRedirect(Bundle startArgs) {
@@ -174,6 +171,10 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         startArgs.putBoolean(
                 ConnectConstants.FROM_STARTUP_ROUTING,
                 getIntent().getBooleanExtra(ConnectConstants.FROM_STARTUP_ROUTING, false)
+        );
+        startArgs.putBoolean(
+                ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE,
+                getIntent().getBooleanExtra(ConnectConstants.OPENED_FROM_NOTIFICATION_OR_INVITE, false)
         );
 
         if (!TextUtils.isEmpty(opportunityUuid)) {
@@ -205,7 +206,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_sync).setVisible(backButtonAndActionBarEnabled);
+        menu.findItem(R.id.action_sync).setVisible(navButtonAndActionBarEnabled);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -253,23 +254,32 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Override
     public void onBackPressed() {
-        if (!backButtonAndActionBarEnabled) {
-            return;
-        }
-        if (appLaunchedFromConnect && isAtStartDestination()) {
-            finishAffinity();
+        if (!navButtonAndActionBarEnabled) {
             return;
         }
         super.onBackPressed();
     }
 
-    public void markAppLaunchedFromConnect() {
-        appLaunchedFromConnect = true;
+    /** Whether Opportunity Home is showing with nothing beneath it in the task. */
+    public boolean isOpportunityHomeAtTaskBottom() {
+        return isTaskRoot()
+                && isShowingDestination(R.id.connect_opportunity_home_fragment)
+                && navController.getPreviousBackStackEntry() == null;
     }
 
-    private boolean isAtStartDestination() {
-        return navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == navController.getGraph().getStartDestinationId();
+    /** Shows the active job's Opportunity Home as the only screen in the task. */
+    public void openOpportunityHomeAtTaskBottom() {
+        if (isTaskRoot()) {
+            NavOptions options = new NavOptions.Builder()
+                    .setPopUpTo(navController.getGraph().getId(), true)
+                    .build();
+            navController.navigate(R.id.connect_opportunity_home_fragment, null, options);
+        } else {
+            Intent opportunityHomeIntent =
+                    ConnectNavHelper.buildOpportunityHomeTaskRootIntent(this, job.getJobUUID());
+            startActivity(opportunityHomeIntent);
+            finish();
+        }
     }
 
     @Override
@@ -291,9 +301,57 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
         return null;
     }
 
-    public void setBackButtonAndActionBarState(boolean enabled) {
-        backButtonAndActionBarEnabled = enabled;
+    public void setNavButtonAndActionBarState(boolean enabled) {
+        navButtonAndActionBarEnabled = enabled;
         invalidateOptionsMenu();
+        refreshDrawerTopLevel();
+    }
+
+    @Override
+    protected boolean shouldShowDrawer() {
+        return shouldShowDrawerAfterCheck(true);
+    }
+
+    @Override
+    protected BaseDrawerController.NavItemType getCurrentDrawerSection() {
+        return isShowingOpportunityList() ? BaseDrawerController.NavItemType.OPPORTUNITIES : null;
+    }
+
+    @Override
+    protected boolean isSidebarSection() {
+        boolean openedAsSection = !isTaskRoot();
+        return isShowingOpportunityList() && openedAsSection;
+    }
+
+    /**
+     * The Opportunity List and Opportunity Home show the sidebar when nothing is beneath them in this screen,
+     * except while Opportunity Home still shows its intro.
+     */
+    @Override
+    protected boolean isCurrentDestinationTopLevel() {
+        if (navController.getPreviousBackStackEntry() != null) {
+            return false;
+        }
+
+        if (isShowingOpportunityList()) {
+            return true;
+        }
+
+        boolean showingOpportunityHome = isShowingDestination(R.id.connect_opportunity_home_fragment);
+        boolean showingIntro = getCurrentNavFragment() instanceof ConnectOpportunityHomeFragment opportunityHome
+                && opportunityHome.isShowingIntro();
+
+        return showingOpportunityHome && !showingIntro;
+    }
+
+    /** The sidebar stays closed while an app install runs. */
+    @Override
+    protected boolean isDrawerLocked() {
+        return !navButtonAndActionBarEnabled;
+    }
+
+    private boolean isShowingOpportunityList() {
+        return isShowingDestination(R.id.connect_jobs_list_fragment);
     }
 
     public void setWaitDialogEnabled(boolean enabled) {
@@ -315,13 +373,14 @@ public class ConnectActivity extends NavigationHostCommCareActivity<ConnectActiv
 
     @Nullable
     private RefreshableFragment getRefreshableFragment() {
-        NavHostFragment navHostFragment =
-                (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment_connect);
-        Fragment currentFragment =
-                navHostFragment.getChildFragmentManager().getPrimaryNavigationFragment();
-        if (currentFragment instanceof RefreshableFragment refreshable) {
+        if (getCurrentNavFragment() instanceof RefreshableFragment refreshable) {
             return refreshable;
         }
         return null;
+    }
+
+    @Nullable
+    private Fragment getCurrentNavFragment() {
+        return getHostFragment().getChildFragmentManager().getPrimaryNavigationFragment();
     }
 }

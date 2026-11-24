@@ -184,6 +184,17 @@ object ConnectNavHelper {
         return intent
     }
 
+    /** Builds the intent that opens [opportunityUuid]'s Opportunity Home as the only screen in the task. */
+    @JvmStatic
+    fun buildOpportunityHomeTaskRootIntent(
+        context: Context,
+        opportunityUuid: String,
+    ): Intent =
+        Intent(context, ConnectActivity::class.java)
+            .putExtra(GO_TO_JOB_STATUS, true)
+            .putExtra(OPPORTUNITY_UUID, opportunityUuid)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+
     fun goToActiveInfoForJob(
         context: Context,
         job: ConnectJobRecord,

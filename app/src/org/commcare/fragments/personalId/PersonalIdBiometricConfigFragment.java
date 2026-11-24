@@ -187,7 +187,7 @@ public class PersonalIdBiometricConfigFragment extends BasePersonalIdFragment {
         updateFingerprintSection(fingerprintButton);
         updatePinSection(pinButton);
 
-        binding.connectVerifyOr.setVisibility(
+        binding.connectVerifyOr.getRoot().setVisibility(
                 (fingerprintButton != null && pinButton != null) ? View.VISIBLE : View.INVISIBLE);
 
         if(fingerprintButton != null && pinButton != null) {
