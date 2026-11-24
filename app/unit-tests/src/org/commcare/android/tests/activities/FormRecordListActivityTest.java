@@ -13,6 +13,7 @@ import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.R;
 import org.commcare.home.HomeRequestCodes;
+import org.commcare.utils.RobolectricUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,9 +116,10 @@ public class FormRecordListActivityTest {
                 formRecordShadow.getResultIntent());
         ShadowActivity.IntentForResult formEntryIntent =
                 homeActivityShadow.getNextStartedActivityForResult();
-        Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent.intent)
+        FormEntryActivity formEntryActivity =
+                Robolectric.buildActivity(FormEntryActivity.class, formEntryIntent.intent)
                         .create().start().resume().get();
-        ShadowLooper.idleMainLooper();
+        RobolectricUtil.flushBackgroundThread(formEntryActivity);
         assertNotNull(FormEntryActivity.mFormController);
     }
 }
