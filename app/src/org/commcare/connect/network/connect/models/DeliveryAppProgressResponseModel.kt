@@ -18,7 +18,7 @@ fun DeliveryAppProgressResponseModel.applyToJob(
     context: Context,
 ) {
     if (updatedJob) {
-        ConnectJobUtils.upsertJob(job)
+        ConnectJobUtils.upsertJob(withDeliveryFieldsOnStoredJob(job))
     }
     if (hasDeliveries) {
         ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobUUID, true)
@@ -27,4 +27,18 @@ fun DeliveryAppProgressResponseModel.applyToJob(
         ConnectJobUtils.storePayments(context, job.payments, job.jobUUID, true)
     }
     ConnectTaskUtils.storeTasks(context, tasks, job.jobUUID)
+}
+
+/**
+ * The job this request started with may be older than storage, since an opportunities refresh can land while
+ * it runs, so only the fields the delivery response carries are written over the stored job.
+ */
+private fun withDeliveryFieldsOnStoredJob(job: ConnectJobRecord): ConnectJobRecord {
+    val stored = ConnectJobUtils.getCompositeJob(job.jobUUID) ?: return job
+    stored.maxVisits = job.maxVisits
+    stored.projectEndDate = job.projectEndDate
+    stored.paymentAccrued = job.paymentAccrued
+    stored.isUserSuspended = job.isUserSuspended
+    stored.lastDeliveryUpdate = job.lastDeliveryUpdate
+    return stored
 }
