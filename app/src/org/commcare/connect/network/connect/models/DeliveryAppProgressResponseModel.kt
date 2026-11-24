@@ -5,20 +5,38 @@ import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.android.database.connect.models.ConnectTaskRecord
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectTaskUtils
+import java.util.Date
 
+/** The job fields are null when the response left them out. */
 data class DeliveryAppProgressResponseModel(
-    var updatedJob: Boolean = false,
     var hasDeliveries: Boolean = false,
     var hasPayment: Boolean = false,
     var tasks: List<ConnectTaskRecord> = emptyList(),
-)
+    var maxVisits: Int? = null,
+    var projectEndDate: Date? = null,
+    var paymentAccrued: Int? = null,
+    var isUserSuspended: Boolean? = null,
+) {
+    val updatedJob: Boolean
+        get() = maxVisits != null || projectEndDate != null || paymentAccrued != null || isUserSuspended != null
+}
 
+/**
+ * The job this request started with may be older than storage, since an opportunities refresh can land while
+ * it runs, so only the fields the response sent are written onto the stored job.
+ */
 fun DeliveryAppProgressResponseModel.applyToJob(
     job: ConnectJobRecord,
     context: Context,
 ) {
     if (updatedJob) {
-        ConnectJobUtils.upsertJob(withDeliveryFieldsOnStoredJob(job))
+        ConnectJobUtils.updateStoredJob(job.jobUUID) { stored ->
+            maxVisits?.let { stored.maxVisits = it }
+            projectEndDate?.let { stored.projectEndDate = it }
+            paymentAccrued?.let { stored.paymentAccrued = it }
+            isUserSuspended?.let { stored.isUserSuspended = it }
+            stored.lastDeliveryUpdate = Date()
+        }
     }
     if (hasDeliveries) {
         ConnectJobUtils.storeDeliveries(context, job.deliveries, job.jobUUID, true)
@@ -27,18 +45,4 @@ fun DeliveryAppProgressResponseModel.applyToJob(
         ConnectJobUtils.storePayments(context, job.payments, job.jobUUID, true)
     }
     ConnectTaskUtils.storeTasks(context, tasks, job.jobUUID)
-}
-
-/**
- * The job this request started with may be older than storage, since an opportunities refresh can land while
- * it runs, so only the fields the delivery response carries are written over the stored job.
- */
-private fun withDeliveryFieldsOnStoredJob(job: ConnectJobRecord): ConnectJobRecord {
-    val stored = ConnectJobUtils.getCompositeJob(job.jobUUID) ?: return job
-    stored.maxVisits = job.maxVisits
-    stored.projectEndDate = job.projectEndDate
-    stored.paymentAccrued = job.paymentAccrued
-    stored.isUserSuspended = job.isUserSuspended
-    stored.lastDeliveryUpdate = job.lastDeliveryUpdate
-    return stored
 }

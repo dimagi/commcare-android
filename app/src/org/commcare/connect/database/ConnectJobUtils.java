@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 public class ConnectJobUtils {
 
@@ -429,6 +430,30 @@ public class ConnectJobUtils {
 
             //Now insert/update the record
             storage.write(incomingRecord);
+        }
+    }
+
+    /**
+     * Applies an update to the stored job and saves it inside one transaction, so no other write to the job can
+     * land between the read and the write. Does nothing when the job is not stored.
+     */
+    public static void updateStoredJob(String jobUUID, Consumer<ConnectJobRecord> update) {
+        SqlStorage<ConnectJobRecord> jobStorage = ConnectDatabaseHelper.getConnectStorage(ConnectJobRecord.class);
+        ConnectDatabaseHelper.connectDatabase.beginTransaction();
+        try {
+            Vector<ConnectJobRecord> existing = jobStorage.getRecordsForValues(
+                    new String[]{ConnectJobRecord.META_JOB_UUID},
+                    new Object[]{jobUUID}
+            );
+            if (!existing.isEmpty()) {
+                ConnectJobRecord stored = existing.firstElement();
+                update.accept(stored);
+                stored.setLastUpdate(new Date());
+                jobStorage.write(stored);
+            }
+            ConnectDatabaseHelper.connectDatabase.setTransactionSuccessful();
+        } finally {
+            ConnectDatabaseHelper.connectDatabase.endTransaction();
         }
     }
 
