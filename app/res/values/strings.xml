@@ -364,13 +364,12 @@
     <string name="connect_registration_title">Get Started with PersonalID</string>
     <string name="connect_registration_subtitle">Enter your phone number</string>
 
-    <string name="personalid_choice_or">___________    OR    ___________</string>
     <string name="login_choice_or">OR</string>
 
     <string name="connect_consent_message_1">I have read and agree to Dimagi\'s <a href="https://www.dimagi.com/terms/latest/privacy/">Privacy Policy</a>, <a href="https://www.dimagi.com/terms/latest/tos/">Terms of Service</a>, <a href="https://www.dimagi.com/terms/latest/ba/">Business Agreement</a> and <a href="https://www.dimagi.com/terms/latest/aup/">Acceptable Use Policy</a>.</string>
 
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0000000000</string>
+    <string name="connect_phone_country_code_default" translatable="false">+1</string>
+    <string name="connect_phone_number_hint" translatable="false">0000000000</string>
 
     <string name="connect_otp_sent">A 6-digit passcode has been sent to your phone number.</string>
     <string name="connect_otp_verified">Success! Your phone number has been verified.</string>

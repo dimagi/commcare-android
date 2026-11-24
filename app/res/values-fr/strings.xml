@@ -246,7 +246,6 @@ License.
     <string name="dependency_missing_dialog_playstore_not_found">Aucun Play Store trouvé sur votre appareil</string>
     <string name="fcm_default_notification_channel">canal de notification-notifications-push</string>
     <string name="personalid_login_via">Via PersonalId (ou appuyez ici)</string>
-    <string name="personalid_choice_or">_____________    OU    _____________</string>
     <string name="login_choice_or">OU</string>
     <string name="connect_download_delivery">Télécharger Livraison</string>
     <string name="connect_app_install_setting_up">Configuration de l\'application…</string>
@@ -257,8 +256,6 @@ License.
     <string name="personalid_generic_error">Un problème est survenu avec la base de données, veuillez récupérer votre compte.</string>
     <string name="connect_registration_title">Démarrer avec PersonalID</string>
     <string name="connect_consent_message_1">J\'ai lu et j\'accepte la <a href="https://www.dimagi.com/terms/latest/privacy/">politique de confidentialité</a>, les <a href="https://www.dimagi.com/terms/latest/tos/">conditions de service</a>, l\'<a href="https://www.dimagi.com/terms/latest/ba/">accord commercial</a> et la <a href="https://www.dimagi.com/terms/latest/aup/">politique d\'utilisation acceptable</a> de Dimagi.</string>
-    <string name="connect_phone_country_code_default">+1</string>
-    <string name="connect_phone_number_hint">0000000000</string>
     <string name="connect_otp_sent">Un code d\'accès à 6 chiffres a été envoyé à votre numéro de téléphone.</string>
     <string name="connect_otp_verified">Succès ! Votre numéro de téléphone a été vérifié.</string>
     <string name="connect_enter_otp">Veuillez saisir le code d\'accès à 6 chiffres qui a été envoyé à votre numéro de téléphone.</string>
