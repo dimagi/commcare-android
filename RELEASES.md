@@ -46,6 +46,9 @@ This file is meant as an easy way for us to collate notes and change logs across
   - In Languages spoken, search for a language (e.g. "Hindi"), select it and tap Done; confirm it appears as a chip, the ✕ on a chip removes it, and when reopening the list the selected languages are ticked at the top, followed by the device's language.
   - Pick a date of birth and confirm future dates can't be selected and the same date shows after saving and reopening.
   - With the device language set to another supported language (e.g. French or Hindi), confirm the new labels and options are translated.
+  - Fill in some fields and Save, then recover the account on another device (or after reinstalling the app); confirm the saved values come back and the rest show a dash.
+  - Remove a saved language and Save, then recover the account again; confirm Languages spoken is still empty.
+  - With mobile data and Wi-Fi off, change a field and Save; confirm an error is shown, the edit screen stays open, and the profile still shows the previous values.
 
 ## CommCare 2.65
 
