@@ -7,6 +7,7 @@ import android.widget.TextView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.TextInputEditText
+import okhttp3.mockwebserver.MockResponse
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.commcare.personalId.profile.demographic.DateOfBirth
@@ -89,7 +90,9 @@ class PersonalIdProfileEditFragmentDateOfBirthTest(
     }
 
     private fun save() {
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
         onUiThread { fragment.requireView().findViewById<MaterialButton>(R.id.btn_save).performClick() }
+        mockApiServer.drainHttp()
     }
 
     @Test

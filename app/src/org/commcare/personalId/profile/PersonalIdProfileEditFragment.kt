@@ -300,15 +300,12 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         }
 
     private fun onSaveClicked() {
-        if (viewModel.isDemographicsModified()) {
-            viewModel.commitDemographics()
-        }
         when {
             viewModel.isEmailModified() -> {
                 startEmailChange()
             }
 
-            viewModel.isNameModified() -> {
+            viewModel.isProfileDetailsModified() -> {
                 saveProfileDetails {
                     showSuccess()
                     findNavController().popBackStack()
@@ -324,7 +321,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
 
     private fun startEmailChange() {
         val pendingEmail = viewModel.currentEmail
-        if (viewModel.isNameModified()) {
+        if (viewModel.isProfileDetailsModified()) {
             binding.btnSave.isEnabled = false
             saveProfileDetails { startEmailChangeAuth(pendingEmail) }
         } else {
@@ -374,7 +371,15 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 _binding ?: return
                 onSaveFailed(errorCode, t)
             }
-        }.updateProfile(requireActivity(), user.userId, user.password, viewModel.currentName, null, null)
+        }.updateProfile(
+            requireActivity(),
+            user.userId,
+            user.password,
+            viewModel.currentName,
+            null,
+            null,
+            viewModel.currentDemographics,
+        )
     }
 
     private fun reportProfileSaveOutcome(outcome: String) {

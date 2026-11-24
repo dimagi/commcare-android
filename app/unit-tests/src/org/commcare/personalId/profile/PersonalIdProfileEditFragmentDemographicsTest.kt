@@ -10,10 +10,14 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.RecordedRequest
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
 import org.commcare.views.BottomSheetListPicker
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -26,7 +30,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.util.ReflectionHelpers
 
-/** Editing the demographic fields, which are saved on the device only, and the language picker. */
+/** Editing and saving the demographic fields, and the language picker. */
 @Config(application = CommCareTestApplication::class)
 @RunWith(AndroidJUnit4::class)
 class PersonalIdProfileEditFragmentDemographicsTest : BasePersonalIdProfileTest() {
@@ -47,6 +51,15 @@ class PersonalIdProfileEditFragmentDemographicsTest : BasePersonalIdProfileTest(
     private fun <T : View> view(id: Int) = fragment.requireView().findViewById<T>(id)
 
     private fun saveButton() = view<MaterialButton>(R.id.btn_save)
+
+    private fun saveWithResponse(code: Int): RecordedRequest {
+        mockWebServer.enqueue(MockResponse().setResponseCode(code).setBody("{}"))
+        onUiThread { saveButton().performClick() }
+        return mockApiServer.drainHttp()
+    }
+
+    private fun RecordedRequest.bodyFields(): Map<String, String> =
+        JSONObject(body.readUtf8()).let { json -> json.keys().asSequence().associateWith { json.getString(it) } }
 
     private fun languagesBox() = view<MaterialCardView>(R.id.profile_input_languages)
 
@@ -183,19 +196,31 @@ class PersonalIdProfileEditFragmentDemographicsTest : BasePersonalIdProfileTest(
     }
 
     @Test
-    fun `a partial save stores only the chosen fields on the device without calling the server`() {
+    fun `a partial save sends every field with the unset ones empty and stores the chosen ones after success`() {
         chooseOption(R.id.profile_gender_dropdown, 0)
         pickLanguage("hindi", "हिन्दी (Hindi)")
 
-        onUiThread { saveButton().performClick() }
+        val request = saveWithResponse(200)
 
+        assertEquals("/users/update_profile", request.path)
+        assertEquals(
+            mapOf(
+                "name" to "Ada Lovelace",
+                "gender" to "female",
+                "date_of_birth" to "",
+                "languages" to "hin",
+                "education" to "",
+                "chw_experience" to "",
+                "tech_proficiency" to "",
+            ),
+            request.bodyFields(),
+        )
         assertEquals("female", user.gender)
         assertEquals("hin", user.languages)
         assertNull(user.dateOfBirth)
         assertNull(user.education)
         assertNull(user.chwExperience)
         assertNull(user.techProficiency)
-        assertEquals("Demographic fields are not sent yet", 0, mockWebServer.requestCount)
         assertEquals(R.id.personalid_profile_fragment, currentDestinationId())
     }
 
@@ -208,13 +233,56 @@ class PersonalIdProfileEditFragmentDemographicsTest : BasePersonalIdProfileTest(
         pickLanguage("hausa", "Hausa")
         pickLanguage("english", "English")
 
-        onUiThread { saveButton().performClick() }
+        val fields = saveWithResponse(200).bodyFields()
 
+        assertEquals("prefer_not_to_say", fields["gender"])
+        assertEquals("bachelors_degree", fields["education"])
+        assertEquals("3_5_years", fields["chw_experience"])
+        assertEquals("comfortable", fields["tech_proficiency"])
+        assertEquals("hau,eng", fields["languages"])
         assertEquals("prefer_not_to_say", user.gender)
         assertEquals("bachelors_degree", user.education)
         assertEquals("3_5_years", user.chwExperience)
         assertEquals("comfortable", user.techProficiency)
         assertEquals("hau,eng", user.languages)
+    }
+
+    @Test
+    fun `changing the name and a demographic field sends both in one request`() {
+        onUiThread { view<TextInputEditText>(R.id.profile_name_edit_text).setText("Grace Hopper") }
+        chooseOption(R.id.profile_education_dropdown, 0)
+
+        val fields = saveWithResponse(200).bodyFields()
+
+        assertEquals("Grace Hopper", fields["name"])
+        assertEquals("no_formal_education", fields["education"])
+        assertEquals(1, mockWebServer.requestCount)
+        assertEquals("Grace Hopper", user.name)
+        assertEquals("no_formal_education", user.education)
+    }
+
+    @Test
+    fun `removing a saved language sends it empty and clears it after success`() {
+        onUiThread { navController.popBackStack() }
+        user.languages = "hau"
+        openEditScreen()
+        onUiThread { languageChips().single().performCloseIconClick() }
+
+        val fields = saveWithResponse(200).bodyFields()
+
+        assertEquals("", fields["languages"])
+        assertNull(user.languages)
+    }
+
+    @Test
+    fun `a failed save keeps the stored demographics and stays on the edit screen`() {
+        chooseOption(R.id.profile_gender_dropdown, 0)
+
+        saveWithResponse(500)
+
+        assertNull(user.gender)
+        assertEquals(R.id.personalid_profile_edit_fragment, currentDestinationId())
+        assertTrue(saveButton().isEnabled)
     }
 
     @Test
@@ -246,8 +314,8 @@ class PersonalIdProfileEditFragmentDemographicsTest : BasePersonalIdProfileTest(
 
         assertEquals(listOf("Hausa"), languageChips().map { it.text.toString() })
         chooseOption(R.id.profile_gender_dropdown, 0)
-        onUiThread { saveButton().performClick() }
 
+        assertEquals("xyz,hau", saveWithResponse(200).bodyFields()["languages"])
         assertEquals("xyz,hau", user.languages)
     }
 
