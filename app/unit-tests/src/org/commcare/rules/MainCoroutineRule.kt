@@ -21,6 +21,7 @@ class MainCoroutineRule(val testDispatcher: TestDispatcher = UnconfinedTestDispa
 
     override fun finished(description: Description) {
         super.finished(description)
+        testDispatcher.scheduler.advanceUntilIdle()
         Dispatchers.resetMain()
     }
 
