@@ -169,7 +169,11 @@ public class FirebaseAuthService implements OtpAuthService {
             return false;
         }
         String message = e.getMessage();
-        return message != null && message.toLowerCase(Locale.ROOT).contains(REGION);
+        boolean regionBlocked = message != null && message.toLowerCase(Locale.ROOT).contains(REGION);
+        if (!regionBlocked) {
+            Logger.exception("Firebase ERROR_OPERATION_NOT_ALLOWED without a region in its message", e);
+        }
+        return regionBlocked;
     }
 
     /**
