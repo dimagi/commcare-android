@@ -12,6 +12,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
 - Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
+- Syncing from a Connect opportunity screen now shows the sync's progress, including how many forms have been sent, and ends with Sync Complete, Sync Failed (with Details) or an "Everything up to date" banner.
 
 ### QA Notes
 
