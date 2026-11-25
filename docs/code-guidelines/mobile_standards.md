@@ -166,7 +166,7 @@ Color resources are organized in three layers, each with a single responsibility
 
 - Code should be well-covered by unit tests to ensure individual components work as expected.
 - Tests should cover edge cases, error scenarios, and critical functionalities.
-- Any feature work should be accompained by [corresponding instrumentation tests]([url](https://developer.android.com/training/testing/instrumented-tests)) in cases where we are not able to verify complete functionality with the help of unit tests.
+- Any feature work should be accompained by [corresponding instrumentation tests](https://developer.android.com/training/testing/instrumented-tests) in cases where we are not able to verify complete functionality with the help of unit tests.
 - Any new unit testing classes should be written in Kotlin and utilize backticks to write test names as natural-language sentences (e.g. "\`ccc_generic_opportunity with session_endpoint_id routes to DispatchActivity\`").
      
 ### Documentation and Comments:
