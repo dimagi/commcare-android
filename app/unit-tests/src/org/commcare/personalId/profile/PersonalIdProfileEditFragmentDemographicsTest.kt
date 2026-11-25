@@ -13,6 +13,7 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputLayout
 import org.commcare.CommCareTestApplication
 import org.commcare.dalvik.R
+import org.commcare.views.BottomSheetListPicker
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -71,36 +72,36 @@ class PersonalIdProfileEditFragmentDemographicsTest : BasePersonalIdProfileTest(
         }
     }
 
-    private fun openLanguagePicker(): PersonalIdLanguagePickerSheet {
+    private fun openLanguagePicker(): BottomSheetListPicker {
         onUiThread { languagesBox().performClick() }
         val sheet =
             fragment.childFragmentManager
-                .findFragmentByTag(PersonalIdLanguagePickerSheet.TAG) as PersonalIdLanguagePickerSheet
+                .findFragmentByTag(PersonalIdProfileEditFragment.LANGUAGE_PICKER_TAG) as BottomSheetListPicker
         onUiThread {
-            sheet.binding.languageList.measure(
+            sheet.binding.pickerList.measure(
                 View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(4000, View.MeasureSpec.EXACTLY),
             )
-            sheet.binding.languageList.layout(0, 0, 1080, 4000)
+            sheet.binding.pickerList.layout(0, 0, 1080, 4000)
         }
         return sheet
     }
 
-    private fun PersonalIdLanguagePickerSheet.visibleRows() =
-        (0 until binding.languageList.childCount).map {
-            binding.languageList.getChildAt(it).findViewById<CheckBox>(R.id.language_checkbox)
+    private fun BottomSheetListPicker.visibleRows() =
+        (0 until binding.pickerList.childCount).map {
+            binding.pickerList.getChildAt(it).findViewById<CheckBox>(R.id.picker_checkbox)
         }
 
     /** The list is filtered on a background thread, so wait until the rows shown match the query. */
-    private fun PersonalIdLanguagePickerSheet.search(query: String) {
-        onUiThread { binding.languageSearch.setText(query) }
+    private fun BottomSheetListPicker.search(query: String) {
+        onUiThread { binding.pickerSearch.setText(query) }
         repeat(MAX_LIST_WAITS) {
             onUiThread {
-                binding.languageList.measure(
+                binding.pickerList.measure(
                     View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(4000, View.MeasureSpec.EXACTLY),
                 )
-                binding.languageList.layout(0, 0, 1080, 4000)
+                binding.pickerList.layout(0, 0, 1080, 4000)
             }
             val rows = visibleRows()
             if (rows.isNotEmpty() &&
@@ -117,13 +118,13 @@ class PersonalIdProfileEditFragmentDemographicsTest : BasePersonalIdProfileTest(
         }
     }
 
-    private fun PersonalIdLanguagePickerSheet.tick(label: String) {
+    private fun BottomSheetListPicker.tick(label: String) {
         val box = visibleRows().first { it.text.toString() == label }
         onUiThread { box.performClick() }
     }
 
-    private fun PersonalIdLanguagePickerSheet.done() {
-        onUiThread { binding.languageDone.performClick() }
+    private fun BottomSheetListPicker.done() {
+        onUiThread { binding.pickerDone.performClick() }
     }
 
     private fun pickLanguage(

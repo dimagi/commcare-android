@@ -35,6 +35,7 @@ import org.commcare.personalId.profile.demographic.Education
 import org.commcare.personalId.profile.demographic.Gender
 import org.commcare.personalId.profile.demographic.PersonalIdLanguages
 import org.commcare.personalId.profile.demographic.TechProficiency
+import org.commcare.views.BottomSheetListPicker
 import org.commcare.views.extensions.onTextChanged
 
 class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
@@ -175,8 +176,8 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
 
         renderLanguages()
         binding.profileInputLanguages.setOnClickListener { showLanguagePicker() }
-        childFragmentManager.setFragmentResultListener(PersonalIdLanguagePickerSheet.REQUEST_KEY, viewLifecycleOwner) { _, result ->
-            val codes = result.getStringArrayList(PersonalIdLanguagePickerSheet.RESULT_CODES).orEmpty()
+        childFragmentManager.setFragmentResultListener(LANGUAGE_PICKER_REQUEST_KEY, viewLifecycleOwner) { _, result ->
+            val codes = result.getStringArrayList(BottomSheetListPicker.RESULT_SELECTED_IDS).orEmpty()
             viewModel.onLanguagesChanged(PersonalIdLanguages.joinCodes(codes))
             renderLanguages()
             refreshFormState()
@@ -222,10 +223,23 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     }
 
     private fun showLanguagePicker() {
-        if (childFragmentManager.findFragmentByTag(PersonalIdLanguagePickerSheet.TAG) != null) return
-        PersonalIdLanguagePickerSheet
-            .newInstance(PersonalIdLanguages.parseCodes(viewModel.currentLanguages))
-            .show(childFragmentManager, PersonalIdLanguagePickerSheet.TAG)
+        if (childFragmentManager.findFragmentByTag(LANGUAGE_PICKER_TAG) != null) return
+        val selectedCodes = PersonalIdLanguages.parseCodes(viewModel.currentLanguages)
+        val languages =
+            PersonalIdLanguages.orderForPicker(
+                PersonalIdLanguages.all(requireContext()),
+                selectedCodes.toSet(),
+                PersonalIdLanguages.deviceLanguageCode(),
+            )
+        BottomSheetListPicker
+            .newInstance(
+                requestKey = LANGUAGE_PICKER_REQUEST_KEY,
+                items = languages.map { BottomSheetListPicker.Item(it.code, it.label) },
+                selectedIds = selectedCodes,
+                title = R.string.personalid_profile_languages_select,
+                searchHint = R.string.personalid_profile_languages_search,
+                doneLabel = R.string.personalid_profile_languages_done,
+            ).show(childFragmentManager, LANGUAGE_PICKER_TAG)
     }
 
     /** Codes no longer in the language list are kept in storage but get no chip, so a save doesn't drop them. */
@@ -380,7 +394,9 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG).show()
     }
 
-    private companion object {
-        const val DATE_OF_BIRTH_PICKER_TAG = "date_of_birth_picker"
+    companion object {
+        private const val DATE_OF_BIRTH_PICKER_TAG = "date_of_birth_picker"
+        const val LANGUAGE_PICKER_TAG = "language_picker"
+        private const val LANGUAGE_PICKER_REQUEST_KEY = "language_picker"
     }
 }
