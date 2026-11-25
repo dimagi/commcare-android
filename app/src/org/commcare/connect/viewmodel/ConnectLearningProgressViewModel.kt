@@ -43,7 +43,9 @@ class ConnectLearningProgressViewModel(
             _claimJob.value = DataState.Success(Unit)
             return
         }
-        claimJobCoroutine?.cancel()
+        if (claimJobCoroutine?.isActive == true) {
+            return
+        }
         claimJobCoroutine =
             collectInto(
                 flow = repository.claimJob(job),

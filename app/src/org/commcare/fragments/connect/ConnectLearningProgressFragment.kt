@@ -120,6 +120,9 @@ class ConnectLearningProgressFragment :
                 ConnectUserDatabaseUtil.getUser().name,
                 { onDeliveryCtaClicked() },
             )
+            if (viewModel.claimJob.value is DataState.Loading) {
+                binding.learnCompleteView.isCtaEnabled = false
+            }
         } else {
             binding.learnProgressView.bind(
                 job,
