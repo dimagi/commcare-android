@@ -1,6 +1,5 @@
 package org.commcare.connect
 
-import android.content.Intent
 import androidx.fragment.app.Fragment
 import io.mockk.every
 import io.mockk.mockk
@@ -8,7 +7,6 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
 import io.mockk.verifyOrder
-import org.commcare.activities.StandardHomeActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.login.LoginError
@@ -29,7 +27,6 @@ class ConnectAppLaunchControllerTest {
     private val listener = mockk<ConnectAppLaunchListener>(relaxed = true)
     private val outcomeCallbacks = mutableListOf<ConnectAppLauncher.OutcomeCallback>()
     private val connectActivity = mockk<ConnectActivity>(relaxed = true)
-    private val opportunityHomeRootIntent = mockk<Intent>(relaxed = true)
 
     private val controller = ConnectAppLaunchController(fragment, listener, launcher)
 
@@ -106,71 +103,44 @@ class ConnectAppLaunchControllerTest {
     }
 
     @Test
-    fun `a new sign-in from opportunity home at the bottom of the task opens app home on top of it`() {
-        val homeIntent = stubLaunchIntents(opportunityHomeAtTaskBottom = true)
+    fun `a new sign-in opens the app in connect`() {
+        stubConnectActivity(menuOpens = true)
 
         controller.launchApp(APP_ID, isLearning = true)
         outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = false))
 
-        verify(exactly = 1) { connectActivity.startActivity(homeIntent) }
-        verify(exactly = 0) { connectActivity.startActivities(any()) }
-    }
-
-    @Test
-    fun `a new sign-in from opportunity home above other screens reopens it beneath app home in a new task`() {
-        val homeIntent = stubLaunchIntents(opportunityHomeAtTaskBottom = false)
-
-        controller.launchApp(APP_ID, isLearning = true)
-        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = false))
-
-        verify(exactly = 1) { connectActivity.startActivities(arrayOf(opportunityHomeRootIntent, homeIntent)) }
+        verifyOrder {
+            connectActivity.onAppLaunched(false)
+            listener.onLaunchSucceeded(true)
+        }
         verify(exactly = 0) { connectActivity.startActivity(any()) }
-    }
-
-    @Test
-    fun `resuming an app already signed in brings its home forward without resetting the task`() {
-        val homeIntent = stubLaunchIntents(opportunityHomeAtTaskBottom = false)
-
-        controller.launchApp(APP_ID, isLearning = true)
-        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = true))
-
-        verify(exactly = 1) { homeIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT) }
-        verify(exactly = 1) { connectActivity.startActivity(homeIntent) }
-        verify(exactly = 0) { connectActivity.startActivities(any()) }
-    }
-
-    @Test
-    fun `resuming an app already signed in from opportunity home above other screens closes that opportunity home`() {
-        stubLaunchIntents(opportunityHomeAtTaskBottom = false)
-
-        controller.launchApp(APP_ID, isLearning = true)
-        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = true))
-
-        verify(exactly = 1) { connectActivity.finish() }
-    }
-
-    @Test
-    fun `resuming an app already signed in from opportunity home at the bottom of the task keeps it open`() {
-        stubLaunchIntents(opportunityHomeAtTaskBottom = true)
-
-        controller.launchApp(APP_ID, isLearning = true)
-        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = true))
-
         verify(exactly = 0) { connectActivity.finish() }
     }
 
-    /** Points the launch at [connectActivity] and returns the App Home intent it will start. */
-    private fun stubLaunchIntents(opportunityHomeAtTaskBottom: Boolean): Intent {
-        val homeIntent = mockk<Intent>(relaxed = true)
-        every { homeIntent.addFlags(any()) } returns homeIntent
+    @Test
+    fun `an app already signed in opens in connect`() {
+        stubConnectActivity(menuOpens = true)
+
+        controller.launchApp(APP_ID, isLearning = false)
+        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = true))
+
+        verify(exactly = 1) { connectActivity.onAppLaunched(true) }
+        verify(exactly = 0) { connectActivity.finish() }
+    }
+
+    @Test
+    fun `the listener hears when a launch check kept the menu closed`() {
+        stubConnectActivity(menuOpens = false)
+
+        controller.launchApp(APP_ID, isLearning = true)
+        outcomeCallbacks.last().onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = false))
+
+        verify(exactly = 1) { listener.onLaunchSucceeded(false) }
+    }
+
+    private fun stubConnectActivity(menuOpens: Boolean) {
         every { fragment.requireActivity() } returns connectActivity
-        every { connectActivity.isOpportunityHomeAtTaskBottom } returns opportunityHomeAtTaskBottom
-        every { connectActivity.activeJob } returns mockk { every { jobUUID } returns JOB_UUID }
-        mockkStatic(StandardHomeActivity::class)
-        every { StandardHomeActivity.buildHomeLaunchIntent(any()) } returns homeIntent
-        mockkStatic(ConnectNavHelper::class)
-        every { ConnectNavHelper.buildOpportunityHomeTaskRootIntent(any(), JOB_UUID) } returns opportunityHomeRootIntent
-        return homeIntent
+        every { connectActivity.onAppLaunched(any()) } returns menuOpens
     }
 
     private fun failLatestLaunch() {
@@ -181,6 +151,5 @@ class ConnectAppLaunchControllerTest {
 
     companion object {
         private const val APP_ID = "app-id"
-        private const val JOB_UUID = "job-uuid"
     }
 }

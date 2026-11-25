@@ -171,7 +171,7 @@ class HomeButtonsTest : BaseHomeScreenActivityTest() {
     }
 
     companion object {
-        /** Matches `StandardHomeActivity.AIRPLANE_MODE_CATEGORY`, which is private. */
+        /** Matches `HomeActionsDelegate.AIRPLANE_MODE_CATEGORY`, which is private. */
         private const val AIRPLANE_MODE_CATEGORY = "airplane-mode"
     }
 }
