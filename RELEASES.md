@@ -13,6 +13,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
 - Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
 
+#### Internal Release Notes
+
+- Upgraded Firebase SDKs (BoM 34.19.0) and kotlinx-coroutines (1.9.0).
+
 ### QA Notes
 
 - On an opportunity with four or more payment units, record a visit on a payment unit lower in the list and sync; confirm it moves to the top of the dashboard progress breakdown, the dashboard cards and the Visits tab, and that payment units with no visits stay at the bottom in their original order.
