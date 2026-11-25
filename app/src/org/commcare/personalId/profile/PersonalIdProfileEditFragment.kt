@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -37,6 +36,7 @@ import org.commcare.personalId.profile.demographic.PersonalIdLanguages
 import org.commcare.personalId.profile.demographic.TechProficiency
 import org.commcare.views.BottomSheetListPicker
 import org.commcare.views.extensions.onTextChanged
+import org.commcare.views.extensions.themeColorStateList
 
 class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     private var _binding: PersonalidProfileEditScreenBinding? = null
@@ -154,8 +154,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     }
 
     private fun bindDemographicFields() {
-        defaultStrokeColor =
-            ContextCompat.getColorStateList(requireContext(), com.google.android.material.R.color.mtrl_outlined_stroke_color)
+        defaultStrokeColor = requireContext().themeColorStateList(R.attr.connectTextFieldOutline)
         bindDropdown(binding.profileGenderDropdown, Gender.entries, viewModel.currentGender, viewModel::onGenderChanged)
         bindDropdown(binding.profileEducationDropdown, Education.entries, viewModel.currentEducation, viewModel::onEducationChanged)
         bindDropdown(
