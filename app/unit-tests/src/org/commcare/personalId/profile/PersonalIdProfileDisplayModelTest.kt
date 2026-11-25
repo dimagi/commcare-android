@@ -4,7 +4,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareApplication
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectUserRecord
-import org.commcare.personalId.demographic.DateOfBirth
+import org.commcare.personalId.profile.demographic.DateOfBirth
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -64,7 +64,7 @@ class PersonalIdProfileDisplayModelTest {
 
         assertEquals("Female", profileDetails.gender)
         assertEquals(listOf("Hausa", "English"), profileDetails.languages)
-        assertEquals(DateOfBirth.forDisplay("1979-11-06"), profileDetails.dateOfBirth)
+        assertEquals(DateOfBirth.formatDate("1979-11-06"), profileDetails.dateOfBirth)
         assertEquals("Bachelors Degree", profileDetails.education)
         assertEquals("3–5 years", profileDetails.chwExperience)
         assertEquals("Comfortable with technology", profileDetails.techProficiency)

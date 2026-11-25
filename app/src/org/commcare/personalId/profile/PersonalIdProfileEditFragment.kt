@@ -17,6 +17,7 @@ import com.google.android.material.datepicker.DateValidatorPointBackward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import org.commcare.activities.CommCareActivity
+import org.commcare.adapters.UnfilteredArrayAdapter
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
@@ -26,14 +27,14 @@ import org.commcare.fragments.personalId.BackupCodeWorkflow
 import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
-import org.commcare.personalId.demographic.ChwExperience
-import org.commcare.personalId.demographic.DateOfBirth
-import org.commcare.personalId.demographic.DemographicOption
-import org.commcare.personalId.demographic.Education
-import org.commcare.personalId.demographic.Gender
-import org.commcare.personalId.demographic.PersonalIdLanguages
-import org.commcare.personalId.demographic.TechProficiency
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
+import org.commcare.personalId.profile.demographic.ChwExperience
+import org.commcare.personalId.profile.demographic.DateOfBirth
+import org.commcare.personalId.profile.demographic.DemographicOption
+import org.commcare.personalId.profile.demographic.Education
+import org.commcare.personalId.profile.demographic.Gender
+import org.commcare.personalId.profile.demographic.PersonalIdLanguages
+import org.commcare.personalId.profile.demographic.TechProficiency
 import org.commcare.views.extensions.onTextChanged
 
 class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
@@ -169,7 +170,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             viewModel::onTechProficiencyChanged,
         )
 
-        binding.profileDateOfBirthEditText.setText(DateOfBirth.forDisplay(viewModel.currentDateOfBirth))
+        binding.profileDateOfBirthEditText.setText(DateOfBirth.formatDate(viewModel.currentDateOfBirth))
         binding.profileDateOfBirthEditText.setOnClickListener { showDateOfBirthPicker() }
 
         renderLanguages()
@@ -212,9 +213,9 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                         .build(),
                 ).build()
         picker.addOnPositiveButtonClickListener { utcMillis ->
-            val date = DateOfBirth.fromPickerSelection(utcMillis)
+            val date = DateOfBirth.fromUtcMillis(utcMillis)
             viewModel.onDateOfBirthChanged(date)
-            _binding?.profileDateOfBirthEditText?.setText(DateOfBirth.forDisplay(date))
+            _binding?.profileDateOfBirthEditText?.setText(DateOfBirth.formatDate(date))
             refreshFormState()
         }
         picker.show(childFragmentManager, DATE_OF_BIRTH_PICKER_TAG)

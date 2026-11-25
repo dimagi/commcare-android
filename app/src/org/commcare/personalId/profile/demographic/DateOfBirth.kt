@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import java.text.DateFormat
 import java.text.ParseException
@@ -17,7 +17,7 @@ import java.util.TimeZone
 object DateOfBirth {
     private const val STORED_PATTERN = "yyyy-MM-dd"
 
-    fun fromPickerSelection(utcMillis: Long): String = storedFormat().format(Date(utcMillis))
+    fun fromUtcMillis(utcMillis: Long): String = storedFormat().format(Date(utcMillis))
 
     fun toUtcMillis(stored: String?): Long? =
         try {
@@ -26,7 +26,7 @@ object DateOfBirth {
             null
         }
 
-    fun forDisplay(
+    fun formatDate(
         stored: String?,
         locale: Locale = Locale.getDefault(),
     ): String? =

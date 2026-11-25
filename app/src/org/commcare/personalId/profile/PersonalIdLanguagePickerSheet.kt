@@ -17,8 +17,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.ItemPersonalidLanguageBinding
 import org.commcare.dalvik.databinding.PersonalidLanguagePickerSheetBinding
-import org.commcare.personalId.demographic.PersonalIdLanguage
-import org.commcare.personalId.demographic.PersonalIdLanguages
+import org.commcare.personalId.profile.demographic.PersonalIdLanguage
+import org.commcare.personalId.profile.demographic.PersonalIdLanguages
 import org.commcare.views.extensions.onTextChanged
 import java.util.Locale
 

@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import android.content.Context
 import org.commcare.dalvik.R
@@ -22,7 +22,7 @@ object PersonalIdLanguages {
     @Volatile
     private var languages: List<PersonalIdLanguage>? = null
 
-    fun all(context: Context): List<PersonalIdLanguage> = languages ?: load(context).also { languages = it }
+    fun all(context: Context): List<PersonalIdLanguage> = languages ?: loadLanguages(context).also { languages = it }
 
     fun parseCodes(stored: String?): List<String> =
         stored
@@ -64,7 +64,7 @@ object PersonalIdLanguages {
             ),
         )
 
-    private fun load(context: Context): List<PersonalIdLanguage> {
+    private fun loadLanguages(context: Context): List<PersonalIdLanguage> {
         val json =
             context.resources
                 .openRawResource(R.raw.personalid_languages)

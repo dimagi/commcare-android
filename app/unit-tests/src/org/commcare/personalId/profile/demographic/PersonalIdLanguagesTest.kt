@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareApplication

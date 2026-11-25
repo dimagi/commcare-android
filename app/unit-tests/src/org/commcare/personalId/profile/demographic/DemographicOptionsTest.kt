@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

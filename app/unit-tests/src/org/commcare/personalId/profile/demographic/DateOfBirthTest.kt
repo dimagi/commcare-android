@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -26,7 +26,7 @@ class DateOfBirthTest {
 
     @Test
     fun `the picked day is stored as an ISO date`() {
-        assertEquals("1979-11-06", DateOfBirth.fromPickerSelection(sixNovember1979Utc))
+        assertEquals("1979-11-06", DateOfBirth.fromUtcMillis(sixNovember1979Utc))
     }
 
     @Test
@@ -39,8 +39,8 @@ class DateOfBirthTest {
         listOf("America/New_York", "Asia/Kolkata", "Pacific/Kiritimati").forEach { zone ->
             TimeZone.setDefault(TimeZone.getTimeZone(zone))
 
-            assertEquals(zone, "1979-11-06", DateOfBirth.fromPickerSelection(sixNovember1979Utc))
-            assertEquals(zone, "6 Nov 1979", DateOfBirth.forDisplay("1979-11-06", Locale.UK))
+            assertEquals(zone, "1979-11-06", DateOfBirth.fromUtcMillis(sixNovember1979Utc))
+            assertEquals(zone, "6 Nov 1979", DateOfBirth.formatDate("1979-11-06", Locale.UK))
         }
     }
 
@@ -48,6 +48,6 @@ class DateOfBirthTest {
     fun `an unset or unreadable date gives nothing`() {
         assertNull(DateOfBirth.toUtcMillis(null))
         assertNull(DateOfBirth.toUtcMillis("6 November"))
-        assertNull(DateOfBirth.forDisplay(null))
+        assertNull(DateOfBirth.formatDate(null))
     }
 }

@@ -1,4 +1,4 @@
-package org.commcare.personalId.profile
+package org.commcare.adapters
 
 import android.content.Context
 import android.widget.ArrayAdapter
