@@ -60,7 +60,7 @@ class HomeActivityCoordinatorTest {
         host.dispatchOnCreate()
         coordinator.launchState.wasExternal = true
 
-        coordinator.onActivityResult(REQUEST_CODE, RESULT_OK, Intent())
+        coordinator.onActivityResult(HomeRequestCodes.PREFERENCES_ACTIVITY, RESULT_OK, Intent())
 
         assertTrue(coordinator.launchState.wasExternal)
         assertFalse(coordinator.launchState.loginExtraWasConsumed)
@@ -118,7 +118,6 @@ class HomeActivityCoordinatorTest {
     }
 
     private companion object {
-        const val REQUEST_CODE = 7
         const val FORM_COMMAND = "m0-f0"
     }
 }

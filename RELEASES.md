@@ -12,6 +12,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
 - Phone verification no longer falls back to PersonalID SMS for a number whose country is blocked for SMS in Firebase. PersonalID signup stops with a message that verification isn't available for that country.
+- Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
 
 ### QA Notes
 
@@ -29,6 +30,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
+- From an opportunity, launch its learn or delivery app: confirm the app's first menu opens without the app home screen, and backing out of it returns to the opportunity screen.
+- After opening the app once, confirm the opportunity screen's ⋮ menu shows Report an Issue, Update App, Change Language, Settings and Advanced, each opening as it did from the app home screen; on another opportunity's screen, or before the app has been opened, those items don't show.
+- Finishing a form returns to the opportunity screen and sends the form; Sync there with unsent forms sends them and then syncs the app.
+- After opening the app, the opportunity screen's sync card shows the app's last sync. Finish a form offline: the card turns amber with "Forms pending: 1" and the action-bar sync icon gets a red dot. Back online, tapping the card sends the form, and the card turns green again with the dot gone.
 - On an opportunity whose budget is fully used, pass the learning assessment with a new user and tap the button to download the delivery app; confirm the error says no more paid visits are available, instead of the generic "Unable to claim" message.
   - On an opportunity whose end date has passed, do the same and confirm the error says the opportunity has ended.
 - With a country on the Firebase SMS region deny list, start PersonalID signup with a number there; confirm a "Process Failed" screen says verification isn't available for this country, no code is sent by PersonalID SMS, and OK closes PersonalID.
