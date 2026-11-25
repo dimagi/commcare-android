@@ -29,8 +29,11 @@ Tech documentation for this repo is organized by Gradle submodule and, within th
 When planning or writing a spec for a new feature, consult [`docs/common-edge-cases.md`](docs/common-edge-cases.md) and address every category that applies, so recurring edge cases are designed for up front rather than discovered in review or QA.
 
 ## Code Quality Standards
-- [General code standards](https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md)
-- [Exception Handling Guidelines](https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md)
+Follow the guidelines in [`docs/code-guidelines/`](docs/code-guidelines/):
+- [General code standards](docs/code-guidelines/mobile_standards.md)
+- [Exception handling](docs/code-guidelines/mobile_exception_handling.md)
+- [Storage standards](docs/code-guidelines/mobile_storage_standards.md)
+- [PR review norms](docs/code-guidelines/mobile_pr_review_norms.md)
 - Write testable code
 - Don't be verbose but be detail oriented (i.e. ensure correctness without writing unnecessary code)
 - Any new classes should be written in Kotlin
