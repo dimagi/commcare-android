@@ -177,8 +177,10 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         renderLanguages()
         binding.profileInputLanguages.setOnClickListener { showLanguagePicker() }
         childFragmentManager.setFragmentResultListener(LANGUAGE_PICKER_REQUEST_KEY, viewLifecycleOwner) { _, result ->
-            val codes = result.getStringArrayList(BottomSheetListPicker.RESULT_SELECTED_IDS).orEmpty()
-            viewModel.onLanguagesChanged(PersonalIdLanguages.joinCodes(codes))
+            val picked = result.getStringArrayList(BottomSheetListPicker.RESULT_SELECTED_IDS).orEmpty()
+            val stored = PersonalIdLanguages.parseCodes(viewModel.currentLanguages)
+            val ordered = stored.filter { it in picked } + picked.filter { it !in stored }
+            viewModel.onLanguagesChanged(PersonalIdLanguages.joinCodes(ordered))
             renderLanguages()
             refreshFormState()
         }

@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.fragments.personalId.EmailHelper
+import org.commcare.personalId.profile.demographic.PersonalIdLanguages
 import org.commcare.utils.CommCareAttemptCounter
 
 /**
@@ -66,7 +67,7 @@ class PersonalIdProfileEditViewModel(
     fun isDemographicsModified(): Boolean =
         currentGender != user.gender ||
             currentDateOfBirth != user.dateOfBirth ||
-            currentLanguages != user.languages ||
+            PersonalIdLanguages.parseCodes(currentLanguages).toSet() != PersonalIdLanguages.parseCodes(user.languages).toSet() ||
             currentEducation != user.education ||
             currentChwExperience != user.chwExperience ||
             currentTechProficiency != user.techProficiency
