@@ -171,9 +171,8 @@ Color resources are organized in three layers, each with a single responsibility
      
 ### Documentation and Comments:
 
-- Code should be adequately documented using appropriate comments, especially for complex algorithms, business logic, or non-obvious functionalities.
-- Code should follow JavaDoc or KDoc standards for documenting classes, methods, and parameters.
-- Comments should be used sparingly and effectively, providing insights into code logic or reasoning where necessary.
+- Use in-code comments only to explain a non-obvious *why*; never narrate what the code plainly does.
+- Classes should have a short KDoc or JavaDoc stating their purpose.
 - Redundant or outdated comments should be avoided as that can lead to confusion.
 
 

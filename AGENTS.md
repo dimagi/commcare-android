@@ -10,7 +10,7 @@
 ## Concision (applies to all writing)
 Commits, PR descriptions, code comments, and documentation default to concise and high-level, and never restate what is already clear from reading the code.
 - Commit and PR bodies: convey the *why* and the shape of the change, not a walkthrough of the diff.
-- Code comments: reserve for non-obvious *why*; never narrate what the code plainly does.
+- Code comments: reserve for non-obvious *why*; never narrate what the code plainly does. Class-level KDoc/JavaDoc is the exception.
 - Documentation: prefer one high-level sentence over a paragraph; touch only the lines a change affects.
 
 ## Project Documentation
@@ -43,7 +43,6 @@ Follow the guidelines in [`docs/code-guidelines/`](docs/code-guidelines/):
 - Before creating a new resource (layout, drawable, image, icon, color, style, etc.), search all modules for an existing one that matches or can be reused, to avoid duplicates
 - In XML layouts, strictly use existing dimension and style resources instead of hardcoded values, and use theme color roles (`?attr/...`) instead of raw `@color/` or hex colors; if no suitable resource or role exists, flag it rather than hardcoding one
 - Write user-facing English strings in British English, "-ise" form (e.g. "cancelled", "initialise", "centre", "aeroplane mode")
-- Do not add any in-code comments unless explicitly requested.
 
 ## Testing
 
