@@ -726,6 +726,19 @@ License.
     <string name="connect_sync_failed">सिंक विफल, अंतिम सिंक: %s</string>
     <string name="connect_sync_card_press_to_sync">सिंक करने के लिए यहां क्लिक करें</string>
     <string name="connect_sync_card_forms_pending">लंबित फ़ॉर्म: %d</string>
+    <string name="connect_sync_dialog_waiting_title">प्रतीक्षा कर रहे हैं…</string>
+    <string name="connect_sync_dialog_in_progress_title">सिंक जारी है</string>
+    <string name="connect_sync_dialog_forms_progress">%2$d में से %1$d फ़ॉर्म सिंक हुए</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">%d फ़ॉर्म अपडेट होकर सर्वर पर भेजा गया।</item>
+        <item quantity="other">%d फ़ॉर्म अपडेट होकर सर्वर पर भेजे गए।</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">सिंक पूरा हुआ</string>
+    <string name="connect_sync_dialog_failed_title">सिंक विफल!</string>
+    <string name="connect_sync_dialog_failed_message">हम अभी आपका डेटा सर्वर से सिंक नहीं कर पा रहे हैं। कृपया ऑनलाइन होने पर फिर से प्रयास करें।</string>
+    <string name="connect_sync_dialog_details">विवरण</string>
+    <string name="connect_sync_dialog_dismiss">खारिज करें</string>
+    <string name="connect_sync_up_to_date">सब कुछ अपडेट है।</string>
     <string name="connect_offline">ऑफ़लाइन</string>
     <string name="connect_back_online">वापस ऑनलाइन</string>
     <string name="connect_never">कभी नहीं</string>

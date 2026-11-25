@@ -9,6 +9,7 @@ import org.commcare.AppUtils
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.android.database.connect.models.ConnectJobRecord
 import org.commcare.connect.ConnectOpportunityNavigator
+import org.commcare.connect.ConnectSyncBannerHost
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.database.ConnectUserDatabaseUtil
@@ -29,7 +30,8 @@ import java.util.Date
 
 class ConnectLearningProgressFragment :
     ConnectJobFragment<FragmentConnectLearningProgressBinding>(),
-    RefreshableFragment {
+    RefreshableFragment,
+    ConnectSyncBannerHost {
     private lateinit var viewModel: ConnectLearningProgressViewModel
     private val appSyncStatus by lazy { ConnectAppSyncStatusViewModel.of(requireActivity()) }
 
@@ -96,6 +98,18 @@ class ConnectLearningProgressFragment :
     /** Read back from storage, since a refresh may have replaced the job instance the claim updated. */
     private fun publishClaimedJob() {
         setActiveJob(ConnectJobUtils.getCompositeJob(job.jobUUID))
+    }
+
+    override fun showSyncUpToDate(message: String): Boolean {
+        if (!hasLiveView()) {
+            return false
+        }
+        if (showLearningComplete) {
+            binding.learnCompleteView.showSyncUpToDate(message)
+        } else {
+            binding.learnProgressView.showSyncUpToDate(message)
+        }
+        return true
     }
 
     /** Which of this screen's two views is showing: the completion summary, or learning still in progress. */

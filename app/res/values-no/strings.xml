@@ -340,6 +340,19 @@
     <string name="connect_sync_failed">Synkronisering mislyktes, sist synkronisert: %s</string>
     <string name="connect_sync_card_press_to_sync">Klikk her for å synkronisere</string>
     <string name="connect_sync_card_forms_pending">Skjemaer som venter: %d</string>
+    <string name="connect_sync_dialog_waiting_title">Venter…</string>
+    <string name="connect_sync_dialog_in_progress_title">Synkronisering pågår</string>
+    <string name="connect_sync_dialog_forms_progress">%1$d av %2$d skjemaer synkronisert</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">%d skjema oppdatert og sendt til serveren.</item>
+        <item quantity="other">%d skjemaer oppdatert og sendt til serveren.</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">Synkronisering fullført</string>
+    <string name="connect_sync_dialog_failed_title">Synkronisering mislyktes!</string>
+    <string name="connect_sync_dialog_failed_message">Vi kan ikke synkronisere dataene dine med serveren akkurat nå. Prøv igjen når du er tilkoblet igjen.</string>
+    <string name="connect_sync_dialog_details">Detaljer</string>
+    <string name="connect_sync_dialog_dismiss">Avvis</string>
+    <string name="connect_sync_up_to_date">Alt er oppdatert.</string>
     <string name="connect_offline">Frakoblet</string>
     <string name="connect_back_online">Tilbake på nett</string>
     <string name="connect_never">Aldri</string>

@@ -730,6 +730,19 @@
     <string name="connect_sync_failed">Sincronización fallida, última sincronización: %s</string>
     <string name="connect_sync_card_press_to_sync">Haga clic aquí para sincronizar</string>
     <string name="connect_sync_card_forms_pending">Formularios pendientes: %d</string>
+    <string name="connect_sync_dialog_waiting_title">Esperando…</string>
+    <string name="connect_sync_dialog_in_progress_title">Sincronización en curso</string>
+    <string name="connect_sync_dialog_forms_progress">%1$d de %2$d formularios sincronizados</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">%d formulario actualizado y enviado al servidor.</item>
+        <item quantity="other">%d formularios actualizados y enviados al servidor.</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">Sincronización completa</string>
+    <string name="connect_sync_dialog_failed_title">¡Sincronización fallida!</string>
+    <string name="connect_sync_dialog_failed_message">No podemos sincronizar sus datos con el servidor en este momento. Inténtelo de nuevo cuando vuelva a estar en línea.</string>
+    <string name="connect_sync_dialog_details">Detalles</string>
+    <string name="connect_sync_dialog_dismiss">Descartar</string>
+    <string name="connect_sync_up_to_date">Todo está actualizado.</string>
     <string name="connect_offline">Sin conexión</string>
     <string name="connect_back_online">De vuelta en línea</string>
     <string name="connect_never">Nunca</string>

@@ -729,6 +729,19 @@ License.
     <string name="connect_sync_failed">Échec de synchronisation, dernière synchronisation : %s</string>
     <string name="connect_sync_card_press_to_sync">Cliquez ici pour synchroniser</string>
     <string name="connect_sync_card_forms_pending">Formulaires en attente : %d</string>
+    <string name="connect_sync_dialog_waiting_title">En attente…</string>
+    <string name="connect_sync_dialog_in_progress_title">Synchronisation en cours</string>
+    <string name="connect_sync_dialog_forms_progress">%1$d sur %2$d formulaires synchronisés</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">%d formulaire mis à jour et envoyé au serveur.</item>
+        <item quantity="other">%d formulaires mis à jour et envoyés au serveur.</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">Synchronisation terminée</string>
+    <string name="connect_sync_dialog_failed_title">Échec de synchronisation !</string>
+    <string name="connect_sync_dialog_failed_message">Nous ne pouvons pas synchroniser vos données avec le serveur pour le moment. Veuillez réessayer lorsque vous serez de nouveau en ligne.</string>
+    <string name="connect_sync_dialog_details">Détails</string>
+    <string name="connect_sync_dialog_dismiss">Ignorer</string>
+    <string name="connect_sync_up_to_date">Tout est à jour.</string>
     <string name="connect_offline">Hors ligne</string>
     <string name="connect_back_online">De retour en ligne</string>
     <string name="connect_never">Jamais</string>

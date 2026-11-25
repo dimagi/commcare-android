@@ -531,6 +531,20 @@
     <string name="connect_sync_failed">Sync Failed, last synced: %s</string>
     <string name="connect_sync_card_press_to_sync">Press here to sync</string>
     <string name="connect_sync_card_forms_pending">Forms pending: %d</string>
+    <string name="connect_sync_dialog_waiting_title">Waiting…</string>
+    <string name="connect_sync_dialog_in_progress_title">Sync in Progress</string>
+    <string name="connect_sync_dialog_forms_progress">%1$d of %2$d forms synced</string>
+    <string name="connect_sync_dialog_percent" translatable="false">%d%%</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">%d form updated and sent to server.</item>
+        <item quantity="other">%d forms updated and sent to server.</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">Sync Complete</string>
+    <string name="connect_sync_dialog_failed_title">Sync Failed!</string>
+    <string name="connect_sync_dialog_failed_message">We cannot sync your data to the server right now. Please try again when you are back online.</string>
+    <string name="connect_sync_dialog_details">Details</string>
+    <string name="connect_sync_dialog_dismiss">Dismiss</string>
+    <string name="connect_sync_up_to_date">Everything up to date.</string>
     <string name="connect_app_launch_dialog_title">Launching App</string>
     <string name="connect_app_launch_dialog_seating_message">Loading your app…</string>
     <string name="connect_app_launch_dialog_signing_in_message">Logging in…</string>

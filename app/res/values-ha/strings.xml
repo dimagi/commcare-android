@@ -724,6 +724,19 @@ Don cikakken aiki na wurin zama na aikace-aikace da yawa, da fatan za a yi sabon
     <string name="connect_sync_failed">Daidaitawa ta kasa, aiki na ƙarshe: %s</string>
     <string name="connect_sync_card_press_to_sync">Danna nan don daidaitawa</string>
     <string name="connect_sync_card_forms_pending">Fom da ke jiran aikawa: %d</string>
+    <string name="connect_sync_dialog_waiting_title">Ana jira…</string>
+    <string name="connect_sync_dialog_in_progress_title">Ana daidaitawa</string>
+    <string name="connect_sync_dialog_forms_progress">An daidaita fom %1$d daga cikin %2$d</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">An sabunta fom %d kuma an aika zuwa sabar.</item>
+        <item quantity="other">An sabunta fom %d kuma an aika zuwa sabar.</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">An kammala daidaitawa</string>
+    <string name="connect_sync_dialog_failed_title">Daidaitawa ta kasa!</string>
+    <string name="connect_sync_dialog_failed_message">Ba za mu iya daidaita bayananku da sabar a yanzu ba. Da fatan za a sake gwadawa idan kun dawo kan intanet.</string>
+    <string name="connect_sync_dialog_details">Cikakkun bayanai</string>
+    <string name="connect_sync_dialog_dismiss">Korar</string>
+    <string name="connect_sync_up_to_date">Komai ya sabunta.</string>
     <string name="connect_offline">Babu haɗi</string>
     <string name="connect_back_online">An Sake Haɗawa</string>
     <string name="connect_never">Ba taɓa</string>

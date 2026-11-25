@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_dialog_bg"
+    android:padding="@dimen/connect_space_xl"
+    tools:theme="@style/ConnectTheme">
+
+    <ImageView
+        android:id="@+id/sync_result_icon"
+        android:layout_width="@dimen/connect_space_xl"
+        android:layout_height="@dimen/connect_space_xl"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/ic_alert_circle_24" />
+
+    <TextView
+        android:id="@+id/sync_result_title"
+        style="@style/TextStyle.Connect.TitleM"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_md"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sync_result_icon"
+        tools:text="@string/connect_sync_dialog_failed_title" />
+
+    <TextView
+        android:id="@+id/sync_result_message"
+        style="@style/TextStyle.Connect.BodyS"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_sm"
+        android:textColor="?attr/connectOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sync_result_title"
+        tools:text="@string/connect_sync_dialog_failed_message" />
+
+    <TextView
+        android:id="@+id/sync_result_details"
+        style="@style/TextStyle.Connect.BodyS"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_sm"
+        android:background="?attr/connectSurfaceContainerLow"
+        android:padding="@dimen/connect_space_sm"
+        android:textColor="?attr/colorOnSurface"
+        android:textIsSelectable="true"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sync_result_message"
+        tools:text="Could not reach the server."
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/connect_space_lg"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sync_result_details">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sync_result_details_button"
+            style="@style/Widget.CommCare.Button.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:paddingHorizontal="@dimen/connect_space_lg"
+            android:paddingTop="@dimen/connect_space_sm"
+            android:paddingBottom="@dimen/connect_space_sm"
+            android:text="@string/connect_sync_dialog_details"
+            android:visibility="gone"
+            app:cornerRadius="@dimen/connect_radius_pill"
+            tools:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sync_result_dismiss"
+            style="@style/Widget.Connect.CtaBarButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/connect_space_sm"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minHeight="0dp"
+            android:paddingHorizontal="@dimen/connect_space_lg"
+            android:paddingTop="@dimen/connect_space_sm"
+            android:paddingBottom="@dimen/connect_space_sm"
+            android:text="@string/connect_sync_dialog_dismiss"
+            app:cornerRadius="@dimen/connect_radius_pill" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

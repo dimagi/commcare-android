@@ -718,6 +718,19 @@
     <string name="connect_sync_failed">ምስንኻል ኣይሰለጠን, ናይ መወዳእታ ምስንኻል: %s</string>
     <string name="connect_sync_card_press_to_sync">ንምስንኻል ኣብዚ ጠውቑ</string>
     <string name="connect_sync_card_forms_pending">ዝጽበዩ ፎርማት: %d</string>
+    <string name="connect_sync_dialog_waiting_title">ይጽበ ኣሎ…</string>
+    <string name="connect_sync_dialog_in_progress_title">ምስንኻል ይካየድ ኣሎ</string>
+    <string name="connect_sync_dialog_forms_progress">%1$d ካብ %2$d ፎርማት ተሰንኺሎም</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">%d ፎርም ተሓዲሱ ናብ ሰርቨር ተላኢኹ።</item>
+        <item quantity="other">%d ፎርማት ተሓዲሶም ናብ ሰርቨር ተላኢኾም።</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">ምስንኻል ተዛዚሙ</string>
+    <string name="connect_sync_dialog_failed_title">ምስንኻል ኣይሰለጠን!</string>
+    <string name="connect_sync_dialog_failed_message">ሕጂ ዳታኹም ምስ ሰርቨር ክንሰንኽሎ ኣይንኽእልን ኢና። በጃኹም ኦንላይን ምስ ተመለስኩም እንደገና ፈትኑ።</string>
+    <string name="connect_sync_dialog_details">ዝርዝር</string>
+    <string name="connect_sync_dialog_dismiss">ኣወግድ</string>
+    <string name="connect_sync_up_to_date">ኩሉ ዘመናዊ እዩ።</string>
     <string name="connect_offline">ኦፍላይን</string>
     <string name="connect_back_online">ናብ ኦንላይን ተመሊሱ</string>
     <string name="connect_never">ፈጺሙ</string>
