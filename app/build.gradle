@@ -44,7 +44,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
     testImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     testImplementation "androidx.test.espresso:espresso-intents:$espresso_version"
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test'
     testImplementation 'io.mockk:mockk:1.12.7'
     testImplementation 'org.json:json:20260814'
     testImplementation 'org.mockito:mockito-core:5.5.0'
@@ -124,6 +124,7 @@ dependencies {
     }
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view-androidx:3.10.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutines_version")
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
