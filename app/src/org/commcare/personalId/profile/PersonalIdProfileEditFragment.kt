@@ -172,6 +172,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
 
         binding.profileDateOfBirthEditText.setText(DateOfBirth.formatDate(viewModel.currentDateOfBirth))
         binding.profileDateOfBirthEditText.setOnClickListener { showDateOfBirthPicker() }
+        existingDateOfBirthPicker()?.let { attachDateOfBirthListener(it) }
 
         renderLanguages()
         binding.profileInputLanguages.setOnClickListener { showLanguagePicker() }
@@ -199,6 +200,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     }
 
     private fun showDateOfBirthPicker() {
+        if (existingDateOfBirthPicker() != null) return
         val today = MaterialDatePicker.todayInUtcMilliseconds()
         val picker =
             MaterialDatePicker.Builder
@@ -212,13 +214,23 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                         .setValidator(DateValidatorPointBackward.before(today))
                         .build(),
                 ).build()
-        picker.addOnPositiveButtonClickListener { utcMillis ->
-            val date = DateOfBirth.fromUtcMillis(utcMillis)
-            viewModel.onDateOfBirthChanged(date)
-            _binding?.profileDateOfBirthEditText?.setText(DateOfBirth.formatDate(date))
-            refreshFormState()
-        }
+        attachDateOfBirthListener(picker)
         picker.show(childFragmentManager, DATE_OF_BIRTH_PICKER_TAG)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun existingDateOfBirthPicker() = childFragmentManager.findFragmentByTag(DATE_OF_BIRTH_PICKER_TAG) as? MaterialDatePicker<Long>
+
+    private fun attachDateOfBirthListener(picker: MaterialDatePicker<Long>) {
+        picker.clearOnPositiveButtonClickListeners()
+        picker.addOnPositiveButtonClickListener { utcMillis -> onDateOfBirthPicked(utcMillis) }
+    }
+
+    private fun onDateOfBirthPicked(utcMillis: Long) {
+        val date = DateOfBirth.fromUtcMillis(utcMillis)
+        viewModel.onDateOfBirthChanged(date)
+        _binding?.profileDateOfBirthEditText?.setText(DateOfBirth.formatDate(date))
+        refreshFormState()
     }
 
     private fun showLanguagePicker() {
