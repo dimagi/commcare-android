@@ -1,6 +1,8 @@
 package org.commcare.views.widgets
 
+import android.app.NotificationManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -9,6 +11,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.util.TestAppInstaller
+import org.commcare.dalvik.R
+import org.commcare.utils.NotificationIdentifiers.RECORDING_NOTIFICATION_ID
+import org.commcare.utils.StringUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -84,16 +89,29 @@ class RecordingFragmentRecreationTest {
             savedPath = result.getString(RecordingFragment.RESULT_AUDIO_FILE_PATH_KEY)
         }
 
-        // Pressing Save on the recording notification
-        service.onStartCommand(
-            Intent(activity, AudioRecordingService::class.java)
-                .setAction(AudioRecordingService.ACTION_SAVE_RECORDING),
-            0,
-            0,
-        )
+        service.onStartCommand(saveIntentFromNotification(), 0, 0)
         ShadowLooper.idleMainLooper()
 
         assertEquals(recordingFilePath, savedPath)
+    }
+
+    /**
+     * The intent the Save button on the posted recording notification would send, so the test fails
+     * if the notification stops offering Save.
+     */
+    private fun saveIntentFromNotification(): Intent {
+        val context = ApplicationProvider.getApplicationContext<CommCareTestApplication>()
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notification = shadowOf(notificationManager).getNotification(RECORDING_NOTIFICATION_ID)
+        assertNotNull("No recording notification was posted", notification)
+
+        val saveLabel = StringUtils.getStringRobust(context, R.string.recording_notification_save_action)
+        val saveAction = notification.actions.orEmpty().singleOrNull { it.title == saveLabel }
+        assertNotNull("The recording notification has no Save action", saveAction)
+
+        val pendingIntent = shadowOf(saveAction!!.actionIntent)
+        assertTrue(pendingIntent.isServiceIntent)
+        return pendingIntent.savedIntent
     }
 
     private fun showRecordingDialog(): ActivityController<FragmentActivity> {
