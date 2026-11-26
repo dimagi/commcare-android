@@ -3,6 +3,7 @@ package org.commcare.utils;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 
+import com.google.firebase.crashlytics.CustomKeysAndValues;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
@@ -22,6 +23,12 @@ public class CrashUtil {
     public static void reportException(Throwable e) {
         if (crashlyticsEnabled) {
             FirebaseCrashlytics.getInstance().recordException(e);
+        }
+    }
+
+    public static void reportException(Throwable e, CustomKeysAndValues keys) {
+        if (crashlyticsEnabled) {
+            FirebaseCrashlytics.getInstance().recordException(e, keys);
         }
     }
 

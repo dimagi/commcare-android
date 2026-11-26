@@ -1,5 +1,7 @@
 package org.commcare.logging;
 
+import com.google.firebase.crashlytics.CustomKeysAndValues;
+
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.CrashUtil;
@@ -11,6 +13,7 @@ import org.javarosa.core.log.StreamLogSerializer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Logging engine for CommCare ODK Environments.
@@ -86,5 +89,14 @@ public class AndroidLogger implements ILogger {
     @Override
     public void logException(Throwable e) {
         CrashUtil.reportException(e);
+    }
+
+    @Override
+    public void logException(Throwable e, Map<String, String> keys) {
+        CustomKeysAndValues.Builder builder = new CustomKeysAndValues.Builder();
+        for (Map.Entry<String, String> key : keys.entrySet()) {
+            builder.putString(key.getKey(), key.getValue());
+        }
+        CrashUtil.reportException(e, builder.build());
     }
 }

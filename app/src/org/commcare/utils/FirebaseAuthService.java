@@ -13,6 +13,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -31,6 +32,10 @@ public class FirebaseAuthService implements OtpAuthService {
     private static final String ERROR_SESSION_EXPIRED = "ERROR_SESSION_EXPIRED";
     private static final String ERROR_OPERATION_NOT_ALLOWED = "ERROR_OPERATION_NOT_ALLOWED";
     private static final String REGION = "region";
+    private static final String REGION_BLOCK_UNDETECTED_MESSAGE =
+            "Firebase ERROR_OPERATION_NOT_ALLOWED without a region in its message";
+    private static final String SEVERITY_KEY = "severity";
+    private static final String SEVERITY_CRITICAL = "critical";
     @VisibleForTesting
     static final String ERROR_NO_VERIFICATION_ID = "NO_VERIFICATION_ID";
     @VisibleForTesting
@@ -171,7 +176,9 @@ public class FirebaseAuthService implements OtpAuthService {
         String message = e.getMessage();
         boolean regionBlocked = message != null && message.toLowerCase(Locale.ROOT).contains(REGION);
         if (!regionBlocked) {
-            Logger.exception("Firebase ERROR_OPERATION_NOT_ALLOWED without a region in its message", e);
+            Logger.exception(REGION_BLOCK_UNDETECTED_MESSAGE,
+                    new RegionBlockDetectionException(REGION_BLOCK_UNDETECTED_MESSAGE, e),
+                    Collections.singletonMap(SEVERITY_KEY, SEVERITY_CRITICAL));
         }
         return regionBlocked;
     }
