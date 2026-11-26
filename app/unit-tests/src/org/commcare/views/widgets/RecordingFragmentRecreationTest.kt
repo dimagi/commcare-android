@@ -13,13 +13,16 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
+import java.io.File
 
 /**
  * A configuration change rebuilds the recording dialog while the service keeps recording. The rebuilt
@@ -29,10 +32,18 @@ import org.robolectric.shadows.ShadowLooper
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.N])
 @RunWith(AndroidJUnit4::class)
 class RecordingFragmentRecreationTest {
+    @get:Rule
+    val tempFolder = TemporaryFolder()
+
     private lateinit var service: AudioRecordingService
+
+    // Doesn't exist yet, so the dialog starts a new recording at this path rather than reloading one
+    private lateinit var recordingFilePath: String
 
     @Before
     fun setUp() {
+        recordingFilePath = File(tempFolder.root, "recording.mp3").absolutePath
+
         // The dialog extends the user session once it binds, so it needs a logged-in user
         TestAppInstaller.installAppAndLogin(TEST_APP_PATH, TEST_USER, TEST_PASSWORD)
 
@@ -82,7 +93,7 @@ class RecordingFragmentRecreationTest {
         )
         ShadowLooper.idleMainLooper()
 
-        assertEquals(RECORDING_FILE_NAME, savedPath)
+        assertEquals(recordingFilePath, savedPath)
     }
 
     private fun showRecordingDialog(): ActivityController<FragmentActivity> {
@@ -91,7 +102,7 @@ class RecordingFragmentRecreationTest {
             .apply {
                 arguments =
                     Bundle().apply {
-                        putString(RecordingFragment.AUDIO_FILE_PATH_ARG_KEY, RECORDING_FILE_NAME)
+                        putString(RecordingFragment.AUDIO_FILE_PATH_ARG_KEY, recordingFilePath)
                         putString(RecordingFragment.RESULT_REQUEST_KEY_ARG_KEY, RESULT_KEY)
                     }
             }.show(controller.get().supportFragmentManager, FRAGMENT_TAG)
@@ -111,7 +122,7 @@ class RecordingFragmentRecreationTest {
 
     private fun startIntent() =
         Intent(ApplicationProvider.getApplicationContext(), AudioRecordingService::class.java)
-            .putExtra(AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY, RECORDING_FILE_NAME)
+            .putExtra(AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY, recordingFilePath)
 
     companion object {
         private const val TEST_APP_PATH = "jr://resource/commcare-apps/form_nav_tests/profile.ccpr"
@@ -119,8 +130,5 @@ class RecordingFragmentRecreationTest {
         private const val TEST_PASSWORD = "123"
         private const val FRAGMENT_TAG = "recorder"
         private const val RESULT_KEY = "recording-result"
-
-        // Doesn't exist, so the dialog starts a new recording at this path rather than reloading one
-        private const val RECORDING_FILE_NAME = "/tmp/recording-fragment-recreation-test.mp3"
     }
 }
