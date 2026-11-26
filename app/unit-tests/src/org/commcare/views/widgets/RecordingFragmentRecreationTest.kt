@@ -42,7 +42,7 @@ class RecordingFragmentRecreationTest {
 
     private lateinit var service: AudioRecordingService
 
-    // Doesn't exist yet, so the dialog starts a new recording at this path rather than reloading one
+    // Doesn't exist when the dialog opens, so it starts a new recording at this path rather than reloading one
     private lateinit var recordingFilePath: String
 
     @Before
@@ -66,15 +66,35 @@ class RecordingFragmentRecreationTest {
     }
 
     @Test
-    fun `a dialog recreated mid-recording does not start a second recording`() {
+    fun `a dialog recreated mid-recording binds again to the running service`() {
         val controller = showRecordingDialog()
-        assertTrue(drainNewRecordingIntents() > 0)
+        val app = shadowOf(ApplicationProvider.getApplicationContext<CommCareTestApplication>())
+        val originalConnections = app.boundServiceConnections.toSet()
+        assertEquals(1, originalConnections.size)
+        drainStartedServices()
 
         controller.recreate()
         ShadowLooper.idleMainLooper()
 
         assertNotNull(controller.get().supportFragmentManager.findFragmentByTag(FRAGMENT_TAG))
-        assertEquals(0, drainNewRecordingIntents())
+        assertTrue(app.unboundServiceConnections.containsAll(originalConnections))
+        val newConnections = app.boundServiceConnections - originalConnections
+        assertEquals(1, newConnections.size)
+        // setUp maps this component to the fixture service, so this bind reaches the running recording
+        val serviceComponent =
+            ComponentName(ApplicationProvider.getApplicationContext(), AudioRecordingService::class.java)
+        assertTrue(drainStartedServices().any { it.component == serviceComponent })
+    }
+
+    @Test
+    fun `a dialog recreated mid-recording does not start a second recording`() {
+        val controller = showRecordingDialog()
+        assertTrue(drainStartedServices().any(::startsNewRecording))
+
+        controller.recreate()
+        ShadowLooper.idleMainLooper()
+
+        assertTrue(drainStartedServices().none(::startsNewRecording))
     }
 
     @Test
@@ -125,18 +145,21 @@ class RecordingFragmentRecreationTest {
                     }
             }.show(controller.get().supportFragmentManager, FRAGMENT_TAG)
         ShadowLooper.idleMainLooper()
+
+        // A real recorder has been writing to the file by now; Robolectric's doesn't, so leave the
+        // partial file it would have produced. A recreated dialog must not mistake it for a saved one.
+        File(recordingFilePath).writeBytes(byteArrayOf(0))
         return controller
     }
 
-    /**
-     * Robolectric records bind intents alongside start intents. Starting a new recording sends the file
-     * name with both its start and its bind; rebinding to a running recording sends neither.
-     */
-    private fun drainNewRecordingIntents(): Int {
+    /** Robolectric records bind intents alongside start intents. */
+    private fun drainStartedServices(): List<Intent> {
         val app = shadowOf(ApplicationProvider.getApplicationContext<CommCareTestApplication>())
-        return generateSequence { app.nextStartedService }
-            .count { it.hasExtra(AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY) }
+        return generateSequence { app.nextStartedService }.toList()
     }
+
+    /** Starting a new recording sends the file name with both its start and its bind; a rebind sends neither. */
+    private fun startsNewRecording(intent: Intent) = intent.hasExtra(AudioRecordingService.RECORDING_FILENAME_EXTRA_KEY)
 
     private fun startIntent() =
         Intent(ApplicationProvider.getApplicationContext(), AudioRecordingService::class.java)
