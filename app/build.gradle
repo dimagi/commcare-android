@@ -71,6 +71,7 @@ dependencies {
     // release build type expects commcare jars to be in app/libs
     implementation(project(':commcare-core')) {
         exclude module: 'xpp3'
+        exclude group: 'org.json', module: 'json'
     }
 
     implementation project(':commcare-support-library')
