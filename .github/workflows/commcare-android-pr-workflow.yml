@@ -265,3 +265,9 @@ jobs:
           BROWSERSTACK_DEVICES: "Samsung Galaxy S20-10.0"
           PR_NUMBER: ${{ github.event.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Runs last in a required check so a PR can't merge while unit tests are skipped.
+      - name: Block merge while skip-unit-tests label is set
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
+        run: |
+          echo "::error::Unit tests were skipped. Remove the skip-unit-tests label to run them before merging."
+          exit 1
