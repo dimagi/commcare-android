@@ -27,6 +27,8 @@ jobs:
     # setup-python has no Python 3.9 build for Ubuntu 26.04.
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    env:
+      SKIP_UNIT_TESTS: ${{ contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
     permissions:
       contents: read
       pull-requests: write
@@ -96,7 +98,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run Tests
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
+        if: ${{ env.SKIP_UNIT_TESTS != 'true' }}
         run: ./gradlew testCommcareDebug
         working-directory: commcare-android
       - name: Upload unit test report
@@ -108,19 +110,19 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Generate JaCoCo Report
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
+        if: ${{ env.SKIP_UNIT_TESTS != 'true' }}
         continue-on-error: true
         run: ./gradlew jacocoTestReport
         working-directory: commcare-android
       - name: Upload JaCoCo Report
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
+        if: ${{ env.SKIP_UNIT_TESTS != 'true' }}
         continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports/jacoco
       - name: Upload coverage to Codecov
-        if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
+        if: ${{ github.event_name == 'pull_request' && env.SKIP_UNIT_TESTS != 'true' }}
         continue-on-error: true
         uses: codecov/codecov-action@v5
         with:
