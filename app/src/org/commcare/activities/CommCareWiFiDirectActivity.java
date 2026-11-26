@@ -59,6 +59,7 @@ import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadResult;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
@@ -1019,7 +1020,7 @@ public class CommCareWiFiDirectActivity
             showingPermissionDialog.setValue(REQUEST_PERMISSION);
             dialog.dismiss();
         };
-        d.setPositiveButton(Localization.get("dialog.ok"), listener);
+        d.setPositiveButton(StringUtils.getStringRobust(this, R.string.ok), listener);
         showAlertDialog(d);
     }
 

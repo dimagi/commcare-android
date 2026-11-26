@@ -21,6 +21,7 @@ import org.commcare.dalvik.R;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.google.services.analytics.AnalyticsParamValue;
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.StandardAlertDialog;
@@ -204,7 +205,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
                 Localization.get("remember.password.confirm.title"),
                 Localization.get("remember.password.confirm.message"));
 
-        d.setPositiveButton(Localization.get("dialog.ok"), (dialog, which) -> {
+        d.setPositiveButton(StringUtils.getStringRobust(this, R.string.ok), (dialog, which) -> {
             dialog.dismiss();
             userRecord.setPrimedPassword(unhashedUserPassword);
             CommCareApplication.instance().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);

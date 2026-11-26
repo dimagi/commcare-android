@@ -1,7 +1,6 @@
 option.yes=YES
 option.no=NO
 option.cancel=CANCEL
-dialog.ok=OK
 dialog.do.not.show=Don't show again
 
 updates.found=Updates found! Downloading new resource ${0} done of ${1}

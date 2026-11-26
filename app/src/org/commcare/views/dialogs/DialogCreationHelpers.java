@@ -41,7 +41,7 @@ public class DialogCreationHelpers {
         aboutText.setText(markdownText);
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(view);
-        dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> dialog1.dismiss());
+        dialog.setPositiveButton(StringUtils.getStringRobust(activity, R.string.ok), (dialog1, which) -> dialog1.dismiss());
 
         return dialog;
     }
@@ -73,7 +73,7 @@ public class DialogCreationHelpers {
         titleText.setText(title);
 
         CustomViewAlertDialog dialog = new CustomViewAlertDialog(view);
-        dialog.setPositiveButton(Localization.get("dialog.ok"), (dialog1, which) -> {
+        dialog.setPositiveButton(StringUtils.getStringRobust(activity, R.string.ok), (dialog1, which) -> {
             permRequester.requestNeededPermissions(requestCode);
             dialog1.dismiss();
         });

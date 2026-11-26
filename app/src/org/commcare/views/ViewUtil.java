@@ -18,6 +18,7 @@ import org.commcare.dalvik.R;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localizer;
 
 import java.util.ArrayList;
@@ -178,7 +179,7 @@ public final class ViewUtil {
      */
     public static void showSnackBarWithOk(View view, String message, View.OnClickListener okClickListener) {
         Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE)
-                .setAction("OK", okClickListener)
+                .setAction(StringUtils.getStringRobust(view.getContext(), R.string.ok), okClickListener)
                 .show();
     }
     public static void showSnackBarWithDismissAction(View view, String message) {
