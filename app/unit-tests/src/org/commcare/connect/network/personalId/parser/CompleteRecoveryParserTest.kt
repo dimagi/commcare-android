@@ -3,6 +3,7 @@ package org.commcare.connect.network.personalId.parser
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.PersonalIdSessionData
+import org.commcare.personalId.profile.demographic.DemographicProfile
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -266,5 +267,46 @@ class CompleteRecoveryParserTest {
         parser.parse(json, sessionData)
 
         assertNull(sessionData.email)
+    }
+
+    @Test
+    fun `parse sets every demographic field the server returns`() {
+        val json =
+            validSuccessJson().apply {
+                put("gender", "female")
+                put("date_of_birth", "1994-03-21")
+                put("languages", "eng,hau")
+                put("education", "bachelors_degree")
+                put("chw_experience", "3_5_years")
+                put("tech_proficiency", "comfortable")
+            }
+
+        parser.parse(json, sessionData)
+
+        assertEquals(
+            DemographicProfile("female", "1994-03-21", "eng,hau", "bachelors_degree", "3_5_years", "comfortable"),
+            sessionData.demographics,
+        )
+    }
+
+    @Test
+    fun `parse leaves demographic fields null when the server omits them`() {
+        parser.parse(validSuccessJson(), sessionData)
+
+        assertEquals(DemographicProfile(), sessionData.demographics)
+    }
+
+    @Test
+    fun `parse leaves blank and json null demographic fields null`() {
+        val json =
+            validSuccessJson().apply {
+                put("gender", "")
+                put("languages", "   ")
+                put("education", JSONObject.NULL)
+            }
+
+        parser.parse(json, sessionData)
+
+        assertEquals(DemographicProfile(), sessionData.demographics)
     }
 }

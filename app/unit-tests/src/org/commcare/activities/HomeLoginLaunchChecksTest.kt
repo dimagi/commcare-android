@@ -6,7 +6,6 @@ import org.commcare.CommCareApplication
 import org.commcare.android.util.ActivityAssertions.assertOnly
 import org.commcare.android.util.ActivityAssertions.startedForResultIntents
 import org.commcare.android.util.ActivityAssertions.startedIntents
-import org.commcare.connect.ConnectConstants.PERSONALID_MANAGED_LOGIN
 import org.commcare.core.network.CommCareNetworkServiceGenerator.CURRENT_DRIFT
 import org.commcare.heartbeat.UpdateToPrompt
 import org.commcare.preferences.DeveloperPreferences
@@ -35,9 +34,6 @@ import org.robolectric.android.controller.ActivityController
  * Three of the six claiming steps are not pinned: steps 5 and 6 both call through `sendFormsOrSync`,
  * which assigns the real syncer before `setFormAndDataSyncer(fake)` can land, and step 2 needs an
  * app whose profile declares an update-info form xmlns.
- *
- * `buildHomeLaunchIntent` is pinned here too: it builds the intent whose extras decide whether these
- * checks run at all, and which mode step 8 sees.
  */
 class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
     /**
@@ -70,26 +66,6 @@ class HomeLoginLaunchChecksTest : BaseHomeScreenActivityTest() {
                 putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, manuallySwitchedToPasswordMode)
             },
         )
-
-    // region the intent that triggers the checks
-
-    @Suppress("DEPRECATION") // typed getSerializableExtra needs a higher minSdk than the app's
-    @Test
-    fun `buildHomeLaunchIntent targets standard home with managed login enabled`() {
-        // The precondition for everything else here: [buildHomeFromLogin] sets START_FROM_LOGIN
-        // itself, so without this row the sequence could stop running in production, suite still
-        // green.
-        val context = CommCareApplication.instance()
-        val intent = StandardHomeActivity.buildHomeLaunchIntent(context)
-
-        assertEquals(StandardHomeActivity::class.java.name, intent.component!!.className)
-        assertTrue(intent.getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false))
-        assertTrue(intent.getBooleanExtra(PERSONALID_MANAGED_LOGIN, false))
-        assertEquals(LoginMode.PASSWORD, intent.getSerializableExtra(LoginActivity.LOGIN_MODE))
-        assertEquals(false, intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, true))
-    }
-
-    // endregion
 
     // region step 1: demo user
 

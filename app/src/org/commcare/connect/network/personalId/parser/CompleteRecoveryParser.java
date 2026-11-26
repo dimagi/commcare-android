@@ -3,6 +3,7 @@ package org.commcare.connect.network.personalId.parser;
 import com.google.common.base.Strings;
 
 import org.commcare.android.database.connect.models.PersonalIdSessionData;
+import org.commcare.personalId.profile.demographic.DemographicProfile;
 import org.commcare.utils.JsonExtensions;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.utils.DateUtils;
@@ -65,6 +66,7 @@ public class CompleteRecoveryParser implements PersonalIdApiResponseParser {
                                 "Email key present in complete_recovery response but value is not a valid email"));
             }
             sessionData.setEmail(isValidEmail ? email.trim() : null);
+            sessionData.setDemographics(DemographicProfile.fromJson(json));
         }
     }
 }

@@ -11,6 +11,8 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
+- The PersonalID profile now has Gender, Languages spoken, Date of birth, Education, Experience as a CHW and Technical proficiency. Workers can fill them in from Edit Profile at their own pace, a few at a time; empty fields are highlighted as a reminder. They are saved to the PersonalID account and restored when the account is recovered on a new device.
+- Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
 
 ### QA Notes
 
@@ -28,9 +30,25 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Tap Complete Profile and confirm that, after unlocking, the profile edit screen opens.
 - Across the third and fourth prompts (moving the date forward between them), confirm the third shows the delivery warning and the fourth shows the final message with a Dismiss button.
 - Upgrade from the previous build while signed in to PersonalID and confirm the user stays signed in and Connect opens normally.
+- From an opportunity, launch its learn or delivery app: confirm the app's first menu opens without the app home screen, and backing out of it returns to the opportunity screen.
+- After opening the app once, confirm the opportunity screen's ⋮ menu shows Report an Issue, Update App, Change Language, Settings and Advanced, each opening as it did from the app home screen; on another opportunity's screen, or before the app has been opened, those items don't show.
+- Finishing a form returns to the opportunity screen and sends the form; Sync there with unsent forms sends them and then syncs the app.
+- After opening the app, the opportunity screen's sync card shows the app's last sync. Finish a form offline: the card turns amber with "Forms pending: 1" and the action-bar sync icon gets a red dot. Back online, tapping the card sends the form, and the card turns green again with the dot gone.
 - On an opportunity whose budget is fully used, pass the learning assessment with a new user and tap the button to download the delivery app; confirm the error says no more paid visits are available, instead of the generic "Unable to claim" message.
   - On an opportunity whose end date has passed, do the same and confirm the error says the opportunity has ended.
 - While logged in to a CommCare app, open Work History from the sidebar, switch to another app and back; confirm the title still reads "My Work History", earned cards show your name, and at the default font size the English text just above the ribbon fits on one line. Then set the device font to its largest size and confirm that text wraps onto a second line if needed, without being cut off.
+- PersonalID translation fixes:
+  - In Hausa and Tigrinya, confirm the PersonalID phone screen's consent text is fully translated and all four policy links open.
+  - In Hindi, Hausa and Tigrinya, confirm the phone placeholders read "+1" and "0000000000", and the country code is still filled in from the SIM.
+  - In Portuguese, confirm the OR divider has lines on both sides on the login, app setup and PersonalID fingerprint/PIN setup screens.
+- In PersonalID, open Profile → Edit and confirm the six new fields appear under Personal information (Gender, Languages spoken, Date of birth) and Work experience (Education, Experience as a CHW, Technical proficiency), and that empty fields have an amber border.
+  - Fill in only some fields and Save; confirm Save is allowed, the profile shows the chosen values and a dash for the rest, and the amber border stays only on the empty fields when editing again.
+  - In Languages spoken, search for a language (e.g. "Hindi"), select it and tap Done; confirm it appears as a chip, the ✕ on a chip removes it, and when reopening the list the selected languages are ticked at the top, followed by the device's language.
+  - Pick a date of birth and confirm future dates can't be selected and the same date shows after saving and reopening.
+  - With the device language set to another supported language (e.g. French or Hindi), confirm the new labels and options are translated.
+  - Fill in some fields and Save, then recover the account on another device (or after reinstalling the app); confirm the saved values come back and the rest show a dash.
+  - Remove a saved language and Save, then recover the account again; confirm Languages spoken is still empty.
+  - With mobile data and Wi-Fi off, change a field and Save; confirm an error is shown, the edit screen stays open, and the profile still shows the previous values.
 
 ## CommCare 2.65
 

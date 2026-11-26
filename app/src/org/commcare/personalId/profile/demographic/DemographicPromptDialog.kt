@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import android.view.LayoutInflater
 import androidx.core.view.isVisible

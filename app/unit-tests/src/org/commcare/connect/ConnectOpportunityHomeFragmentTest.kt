@@ -355,6 +355,8 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
             arg<ConnectAppLauncher.OutcomeCallback>(5).onOutcome(LaunchOutcome.Launched(alreadyLoggedIn = false))
             Job()
         }
+        mockkObject(activity.coordinator)
+        every { activity.coordinator.enterLaunchedApp(any()) } returns false
         startLearnAppDownloadFromIntro()
 
         activity.runOnUiThread { installViewModel().reportSuccess(true) }

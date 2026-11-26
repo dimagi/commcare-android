@@ -1,14 +1,22 @@
 package org.commcare.personalId.profile
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.color.MaterialColors
+import com.google.android.material.datepicker.CalendarConstraints
+import com.google.android.material.datepicker.DateValidatorPointBackward
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import org.commcare.activities.CommCareActivity
+import org.commcare.adapters.UnfilteredArrayAdapter
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.network.personalId.PersonalIdApiHandler
@@ -19,13 +27,23 @@ import org.commcare.fragments.personalId.EmailWorkFlow
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 import org.commcare.personalId.photo.PersonalIdPhotoUpdater
+import org.commcare.personalId.profile.demographic.ChwExperience
+import org.commcare.personalId.profile.demographic.DateOfBirth
+import org.commcare.personalId.profile.demographic.DemographicOption
+import org.commcare.personalId.profile.demographic.Education
+import org.commcare.personalId.profile.demographic.Gender
+import org.commcare.personalId.profile.demographic.PersonalIdLanguages
+import org.commcare.personalId.profile.demographic.TechProficiency
+import org.commcare.views.BottomSheetListPicker
 import org.commcare.views.extensions.onTextChanged
+import org.commcare.views.extensions.themeColorStateList
 
 class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     private var _binding: PersonalidProfileEditScreenBinding? = null
     val binding get() = _binding!!
     private lateinit var viewModel: PersonalIdProfileEditViewModel
     private lateinit var photoUpdater: PersonalIdPhotoUpdater
+    private var defaultStrokeColor: ColorStateList? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +108,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
             viewModel.onEmailChanged(it)
             refreshFormState()
         }
+        bindDemographicFields()
         binding.btnCancel.setOnClickListener { handleBack() }
         binding.btnSave.setOnClickListener { onSaveClicked() }
         refreshFormState()
@@ -131,6 +150,146 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     private fun refreshFormState() {
         binding.btnSave.isEnabled = viewModel.canSave()
         binding.profileInputEmail.error = emailErrorMessage()
+        refreshDemographicWarnings()
+    }
+
+    private fun bindDemographicFields() {
+        defaultStrokeColor = requireContext().themeColorStateList(R.attr.connectTextFieldOutline)
+        bindDropdown(binding.profileGenderDropdown, Gender.entries, viewModel.currentGender, viewModel::onGenderChanged)
+        bindDropdown(binding.profileEducationDropdown, Education.entries, viewModel.currentEducation, viewModel::onEducationChanged)
+        bindDropdown(
+            binding.profileChwExperienceDropdown,
+            ChwExperience.entries,
+            viewModel.currentChwExperience,
+            viewModel::onChwExperienceChanged,
+        )
+        bindDropdown(
+            binding.profileTechProficiencyDropdown,
+            TechProficiency.entries,
+            viewModel.currentTechProficiency,
+            viewModel::onTechProficiencyChanged,
+        )
+
+        binding.profileDateOfBirthEditText.setText(DateOfBirth.formatDate(viewModel.currentDateOfBirth))
+        binding.profileDateOfBirthEditText.setOnClickListener { showDateOfBirthPicker() }
+        existingDateOfBirthPicker()?.let { attachDateOfBirthListener(it) }
+
+        renderLanguages()
+        binding.profileInputLanguages.setOnClickListener { showLanguagePicker() }
+        childFragmentManager.setFragmentResultListener(LANGUAGE_PICKER_REQUEST_KEY, viewLifecycleOwner) { _, result ->
+            val picked = result.getStringArrayList(BottomSheetListPicker.RESULT_SELECTED_IDS).orEmpty()
+            val stored = PersonalIdLanguages.parseCodes(viewModel.currentLanguages)
+            val ordered = stored.filter { it in picked } + picked.filter { it !in stored }
+            viewModel.onLanguagesChanged(PersonalIdLanguages.joinCodes(ordered))
+            renderLanguages()
+            refreshFormState()
+        }
+    }
+
+    private fun <T : DemographicOption> bindDropdown(
+        dropdown: MaterialAutoCompleteTextView,
+        options: List<T>,
+        currentKey: String?,
+        onChanged: (String?) -> Unit,
+    ) {
+        val labels = options.map { getString(it.labelRes) }
+        dropdown.setAdapter(UnfilteredArrayAdapter(requireContext(), labels))
+        options.firstOrNull { it.key == currentKey }?.let { dropdown.setText(getString(it.labelRes), false) }
+        dropdown.setOnItemClickListener { _, _, position, _ ->
+            onChanged(options[position].key)
+            refreshFormState()
+        }
+    }
+
+    private fun showDateOfBirthPicker() {
+        if (existingDateOfBirthPicker() != null) return
+        val today = MaterialDatePicker.todayInUtcMilliseconds()
+        val picker =
+            MaterialDatePicker.Builder
+                .datePicker()
+                .setTitleText(R.string.personalid_profile_field_date_of_birth)
+                .setSelection(DateOfBirth.toUtcMillis(viewModel.currentDateOfBirth) ?: today)
+                .setCalendarConstraints(
+                    CalendarConstraints
+                        .Builder()
+                        .setEnd(today)
+                        .setValidator(DateValidatorPointBackward.before(today))
+                        .build(),
+                ).build()
+        attachDateOfBirthListener(picker)
+        picker.show(childFragmentManager, DATE_OF_BIRTH_PICKER_TAG)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun existingDateOfBirthPicker() = childFragmentManager.findFragmentByTag(DATE_OF_BIRTH_PICKER_TAG) as? MaterialDatePicker<Long>
+
+    private fun attachDateOfBirthListener(picker: MaterialDatePicker<Long>) {
+        picker.clearOnPositiveButtonClickListeners()
+        picker.addOnPositiveButtonClickListener { utcMillis -> onDateOfBirthPicked(utcMillis) }
+    }
+
+    private fun onDateOfBirthPicked(utcMillis: Long) {
+        val date = DateOfBirth.fromUtcMillis(utcMillis)
+        viewModel.onDateOfBirthChanged(date)
+        _binding?.profileDateOfBirthEditText?.setText(DateOfBirth.formatDate(date))
+        refreshFormState()
+    }
+
+    private fun showLanguagePicker() {
+        if (childFragmentManager.findFragmentByTag(LANGUAGE_PICKER_TAG) != null) return
+        val selectedCodes = PersonalIdLanguages.parseCodes(viewModel.currentLanguages)
+        val languages =
+            PersonalIdLanguages.orderForPicker(
+                PersonalIdLanguages.all(requireContext()),
+                selectedCodes.toSet(),
+                PersonalIdLanguages.deviceLanguageCode(),
+            )
+        BottomSheetListPicker
+            .newInstance(
+                requestKey = LANGUAGE_PICKER_REQUEST_KEY,
+                items = languages.map { BottomSheetListPicker.Item(it.code, it.label) },
+                selectedIds = selectedCodes,
+                title = R.string.personalid_profile_languages_select,
+                searchHint = R.string.personalid_profile_languages_search,
+                doneLabel = R.string.personalid_profile_languages_done,
+            ).show(childFragmentManager, LANGUAGE_PICKER_TAG)
+    }
+
+    /** Codes no longer in the language list are kept in storage but get no chip, so a save doesn't drop them. */
+    private fun renderLanguages() {
+        val codes = PersonalIdLanguages.parseCodes(viewModel.currentLanguages)
+        val labelsByCode = PersonalIdLanguages.all(requireContext()).associate { it.code to it.label }
+        val shownCodes = codes.filter { it in labelsByCode }
+        binding.profileLanguagesHint.isVisible = shownCodes.isEmpty()
+        LanguageChips.render(binding.profileLanguagesChips, shownCodes.map { labelsByCode.getValue(it) }) { index ->
+            viewModel.onLanguagesChanged(PersonalIdLanguages.joinCodes(codes - shownCodes[index]))
+            renderLanguages()
+            refreshFormState()
+        }
+    }
+
+    /** An empty demographic field gets a warning outline as a reminder; it is not a validation error. */
+    private fun refreshDemographicWarnings() {
+        val warning = MaterialColors.getColor(binding.root, R.attr.connectStatusWarning)
+        // A single-colour list only replaces the focused outline; listing the states colours the resting one too.
+        val warningStroke =
+            ColorStateList(
+                arrayOf(intArrayOf(android.R.attr.state_focused), intArrayOf()),
+                intArrayOf(warning, warning),
+            )
+        listOf(
+            binding.profileInputGender to viewModel.currentGender,
+            binding.profileInputDateOfBirth to viewModel.currentDateOfBirth,
+            binding.profileInputEducation to viewModel.currentEducation,
+            binding.profileInputChwExperience to viewModel.currentChwExperience,
+            binding.profileInputTechProficiency to viewModel.currentTechProficiency,
+        ).forEach { (field, value) ->
+            val stroke = if (value.isNullOrEmpty()) warningStroke else defaultStrokeColor
+            stroke?.let { field.setBoxStrokeColorStateList(it) }
+        }
+        val languagesEmpty = PersonalIdLanguages.parseCodes(viewModel.currentLanguages).isEmpty()
+        binding.profileInputLanguages.strokeColor =
+            if (languagesEmpty) warning else MaterialColors.getColor(binding.root, R.attr.connectOutline)
     }
 
     private fun emailErrorMessage(): String? =
@@ -141,10 +300,19 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
         }
 
     private fun onSaveClicked() {
-        if (viewModel.isEmailModified()) {
-            startEmailChange()
-        } else {
-            saveProfileDetails {
+        when {
+            viewModel.isEmailModified() -> {
+                startEmailChange()
+            }
+
+            viewModel.isProfileDetailsModified() -> {
+                saveProfileDetails {
+                    showSuccess()
+                    findNavController().popBackStack()
+                }
+            }
+
+            else -> {
                 showSuccess()
                 findNavController().popBackStack()
             }
@@ -153,7 +321,7 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
 
     private fun startEmailChange() {
         val pendingEmail = viewModel.currentEmail
-        if (viewModel.isNameModified()) {
+        if (viewModel.isProfileDetailsModified()) {
             binding.btnSave.isEnabled = false
             saveProfileDetails { startEmailChangeAuth(pendingEmail) }
         } else {
@@ -203,7 +371,15 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
                 _binding ?: return
                 onSaveFailed(errorCode, t)
             }
-        }.updateProfile(requireActivity(), user.userId, user.password, viewModel.currentName, null, null)
+        }.updateProfile(
+            requireActivity(),
+            user.userId,
+            user.password,
+            viewModel.currentName,
+            null,
+            null,
+            viewModel.currentDemographics,
+        )
     }
 
     private fun reportProfileSaveOutcome(outcome: String) {
@@ -234,5 +410,11 @@ class PersonalIdProfileEditFragment : BasePersonalIdProfileFragment() {
     ) {
         val message = PersonalIdOrConnectApiErrorHandler.handle(requireActivity(), errorCode, throwable)
         Toast.makeText(requireActivity(), message, Toast.LENGTH_LONG).show()
+    }
+
+    companion object {
+        private const val DATE_OF_BIRTH_PICKER_TAG = "date_of_birth_picker"
+        const val LANGUAGE_PICKER_TAG = "language_picker"
+        private const val LANGUAGE_PICKER_REQUEST_KEY = "language_picker"
     }
 }

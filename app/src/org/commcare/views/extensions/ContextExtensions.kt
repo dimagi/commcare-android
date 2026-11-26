@@ -1,6 +1,7 @@
 package org.commcare.views.extensions
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.util.TypedValue
 import androidx.annotation.AttrRes
 import androidx.core.content.ContextCompat
@@ -20,4 +21,14 @@ fun Context.themeColor(
         "${resources.getResourceName(attr)} is not declared on this theme"
     }
     return if (value.resourceId != 0) ContextCompat.getColor(this, value.resourceId) else value.data
+}
+
+fun Context.themeColorStateList(
+    @AttrRes attr: Int,
+): ColorStateList {
+    val value = TypedValue()
+    require(theme.resolveAttribute(attr, value, true)) {
+        "${resources.getResourceName(attr)} is not declared on this theme"
+    }
+    return if (value.resourceId != 0) ContextCompat.getColorStateList(this, value.resourceId)!! else ColorStateList.valueOf(value.data)
 }

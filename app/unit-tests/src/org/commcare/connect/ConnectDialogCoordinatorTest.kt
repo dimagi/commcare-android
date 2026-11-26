@@ -10,7 +10,7 @@ import io.mockk.verify
 import org.commcare.CommCareTestApplication
 import org.commcare.activities.CommCareActivity
 import org.commcare.personalId.PersonalIdBackupCodeReminderHelper
-import org.commcare.personalId.demographic.DemographicBannerBinder
+import org.commcare.personalId.profile.demographic.DemographicBannerBinder
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

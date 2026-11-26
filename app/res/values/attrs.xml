@@ -28,6 +28,7 @@
     <attr name="connectBrandMedium" format="reference|color" />
     <attr name="connectOutline" format="reference|color" />
     <attr name="connectOutlineVariant" format="reference|color" />
+    <attr name="connectTextFieldOutline" format="reference|color" />
     <attr name="connectStatusPositive" format="reference|color" />
     <attr name="connectStatusPositiveContainer" format="reference|color" />
     <attr name="connectStatusNegative" format="reference|color" />

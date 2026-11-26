@@ -1,13 +1,11 @@
 package org.commcare.connect
 
 import android.app.Activity
-import android.content.Intent
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import org.commcare.activities.StandardHomeActivity
 import org.commcare.activities.connect.ConnectActivity
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
@@ -61,8 +59,8 @@ internal object LaunchProgressMapper {
  * [LaunchOutcomeRouter].
  *
  * The dialog is dismissed automatically when the fragment's view is destroyed, so callers don't
- * have to manage cleanup themselves. Home is started on success; every terminal result is handed to
- * [listener], which owns how the screen reacts to a failure.
+ * have to manage cleanup themselves. On success the app runs inside [ConnectActivity], which opens its
+ * menu; every terminal result is handed to [listener], which owns how the screen reacts to a failure.
  */
 class ConnectAppLaunchController(
     private val fragment: Fragment,
@@ -131,26 +129,9 @@ class ConnectAppLaunchController(
             object : LaunchActions {
                 override fun dismissProgress() = dismissLaunchDialog()
 
-                override fun launchHome(alreadyLoggedIn: Boolean) {
-                    listener.onLaunchSucceeded()
-
-                    val connectActivity = activity as ConnectActivity
-                    val intent = StandardHomeActivity.buildHomeLaunchIntent(activity)
-                    if (alreadyLoggedIn) {
-                        // Already signed in, so reuse this app's existing Home. Home is shared across
-                        // apps, so an unconditional reorder could surface a different app's instance.
-                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        activity.startActivity(intent)
-                        if (!connectActivity.isOpportunityHomeAtTaskBottom) {
-                            connectActivity.finish()
-                        }
-                    } else if (connectActivity.isOpportunityHomeAtTaskBottom) {
-                        activity.startActivity(intent)
-                    } else {
-                        val jobUuid = requireNotNull(connectActivity.activeJob).jobUUID
-                        val opportunityHomeIntent = ConnectNavHelper.buildOpportunityHomeTaskRootIntent(activity, jobUuid)
-                        activity.startActivities(arrayOf(opportunityHomeIntent, intent))
-                    }
+                override fun openApp(alreadyLoggedIn: Boolean) {
+                    val menuOpened = (activity as ConnectActivity).onAppLaunched(alreadyLoggedIn)
+                    listener.onLaunchSucceeded(menuOpened)
                 }
 
                 override fun handleFailure(failure: AppLaunchFailure) {
