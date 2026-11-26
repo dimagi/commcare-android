@@ -31,6 +31,7 @@ jobs:
       browserstack-apks-ready: ${{ steps.browserstack-apks.outputs.ready }}
     env:
       MINIMAL_BUILD: ${{ contains(github.event.pull_request.labels.*.name, 'minimal-build') }}
+      SKIP_INTEGRATION_TESTS: ${{ contains(github.event.pull_request.labels.*.name, 'skip-integration-tests') }}
     permissions:
       contents: read
       pull-requests: write
@@ -187,9 +188,11 @@ jobs:
           path: commcare-android/app/build/outputs/apk/cccStaging/qaAutomation/app-cccStaging-qaAutomation.apk
           retention-days: 3
       - name: Assemble CommCare apk for Instrumentation Testing
+        if: ${{ env.SKIP_INTEGRATION_TESTS != 'true' }}
         run: ./gradlew assembleCommcareReleaseAndroidTest
         working-directory: commcare-android
       - name: Encrypt CommCare androidTest apk
+        if: ${{ env.SKIP_INTEGRATION_TESTS != 'true' }}
         run: |
           openssl enc -aes-256-cbc -salt -pbkdf2 \
             -in commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk \
@@ -198,6 +201,7 @@ jobs:
         env:
           HQ_API_PASSWORD: ${{ secrets.HQ_API_PASSWORD }}
       - name: Upload CommCare apk for Instrumentation Testing
+        if: ${{ env.SKIP_INTEGRATION_TESTS != 'true' }}
         uses: actions/upload-artifact@v6
         with:
           name: commcare-release-androidTest-apk
@@ -235,7 +239,7 @@ jobs:
 
   browserstack-tests:
     # Runs when Build fails only on the minimal-build gate, after its apks are uploaded.
-    if: ${{ !cancelled() && github.event_name == 'pull_request' && needs.build-test-assemble.outputs.browserstack-apks-ready == 'true' }}
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip-integration-tests') && needs.build-test-assemble.outputs.browserstack-apks-ready == 'true' }}
     needs: build-test-assemble
     name: BrowserStack Tests
     runs-on: ubuntu-latest
