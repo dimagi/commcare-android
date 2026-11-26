@@ -2,6 +2,7 @@ name: commcare-android PR CI
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
     inputs:
       commcare_core_sha:
