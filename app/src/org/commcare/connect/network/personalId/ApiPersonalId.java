@@ -13,6 +13,7 @@ import org.commcare.connect.network.base.IApiCallback;
 import org.commcare.connect.network.base.NetworkUtils;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.network.HttpUtils;
+import org.commcare.personalId.profile.demographic.DemographicProfile;
 import org.commcare.preferences.HiddenPreferences;
 import org.commcare.preferences.ServerUrls;
 import org.commcare.utils.FirebaseMessagingUtil;
@@ -274,11 +275,16 @@ public class ApiPersonalId {
             String displayName,
             String secondaryPhone,
             String photoAsBase64,
+            @Nullable DemographicProfile demographics,
             IApiCallback callback
     ) {
         AuthInfo authInfo = new AuthInfo.ProvidedAuth(username, password, false);
         String token = HttpUtils.getCredential(authInfo);
         HashMap<String, String> params = new HashMap<>();
+
+        if (demographics != null) {
+            params.putAll(demographics.toRequestParams());
+        }
 
         if (secondaryPhone != null) {
             params.put("secondary_phone", secondaryPhone);

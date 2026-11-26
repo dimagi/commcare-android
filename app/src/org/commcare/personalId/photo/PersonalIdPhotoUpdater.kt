@@ -108,7 +108,7 @@ class PersonalIdPhotoUpdater(
                 Toast.makeText(activity, errorMessage, Toast.LENGTH_LONG).show()
                 this@PersonalIdPhotoUpdater.onFailure(errorCode, t)
             }
-        }.updateProfile(activity, user.userId, user.password, null, null, photoBase64)
+        }.updateProfile(activity, user.userId, user.password, null, null, photoBase64, null)
     }
 
     companion object {

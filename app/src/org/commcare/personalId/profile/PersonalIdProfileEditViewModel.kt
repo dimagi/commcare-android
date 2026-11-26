@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import org.commcare.android.database.connect.models.ConnectUserRecord
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.fragments.personalId.EmailHelper
+import org.commcare.personalId.profile.demographic.DemographicProfile
 import org.commcare.personalId.profile.demographic.PersonalIdLanguages
 import org.commcare.utils.CommCareAttemptCounter
 
@@ -35,6 +36,17 @@ class PersonalIdProfileEditViewModel(
     val currentEducation: String? get() = demographic(KEY_EDUCATION) { education }
     val currentChwExperience: String? get() = demographic(KEY_CHW_EXPERIENCE) { chwExperience }
     val currentTechProficiency: String? get() = demographic(KEY_TECH_PROFICIENCY) { techProficiency }
+
+    val currentDemographics: DemographicProfile
+        get() =
+            DemographicProfile(
+                gender = currentGender,
+                dateOfBirth = currentDateOfBirth,
+                languages = currentLanguages,
+                education = currentEducation,
+                chwExperience = currentChwExperience,
+                techProficiency = currentTechProficiency,
+            )
 
     fun onNameChanged(name: String) {
         savedStateHandle[KEY_CURRENT_NAME] = name.trim()
@@ -72,7 +84,9 @@ class PersonalIdProfileEditViewModel(
             currentChwExperience != user.chwExperience ||
             currentTechProficiency != user.techProficiency
 
-    fun isModified(): Boolean = isNameModified() || isEmailModified() || isDemographicsModified()
+    fun isProfileDetailsModified(): Boolean = isNameModified() || isDemographicsModified()
+
+    fun isModified(): Boolean = isProfileDetailsModified() || isEmailModified()
 
     fun isNameValid(): Boolean = currentName.isNotBlank()
 
@@ -94,18 +108,10 @@ class PersonalIdProfileEditViewModel(
      * flows since this ViewModel was created (e.g. a photo update) are not clobbered.
      */
     fun commitProfileDetails() {
-        commit { name = currentName }
-    }
-
-    /** Saves the demographic fields locally only; they are not sent to the server yet. */
-    fun commitDemographics() {
+        val demographics = currentDemographics
         commit {
-            gender = currentGender
-            dateOfBirth = currentDateOfBirth
-            languages = currentLanguages
-            education = currentEducation
-            chwExperience = currentChwExperience
-            techProficiency = currentTechProficiency
+            name = currentName
+            demographics.applyTo(this)
         }
     }
 

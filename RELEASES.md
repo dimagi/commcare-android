@@ -11,7 +11,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard now shows today's visits for each payment unit, with a progress bar only for units that have a daily limit. Opportunities with more than three payment units show the first three, with an option to show the rest.
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
-- The PersonalID profile now has Gender, Languages spoken, Date of birth, Education, Experience as a CHW and Technical proficiency. Workers can fill them in from Edit Profile at their own pace, a few at a time; empty fields are highlighted as a reminder.
+- The PersonalID profile now has Gender, Languages spoken, Date of birth, Education, Experience as a CHW and Technical proficiency. Workers can fill them in from Edit Profile at their own pace, a few at a time; empty fields are highlighted as a reminder. They are saved to the PersonalID account and restored when the account is recovered on a new device.
 - Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
 
 ### QA Notes
@@ -46,6 +46,9 @@ This file is meant as an easy way for us to collate notes and change logs across
   - In Languages spoken, search for a language (e.g. "Hindi"), select it and tap Done; confirm it appears as a chip, the ✕ on a chip removes it, and when reopening the list the selected languages are ticked at the top, followed by the device's language.
   - Pick a date of birth and confirm future dates can't be selected and the same date shows after saving and reopening.
   - With the device language set to another supported language (e.g. French or Hindi), confirm the new labels and options are translated.
+  - Fill in some fields and Save, then recover the account on another device (or after reinstalling the app); confirm the saved values come back and the rest show a dash.
+  - Remove a saved language and Save, then recover the account again; confirm Languages spoken is still empty.
+  - With mobile data and Wi-Fi off, change a field and Save; confirm an error is shown, the edit screen stays open, and the profile still shows the previous values.
 
 ## CommCare 2.65
 
