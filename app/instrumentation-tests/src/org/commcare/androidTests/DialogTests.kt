@@ -7,6 +7,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import org.commcare.annotations.BrowserstackTests
 import org.commcare.dalvik.R
 import org.commcare.utils.InstrumentationUtility
@@ -60,7 +61,9 @@ class DialogTests : BaseTest() {
 
         InstrumentationUtility.gotoHome()
         InstrumentationUtility.selectOptionItem(withText("About CommCare"))
-        checkDialogExistence_withRotation("OK")
+        checkDialogExistence_withRotation(
+            InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.ok),
+        )
     }
 
     private fun checkDialogExistence_withRotation(text: String) {

@@ -22,6 +22,7 @@ import org.commcare.tasks.SendTask;
 import org.commcare.util.LogTypes;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
+import org.commcare.utils.StringUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -193,7 +194,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                 exitDump();
             }
         };
-        d.setPositiveButton("OK", listener);
+        d.setPositiveButton(StringUtils.getStringRobust(this, R.string.ok), listener);
         d.setNegativeButton("NO", listener);
         showAlertDialog(d);
     }
