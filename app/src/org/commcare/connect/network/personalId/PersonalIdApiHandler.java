@@ -33,6 +33,7 @@ import org.commcare.connect.network.personalId.parser.RetrieveWorkHistoryRespons
 import org.commcare.connect.network.personalId.parser.StartConfigurationResponseParser;
 import org.commcare.core.network.AuthInfo;
 import org.commcare.interfaces.base.BaseConnectView;
+import org.commcare.personalId.profile.demographic.DemographicProfile;
 import org.commcare.util.LogTypes;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
@@ -336,7 +337,8 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
             String password,
             String displayName,
             String secondaryPhone,
-            String photoAsBase64
+            String photoAsBase64,
+            @Nullable DemographicProfile demographics
     ) {
         ApiPersonalId.updateUserProfile(
                 context,
@@ -345,6 +347,7 @@ public abstract class PersonalIdApiHandler<T> extends BaseApiHandler<T> {
                 displayName,
                 secondaryPhone,
                 photoAsBase64,
+                demographics,
                 createCallback(new NoParsingResponseParser<>(), null)
         );
     }

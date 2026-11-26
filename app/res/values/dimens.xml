@@ -214,6 +214,7 @@
     <dimen name="connect_radius_lg">16dp</dimen>
     <dimen name="connect_radius_pill">24dp</dimen>
     <!-- Elevation -->
+    <dimen name="connect_card_elevation_none">0dp</dimen>
     <dimen name="connect_card_elevation_low">2dp</dimen>
     <dimen name="connect_card_elevation_medium">5dp</dimen>
     <dimen name="connect_card_elevation_high">10dp</dimen>

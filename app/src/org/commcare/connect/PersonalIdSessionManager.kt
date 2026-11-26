@@ -189,6 +189,7 @@ class PersonalIdSessionManager private constructor() {
                 sessionData.invitedUser,
             )
         user.email = sessionData.email
+        sessionData.demographics?.applyTo(user)
         user.registrationPhase = ConnectConstants.PERSONAL_ID_USER_STATUS_REGISTERED
         ConnectUserDatabaseUtil.storeUser(user)
     }

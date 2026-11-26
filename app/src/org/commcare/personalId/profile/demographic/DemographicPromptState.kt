@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import org.commcare.connect.database.ConnectUserDatabaseUtil
 import org.commcare.personalId.PersonalIdUserPreferences

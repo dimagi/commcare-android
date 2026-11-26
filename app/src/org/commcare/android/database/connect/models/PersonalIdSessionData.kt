@@ -1,6 +1,7 @@
 package org.commcare.android.database.connect.models
 
 import androidx.annotation.StringDef
+import org.commcare.personalId.profile.demographic.DemographicProfile
 import java.io.Serializable
 import java.util.Date
 
@@ -35,6 +36,7 @@ data class PersonalIdSessionData(
     var userName: String? = null,
     // email of the user; non-null means the address has been verified server-side or via OTP this session
     var email: String? = null,
+    var demographics: DemographicProfile? = null,
     // masked email shown to user for identification (e.g. "u***@example.com")
     var maskedEmail: String? = null,
     // phone number of the user

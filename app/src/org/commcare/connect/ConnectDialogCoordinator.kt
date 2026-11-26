@@ -2,7 +2,7 @@ package org.commcare.connect
 
 import org.commcare.activities.CommCareActivity
 import org.commcare.personalId.PersonalIdBackupCodeReminderHelper
-import org.commcare.personalId.demographic.DemographicBannerBinder
+import org.commcare.personalId.profile.demographic.DemographicBannerBinder
 
 object ConnectDialogCoordinator {
     @JvmStatic
