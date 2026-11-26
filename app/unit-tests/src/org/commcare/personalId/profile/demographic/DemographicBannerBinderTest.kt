@@ -1,4 +1,4 @@
-package org.commcare.personalId.demographic
+package org.commcare.personalId.profile.demographic
 
 import android.os.Build
 import android.os.Bundle
