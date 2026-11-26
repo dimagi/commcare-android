@@ -27,8 +27,10 @@ jobs:
     # setup-python has no Python 3.9 build for Ubuntu 26.04.
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    outputs:
+      browserstack-apks-ready: ${{ steps.browserstack-apks.outputs.ready }}
     env:
-      SKIP_UNIT_TESTS: ${{ contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
+      MINIMAL_BUILD: ${{ contains(github.event.pull_request.labels.*.name, 'minimal-build') }}
     permissions:
       contents: read
       pull-requests: write
@@ -98,7 +100,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Run Tests
-        if: ${{ env.SKIP_UNIT_TESTS != 'true' }}
+        if: ${{ env.MINIMAL_BUILD != 'true' }}
         run: ./gradlew testCommcareDebug
         working-directory: commcare-android
       - name: Upload unit test report
@@ -110,19 +112,19 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
       - name: Generate JaCoCo Report
-        if: ${{ env.SKIP_UNIT_TESTS != 'true' }}
+        if: ${{ env.MINIMAL_BUILD != 'true' }}
         continue-on-error: true
         run: ./gradlew jacocoTestReport
         working-directory: commcare-android
       - name: Upload JaCoCo Report
-        if: ${{ env.SKIP_UNIT_TESTS != 'true' }}
+        if: ${{ env.MINIMAL_BUILD != 'true' }}
         continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: jacoco-report
           path: commcare-android/app/build/reports/jacoco
       - name: Upload coverage to Codecov
-        if: ${{ github.event_name == 'pull_request' && env.SKIP_UNIT_TESTS != 'true' }}
+        if: ${{ github.event_name == 'pull_request' && env.MINIMAL_BUILD != 'true' }}
         continue-on-error: true
         uses: codecov/codecov-action@v5
         with:
@@ -153,9 +155,11 @@ jobs:
           name: commcare-release-aab
           path: commcare-android/app/build/outputs/bundle/commcareRelease/app-commcare-release.aab
       - name: Assemble CCC Staging apk
+        if: ${{ env.MINIMAL_BUILD != 'true' }}
         run: ./gradlew assembleCccStagingRelease
         working-directory: commcare-android
       - name: Upload CCC Staging apk
+        if: ${{ env.MINIMAL_BUILD != 'true' }}
         uses: actions/upload-artifact@v6
         with:
           name: ccc-staging-release-apk
@@ -198,6 +202,9 @@ jobs:
         with:
           name: commcare-release-androidTest-apk
           path: commcare-android/app/build/outputs/apk/androidTest/commcare/release/app-commcare-release-androidTest.apk.enc
+      - name: Mark BrowserStack apks ready
+        id: browserstack-apks
+        run: echo "ready=true" >> "$GITHUB_OUTPUT"
       - name: Report status to commcare-core
         if: ${{ always() && inputs.commcare_core_check_name && inputs.commcare_core_sha }}
         uses: actions/github-script@v7
@@ -219,9 +226,16 @@ jobs:
               description,
               target_url: `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
             });
+      # Fails this required check so a PR can't merge from a minimal build.
+      - name: Block merge while minimal-build label is set
+        if: ${{ env.MINIMAL_BUILD == 'true' }}
+        run: |
+          echo "::error::Unit tests and CCC Staging builds were skipped. Remove the minimal-build label to run them before merging."
+          exit 1
 
   browserstack-tests:
-    if: ${{ github.event_name == 'pull_request' }}
+    # Runs when Build fails only on the minimal-build gate, after its apks are uploaded.
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && needs.build-test-assemble.outputs.browserstack-apks-ready == 'true' }}
     needs: build-test-assemble
     name: BrowserStack Tests
     runs-on: ubuntu-latest
@@ -265,9 +279,3 @@ jobs:
           BROWSERSTACK_DEVICES: "Samsung Galaxy S20-10.0"
           PR_NUMBER: ${{ github.event.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # Runs last in a required check so a PR can't merge while unit tests are skipped.
-      - name: Block merge while skip-unit-tests label is set
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'skip-unit-tests') }}
-        run: |
-          echo "::error::Unit tests were skipped. Remove the skip-unit-tests label to run them before merging."
-          exit 1
