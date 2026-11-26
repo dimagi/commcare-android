@@ -11,9 +11,9 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 @ExperimentalCoroutinesApi
-class MainCoroutineRule(val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+class MainCoroutineRule(
+    val testDispatcher: TestDispatcher = UnconfinedTestDispatcher(),
 ) : TestWatcher() {
-
     override fun starting(description: Description) {
         super.starting(description)
         Dispatchers.setMain(testDispatcher)
@@ -26,7 +26,7 @@ class MainCoroutineRule(val testDispatcher: TestDispatcher = UnconfinedTestDispa
     }
 
     fun runBlockingTest(block: suspend () -> Unit) =
-            runTest(testDispatcher) {
-                block()
-            }
+        runTest(testDispatcher) {
+            block()
+        }
 }
