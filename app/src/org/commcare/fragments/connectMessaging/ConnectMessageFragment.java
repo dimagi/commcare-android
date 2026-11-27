@@ -299,16 +299,16 @@ public class ConnectMessageFragment extends Fragment implements ConnectMessageAt
         scrollToLatestMessage();
 
         MessageManager.sendMessage(requireContext(), message, (success, error) -> {
-            if (!success) {
-                Toast.makeText(
-                        requireContext(),
-                        getString(R.string.connect_messaging_send_message_fail_msg),
-                        Toast.LENGTH_SHORT
-                ).show();
-            } else {
-                chat.setMessageRead(success);
+            if (success) {
+                chat.setMessageRead(true);
                 adapter.updateMessageReadStatus(chat);
                 FirebaseAnalyticsUtil.reportPersonalIDMessageSent();
+            } else if (isAdded()) {
+                Toast.makeText(
+                        requireContext(),
+                        R.string.connect_messaging_send_message_fail_msg,
+                        Toast.LENGTH_SHORT
+                ).show();
             }
         });
     }
