@@ -85,6 +85,140 @@
             android:layout_marginTop="@dimen/connect_space_lg"
             android:background="?attr/connectOutlineVariant" />
 
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_gender" />
+
+        <TextView
+            android:id="@+id/profile_value_gender"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/connect_stroke_hairline"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_languages" />
+
+        <TextView
+            android:id="@+id/profile_value_languages_not_set"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm"
+            android:text="@string/personalid_profile_value_not_set" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/profile_value_languages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/connect_stroke_hairline"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_date_of_birth" />
+
+        <TextView
+            android:id="@+id/profile_value_date_of_birth"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/connect_stroke_hairline"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <TextView
+            style="@style/Widget.Connect.SectionHeadingText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_spacer_extra_large"
+            android:text="@string/personalid_profile_section_work_experience" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_education" />
+
+        <TextView
+            android:id="@+id/profile_value_education"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/connect_stroke_hairline"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_chw_experience" />
+
+        <TextView
+            android:id="@+id/profile_value_chw_experience"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/connect_stroke_hairline"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
+        <TextView
+            style="@style/Widget.Connect.LabelText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:text="@string/personalid_profile_field_tech_proficiency" />
+
+        <TextView
+            android:id="@+id/profile_value_tech_proficiency"
+            style="@style/Widget.Connect.ValueText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/connect_space_sm" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/connect_stroke_hairline"
+            android:layout_marginTop="@dimen/connect_space_lg"
+            android:background="?attr/connectOutlineVariant" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

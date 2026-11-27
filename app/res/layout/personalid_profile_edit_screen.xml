@@ -123,6 +123,180 @@
                     android:textSize="@dimen/connect_text_title" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_gender" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_gender"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/profile_gender_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/personalid_profile_select_hint"
+                    android:inputType="none"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_languages" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/profile_input_languages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardCornerRadius="@dimen/connect_radius_xs"
+                app:cardElevation="@dimen/connect_card_elevation_none"
+                app:strokeColor="?attr/connectOutline"
+                app:strokeWidth="@dimen/connect_stroke_hairline">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/connect_space_md">
+
+                    <TextView
+                        android:id="@+id/profile_languages_hint"
+                        style="@style/Widget.Connect.ValueText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/personalid_profile_languages_select"
+                        android:textColor="?attr/connectOnSurfaceMuted" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/profile_languages_chips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_date_of_birth" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_date_of_birth"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/profile_date_of_birth_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:hint="@string/personalid_profile_select_hint"
+                    android:inputType="none"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.Connect.SectionHeadingText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/standard_spacer_extra_large"
+                android:text="@string/personalid_profile_section_work_experience" />
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_education" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_education"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/profile_education_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/personalid_profile_select_hint"
+                    android:inputType="none"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_chw_experience" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_chw_experience"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/profile_chw_experience_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/personalid_profile_select_hint"
+                    android:inputType="none"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                style="@style/Widget.Connect.LabelText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_lg"
+                android:text="@string/personalid_profile_field_tech_proficiency" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/profile_input_tech_proficiency"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/connect_space_sm"
+                app:hintEnabled="false">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/profile_tech_proficiency_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/personalid_profile_select_hint"
+                    android:inputType="none"
+                    android:textColor="?attr/connectOnSurfaceEmphasis"
+                    android:textSize="@dimen/connect_text_title" />
+            </com.google.android.material.textfield.TextInputLayout>
+
         </LinearLayout>
     </ScrollView>
 

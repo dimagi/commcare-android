@@ -12,6 +12,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - The delivery dashboard and Visits tab now list payment units by their most recent visit.
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
 - Phone verification no longer falls back to PersonalID SMS for a number whose country is blocked for SMS in Firebase. PersonalID signup stops with a message that verification isn't available for that country.
+- The PersonalID profile now has Gender, Languages spoken, Date of birth, Education, Experience as a CHW and Technical proficiency. Workers can fill them in from Edit Profile at their own pace, a few at a time; empty fields are highlighted as a reminder. They are saved to the PersonalID account and restored when the account is recovered on a new device.
 - Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
 
 ### QA Notes
@@ -44,6 +45,14 @@ This file is meant as an easy way for us to collate notes and change logs across
   - In Hausa and Tigrinya, confirm the PersonalID phone screen's consent text is fully translated and all four policy links open.
   - In Hindi, Hausa and Tigrinya, confirm the phone placeholders read "+1" and "0000000000", and the country code is still filled in from the SIM.
   - In Portuguese, confirm the OR divider has lines on both sides on the login, app setup and PersonalID fingerprint/PIN setup screens.
+- In PersonalID, open Profile → Edit and confirm the six new fields appear under Personal information (Gender, Languages spoken, Date of birth) and Work experience (Education, Experience as a CHW, Technical proficiency), and that empty fields have an amber border.
+  - Fill in only some fields and Save; confirm Save is allowed, the profile shows the chosen values and a dash for the rest, and the amber border stays only on the empty fields when editing again.
+  - In Languages spoken, search for a language (e.g. "Hindi"), select it and tap Done; confirm it appears as a chip, the ✕ on a chip removes it, and when reopening the list the selected languages are ticked at the top, followed by the device's language.
+  - Pick a date of birth and confirm future dates can't be selected and the same date shows after saving and reopening.
+  - With the device language set to another supported language (e.g. French or Hindi), confirm the new labels and options are translated.
+  - Fill in some fields and Save, then recover the account on another device (or after reinstalling the app); confirm the saved values come back and the rest show a dash.
+  - Remove a saved language and Save, then recover the account again; confirm Languages spoken is still empty.
+  - With mobile data and Wi-Fi off, change a field and Save; confirm an error is shown, the edit screen stays open, and the profile still shows the previous values.
 
 ## CommCare 2.65
 

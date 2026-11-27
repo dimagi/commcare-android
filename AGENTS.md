@@ -10,7 +10,7 @@
 ## Concision (applies to all writing)
 Commits, PR descriptions, code comments, and documentation default to concise and high-level, and never restate what is already clear from reading the code.
 - Commit and PR bodies: convey the *why* and the shape of the change, not a walkthrough of the diff.
-- Code comments: reserve for non-obvious *why*; never narrate what the code plainly does.
+- Code comments: reserve for non-obvious *why*; never narrate what the code plainly does. Class-level KDoc/JavaDoc is the exception.
 - Documentation: prefer one high-level sentence over a paragraph; touch only the lines a change affects.
 
 ## Project Documentation
@@ -29,8 +29,11 @@ Tech documentation for this repo is organized by Gradle submodule and, within th
 When planning or writing a spec for a new feature, consult [`docs/common-edge-cases.md`](docs/common-edge-cases.md) and address every category that applies, so recurring edge cases are designed for up front rather than discovered in review or QA.
 
 ## Code Quality Standards
-- [General code standards](https://github.com/dimagi/open-source/blob/master/docs/mobile_standards.md)
-- [Exception Handling Guidelines](https://github.com/dimagi/open-source/blob/master/docs/mobile_exception_handling.md)
+Follow the guidelines in [`docs/code-guidelines/`](docs/code-guidelines/):
+- [General code standards](docs/code-guidelines/mobile_standards.md)
+- [Exception handling](docs/code-guidelines/mobile_exception_handling.md)
+- [Storage standards](docs/code-guidelines/mobile_storage_standards.md)
+- [PR review norms](docs/code-guidelines/mobile_pr_review_norms.md)
 - Write testable code
 - Don't be verbose but be detail oriented (i.e. ensure correctness without writing unnecessary code)
 - Any new classes should be written in Kotlin
@@ -40,7 +43,6 @@ When planning or writing a spec for a new feature, consult [`docs/common-edge-ca
 - Before creating a new resource (layout, drawable, image, icon, color, style, etc.), search all modules for an existing one that matches or can be reused, to avoid duplicates
 - In XML layouts, strictly use existing dimension and style resources instead of hardcoded values, and use theme color roles (`?attr/...`) instead of raw `@color/` or hex colors; if no suitable resource or role exists, flag it rather than hardcoding one
 - Write user-facing English strings in British English, "-ise" form (e.g. "cancelled", "initialise", "centre", "aeroplane mode")
-- Do not add any in-code comments unless explicitly requested.
 
 ## Testing
 
