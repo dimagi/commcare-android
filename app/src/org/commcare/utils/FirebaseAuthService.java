@@ -13,6 +13,8 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import java.util.Collections;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +30,12 @@ import org.javarosa.core.services.Logger;
 public class FirebaseAuthService implements OtpAuthService {
 
     private static final String ERROR_SESSION_EXPIRED = "ERROR_SESSION_EXPIRED";
+    private static final String ERROR_OPERATION_NOT_ALLOWED = "ERROR_OPERATION_NOT_ALLOWED";
+    private static final String REGION = "region";
+    private static final String REGION_BLOCK_UNDETECTED_MESSAGE =
+            "Firebase ERROR_OPERATION_NOT_ALLOWED without a region in its message";
+    private static final String SEVERITY_KEY = "severity";
+    private static final String SEVERITY_CRITICAL = "critical";
     @VisibleForTesting
     static final String ERROR_NO_VERIFICATION_ID = "NO_VERIFICATION_ID";
     @VisibleForTesting
@@ -147,10 +155,32 @@ public class FirebaseAuthService implements OtpAuthService {
             return OtpErrorType.TOO_MANY_REQUESTS;
         } else if (e instanceof FirebaseAuthMissingActivityForRecaptchaException) {
             return OtpErrorType.MISSING_ACTIVITY;
+        } else if (isRegionBlocked(e)) {
+            return OtpErrorType.REGION_BLOCKED;
         } else if (e instanceof FirebaseAuthException) {
             return OtpErrorType.VERIFICATION_FAILED;
         }
         return OtpErrorType.GENERIC_ERROR;
+    }
+
+    /**
+     * Firebase rejects numbers in countries on the project's SMS region deny list with
+     * ERROR_OPERATION_NOT_ALLOWED. The same code means phone sign-in is disabled, where the PersonalID
+     * fallback should still happen; only a region block names the region in the bracketed reason.
+     */
+    private static boolean isRegionBlocked(Exception e) {
+        if (!(e instanceof FirebaseAuthException)
+                || !ERROR_OPERATION_NOT_ALLOWED.equals(((FirebaseAuthException) e).getErrorCode())) {
+            return false;
+        }
+        String message = e.getMessage();
+        boolean regionBlocked = message != null && message.toLowerCase(Locale.ROOT).contains(REGION);
+        if (!regionBlocked) {
+            Logger.exception(REGION_BLOCK_UNDETECTED_MESSAGE,
+                    new RegionBlockDetectionException(REGION_BLOCK_UNDETECTED_MESSAGE, e),
+                    Collections.singletonMap(SEVERITY_KEY, SEVERITY_CRITICAL));
+        }
+        return regionBlocked;
     }
 
     /**

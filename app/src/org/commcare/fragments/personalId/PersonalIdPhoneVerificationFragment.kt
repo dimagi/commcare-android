@@ -7,6 +7,7 @@ import org.commcare.android.database.connect.models.PersonalIdSessionData
 import org.commcare.connect.network.base.BaseApiHandler.PersonalIdOrConnectApiErrorCodes
 import org.commcare.core.network.AuthInfo
 import org.commcare.dalvik.R
+import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.utils.AttemptCounter
 
 /**
@@ -48,6 +49,9 @@ class PersonalIdPhoneVerificationFragment : BasePersonalIdPhoneVerificationFragm
     override fun continueClickedWorkflow(): PersonalIdWorkflow = PersonalIdWorkflow.CONFIGURATION
 
     override fun handleApiFailure(failureCode: PersonalIdOrConnectApiErrorCodes): Boolean = handleCommonSignupFailures(failureCode)
+
+    /** Signup can't continue without a code, so it fails and closes rather than waiting on the screen. */
+    override fun onRegionBlocked(message: String) = onConfigurationFailure(AnalyticsParamValue.REGION_BLOCKED_FAILURE, message)
 
     override fun onChangeNumberClicked() {
         Navigation.findNavController(binding.root).popBackStack(R.id.personalid_phone_fragment, false)

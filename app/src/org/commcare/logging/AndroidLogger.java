@@ -11,6 +11,7 @@ import org.javarosa.core.log.StreamLogSerializer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Logging engine for CommCare ODK Environments.
@@ -86,5 +87,10 @@ public class AndroidLogger implements ILogger {
     @Override
     public void logException(Throwable e) {
         CrashUtil.reportException(e);
+    }
+
+    @Override
+    public void logException(Throwable e, Map<String, String> keys) {
+        CrashUtil.reportException(e, keys);
     }
 }

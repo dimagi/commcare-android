@@ -733,6 +733,50 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
     }
 
     @Test
+    fun `a blocked country fails signup without switching to PersonalID`() {
+        givenFirebaseFailsWith(regionBlocked())
+
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
+        ShadowLooper.idleMainLooper()
+
+        assertEquals(OtpManager.SMS_METHOD_FIREBASE, lastOtpMethod())
+        assertEquals(1, ShadowPhoneAuthProvider.getRequestCount())
+        assertEquals(1, sessionData.otpAttempts)
+        assertEquals(R.id.personalid_message_display, navHostFragment.navController.currentDestination!!.id)
+        verify { FirebaseAnalyticsUtil.reportPersonalIdConfigurationFailure(AnalyticsParamValue.REGION_BLOCKED_FAILURE) }
+    }
+
+    @Test
+    fun `a blocked country is reported as a failure with the region blocked reason`() {
+        givenFirebaseFailsWith(regionBlocked())
+
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
+        ShadowLooper.idleMainLooper()
+
+        verify {
+            FirebaseAnalyticsUtil.reportOtpEvent(
+                OtpAnalyticsMapper.OtpOp.REQUEST_PHONE,
+                AnalyticsParamValue.OTP_OUTCOME_FAILURE,
+                any(),
+                "region_blocked",
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        }
+    }
+
+    @Test
+    fun `phone sign-in being disabled still switches to PersonalID`() {
+        givenFirebaseFailsWith(FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", NOT_ALLOWED_MESSAGE))
+
+        launchWith(OtpManager.SMS_METHOD_FIREBASE, otpFallback = true)
+
+        assertEquals(OtpManager.SMS_METHOD_PERSONAL_ID, lastOtpMethod())
+    }
+
+    @Test
     fun `resend after an auto-switch tries firebase again before falling back`() {
         givenFirebaseFailsWith(FirebaseTooManyRequestsException("quota exceeded"))
 
@@ -748,5 +792,17 @@ class PersonalIdPhoneVerificationFragmentTest : BasePersonalIdConfigurationTest<
         ShadowLooper.idleMainLooper()
         assertEquals(OtpManager.SMS_METHOD_PERSONAL_ID, lastOtpMethod())
         assertEquals(4, sessionData.otpAttempts)
+    }
+
+    private fun regionBlocked() = FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", "$NOT_ALLOWED_MESSAGE $REGION_BLOCKED_REASON")
+
+    private companion object {
+        /** Firebase's generic text for ERROR_OPERATION_NOT_ALLOWED, shared by a region block and disabled sign-in. */
+        const val NOT_ALLOWED_MESSAGE =
+            "This operation is not allowed. This may be because the given sign-in provider is disabled for this " +
+                "Firebase project."
+
+        /** The bracketed reason Firebase adds for a number in a country on the SMS region deny list. */
+        const val REGION_BLOCKED_REASON = "[ SMS unable to be sent until this region enabled by the app developer. ]"
     }
 }

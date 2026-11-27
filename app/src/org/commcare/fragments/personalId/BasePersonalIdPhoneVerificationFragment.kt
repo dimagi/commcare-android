@@ -57,6 +57,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
     private lateinit var smsConsentLauncher: ActivityResultLauncher<Intent>
     private var lastOtpMethod: String? = null
     private var otpLimitExceeded = false
+    private var regionBlocked = false
     private var resendCooldownSeconds = DEFAULT_RESEND_COOLDOWN_SECONDS
 
     private val resendTimerRunnable =
@@ -167,6 +168,12 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
                     return
                 }
 
+                if (errorType == OtpErrorType.REGION_BLOCKED) {
+                    regionBlocked = true
+                    onRegionBlocked(getString(R.string.personalid_otp_region_blocked))
+                    return
+                }
+
                 if (errorType == OtpErrorType.SESSION_EXPIRED) {
                     showCodeNoLongerValid(getString(R.string.personalid_otp_session_expired), 0)
                     return
@@ -230,6 +237,12 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
             }
         }
 
+    /** Firebase blocked SMS to the number's country. By default the screen shows why and stays open. */
+    protected open fun onRegionBlocked(message: String) {
+        displayOtpError(message)
+        binding.connectPhoneVerifyButton.isEnabled = false
+    }
+
     /**
      * Determines if we should auto-switch from Firebase to PersonalId auth based on the error type.
      * Only switches from Firebase to PersonalId, never the reverse.
@@ -272,6 +285,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
         val verifyButtonEnabled = savedInstanceState.getBoolean(KEY_VERIFY_BUTTON_ENABLED)
         val otpRequestTimeString = savedInstanceState.getString(KEY_OTP_REQUEST_TIME_STRING)
         otpLimitExceeded = savedInstanceState.getBoolean(KEY_OTP_LIMIT_EXCEEDED)
+        regionBlocked = savedInstanceState.getBoolean(KEY_REGION_BLOCKED)
         resendCooldownSeconds =
             savedInstanceState.getInt(KEY_RESEND_COOLDOWN_SECONDS, DEFAULT_RESEND_COOLDOWN_SECONDS)
         if (otpRequestTimeString != null) {
@@ -426,6 +440,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
         }
         outState.putString(KEY_OTP_REQUEST_TIME_STRING, otpRequestTime?.toString())
         outState.putBoolean(KEY_OTP_LIMIT_EXCEEDED, otpLimitExceeded)
+        outState.putBoolean(KEY_REGION_BLOCKED, regionBlocked)
         outState.putInt(KEY_RESEND_COOLDOWN_SECONDS, resendCooldownSeconds)
     }
 
@@ -551,8 +566,9 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
     private fun setupOtpManager(useOtpFallback: Boolean): Boolean {
         val authInfo = buildAuthInfo()
 
-        // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase.
-        if (useOtpFallback && isFallbackAllowed()) {
+        // The fallback for the OTP uses Twilio (via PersonalID) rather than Firebase, except for a country
+        // Firebase has blocked, where no SMS may be sent.
+        if (useOtpFallback && isFallbackAllowed() && !regionBlocked) {
             otpManager = OtpManager(requireActivity(), authInfo, otpCallback, SMS_METHOD_PERSONAL_ID)
             lastOtpMethod = SMS_METHOD_PERSONAL_ID
             return true
@@ -584,6 +600,7 @@ abstract class BasePersonalIdPhoneVerificationFragment : BasePersonalIdFragment(
         private const val KEY_VERIFY_BUTTON_ENABLED = "KEY_VERIFY_BUTTON_ENABLED"
         private const val KEY_OTP_REQUEST_TIME_STRING = "KEY_OTP_REQUEST_TIME_STRING"
         private const val KEY_OTP_LIMIT_EXCEEDED = "KEY_OTP_LIMIT_EXCEEDED"
+        private const val KEY_REGION_BLOCKED = "KEY_REGION_BLOCKED"
         private const val KEY_RESEND_COOLDOWN_SECONDS = "KEY_RESEND_COOLDOWN_SECONDS"
         private const val DEFAULT_RESEND_COOLDOWN_SECONDS = 120
         private val OTP_PATTERN = Regex("\\b\\d{6}\\b")

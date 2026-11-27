@@ -101,13 +101,53 @@ class FirebaseAuthServiceTest {
 
     /**
      * Firebase returns a plain FirebaseException for backend codes it has no mapping for, which is
-     * how conditions such as disabled billing or a blocked SMS region reach the app.
+     * how conditions such as disabled billing reach the app.
      */
     @Test
     fun `unmapped backend failure maps to GENERIC_ERROR`() {
         assertEquals(
             OtpErrorType.GENERIC_ERROR,
             FirebaseAuthService.errorTypeFrom(FirebaseException("An internal error has occurred.")),
+        )
+    }
+
+    @Test
+    fun `a blocked region maps to REGION_BLOCKED`() {
+        assertEquals(
+            OtpErrorType.REGION_BLOCKED,
+            FirebaseAuthService.errorTypeFrom(
+                FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", REGION_BLOCKED_MESSAGE),
+            ),
+        )
+    }
+
+    /** The same code without the region reason means phone sign-in is disabled, which still falls back. */
+    @Test
+    fun `operation not allowed without a region stays a non-recoverable VERIFICATION_FAILED`() {
+        val errorType =
+            FirebaseAuthService.errorTypeFrom(
+                FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", NOT_ALLOWED_MESSAGE),
+            )
+        assertEquals(OtpErrorType.VERIFICATION_FAILED, errorType)
+        assertEquals(true, errorType.isNonRecoverable())
+    }
+
+    @Test
+    fun `a blocked region does not trigger the fallback`() {
+        val errorType =
+            FirebaseAuthService.errorTypeFrom(
+                FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", REGION_BLOCKED_MESSAGE),
+            )
+        assertEquals(false, errorType.isNonRecoverable())
+    }
+
+    @Test
+    fun `a blocked region reports its Firebase error code`() {
+        assertEquals(
+            "ERROR_OPERATION_NOT_ALLOWED",
+            FirebaseAuthService.errorCodeFrom(
+                FirebaseAuthException("ERROR_OPERATION_NOT_ALLOWED", REGION_BLOCKED_MESSAGE),
+            ),
         )
     }
 
@@ -224,5 +264,16 @@ class FirebaseAuthServiceTest {
     @Test
     fun `no exception reports no error code`() {
         assertNull(FirebaseAuthService.errorCodeFrom(null))
+    }
+
+    private companion object {
+        /** Firebase's generic text for ERROR_OPERATION_NOT_ALLOWED, shared by a region block and disabled sign-in. */
+        const val NOT_ALLOWED_MESSAGE =
+            "This operation is not allowed. This may be because the given sign-in provider is disabled for this " +
+                "Firebase project. Enable it in the Firebase console, under the sign-in method tab of the Auth section."
+
+        /** As seen on a device for a number in a country on the SMS region deny list. */
+        const val REGION_BLOCKED_MESSAGE =
+            "$NOT_ALLOWED_MESSAGE [ SMS unable to be sent until this region enabled by the app developer. ]"
     }
 }
