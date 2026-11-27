@@ -15,6 +15,7 @@ import org.commcare.connect.ConnectDateUtils
 import org.commcare.connect.ConnectMoneyUtils
 import org.commcare.connect.ConnectOpportunityHomeFragmentDirections
 import org.commcare.connect.ConnectOpportunityNavigator
+import org.commcare.connect.ConnectOpportunitySurface
 import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.network.base.PersonalIdOrConnectApiErrorHandler
 import org.commcare.connect.repository.DataState
@@ -31,7 +32,9 @@ import java.text.DateFormat
  * Fragment for showing detailed info about an available job
  *
  */
-class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBinding>() {
+class ConnectJobIntroFragment :
+    ConnectJobFragment<FragmentConnectJobIntroBinding>(),
+    ConnectOpportunitySurface {
     private lateinit var viewModel: ConnectJobIntroViewModel
 
     override fun onCreateView(
@@ -52,20 +55,27 @@ class ConnectJobIntroFragment : ConnectJobFragment<FragmentConnectJobIntroBindin
             )[ConnectJobIntroViewModel::class.java]
 
         observeStartLearning()
+        binding.connectIntroCtaBar.setOnCtaClickListener { startLearning() }
+        bindJob()
 
+        return view
+    }
+
+    override fun onActiveJobRefreshed() {
+        reloadActiveJob()
+        requireActivity().title = job.title
+        bindJob()
+    }
+
+    private fun bindJob() {
         binding.tvJobTitle.text = job.title
         binding.tvJobDescription.text = job.shortDescription
         binding.tvExpiryValue.text =
             ConnectDateUtils.formatDate(job.projectEndDate, DateFormat.SHORT)
         binding.tvMaxEarningsValue.text =
             ConnectMoneyUtils.moneyStringWithSymbol(job.currency, job.totalBudget)
-
-        binding.connectIntroCtaBar.setOnCtaClickListener { startLearning() }
-
         populateLearnCard()
         populateDeliveryCards()
-
-        return view
     }
 
     override fun onResume() {

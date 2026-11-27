@@ -21,7 +21,10 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
     ): T {
         val job = anyInputObject as ConnectJobRecord
 
-        var updatedJob = false
+        var maxVisits: Int? = null
+        var projectEndDate: Date? = null
+        var paymentAccrued: Int? = null
+        var isUserSuspended: Boolean? = null
         var hasDeliveries = false
         var hasPayment = false
         val tasks: MutableList<ConnectTaskRecord> = mutableListOf()
@@ -34,29 +37,29 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
                     val json = JSONObject(responseAsString)
 
                     if (json.has("max_payments")) {
-                        job.maxVisits = json.getInt("max_payments")
-                        updatedJob = true
+                        maxVisits = json.getInt("max_payments")
+                        job.maxVisits = maxVisits
                     }
 
                     if (json.has("end_date")) {
-                        job.projectEndDate =
+                        projectEndDate =
                             DateUtils.parseDate(
                                 json.getString("end_date"),
                             )
-                        updatedJob = true
+                        job.projectEndDate = projectEndDate
                     }
 
                     if (json.has("payment_accrued")) {
-                        job.paymentAccrued = json.getInt("payment_accrued")
-                        updatedJob = true
+                        paymentAccrued = json.getInt("payment_accrued")
+                        job.paymentAccrued = paymentAccrued
                     }
 
                     if (json.has("is_user_suspended")) {
-                        job.isUserSuspended = json.getBoolean("is_user_suspended")
-                        updatedJob = true
+                        isUserSuspended = json.getBoolean("is_user_suspended")
+                        job.isUserSuspended = isUserSuspended
                     }
 
-                    if (updatedJob) {
+                    if (maxVisits != null || projectEndDate != null || paymentAccrued != null || isUserSuspended != null) {
                         job.lastDeliveryUpdate = Date()
                     }
 
@@ -101,10 +104,13 @@ class DeliveryAppProgressResponseParser<T> : BaseApiResponseParser<T> {
         }
 
         return DeliveryAppProgressResponseModel(
-            updatedJob,
-            hasDeliveries,
-            hasPayment,
-            tasks,
+            hasDeliveries = hasDeliveries,
+            hasPayment = hasPayment,
+            tasks = tasks,
+            maxVisits = maxVisits,
+            projectEndDate = projectEndDate,
+            paymentAccrued = paymentAccrued,
+            isUserSuspended = isUserSuspended,
         ) as T
     }
 }

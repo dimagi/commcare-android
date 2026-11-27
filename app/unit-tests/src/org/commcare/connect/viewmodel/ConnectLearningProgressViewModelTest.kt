@@ -129,6 +129,28 @@ class ConnectLearningProgressViewModelTest {
         verify { mockRepository.claimJob(mockJob) }
     }
 
+    /** A second tap while the first claim is in flight must not send another claim request. */
+    @Test
+    fun testClaimJob_whileClaimPending_ignoresSecondClaim() {
+        every { mockJob.status } returns ConnectJobRecord.STATUS_LEARNING
+        every { mockRepository.claimJob(mockJob) } returns
+            flow {
+                emit(DataState.Loading)
+                awaitCancellation()
+            }
+
+        val results = mutableListOf<DataState<Unit>>()
+        viewModel.claimJob.observeForever { results.add(it) }
+
+        mainCoroutineRule.runBlockingTest {
+            viewModel.claimJob(mockJob)
+            viewModel.claimJob(mockJob)
+        }
+
+        verify(exactly = 1) { mockRepository.claimJob(mockJob) }
+        assertEquals(listOf<DataState<Unit>>(DataState.Loading), results)
+    }
+
     @Test
     fun testLoadLearningProgress_postsError_onFailure() {
         every { mockRepository.getLearningProgress(any(), any(), any()) } returns

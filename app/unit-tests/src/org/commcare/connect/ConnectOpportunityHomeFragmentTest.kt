@@ -5,12 +5,14 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.material.button.MaterialButton
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockkConstructor
 import io.mockk.mockkObject
@@ -18,13 +20,16 @@ import io.mockk.mockkStatic
 import io.mockk.verify
 import io.mockk.verifyOrder
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.commcare.AppUtils
 import org.commcare.CommCareTestApplication
 import org.commcare.android.database.connect.models.ConnectJobRecord
+import org.commcare.connect.database.ConnectJobUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
+import org.commcare.connect.repository.RefreshPolicy
 import org.commcare.connect.viewmodel.AppInstallState
 import org.commcare.connect.viewmodel.AppInstallTarget
 import org.commcare.connect.viewmodel.ConnectAppInstallViewModel
@@ -47,15 +52,19 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
+import java.text.DateFormat
+import java.util.Date
+import java.util.concurrent.TimeUnit
 
 @Config(application = CommCareTestApplication::class, sdk = [Build.VERSION_CODES.Q])
 @RunWith(AndroidJUnit4::class)
 class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
-    private val repository get() = ConnectRepository.getInstance()
+    private lateinit var repository: ConnectRepository
 
     @Before
     override fun setUp() {
         super.setUp()
+        repository = ConnectRepository.getInstance()
         every { repository.getLearningProgress(any(), any(), any()) } returns emptyFlow()
         every { repository.getDeliveryProgress(any(), any(), any()) } returns emptyFlow()
     }
@@ -455,6 +464,102 @@ class ConnectOpportunityHomeFragmentTest : BaseConnectJobIntroTest() {
         assertEquals(AppInstallState.Launching, installViewModel().installState.value)
         return intro
     }
+
+    @Test
+    fun `opening the page refreshes opportunities under the session and time policy`() {
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        clearOpportunityListCalls()
+
+        openPage()
+
+        verify(exactly = 1) {
+            repository.getOpportunities(false, RefreshPolicy.SESSION_AND_TIME_BASED())
+        }
+    }
+
+    @Test
+    fun `a fresh cache leaves the shown job in place`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        val refreshed = refreshedJob(ConnectJobRecord.STATUS_LEARNING)
+        every { repository.getOpportunities(any(), any()) } returns
+            flowOf(DataState.Cached(listOf(refreshed), Date()))
+
+        openPage()
+
+        assertSame(job, activity.activeJob)
+        navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+    }
+
+    @Test
+    fun `a status change from the server swaps the surface`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        val refreshed = refreshedJob(ConnectJobRecord.STATUS_LEARNING)
+        val opportunities = MutableSharedFlow<DataState<List<ConnectJobRecord>>>(replay = 1)
+        every { repository.getOpportunities(any(), any()) } returns opportunities
+        val page = openPage()
+        navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+
+        opportunities.tryEmit(DataState.Success(listOf(refreshed)))
+        ShadowLooper.idleMainLooper()
+
+        assertSame(refreshed, activity.activeJob)
+        navHostFragment.opportunityHomeSurface<ConnectLearningProgressFragment>()
+        assertEquals(1, page.childFragmentManager.fragments.size)
+    }
+
+    @Test
+    fun `an extended opportunity redraws the surface it keeps`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        val refreshed = refreshedJob(ConnectJobRecord.STATUS_AVAILABLE)
+        refreshed.projectEndDate = Date(job.projectEndDate.time + TimeUnit.DAYS.toMillis(30))
+        val opportunities = MutableSharedFlow<DataState<List<ConnectJobRecord>>>(replay = 1)
+        every { repository.getOpportunities(any(), any()) } returns opportunities
+        openPage()
+        val intro = navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+
+        opportunities.tryEmit(DataState.Success(listOf(refreshed)))
+        ShadowLooper.idleMainLooper()
+
+        assertSame(intro, navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>())
+        val expiry = intro.requireView().findViewById<TextView>(R.id.tv_expiry_value)
+        assertEquals(ConnectDateUtils.formatDate(refreshed.projectEndDate, DateFormat.SHORT), expiry.text.toString())
+    }
+
+    @Test
+    fun `a failed refresh keeps the cached surface`() {
+        job.status = ConnectJobRecord.STATUS_AVAILABLE
+        every { repository.getOpportunities(any(), any()) } returns
+            flowOf(DataState.Loading, DataState.Error(throwable = RuntimeException("offline")))
+
+        openPage()
+
+        assertSame(job, activity.activeJob)
+        navHostFragment.opportunityHomeSurface<ConnectJobIntroFragment>()
+    }
+
+    @Test
+    fun `resuming during a refresh does not start another`() {
+        job.status = ConnectJobRecord.STATUS_LEARNING
+        every { repository.getOpportunities(any(), any()) } returns MutableSharedFlow()
+        clearOpportunityListCalls()
+        openPage()
+
+        activityController.pause().resume()
+        ShadowLooper.idleMainLooper()
+
+        verify(exactly = 1) { repository.getOpportunities(any(), any()) }
+    }
+
+    /** The Opportunity List the activity boots on fetches opportunities too. */
+    private fun clearOpportunityListCalls() = clearMocks(repository, answers = false)
+
+    /** The page reads the refreshed job back from storage, so storage hands back this copy. */
+    private fun refreshedJob(status: Int): ConnectJobRecord =
+        buildJob().also { refreshed ->
+            refreshed.status = status
+            mockkStatic(ConnectJobUtils::class)
+            every { ConnectJobUtils.getCompositeJob(job.jobUUID) } returns refreshed
+        }
 
     /** The learn app isn't on the device yet, so tapping Start learning starts its download, which stays in flight. */
     private fun startLearnAppDownloadFromIntro(): ConnectJobIntroFragment {

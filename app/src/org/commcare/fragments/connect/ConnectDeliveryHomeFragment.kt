@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
+import org.commcare.connect.ConnectOpportunitySurface
 import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
@@ -36,7 +37,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
  */
 class ConnectDeliveryHomeFragment :
     ConnectJobFragment<FragmentConnectDeliveryHomeBinding>(),
-    RefreshableFragment {
+    RefreshableFragment,
+    ConnectOpportunitySurface {
     /**
      * This screen's tab strip sits under the toolbar, so the loading and status bars go below the tabs.
      */
@@ -228,6 +230,12 @@ class ConnectDeliveryHomeFragment :
 
     override fun refresh(forceRefresh: Boolean) {
         viewModel.loadDeliveryProgress(job, forceRefresh)
+    }
+
+    override fun onActiveJobRefreshed() {
+        reloadActiveJob()
+        updateActionBarTitle()
+        refreshTabs()
     }
 
     /** Delivery is synced here rather than per tab, so the status has to reach the tabs showing it. */
