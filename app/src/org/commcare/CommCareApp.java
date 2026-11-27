@@ -306,12 +306,18 @@ public class CommCareApp implements AppFilePathBuilder {
             ReferenceManager.instance().removeReferenceFactory(fileRoot);
 
             synchronized (appDbHandleLock) {
-                if (appDatabase != null) {
-                    appDatabase.close();
-                }
-                appDatabase = null;
+                closeAppDatabase();
                 ProviderUtils.setCurrentSandbox(null);
             }
+        }
+    }
+
+    protected void closeAppDatabase() {
+        synchronized (appDbHandleLock) {
+            if (appDatabase != null) {
+                appDatabase.close();
+            }
+            appDatabase = null;
         }
     }
 
