@@ -1,7 +1,5 @@
 package org.commcare.logging;
 
-import com.google.firebase.crashlytics.CustomKeysAndValues;
-
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.CrashUtil;
@@ -93,10 +91,6 @@ public class AndroidLogger implements ILogger {
 
     @Override
     public void logException(Throwable e, Map<String, String> keys) {
-        CustomKeysAndValues.Builder builder = new CustomKeysAndValues.Builder();
-        for (Map.Entry<String, String> key : keys.entrySet()) {
-            builder.putString(key.getKey(), key.getValue());
-        }
-        CrashUtil.reportException(e, builder.build());
+        CrashUtil.reportException(e, keys);
     }
 }

@@ -6,6 +6,8 @@ import org.commcare.dalvik.BuildConfig;
 import com.google.firebase.crashlytics.CustomKeysAndValues;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import java.util.Map;
+
 /**
  * Contains constants and methods used in Crashlytics reporting.
  * <p>
@@ -26,9 +28,13 @@ public class CrashUtil {
         }
     }
 
-    public static void reportException(Throwable e, CustomKeysAndValues keys) {
+    public static void reportException(Throwable e, Map<String, String> keys) {
         if (crashlyticsEnabled) {
-            FirebaseCrashlytics.getInstance().recordException(e, keys);
+            CustomKeysAndValues.Builder builder = new CustomKeysAndValues.Builder();
+            for (Map.Entry<String, String> key : keys.entrySet()) {
+                builder.putString(key.getKey(), key.getValue());
+            }
+            FirebaseCrashlytics.getInstance().recordException(e, builder.build());
         }
     }
 
