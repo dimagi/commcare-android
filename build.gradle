@@ -1,5 +1,6 @@
 buildscript {
     ext.kotlin_version = '2.2.20'
+    ext.coroutines_version = '1.9.0'
     ext.nav_version = '2.9.1'
     // Safe Args < 2.10 can't apply under AGP 9's new DSL
     ext.nav_safe_args_version = '2.10.2'
@@ -11,8 +12,8 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:9.4.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.4.2'
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
+        classpath 'com.google.gms:google-services:4.6.0'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.8'
         classpath 'org.jacoco:org.jacoco.core:0.8.11'
         classpath 'com.google.firebase:perf-plugin:2.0.2'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$nav_safe_args_version"
