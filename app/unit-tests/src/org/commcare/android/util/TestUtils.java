@@ -192,11 +192,25 @@ public class TestUtils {
         }
     }
 
+    // Storage, evaluation contexts and casedb instances built by these helpers keep using this
+    // connection, so it is shared for the whole test and closed by CommCareTestApplication.afterTest()
+    private static IDatabase testDb;
+
     /**
      * @return The hook for the test user-db
      */
-    private static IDatabase getTestDb() {
-        return ((CommCareApplication)ApplicationProvider.getApplicationContext()).getUserDbOpenHelper("Test", "Test");
+    private static synchronized IDatabase getTestDb() {
+        if (testDb == null || !testDb.isOpen()) {
+            testDb = ((CommCareApplication)ApplicationProvider.getApplicationContext()).getUserDbOpenHelper("Test", "Test");
+        }
+        return testDb;
+    }
+
+    public static synchronized void closeTestDb() {
+        if (testDb != null) {
+            testDb.close();
+            testDb = null;
+        }
     }
 
     public static PrototypeFactory getStaticPrototypeFactory() {

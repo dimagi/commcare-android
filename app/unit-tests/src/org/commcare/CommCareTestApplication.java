@@ -295,12 +295,16 @@ public class CommCareTestApplication extends CommCareApplication implements Test
 
     @Override
     public void afterTest(Method method) {
-        CommCareApp app = getCurrentApp();
-        if(app != null) {
-            app.teardownSandbox();
-        }
+        try {
+            CommCareApp app = getCurrentApp();
+            if (app != null) {
+                app.teardownSandbox();
+            }
 
-        ConnectDatabaseHelper.teardown();
+            ConnectDatabaseHelper.teardown();
+        } finally {
+            TestUtils.closeTestDb();
+        }
 
         if (!asyncExceptions.isEmpty()) {
             for (Throwable throwable : asyncExceptions) {
