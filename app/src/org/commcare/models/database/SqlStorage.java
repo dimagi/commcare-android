@@ -2,6 +2,8 @@ package org.commcare.models.database;
 
 import android.database.Cursor;
 
+import androidx.annotation.Nullable;
+
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.database.TableBuilder;
@@ -444,6 +446,23 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     @Override
     public T read(int id) {
         return newObject(readBytes(id), id);
+    }
+
+    /**
+     * @return the record with the lowest id, or null if the table is empty
+     */
+    @Nullable
+    public T getFirstRecord() {
+        Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL},
+                null, null, null, null, DatabaseHelper.ID_COL + " LIMIT 1");
+        try {
+            if (!c.moveToFirst()) {
+                return null;
+            }
+            return newObject(c.getBlob(1), c.getInt(0));
+        } finally {
+            c.close();
+        }
     }
 
     @Override

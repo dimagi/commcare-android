@@ -192,13 +192,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                         Arrays.toString(values), Arrays.toString(rawFieldNames));
             }
             cur.moveToFirst();
-            byte[] serializedObj = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
-            int dbEntryId = cur.getInt(cur.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
-            if (serializedObj != null) {
-                return newObject(serializedObj, dbEntryId);
-            } else {
-                return readObjectFromFile(cur, dbEntryId);
-            }
+            return readRecordAtCursor(cur);
         } finally {
             if (cur != null) {
                 cur.close();
@@ -210,6 +204,31 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     public T getRecordForValue(String rawFieldName, Object value)
             throws NoSuchElementException, InvalidIndexException {
         return getRecordForValues(new String[]{rawFieldName}, new Object[]{value});
+    }
+
+    @Override
+    public T getFirstRecord() {
+        Cursor cur = getDbOrThrow().query(table, dataColumns,
+                null, null, null, null, DatabaseHelper.ID_COL + " LIMIT 1");
+        try {
+            return cur.moveToFirst() ? readRecordAtCursor(cur) : null;
+        } finally {
+            cur.close();
+        }
+    }
+
+    /**
+     * Reads the record at the cursor's current row, from the data column or, when that is empty,
+     * from the record's file. The cursor must include {@link #dataColumns}.
+     */
+    private T readRecordAtCursor(Cursor cur) {
+        byte[] serializedObj = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+        int dbEntryId = cur.getInt(cur.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
+        if (serializedObj != null) {
+            return newObject(serializedObj, dbEntryId);
+        } else {
+            return readObjectFromFile(cur, dbEntryId);
+        }
     }
 
     @Override
