@@ -23,7 +23,7 @@ public class CommCareTestApp extends CommCareApp {
 
     @Override
     public <T extends Persistable> UnencryptedHybridFileBackedSqlStorage<T> getFileBackedStorage(String name, Class<T> c) {
-        return new UnencryptedHybridFileBackedSqlStorageMock<>(name, c, app.buildAndroidDbHelper(), app);
+        return new UnencryptedHybridFileBackedSqlStorageMock<>(name, c, buildAndroidDbHelper(), app);
     }
 
     // CommCareTestApplication.getCurrentApp() builds a new wrapper on every call, so the

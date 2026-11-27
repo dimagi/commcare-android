@@ -305,10 +305,8 @@ public class CommCareApp implements AppFilePathBuilder {
             Logger.log(LogTypes.TYPE_RESOURCES, "Tearing down sandbox: " + record.getApplicationId());
             ReferenceManager.instance().removeReferenceFactory(fileRoot);
 
-            synchronized (appDbHandleLock) {
-                closeAppDatabase();
-                ProviderUtils.setCurrentSandbox(null);
-            }
+            ProviderUtils.setCurrentSandbox(null);
+            closeAppDatabase();
         }
     }
 
