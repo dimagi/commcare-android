@@ -12,6 +12,7 @@ import org.commcare.android.mocks.FormAndDataSyncerFake
 import org.commcare.android.util.ReflectionUtils
 import org.commcare.android.util.TestAppInstaller
 import org.commcare.preferences.HiddenPreferences
+import org.commcare.sync.FormSubmissionHelper
 import org.commcare.sync.ProcessAndSendTask
 import org.commcare.tasks.DataPullTask
 import org.commcare.tasks.DataPullTask.PullTaskResult
@@ -165,6 +166,44 @@ class SyncDelegateTest {
     }
 
     @Test
+    fun `a sent form step says how many forms went and that a pull follows`() {
+        delegate.handleFormUploadResult(FormUploadResult.FULL_SUCCESS, "2 forms", true, formsSent = 2, pullFollows = true)
+
+        assertEquals(listOf(SyncStepResult("2 forms", true, true, formsSent = 2, pullFollows = true)), host.steps)
+    }
+
+    @Test
+    fun `a failed form step never promises a pull`() {
+        delegate.handleFormUploadResult(FormUploadResult.UNSENT, "", true, formsSent = 1, pullFollows = true)
+
+        assertFalse(host.steps.single().pullFollows)
+    }
+
+    @Test
+    fun `a pull step carries whether the user started it`() {
+        delegate.handlePullTaskResult(ResultAndError(PullTaskResult.DOWNLOAD_SUCCESS), false, true, true)
+
+        assertEquals(SyncStepResult(Localization.get("sync.success.synced"), true, false), host.steps.single())
+    }
+
+    @Test
+    fun `a form send's progress reaches the host`() {
+        delegate.sendFormsOrSync(userTriggered = true)
+
+        delegate.handleFormSendUpdate(FormSubmissionHelper.SUBMISSION_BEGIN, 2L)
+        delegate.handleFormSendUpdate(FormSubmissionHelper.SUBMISSION_START, 1L, 100L)
+
+        assertEquals(listOf(FormSendProgress.State(0, 2, 0), FormSendProgress.State(1, 2, 50)), host.formProgress)
+    }
+
+    @Test
+    fun `a sync that isn't attempted tells the host why`() {
+        delegate.handleSyncNotAttempted("offline")
+
+        assertEquals(listOf("offline"), host.notAttempted)
+    }
+
+    @Test
     fun `only the first pull dialog after a user-started sync can be cancelled`() {
         delegate.sendFormsOrSync(userTriggered = true)
 
@@ -191,6 +230,9 @@ class SyncDelegateTest {
 
     private class RecordingSyncHost : SyncHost {
         val uiUpdates = mutableListOf<Pair<String, Boolean>>()
+        val steps = mutableListOf<SyncStepResult>()
+        val formProgress = mutableListOf<FormSendProgress.State>()
+        val notAttempted = mutableListOf<String>()
         val finishedPulls = mutableListOf<PullTaskResult>()
         val events = mutableListOf<String>()
 
@@ -203,6 +245,19 @@ class SyncDelegateTest {
         ) {
             uiUpdates += message to success
             events += "ui"
+        }
+
+        override fun onSyncStepFinished(step: SyncStepResult) {
+            steps += step
+            super.onSyncStepFinished(step)
+        }
+
+        override fun onFormSendProgress(progress: FormSendProgress.State) {
+            formProgress += progress
+        }
+
+        override fun onSyncNotAttempted(message: String) {
+            notAttempted += message
         }
 
         override fun onPullTaskFinished(result: PullTaskResult) {

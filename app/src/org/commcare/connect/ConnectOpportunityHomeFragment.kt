@@ -29,7 +29,8 @@ class ConnectOpportunityHomeFragment :
     Fragment(R.layout.fragment_connect_opportunity_home),
     ConnectOpportunityHomeHost,
     ConnectOpportunityNavigator,
-    RefreshableFragment {
+    RefreshableFragment,
+    ConnectSyncBannerHost {
     private val stateController by lazy { ConnectOpportunityHomeStateController(this) }
 
     private val job: ConnectJobRecord
@@ -81,6 +82,10 @@ class ConnectOpportunityHomeFragment :
         (childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container) as? RefreshableFragment)
             ?.refresh(forceRefresh)
     }
+
+    override fun showSyncUpToDate(message: String): Boolean =
+        (childFragmentManager.findFragmentById(R.id.connect_opportunity_home_container) as? ConnectSyncBannerHost)
+            ?.showSyncUpToDate(message) == true
 
     override fun jobStatus(): Int = job.status
 

@@ -20,6 +20,19 @@ interface SyncHost {
         success: Boolean,
     )
 
+    /** A form send or pull finished. Hosts that need more than the message override this. */
+    fun onSyncStepFinished(step: SyncStepResult) {
+        updateUiAfterDataPullOrSend(step.message, step.success)
+    }
+
+    /** A sync the user asked for was not attempted, such as when offline; [message] says why. */
+    fun onSyncNotAttempted(message: String) {
+        displayToast(message)
+    }
+
+    /** A form send moved on; hosts that show its progress override this. */
+    fun onFormSendProgress(progress: FormSendProgress.State) {}
+
     /** A pull finished and the delegate has reported it; the host may react further. */
     fun onPullTaskFinished(result: PullTaskResult)
 

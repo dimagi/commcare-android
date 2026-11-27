@@ -60,12 +60,12 @@ public class FormSubmissionHelper implements DataSubmissionListener {
 
     static final long PROGRESS_ALL_PROCESSED = 8;
 
-    static final long SUBMISSION_BEGIN = 16;
-    static final long SUBMISSION_START = 32;
-    static final long SUBMISSION_NOTIFY = 64;
-    static final long SUBMISSION_DONE = 128;
+    public static final long SUBMISSION_BEGIN = 16;
+    public static final long SUBMISSION_START = 32;
+    public static final long SUBMISSION_NOTIFY = 64;
+    public static final long SUBMISSION_DONE = 128;
 
-    static final long SUBMISSION_SUCCESS = 1;
+    public static final long SUBMISSION_SUCCESS = 1;
     static final long SUBMISSION_FAIL = 0;
 
     private static final int SUBMISSION_ATTEMPTS = 2;

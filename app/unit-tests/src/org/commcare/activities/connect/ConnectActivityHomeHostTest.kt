@@ -7,6 +7,9 @@ import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -47,15 +50,20 @@ import org.commcare.connect.viewmodel.ConnectAppSyncStatusViewModel
 import org.commcare.dalvik.R
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
+import org.commcare.home.FormSendProgress
 import org.commcare.home.HomeRequestCodes
 import org.commcare.home.HomeResultCodes
+import org.commcare.home.SyncStepResult
 import org.commcare.preferences.AdvancedActionsPreferences
 import org.commcare.preferences.HiddenPreferences
 import org.commcare.rules.MainCoroutineRule
+import org.commcare.sync.ProcessAndSendTask
 import org.commcare.tasks.DataPullTask
 import org.commcare.utils.ConnectivityStatus
 import org.commcare.utils.SessionRegistrationHelper
 import org.commcare.utils.SyncDetailCalculations
+import org.commcare.views.connect.ConnectSyncProgressDialog
+import org.commcare.views.connect.ConnectSyncResultDialog
 import org.javarosa.core.services.locale.Localization
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -387,11 +395,94 @@ class ConnectActivityHomeHostTest {
         activity.onOptionsItemSelected(menuItem(activity, R.id.action_sync))
 
         assertEquals(0, syncer.formSendCount)
-        assertEquals(
-            Localization.get("notification.sync.connections.action"),
-            ShadowToast.getTextOfLatestToast(),
-        )
+        val failed = resultDialogView(activity)
+        assertEquals(activity.getString(R.string.connect_sync_dialog_failed_title), textOf(failed, R.id.sync_result_title))
+        failed.findViewById<View>(R.id.sync_result_details_button).performClick()
+        assertEquals(Localization.get("notification.sync.connections.action"), textOf(failed, R.id.sync_result_details))
         verify { repository.getDeliveryProgress(job, true, any()) }
+    }
+
+    @Test
+    fun `a user sync that sent forms ends with Sync Complete`() {
+        val activity = launchConnect()
+
+        activity.onSyncStepFinished(SyncStepResult("2 forms sent", true, true, formsSent = 2, pullFollows = true))
+        shadowOf(Looper.getMainLooper()).idle()
+        assertNull(activity.supportFragmentManager.findFragmentByTag(ConnectSyncResultDialog.TAG))
+        activity.onSyncStepFinished(SyncStepResult("synced", true, true))
+
+        val complete = resultDialogView(activity)
+        assertEquals(activity.getString(R.string.connect_sync_dialog_complete_title), textOf(complete, R.id.sync_result_title))
+        assertEquals(
+            activity.resources.getQuantityString(R.plurals.connect_sync_dialog_complete_message, 2, 2),
+            textOf(complete, R.id.sync_result_message),
+        )
+        assertEquals(View.GONE, complete.findViewById<View>(R.id.sync_result_details_button).visibility)
+    }
+
+    @Test
+    fun `a failed user sync keeps its error behind Details`() {
+        val activity = launchConnect()
+
+        activity.onSyncStepFinished(SyncStepResult("Server error", false, true))
+
+        val failed = resultDialogView(activity)
+        assertEquals(View.GONE, failed.findViewById<View>(R.id.sync_result_details).visibility)
+        failed.findViewById<View>(R.id.sync_result_details_button).performClick()
+        assertEquals(View.VISIBLE, failed.findViewById<View>(R.id.sync_result_details).visibility)
+        assertEquals("Server error", textOf(failed, R.id.sync_result_details))
+    }
+
+    @Test
+    fun `a user sync with nothing to send says everything is up to date`() {
+        val activity = launchConnect()
+
+        activity.onSyncStepFinished(SyncStepResult("synced", true, true))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        val message = activity.getString(R.string.connect_sync_up_to_date)
+        assertNull(activity.supportFragmentManager.findFragmentByTag(ConnectSyncResultDialog.TAG))
+        assertTrue(isShowingText(activity.window.decorView, message) || ShadowToast.getTextOfLatestToast() == message)
+    }
+
+    @Test
+    fun `a sync the user didn't start keeps its toast`() {
+        val activity = launchConnect()
+
+        activity.onSyncStepFinished(SyncStepResult("synced", true, false))
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertEquals("synced", ShadowToast.getTextOfLatestToast())
+        assertNull(activity.supportFragmentManager.findFragmentByTag(ConnectSyncResultDialog.TAG))
+    }
+
+    @Test
+    fun `form sending shows its count and can't be dismissed`() {
+        val activity = launchConnect()
+        activity.showProgressDialog(ProcessAndSendTask.SEND_PHASE_ID)
+
+        activity.onFormSendProgress(FormSendProgress.State(1, 4, 25))
+
+        val dialog = activity.currentProgressDialog as ConnectSyncProgressDialog
+        val view = dialog.dialog!!.window!!.decorView
+        assertEquals(activity.getString(R.string.connect_sync_dialog_forms_progress, 1, 4), textOf(view, R.id.progress_dialog_message))
+        assertEquals("25%", textOf(view, R.id.sync_progress_percent))
+        assertFalse(view.findViewById<View>(R.id.sync_progress_dismiss).isEnabled)
+    }
+
+    @Test
+    fun `dismissing the progress hides it for the rest of the sync`() {
+        val activity = launchConnect()
+        activity.showProgressDialog(ProcessAndSendTask.PROCESSING_PHASE_ID)
+        val dialog = activity.currentProgressDialog as ConnectSyncProgressDialog
+
+        dialog.dialog!!.findViewById<View>(R.id.sync_progress_dismiss).performClick()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertNull(activity.currentProgressDialog)
+        assertNull(activity.generateProgressDialog(DataPullTask.DATA_PULL_TASK_ID))
+        activity.onSyncStepFinished(SyncStepResult("synced", true, true))
+        assertNotNull(activity.generateProgressDialog(DataPullTask.DATA_PULL_TASK_ID))
     }
 
     @Test
@@ -476,6 +567,28 @@ class ConnectActivityHomeHostTest {
         assertEquals(1, syncer.formSendCount)
         assertNull(shadowOf(activity).nextStartedActivityForResult)
     }
+
+    private fun resultDialogView(activity: ConnectActivity): View {
+        shadowOf(Looper.getMainLooper()).idle()
+        val dialog = activity.supportFragmentManager.findFragmentByTag(ConnectSyncResultDialog.TAG) as ConnectSyncResultDialog
+        return dialog.dialog!!.window!!.decorView
+    }
+
+    private fun textOf(
+        view: View,
+        id: Int,
+    ): String = view.findViewById<TextView>(id).text.toString()
+
+    private fun isShowingText(
+        view: View,
+        text: String,
+    ): Boolean =
+        when {
+            !view.isShown -> false
+            view is TextView -> view.text.toString() == text
+            view is ViewGroup -> (0 until view.childCount).any { isShowingText(view.getChildAt(it), text) }
+            else -> false
+        }
 
     private fun navController(activity: ConnectActivity) =
         (activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment_connect) as NavHostFragment).navController

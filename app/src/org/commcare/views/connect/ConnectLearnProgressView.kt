@@ -43,6 +43,8 @@ class ConnectLearnProgressView
             onFailureDismissed: () -> Unit,
         ) = binding.learnProgressCtaBar.renderAppInstallState(state, isLearning, onFailureDismissed)
 
+        fun showSyncUpToDate(message: String) = binding.learnProgressCtaBar.showSyncUpToDate(message)
+
         fun bind(
             job: ConnectJobRecord,
             onCtaClick: OnClickListener,

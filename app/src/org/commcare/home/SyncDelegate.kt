@@ -32,6 +32,8 @@ class SyncDelegate(
 ) : PullTaskResultReceiver {
     private var formAndDataSyncer = FormAndDataSyncer()
     private var userLaunchedSync = false
+    private var userTriggeredSync = false
+    private var formSendProgress = FormSendProgress()
 
     /** The activity this delegate's tasks connect to. */
     val syncTaskActivity get() = host.syncTaskActivity
@@ -46,6 +48,8 @@ class SyncDelegate(
         userTriggered: Boolean,
     ) {
         userLaunchedSync = userTriggered
+        userTriggeredSync = userTriggered
+        formSendProgress = FormSendProgress()
         formAndDataSyncer.startUnsentFormsTask(this, syncAfterwards, userTriggered)
     }
 
@@ -74,6 +78,7 @@ class SyncDelegate(
 
     /** Pull data for the logged-in user without sending forms first. */
     fun syncDataForLoggedInUser(userTriggered: Boolean) {
+        userTriggeredSync = userTriggered
         formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggered)
     }
 
@@ -156,30 +161,42 @@ class SyncDelegate(
     }
 
     override fun handlePullTaskError() {
-        host.updateUiAfterDataPullOrSend(Localization.get("sync.fail.unknown"), FAIL)
+        host.onSyncStepFinished(SyncStepResult(Localization.get("sync.fail.unknown"), FAIL, userTriggeredSync))
     }
 
     fun handleSyncNotAttempted(message: String) {
-        host.displayToast(message)
+        host.onSyncNotAttempted(message)
+    }
+
+    /** A progress update from a form send. */
+    fun handleFormSendUpdate(vararg update: Long?) {
+        formSendProgress.onUpdate(update)?.let { host.onFormSendProgress(it) }
     }
 
     fun handleFormUploadResult(
         result: FormUploadResult,
         formLabel: String,
         userTriggered: Boolean,
+        formsSent: Int = 0,
+        pullFollows: Boolean = false,
     ) {
+        val report = { message: String, success: Boolean ->
+            updateUiForFormUploadResult(
+                SyncStepResult(message, success, userTriggered, formsSent, pullFollows && success),
+            )
+        }
         when (result) {
             FormUploadResult.FULL_SUCCESS -> {
-                updateUiForFormUploadResult(formLabel, SUCCESS)
+                report(formLabel, SUCCESS)
             }
 
             FormUploadResult.BAD_CERTIFICATE -> {
                 reportBadCertificate()
-                updateUiForFormUploadResult(Localization.get(result.localeKeyBase), FAIL)
+                report(Localization.get(result.localeKeyBase), FAIL)
             }
 
             FormUploadResult.ACTIONABLE_FAILURE -> {
-                updateUiForFormUploadResult(result.errorMessage, FAIL)
+                report(result.errorMessage, FAIL)
             }
 
             FormUploadResult.RATE_LIMITED -> {
@@ -187,11 +204,11 @@ class SyncDelegate(
             }
 
             FormUploadResult.CANCELLED -> {
-                updateUiForFormUploadResult(Localization.get(result.localeKeyBase) + " " + formLabel, FAIL)
+                report(Localization.get(result.localeKeyBase) + " " + formLabel, FAIL)
             }
 
             else -> {
-                updateUiForFormUploadResult(Localization.get(result.localeKeyBase), FAIL)
+                report(Localization.get(result.localeKeyBase), FAIL)
             }
         }
         PrimeEntityCacheHelper.scheduleEntityCacheInvalidation()
@@ -251,20 +268,20 @@ class SyncDelegate(
                 CommCareApplication.notificationManager().clearNotifications(
                     NotificationMessageFactory.StockMessages.BadSslCertificate.category,
                 )
-                host.updateUiAfterDataPullOrSend(Localization.get("sync.success.synced"), SUCCESS)
+                reportPullStep(Localization.get("sync.success.synced"), SUCCESS, userTriggeredSync)
             }
 
             PullTaskResult.ACTIONABLE_FAILURE -> {
-                host.updateUiAfterDataPullOrSend(resultAndError.errorMessage, FAIL)
+                reportPullStep(resultAndError.errorMessage, FAIL, userTriggeredSync)
             }
 
             PullTaskResult.BAD_CERTIFICATE -> {
                 reportBadCertificate()
-                host.updateUiAfterDataPullOrSend(Localization.get("sync.fail.badcert"), FAIL)
+                reportPullStep(Localization.get("sync.fail.badcert"), FAIL, userTriggeredSync)
             }
 
             else -> {
-                failureMessageKey(result)?.let { host.updateUiAfterDataPullOrSend(Localization.get(it), FAIL) }
+                failureMessageKey(result)?.let { reportPullStep(Localization.get(it), FAIL, userTriggeredSync) }
             }
         }
 
@@ -310,19 +327,26 @@ class SyncDelegate(
         )
     }
 
-    private fun updateUiForFormUploadResult(
+    private fun reportPullStep(
         message: String,
         success: Boolean,
+        userTriggered: Boolean,
     ) {
-        host.updateUiAfterDataPullOrSend(message, success)
-        if (success) {
+        host.onSyncStepFinished(SyncStepResult(message, success, userTriggered))
+    }
+
+    private fun updateUiForFormUploadResult(step: SyncStepResult) {
+        host.onSyncStepFinished(step)
+        if (step.success) {
             CommCareApplication.instance().session.initHeartbeatLifecycle()
         }
     }
 
     private fun showRateLimitError(userTriggered: Boolean) {
         if (HiddenPreferences.isRateLimitPopupDisabled() || !userTriggered) {
-            updateUiForFormUploadResult(Localization.get(FormUploadResult.RATE_LIMITED.localeKeyBase), FAIL)
+            updateUiForFormUploadResult(
+                SyncStepResult(Localization.get(FormUploadResult.RATE_LIMITED.localeKeyBase), FAIL, userTriggered),
+            )
             return
         }
         val dialog =

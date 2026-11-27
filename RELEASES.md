@@ -13,6 +13,7 @@ This file is meant as an easy way for us to collate notes and change logs across
 - Connect users with an incomplete profile are now prompted to complete it, at most once a day, from the opportunity list and opportunity home screens.
 - The PersonalID profile now has Gender, Languages spoken, Date of birth, Education, Experience as a CHW and Technical proficiency. Workers can fill them in from Edit Profile at their own pace, a few at a time; empty fields are highlighted as a reminder. They are saved to the PersonalID account and restored when the account is recovered on a new device.
 - Connect learn and delivery apps now open straight from the opportunity screen, without the app's home screen. The opportunity screen's menu offers the app's Report an Issue, Update App, Change Language, Settings and Advanced, and its Sync also syncs the app.
+- Syncing from a Connect opportunity screen now shows the sync's progress, including how many forms have been sent, and ends with Sync Complete, Sync Failed (with Details) or an "Everything up to date" banner.
 
 ### QA Notes
 
@@ -34,6 +35,10 @@ This file is meant as an easy way for us to collate notes and change logs across
 - After opening the app once, confirm the opportunity screen's ⋮ menu shows Report an Issue, Update App, Change Language, Settings and Advanced, each opening as it did from the app home screen; on another opportunity's screen, or before the app has been opened, those items don't show.
 - Finishing a form returns to the opportunity screen and sends the form; Sync there with unsent forms sends them and then syncs the app.
 - After opening the app, the opportunity screen's sync card shows the app's last sync. Finish a form offline: the card turns amber with "Forms pending: 1" and the action-bar sync icon gets a red dot. Back online, tapping the card sends the form, and the card turns green again with the dot gone.
+- Sync from an opportunity screen with forms waiting: the dialog counts the forms as they send, then Sync Complete says how many went; with nothing to send, an "Everything up to date." banner shows instead.
+- Sync while offline: Sync Failed shows, and Details gives the reason.
+- Tap Dismiss while the dialog says "Waiting…": the sync carries on and its result still shows.
+- App Home's sync dialogs and toasts are unchanged.
 - On an opportunity whose budget is fully used, pass the learning assessment with a new user and tap the button to download the delivery app; confirm the error says no more paid visits are available, instead of the generic "Unable to claim" message.
   - On an opportunity whose end date has passed, do the same and confirm the error says the opportunity has ended.
 - While logged in to a CommCare app, open Work History from the sidebar, switch to another app and back; confirm the title still reads "My Work History", earned cards show your name, and at the default font size the English text just above the ribbon fits on one line. Then set the device font to its largest size and confirm that text wraps onto a second line if needed, without being cut off.

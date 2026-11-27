@@ -99,7 +99,7 @@ class ConnectCtaBar
             percent: Int,
             subtitle: CharSequence,
         ) {
-            hideInstallFailure()
+            binding.ctaFailureCard.visibility = GONE
             showingInstallProgress = true
             binding.ctaSubtitleText.bindOptional(subtitle)
             progress = percent
@@ -121,7 +121,25 @@ class ConnectCtaBar
             binding.ctaFailureCard.show(ConnectSuccessFailureCard.Mode.FAILURE, message, onDismiss)
         }
 
+        /** Shows a sync's "up to date" banner above the bar, which hides itself after a moment. */
+        fun showSyncUpToDate(message: CharSequence) {
+            val card = binding.ctaFailureCard
+            card.show(ConnectSuccessFailureCard.Mode.SUCCESS, message)
+            card.removeCallbacks(hideSyncBanner)
+            card.postDelayed(hideSyncBanner, SYNC_BANNER_MILLIS)
+        }
+
+        private val hideSyncBanner =
+            Runnable {
+                if (binding.ctaFailureCard.mode == ConnectSuccessFailureCard.Mode.SUCCESS) {
+                    binding.ctaFailureCard.visibility = GONE
+                }
+            }
+
         fun hideInstallFailure() {
+            if (binding.ctaFailureCard.mode == ConnectSuccessFailureCard.Mode.SUCCESS) {
+                return
+            }
             binding.ctaFailureCard.visibility = GONE
         }
 
@@ -177,5 +195,6 @@ class ConnectCtaBar
 
         companion object {
             private const val FULL_PROGRESS = 100
+            private const val SYNC_BANNER_MILLIS = 4000L
         }
     }

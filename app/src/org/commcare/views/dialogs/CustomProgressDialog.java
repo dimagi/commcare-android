@@ -71,10 +71,34 @@ public class CustomProgressDialog extends DialogFragment {
 
     public static CustomProgressDialog newInstance(String title, String message, int taskId) {
         CustomProgressDialog frag = new CustomProgressDialog();
-        frag.title = title;
-        frag.message = message;
-        frag.taskId = taskId;
+        frag.configure(title, message, taskId);
         return frag;
+    }
+
+    protected void configure(String title, String message, int taskId) {
+        this.title = title;
+        this.message = message;
+        this.taskId = taskId;
+    }
+
+    protected String getTitle() {
+        return title;
+    }
+
+    protected String getMessage() {
+        return message;
+    }
+
+    protected int getProgressBarProgress() {
+        return progressBarProgress;
+    }
+
+    protected int getProgressBarMax() {
+        return progressBarMax;
+    }
+
+    protected boolean isProgressBarVisible() {
+        return progressBarIsVisible;
     }
 
     public void addCheckbox(String text, boolean isChecked) {

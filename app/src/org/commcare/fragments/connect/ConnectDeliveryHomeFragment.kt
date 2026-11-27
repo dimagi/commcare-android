@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import org.commcare.AppUtils
 import org.commcare.activities.CommonBaseActivity
+import org.commcare.connect.ConnectSyncBannerHost
 import org.commcare.connect.database.ConnectTaskUtils
 import org.commcare.connect.repository.ConnectRepository
 import org.commcare.connect.repository.DataState
@@ -27,6 +28,7 @@ import org.commcare.dalvik.R
 import org.commcare.dalvik.databinding.FragmentConnectDeliveryHomeBinding
 import org.commcare.fragments.RefreshableFragment
 import org.commcare.fragments.RefreshableTab
+import org.commcare.fragments.extensions.hasLiveView
 import org.commcare.google.services.analytics.AnalyticsParamValue
 import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
 
@@ -36,7 +38,8 @@ import org.commcare.google.services.analytics.FirebaseAnalyticsUtil
  */
 class ConnectDeliveryHomeFragment :
     ConnectJobFragment<FragmentConnectDeliveryHomeBinding>(),
-    RefreshableFragment {
+    RefreshableFragment,
+    ConnectSyncBannerHost {
     /**
      * This screen's tab strip sits under the toolbar, so the loading and status bars go below the tabs.
      */
@@ -228,6 +231,14 @@ class ConnectDeliveryHomeFragment :
 
     override fun refresh(forceRefresh: Boolean) {
         viewModel.loadDeliveryProgress(job, forceRefresh)
+    }
+
+    override fun showSyncUpToDate(message: String): Boolean {
+        if (!hasLiveView()) {
+            return false
+        }
+        binding.connectDeliveryCtaBar.showSyncUpToDate(message)
+        return true
     }
 
     /** Delivery is synced here rather than per tab, so the status has to reach the tabs showing it. */

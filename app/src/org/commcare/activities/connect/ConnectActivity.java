@@ -40,6 +40,8 @@ import org.commcare.android.database.connect.models.ConnectAppRecord;
 import org.commcare.android.database.connect.models.ConnectJobRecord;
 import org.commcare.connect.ConnectNavHelper;
 import org.commcare.connect.ConnectOpportunityHomeFragment;
+import org.commcare.connect.ConnectSyncBannerHost;
+import org.commcare.connect.ConnectSyncFeedback;
 import org.commcare.connect.MessageManager;
 import org.commcare.connect.OpportunityHomeAppActionsMenu;
 import org.commcare.connect.PersonalIdSessionManager;
@@ -55,11 +57,15 @@ import org.commcare.home.HomeActivityCoordinator;
 import org.commcare.home.HomeActivityHost;
 import org.commcare.home.HomeRequestCodes;
 import org.commcare.home.SeatedAppSessionKt;
+import org.commcare.home.FormSendProgress;
 import org.commcare.home.SyncDelegate;
+import org.commcare.home.SyncStepResult;
 import org.commcare.navdrawer.BaseDrawerController;
 import org.commcare.pn.helper.NotificationBroadcastHelper;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.views.UserfacingErrorHandling;
+import org.commcare.views.connect.ConnectSyncProgressDialog;
+import org.commcare.views.connect.ConnectSyncResultDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.xpath.XPathException;
 
@@ -71,7 +77,7 @@ import javax.annotation.Nullable;
 import kotlin.Unit;
 
 public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate>
-        implements HomeActivityHost {
+        implements HomeActivityHost, ConnectSyncProgressDialog.Listener {
     private boolean navButtonAndActionBarEnabled = true;
     private boolean waitDialogEnabled = true;
     private String redirectionAction = "";
@@ -79,6 +85,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     private String opportunityUuid;
     private MenuItem notificationsMenuItem = null;
     private ConnectAppSyncStatusViewModel appSyncStatus;
+    private final ConnectSyncFeedback syncFeedback = new ConnectSyncFeedback();
 
     private static final int REQUEST_CODE_PERSONAL_ID_ACTIVITY = 1000;
     private Map<Integer, String> menuIdToAnalyticsParam;
@@ -95,6 +102,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
                 job = ConnectJobUtils.getCompositeJob(savedJobUuid);
             }
         }
+        syncFeedback.restoreState(savedInstanceState);
 
         super.onCreate(savedInstanceState);
         setTitle(R.string.connect_title);
@@ -168,6 +176,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
         if (job != null) {
             outState.putString(OPPORTUNITY_UUID, job.getJobUUID());
         }
+        syncFeedback.saveState(outState);
     }
 
     private int getStartDestinationId(Bundle startArgs) {
@@ -313,6 +322,7 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
      */
     public boolean sync() {
         if (areAppActionsAvailable()) {
+            syncFeedback.onSyncStarted();
             coordinator.getActions().syncIfOnline();
         }
         RefreshableFragment refreshable = getRefreshableFragment();
@@ -398,9 +408,8 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        CustomProgressDialog syncDialog = coordinator.getSync().generateProgressDialog(taskId);
-        if (syncDialog != null) {
-            return syncDialog;
+        if (syncFeedback.isSyncTask(taskId)) {
+            return syncFeedback.progressDialogFor(this, taskId);
         }
         if (waitDialogEnabled) {
             return CustomProgressDialog.newInstance(null, getString(R.string.please_wait), taskId);
@@ -520,6 +529,55 @@ public class ConnectActivity extends NavigationHostCommCareActivity<SyncDelegate
     public void updateUiAfterDataPullOrSend(@NonNull String message, boolean success) {
         displayToast(message);
         refreshAppSyncStatus();
+    }
+
+    @Override
+    public void onSyncStepFinished(@NonNull SyncStepResult step) {
+        refreshAppSyncStatus();
+        showSyncOutcome(syncFeedback.onStepFinished(step));
+    }
+
+    @Override
+    public void onSyncNotAttempted(@NonNull String message) {
+        showSyncOutcome(syncFeedback.onSyncNotAttempted(message));
+    }
+
+    @Override
+    public void onFormSendProgress(@NonNull FormSendProgress.State progress) {
+        if (getCurrentProgressDialog() instanceof ConnectSyncProgressDialog dialog) {
+            dialog.showFormProgress(syncFeedback.formProgressMessage(this, progress), progress.getPercent());
+        }
+    }
+
+    @Override
+    public void onSyncProgressDismissed() {
+        syncFeedback.onProgressHidden();
+    }
+
+    private void showSyncOutcome(ConnectSyncFeedback.Outcome outcome) {
+        if (outcome instanceof ConnectSyncFeedback.Outcome.Toast toast) {
+            displayToast(toast.getMessage());
+        } else if (outcome instanceof ConnectSyncFeedback.Outcome.Complete complete) {
+            showSyncResult(ConnectSyncResultDialog.complete(complete.getFormsSent()), null);
+        } else if (outcome instanceof ConnectSyncFeedback.Outcome.Failed failed) {
+            showSyncResult(ConnectSyncResultDialog.failed(failed.getDetails()), failed.getDetails());
+        } else if (outcome instanceof ConnectSyncFeedback.Outcome.UpToDate) {
+            showSyncUpToDate(getString(R.string.connect_sync_up_to_date));
+        }
+    }
+
+    private void showSyncResult(ConnectSyncResultDialog dialog, @Nullable String fallbackMessage) {
+        if (!ConnectSyncResultDialog.show(getSupportFragmentManager(), dialog) && fallbackMessage != null) {
+            displayToast(fallbackMessage);
+        }
+    }
+
+    private void showSyncUpToDate(String message) {
+        if (getCurrentNavFragment() instanceof ConnectSyncBannerHost bannerHost
+                && bannerHost.showSyncUpToDate(message)) {
+            return;
+        }
+        displayToast(message);
     }
 
     @Override

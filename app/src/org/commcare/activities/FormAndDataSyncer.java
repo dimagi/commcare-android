@@ -77,7 +77,9 @@ public class FormAndDataSyncer {
                         receiver.handleFormUploadResult(
                                 result,
                                 getLabelForFormsSent(),
-                                userTriggered
+                                userTriggered,
+                                getSuccessfulSends(),
+                                syncAfterwards
                         );
 
                         if (result == FormUploadResult.FULL_SUCCESS && syncAfterwards) {
@@ -90,6 +92,7 @@ public class FormAndDataSyncer {
                             SyncDelegate receiver,
                             Long... update
                     ) {
+                        receiver.handleFormSendUpdate(update);
                     }
 
                     @Override
@@ -97,7 +100,9 @@ public class FormAndDataSyncer {
                         receiver.handleFormUploadResult(
                                 FormUploadResult.UNSENT,
                                 getLabelForFormsSent(),
-                                userTriggered
+                                userTriggered,
+                                getSuccessfulSends(),
+                                false
                         );
                     }
 
@@ -107,7 +112,9 @@ public class FormAndDataSyncer {
                         receiver.handleFormUploadResult(
                                 FormUploadResult.CANCELLED,
                                 getLabelForFormsSent(),
-                                userTriggered
+                                userTriggered,
+                                getSuccessfulSends(),
+                                false
                         );
                     }
                 };

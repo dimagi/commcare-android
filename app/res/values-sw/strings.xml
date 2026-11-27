@@ -763,6 +763,19 @@
     <string name="connect_sync_failed">Usawazishaji Umeshindwa, ilisawazishwa mwisho: %s</string>
     <string name="connect_sync_card_press_to_sync">Bofya hapa kusawazisha</string>
     <string name="connect_sync_card_forms_pending">Fomu zinazosubiri: %d</string>
+    <string name="connect_sync_dialog_waiting_title">Inasubiri…</string>
+    <string name="connect_sync_dialog_in_progress_title">Usawazishaji unaendelea</string>
+    <string name="connect_sync_dialog_forms_progress">Fomu %1$d kati ya %2$d zimesawazishwa</string>
+    <plurals name="connect_sync_dialog_complete_message">
+        <item quantity="one">Fomu %d imesasishwa na kutumwa kwa seva.</item>
+        <item quantity="other">Fomu %d zimesasishwa na kutumwa kwa seva.</item>
+    </plurals>
+    <string name="connect_sync_dialog_complete_title">Usawazishaji Umekamilika</string>
+    <string name="connect_sync_dialog_failed_title">Usawazishaji Umeshindwa!</string>
+    <string name="connect_sync_dialog_failed_message">Hatuwezi kusawazisha data yako na seva kwa sasa. Tafadhali jaribu tena ukiwa mtandaoni.</string>
+    <string name="connect_sync_dialog_details">Maelezo</string>
+    <string name="connect_sync_dialog_dismiss">Ondoa</string>
+    <string name="connect_sync_up_to_date">Kila kitu kimesasishwa.</string>
     <string name="connect_offline">Nje ya mtandao</string>
     <string name="connect_back_online">Umerudi mtandaoni</string>
     <string name="connect_never">Kamwe</string>

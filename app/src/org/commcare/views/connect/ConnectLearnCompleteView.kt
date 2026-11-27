@@ -55,6 +55,8 @@ class ConnectLearnCompleteView
             onFailureDismissed: () -> Unit,
         ) = binding.learnCompleteCtaBar.renderAppInstallState(state, isLearning, onFailureDismissed)
 
+        fun showSyncUpToDate(message: String) = binding.learnCompleteCtaBar.showSyncUpToDate(message)
+
         fun showClaimFailure(message: String) {
             binding.learnCompleteFailureCard.show(ConnectSuccessFailureCard.Mode.FAILURE, message)
         }
