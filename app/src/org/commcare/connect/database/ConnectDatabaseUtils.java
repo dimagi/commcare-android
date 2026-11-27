@@ -39,13 +39,7 @@ public class ConnectDatabaseUtils {
     }
 
     public static ConnectKeyRecord getKeyRecord() {
-        Iterable<ConnectKeyRecord> records = CommCareApplication.instance()
-                .getGlobalStorage(ConnectKeyRecord.class);
-
-        if (records.iterator().hasNext()) {
-            return records.iterator().next();
-        }
-        return null;
+        return CommCareApplication.instance().getGlobalStorage(ConnectKeyRecord.class).getFirstRecord();
     }
 
     public static void storeConnectDbPassphrase(String base64EncodedPassphrase) {

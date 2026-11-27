@@ -13,12 +13,7 @@ public class ConnectUserDatabaseUtil {
         if (!ConnectDatabaseHelper.dbExists()) {
             return null;
         }
-        Iterable<ConnectUserRecord> records = ConnectDatabaseHelper.getConnectStorage(
-                ConnectUserRecord.class);
-        if (records.iterator().hasNext()) {
-            return records.iterator().next();
-        }
-        return null;
+        return ConnectDatabaseHelper.getConnectStorage(ConnectUserRecord.class).getFirstRecord();
     }
 
     public static void storeUser(ConnectUserRecord user) {

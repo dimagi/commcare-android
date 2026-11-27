@@ -6,6 +6,7 @@ import org.commcare.CommCareTestApplication;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.FormInstanceWithFailures;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,6 +73,26 @@ public class HybridFileBackedSqlStorageTest {
         clearOrphanedFiles();
         int fileCountAfterClear = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfterClear == 0);
+    }
+
+    @Test
+    public void getFirstRecordReadsDataStoredInFiles() {
+        HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
+                CommCareApplication.instance().getFileBackedUserStorage(
+                        HybridFileBackedSqlStorage.FIXTURE_STORAGE_TABLE_NAME, FormInstance.class);
+
+        int lowestId = Integer.MAX_VALUE;
+        for (IStorageIterator<FormInstance> ids = userFixtureStorage.iterate(false); ids.hasMore(); ) {
+            lowestId = Math.min(lowestId, ids.nextID());
+        }
+        Assert.assertNotEquals("fixture storage should not be empty", Integer.MAX_VALUE, lowestId);
+        Assert.assertNotNull("the first record should be stored in a file",
+                userFixtureStorage.getEntryFilenameForTesting(lowestId));
+
+        FormInstance first = userFixtureStorage.getFirstRecord();
+        Assert.assertEquals(lowestId, first.getID());
+        Assert.assertEquals(userFixtureStorage.read(lowestId).getMetaData(FormInstance.META_ID),
+                first.getMetaData(FormInstance.META_ID));
     }
 
     @Test

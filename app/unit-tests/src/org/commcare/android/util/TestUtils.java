@@ -156,15 +156,8 @@ public class TestUtils {
                                                   boolean bulkProcessingEnabled) {
         final IDatabase db = getTestDb();
 
-        DataModelPullParser parser;
-
-        try {
-            InputStream is = TestUtils.class.getResourceAsStream(resourcePath);
-
-            parser = new DataModelPullParser(is, getFactory(db, bulkProcessingEnabled), true, true);
-            parser.parse();
-            is.close();
-
+        try (InputStream is = TestUtils.class.getResourceAsStream(resourcePath)) {
+            new DataModelPullParser(is, getFactory(db, bulkProcessingEnabled), true, true).parse();
         } catch (IOException ioe) {
             throw wrapError(ioe, "IO Error parsing transactions");
         } catch (InvalidStructureException e) {
@@ -177,8 +170,6 @@ public class TestUtils {
     }
 
     public static void processResourceTransactionIntoAppDb(String resourcePath) {
-        DataModelPullParser parser;
-
         AndroidTransactionParserFactory androidTransactionFactory =
                 new AndroidTransactionParserFactory(CommCareApplication.instance().getApplicationContext(), null);
 
@@ -188,13 +179,8 @@ public class TestUtils {
             androidTransactionFactory.initFormInstanceParser(formInstanceNamespaces);
         }
 
-        try {
-            InputStream is = TestUtils.class.getResourceAsStream(resourcePath);
-
-            parser = new DataModelPullParser(is, androidTransactionFactory, true, true);
-            parser.parse();
-            is.close();
-
+        try (InputStream is = TestUtils.class.getResourceAsStream(resourcePath)) {
+            new DataModelPullParser(is, androidTransactionFactory, true, true).parse();
         } catch (IOException ioe) {
             throw wrapError(ioe, "IO Error parsing transactions");
         } catch (InvalidStructureException e) {
@@ -206,11 +192,25 @@ public class TestUtils {
         }
     }
 
+    // Storage, evaluation contexts and casedb instances built by these helpers keep using this
+    // connection, so it is shared for the whole test and closed by CommCareTestApplication.afterTest()
+    private static IDatabase testDb;
+
     /**
      * @return The hook for the test user-db
      */
-    private static IDatabase getTestDb() {
-        return ((CommCareApplication)ApplicationProvider.getApplicationContext()).getUserDbOpenHelper("Test", "Test");
+    private static synchronized IDatabase getTestDb() {
+        if (testDb == null || !testDb.isOpen()) {
+            testDb = ((CommCareApplication)ApplicationProvider.getApplicationContext()).getUserDbOpenHelper("Test", "Test");
+        }
+        return testDb;
+    }
+
+    public static synchronized void closeTestDb() {
+        if (testDb != null) {
+            testDb.close();
+            testDb = null;
+        }
     }
 
     public static PrototypeFactory getStaticPrototypeFactory() {
