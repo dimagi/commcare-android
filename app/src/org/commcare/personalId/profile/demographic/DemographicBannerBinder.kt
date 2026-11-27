@@ -6,8 +6,6 @@ import org.commcare.connect.ConnectActivityCompleteListener
 import org.commcare.connect.ConnectNavHelper
 import org.commcare.connect.PersonalIdSessionManager
 import org.commcare.dalvik.R
-import org.commcare.personalId.PersonalIdFeatureFlagChecker
-import org.commcare.personalId.PersonalIdFeatureFlagChecker.FeatureFlag.Companion.DEMOGRAPHIC_PROMPT
 
 /**
  * Shows the [DemographicPromptDialog] when [DemographicPromptState] says it is due, and acts on its
@@ -18,8 +16,7 @@ object DemographicBannerBinder {
         activity: CommCareActivity<*>,
         state: DemographicPromptState = DemographicPromptState(),
     ): Boolean {
-        if (!PersonalIdFeatureFlagChecker.isFeatureEnabled(DEMOGRAPHIC_PROMPT) ||
-            !PersonalIdSessionManager.getInstance().isloggedIn() ||
+        if (!PersonalIdSessionManager.getInstance().isloggedIn() ||
             activity.currentAlertDialog != null
         ) {
             return false
