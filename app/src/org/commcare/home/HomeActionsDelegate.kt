@@ -181,9 +181,7 @@ class HomeActionsDelegate(
     }
 
     private fun handlePreferencesResult(resultCode: Int) {
-        if (resultCode == HomeResultCodes.RESULT_DATA_RESET) {
-            host.finish()
-        } else if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
+        if (resultCode == DeveloperPreferences.RESULT_SYNC_CUSTOM) {
             performCustomRestore()
         }
     }

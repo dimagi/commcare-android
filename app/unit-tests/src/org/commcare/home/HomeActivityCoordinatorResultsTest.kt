@@ -64,14 +64,6 @@ class HomeActivityCoordinatorResultsTest {
     // region settings and advanced actions
 
     @Test
-    fun `a data reset from settings finishes the host`() {
-        coordinator.onActivityResult(HomeRequestCodes.PREFERENCES_ACTIVITY, HomeResultCodes.RESULT_DATA_RESET, null)
-
-        assertEquals(1, host.finishCount)
-        assertTrue(host.startedForResult.isEmpty())
-    }
-
-    @Test
     fun `a custom restore uses the chosen file`() {
         val restoreFile = tempFolder.newFile("restore.xml")
         setCustomRestoreLocation(restoreFile.absolutePath)
